@@ -1,6 +1,8 @@
 import xml.etree.ElementTree as ET
+import xml.dom.minidom as mini
 
 import datetime as dt
+from .helpers import printToFile
 
 class Scenario():
     _XMLNS = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -85,18 +87,19 @@ class Scenario():
 
         return element
 
-    def write_xml(self,filename):
+    def write_xml(self,filename,prettyprint = True):
         """ writeXml writes the open scenario xml file
 
         Parameters
         ----------
             filename (str): path and filename of the wanted xml file
 
-        """
-        root = self.get_element()
-        with open(filename,"wb") as file_handle:
-            root.writexml(file_handle)
+            prettyprint (bool): pretty print or ugly print?
+                Default: True
 
+        """
+        printToFile(self.get_element(),filename,prettyprint)
+        
 
 class FileHeader():
     """ FileHeader creates the header of the OpenScenario file
