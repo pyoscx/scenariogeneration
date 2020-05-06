@@ -2,7 +2,7 @@
 import pytest
 
 
-import openscenario as OSC
+import pyoscx as OSC
 
 
 

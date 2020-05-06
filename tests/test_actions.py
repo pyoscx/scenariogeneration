@@ -1,7 +1,7 @@
 import pytest
 
 
-import openscenario as OSC
+import pyoscx as OSC
 
 
 TD = OSC.TransitionDynamics('step',0,'rate',1)

@@ -1,7 +1,7 @@
 
 import pytest
 
-import openscenario as OSC
+import pyoscx as OSC
 
 def test_worldposition_noinput():
     pos = OSC.WorldPosition()
