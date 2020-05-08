@@ -43,7 +43,7 @@ class ConditionEdge():
         self.condition = condition
 
     def get_attributes(self):
-        """ returns the atributes of the ConditionEdge as a dict
+        """ returns the attributes of the ConditionEdge as a dict
 
         """
         return {'conditionEdge':self.condition}
@@ -80,7 +80,7 @@ class EntityRef():
         self.entity = entity
 
     def get_attributes(self):
-        """ returns the atributes of the EntityRef as a dict
+        """ returns the attributes of the EntityRef as a dict
 
         """
         return {'entryRef':self.entity}
@@ -123,7 +123,7 @@ class ObjectType():
         self.type = obj_type
 
     def get_attributes(self):
-        """ returns the atributes of the Parameter as a dict
+        """ returns the attributes of the Parameter as a dict
 
         """
         return {'value':self.type}
@@ -184,7 +184,7 @@ class Parameter():
         self.value = value
 
     def get_attributes(self):
-        """ returns the atributes of the Parameter as a dict
+        """ returns the attributes of the Parameter as a dict
 
         """
         return {'name':self.name,'parameterType':self.parameter_type,'value':str(self.value)}
@@ -233,7 +233,7 @@ class Rule():
         self.parameter = parameter
 
     def get_attributes(self):
-        """ returns the atributes of the Rule as a dict
+        """ returns the attributes of the Rule as a dict
 
         """
         return {'rule':self.rule}
@@ -295,7 +295,7 @@ class Orientation():
             return False
     
     def get_attributes(self):
-        """ returns the atributes of the DynamicsConstrains as a dict
+        """ returns the attributes of the DynamicsConstrains as a dict
 
         """
         retdict = {}
@@ -408,7 +408,7 @@ class TransitionDynamics():
         self.value = value
 
     def get_attributes(self):
-        """ returns the atributes of the DynamicsConstrains as a dict
+        """ returns the attributes of the DynamicsConstrains as a dict
 
         """
         return {'dynamicsShape':self.dynamics_shape.shape,'value':str(self.value),'dynamicsDimension':str(self.dimension)}
@@ -473,7 +473,7 @@ class DynamicsConstrains():
             return False
 
     def get_attributes(self):
-        """ returns the atributes of the DynamicsConstrains as a dict
+        """ returns the attributes of the DynamicsConstrains as a dict
 
         """
         retdict = {}

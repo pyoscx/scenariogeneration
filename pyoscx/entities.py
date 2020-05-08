@@ -206,7 +206,7 @@ class Entity():
         self.entity = EntityRef(self.entityref)
         
     def get_attributes(self):
-        """ returns the atributes of the Entity as a dict
+        """ returns the attributes of the Entity as a dict
 
         """
         return {'name':self.name}

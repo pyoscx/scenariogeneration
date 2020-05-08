@@ -120,7 +120,7 @@ class EntityTrigger():
         
 
     def get_attributes(self):
-        """ returns the atributes of the LaneOffsetAction as a dict
+        """ returns the attributes of the LaneOffsetAction as a dict
 
         """
         return merge_dicts({'name':self.name,'delay':str(self.delay)},self.conditionedge.get_attributes())
@@ -215,7 +215,7 @@ class ValueTrigger():
         
 
     def get_attributes(self):
-        """ returns the atributes of the LaneOffsetAction as a dict
+        """ returns the attributes of the LaneOffsetAction as a dict
 
         """
         return merge_dicts({'name':self.name,'delay':str(self.delay)},self.conditionedge.get_attributes())
@@ -275,7 +275,7 @@ class TriggeringEntities():
         self.triggeringrule = triggeringrule
 
     def get_attributes(self):
-        """ returns the atributes of the LaneOffsetAction as a dict
+        """ returns the attributes of the LaneOffsetAction as a dict
 
         """
         return {'triggeringEntitiesRule':self.triggeringrule}
@@ -326,7 +326,7 @@ class EndOfRoadCondition():
         self.duration = duration
     
     def get_attributes(self):
-        """ returns the atributes of the EndOfRoadCondition as a dict
+        """ returns the attributes of the EndOfRoadCondition as a dict
 
         """
         return {'duration':str(self.duration)}
@@ -371,7 +371,7 @@ class CollisionCondition():
         self.entity = entity
 
     def get_attributes(self):
-        """ returns the atributes of the CollisionCondition as a dict
+        """ returns the attributes of the CollisionCondition as a dict
 
         """
         return {'EntityRef':self.entity}
@@ -415,7 +415,7 @@ class OffroadCondition():
         self.duration = duration
 
     def get_attributes(self):
-        """ returns the atributes of the OffroadCondition as a dict
+        """ returns the attributes of the OffroadCondition as a dict
 
         """
         return {'duration':str(self.duration)}
@@ -491,7 +491,7 @@ class TimeHeadwayCondition():
         self.rule = Rule(rule)
 
     def get_attributes(self):
-        """ returns the atributes of the TimeHeadwayCondition as a dict
+        """ returns the attributes of the TimeHeadwayCondition as a dict
 
         """
         basedict = {}
@@ -592,7 +592,7 @@ class TimeToCollisionCondition():
             self.position = position
             self.use_entity = False
     def get_attributes(self):
-        """ returns the atributes of the TimeToCollisionCondition as a dict
+        """ returns the attributes of the TimeToCollisionCondition as a dict
 
         """
         basedict = {}
@@ -659,7 +659,7 @@ class AccelerationCondition():
         self.rule = Rule(rule)
         
     def get_attributes(self):
-        """ returns the atributes of the AccelerationCondition as a dict
+        """ returns the attributes of the AccelerationCondition as a dict
 
         """
         return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
@@ -702,7 +702,7 @@ class StandStillCondition():
         self.duration = duration
 
     def get_attributes(self):
-        """ returns the atributes of the StandStillCondition as a dict
+        """ returns the attributes of the StandStillCondition as a dict
 
         """
         return {'duration':str(self.duration)}
@@ -752,7 +752,7 @@ class SpeedCondition():
         self.rule = Rule(rule)
         
     def get_attributes(self):
-        """ returns the atributes of the SpeedCondition as a dict
+        """ returns the attributes of the SpeedCondition as a dict
 
         """
         return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
@@ -810,7 +810,7 @@ class RelativeSpeedCondition():
         self.entity = entity
 
     def get_attributes(self):
-        """ returns the atributes of the RelativeSpeedCondition as a dict
+        """ returns the attributes of the RelativeSpeedCondition as a dict
 
         """
         return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
@@ -854,7 +854,7 @@ class TraveledDistanceCondition():
         self.value = value
 
     def get_attributes(self):
-        """ returns the atributes of the TraveledDistanceCondition as a dict
+        """ returns the attributes of the TraveledDistanceCondition as a dict
 
         """
         return {'value':str(self.value)}
@@ -905,7 +905,7 @@ class ReachPositionCondition():
         self.tolerance = tolerance
 
     def get_attributes(self):
-        """ returns the atributes of the ReachPositionCondition as a dict
+        """ returns the attributes of the ReachPositionCondition as a dict
 
         """
         return {'tolerance':str(self.tolerance)}
@@ -966,7 +966,7 @@ class DistanceCondition():
         self.position = position
 
     def get_attributes(self):
-        """ returns the atributes of the DistanceCondition as a dict
+        """ returns the attributes of the DistanceCondition as a dict
 
         """
         basedict = {}
@@ -1047,7 +1047,7 @@ class RelativeDistanceCondition():
         self.entity = entity
 
     def get_attributes(self):
-        """ returns the atributes of the RelativeDistanceCondition as a dict
+        """ returns the attributes of the RelativeDistanceCondition as a dict
 
         """
         basedict = {}
@@ -1117,7 +1117,7 @@ class ParameterCondition():
         self.rule = Rule(rule)
         
     def get_attributes(self):
-        """ returns the atributes of the ParameterCondition as a dict
+        """ returns the attributes of the ParameterCondition as a dict
 
         """
         basedict = {'parameterRef':self.parameter,'value':str(self.value)}
@@ -1166,7 +1166,7 @@ class TimeOfDayCondition():
         self.datetime = datetime
     
     def get_attributes(self):
-        """ returns the atributes of the TimeOfDayCondition as a dict
+        """ returns the attributes of the TimeOfDayCondition as a dict
 
         """
         return merge_dicts({'datetime':self.datetime},self.rule.get_attributes())
@@ -1215,7 +1215,7 @@ class SimulationTimeCondition():
         self.rule = Rule(rule)
     
     def get_attributes(self):
-        """ returns the atributes of the SimulationTimeCondition as a dict
+        """ returns the attributes of the SimulationTimeCondition as a dict
 
         """
         return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
@@ -1270,7 +1270,7 @@ class StoryboardElementStateCondition():
         self.state = state
     
     def get_attributes(self):
-        """ returns the atributes of the StoryboardElementStateCondition as a dict
+        """ returns the attributes of the StoryboardElementStateCondition as a dict
 
         """
         return {'storyboardElementType':self.element,'storyboardElementRef':self.reference,'state':self.state}
@@ -1325,7 +1325,7 @@ class UserDefinedValueCondition():
         self.rule = Rule(rule)
     
     def get_attributes(self):
-        """ returns the atributes of the UserDefinedValueCondition as a dict
+        """ returns the attributes of the UserDefinedValueCondition as a dict
 
         """
         return merge_dicts({'name':self.name,'value':str(self.value)},self.rule.get_attributes())
@@ -1374,7 +1374,7 @@ class TrafficSignalCondition():
         self.state = state
     
     def get_attributes(self):
-        """ returns the atributes of the TrafficSignalCondition as a dict
+        """ returns the attributes of the TrafficSignalCondition as a dict
 
         """
         return {'name':self.name,'state':self.state}
@@ -1424,7 +1424,7 @@ class TrafficSignalControllerCondition():
         self.phase = phase
     
     def get_attributes(self):
-        """ returns the atributes of the TrafficSignalControllerCondition as a dict
+        """ returns the attributes of the TrafficSignalControllerCondition as a dict
 
         """
         return {'trafficSignalControllerRef':self.trafficsignalref,'phase':self.phase}

@@ -43,7 +43,7 @@ class _Action():
         self.action = action
         
     def get_attributes(self):
-        """ returns the atributes of the _Action as a dict
+        """ returns the attributes of the _Action as a dict
 
         """
         return {'name':self.name}
@@ -57,17 +57,82 @@ class _Action():
         return element
 
 #LongitudinalAction
-class SpeedAction():
-    """ The SpeedAction class a SpeedAction of OpenScenario
+
+class AbsoluteSpeedAction():
+    """ The AbsoluteSpeedAction class specifies a LongitudinalAction of type SpeedAction with an abosulte target speed
+        
+        Parameters
+        ----------
+            speed (float): the speed wanted
+
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+        Attributes
+        ----------
+
+            speed (float): the speed wanted
+
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,speed,transition_dynamics):
+        """ initalize the AbsoluteSpeedAction
+
+        Parameters
+        ----------
+            speed (float): the speed wanted
+
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+        """
+        self.speed = speed
+        self.transition_dynamics = transition_dynamics
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'value':str(self.speed)}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('PrivateAction')
+        longaction = ET.SubElement(element,'LongitudinalAction')
+        speedaction = ET.SubElement(longaction,'SpeedAction')
+
+        speedaction.append(self.transition_dynamics.get_element('SpeedActionDynamics'))
+        speedactiontarget = ET.SubElement(speedaction,'SpeedActionTarget')
+        
+        ET.SubElement(speedactiontarget,'AbsoluteTargetSpeed',self.get_attributes())
+        
+        return element
+
+class RelativeSpeedAction():
+    """ The RelativeSpeedAction creates a LongitudinalAction of type SpeedAction with a relative target
         
         Parameters
         ----------
             transition_dynamics (TransitionDynamics): how the change should be made
 
+            speed (float): the speed wanted
+
+            target (str): the name of the relative target (used for relative speed)
+
+            valuetype (str): the type of relative speed wanted (used for relative speed)
+
+            continious (bool): if the controller tries to keep the relative speed 
+
         Attributes
         ----------
-            abs_target (bool): if the speed action is absolute (True) or relative (False)
-
             speed (float): the speed wanted
 
             target (str): the name of the relative target (used for relative speed)
@@ -80,12 +145,6 @@ class SpeedAction():
 
         Methods
         -------
-            set_absolute_target_speed(speed)
-                sets the absolute speed target 
-            
-            set_relative_target_speed(speed,entity,valuetype,continious)
-                sets the relative speed target
-
             get_element()
                 Returns the full ElementTree of the class
 
@@ -93,92 +152,56 @@ class SpeedAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,transition_dynamics):
-        """ initalizes SpeedAction
+    def __init__(self,speed,entity,transition_dynamics,valuetype='delta',continious=True):
+        """ initalizes RelativeSpeedAction
 
         Parameters
         ----------
-            transition_dynamics (TransitionDynamics): how the change should be made
-
-        """
-        self.abs_target = None
-        self.speed = None
-        self.target = None
-        self.valuetype = None
-        self.continious = None
-        self.transition_dynamics = transition_dynamics
-        self._actionname = ''
-    def set_absolute_target_speed(self,speed):
-        """ sets the absolute speed target 
-            
-        Parameters
-        ----------
-            speed (float): the wanted speed
-
-        """
-
-        if self.abs_target == False:
-            raise(ValueError('Relative target already set'))
-        self.abs_target = True
-        self.speed = speed
-        self._actionname = 'AbsoluteTargetSpeed'
-
-    def set_relative_target_speed(self,speed,entity,valuetype='delta',continious=True):
-        """ sets the relative speed target
-
-        Parameters
-        ----------
-            speed (float): the wanted relative speed
+            speed (float): the speed wanted
 
             target (str): the name of the relative target (used for relative speed)
 
+            transition_dynamics (TransitionDynamics): how the change should be made
+
             valuetype (str): the type of relative speed wanted (used for relative speed)
-                Default: 'delta'
 
             continious (bool): if the controller tries to keep the relative speed 
-                Default: True
 
         """
-        if self.abs_target == True:
-            raise(ValueError('Absolute target already set'))
-        self.abs_target = False
         self.speed = speed
         self.target = entity
         self.valuetype = valuetype
         self.continious = continious
-        self._actionname = 'RelativeTargetSpeed'
+        self.transition_dynamics = transition_dynamics
+
     
     def get_attributes(self):
-        """ returns the atributes of the SpeedAction as a dict
+        """ returns the attributes of the RelativeSpeedAction as a dict
 
         """
-        if self.abs_target:
-            return {'value':str(self.speed)}
-        else:
-            return {'entityRef':self.target,'value':str(self.speed),'speedTargetValueType':self.valuetype,'continious':str(self.continious)}
+        return {'entityRef':self.target,'value':str(self.speed),'speedTargetValueType':self.valuetype,'continious':str(self.continious)}
 
     def get_element(self):
-        """ returns the elementTree of the SpeedAction
+        """ returns the elementTree of the RelativeSpeedAction
 
         """
         element = ET.Element('PrivateAction')
         longaction = ET.SubElement(element,'LongitudinalAction')
         speedaction = ET.SubElement(longaction,'SpeedAction')
-
         speedaction.append(self.transition_dynamics.get_element('SpeedActionDynamics'))
         speedactiontarget = ET.SubElement(speedaction,'SpeedActionTarget')
         
-        ET.SubElement(speedactiontarget,self._actionname,self.get_attributes())
+        ET.SubElement(speedactiontarget,'RelativeTargetSpeed',self.get_attributes())
         
         return element
             
-
-
 class LongitudinalDistanceAction():
-    """ The LongitudinalDistanceAction creates the LongitudinalDistanceAction of openScenario
+    """ The LongitudinalDistanceAction creates a LongitudinalAction of type LongitudinalDistanceAction with a distance target
         
         Parameters
         ----------
+            distance (float): distance to the entity
+            
             entity (str): the target name
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
@@ -204,20 +227,12 @@ class LongitudinalDistanceAction():
 
             continious (bool): if the controller tries to keep the relative speed 
 
-            distance (float): if the distance metric is used
-
-            timegap (float): if timegap metric is used
+            distance (float): the distance to the entity
 
             dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
 
         Methods
         -------
-            set_distance(distance)
-                sets the distance metric
-
-            set_timegap(timegap)
-                sets the timecap metric
-
             get_element()
                 Returns the full ElementTree of the class
 
@@ -225,11 +240,13 @@ class LongitudinalDistanceAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,entity,freespace=True,continious=True,max_acceleration = None,max_deceleration = None,max_speed = None):
+    def __init__(self,distance,entity,freespace=True,continious=True,max_acceleration = None,max_deceleration = None,max_speed = None):
         """ initalize the LongitudinalDistanceAction
         
         Parameters
         ----------
+            distance (float): distance to the entity
+            
             entity (str): the target name
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
@@ -251,50 +268,19 @@ class LongitudinalDistanceAction():
         self.target = entity
         self.freespace = freespace
         self.continious = continious
-        self.distance = None
-        self.timegap = None
         self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
-        
-    def set_distance(self,distance):
-        """ sets the distance metric
-
-        Parameters
-        ----------
-            distance (float): distance to the entity
-
-        """
-        if self.timegap:
-            raise ValueError('Already have timegap setting')
-        self.distance = distance
-
-    def set_timegap(self,timegap):
-        """ sets the timegap metric
-
-        Parameters
-        ----------
-            timegap (float): time to the target
-
-        """
-        if self.distance:
-            raise ValueError('Already have distance setting')
-        self.timegap = timegap
-    
+        self.distance = distance   
         
 
     def get_attributes(self):
-        """ returns the atributes of the LongitudinalDistanceAction as a dict
+        """ returns the attributes of the LongitudinalDistanceAction as a dict
 
         """
         retdict = {}
         retdict['entryRef'] = self.target
         retdict['freespace'] = str(self.freespace)
         retdict['continious'] = str(self.continious)
-        if self.timegap:
-            retdict['timeGap'] = str(self.timegap)
-        elif self.distance:
-            retdict['distance'] = str(self.distance)
-        else:
-            ValueError('No value added for either timegap or distance')
+        retdict['distance'] = str(self.distance)
         return retdict
 
     def get_element(self):
@@ -309,38 +295,44 @@ class LongitudinalDistanceAction():
             longdistaction.append(self.dynamic_constraint.get_element())
         return element
 
-# lateral actions
-
-class LaneChangeAction():
-    """ 
+class LongitudinalTimegapAction():
+    """ The LongitudinalTimegapAction creates a LongitudinalAction of type LongitudinalDistanceAction with the timegap option
         
         Parameters
         ----------
-            transition_dynamics (TransitionDynamics): how the change should be made
+            timegap (float): time to the target 
 
-            target_lane_offset (float): if a offset in the target lane is wanted
+            entity (str): the target name
+
+            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
+                Default: True
+
+            continious (bool): if the controller tries to keep the relative speed 
+                Default: True
+
+            max_acceleration (float): maximum acceleration allowed
+                Default: None
+
+            max_deceleration (float): maximum deceleration allowed
+                Default: None
+
+            max_speed (float): maximum speed allowed
                 Default: None
 
         Attributes
         ----------
-            abs_target (bool): if the action should be absolute (True), or relative (False)
+            entity (str): the target name
 
-            value (int): lane to change to
+            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
 
-            target (str): target for relative lane change
+            continious (bool): if the controller tries to keep the relative speed 
 
-            target_lane_offset (float): offset in the target lane is wanted
-                
-            transition_dynamics (TransitionDynamics): how the change should be made
+            timegap (float): timegap to the target
+
+            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
 
         Methods
         -------
-            set_absolute_target_lane(value)
-                sets an absolut lane target
-
-            set_relative_target_lane(value,entity)
-                sets a relative lane target
-
             get_element()
                 Returns the full ElementTree of the class
 
@@ -348,11 +340,102 @@ class LaneChangeAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,transition_dynamics,target_lane_offset=None):
-        """ initalize LaneChangeAction
+    def __init__(self,timegap,entity,freespace=True,continious=True,max_acceleration = None,max_deceleration = None,max_speed = None):
+        """ initalize the LongitudinalTimegapAction
+        
+        Parameters
+        ----------
+            timegap (float): time to the target 
+
+            entity (str): the target name
+
+            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
+                Default: True
+
+            continious (bool): if the controller tries to keep the relative speed 
+                Default: True
+
+            max_acceleration (float): maximum acceleration allowed
+                Default: None
+
+            max_deceleration (float): maximum deceleration allowed
+                Default: None
+
+            max_speed (float): maximum speed allowed
+                Default: None
+
+        """
+        self.target = entity
+        self.freespace = freespace
+        self.continious = continious
+        self.timegap = timegap
+        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        
+       
+
+    def get_attributes(self):
+        """ returns the attributes of the LongitudinalTimegapAction as a dict
+
+        """
+        retdict = {}
+        retdict['entryRef'] = self.target
+        retdict['freespace'] = str(self.freespace)
+        retdict['continious'] = str(self.continious)
+        retdict['timeGap'] = str(self.timegap)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the LongitudinalTimegapAction
+
+        """
+        element = ET.Element('PrivateAction')
+        longact = ET.SubElement(element,'LongitudinalAction')
+
+        longdistaction = ET.SubElement(longact,'LongitudinalDistanceAction',attrib=self.get_attributes())
+        if self.dynamic_constraint.is_filled():
+            longdistaction.append(self.dynamic_constraint.get_element())
+        return element
+
+# lateral actions
+
+
+
+class AbsoluteLaneChangeAction():
+    """ the AbsoluteLaneChangeAction creates a LateralAction of type LaneChangeAction with an absolute target
+        
+        Parameters
+        ----------
+            lane (int): lane to change to
+
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+            target_lane_offset (float): if a offset in the target lane is wanted
+                Default: None
+
+        Attributes
+        ----------
+            lane (int): lane to change to
+
+            target_lane_offset (float): offset in the target lane is wanted
+                
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,lane,transition_dynamics,target_lane_offset=None):
+        """ initalize AbsoluteLaneChangeAction
 
         Parameters
         ----------
+            lane (int): lane to change to
+
             transition_dynamics (TransitionDynamics): how the change should be made
 
             target_lane_offset (float): if a offset in the target lane is wanted
@@ -360,58 +443,20 @@ class LaneChangeAction():
 
         """
 
-        self.abs_target = None
-        self.value = None
-        self.target = None
+        self.lane = lane
         self.target_lane_offset = target_lane_offset
-        self._lanechangename = None
         self.transition_dynamics = transition_dynamics
 
-    def set_absolute_target_lane(self,value):
-        """ sets an absolut lane target
-
-        Parameters
-        ----------
-            value (int): number of the lane that should be changed to
-
-        """
-        if self.abs_target == False:
-            raise ValueError('already a relative target')
-        self.abs_target = True
-        self.value = value
-        self._lanechangename = 'RelativeTargetLane'
-
-    def set_relative_target_lane(self,value,entity):
-        """ sets a relative lane target
-
-        Parameters
-        ----------
-            value (int): number of relative lane that should be changed to
-
-            entity (str): the entity to run relative to
-
-        """
-        if self.abs_target == True:
-            raise ValueError('already an abosulte target')
-        self.abs_target = False
-        self.value = value
-        self.target = entity
-        self._lanechangename = 'AbsoluteTargetLane'
-
     def get_attributes(self):
-        """ returns the atributes of the LaneChangeAction as a dict
+        """ returns the attributes of the AbsoluteLaneChangeAction as a dict
 
         """
         retdict = {}
-        if self.abs_target == None:
-            raise ValueError('no target type set')
-        retdict['value'] = str(self.value)
-        if not self.abs_target:
-            retdict['entityRef'] = self.target
-        return retdict
+        retdict['value'] = str(self.lane)
+
     
     def get_element(self):
-        """ returns the elementTree of the LaneChangeAction
+        """ returns the elementTree of the AbsoluteLaneChangeAction
 
         """
         element = ET.Element('PrivateAction')
@@ -424,15 +469,100 @@ class LaneChangeAction():
         lanechangeaction.append(self.transition_dynamics.get_element('LaneChangeActionDynamics'))
         lanchangetarget = ET.SubElement(lanechangeaction,'LaneChangeTarget')
         
-        ET.SubElement(lanchangetarget,self._lanechangename,self.get_attributes())
+        ET.SubElement(lanchangetarget,'AbsoluteTargetLane',self.get_attributes())
         return element
 
 
-class LaneOffsetAction():
-    """ the LaneOffsetAction class creates a LaneOffsetAction of openScenario
+class RelativeLaneChangeAction():
+    """ the RelativeLaneChangeAction creates a LateralAction of type LaneChangeAction with a relative target
         
         Parameters
         ----------
+            lane (int): relative lane number
+
+            entity (str): the entity to run relative to
+            
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+            target_lane_offset (float): if a offset in the target lane is wanted
+                Default: None
+
+        Attributes
+        ----------
+            value (int): lane to change to
+
+            target (str): target for relative lane change
+
+            target_lane_offset (float): offset in the target lane is wanted
+                
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,lane,entity,transition_dynamics,target_lane_offset=None):
+        """ initalize RelativeLaneChangeAction
+
+        Parameters
+        ----------
+            lane (int): relative lane number
+
+            entity (str): the entity to run relative to
+            
+            transition_dynamics (TransitionDynamics): how the change should be made
+
+            target_lane_offset (float): if a offset in the target lane is wanted
+                Default: None
+
+        """
+
+        self.lane = lane
+        self.target = entity
+        self.target_lane_offset = target_lane_offset
+        self.transition_dynamics = transition_dynamics
+
+
+    def get_attributes(self):
+        """ returns the attributes of the RelativeLaneChangeAction as a dict
+
+        """
+        retdict = {}
+        retdict['lane'] = str(self.lane)
+        retdict['entityRef'] = self.target
+        return retdict
+    
+    def get_element(self):
+        """ returns the elementTree of the RelativeLaneChangeAction
+
+        """
+        element = ET.Element('PrivateAction')
+        laneoffset = {}
+        lataction = ET.SubElement(element,'LateralAction')
+        if self.target_lane_offset:
+            laneoffset = {'targetLaneOffset':str(self.target_lane_offset)}
+        lanechangeaction = ET.SubElement(lataction,'LaneChangeAction',attrib=laneoffset)
+        
+        lanechangeaction.append(self.transition_dynamics.get_element('LaneChangeActionDynamics'))
+        lanchangetarget = ET.SubElement(lanechangeaction,'LaneChangeTarget')
+        
+        ET.SubElement(lanchangetarget,'RelativeTargetLane',self.get_attributes())
+        return element
+
+
+
+class AbsoluteLaneOffsetAction():
+    """ the AbsoluteLaneOffsetAction class creates a LateralAction of type LaneOffsetAction with an absolute target
+        
+        Parameters
+        ----------
+            value (float): lateral offset of the lane
+
             shape (str): shape of the offset action
 
             constants (list of floats): the constants of the shape
@@ -446,9 +576,7 @@ class LaneOffsetAction():
         ----------
             continious (bool): if the controller tries to keep the relative speed 
 
-            abs_target (bool): if an absolute (True), or relative (False) target is used.
-
-            value (float): lateral offset of the lane or target
+            value (float): lateral offset of the lane
 
             target (str): the name of the entity (relative only)
 
@@ -458,12 +586,6 @@ class LaneOffsetAction():
 
         Methods
         -------
-            set_absolute_target_lane(value)
-                sets a absolute lane offset target
-
-            set_relative_target_lane(value,entity)
-                sets a relative lane offset target
-
             get_element()
                 Returns the full ElementTree of the class
 
@@ -471,67 +593,32 @@ class LaneOffsetAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,shape,constants,maxlatacc,continious = True):
+    def __init__(self,value,shape,constants,maxlatacc,continious = True):
         """ initalizes the LaneOffsetAction
             Parameters
             ----------
-            shape (str): shape of the offset action
+                value (float): lateral offset of the lane
 
-            constants (list of floats): the constants of the shape
+                shape (str): shape of the offset action
 
-            maxlatacc (float): maximum allowed lateral acceleration
+                constants (list of floats): the constants of the shape
 
-            continious (bool): if the controller tries to keep the relative speed 
-                Default: True
+                maxlatacc (float): maximum allowed lateral acceleration
+
+                continious (bool): if the controller tries to keep the relative speed 
+                    Default: True
         """
         self.continious = continious
-        self.abs_target = None
-        self.value = None
-        self.target = None
-        self._laneoffsettarget = None
+        self.value = value
         self.dynshape = DynamicsShape(shape,constants)
         self.maxlatacc = maxlatacc
 
-    def set_absolute_target_lane(self,value):
-        """ sets a absolute lane offset target
-
-        Parameters
-        ----------
-            value (float): lateral offset of the lane
-
-        """
-        if self.abs_target == False:
-            raise ValueError('already a relative target')
-        self.abs_target = True
-        self.value = value
-        
-        self._laneoffsettarget = 'AbsoluteTargetLaneOffset'
-
-    def set_relative_target_lane(self,value,entity):
-        """ sets a relative lane offset target
-
-        Parameters
-        ----------
-            value (float): lateral offset of the entity
-
-            entity (str): name of the entity
-
-        """
-        if self.abs_target == True:
-            raise ValueError('already an abosulte target')
-        self.abs_target = False
-        self.value = value
-        self.target = entity
-        self._laneoffsettarget ='RelativeTargetLaneOffset'       
-        
     def get_attributes(self):
-        """ returns the atributes of the LaneOffsetAction as a dict
+        """ returns the attributes of the LaneOffsetAction as a dict
 
         """
         retdict = {}
         retdict['value'] = str(self.value)
-        if not self.abs_target:
-            retdict['entryRef'] = self.target
         return retdict
         
     def get_element(self):
@@ -542,7 +629,91 @@ class LaneOffsetAction():
         lataction = ET.SubElement(element,'LateralAction')
         laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
         ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.shape})
-        ET.SubElement(laneoffsetaction,self._laneoffsettarget,self.get_attributes())
+        ET.SubElement(laneoffsetaction,'AbsoluteTargetLaneOffset',self.get_attributes())
+
+        return element
+
+class RelativeLaneOffsetAction():
+    """ the RelativeLaneOffsetAction class creates a LateralAction of type LaneOffsetAction with a relative target
+        
+        Parameters
+        ----------
+            value (float): relative lateral offset of the target
+
+            entity (str): name of the entity
+
+            shape (str): shape of the offset action
+
+            constants (list of floats): the constants of the shape
+
+            maxlatacc (float): maximum allowed lateral acceleration
+
+            continious (bool): if the controller tries to keep the relative speed 
+                Default: True
+
+        Attributes
+        ----------
+            continious (bool): if the controller tries to keep the relative speed 
+
+            value (float): relative lateral offset of the arget
+
+            target (str): the name of the entity
+
+            dynshape (DynamicsShape): the shape of the action
+
+            maxlatacc (float): maximum allowed lateral acceleration
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,value,entity,shape,constants,maxlatacc,continious = True):
+        """ initalizes the LaneOffsetAction,
+
+            Parameters
+            ----------
+                value (float): relative lateral offset of the target
+
+                entity (str): name of the entity
+
+                shape (str): shape of the offset action
+
+                constants (list of floats): the constants of the shape
+
+                maxlatacc (float): maximum allowed lateral acceleration
+
+                continious (bool): if the controller tries to keep the relative speed 
+                    Default: True
+        """
+        self.continious = continious
+        self.value = value
+        self.target = entity
+        self.dynshape = DynamicsShape(shape,constants)
+        self.maxlatacc = maxlatacc
+
+    def get_attributes(self):
+        """ returns the attributes of the LaneOffsetAction as a dict
+
+        """
+        retdict = {}
+        retdict['value'] = str(self.value)
+        retdict['entryRef'] = self.target
+        return retdict
+        
+    def get_element(self):
+        """ returns the elementTree of the LaneOffsetAction
+
+        """
+        element = ET.Element('PrivateAction')
+        lataction = ET.SubElement(element,'LateralAction')
+        laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
+        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.shape})
+        ET.SubElement(laneoffsetaction,'RelativeTargetLaneOffset',self.get_attributes())
 
         return element
 
@@ -628,7 +799,7 @@ class LateralDistanceAction():
         self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
 
     def get_attributes(self):
-        """ returns the atributes of the LateralDistanceAction as a dict
+        """ returns the attributes of the LateralDistanceAction as a dict
 
         """
         retdict = {}

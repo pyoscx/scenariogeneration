@@ -433,7 +433,7 @@ class _Actors():
         self.actors.append(EntityRef(entity))
 
     def get_attributes(self):
-        """ returns the atributes of the _Actors as a dict
+        """ returns the attributes of the _Actors as a dict
 
         """
         return {'selectTriggeringEntities':str(self.select)}

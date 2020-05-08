@@ -131,7 +131,7 @@ class FileHeader():
         
 
     def get_attributes(self):
-        """ returns the atributes as a dict of the FileHeader
+        """ returns the attributes as a dict of the FileHeader
 
         """
         return {'decription':self.name,'author':self.author,'revMajor':'1','revMinor':'0','date':str(dt.datetime.now())}
