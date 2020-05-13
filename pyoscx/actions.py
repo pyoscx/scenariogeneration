@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from .utils import DynamicsConstrains
 
-from .enumerations import DYNAMICSSHAPES
+from .enumerations import DYNAMICSSHAPES, SPEEDTARGETVALUETYP
 
 
 class _Action():
@@ -1002,14 +1002,59 @@ class ActivateControllerAction():
 
         return element
 
-# not worked on yet
-""" 
+
+class AssignControllerAction():
+    """ AssignControllerAction creates a ControllerAction of type AssignControllerAction
         
         Parameters
         ----------
-            
+            controller (Controller or Catalogreference): a controller to assign
+
         Attributes
         ----------
+            controller (boolController or Catalogreferenceean): a controller to assign
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,controller):
+        """ initalizes the AssignControllerAction
+
+            Parameters
+            ----------
+                controller (Controller or Catalogreference): a controller to assign
+
+        """
+        self.controller = controller
+
+    def get_element(self):
+        """ returns the elementTree of the AssignControllerAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerActiton')
+        controlleraction.append(self.controller.get_element())
+
+        return element
+
+
+class OverrideThrottleAction():
+    """ OverrideThrottleAction creates a ControllerAction of type OverrideControllerValueAction and OverrideThrottleAction 
+        
+        Parameters
+        ----------
+            value (double): 0...1 throttle pedal
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 throttle pedal
+
+            active (boolean): overide (True) or stop override (False)
 
         Methods
         -------
@@ -1017,44 +1062,518 @@ class ActivateControllerAction():
                 Returns the full ElementTree of the class
 
             get_attributes()
-                Returns a dictionary of all attributes of the class
+                Returns the the attributes of the class
 
     """
-""" 
-    class RoutingAction():,
+    def __init__(self,value, activate):
+        """ initalizes the OverrideThrottleAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideThrottleAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideThrottleAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideThrottleAction',self.get_attributes())
+        return element
+
+
+class OverrideBrakeAction():
+    """ OverrideBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideBrakeAction 
+        
+        Parameters
+        ----------
+            value (double): 0...1 throttle pedal
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 brake pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,value, activate):
+        """ initalizes the OverrideBrakeAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideBrakeAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideBrakeAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideBrakeAction',self.get_attributes())
+        return element
+
+
+class OverrideClutchAction():
+    """ OverrideClutchAction creates a ControllerAction of type OverrideControllerValueAction and OverrideClutchAction
+        
+        Parameters
+        ----------
+            value (double): 0...1 clutch pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 brake pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,value, activate):
+        """ initalizes the OverrideClutchAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideClutchAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideClutchAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideClutchAction',self.get_attributes())
+        return element
+
+
+
+class OverrideParkingBrakeAction():
+    """ OverrideParkingBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideParkingBrakeAction 
+        
+        Parameters
+        ----------
+            value (double): 0...1 clutch pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 brake pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,value, activate):
+        """ initalizes the OverrideParkingBrakeAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideParkingBrakeAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideParkingBrakeAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideParkingBrakeAction',self.get_attributes())
+        return element
+
+
+
+
+class OverrideSteeringWheelAction():
+    """ OverrideSteeringWheelAction creates a ControllerAction of type OverrideControllerValueAction and OverrideSteeringWheelAction 
+        
+        Parameters
+        ----------
+            value (double): 0...1 clutch pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 brake pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,value, activate):
+        """ initalizes the OverrideSteeringWheelAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideSteeringWheelAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideSteeringWheelAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideSteeringWheelAction',self.get_attributes())
+        return element
+
+
+
+class OverrideGearAction():
+    """ OverrideGearAction creates a ControllerAction of type OverrideControllerValueAction and OverrideGearAction 
+        
+        Parameters
+        ----------
+            value (double): 0...1 clutch pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Attributes
+        ----------
+            value (double): 0...1 brake pedal value
+
+            active (boolean): overide (True) or stop override (False)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,value, activate):
+        """ initalizes the OverrideGearAction
+
+            Parameters
+            ----------
+                value (double): 0...1 throttle pedal
+
+                active (boolean): overide (True) or stop override (False)
+
+        """
+        self.value = value
+        self.activate = activate
+
+    def get_attributes(self):
+        """ returns the attributes of the OverrideGearAction as a dict
+
+        """
+        return {'value':str(self.value),'active':str(self.activate)}
+
+    def get_element(self):
+        """ returns the elementTree of the OverrideGearAction
+
+        """
+        element = ET.Element('PrivateAction')
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
+        ET.SubElement(overrideaction,'OverrideGearAction',self.get_attributes())
+        return element
+
+
+
+class VisibilityAction():
+    """ creates a VisibilityAction
+        
+        Parameters
+        ----------
+            graphics (boolean): visible for graphics or not
+
+            traffic (boolean): visible for traffic
+
+            sensors (boolean): visible to sensors or not
+
+        Attributes
+        ----------
+            graphics (boolean): visible for graphics or not
+
+            traffic (boolean): visible for traffic
+
+            sensors (boolean): visible to sensors or not
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,graphics, traffic, sensors):
+        """ initalizes the VisibilityAction
+
+            Parameters
+            ----------
+            graphics (boolean): visible for graphics or not
+
+            traffic (boolean): visible for traffic
+
+            sensors (boolean): visible to sensors or not
+
+        """
+        self.graphics = graphics
+        self.traffic = traffic
+        self.sensors = sensors
+
+    def get_attributes(self):
+        """ returns the attributes of the VisibilityAction as a dict
+
+        """
+        return {'graphics':str(self.graphics),'active':str(self.traffic),'sensors':str(self.sensors)}
+
+    def get_element(self):
+        """ returns the elementTree of the VisibilityAction
+
+        """
+        element = ET.Element('PrivateAction')
+        ET.SubElement(element,'VisibilityAction',self.get_attributes())
+        return element
+
+class AbsoluteSynchronizeAction():
+    """ creates a SynchronizeAction with an absolute speed as target speed
+        
+        Parameters
+        ----------
+            entity (str): entity to syncronize with
+
+            entity_position (*Position): the position of the entity to syncronize to
+
+            target_position (*Position): the position of the target that should syncronize
+
+            speed (double): the absolute speed of the target that should syncronize
+
+        Attributes
+        ----------
+            entity (str): entity to syncronize with
+
+            entity_position (*Position): the position of the entity to syncronize to
+
+            target_position (*Position): the position of the target that should syncronize
+
+            speed (double): the absolute speed of the target that should syncronize
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,entity,entity_position,target_position,speed):
+        """ initalize the AbsoluteSynchronizeAction
     
-        def __init__(self):
-            pass
+            Parameters
+            ----------
+                entity (str): entity to syncronize with
+
+                entity_position (*Position): the position of the entity to syncronize to
+
+                target_position (*Position): the position of the target that should syncronize
+
+                speed (double): the absolute speed of the target that should syncronize
+        """
+
+        self.entity = entity
+        self.entity_position = entity_position
+        self.target_position = target_position
+        self.speed = speed
+
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSynchronizeAction as a dict
+
+        """
+        return {'masterEntityRef':self.entity}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSynchronizeAction
+
+        """
+        element = ET.Element('PrivateAction')
+        syncaction = ET.SubElement(element,'SyncronizeAction',self.get_attributes())
+        syncaction.append(self.entity_position.get_element('TargetPositionMaster'))
+        syncaction.append(self.target_position.get_element('TargetPosition'))
+        finalspeed = ET.SubElement(syncaction,'FinalSpeed')
+        ET.SubElement(finalspeed,'AbsoluteSpeed',attrib={'value':str(self.speed)})
+        
+        return element
 
 
-    # Visibility
-    class VisibilityAction():
-        def __init__(self,traffic = True,sensors = True,graphics = True):
-            self.traffic = traffic
-            self.sensors = sensors
-            self.graphics = graphics
+class RelativeSynchronizeAction():
+    """ creates a SynchronizeAction with a relative speed target
+        
+        Parameters
+        ----------
+            entity (str): entity to syncronize with
 
-        def get_element(self):
-            pass
+            entity_position (*Position): the position of the entity to syncronize to
 
-    # syncronization
-    class SynchronizeAction():
-        def __init__(self,entity,entity_target,target,speed):
-            self.target = entity
-            self.target_pos = entity_target
-            self.position = target
-            self.speed = speed
+            target_position (*Position): the position of the target that should syncronize
 
-        def get_element(self):
-            pass
-            
-    # controller
-    class ActivateControllerAction():
-        def __init__(self):
-            pass
+            speed (double): the relative speed of the target that should syncronize
 
-    class ControllerAction():
-        def __init__(self):
-            pass
-"""
+            speed_target_type (str): the semantics of the value (delta, factor)
 
+        Attributes
+        ----------
+            entity (str): entity to syncronize with
+
+            entity_position (*Position): the position of the entity to syncronize to
+
+            target_position (*Position): the position of the target that should syncronize
+
+            speed (double): the relative speed of the target that should syncronize
+
+            speed_target_type (str): the semantics of the value (delta, factor)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,entity,entity_position,target_position,speed,speed_target_type):
+        """ initalize the RelativeSynchronizeAction
+    
+            Parameters
+            ----------
+                entity (str): entity to syncronize with
+
+                entity_position (*Position): the position of the entity to syncronize to
+
+                target_position (*Position): the position of the target that should syncronize
+
+                speed (double): the absolute speed of the target that should syncronize
+
+                speed_target_type (str): the semantics of the value (delta, factor)
+        """
+
+        self.entity = entity
+        self.entity_position = entity_position
+        self.target_position = target_position
+        self.speed = speed
+        if speed_target_type not in SPEEDTARGETVALUETYP:
+            ValueError(speed_target_type + ' is not a valid speed_target_type')
+        self.speed_target_type = speed_target_type
+
+    def get_attributes(self):
+        """ returns the attributes of the VisibilityAction as a dict
+
+        """
+        return {'masterEntityRef':self.entity}
+
+    def get_element(self):
+        """ returns the elementTree of the VisibilityAction
+
+        """
+        element = ET.Element('PrivateAction')
+        syncaction = ET.SubElement(element,'SyncronizeAction',self.get_attributes())
+        syncaction.append(self.entity_position.get_element('TargetPositionMaster'))
+        syncaction.append(self.target_position.get_element('TargetPosition'))
+        finalspeed = ET.SubElement(syncaction,'FinalSpeed')
+        ET.SubElement(finalspeed,'RelativeSpeedToMaster',attrib={'value':str(self.speed),'speedTargetValueType':self.speed_target_type})
+        
+        return element

@@ -93,3 +93,11 @@ def test_entities():
     entities.add_entity_bytype('Target_2','vehicle')
     entities.add_entity_byref('Target_3','something')
     OSC.prettyprint(entities.get_element())
+
+def test_controller():
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+
+    cnt = OSC.Controller('mycontroler',prop)
+    OSC.prettyprint(cnt.get_element())

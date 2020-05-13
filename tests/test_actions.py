@@ -69,3 +69,53 @@ def test_aqcuire_position_route():
 def test_activate_controller_action():
     aca = OSC.ActivateControllerAction(True,True)
     OSC.prettyprint(aca.get_element())
+
+
+def test_assign_controller_action():
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+
+    cnt = OSC.Controller('mycontroller',prop)
+    
+    
+    aca = OSC.AssignControllerAction(cnt)
+    OSC.prettyprint(aca.get_element())
+
+def test_overide_brake():
+    oa = OSC.OverrideBrakeAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_overide_clutch():
+    oa = OSC.OverrideClutchAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_overide_parking():
+    oa = OSC.OverrideParkingBrakeAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_overide_gear():
+    oa = OSC.OverrideGearAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_overide_steering():
+    oa = OSC.OverrideSteeringWheelAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_overide_throttle():
+    oa = OSC.OverrideThrottleAction(0.4,True)
+    OSC.prettyprint(oa.get_element())
+
+def test_visual_action():
+    va = OSC.VisibilityAction(True,False,True)
+    OSC.prettyprint(va.get_element())
+
+def test_abs_sync_action():
+    
+    asa = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20)
+    OSC.prettyprint(asa.get_element())
+
+def test_rel_sync_action():
+    
+    asa = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta')
+    OSC.prettyprint(asa.get_element())

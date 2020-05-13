@@ -35,7 +35,7 @@ class WorldPosition():
 
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -72,11 +72,15 @@ class WorldPosition():
         """
         return {'x':str(self.x),'y':str(self.y),'z':str(self.z),'h':str(self.h),'p':str(self.p),'r':str(self.r)}
 
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the WorldPostion
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
         """
-        element = ET.Element('Position')
+        element = ET.Element(elementname)
         ET.SubElement(element,'WorldPosition',attrib=self.get_attributes())
         return element
 
@@ -113,7 +117,7 @@ class RelativeWorldPosition():
 
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -154,11 +158,16 @@ class RelativeWorldPosition():
         retdict['dz'] = str(self.dz)
         return retdict
 
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RelativeWorldPosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+
         """
-        element = ET.Element('Position')            
+        element = ET.Element(elementname)            
         relpos = ET.SubElement(element,'RelativeWorldPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             relpos.append(self.orient.get_element())
@@ -196,7 +205,7 @@ class RelativeObjectPosition():
 
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -237,11 +246,16 @@ class RelativeObjectPosition():
         retdict['dz'] = str(self.dz)
         return retdict
 
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RelativeObjectPosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+                    
         """
-        element = ET.Element('Position')            
+        element = ET.Element(elementname)              
         relpos = ET.SubElement(element,'RelativeObjectPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             relpos.append(self.orient.get_element())
@@ -276,7 +290,7 @@ class RoadPosition():
         
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -313,12 +327,16 @@ class RoadPosition():
         retdict['dt'] = str(self.t)                
         return retdict
     
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RoadPosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+                    
         """
-        element = ET.Element('Position')
-        
+        element = ET.Element(elementname)
         ET.SubElement(element,'RoadPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             element.append(self.orient.get_element())
@@ -352,7 +370,7 @@ class RelativeRoadPosition():
         
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -389,11 +407,16 @@ class RelativeRoadPosition():
         retdict['t'] = str(self.t)
         return retdict
     
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RelativeRoadPosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+                    
         """
-        element = ET.Element('Position')
+        element = ET.Element(elementname)    
         ET.SubElement(element,'RelativeRoadPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             element.append(self.orient.get_element())
@@ -430,7 +453,7 @@ class LanePosition():
 
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -472,11 +495,16 @@ class LanePosition():
                    
         return retdict
     
-    def get_element(self):
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the LanePosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+                    
         """
-        element = ET.Element('Position')
+        element = ET.Element(elementname)    
         ET.SubElement(element,'LanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             element.append(self.orient.get_element())
@@ -514,7 +542,7 @@ class RelativeLanePosition():
 
         Methods
         -------
-            get_element()
+            get_element(elementname)
                 Returns the full ElementTree of the class
 
             get_attributes()
@@ -555,11 +583,16 @@ class RelativeLanePosition():
         retdict['dLane'] = str(self.lane_id)
         return retdict
     
-    def get_element(self):
-        """ returns the elementTree of the LanePosition
+    def get_element(self,elementname = 'Position'):
+        """ returns the elementTree of the RelativeLanePosition
 
+            Parameters
+            ----------
+                elementname (str): used if another name is needed for the position
+                    Default: Position
+                    
         """
-        element = ET.Element('Position')
+        element = ET.Element(elementname)    
         ET.SubElement(element,'RelativeLanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             element.append(self.orient.get_element())
