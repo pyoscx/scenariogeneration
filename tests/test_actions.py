@@ -4,71 +4,44 @@ import pytest
 import pyoscx as OSC
 
 
-TD = OSC.TransitionDynamics('step',0,'rate',1)
+TD = OSC.TransitionDynamics('step','rate',1)
 
 
 def test_speedaction_abs():
-    speedaction = OSC.SpeedAction(TD)
-    speedaction.set_absolute_target_speed(50)
-    with pytest.raises(ValueError):
-        speedaction.set_relative_target_speed(1,'Ego')
+    speedaction = OSC.AbsoluteSpeedAction(50,TD)
     OSC.prettyprint(speedaction.get_element())
 
 def test_speedaction_rel():
-    speedaction = OSC.SpeedAction(TD)
-    speedaction.set_relative_target_speed(1,'Ego')
-    with pytest.raises(ValueError):
-        speedaction.set_absolute_target_speed(50)
+    speedaction = OSC.RelativeSpeedAction(1,'Ego',TD)
+
     OSC.prettyprint(speedaction.get_element())
 
 
 def test_longdistaction_dist():
-    longdist = OSC.LongitudinalDistanceAction('Ego')
-    longdist.set_distance(1)
-    with pytest.raises(ValueError):
-        longdist.set_timegap(1)
-    longdist.get_attributes()
-
+    longdist = OSC.LongitudinalDistanceAction(1,'Ego')
     OSC.prettyprint(longdist.get_element())
 
 
 def test_longdistaction_time():
-    longdist = OSC.LongitudinalDistanceAction('Ego',max_acceleration=1)
-    longdist.set_timegap(1)
-    with pytest.raises(ValueError):
-        longdist.set_distance(1)
-    longdist.get_attributes()
-
+    longdist = OSC.LongitudinalTimegapAction(2,'Ego',max_acceleration=1)
     OSC.prettyprint(longdist.get_element())
 
 
 
-def test_lanechange_noinp():
-    lanechange = OSC.LaneChangeAction(TD)
-    lanechange.set_absolute_target_lane(1)
-
-    OSC.prettyprint(lanechange.get_element())
-
-def test_lanechange_inp():
-    lanechange = OSC.LaneChangeAction(TD,0.2)
-    lanechange.set_absolute_target_lane(1)
+def test_lanechange_abs():
+    lanechange = OSC.AbsoluteLaneChangeAction(1,TD)
     OSC.prettyprint(lanechange.get_element())
 
 def test_lanechange_rel():
-    lanechange = OSC.LaneChangeAction(TD,0.2)
-    lanechange.set_relative_target_lane(1,'Ego')
+    lanechange = OSC.RelativeLaneChangeAction(1,'Ego',TD,0.2)
     OSC.prettyprint(lanechange.get_element())
 
-
-
 def test_laneoffset_abs():
-    laneoffset = OSC.LaneOffsetAction('step',0,3)
-    laneoffset.set_absolute_target_lane(1)
+    laneoffset = OSC.AbsoluteLaneOffsetAction(1,'step',0,3)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_laneoffset_rel():
-    laneoffset = OSC.LaneOffsetAction('step',0,3)
-    laneoffset.set_relative_target_lane(1,'Ego')
+    laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego','step',0,3)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_lateraldistance_noconst():
@@ -83,7 +56,16 @@ def test_teleport():
     teleport = OSC.TeleportAction(OSC.WorldPosition())
     OSC.prettyprint(teleport.get_element())
 
+def test_assign_route():
+    route = OSC.Route('myroute')
+    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),'closest')
+    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),'closest')
+    OSC.AssingRouteAction(route)
 
+def test_aqcuire_position_route():
+    ara = OSC.AssingRouteAction(OSC.WorldPosition(1,1,0,0,0,0))
+    OSC.prettyprint(ara.get_element())
 
-
-
+def test_activate_controller_action():
+    aca = OSC.ActivateControllerAction(True,True)
+    OSC.prettyprint(aca.get_element())

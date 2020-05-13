@@ -78,7 +78,7 @@ class Scenario():
 
         """
         element = ET.Element('Openscenario',attrib={'xmlns:xsi':self._XMLNS,'xsi:noNamespaceShemaLocation':self._XSI})
-        element.append(self.header.get_element()),
+        element.append(self.header.get_element())
         element.append(self.parameters.get_element())
         element.append(self.catalog.get_element())
         element.append(self.roadnetwork.get_element())

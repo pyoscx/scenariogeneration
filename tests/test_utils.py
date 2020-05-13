@@ -4,26 +4,16 @@ import pytest
 import pyoscx as OSC
 
 
-
-
-@pytest.mark.parametrize("teststring",['linear','cubic','sinusoidal','step'])
-def testDynamicsShape(teststring):
-    OSC.DynamicsShape(teststring,1)
-
-def test_dynamicsShape_wronginput():
-    with pytest.raises(ValueError):
-        OSC.DynamicsShape('hej',1)
-
 @pytest.mark.parametrize("teststring",['distance','rate','time'])
 def test_transition_dynamics(teststring):
-    td = OSC.TransitionDynamics('step',1,teststring,1)
+    td = OSC.TransitionDynamics('step',teststring,1)
     assert len(td.get_attributes()) == 3
     
     OSC.prettyprint(td.get_element())
 
 def test_transition_dynamics_faults():
     with pytest.raises(ValueError):
-        OSC.TransitionDynamics('step',1,'hej',1)
+        OSC.TransitionDynamics('step','hej',1)
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],0),([1,None,None],1),([1,None,2],2),([1,2,4],3) ] )
 def test_dynamics_constraints(testinp,results):
@@ -49,10 +39,26 @@ def test_orientation_filled(testinp,results):
     
     assert dyncon.is_filled() == results
     
-
-
 def test_orientation_failed():
     with pytest.raises(ValueError):
         OSC.Orientation(reference='hej')
    
-    
+def test_parameter():
+    param = OSC.Parameter('stuffs','integer','1')
+    OSC.prettyprint(param.get_element())
+
+def test_catalogreference():
+    OSC.CatalogReference('VehicleCatalog','S60')
+
+
+def test_waypoint():
+    wp = OSC.Waypoint(OSC.WorldPosition(),'fastest')
+    OSC.prettyprint(wp.get_element())
+
+def test_route():
+    route = OSC.Route('myroute')
+
+    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),'closest')
+    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),'closest')
+
+    OSC.prettyprint(route.get_element())

@@ -1,6 +1,9 @@
 
 import xml.etree.ElementTree as ET
 
+from .enumerations import CONDITIONEDGE, OBJECTTYPE, PARAMETERTYPE, RULE, REFERENCECONTEXT, DYNAMICSSHAPES, DYNAMICSDIMENSION
+
+from .scenario import ParameterDeclarations
 def merge_dicts(*dict_args):
     """ Funciton to merge dicts 
     
@@ -11,6 +14,60 @@ def merge_dicts(*dict_args):
 
     return retdict
 
+
+class CatalogReference():
+    """ CatalogReference creates an CatalogReference element of openscenario
+        
+        Parameters
+        ----------
+            catalogname (str): name of the catalog
+
+            entryname (str): name of the entry in the catalog            
+
+        Attributes
+        ----------
+            catalogname (str): name of the catalog
+
+            entryname (str): name of the entry in the catalog 
+
+            parameter (Parameter) ???
+
+        Methods
+        -------
+            add_parameter_assignment(parameter,value)
+                Assigns a parameter with a value
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,catalogname,entryname):
+        """ initalize the CatalogReference
+
+            Parameters
+            ----------
+                catalogname (str): name of the catalog
+
+                entryname (str): name of the entry in the catalog    
+                
+        """
+        self.catalogname = catalogname
+        self.entryname = entryname
+
+    def get_attributes(self):
+        """ returns the attributes of the CatalogReference as a dict
+
+        """
+        return {'catalogName':self.catalogname,'entryName':self.entryname}
+
+    def get_element(self):
+        """ returns the elementTree of the CatalogReference
+
+        """
+        return ET.Element('CatalogReference',attrib=self.get_attributes())
     
 class ConditionEdge():
     """ ConditionEdge is used to determine how to trigger on a valuechange
@@ -38,7 +95,7 @@ class ConditionEdge():
                 condition (str): what valuechange to use rising, falling, risingorFalling or none
 
         """
-        if condition not in ['rising','falling','risingorFalling','none']:
+        if condition not in CONDITIONEDGE:
             raise ValueError('not a valid condition edge')
         self.condition = condition
 
@@ -117,7 +174,7 @@ class ObjectType():
                 obj_type (str): the typ of object, vehicle, pedestrian or miscellaneous
 
         """
-        if obj_type not in ['pedestrian','vehicle','miscellaneous']:
+        if obj_type not in OBJECTTYPE:
             raise ValueError('not a valid object type')
 
         self.type = obj_type
@@ -136,7 +193,7 @@ class Parameter():
         ----------
             name (str): name of parameter
 
-            parameter_type (str): type of the parameter
+            parameter_type (str): type of the parameter ('integer', 'double', 'string', 'unsighedInt', 'unsighedShort', 'boolean', 'dateTime')
 
             value (str): value of the parameter
 
@@ -150,6 +207,8 @@ class Parameter():
 
         Methods
         -------
+            add_parameter ???
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -157,14 +216,7 @@ class Parameter():
                 Returns a dictionary of all attributes of the class
 
     """
-    _PARAMETERS = [\
-        'integer',
-        'double',
-        'string',
-        'unsighedInt',
-        'unsighedShort',
-        'boolean',
-        'dateTime']
+    
     def __init__(self,name,parameter_type,value):
         """ initalize the Parameter 
 
@@ -178,7 +230,7 @@ class Parameter():
 
         """
         self.name = name
-        if parameter_type not in self._PARAMETERS:
+        if parameter_type not in PARAMETERTYPE:
             raise ValueError('parameter_type not a valid type.')
         self.parameter_type = parameter_type
         self.value = value
@@ -227,7 +279,7 @@ class Rule():
                 parameter: ???
 
         """
-        if rule not in ['greaterThan','lessThan','equalTo']:
+        if rule not in RULE:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
         self.parameter = parameter
@@ -279,8 +331,9 @@ class Orientation():
         self.h = h
         self.p = p
         self.r = r
-        if reference not in ['absolute','relative',None]:
-            raise ValueError(reference + '; is not a valid reference type.')
+
+        if (reference not in REFERENCECONTEXT) and (reference != None):
+            raise ValueError(str(reference) + '; is not a valid reference type.')
         self.ref = reference
 
     def is_filled(self):
@@ -319,44 +372,6 @@ class Orientation():
         """
         return ET.Element('Orientation',attrib=self.get_attributes())
 
-class DynamicsShape():
-    """ DynamicsShape is used to create a shape
-        
-        Parameters
-        ----------
-            shape (str): what dynamics to have, linear, cubic, sinusoidal, or step
-
-            constants (list of floats): coefficients of the shape ## TODO: check this
-
-        Attributes
-        ----------
-            shape (str): what dynamics to have, linear, cubic, sinusoidal, or step
-
-            constants (list of floats): coefficients of the shape ## TODO: check this
-
-        Methods
-        -------
-            ## TODO: Fix this one
-            get_attributes()
-                Returns a dictionary of all attributes of the class
-
-    """
-    def __init__(self,shape,constants):
-        """ initalize the DynamicsShape
-
-            Parameters
-            ----------
-                shape (str): what dynamics to have, linear, cubic, sinusoidal, or step
-
-                constants (list of floats): coefficients of the shape ## TODO: check this
-        
-        """
-        if shape not in ['linear','cubic','sinusoidal','step']:
-            raise ValueError(shape + '; is not a valid shape.')
-        self.shape = shape
-        self.constants = constants
-        #TODO: check how values are supposed to be passed with multiple constants!!
-
 class TransitionDynamics():
     """ TransitionDynamics is used to define how the dynamics of a change
         
@@ -364,21 +379,18 @@ class TransitionDynamics():
         ----------
             shape (str): shape of the transition
 
-            constants (list of float): values of the shape ??? TODO: check how this works
-
             dimension (str): the dimension of the transition (rate, time or distance)
 
-            value (float): ???
+            value (float): the value of the dynamics (time rate or distance)
+
 
         Attributes
         ----------
             shape (str): shape of the transition
 
-            constants (list of float): values of the shape ??? TODO: check how this works
-
             dimension (str): the dimension of the transition (rate, time or distance)
 
-            value (float): ???
+            value (float): the value of the dynamics (time rate or distance)
 
         Methods
         -------
@@ -389,20 +401,22 @@ class TransitionDynamics():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,shape,constants,dimension,value):
+    def __init__(self,shape,dimension,value):
         """
             Parameters
             ----------
                 shape (str): shape of the transition
 
-                constants (list of float): values of the shape ??? TODO: check how this works
-
                 dimension (str): the dimension of the transition (rate, time or distance)
 
-                value (float): ???
+                value (float): the value of the dynamics (time rate or distance)
+
         """
-        self.dynamics_shape = DynamicsShape(shape,constants)
-        if dimension not in ['rate','time','distance']:
+        if shape not in DYNAMICSSHAPES:
+            raise ValueError(shape + '; is not a valid shape.')
+        
+        self.shape = shape
+        if dimension not in DYNAMICSDIMENSION:
             raise ValueError(dimension + ' is not a valid dynamics dimension')
         self.dimension = dimension
         self.value = value
@@ -411,7 +425,7 @@ class TransitionDynamics():
         """ returns the attributes of the DynamicsConstrains as a dict
 
         """
-        return {'dynamicsShape':self.dynamics_shape.shape,'value':str(self.value),'dynamicsDimension':str(self.dimension)}
+        return {'dynamicsShape':self.shape,'value':str(self.value),'dynamicsDimension':str(self.dimension)}
 
     def get_element(self,name='TransitionDynamics'):
         """ returns the elementTree of the DynamicsConstrains
@@ -490,3 +504,153 @@ class DynamicsConstrains():
 
         """
         return ET.Element(name,attrib=self.get_attributes())
+
+
+class Route():
+    """ the Route class creates a route, needs atleast two waypoints to be valid
+        
+        Parameters
+        ----------
+            name (str): name of the Route
+
+            closed (boolean): if the waypoints forms a loop
+                Default: False
+
+        Attributes
+        ----------
+            name (str): name of the Route
+
+            closed (boolean): if the waypoints forms a loop
+            
+            waypoints (list of Waypoint): a list of waypoints
+
+            parameters (ParameterDeclarations)
+
+        Methods
+        -------
+            add_waypoint(waypoint)
+                adds a waypoint to the route (minimum two)
+
+            add_parameter(Parameter)
+                adds a parameter to the route
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, name, closed=False):
+        """ initalize Route
+
+            Parameters
+            ----------
+                name (str): name of the Route
+
+                closed (boolean): if the waypoints forms a loop
+                    Default: False
+
+        """
+        self.name = name
+        self.closed = closed
+        self.waypoints = []
+        self.parameters = ParameterDeclarations()
+
+
+    def add_parameter(self,parameter):
+        """ adds a parameter to the Route
+
+            Parameters
+            ----------
+                parameter (Parameter): the parameter to add
+
+        """
+        self.parameters.add_parameter(parameter)
+
+    def add_waypoint(self,position,strategy):
+        """ adds a waypoint to the Route
+
+            Parameters
+            ----------
+                position (*Position): any position for the route
+
+                routestrategy (str): routing strategy for this waypoint
+
+        """
+        self.waypoints.append(Waypoint(position,strategy))
+
+    def get_attributes(self):
+        """ returns the attributes of the Route as a dict
+
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        retdict['closed'] = str(self.closed)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Route
+
+        """
+        if len(self.waypoints) <2:
+            ValueError('Too few waypoints')
+        element = ET.Element('Route',attrib=self.get_attributes())
+        element.append(self.parameters.get_element())
+        for w in self.waypoints:
+            element.append(w.get_element())
+        return element
+
+class Waypoint():
+    """ the Route class creates a route, needs atleast two waypoints to be valid
+        
+        Parameters
+        ----------
+            position (*Position): any position for the route
+
+            routestrategy (str): routing strategy for this waypoint
+
+        Attributes
+        ----------
+            position (*Position): any position for the route
+
+            routestrategy (str): routing strategy for this waypoint
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, position, routestrategy):
+        """ initalize the Waypoint
+
+            Parameters
+            ----------
+                position (*Position): any position for the route
+
+                routestrategy (str): routing strategy for this waypoint
+
+        """
+        self.position = position
+        self.routestrategy = routestrategy
+
+
+    def get_attributes(self):
+        """ returns the attributes of the Waypoint as a dict
+
+        """
+        return {'routeStrategy':self.routestrategy}
+
+    def get_element(self):
+        """ returns the elementTree of the Waypoint
+
+        """
+        element = ET.Element('Waypoint',attrib=self.get_attributes())
+        element.append(self.position.get_element())
+        return element

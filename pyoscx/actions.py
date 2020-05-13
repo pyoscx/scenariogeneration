@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 
-from .utils import DynamicsConstrains, DynamicsShape
+from .utils import DynamicsConstrains
 
+from .enumerations import DYNAMICSSHAPES
 
 
 class _Action():
@@ -453,7 +454,7 @@ class AbsoluteLaneChangeAction():
         """
         retdict = {}
         retdict['value'] = str(self.lane)
-
+        return retdict
     
     def get_element(self):
         """ returns the elementTree of the AbsoluteLaneChangeAction
@@ -465,6 +466,7 @@ class AbsoluteLaneChangeAction():
         if self.target_lane_offset:
             laneoffset = {'targetLaneOffset':str(self.target_lane_offset)}
         lanechangeaction = ET.SubElement(lataction,'LaneChangeAction',attrib=laneoffset)
+
         
         lanechangeaction.append(self.transition_dynamics.get_element('LaneChangeActionDynamics'))
         lanchangetarget = ET.SubElement(lanechangeaction,'LaneChangeTarget')
@@ -580,7 +582,7 @@ class AbsoluteLaneOffsetAction():
 
             target (str): the name of the entity (relative only)
 
-            dynshape (DynamicsShape): the shape of the action
+            dynshape (str): the shape of the action
 
             maxlatacc (float): maximum allowed lateral acceleration
 
@@ -610,7 +612,9 @@ class AbsoluteLaneOffsetAction():
         """
         self.continious = continious
         self.value = value
-        self.dynshape = DynamicsShape(shape,constants)
+        if shape not in DYNAMICSSHAPES:
+            raise ValueError(shape + '; is not a valid shape.')
+        self.dynshape = shape
         self.maxlatacc = maxlatacc
 
     def get_attributes(self):
@@ -628,7 +632,7 @@ class AbsoluteLaneOffsetAction():
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
         laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
-        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.shape})
+        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
         ET.SubElement(laneoffsetaction,'AbsoluteTargetLaneOffset',self.get_attributes())
 
         return element
@@ -659,7 +663,7 @@ class RelativeLaneOffsetAction():
 
             target (str): the name of the entity
 
-            dynshape (DynamicsShape): the shape of the action
+            dynshape (str): the shape of the action
 
             maxlatacc (float): maximum allowed lateral acceleration
 
@@ -693,7 +697,9 @@ class RelativeLaneOffsetAction():
         self.continious = continious
         self.value = value
         self.target = entity
-        self.dynshape = DynamicsShape(shape,constants)
+        if shape not in DYNAMICSSHAPES:
+            raise ValueError(shape + '; is not a valid shape.')
+        self.dynshape = shape
         self.maxlatacc = maxlatacc
 
     def get_attributes(self):
@@ -712,7 +718,7 @@ class RelativeLaneOffsetAction():
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
         laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
-        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.shape})
+        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
         ET.SubElement(laneoffsetaction,'RelativeTargetLaneOffset',self.get_attributes())
 
         return element
@@ -861,7 +867,141 @@ class TeleportAction():
         telact = ET.SubElement(element,'TeleportAction')
         telact.append(self.position.get_element())
         return element
+
+
+
+# Routing actions
+
+class AssingRouteAction():
+    """ AssingRouteAction creates a RouteAction of type AssingRouteAction
+
+        Parameters
+        ----------
+            route (Route, or CatalogReference): the route to follow
+
+        Attributes
+        ----------
+            route (Route, or CatalogReference): the route to follow
+
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,route):
+        """ initalizes the AssingRouteAction
+
+            Parameters
+            ----------
+                route (Route, or CatalogReference): the route to follow
+
+        """
+        self.route = route
+
+    def get_element(self):
+        """ returns the elementTree of the AssingRouteAction
+
+        """
+        element = ET.Element('PrivateAction')
+        routeaction = ET.SubElement(element,'RoutingAction')
+        routeaction = ET.SubElement(element,'AssignRoutingAction')
+        routeaction.append(self.route.get_element())
+
+        return element
+
+
+class AcquirePositionAction():
+    """ AcquirePositionAction creates a RouteAction of type AcquirePositionAction
         
+        Parameters
+        ----------
+            position (*Position): target position
+
+        Attributes
+        ----------
+            position (*Position): target position
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,position):
+        """ initalizes the AssingRouteAction
+
+            Parameters
+            ----------
+                position (*Position): target position
+
+        """
+        self.position = position
+
+    def get_element(self):
+        """ returns the elementTree of the AssingRouteAction
+
+        """
+        element = ET.Element('PrivateAction')
+        routeaction = ET.SubElement(element,'RoutingAction')
+        routeaction = ET.SubElement(element,'AcquirePositionAction')
+        routeaction.append(self.position.get_element())
+
+        return element
+
+class ActivateControllerAction():
+    """ ActivateControllerAction creates a ActivateControllerAction of open scenario
+        
+        Parameters
+        ----------
+            lateral (boolean): activate or deactivate the controller
+
+            longitudinal (boolean): activate or deactivate the controller
+
+        Attributes
+        ----------
+            lateral (boolean): activate or deactivate the controller
+            
+            longitudinal (boolean): activate or deactivate the controller
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the the attributes of the class
+
+    """
+    def __init__(self,lateral, longitudinal):
+        """ initalizes the ActivateControllerAction
+
+            Parameters
+            ----------
+                lateral (boolean): activate or deactivate the controller
+            
+                longitudinal (boolean): activate or deactivate the controller
+
+        """
+        self.lateral = lateral
+        self.longitudinal = longitudinal
+
+    def get_attributes(self):
+        """ returns the attributes of the ActivateControllerAction as a dict
+
+        """
+        return {'lateral':str(self.lateral),'longitudinal':str(self.longitudinal)}
+
+    def get_element(self):
+        """ returns the elementTree of the ActivateControllerAction
+
+        """
+        element = ET.Element('PrivateAction')
+        routeaction = ET.SubElement(element,'ActivateControllerAction',attrib=self.get_attributes())
+
+        return element
+
 # not worked on yet
 """ 
         

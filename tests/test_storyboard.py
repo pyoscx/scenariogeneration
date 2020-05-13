@@ -4,10 +4,9 @@ import pytest
 import pyoscx as OSC
 
 
-TD = OSC.TransitionDynamics('step',0,'rate',1)
+TD = OSC.TransitionDynamics('step','rate',1)
 
-speedaction = OSC.SpeedAction(TD)
-speedaction.set_absolute_target_speed(50)
+speedaction = OSC.AbsoluteSpeedAction(50,TD)
 trigcond = OSC.TimeToCollisionCondition(10,'equalTo',position=OSC.WorldPosition(),freespace=False,)
 
 trigger = OSC.EntityTrigger('mytesttrigger',0.2,'rising',trigcond,'Target_1')
@@ -70,9 +69,9 @@ def test_init():
 
 
     init = OSC.Init()
-    TD = OSC.TransitionDynamics('step',0,'time',0)
-    egospeed = OSC.SpeedAction(TD)
-    egospeed.set_absolute_target_speed(10)
+    TD = OSC.TransitionDynamics('step','time',0)
+    egospeed = OSC.AbsoluteSpeedAction(10,TD)
+    
     init.add_init_action('Ego',egospeed)
     init.add_init_action('Ego',OSC.TeleportAction(OSC.WorldPosition(1,2,3,0,0,0)))
     init.add_init_action('Target_1',egospeed)
@@ -83,9 +82,9 @@ def test_init():
 
 def test_storyboard():
     init = OSC.Init()
-    TD = OSC.TransitionDynamics('step',0,'time',0)
-    egospeed = OSC.SpeedAction(TD)
-    egospeed.set_absolute_target_speed(10)  
+    TD = OSC.TransitionDynamics('step','time',0)
+    egospeed = OSC.AbsoluteSpeedAction(10,TD)
+      
     init.add_init_action('Ego',egospeed)
     init.add_init_action('Ego',OSC.TeleportAction(OSC.WorldPosition(1,2,3,0,0,0)))
     init.add_init_action('Target_1',egospeed)

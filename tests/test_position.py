@@ -18,32 +18,32 @@ def test_worldposition_input():
 
 def test_relativeworldposition():
     
-    pos = OSC.RelativePosition('Ego',1,2,reference='world')
+    pos = OSC.RelativeWorldPosition('Ego',1,2,0)
     OSC.prettyprint(pos.get_element())
 
-    pos = OSC.RelativePosition('Target',1,2,3,orientation=OSC.Orientation(h=0.2))
+    pos = OSC.RelativeWorldPosition('Target',1,2,0,orientation=OSC.Orientation(h=0.2))
     OSC.prettyprint(pos.get_element())
 
 
 def test_relativeobjectposition():
     
-    pos = OSC.RelativePosition('Ego',1,2,reference='object')
+    pos = OSC.RelativeObjectPosition('Ego',1,2,0)
     OSC.prettyprint(pos.get_element())
 
-    pos = OSC.RelativePosition('Target',1,2,3,orientation=OSC.Orientation(h=0.2))
+    pos = OSC.RelativeObjectPosition('Target',1,2,0,orientation=OSC.Orientation(h=0.2))
     OSC.prettyprint(pos.get_element())
 
 
 def test_roadposition():
-    pos = OSC.RoadPosition(1,2,reference_id='1',reference='road')
+    pos = OSC.RoadPosition(1,2,reference_id='1')
     OSC.prettyprint(pos.get_element())
 
-    pos = OSC.RoadPosition(1,2,reference_id='Ego',reference='object')
+    pos = OSC.RelativeRoadPosition(1,2,entity='Ego')
     OSC.prettyprint(pos.get_element())
 
 def test_laneposition():
-    pos = OSC.LanePosition(1,2,lane='lane1',reference='road',reference_id='road1')
+    pos = OSC.LanePosition(1,2,lane_id='lane1',road_id='road1')
     OSC.prettyprint(pos.get_element())
 
-    pos = OSC.LanePosition(1,2,lane=1,reference='object',reference_id='Ego')
+    pos = OSC.RelativeLanePosition(1,2,lane_id=1,entity='Ego')
     OSC.prettyprint(pos.get_element())
