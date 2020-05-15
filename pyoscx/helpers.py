@@ -1,6 +1,24 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
+
+import os
+
+def esminiRunner(scenario,esminipath = 'esmini'):
+    """ write a scenario and runs it in esmini
+        Parameters
+        ----------
+            scenario (Scenario): the pypscx scenario to run
+
+            esminipath (str): the path to esmini 
+                Default: pyoscx
+
+    """
+    _scenariopath = os.path.join(esminipath,'resources','xosc')
+    scenario.write_xml(os.path.join(_scenariopath,'pythonscenario2.xosc'),True)
+    os.system('./esmini/bin/EnvironmentSimulator --osc esmini/resources/xosc/pythonscenario2.xosc --threads --window 50 50 800 400' )
+    
+
 def prettyprint(element):
     """ prints the element to the commandline
 

@@ -335,7 +335,7 @@ class EndOfRoadCondition():
         """ returns the elementTree of the EndOfRoadCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'EndOfRoadCondition',attrib=self.get_attributes())
         return element
 
@@ -380,7 +380,7 @@ class CollisionCondition():
         """ returns the elementTree of the CollisionCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'CollisionCondition',attrib=self.get_attributes())
         return element
 
@@ -424,7 +424,7 @@ class OffroadCondition():
         """ returns the elementTree of the OffroadCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'OffroadCondition',attrib=self.get_attributes())
         return element
 
@@ -505,7 +505,7 @@ class TimeHeadwayCondition():
         """ returns the elementTree of the TimeHeadwayCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'TimeHeadwayCondition',attrib=self.get_attributes())
         return element
 
@@ -606,7 +606,7 @@ class TimeToCollisionCondition():
         """ returns the elementTree of the TimeToCollisionCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         collisionevent = ET.SubElement(element,'TimeToCollisionCondition',attrib=self.get_attributes())
         
         if self.use_entity == None:
@@ -668,7 +668,7 @@ class AccelerationCondition():
         """ returns the elementTree of the AccelerationCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'AccelerationCondition',attrib=self.get_attributes())
         return element
 
@@ -711,7 +711,7 @@ class StandStillCondition():
         """ returns the elementTree of the StandStillCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'StandStillCondition',attrib=self.get_attributes())
         return element
 
@@ -761,7 +761,7 @@ class SpeedCondition():
         """ returns the elementTree of the SpeedCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'SpeedCondition',attrib=self.get_attributes())
         return element
 
@@ -819,7 +819,7 @@ class RelativeSpeedCondition():
         """ returns the elementTree of the RelativeSpeedCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'RelativeSpeedCondition',attrib=self.get_attributes())
         return element
 
@@ -863,7 +863,7 @@ class TraveledDistanceCondition():
         """ returns the elementTree of the TraveledDistanceCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'TraveledDistanceCondition',attrib=self.get_attributes())
         return element 
     
@@ -915,7 +915,7 @@ class ReachPositionCondition():
         """ returns the elementTree of the ReachPositionCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         reachposcond = ET.SubElement(element,'ReachPositionCondition',attrib=self.get_attributes())
         reachposcond.append(self.position.get_element())
         return element
@@ -979,7 +979,7 @@ class DistanceCondition():
         """ returns the elementTree of the DistanceCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         distancecond = ET.SubElement(element,'DistanceCondition',attrib=self.get_attributes())
         distancecond.append(self.position.get_element())
         return element
@@ -1061,7 +1061,7 @@ class RelativeDistanceCondition():
         """ returns the elementTree of the RelativeDistanceCondition
 
         """
-        element = ET.Element('EntityCoondition')
+        element = ET.Element('EntityCondition')
         ET.SubElement(element,'RelativeDistanceCondition',attrib=self.get_attributes())
         return element
         

@@ -140,7 +140,7 @@ class EntityRef():
         """ returns the attributes of the EntityRef as a dict
 
         """
-        return {'entryRef':self.entity}
+        return {'entityRef':self.entity}
 
     def get_element(self):
         """ returns the elementTree of the EntityRef

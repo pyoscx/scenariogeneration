@@ -77,7 +77,7 @@ class Scenario():
         """ returns the elementTree of the Scenario
 
         """
-        element = ET.Element('Openscenario',attrib={'xmlns:xsi':self._XMLNS,'xsi:noNamespaceShemaLocation':self._XSI})
+        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':self._XMLNS,'xsi:noNamespaceShemaLocation':self._XSI})
         element.append(self.header.get_element())
         element.append(self.parameters.get_element())
         element.append(self.catalog.get_element())

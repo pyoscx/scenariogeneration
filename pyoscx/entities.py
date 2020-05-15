@@ -153,8 +153,7 @@ class ScenarioObject():
         element = ET.Element('ScenarioObject',attrib=self.get_attributes())
         
         # print(self.entityobject.get_element())
-        entityobj = ET.SubElement(element,'EntityObject')
-        entityobj.append(self.entityobject.get_element())
+        element.append(self.entityobject.get_element())
         if self.controller:
             ET.SubElement('ObjectController',self.controller.get_element())
         

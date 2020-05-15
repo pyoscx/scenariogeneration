@@ -510,7 +510,7 @@ class Maneuver():
         if not self.events:
             raise ValueError('no events added to the maneuver')
 
-        element = ET.Element('Maneuver')
+        element = ET.Element('Maneuver',attrib=self.get_attributes())
         for event in self.events:
             element.append(event.get_element())
 

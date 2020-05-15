@@ -431,9 +431,9 @@ class LanePosition():
 
             offset (float): offset from center of lane
 
-            road_id (str): id of the road
+            road_id (int): id of the road
 
-            lane_id (str): lane of the road
+            lane_id (int): lane of the road
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()    
@@ -444,9 +444,9 @@ class LanePosition():
 
             offset (float): offset from center of lane
 
-            road_id (str): id of the road
+            road_id (int): id of the road
 
-            lane_id (str): lane of the road
+            lane_id (int): lane of the road
 
             orient (Orientation): the angular orientation of the entity
                 Default: Orientation()
@@ -469,9 +469,9 @@ class LanePosition():
 
             offset (float): offset from center of lane
 
-            road_id (str): id of the road
+            road_id (int): id of the road
 
-            lane_id (str): lane of the road
+            lane_id (int): lane of the road
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()  
@@ -488,9 +488,9 @@ class LanePosition():
 
         """
         retdict = {}
-        retdict['roadId'] = self.road_id
-        retdict['laneId'] = self.lane_id
-        retdict['ds'] = str(self.s)
+        retdict['roadId'] = str(self.road_id)
+        retdict['laneId'] = str(self.lane_id)
+        retdict['s'] = str(self.s)
         retdict['offset'] = str(self.offset)
                    
         return retdict
@@ -578,7 +578,7 @@ class RelativeLanePosition():
         """
         retdict = {}
         retdict['entityRef'] = self.entity
-        retdict['s'] = str(self.s)
+        retdict['ds'] = str(self.s)
         retdict['offset'] = str(self.offset)
         retdict['dLane'] = str(self.lane_id)
         return retdict

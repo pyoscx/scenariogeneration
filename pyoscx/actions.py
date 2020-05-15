@@ -278,7 +278,7 @@ class LongitudinalDistanceAction():
 
         """
         retdict = {}
-        retdict['entryRef'] = self.target
+        retdict['entityRef'] = self.target
         retdict['freespace'] = str(self.freespace)
         retdict['continious'] = str(self.continious)
         retdict['distance'] = str(self.distance)
@@ -379,7 +379,7 @@ class LongitudinalTimegapAction():
 
         """
         retdict = {}
-        retdict['entryRef'] = self.target
+        retdict['entityRef'] = self.target
         retdict['freespace'] = str(self.freespace)
         retdict['continious'] = str(self.continious)
         retdict['timeGap'] = str(self.timegap)
@@ -567,8 +567,6 @@ class AbsoluteLaneOffsetAction():
 
             shape (str): shape of the offset action
 
-            constants (list of floats): the constants of the shape
-
             maxlatacc (float): maximum allowed lateral acceleration
 
             continious (bool): if the controller tries to keep the relative speed 
@@ -595,15 +593,13 @@ class AbsoluteLaneOffsetAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,value,shape,constants,maxlatacc,continious = True):
+    def __init__(self,value,shape,maxlatacc,continious = True):
         """ initalizes the LaneOffsetAction
             Parameters
             ----------
                 value (float): lateral offset of the lane
 
                 shape (str): shape of the offset action
-
-                constants (list of floats): the constants of the shape
 
                 maxlatacc (float): maximum allowed lateral acceleration
 
@@ -648,8 +644,6 @@ class RelativeLaneOffsetAction():
 
             shape (str): shape of the offset action
 
-            constants (list of floats): the constants of the shape
-
             maxlatacc (float): maximum allowed lateral acceleration
 
             continious (bool): if the controller tries to keep the relative speed 
@@ -687,8 +681,6 @@ class RelativeLaneOffsetAction():
 
                 shape (str): shape of the offset action
 
-                constants (list of floats): the constants of the shape
-
                 maxlatacc (float): maximum allowed lateral acceleration
 
                 continious (bool): if the controller tries to keep the relative speed 
@@ -708,7 +700,7 @@ class RelativeLaneOffsetAction():
         """
         retdict = {}
         retdict['value'] = str(self.value)
-        retdict['entryRef'] = self.target
+        retdict['entityRef'] = self.target
         return retdict
         
     def get_element(self):
