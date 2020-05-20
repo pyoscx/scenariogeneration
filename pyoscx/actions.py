@@ -28,8 +28,9 @@ class _Action():
 
             get_attributes()
                 Returns a dictionary of all attributes of the class
-
+    
     """
+
     def __init__(self,name,action):
         """ initalize _Action
 
@@ -41,6 +42,7 @@ class _Action():
 
         """
         self.name = name
+        
         self.action = action
         
     def get_attributes(self):
@@ -399,8 +401,6 @@ class LongitudinalTimegapAction():
 
 # lateral actions
 
-
-
 class AbsoluteLaneChangeAction():
     """ the AbsoluteLaneChangeAction creates a LateralAction of type LaneChangeAction with an absolute target
         
@@ -535,7 +535,7 @@ class RelativeLaneChangeAction():
 
         """
         retdict = {}
-        retdict['lane'] = str(self.lane)
+        retdict['value'] = str(self.lane)
         retdict['entityRef'] = self.target
         return retdict
     
@@ -555,8 +555,6 @@ class RelativeLaneChangeAction():
         
         ET.SubElement(lanchangetarget,'RelativeTargetLane',self.get_attributes())
         return element
-
-
 
 class AbsoluteLaneOffsetAction():
     """ the AbsoluteLaneOffsetAction class creates a LateralAction of type LaneOffsetAction with an absolute target
@@ -627,9 +625,10 @@ class AbsoluteLaneOffsetAction():
         """
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
-        laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
+        laneoffsetaction = ET.SubElement(lataction,'LaneOffsetAction',attrib={'continious':str(self.continious)})
         ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
-        ET.SubElement(laneoffsetaction,'AbsoluteTargetLaneOffset',self.get_attributes())
+        laneoftarget = ET.SubElement(laneoffsetaction,'LaneOffsetTarget')
+        ET.SubElement(laneoftarget,'AbsoluteTargetLaneOffset',self.get_attributes())
 
         return element
 
@@ -670,7 +669,7 @@ class RelativeLaneOffsetAction():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,value,entity,shape,constants,maxlatacc,continious = True):
+    def __init__(self,value,entity,shape,maxlatacc,continious = True):
         """ initalizes the LaneOffsetAction,
 
             Parameters
@@ -709,9 +708,10 @@ class RelativeLaneOffsetAction():
         """
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
-        laneoffsetaction = ET.SubElement(lataction,'LaneChangeAction',attrib={'continious':str(self.continious)})
+        laneoffsetaction = ET.SubElement(lataction,'LaneOffsetAction',attrib={'continious':str(self.continious)})
         ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
-        ET.SubElement(laneoffsetaction,'RelativeTargetLaneOffset',self.get_attributes())
+        laneoftarget = ET.SubElement(laneoffsetaction,'LaneOffsetTarget')
+        ET.SubElement(laneoftarget,'RelativeTargetLaneOffset',attrib=self.get_attributes())
 
         return element
 

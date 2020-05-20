@@ -862,7 +862,7 @@ class Properties():
         for p in self.properties:
             ET.SubElement(element,'Property',attrib={'name':p[0],'value':p[1]})
         for f in self.files:
-            ET.SubElement(element,'File',attrib={'name':f})
+            ET.SubElement(element,'File',attrib={'filepath':f})
         
         
         return element

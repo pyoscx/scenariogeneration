@@ -499,7 +499,7 @@ class DynamicsConstrains():
             retdict['maxAcceleration'] = str(self.max_acceleration)
         return retdict
 
-    def get_element(self,name = 'DynamicConstraitns'):
+    def get_element(self,name = 'DynamicConstraints'):
         """ returns the elementTree of the DynamicsConstrains
 
         """
@@ -654,3 +654,58 @@ class Waypoint():
         element = ET.Element('Waypoint',attrib=self.get_attributes())
         element.append(self.position.get_element())
         return element
+
+
+class Polyline():
+    """ the Polyline class creates a polyline of (minimum 2) positions
+        
+        Parameters
+        ----------
+            time (list of double): a list of timings for the positions
+
+            positions (list of positions): list of positions to create the polyline
+
+        Attributes
+        ----------
+            time (*Position): any position for the route
+
+            positions (str): routing strategy for this waypoint
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+
+    def __init__(self, time, positions):
+        """ initalize the Polyline
+
+            Parameters
+            ----------
+                time (list of double): a list of timings for the positions
+
+                positions (list of positions): list of positions to create the polyline
+
+        """
+        if len(time) < 2:
+            ValueError('not enough time inputs')
+        if len(positions)<2:
+            ValueError('not enough position inputs')
+        if len(time) != len(positions):
+            ValueError('time and positions are not the same lenght')
+        
+        self.positions = positions
+        self.time = time
+
+    def get_element(self):
+        """ returns the elementTree of the Polyline
+
+        """
+        element = ET.Element('Polyline')
+        for i in range(len(self.time)):
+            vert = ET.SubElement(element,'Vertex',attrib={'time':str(self.time[i])})
+            vert.append(self.positions[i].get_element())
+        return element
+
+
