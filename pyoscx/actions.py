@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 
-from .utils import DynamicsConstrains
+from .utils import DynamicsConstrains, TimeReference
 
-from .enumerations import DYNAMICSSHAPES, SPEEDTARGETVALUETYP
+from .enumerations import DYNAMICSSHAPES, SPEEDTARGETVALUETYP, FOLLOWMODE
 
 
 class _Action():
@@ -898,8 +898,8 @@ class AssingRouteAction():
         """
         element = ET.Element('PrivateAction')
         routeaction = ET.SubElement(element,'RoutingAction')
-        routeaction = ET.SubElement(element,'AssignRoutingAction')
-        routeaction.append(self.route.get_element())
+        assignrouteaction = ET.SubElement(routeaction,'AssignRoutingAction')
+        assignrouteaction.append(self.route.get_element())
 
         return element
 
@@ -937,10 +937,82 @@ class AcquirePositionAction():
         """
         element = ET.Element('PrivateAction')
         routeaction = ET.SubElement(element,'RoutingAction')
-        routeaction = ET.SubElement(element,'AcquirePositionAction')
-        routeaction.append(self.position.get_element())
+        posaction = ET.SubElement(routeaction,'AcquirePositionAction')
+        posaction.append(self.position.get_element())
 
         return element
+
+
+
+class FollowTrajectoryAction():
+    """ FollowTrajectoryAction creates a RouteAction of type FollowTrajectoryAction
+
+        Parameters
+        ----------
+            trajectory (Trajectory, or CatalogReference): the trajectory to follow
+
+            following_mode (str): the following mode of the action
+
+            referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+                Default: None
+            scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
+                Default: None
+            offset (double): offset for time values (must be combined with referece_domain and scale)
+                Default: None
+
+        Attributes
+        ----------
+            trajectory (Trajectory, or CatalogReference): the trajectory to follow
+
+            following_mode (str): the following mode of the action
+
+            timeref (TimeReference): the time reference of the trajectory
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,trajectory,following_mode,referece_domain=None,scale=None,offset=None):
+        """ initalize the FollowTrajectoryAction 
+
+            Parameters
+            ----------
+                trajectory (Trajectory, or CatalogReference): the trajectory to follow
+
+                following_mode (str): the following mode of the action
+
+                referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+                    Default: None
+                scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
+                    Default: None
+                offset (double): offset for time values (must be combined with referece_domain and scale)
+                    Default: None
+        """
+        if following_mode not in FOLLOWMODE:
+            ValueError(str(following_mode) + ' is not a valied following mode.')
+        self.trajectory = trajectory
+        self.following_mode = following_mode
+
+        self.timeref = TimeReference(referece_domain,scale,offset)
+
+    def get_element(self):
+        """ returns the elementTree of the AssingRouteAction
+
+        """
+        element = ET.Element('PrivateAction')
+        routeaction = ET.SubElement(element,'RoutingAction')
+        trajaction = ET.SubElement(routeaction,'FollowTrajectoryAction')
+        trajaction.append(self.trajectory.get_element())
+        trajaction.append(self.timeref.get_element())
+        ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'name':self.following_mode})
+
+        return element
+
+
+
+
 
 class ActivateControllerAction():
     """ ActivateControllerAction creates a ActivateControllerAction of open scenario

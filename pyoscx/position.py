@@ -212,7 +212,7 @@ class RelativeObjectPosition():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__ (self,entity,dx,dy,dz,orientation = Orientation()):
+    def __init__ (self,entity,dx,dy,dz=None,orientation = Orientation()):
         """ initalizes the RelativeObjectPosition
 
         Parameters
@@ -224,6 +224,7 @@ class RelativeObjectPosition():
             dy (float): relative y-coord
 
             dz (float): relative z-coord
+                Default: None
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
@@ -243,7 +244,8 @@ class RelativeObjectPosition():
         retdict['entityRef'] = self.target
         retdict['dx'] = str(self.dx)
         retdict['dy'] = str(self.dy)
-        retdict['dz'] = str(self.dz)
+        if self.dz != None:
+            retdict['dz'] = str(self.dz)
         return retdict
 
     def get_element(self,elementname = 'Position'):
@@ -444,9 +446,9 @@ class LanePosition():
 
             offset (float): offset from center of lane
 
-            road_id (int): id of the road
-
             lane_id (int): lane of the road
+
+            road_id (int): id of the road
 
             orient (Orientation): the angular orientation of the entity
                 Default: Orientation()

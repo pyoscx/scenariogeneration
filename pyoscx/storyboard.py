@@ -4,7 +4,7 @@ from .actions import _Action
 
 from .triggers import EmptyTrigger
 from .utils import EntityRef
-from .scenario import ParameterDeclarations
+from .utils import ParameterDeclarations
 
 
 class StoryBoard():
@@ -341,7 +341,7 @@ class ManeuverGroup():
         self.maxexecution = maxexecution
         self.actors = _Actors(selecttriggeringentities)
         self.maneuvers = []
-        # TODO:fix catalogue
+ 
 
     
     def add_maneuver(self,maneuver):
@@ -349,7 +349,7 @@ class ManeuverGroup():
             
         Parameters
         ----------
-            maneuver (Maneuver): maneuver to add
+            maneuver (Maneuver, or CatalogReference): maneuver to add
 
         """
         self.maneuvers.append(maneuver)
@@ -486,7 +486,37 @@ class Maneuver():
         self.name = name
         self.events = []
         # TODO:add parameter declaration
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the Controller to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
 
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the Controller to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
     def add_event(self,event):
         """ adds an event to the Maneuver
 

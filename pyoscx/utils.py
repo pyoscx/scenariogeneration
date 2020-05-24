@@ -2,73 +2,52 @@
 import xml.etree.ElementTree as ET
 
 from .enumerations import CONDITIONEDGE, OBJECTTYPE, PARAMETERTYPE, RULE, REFERENCECONTEXT, DYNAMICSSHAPES, DYNAMICSDIMENSION
-
-from .scenario import ParameterDeclarations
-def merge_dicts(*dict_args):
-    """ Funciton to merge dicts 
-    
-    """
-    retdict = {}
-    for d in dict_args:
-        retdict.update(d)
-
-    return retdict
+import datetime as dt
 
 
-class CatalogReference():
-    """ CatalogReference creates an CatalogReference element of openscenario
-        
-        Parameters
-        ----------
-            catalogname (str): name of the catalog
-
-            entryname (str): name of the entry in the catalog            
-
+class ParameterDeclarations():
+    """ The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
+                    
         Attributes
         ----------
-            catalogname (str): name of the catalog
-
-            entryname (str): name of the entry in the catalog 
-
-            parameter (Parameter) ???
+            parameters: list of Parameter objects
 
         Methods
         -------
-            add_parameter_assignment(parameter,value)
-                Assigns a parameter with a value
-
             get_element()
                 Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+            add_parameter(Parameter)
+                adds a Parameter to the ParameterDeclarations
 
     """
-    def __init__(self,catalogname,entryname):
-        """ initalize the CatalogReference
-
-            Parameters
-            ----------
-                catalogname (str): name of the catalog
-
-                entryname (str): name of the entry in the catalog    
-                
-        """
-        self.catalogname = catalogname
-        self.entryname = entryname
-
-    def get_attributes(self):
-        """ returns the attributes of the CatalogReference as a dict
+    def __init__(self):
+        """ initalizes the ParameterDeclarations
 
         """
-        return {'catalogName':self.catalogname,'entryName':self.entryname}
+        self.parameters = []
 
-    def get_element(self):
-        """ returns the elementTree of the CatalogReference
+    def add_parameter(self,parameter):
+        """ add_parameter adds a Parameter to the ParameterDeclarations
+
+        Parameters
+        ----------
+            parameter (Parameter): a new parameter
+
 
         """
-        return ET.Element('CatalogReference',attrib=self.get_attributes())
+        self.parameters.append(parameter)
     
+    def get_element(self):
+        """ returns the elementTree of the ParameterDeclarations
+
+        """
+        element = ET.Element('ParameterDeclarations')
+        for p in self.parameters:
+            element.append(p.get_element())
+        return element
+
+
 class ConditionEdge():
     """ ConditionEdge is used to determine how to trigger on a valuechange
         
@@ -534,6 +513,12 @@ class Route():
             add_parameter(Parameter)
                 adds a parameter to the route
 
+            append_to_catalog(filename)
+                adds the Route to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the Route
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -558,6 +543,37 @@ class Route():
         self.waypoints = []
         self.parameters = ParameterDeclarations()
 
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the Controller to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the Controller to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
 
     def add_parameter(self,parameter):
         """ adds a parameter to the Route
@@ -656,6 +672,201 @@ class Waypoint():
         return element
 
 
+class Trajectory():
+    """ the Trajectory class creates a Trajectory, 
+        
+        Parameters
+        ----------
+            name (str): name of the trajectory
+
+            closed (boolean): if the trajectory is closed at the end
+
+        Attributes
+        ----------
+            name (str): name of the trajectory
+
+            closed (boolean): if the trajectory is closed at the end
+
+            parameters (ParameterDeclaration): parameters for the trajectory
+
+            shapes (list of Polyline, Clothoid, or Nurbs): list of the different shapes building the trajectory
+
+        Methods
+        -------
+            add_shape(Polyline, Clothoid, or Nurbs):
+                adds a shape to the trajectory (only the same shape can be used)
+            
+            add_parameter(Parameter)
+                adds a parameter to the route
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, name, closed):
+        """ initalize the Trajectory
+
+            Parameters
+            ----------
+            name (str): name of the trajectory
+
+            closed (boolean): if the trajectory is closed at the end
+
+        """
+
+        self.name = name
+        self.closed = closed
+        self.parameters = ParameterDeclarations()
+        self.shapes = []
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the Controller to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the Controller to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
+    def add_shape(self,shape):
+        """ adds a shape to the trajectory (only the same shape can be used)
+
+            Parameters
+            ----------
+            shape (Polyline, Clothoid, or Nurbs): the shape to be added to the trajectory
+
+        """
+        self.shapes.append(shape)
+
+    def add_parameter(self,parameter):
+        """ adds a parameter to the Trajectory
+
+            Parameters
+            ----------
+                parameter (Parameter): the parameter to add
+
+        """
+        self.parameters.add_parameter(parameter)
+
+    def get_attributes(self):
+        """ returns the attributes of the Trajectory as a dict
+
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        retdict['closed'] = str(self.closed)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Trajectory
+
+        """
+        element = ET.Element('Trajectory',attrib=self.get_attributes())
+        element.append(self.parameters.get_element())
+        shape = ET.SubElement(element,'Shape')
+        for sh in self.shapes:
+            shape.append(sh.get_element())
+        return element
+
+
+class TimeReference():
+    """ the TimeReference class creates a TimeReference, 
+        
+        Parameters
+        ----------
+            referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+                Default: None
+            scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
+                Default: None
+            offset (double): offset for time values (must be combined with referece_domain and scale)
+                Default: None
+
+        Attributes
+        ----------
+            referece_domain (str): absolute or relative time reference 
+
+            scale (double): scalefactor of the timeings 
+
+            offset (double): offset for time values 
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, referece_domain=None,scale=None,offset=None):
+        """ initalize the TimeReference
+
+            Parameters
+            ----------
+            name (str): name of the trajectory
+
+            closed (boolean): if the trajectory is closed at the end
+
+        """
+        nones = [referece_domain == None, scale == None, offset == None]
+        if sum(nones) == 3:
+            self._only_nones = True
+        elif sum(nones) == 0:
+            self._only_nones = False
+        else:
+            ValueError('missing inputs for time reference')
+        self.referece_domain = referece_domain
+        self.scale = scale
+        self.offset = offset
+        
+    def get_attributes(self):
+        """ returns the attributes of the TimeReference as a dict
+
+        """
+        retdict = {}
+        retdict['domainAbsoluteRelative'] = self.referece_domain
+        retdict['scale'] = str(self.scale)
+        retdict['offset'] = str(self.offset)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the TimeReference
+
+        """
+
+        element = ET.Element('TimeReference')
+        if self._only_nones:
+            ET.SubElement(element,'None')
+        else:
+            ET.SubElement(element,'Timing',self.get_attributes())
+        
+        return element
+
 class Polyline():
     """ the Polyline class creates a polyline of (minimum 2) positions
         
@@ -709,3 +920,55 @@ class Polyline():
         return element
 
 
+class FileHeader():
+    """ FileHeader creates the header of the OpenScenario file
+        
+        Parameters
+        ----------
+            name (str): name of the scenario 
+
+            author (str): the author of the scenario
+
+        Attributes
+        ----------
+            name (str): name of the scenario 
+
+            author (str): the author of the scenario
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of FileHeader
+
+            get_attributes()
+                Returns a dictionary of all attributes of FileHeader
+
+    """
+    def __init__(self,name,author):
+        self.name = name
+        self.author = author
+        
+
+    def get_attributes(self):
+        """ returns the attributes as a dict of the FileHeader
+
+        """
+        return {'decription':self.name,'author':self.author,'revMajor':'1','revMinor':'0','date':str(dt.datetime.now())}
+
+    def get_element(self):
+        """ returns the elementTree of the FileHeader
+
+        """
+        element = ET.Element('FileHeader',attrib=self.get_attributes())
+
+        return element
+
+def merge_dicts(*dict_args):
+    """ Funciton to merge dicts 
+    
+    """
+    retdict = {}
+    for d in dict_args:
+        retdict.update(d)
+
+    return retdict

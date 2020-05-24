@@ -4,6 +4,7 @@ from .utils import EntityRef, ObjectType
 from .scenario import ParameterDeclarations
 from .enumerations import VEHICLECATEGORY, PEDESTRIANGCATEGORY, MISCOBJECTCATEGORY
 from .utils import DynamicsConstrains
+from .catalog import CatalogFile
 
 class Entities():
     """ The Entities class creates the entities part of OpenScenario
@@ -275,6 +276,12 @@ class Pedestrian():
             add_property_file(filename)
                 adds a property file to the pedestrian
 
+            append_to_catalog(filename)
+                adds the vehicle to an existing pedestrian
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the pedestrian
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -308,6 +315,40 @@ class Pedestrian():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
+        
+    
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the Pedestrian to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the Pedestrian to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the pedestrian
 
@@ -362,13 +403,13 @@ class MiscObject():
 
         Parameters
         ----------
-            name (str): name of the vehicle
+            name (str): name of the MiscObject
 
             mass (float): mass of the object
 
             category (str): the category of the misc object
 
-            boundingbox (BoundingBox): the bounding box of the vehicle               
+            boundingbox (BoundingBox): the bounding box of the MiscObject               
 
         Attributes
         ----------
@@ -378,22 +419,28 @@ class MiscObject():
 
             misc_type (str): type of misc object
 
-            boundingbox (BoundingBox): the bounding box of the vehicle
+            boundingbox (BoundingBox): the bounding box of the MiscObject
 
-            parameters (ParameterDeclaration): Parameter declarations of the vehicle
+            parameters (ParameterDeclaration): Parameter declarations of the MiscObject
 
-            properties (Properties): additional properties of the vehicle
+            properties (Properties): additional properties of the MiscObject
 
         Methods
         -------
             add_parameter(parameter)
-                adds a parameter declaration to the vehicle
+                adds a parameter declaration to the MiscObject
 
             add_property(name, value)
-                adds a single property to the vehicle
+                adds a single property to the MiscObject
 
             add_property_file(filename)
-                adds a property file to the vehicle
+                adds a property file to the MiscObject
+
+            append_to_catalog(filename)
+                adds the MiscObject to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the MiscObject
 
             get_element()
                 Returns the full ElementTree of the class
@@ -407,13 +454,13 @@ class MiscObject():
 
         Parameters
         ----------
-            name (str): name of the vehicle
+            name (str): name of the MiscObject
 
             mass (float): mass of the object
 
             category (str): the category of the misc object
 
-            boundingbox (BoundingBox): the bounding box of the vehicle       
+            boundingbox (BoundingBox): the bounding box of the MiscObject       
         
         """
         self.name = name
@@ -425,6 +472,39 @@ class MiscObject():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
+       
+    
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the MiscObject to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the MiscObject to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
 
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the MiscObject
@@ -527,6 +607,12 @@ class Vehicle():
             add_property_file(filename)
                 adds a property file to the vehicle
 
+            append_to_catalog(filename)
+                adds the vehicle to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the vehicle
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -566,6 +652,39 @@ class Vehicle():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
+    
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the vehicle to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the vehicle to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
+
     def add_axel(self,axel):
         """ adds an additional axel to the vehicle
 
@@ -575,6 +694,7 @@ class Vehicle():
 
         """
         self.axels.add_axel(axel)
+
 
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the vehicle
@@ -1040,6 +1160,38 @@ class Controller():
         self.name = name
         self.parameters = ParameterDeclarations()
         self.properties = properties
+
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the Controller to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the Controller to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
 
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the Controller

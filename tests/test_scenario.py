@@ -6,13 +6,6 @@ import pyoscx as OSC
 
 
 
-def test_catalog():
-
-    catalog = OSC.Catalog()
-    catalog.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
-    catalog.add_catalog('ControllerCatalog','Catalogs/ControllerCatalogs')
-    OSC.prettyprint(catalog.get_element())
-
 
 def test_road():
     roadfile = 'Databases/SampleDatabase.xodr'
@@ -20,17 +13,13 @@ def test_road():
     OSC.prettyprint(road.get_element())
 
 
-def test_paramdeclaration():
-    
-    pardec = OSC.ParameterDeclarations()
-    pardec.add_parameter(OSC.Parameter('myparam1','integer','1'))
-    pardec.add_parameter(OSC.Parameter('myparam1','double','0.01'))
-    OSC.prettyprint(pardec.get_element())
+def test_catalog():
 
+    catalog = OSC.Catalog()
+    catalog.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
+    catalog.add_catalog('ControllerCatalog','Catalogs/ControllerCatalogs')
+    OSC.prettyprint(catalog.get_element())
 
-def test_fileheader():
-    fh = OSC.FileHeader('my_scenario','Mandolin')
-    OSC.prettyprint(fh.get_element())
 
 def test_scenario():
     catalog = OSC.Catalog()

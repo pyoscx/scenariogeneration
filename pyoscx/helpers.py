@@ -48,7 +48,7 @@ def printToFile(element,filename,prettyprint=True):
 
     """
     if prettyprint:    
-        rough = ET.tostring(element,'utf-8')
+        rough = ET.tostring(element,'utf-8').replace(b'\n',b'').replace(b'\t',b'')
         reparsed = mini.parseString(rough)
         towrite = reparsed.toprettyxml(indent="\t")
         with open(filename,"w") as file_handle:

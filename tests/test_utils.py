@@ -62,3 +62,34 @@ def test_route():
     route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),'closest')
 
     OSC.prettyprint(route.get_element())
+
+
+def test_paramdeclaration():
+    
+    pardec = OSC.ParameterDeclarations()
+    pardec.add_parameter(OSC.Parameter('myparam1','integer','1'))
+    pardec.add_parameter(OSC.Parameter('myparam1','double','0.01'))
+    OSC.prettyprint(pardec.get_element())
+
+
+def test_fileheader():
+    fh = OSC.FileHeader('my_scenario','Mandolin')
+    OSC.prettyprint(fh.get_element())
+
+def test_polyline():
+    positionlist = []
+    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,-1,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,0,-3,'Ego'))
+    OSC.prettyprint(positionlist[0].get_element())
+    polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
+
+def test_trajectory():
+    positionlist = []
+    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+    OSC.prettyprint(positionlist[0].get_element())
+    polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
+    traj = OSC.Trajectory('my_trajectory','False')
+    traj.add_shape(polyline)

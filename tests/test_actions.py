@@ -119,3 +119,21 @@ def test_rel_sync_action():
     
     asa = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta')
     OSC.prettyprint(asa.get_element())
+
+
+def test_follow_traj_action_polyline():
+
+    positionlist = []
+    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,-1,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(10,0,-3,'Ego'))
+    OSC.prettyprint(positionlist[0].get_element())
+    polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
+
+
+    traj = OSC.Trajectory('my_trajectory','False')
+    traj.add_shape(polyline)
+
+    trajact = OSC.FollowTrajectoryAction(traj,'position')
+    OSC.prettyprint(trajact.get_element())

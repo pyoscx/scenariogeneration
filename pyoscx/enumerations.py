@@ -1,4 +1,5 @@
-
+XMLNS = 'http://www.w3.org/2001/XMLSchema-instance'
+XSI = 'OpenSccenario.xsd'
 
 
 CLOUDSTATE = [\
