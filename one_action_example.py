@@ -16,7 +16,7 @@ road = pyoscx.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e
 
 
 ### create parameters
-paramdec = pyoscx.ParameterDeclarati()
+paramdec = pyoscx.ParameterDeclarations()
 
 paramdec.add_parameter(pyoscx.Parameter('$HostVehicle','string','car_white'))
 paramdec.add_parameter(pyoscx.Parameter('$TargetVehicle','string','car_red'))
