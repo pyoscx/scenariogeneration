@@ -601,24 +601,191 @@ class RelativeLanePosition():
         return element
 
 
-### to be done
-class RoutePosition():
-    """ 
+class RoutePositionOfCurrentEntity():
+    """ RoutePositionOfCurrentEntity creates a RoutePosition with the InRoutePosition of type PositionOfCurrentEntity
         
         Parameters
         ----------
-            
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            entity (str): reference to the entity on the route
+
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
         Attributes
         ----------
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            entity (str): reference to the entity on the route
+
+            orientation (Orientation): Oritation of the entity
 
         Methods
         -------
             get_element()
                 Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+    """
+    def __init__(self,route_ref,entity,orientation = Orientation()):
+        """ Initalize the RoutePositionOfCurrentEntity class
+        
+            Parameters
+            ----------
+                route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+                entity (str): reference to the entity on the route
+
+                orientation (Orientation): Oritation of the entity
+                    Default: Orientation()
+        """
+        self.route_ref = route_ref
+        self.entity = entity
+        self.orientation = orientation
+    
+    def get_element(self):
+        """ returns the elementTree of the RoutePositionOfCurrentEntity
+
+        """
+        element = ET.Element('RoutePosition')
+        routeref = ET.SubElement(element,'RouteRef')
+        routeref.append(self.route_ref.get_element())
+        element.append(self.orientation.get_element())
+        inroute = ET.SubElement(element,'InRoutePosition')
+        ET.SubElement(inroute,'PositionOfCurrentEntity',attrib={'entityRef':self.entity})
+        return element
+
+
+
+class RoutePositionInRoadCoordinates():
+    """ RoutePositionInRoadCoordinates creates a RoutePosition with the InRoutePosition of type PositionInRoadCooardinates
+        
+        Parameters
+        ----------
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            s (double): s coordinate of the road
+
+            t (double): t coordinate of the road
+
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Attributes
+        ----------
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            s (double): s coordinate of the road
+
+            t (double): t coordinate of the road
+
+            orientation (Orientation): Oritation of the entity
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
 
     """
-    def __init__(self):
-        pass
+    def __init__(self, route_ref, s, t, orientation = Orientation()):
+        """ Initalize the RoutePositionInRoadCoordinates class
+        
+            Parameters
+            ----------
+                route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+                s (double): s coordinate of the road
+
+                t (double): t coordinate of the road
+
+                orientation (Orientation): Oritation of the entity
+                    Default: Orientation()
+        """
+        self.route_ref = route_ref
+        self.s = s
+        self.t = t
+        self.orientation = orientation
+    
+    def get_element(self):
+        """ returns the elementTree of the RoutePositionInRoadCoordinates
+
+        """
+        element = ET.Element('RoutePosition')
+        routeref = ET.SubElement(element,'RouteRef')
+        routeref.append(self.route_ref.get_element())
+        element.append(self.orientation.get_element())
+        inroute = ET.SubElement(element,'InRoutePosition')
+        ET.SubElement(inroute,'PositionInRoadCoordinates',attrib={'pathS':str(self.s),'t':str(self.t)})
+        return element
+
+
+class RoutePositionInLaneCoordinates():
+    """ RoutePositionInLaneCoordinates creates a RoutePosition with the InRoutePosition of type PositionInLaneCoordinates
+        
+        Parameters
+        ----------
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            s (double): s coordinate of the road
+
+            laneid (str): t coordinate of the road
+
+            offset (double): lateral offset relative to the lane
+                Default: 0
+
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Attributes
+        ----------
+            route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+            s (double): s coordinate of the road
+
+            laneid (str): t coordinate of the road
+
+            offset (double): lateral offset relative to the lane
+                Default: 0
+
+            orientation (Orientation): Oritation of the entity
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self, route_ref, s, laneid, offset, orientation = Orientation()):
+        """ Initalize the RoutePositionInRoadCoordinates class
+        
+            Parameters
+            ----------
+                route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
+
+                s (double): s coordinate of the road
+
+                laneid (str): t coordinate of the road
+
+                offset (double): lateral offset relative to the lane
+                    Default: 0
+
+                orientation (Orientation): Oritation of the entity
+                    Default: Orientation()
+        """
+        self.route_ref = route_ref
+        self.s = s
+        self.laneid = laneid
+        self.offset = offset
+        self.orientation = orientation
+    
+    def get_element(self):
+        """ returns the elementTree of the RoutePositionInRoadCoordinates
+
+        """
+        element = ET.Element('RoutePosition')
+        routeref = ET.SubElement(element,'RouteRef')
+        routeref.append(self.route_ref.get_element())
+        element.append(self.orientation.get_element())
+        inroute = ET.SubElement(element,'InRoutePosition')
+        ET.SubElement(inroute,'PositionInLaneCoordinates',attrib={'pathS':str(self.s),'laneId':self.laneid,'laneOffset':str(self.offset)})
+        return element

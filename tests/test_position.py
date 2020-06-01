@@ -47,3 +47,17 @@ def test_laneposition():
 
     pos = OSC.RelativeLanePosition(1,2,lane_id=1,entity='Ego')
     OSC.prettyprint(pos.get_element())
+
+def test_route_position():
+    route = OSC.Route('myroute')
+
+    route.add_waypoint(OSC.WorldPosition(),'shortest')
+
+    route.add_waypoint(OSC.WorldPosition(1,1,1),'shortest')
+
+    routepos = OSC.RoutePositionOfCurrentEntity(route,'Ego')
+    OSC.prettyprint(routepos.get_element())
+    routepos = OSC.RoutePositionInRoadCoordinates(route,1,3)
+    OSC.prettyprint(routepos.get_element())
+    routepos = OSC.RoutePositionInLaneCoordinates(route,1,'a',2)
+    OSC.prettyprint(routepos.get_element())
