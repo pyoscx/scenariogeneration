@@ -18,8 +18,8 @@ road = pyoscx.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e
 ### create parameters
 paramdec = pyoscx.ParameterDeclarations()
 
-paramdec.add_parameter(pyoscx.Parameter('$HostVehicle','string','car_white'))
-paramdec.add_parameter(pyoscx.Parameter('$TargetVehicle','string','car_red'))
+paramdec.add_parameter(pyoscx.Parameter('$HostVehicle',pyoscx.ParameterType.string,'car_white'))
+paramdec.add_parameter(pyoscx.Parameter('$TargetVehicle',pyoscx.ParameterType.string,'car_red'))
 
 
 ## create entities
@@ -36,7 +36,7 @@ entities.add_scenario_object(yelname,pyoscx.CatalogReference('VehicleCatalog','c
 ### create init
 
 init = pyoscx.Init()
-step_time = pyoscx.TransitionDynamics('step','time',1)
+step_time = pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)
 
 init.add_init_action(egoname,pyoscx.AbsoluteSpeedAction(30,step_time))
 init.add_init_action(egoname,pyoscx.TeleportAction(pyoscx.LanePosition(25,0,-3,0)))
@@ -47,11 +47,11 @@ init.add_init_action(yelname,pyoscx.TeleportAction(pyoscx.LanePosition(35,0,-4,0
 
 ### create an event for the red car
 
-r_trigcond = pyoscx.TimeHeadwayCondition(redname,0.1,'greaterThan')
-r_trigger = pyoscx.EntityTrigger('redtrigger',0.2,'rising',r_trigcond,egoname)
-r_event = pyoscx.Event('first_lane_change','overwrite')
+r_trigcond = pyoscx.TimeHeadwayCondition(redname,0.1,pyoscx.Rule.greaterThan)
+r_trigger = pyoscx.EntityTrigger('redtrigger',0.2,pyoscx.ConditionEdge.rising,r_trigcond,egoname)
+r_event = pyoscx.Event('first_lane_change',pyoscx.Priority.overwrite)
 r_event.add_trigger(r_trigger)
-r_event.add_action('lane_change_red',pyoscx.AbsoluteLaneChangeAction(-4,pyoscx.TransitionDynamics('sinusoidal','time',4)))
+r_event.add_action('lane_change_red',pyoscx.AbsoluteLaneChangeAction(-4,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.sinusoidal,pyoscx.DynamicsDimension.time,4)))
 
 
 ## create the act for the red car
@@ -62,20 +62,20 @@ r_mangr = pyoscx.ManeuverGroup('mangroup_red')
 r_mangr.add_actor(redname)
 r_mangr.add_maneuver(r_man)
 
-act = pyoscx.Act('red_act',pyoscx.ValueTrigger('starttrigger',0,'rising',pyoscx.SimulationTimeCondition(0,'greaterThan')))
+act = pyoscx.Act('red_act',pyoscx.ValueTrigger('starttrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(0,pyoscx.Rule.greaterThan)))
 act.add_maneuver_group(r_mangr)
 
 
 ## create an event for the yellow car
 
 
-y_trigcond = pyoscx.TimeHeadwayCondition(redname,0.5,'greaterThan')
-y_trigger = pyoscx.EntityTrigger('yellow_trigger',0,'rising',y_trigcond,yelname)
+y_trigcond = pyoscx.TimeHeadwayCondition(redname,0.5,pyoscx.Rule.greaterThan)
+y_trigger = pyoscx.EntityTrigger('yellow_trigger',0,pyoscx.ConditionEdge.rising,y_trigcond,yelname)
 
-y_event = pyoscx.Event('yellow_lanechange','overwrite')
+y_event = pyoscx.Event('yellow_lanechange',pyoscx.Priority.overwrite)
 y_event.add_trigger(y_trigger)
 
-y_event.add_action('lane_change_yellow',pyoscx.AbsoluteLaneChangeAction(-3,pyoscx.TransitionDynamics('sinusoidal','time',2)))
+y_event.add_action('lane_change_yellow',pyoscx.AbsoluteLaneChangeAction(-3,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.sinusoidal,pyoscx.DynamicsDimension.time,2)))
 
 
 ## create the act for the yellow car
@@ -85,7 +85,7 @@ y_man.add_event(y_event)
 y_mangr = pyoscx.ManeuverGroup('yellow_mangroup')
 y_mangr.add_actor(yelname)
 y_mangr.add_maneuver(y_man)
-y_starttrigger = pyoscx.ValueTrigger('starttrigger',0,'rising',pyoscx.SimulationTimeCondition(0,'greaterThan'))
+y_starttrigger = pyoscx.ValueTrigger('starttrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(0,pyoscx.Rule.greaterThan))
 # y_act = pyoscx.Act('my_act',y_starttrigger)
 act.add_maneuver_group(y_mangr)
 
@@ -97,7 +97,7 @@ story.add_act(act)
 # story.add_act(y_act)
 
 ## create the storyboard
-sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',0,'rising',pyoscx.SimulationTimeCondition(10,'greaterThan'),'stop'))
+sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(10,pyoscx.Rule.greaterThan),'stop'))
 sb.add_story(story)
 
 ## create the scenario
