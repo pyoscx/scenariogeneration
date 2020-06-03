@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from .utils import DynamicsConstrains, TimeReference
 
-from .enumerations import DYNAMICSSHAPES, SPEEDTARGETVALUETYP, FOLLOWMODE
+from .enumerations import DynamicsShapes, SpeedTargetValueType, FollowMode
 
 
 class _Action():
@@ -563,7 +563,7 @@ class AbsoluteLaneOffsetAction():
         ----------
             value (float): lateral offset of the lane
 
-            shape (str): shape of the offset action
+            shape (DynamicsShapes): shape of the offset action
 
             maxlatacc (float): maximum allowed lateral acceleration
 
@@ -578,7 +578,7 @@ class AbsoluteLaneOffsetAction():
 
             target (str): the name of the entity (relative only)
 
-            dynshape (str): the shape of the action
+            dynshape (DynamicsShapes): the shape of the action
 
             maxlatacc (float): maximum allowed lateral acceleration
 
@@ -597,7 +597,7 @@ class AbsoluteLaneOffsetAction():
             ----------
                 value (float): lateral offset of the lane
 
-                shape (str): shape of the offset action
+                shape (DynamicsShapes): shape of the offset action
 
                 maxlatacc (float): maximum allowed lateral acceleration
 
@@ -606,7 +606,7 @@ class AbsoluteLaneOffsetAction():
         """
         self.continious = continious
         self.value = value
-        if shape not in DYNAMICSSHAPES:
+        if shape not in DynamicsShapes:
             raise ValueError(shape + '; is not a valid shape.')
         self.dynshape = shape
         self.maxlatacc = maxlatacc
@@ -626,7 +626,7 @@ class AbsoluteLaneOffsetAction():
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
         laneoffsetaction = ET.SubElement(lataction,'LaneOffsetAction',attrib={'continious':str(self.continious)})
-        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
+        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.name})
         laneoftarget = ET.SubElement(laneoffsetaction,'LaneOffsetTarget')
         ET.SubElement(laneoftarget,'AbsoluteTargetLaneOffset',self.get_attributes())
 
@@ -688,7 +688,7 @@ class RelativeLaneOffsetAction():
         self.continious = continious
         self.value = value
         self.target = entity
-        if shape not in DYNAMICSSHAPES:
+        if shape not in DynamicsShapes:
             raise ValueError(shape + '; is not a valid shape.')
         self.dynshape = shape
         self.maxlatacc = maxlatacc
@@ -709,7 +709,7 @@ class RelativeLaneOffsetAction():
         element = ET.Element('PrivateAction')
         lataction = ET.SubElement(element,'LateralAction')
         laneoffsetaction = ET.SubElement(lataction,'LaneOffsetAction',attrib={'continious':str(self.continious)})
-        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape})
+        ET.SubElement(laneoffsetaction,'LaneOffsetActionDynamics',{'maxLateralAcc':str(self.maxlatacc),'dynamicsShape':self.dynshape.name})
         laneoftarget = ET.SubElement(laneoffsetaction,'LaneOffsetTarget')
         ET.SubElement(laneoftarget,'RelativeTargetLaneOffset',attrib=self.get_attributes())
 
@@ -951,9 +951,9 @@ class FollowTrajectoryAction():
         ----------
             trajectory (Trajectory, or CatalogReference): the trajectory to follow
 
-            following_mode (str): the following mode of the action
+            following_mode (FollowMode): the following mode of the action
 
-            referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+            referece_domain (ReferenceContext): how to follow
                 Default: None
             scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
                 Default: None
@@ -990,7 +990,7 @@ class FollowTrajectoryAction():
                 offset (double): offset for time values (must be combined with referece_domain and scale)
                     Default: None
         """
-        if following_mode not in FOLLOWMODE:
+        if following_mode not in FollowMode:
             ValueError(str(following_mode) + ' is not a valied following mode.')
         self.trajectory = trajectory
         self.following_mode = following_mode
@@ -1006,7 +1006,7 @@ class FollowTrajectoryAction():
         trajaction = ET.SubElement(routeaction,'FollowTrajectoryAction')
         trajaction.append(self.trajectory.get_element())
         trajaction.append(self.timeref.get_element())
-        ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'name':self.following_mode})
+        ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'name':self.following_mode.name})
 
         return element
 
@@ -1619,7 +1619,7 @@ class RelativeSynchronizeAction():
         self.entity_position = entity_position
         self.target_position = target_position
         self.speed = speed
-        if speed_target_type not in SPEEDTARGETVALUETYP:
+        if speed_target_type not in SpeedTargetValueType:
             ValueError(speed_target_type + ' is not a valid speed_target_type')
         self.speed_target_type = speed_target_type
 

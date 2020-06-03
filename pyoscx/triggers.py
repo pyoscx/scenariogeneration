@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from .utils import Rule, merge_dicts, EntityRef, ConditionEdge
-
+from .utils import EntityRef
+from .enumerations import Rule, ConditionEdge
 
 
 
@@ -52,7 +52,7 @@ class EntityTrigger():
 
             delay (float): the delay of the trigger
 
-            conditionedge (str): on what conditionedge the trigger should act
+            conditionedge (ConditionEdge): on what conditionedge the trigger should act
 
             entitycondotion (*Condition): an entity condition
 
@@ -93,7 +93,7 @@ class EntityTrigger():
 
             delay (float): the delay of the trigger
 
-            conditionedge (str): on what conditionedge the trigger should act
+            conditionedge (ConditionEdge): on what conditionedge the trigger should act
 
             entitycondotion (*EntityCondition): an entity condition
 
@@ -114,7 +114,9 @@ class EntityTrigger():
             self._triggerpoint = 'StopTrigger'
             
         self.delay = delay
-        self.conditionedge = ConditionEdge(conditionedge)
+        if conditionedge not in ConditionEdge:
+            raise ValueError('not a valid condition edge')
+        self.conditionedge = conditionedge
         self.entitycondition = entitycondition
         self.triggerentity = TriggeringEntities(triggerentity,triggeringrule)
         
@@ -123,7 +125,7 @@ class EntityTrigger():
         """ returns the attributes of the LaneOffsetAction as a dict
 
         """
-        return merge_dicts({'name':self.name,'delay':str(self.delay)},self.conditionedge.get_attributes())
+        return {'name':self.name,'delay':str(self.delay),'conditionEdge':self.conditionedge.name}
 
     def get_element(self):
         """ returns the elementTree of the LaneOffsetAction
@@ -148,7 +150,7 @@ class ValueTrigger():
 
             delay (float): the delay of the trigger
 
-            conditionedge (str): on what conditionedge the trigger should act
+            conditionedge (ConditionEdge): on what conditionedge the trigger should act
 
             valuecondition (*ValueCondition): a value condition
 
@@ -189,7 +191,7 @@ class ValueTrigger():
 
             delay (float): the delay of the trigger
 
-            conditionedge (str): on what conditionedge the trigger should act
+            conditionedge (ConditionEdge): on what conditionedge the trigger should act
 
             valuecondition (*ValueCondition): a value condition
 
@@ -197,7 +199,7 @@ class ValueTrigger():
 
             triggeringrule (str): rule of the trigger
                 Default: 'any'
-
+            #TODO CHECK THIS
             triggeringpoint (str): start or stop 
 
         """
@@ -210,7 +212,9 @@ class ValueTrigger():
             self.triggerpoint = 'StopTrigger'
             
         self.delay = delay
-        self.conditionedge = ConditionEdge(conditionedge)
+        if conditionedge not in ConditionEdge:
+            raise ValueError('not a valid condition edge')
+        self.conditionedge = conditionedge
         self.valuecondition = valuecondition
         
 
@@ -218,7 +222,7 @@ class ValueTrigger():
         """ returns the attributes of the LaneOffsetAction as a dict
 
         """
-        return merge_dicts({'name':self.name,'delay':str(self.delay)},self.conditionedge.get_attributes())
+        return {'name':self.name,'delay':str(self.delay),'conditionEdge':self.conditionedge.name}
 
     def get_element(self):
         """ returns the elementTree of the LaneOffsetAction
@@ -437,7 +441,7 @@ class TimeHeadwayCondition():
 
             value (float): time of headway
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             alongroute (bool): if the route should count
                 Default: True
@@ -475,7 +479,7 @@ class TimeHeadwayCondition():
 
             value (float): time of headway
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             alongroute (bool): if the route should count
                 Default: True
@@ -488,7 +492,9 @@ class TimeHeadwayCondition():
         self.value = value
         self.alongroute = alongroute
         self.freespace = freespace
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
 
     def get_attributes(self):
         """ returns the attributes of the TimeHeadwayCondition as a dict
@@ -499,7 +505,8 @@ class TimeHeadwayCondition():
         basedict['value'] = str(self.value)
         basedict['alongRoute'] = str(self.alongroute)
         basedict['freespace'] = str(self.freespace)
-        return merge_dicts(basedict,self.rule.get_attributes())
+        basedict['rule'] = self.rule.name
+        return basedict
 
     def get_element(self):
         """ returns the elementTree of the TimeHeadwayCondition
@@ -518,7 +525,7 @@ class TimeToCollisionCondition():
 
             value (float): time to collision
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             alongroute (bool): if the route should count
                 Default: True
@@ -564,7 +571,7 @@ class TimeToCollisionCondition():
 
             value (float): time to collision
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             alongroute (bool): if the route should count
                 Default: True
@@ -581,7 +588,9 @@ class TimeToCollisionCondition():
         self.value = value
         self.freespace = freespace
         self.alongroute = alongroute
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         self.use_entity = None
         if (entity !=None) and (position !=None):
             raise ValueError('Can only have either entity of position, not both')
@@ -599,7 +608,8 @@ class TimeToCollisionCondition():
         basedict['value'] = str(self.value)
         basedict['alongRoute'] = str(self.alongroute)
         basedict['freespace'] = str(self.freespace)
-        return merge_dicts(basedict,self.rule.get_attributes())
+        basedict['rule'] = self.rule.name
+        return basedict
         
 
     def get_element(self):
@@ -629,7 +639,7 @@ class AccelerationCondition():
         ----------
             value (float): acceleration
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
         Attributes
         ----------
@@ -653,16 +663,18 @@ class AccelerationCondition():
         ----------
             value (float): acceleration
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
         """
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         
     def get_attributes(self):
         """ returns the attributes of the AccelerationCondition as a dict
 
         """
-        return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
+        return {'value':str(self.value),'rule':self.rule.name}
 
     def get_element(self):
         """ returns the elementTree of the AccelerationCondition
@@ -722,7 +734,7 @@ class SpeedCondition():
         ----------
             value (float): speed to trigger on
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
         Attributes
         ----------
@@ -746,16 +758,22 @@ class SpeedCondition():
         ----------
             value (float): speed to trigger on
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
         """
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         
     def get_attributes(self):
         """ returns the attributes of the SpeedCondition as a dict
 
         """
-        return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
+        basedict = {}
+        basedict['value'] = str(self.value)
+        basedict['rule'] = self.rule.name
+        return basedict
+        # return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
 
     def get_element(self):
         """ returns the elementTree of the SpeedCondition
@@ -772,7 +790,7 @@ class RelativeSpeedCondition():
         ----------
             value (float): acceleration
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             entity (str): name of the entity to be relative to
 
@@ -800,20 +818,26 @@ class RelativeSpeedCondition():
         ----------
             value (float): acceleration
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             entity (str): name of the entity to be relative to
             
         """
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         self.entity = entity
 
     def get_attributes(self):
         """ returns the attributes of the RelativeSpeedCondition as a dict
 
         """
-        return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
+        basedict = {}
+        basedict['value'] = str(self.value)
+        basedict['rule'] = self.rule.name
+        return basedict
+        # return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
 
     def get_element(self):
         """ returns the elementTree of the RelativeSpeedCondition
@@ -927,7 +951,7 @@ class DistanceCondition():
         ----------
             value (float): distance to position
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             position (*Position): any position to reach
 
@@ -962,7 +986,9 @@ class DistanceCondition():
         self.value = value
         self.alongroute = alongroute
         self.freespace = freespace
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         self.position = position
 
     def get_attributes(self):
@@ -973,7 +999,8 @@ class DistanceCondition():
         basedict['value'] = str(self.value)
         basedict['alongRoute'] = str(self.alongroute)
         basedict['freespace'] = str(self.freespace)
-        return merge_dicts(basedict,self.rule.get_attributes())
+        basedict['rule'] = self.rule.name
+        return basedict
 
     def get_element(self):
         """ returns the elementTree of the DistanceCondition
@@ -991,7 +1018,7 @@ class RelativeDistanceCondition():
         ----------
             value (float): distance to position
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             entity (str): name of the entity fore relative distance
 
@@ -1029,7 +1056,7 @@ class RelativeDistanceCondition():
         ----------
             value (float): distance to position
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             entity (str): name of the entity fore relative distance
 
@@ -1043,7 +1070,9 @@ class RelativeDistanceCondition():
         self.value = value
         self.alongroute = alongroute
         self.freespace = freespace
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         self.entity = entity
 
     def get_attributes(self):
@@ -1055,7 +1084,8 @@ class RelativeDistanceCondition():
         basedict['alongRoute'] = str(self.alongroute)
         basedict['freespace'] = str(self.freespace)
         basedict['entityRef'] = self.entity
-        return merge_dicts(basedict,self.rule.get_attributes())
+        basedict['rule'] = self.rule.name
+        return basedict
 
     def get_element(self):
         """ returns the elementTree of the RelativeDistanceCondition
@@ -1081,7 +1111,7 @@ class ParameterCondition():
 
             value (int): value to trigger on 
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
         Attributes
         ----------
@@ -1109,19 +1139,22 @@ class ParameterCondition():
 
                 value (int): value to trigger on 
 
-                rule (str): condition rule of triggering 
+                rule (Rule): condition rule of triggering 
 
         """
         self.parameter = parameter
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         
     def get_attributes(self):
         """ returns the attributes of the ParameterCondition as a dict
 
         """
         basedict = {'parameterRef':self.parameter,'value':str(self.value)}
-        return merge_dicts(basedict,self.rule.get_attributes())
+        basedict['rule'] = self.rule.name
+        return basedict
 
     def get_element(self):
         """ returns the elementTree of the ParameterCondition
@@ -1134,7 +1167,7 @@ class TimeOfDayCondition():
         
         Parameters
         ----------
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
             time of day (str): datetime ??? format unknown
             
@@ -1157,19 +1190,24 @@ class TimeOfDayCondition():
         """ initalize the TimeOfDayCondition
             Parameters
             ----------
-                rule (str): condition rule of triggering 
+                rule (Rule): condition rule of triggering 
 
                 time of day (str): datetime ??? format unknown
             
         """
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
         self.datetime = datetime
     
     def get_attributes(self):
         """ returns the attributes of the TimeOfDayCondition as a dict
 
         """
-        return merge_dicts({'datetime':self.datetime},self.rule.get_attributes())
+        basedict = {}
+        basedict['datetime'] = self.datetime
+        basedict['rule'] = self.rule.name
+        return basedict
 
     def get_element(self):
         """ returns the elementTree of the TimeOfDayCondition
@@ -1185,7 +1223,7 @@ class SimulationTimeCondition():
         ----------
             value (int): simulation time 
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
         Attributes
         ----------
@@ -1209,17 +1247,21 @@ class SimulationTimeCondition():
             ----------
                 value (int): simulation time 
 
-                rule (str): condition rule of triggering 
+                rule (Rule): condition rule of triggering 
         """
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
     
     def get_attributes(self):
         """ returns the attributes of the SimulationTimeCondition as a dict
 
         """
-        return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
-
+        basedict = {}
+        basedict['value'] = str(self.value)
+        basedict['rule'] = self.rule.name
+        return basedict
     def get_element(self):
         """ returns the elementTree of the SimulationTimeCondition
 
@@ -1290,7 +1332,7 @@ class UserDefinedValueCondition():
 
             value (int): value to trigger on
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
             
         Attributes
         ----------
@@ -1298,7 +1340,7 @@ class UserDefinedValueCondition():
 
             value (int): value to trigger on
 
-            rule (str): condition rule of triggering 
+            rule (Rule): condition rule of triggering 
 
         Methods
         -------
@@ -1318,18 +1360,21 @@ class UserDefinedValueCondition():
 
                 value (int): value to trigger on
 
-                rule (str): condition rule of triggering 
+                rule (Rule): condition rule of triggering 
         """
         self.name = name
         self.value = value
-        self.rule = Rule(rule)
+        if rule not in Rule:
+            raise ValueError(rule + '; is not a valid rule.')
+        self.rule = rule
     
     def get_attributes(self):
         """ returns the attributes of the UserDefinedValueCondition as a dict
 
         """
-        return merge_dicts({'name':self.name,'value':str(self.value)},self.rule.get_attributes())
-
+        basedict = {'name':self.name,'value':str(self.value)}
+        basedict['rule'] = self.rule.name
+        return basedict
     def get_element(self):
         """ returns the elementTree of the UserDefinedValueCondition
 

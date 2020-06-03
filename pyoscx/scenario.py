@@ -8,25 +8,7 @@ from .enumerations import XMLNS, XSI
 
 
 class Scenario():
-    _XMLNS = XMLNS
-    _XSI = XSI
     """ The Scenario class collects all parts of OpenScenario and creates a .xml file
-        
-        Parameters
-        ----------
-            name (str): name of the scenario
-
-            author (str): the author fo the scenario
-
-            parameters (ParameterDeclarations): the parameters to be used in the scenario
-
-            entities (Entities): the entities in the scenario
-
-            storyboard (StoryBoard): the storyboard of the scenario
-
-            roadnetwork (RoadNetwork): the roadnetwork of the scenario
-
-            catalog (Catalog): the catalogs used in the scenario
 
         Attributes
         ----------
@@ -50,6 +32,8 @@ class Scenario():
                 write a open scenario xml
 
     """
+    _XMLNS = XMLNS
+    _XSI = XSI
     def __init__(self,name,author,parameters,entities,storyboard,roadnetwork,catalog):
         """ Initalizes the Scenario class, and creates the header.
 

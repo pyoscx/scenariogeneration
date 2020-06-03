@@ -29,14 +29,14 @@ def test_scenario():
     roadfile = 'Databases/SampleDatabase.xodr'
     road = OSC.RoadNetwork(roadfile)
 
-    trigcond = OSC.TimeToCollisionCondition(10,'equalTo',True,freespace=False,position=OSC.WorldPosition())
+    trigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,True,freespace=False,position=OSC.WorldPosition())
 
-    trigger = OSC.EntityTrigger('mytesttrigger',0.2,'rising',trigcond,'Target_1')
+    trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,'Target_1')
 
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
 
-    TD = OSC.TransitionDynamics('step','rate',1)
+    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 
     lanechangeaction = OSC.AbsoluteLaneChangeAction(1,TD)
     OSC.prettyprint(lanechangeaction.get_element())
@@ -60,7 +60,7 @@ def test_scenario():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axel(2,2,2,1,1)
     ba = OSC.Axel(1,1,2,1,1)
-    veh = OSC.Vehicle('mycar','vehicle',bb,fa,ba,150,10,10)
+    veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
 
     entities = OSC.Entities()
     entities.add_scenario_object('Ego',veh)

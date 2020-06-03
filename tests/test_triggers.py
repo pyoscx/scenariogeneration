@@ -17,19 +17,18 @@ def test_offroadcondition():
     OSC.prettyprint(cond.get_element())
 
 def test_timeheadwaycondition():
-    cond = OSC.TimeHeadwayCondition('Ego',20,'equalTo',True,False)
+    cond = OSC.TimeHeadwayCondition('Ego',20,OSC.Rule.equalTo,True,False)
     OSC.prettyprint(cond.get_element())
 
 def test_timetocollisioncondition():
-    cond = OSC.TimeToCollisionCondition(value=20,alongroute=True,rule='equalTo',entity='Ego')
+    cond = OSC.TimeToCollisionCondition(value=20,alongroute=True,rule=OSC.Rule.equalTo,entity='Ego')
     OSC.prettyprint(cond.get_element())
 
-    cond = OSC.TimeToCollisionCondition(value=20,alongroute=True,rule='equalTo',position=OSC.WorldPosition())
+    cond = OSC.TimeToCollisionCondition(value=20,alongroute=True,rule=OSC.Rule.equalTo,position=OSC.WorldPosition())
     OSC.prettyprint(cond.get_element())
-
 
 def test_accelerationcondition():
-    cond = OSC.AccelerationCondition(1,'greaterThan')
+    cond = OSC.AccelerationCondition(1,OSC.Rule.greaterThan)
     OSC.prettyprint(cond.get_element())
 
 def test_standstillcondition():
@@ -37,11 +36,11 @@ def test_standstillcondition():
     OSC.prettyprint(cond.get_element())
 
 def test_speedcondition():
-    cond = OSC.SpeedCondition(1,'lessThan')
+    cond = OSC.SpeedCondition(1,OSC.Rule.lessThan)
     OSC.prettyprint(cond.get_element())
 
 def test_relativespeedcondition():
-    cond = OSC.RelativeSpeedCondition(1,'lessThan','Ego')
+    cond = OSC.RelativeSpeedCondition(1,OSC.Rule.lessThan,'Ego')
     OSC.prettyprint(cond.get_element())
 
 def test_traveleddistancecondition():
@@ -53,24 +52,23 @@ def test_reachpositioncondition():
     OSC.prettyprint(cond.get_element())
 
 def test_distancecondition():
-    cond = OSC.DistanceCondition(1,'lessThan',OSC.WorldPosition(),True,False)
+    cond = OSC.DistanceCondition(1,OSC.Rule.lessThan,OSC.WorldPosition(),True,False)
     OSC.prettyprint(cond.get_element())
 
 def test_relativedistancecondition():
-    cond = OSC.RelativeDistanceCondition(1,'equalTo','Ego',True,False)
+    cond = OSC.RelativeDistanceCondition(1,OSC.Rule.equalTo,'Ego',True,False)
     OSC.prettyprint(cond.get_element())
 
-
 def test_parametercondition():
-    cond = OSC.ParameterCondition('MyParam',1,'equalTo')
+    cond = OSC.ParameterCondition('MyParam',1,OSC.Rule.equalTo)
     OSC.prettyprint(cond.get_element())
 
 def test_timeofdaycondition():
-    cond = OSC.TimeOfDayCondition('equalTo','12')
+    cond = OSC.TimeOfDayCondition(OSC.Rule.equalTo,'12')
     OSC.prettyprint(cond.get_element())
 
 def test_simulationtimecondition():
-    cond = OSC.SimulationTimeCondition(1.2,'greaterThan')
+    cond = OSC.SimulationTimeCondition(1.2,OSC.Rule.greaterThan)
     OSC.prettyprint(cond.get_element())
 
 def test_storyboardelementstatecondition():
@@ -78,7 +76,7 @@ def test_storyboardelementstatecondition():
     OSC.prettyprint(cond.get_element())
 
 def test_userdefinedcondition():
-    cond = OSC.UserDefinedValueCondition('mytrigger',10,'equalTo')
+    cond = OSC.UserDefinedValueCondition('mytrigger',10,OSC.Rule.equalTo)
     OSC.prettyprint(cond.get_element())
 
 def test_trafficsignalcondition():
@@ -95,12 +93,12 @@ def test_triggeringentities():
 
 
 def test_entitytrigger():
-    trigcond = OSC.TimeToCollisionCondition(10,'equalTo',True,freespace=False,position=OSC.WorldPosition())
+    trigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,True,freespace=False,position=OSC.WorldPosition())
 
-    trigger = OSC.EntityTrigger('mytesttrigger',0.2,'rising',trigcond,'Target_1')
+    trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,'Target_1')
     OSC.prettyprint(trigger.get_element())
 
 def test_valuetrigger():
-    trigcond = OSC.ParameterCondition('something',2,"equalTo")
-    trigger = OSC.ValueTrigger('myvaluetrigger',0.2,'rising',trigcond,triggeringpoint='stop')
+    trigcond = OSC.ParameterCondition('something',2,OSC.Rule.equalTo)
+    trigger = OSC.ValueTrigger('myvaluetrigger',0.2,OSC.ConditionEdge.rising,trigcond,triggeringpoint='stop')
     OSC.prettyprint(trigger.get_element())

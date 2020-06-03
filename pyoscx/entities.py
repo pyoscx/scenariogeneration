@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 
 from .utils import EntityRef, ObjectType
 from .scenario import ParameterDeclarations
-from .enumerations import VEHICLECATEGORY, PEDESTRIANGCATEGORY, MISCOBJECTCATEGORY
+from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory
 from .utils import DynamicsConstrains
 from .catalog import CatalogFile
 
@@ -63,7 +63,7 @@ class Entities():
             ----------
                 name (str): name of the entity
 
-                entity_type (str): type of entity
+                object_type (ObjectType): type of entity
             
         """
         self.entities.append(Entity(name,object_type=entity_type))
@@ -169,7 +169,7 @@ class Entity():
             name (str): name of the Entity
 
             optionals:
-                object_type (str): the object_type to be used
+                object_type (ObjectType): the object_type to be used
 
                 entityref (str): reference to an entity
 
@@ -177,7 +177,7 @@ class Entity():
         ----------
             name (str): name of the Entity
 
-            object_type (str): the object_type to be used
+            object_type (ObjectType): the object_type to be used
 
             entityref (str): reference to an entity
 
@@ -198,7 +198,7 @@ class Entity():
             name (str): name of the Entity
 
             optionals (only use one):
-                object_type (str): the object_type to be used
+                object_type (ObjectType): the object_type to be used
 
                 entityref (str): reference to an entity
 
@@ -212,7 +212,9 @@ class Entity():
             self.entity = EntityRef(entityref)
             self.object_type = None
         else:
-            self.object_type = ObjectType(object_type)
+            if object_type not in ObjectType:
+                ValueError('Not a valid ObjectType')
+            self.object_type = object_type
             self.entity = None
         
     def get_attributes(self):
@@ -230,7 +232,7 @@ class Entity():
         if self.entity:
             members.append(self.entity.get_element())
         if self.object_type:
-            ET.SubElement(members,'ByType',self.object_type.get_attributes())
+            ET.SubElement(members,'ByType',attrib={'value':self.object_type.name})
         return element
 
 class Pedestrian():
@@ -246,7 +248,7 @@ class Pedestrian():
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
 
-            category (str): type of of pedestrian 
+            category (PedestrianCategory): type of of pedestrian 
                 
 
         Attributes
@@ -257,7 +259,7 @@ class Pedestrian():
 
             mass (float): mass of the pedestrian
 
-            category (str): type of pedestrian
+            category (PedestrianCategory): type of pedestrian
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
 
@@ -300,7 +302,7 @@ class Pedestrian():
 
             mass (float): mass of the pedestrian
 
-            category (str): type of of pedestrian 
+            category (PedestrianCategory): type of of pedestrian 
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
         
@@ -308,7 +310,7 @@ class Pedestrian():
         self.name = name
         self.model = model
         self.mass = mass
-        if category not in PEDESTRIANGCATEGORY:
+        if category not in PedestrianCategory:
             ValueError(str(category) + ' is not a valid pedestrian type')    
         self.category = category
         self.boundingbox = boundingbox
@@ -465,7 +467,7 @@ class MiscObject():
         """
         self.name = name
         self.mass = mass
-        if category not in MISCOBJECTCATEGORY:
+        if category not in MiscObjectCategory:
             ValueError(str(category) + ' is not a valid MiscObject type')    
         self.category = category
         self.boundingbox = boundingbox
@@ -562,7 +564,7 @@ class Vehicle():
         ----------
             name (str): name of the vehicle
 
-            vehicle_type (str): type of vehicle
+            vehicle_type (VehicleCategory): type of vehicle
 
             boundingbox (BoundingBox): the bounding box of the vehicle
 
@@ -581,7 +583,7 @@ class Vehicle():
         ----------
             name (str): name of the vehicle
 
-            vehicle_type (str): type of vehicle
+            vehicle_type (VehicleCategory): type of vehicle
 
             boundingbox (BoundingBox): the bounding box of the vehicle
 
@@ -627,7 +629,7 @@ class Vehicle():
         ----------
             name (str): name of the vehicle
 
-            vehicle_type (str): type of vehicle
+            vehicle_type (VehicleCategory): type of vehicle
 
             boundingbox (BoundingBox): the bounding box of the vehicle
 
@@ -643,8 +645,8 @@ class Vehicle():
         
         """
         self.name = name
-        if vehicle_type not in VEHICLECATEGORY:
-            ValueError(str(vehicle_type) + ' is not a valid vehicle type')    
+        if vehicle_type not in VehicleCategory:
+            ValueError('not a valid vehicle type')    
         self.vehicle_type = vehicle_type
         self.boundingbox = boundingbox
         self.axels = Axels(frontaxel,backaxel)
@@ -732,7 +734,7 @@ class Vehicle():
         """ returns the attributes as a dict of the Center
 
         """
-        return {'name':str(self.name),'vehicleCategory':str(self.vehicle_type)}
+        return {'name':str(self.name),'vehicleCategory':str(self.vehicle_type.name)}
 
     def get_element(self):
         """ returns the elementTree of the Center

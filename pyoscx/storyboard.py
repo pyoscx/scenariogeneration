@@ -5,7 +5,7 @@ from .actions import _Action
 from .triggers import EmptyTrigger
 from .utils import EntityRef
 from .utils import ParameterDeclarations
-
+from .enumerations import Priority
 
 class StoryBoard():
     """ The StoryBoard class creates the storyboard of OpenScenario
@@ -553,7 +553,7 @@ class Event():
         ----------
             name (str): name of the event
 
-            priority (str): what priority the event has TODO: add definition
+            priority (Priority): what priority the event has 
 
             maxexecution (int): the maximum allowed executions of the event
                 Default: 1
@@ -562,7 +562,7 @@ class Event():
         ----------
             name (str): name of the event
 
-            priority (str): what priority the event has TODO: add definition
+            priority (Priority): what priority the event has TODO: add definition
 
             maxexecution (int): the maximum allowed executions of the event
                 
@@ -587,6 +587,8 @@ class Event():
     """
     def __init__(self,name,priority,maxexecution=1):
         self.name = name
+        if priority not in Priority:
+            ValueError('Not a valid priority')
         self.priority = priority
         self.action = []
         self.trigger = None
@@ -616,7 +618,7 @@ class Event():
         """ returns the attributes as a dict of the Event
 
         """
-        return {'name':self.name,'priority':self.priority,'maximumExecutionCount':str(self.maxexecution)}
+        return {'name':self.name,'priority':self.priority.name,'maximumExecutionCount':str(self.maxexecution)}
 
     def get_element(self):
         """ returns the elementTree of the Event

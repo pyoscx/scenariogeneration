@@ -4,7 +4,7 @@ import pytest
 import pyoscx as OSC
 
 
-TD = OSC.TransitionDynamics('step','rate',1)
+TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 
 
 def test_speedaction_abs():
@@ -16,17 +16,13 @@ def test_speedaction_rel():
 
     OSC.prettyprint(speedaction.get_element())
 
-
 def test_longdistaction_dist():
     longdist = OSC.LongitudinalDistanceAction(1,'Ego')
     OSC.prettyprint(longdist.get_element())
 
-
 def test_longdistaction_time():
     longdist = OSC.LongitudinalTimegapAction(2,'Ego',max_acceleration=1)
     OSC.prettyprint(longdist.get_element())
-
-
 
 def test_lanechange_abs():
     lanechange = OSC.AbsoluteLaneChangeAction(1,TD)
@@ -37,11 +33,11 @@ def test_lanechange_rel():
     OSC.prettyprint(lanechange.get_element())
 
 def test_laneoffset_abs():
-    laneoffset = OSC.AbsoluteLaneOffsetAction(1,'step',0,3)
+    laneoffset = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,0,3)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_laneoffset_rel():
-    laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego','step',0,3)
+    laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,0,3)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_lateraldistance_noconst():
@@ -58,8 +54,8 @@ def test_teleport():
 
 def test_assign_route():
     route = OSC.Route('myroute')
-    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),'closest')
-    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),'closest')
+    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
+    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
     OSC.AssingRouteAction(route)
 
 def test_aqcuire_position_route():
@@ -135,5 +131,5 @@ def test_follow_traj_action_polyline():
     traj = OSC.Trajectory('my_trajectory','False')
     traj.add_shape(polyline)
 
-    trajact = OSC.FollowTrajectoryAction(traj,'position')
+    trajact = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position)
     OSC.prettyprint(trajact.get_element())

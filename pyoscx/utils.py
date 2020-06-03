@@ -1,7 +1,7 @@
 
 import xml.etree.ElementTree as ET
 
-from .enumerations import CONDITIONEDGE, OBJECTTYPE, PARAMETERTYPE, RULE, REFERENCECONTEXT, DYNAMICSSHAPES, DYNAMICSDIMENSION
+from .enumerations import ConditionEdge, ObjectType, ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy
 import datetime as dt
 
 
@@ -47,44 +47,6 @@ class ParameterDeclarations():
             element.append(p.get_element())
         return element
 
-
-class ConditionEdge():
-    """ ConditionEdge is used to determine how to trigger on a valuechange
-        
-        Parameters
-        ----------
-            condition (str): what valuechange to use rising, falling, risingorFalling or none
-
-        Attributes
-        ----------
-            condition (str): what valuechange to use rising, falling, risingorFalling or none
-
-        Methods
-        -------
-
-            get_attributes()
-                Returns a dictionary of all attributes of the class
-
-    """
-    def __init__(self,condition):
-        """ initalize the ConditionEdge
-
-            Parameters
-            ----------
-                condition (str): what valuechange to use rising, falling, risingorFalling or none
-
-        """
-        if condition not in CONDITIONEDGE:
-            raise ValueError('not a valid condition edge')
-        self.condition = condition
-
-    def get_attributes(self):
-        """ returns the attributes of the ConditionEdge as a dict
-
-        """
-        return {'conditionEdge':self.condition}
-
-
 class EntityRef():
     """ EntityRef creates an EntityRef element of openscenario
         
@@ -127,42 +89,42 @@ class EntityRef():
         """
         return ET.Element('EntityRef',attrib=self.get_attributes())
 
-class ObjectType():
-    """ creates an objecttype of openscenario
+# class ObjectType():
+#     """ creates an objecttype of openscenario
         
-        Parameters
-        ----------
-            obj_type (str): the typ of object, vehicle, pedestrian or miscellaneous
+#         Parameters
+#         ----------
+#             obj_type (ObjectType): the type of object
             
-        Attributes
-        ----------
-            type (str): the typ of object
+#         Attributes
+#         ----------
+#             obj_type (str): the typ of object
 
-        Methods
-        -------
+#         Methods
+#         -------
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+#             get_attributes()
+#                 Returns a dictionary of all attributes of the class
 
-    """
-    def __init__(self,obj_type):
-        """ initalize the ObjectType
+#     """
+#     def __init__(self,obj_type):
+#         """ initalize the ObjectType
 
-            Parameters
-            ----------
-                obj_type (str): the typ of object, vehicle, pedestrian or miscellaneous
+#             Parameters
+#             ----------
+#                 obj_type (str): the typ of object, vehicle, pedestrian or miscellaneous
 
-        """
-        if obj_type not in OBJECTTYPE:
-            raise ValueError('not a valid object type')
+#         """
+#         if obj_type not in ObjectType:
+#             raise ValueError('not a valid object type')
 
-        self.type = obj_type
+#         self.obj_type = obj_type
 
-    def get_attributes(self):
-        """ returns the attributes of the Parameter as a dict
+#     def get_attributes(self):
+#         """ returns the attributes of the Parameter as a dict
 
-        """
-        return {'value':self.type}
+#         """
+#         return {'value':self.obj_type.name}
 
 
 class Parameter():
@@ -172,7 +134,7 @@ class Parameter():
         ----------
             name (str): name of parameter
 
-            parameter_type (str): type of the parameter ('integer', 'double', 'string', 'unsighedInt', 'unsighedShort', 'boolean', 'dateTime')
+            parameter_type (ParameterType): type of the parameter 
 
             value (str): value of the parameter
 
@@ -209,7 +171,7 @@ class Parameter():
 
         """
         self.name = name
-        if parameter_type not in PARAMETERTYPE:
+        if parameter_type not in ParameterType:
             raise ValueError('parameter_type not a valid type.')
         self.parameter_type = parameter_type
         self.value = value
@@ -218,7 +180,7 @@ class Parameter():
         """ returns the attributes of the Parameter as a dict
 
         """
-        return {'name':self.name,'parameterType':self.parameter_type,'value':str(self.value)}
+        return {'name':self.name,'parameterType':self.parameter_type.name,'value':str(self.value)}
 
     def get_element(self):
         """ returns the elementTree of the Parameter
@@ -226,49 +188,6 @@ class Parameter():
         """
         element = ET.Element('ParameterDeclaration',attrib=self.get_attributes())
         return element
-
-class Rule():
-    """ Creates a Rule of a comparison
-        
-        Parameters
-        ----------
-            rule: what to apply (greaterThan, lessThan, or equalTo)
-
-            parameter: ???
-
-        Attributes
-        ----------
-            rule: what to apply (greaterThan, lessThan, or equalTo)
-
-            parameter: ???
-
-        Methods
-        -------
-
-            get_attributes()
-                Returns a dictionary of all attributes of the class
-
-    """
-    def __init__(self,rule,parameter = None):
-        """ initalize the Rule
-            Parameters
-            ----------
-                rule: what to apply (greaterThan, lessThan, or equalTo)
-
-                parameter: ???
-
-        """
-        if rule not in RULE:
-            raise ValueError(rule + '; is not a valid rule.')
-        self.rule = rule
-        self.parameter = parameter
-
-    def get_attributes(self):
-        """ returns the attributes of the Rule as a dict
-
-        """
-        return {'rule':self.rule}
-
 
 class Orientation():
     """ Orientation describes the angular orientation of an entity
@@ -281,7 +200,7 @@ class Orientation():
 
             r (float): roll
 
-            reference (str): absolute or relative
+            reference (ReferenceContext): absolute or relative
 
         Attributes
         ----------
@@ -291,7 +210,7 @@ class Orientation():
 
             r (float): roll
 
-            reference (str): absolute or relative
+            reference (ReferenceContext): absolute or relative
 
         Methods
         -------
@@ -306,12 +225,23 @@ class Orientation():
 
     """
     def __init__(self,h=None,p=None,r=None,reference = None):
+        """ initalize Orientation 
         
+            Parameters
+            ----------
+                h (float): header 
+
+                p (float): pitch
+
+                r (float): roll
+
+                reference (ReferenceContext): absolute or relative
+        """
         self.h = h
         self.p = p
         self.r = r
 
-        if (reference not in REFERENCECONTEXT) and (reference != None):
+        if (reference not in ReferenceContext) and (reference != None):
             raise ValueError(str(reference) + '; is not a valid reference type.')
         self.ref = reference
 
@@ -341,7 +271,7 @@ class Orientation():
             retdict['r'] = str(self.r)
 
         if self.ref:
-            retdict['type'] = str(self.ref)
+            retdict['type'] = self.ref.name
         
         return retdict
     
@@ -356,18 +286,18 @@ class TransitionDynamics():
         
         Parameters
         ----------
-            shape (str): shape of the transition
+            shape (DynamicsShapes): shape of the transition
 
-            dimension (str): the dimension of the transition (rate, time or distance)
+            dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
 
             value (float): the value of the dynamics (time rate or distance)
 
 
         Attributes
         ----------
-            shape (str): shape of the transition
+            shape (DynamicsShapes): shape of the transition
 
-            dimension (str): the dimension of the transition (rate, time or distance)
+            dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
 
             value (float): the value of the dynamics (time rate or distance)
 
@@ -391,11 +321,11 @@ class TransitionDynamics():
                 value (float): the value of the dynamics (time rate or distance)
 
         """
-        if shape not in DYNAMICSSHAPES:
+        if shape not in DynamicsShapes:
             raise ValueError(shape + '; is not a valid shape.')
         
         self.shape = shape
-        if dimension not in DYNAMICSDIMENSION:
+        if dimension not in DynamicsDimension:
             raise ValueError(dimension + ' is not a valid dynamics dimension')
         self.dimension = dimension
         self.value = value
@@ -404,7 +334,7 @@ class TransitionDynamics():
         """ returns the attributes of the DynamicsConstrains as a dict
 
         """
-        return {'dynamicsShape':self.shape,'value':str(self.value),'dynamicsDimension':str(self.dimension)}
+        return {'dynamicsShape':self.shape.name,'value':str(self.value),'dynamicsDimension':self.dimension.name}
 
     def get_element(self,name='TransitionDynamics'):
         """ returns the elementTree of the DynamicsConstrains
@@ -585,17 +515,17 @@ class Route():
         """
         self.parameters.add_parameter(parameter)
 
-    def add_waypoint(self,position,strategy):
+    def add_waypoint(self,position,routestrategy):
         """ adds a waypoint to the Route
 
             Parameters
             ----------
                 position (*Position): any position for the route
 
-                routestrategy (str): routing strategy for this waypoint
+                routestrategy (RouteStrategy): routing strategy for this waypoint
 
         """
-        self.waypoints.append(Waypoint(position,strategy))
+        self.waypoints.append(Waypoint(position,routestrategy))
 
     def get_attributes(self):
         """ returns the attributes of the Route as a dict
@@ -625,13 +555,13 @@ class Waypoint():
         ----------
             position (*Position): any position for the route
 
-            routestrategy (str): routing strategy for this waypoint
+            routestrategy (RouteStrategy): routing strategy for this waypoint
 
         Attributes
         ----------
             position (*Position): any position for the route
 
-            routestrategy (str): routing strategy for this waypoint
+            routestrategy (RouteStrategy): routing strategy for this waypoint
 
         Methods
         -------
@@ -650,10 +580,12 @@ class Waypoint():
             ----------
                 position (*Position): any position for the route
 
-                routestrategy (str): routing strategy for this waypoint
+                routestrategy (RouteStrategy): routing strategy for this waypoint
 
         """
         self.position = position
+        if routestrategy not in RouteStrategy:
+            ValueError('not a valid RouteStrategy')
         self.routestrategy = routestrategy
 
 
@@ -661,7 +593,7 @@ class Waypoint():
         """ returns the attributes of the Waypoint as a dict
 
         """
-        return {'routeStrategy':self.routestrategy}
+        return {'routeStrategy':self.routestrategy.name}
 
     def get_element(self):
         """ returns the elementTree of the Waypoint
@@ -799,7 +731,7 @@ class TimeReference():
         
         Parameters
         ----------
-            referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+            referece_domain (ReferenceContext): absolute or relative time reference (must be combined with scale and offset)
                 Default: None
             scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
                 Default: None
@@ -840,6 +772,8 @@ class TimeReference():
             self._only_nones = False
         else:
             ValueError('missing inputs for time reference')
+        if referece_domain not in ReferenceContext:
+            ValueError('not a valid reference domain')
         self.referece_domain = referece_domain
         self.scale = scale
         self.offset = offset
@@ -849,7 +783,7 @@ class TimeReference():
 
         """
         retdict = {}
-        retdict['domainAbsoluteRelative'] = self.referece_domain
+        retdict['domainAbsoluteRelative'] = self.referece_domain.name
         retdict['scale'] = str(self.scale)
         retdict['offset'] = str(self.offset)
         return retdict

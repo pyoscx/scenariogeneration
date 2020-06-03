@@ -4,23 +4,22 @@ import pytest
 import pyoscx as OSC
 
 
-TD = OSC.TransitionDynamics('step','rate',1)
-
+TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 speedaction = OSC.AbsoluteSpeedAction(50,TD)
-trigcond = OSC.TimeToCollisionCondition(10,'equalTo',position=OSC.WorldPosition(),freespace=False,)
+trigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,position=OSC.WorldPosition(),freespace=False,)
 
-trigger = OSC.EntityTrigger('mytesttrigger',0.2,'rising',trigcond,'Target_1')
+trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,'Target_1')
 
 def test_event():
 
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
 
     event.add_action('newspeed',speedaction)
 
 
 def test_maneuver():
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
@@ -29,7 +28,7 @@ def test_maneuver():
 
 
 def test_maneuvergroup():
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
@@ -43,7 +42,7 @@ def test_maneuvergroup():
 
 
 def test_actandstory():
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
@@ -69,7 +68,7 @@ def test_init():
 
 
     init = OSC.Init()
-    TD = OSC.TransitionDynamics('step','time',0)
+    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
     egospeed = OSC.AbsoluteSpeedAction(10,TD)
     
     init.add_init_action('Ego',egospeed)
@@ -82,7 +81,7 @@ def test_init():
 
 def test_storyboard():
     init = OSC.Init()
-    TD = OSC.TransitionDynamics('step','time',0)
+    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
     egospeed = OSC.AbsoluteSpeedAction(10,TD)
       
     init.add_init_action('Ego',egospeed)
@@ -97,7 +96,7 @@ def test_storyboard():
 
 
 
-    event = OSC.Event('myfirstevent','overwrite')
+    event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')

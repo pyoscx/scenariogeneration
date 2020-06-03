@@ -51,9 +51,9 @@ def test_laneposition():
 def test_route_position():
     route = OSC.Route('myroute')
 
-    route.add_waypoint(OSC.WorldPosition(),'shortest')
+    route.add_waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
 
-    route.add_waypoint(OSC.WorldPosition(1,1,1),'shortest')
+    route.add_waypoint(OSC.WorldPosition(1,1,1),OSC.RouteStrategy.shortest)
 
     routepos = OSC.RoutePositionOfCurrentEntity(route,'Ego')
     OSC.prettyprint(routepos.get_element())

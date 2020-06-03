@@ -1,139 +1,179 @@
 XMLNS = 'http://www.w3.org/2001/XMLSchema-instance'
 XSI = 'OpenSccenario.xsd'
 
+from enum import Enum, auto
 
-CLOUDSTATE = [\
-    'skyOff',
-    'free',
-    'cloudy',
-    'overcast',
-    'rainy']
+class Cloudstate(Enum):
+    """ Enum for Cloudstate
+    """
+    skyOff = auto()
+    free = auto()
+    cloudy = auto()
+    overcast = auto()
+    rainy = auto()
 
-CONDITIONEDGE = [\
-    'rising',
-    'falling',
-    'risingorFalling',
-    'none']
+class ConditionEdge(Enum):
+    """ Enum for ConditionEdge
+    """
+    rising = auto()
+    falling = auto()
+    risingorFalling = auto()
+    none = auto()
 
-DYNAMICSDIMENSION = [\
-    'rate',
-    'time',
-    'distance']
+class DynamicsDimension(Enum):
+    """ Enum for DynamicsDimension
+    """
+    rate = auto()
+    time = auto()
+    distance = auto()
 
+class DynamicsShapes(Enum):
+    """ Enum for DynamicsShapes
+    """
+    linear = auto()
+    cubic = auto()
+    sinusoidal = auto()
+    step = auto()
 
-DYNAMICSSHAPES = [\
-    'linear',
-    'cubic',
-    'sinusoidal',
-    'step']
+class FollowMode(Enum):
+    """ Enum for FollowMode
+    """
+    position = auto()
+    follow = auto()
 
-FOLLOWMODE = [\
-    'position',
-    'follow']
+class MiscObjectCategory(Enum):
+    """ Enum for MiscObjectCategory
+    """
+    
+    none = auto()
+    obstacle = auto()
+    pole = auto()
+    tree = auto()
+    vegetation = auto()
+    barrier = auto()
+    building = auto()
+    parkingSpace = auto()
+    patch = auto()
+    railing = auto()
+    grafficIsland = auto()
+    crosswalk = auto()
+    streetLamp = auto()
+    gantry = auto()
+    soundBarrier = auto()
+    wind = auto()
+    roadMark = auto()
 
+class ObjectType(Enum):
+    """ Enum for ObjectType
+    """
+    pedestrian = auto()
+    vehicle = auto()
+    miscellaneous = auto()
 
-MISCOBJECTCATEGORY =[\
-    'none',
-    'obstacle',
-    'pole',
-    'tree',
-    'vegetation',
-    'varrier',
-    'building',
-    'parkingSpace',
-    'patch',
-    'railing',
-    'grafficIsland',
-    'crosswalk',
-    'streetLamp',
-    'gantry',
-    'soundBarrier',
-    'wind',
-    'roadMark']
+class ParameterType(Enum):
+    """ Enum for ParameterType
+    """
+    integer = auto()
+    double = auto()
+    string = auto()
+    unsighedInt = auto()
+    unsighedShort = auto()
+    boolean = auto()
+    dateTime = auto()
 
-OBJECTTYPE = [\
-    'pedestrian',
-    'vehicle',
-    'miscellaneous']
+class PedestrianCategory(Enum):
+    """ Enum for PedestrianCategory
+    """
+    pedestrian = auto()
+    wheelchair = auto()
+    animal = auto()
 
-PARAMETERTYPE = [\
-        'integer',
-        'double',
-        'string',
-        'unsighedInt',
-        'unsighedShort',
-        'boolean',
-        'dateTime']
+class PercipitationType(Enum):
+    """ Enum for PercipitationType
+    """
+    dry = auto()
+    rain = auto()
+    snow = auto()
 
-PEDESTRIANGCATEGORY =[\
-    'pedestriang',
-    'wheelchair',
-    'animal']
+class Priority(Enum):
+    """ Enum for Priority
+    """
+    overwrite = auto()
+    skip = auto()
+    parallel = auto()
 
-PERCIPITATIONTYPE = [\
-    'dry',
-    'rain',
-    'snow']
+class ReferenceContext(Enum):
+    """ Enum for ReferenceContext
+    """
+    relative = auto()
+    absolute = auto()
 
-PRIORITY = [\
-    'overwrite',
-    'skip',
-    'parallel']
+class RelativeDistanceType(Enum):
+    """ Enum for RelativeDistanceType
+    """
+    longitudinal = auto()
+    lateral = auto()
+    cartesianDistance = auto()
 
-REFERENCECONTEXT = [\
-    'relative',
-    'absolute']
+class RouteStrategy(Enum):
+    """ Enum for RouteStrategy
+    """
+    fastest = auto()
+    shortest = auto()
+    leastIntersections = auto()
+    random = auto()
 
-RELATIVEDISTANCETYPE =[\
-    'longitudinal',
-    'lateral',
-    'cartesianDistance']
+class Rule(Enum):
+    """ Enum for Rule
+    """
+    greaterThan = auto()
+    lessThan = auto()
+    equalTo = auto()
 
-ROUTESTRATEGY = [\
-    'fastest',
-    'shortest',
-    'leastIntersections',
-    'random']
+class SpeedTargetValueType(Enum):
+    """ Enum for SpeedTargetValueType
+    """
+    delta = auto()
+    factor = auto()
 
-RULE = [\
-    'greaterThan',
-    'lessThan',
-    'equalTo']
+class StoryboardElementState(Enum):
+    """ Enum for StoryboardElementState
+    """
+    startTransition = auto()
+    endTransition = auto()
+    stopTransition = auto()
+    skipTransition = auto()
+    completeState = auto()
+    runningState = auto()
+    standbyState = auto()
 
-SPEEDTARGETVALUETYP = [\
-    'delta',
-    'factor']
+class StoryboardElementType(Enum):
+    """ Enum for StoryboardElementType
+    """
+    story = auto()
+    act = auto()
+    maneuver = auto()
+    event = auto()
+    action = auto()
+    maneuverGroup = auto()
 
-STORYBOARDELEMENTSTATE =[\
-    'startTransition',
-    'endTransition',
-    'stopTransition',
-    'skipTransition',
-    'completeState',
-    'runningState',
-    'standbyState']
+class TriggeringEntitiesRule(Enum):
+    """ Enum for TriggeringEntitiesRule
+    """
+    any = auto()
+    all = auto()
 
-STORYBOARDELEMENTTYPE = [\
-    'story',
-    'act',
-    'maneuver',
-    'event',
-    'action',
-    'maneuverGroup']
-
-TRIGGERINGENTITYTIESRULE = [\
-    'any',
-    'all']
-
-VEHICLECATEGORY = [\
-    'car',
-    'van',
-    'truck',
-    'trailer',
-    'semitrailer',
-    'bus',
-    'motorbike',
-    'bicycle',
-    'train',
-    'tram']
+class VehicleCategory(Enum):
+    """ Enum for VehicleCategory
+    """
+    car = auto()
+    van = auto()
+    truck = auto()
+    trailer = auto()
+    semitrailer = auto()
+    bus = auto()
+    motorbike = auto()
+    bicycle = auto()
+    train = auto()
+    tram = auto()
 
