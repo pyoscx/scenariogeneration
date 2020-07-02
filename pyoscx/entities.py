@@ -156,7 +156,8 @@ class ScenarioObject():
         # print(self.entityobject.get_element())
         element.append(self.entityobject.get_element())
         if self.controller:
-            ET.SubElement('ObjectController',self.controller.get_element())
+            objcont = ET.SubElement(element,'ObjectController')
+            objcont.append(self.controller.get_element())
         
         return element
 
@@ -953,16 +954,16 @@ class Properties():
         self.files = []
         self.properties = []
 
-    def add_file(self,file):
+    def add_file(self,filename):
         """ adds a property file
 
         Parameters
         ----------
-            file (str): name of the file
+            filename (str): name of the file
 
         """
 
-        self.files.append(file)
+        self.files.append(filename)
 
     def add_property(self,name,value):
         """ adds a property pair
