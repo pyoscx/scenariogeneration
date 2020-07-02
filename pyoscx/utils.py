@@ -98,7 +98,7 @@ class EntityRef():
             
 #         Attributes
 #         ----------
-#             obj_type (str): the typ of object
+#             obj_type (str): the type of object
 
 #         Methods
 #         -------
