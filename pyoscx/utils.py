@@ -89,44 +89,6 @@ class EntityRef():
         """
         return ET.Element('EntityRef',attrib=self.get_attributes())
 
-# class ObjectType():
-#     """ creates an objecttype of openscenario
-        
-#         Parameters
-#         ----------
-#             obj_type (ObjectType): the type of object
-            
-#         Attributes
-#         ----------
-#             obj_type (str): the type of object
-
-#         Methods
-#         -------
-
-#             get_attributes()
-#                 Returns a dictionary of all attributes of the class
-
-#     """
-#     def __init__(self,obj_type):
-#         """ initalize the ObjectType
-
-#             Parameters
-#             ----------
-#                 obj_type (str): the typ of object, vehicle, pedestrian or miscellaneous
-
-#         """
-#         if obj_type not in ObjectType:
-#             raise ValueError('not a valid object type')
-
-#         self.obj_type = obj_type
-
-#     def get_attributes(self):
-#         """ returns the attributes of the Parameter as a dict
-
-#         """
-#         return {'value':self.obj_type.name}
-
-
 class Parameter():
     """ Parameter is a declaration of a ParameterDeclaration for declarations
         
@@ -897,6 +859,229 @@ class FileHeader():
 
         return element
 
+
+
+class _TrafficSignalState():
+    """ crates a _TrafficSignalState used by Phase
+        
+        Parameters
+        ----------
+            signal_id (str): id of the traffic signal
+
+            state (str): state of the signal
+                
+        Attributes
+        ----------
+            signal_id (str): id of the traffic signal
+
+            state (str): state of the signal
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    
+    def __init__(self, signal_id, state):
+        """ initalize the _TrafficSignalState 
+        
+        Parameters
+        ----------
+            signal_id (str): id of the traffic signal
+
+            state (str): state of the signal
+
+        """
+        
+        self.signal_id = signal_id
+        self.state = state
+
+    def get_attributes(self):
+        """ returns the attributes of the _TrafficSignalState
+        
+        """
+        retdict = {}
+        retdict['id'] = self.signal_id
+        retdict['state'] = self.state
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the _TrafficSignalState
+
+        """
+        return ET.Element('TrafficSignalState',attrib=self.get_attributes())
+        
+
+    
+class Phase():
+    """ crates a Traffic light phase
+        
+        Parameters
+        ----------
+            name (str): if of the phase
+
+            duration (float): duration of the phase
+                
+        Attributes
+        ----------
+            name (str): if of the phase
+
+            duration (float): duration of the phase
+
+            signalstates (list of _TrafficSignalState): traffic signal states
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+            add_stignal_state(signal_id,state)
+                add a traffic signal state
+    """
+
+    def __init__(self, name, duration):
+        """ initalize the Phase 
+        
+        Parameters
+        ----------
+            name (str): if of the phase
+
+            duration (float): duration of the phase
+
+        """
+        
+        self.name = name
+        self.duration = duration
+        self.signalstates = []
+
+
+    def add_signal_state(self,signal_id,state):
+        """ Adds a phase of the traffic signal
+
+            Parameters
+            ----------
+                signal_id (str): id of the traffic signal in the road network
+
+                state (str): state of the signal defined in the road network
+
+        """
+        self.signalstates.append(_TrafficSignalState(signal_id,state))
+
+    def get_attributes(self):
+        """ returns the attributes of the TrafficSignalController
+        
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        retdict['duration'] = str(self.duration)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Polyline
+
+        """
+        element = ET.Element('Phase',attrib=self.get_attributes())
+        for s in self.signalstates: 
+            element.append(s.get_element())
+        return element
+
+
+class TrafficSignalController():
+    """ the TrafficSignalController class creates a polyline of (minimum 2) positions
+        
+        Parameters
+        ----------
+            name (str): if of the trafic signal
+
+            delay (float): delay of the phase shift
+                Default: None
+            reference (string): id to the controller in the roadnetwork
+                Default: None
+
+        Attributes
+        ----------
+            name (str): if of the trafic signal
+
+            delay (float): delay of the phase shift
+                Default: None
+            reference (string): id to the controller in the roadnetwork
+                Default: None
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+            add_phase(Phase)
+                add a phase to the trafficsitnal controller
+    """
+
+    def __init__(self, name, delay = None,reference = None):
+        """ initalize the TrafficSignalController 
+        
+        Parameters
+        ----------
+            name (str): if of the trafic signal
+
+            delay (float): delay of the phase shift
+                Default: None
+            reference (string): id to the controller in the RoadNetwork
+                Default: None
+
+        """
+        
+        self.name = name
+        self.delay = delay
+        self.reference = reference
+        self.phases = []
+
+
+    def add_phase(self,phase):
+        """ Adds a phase of the traffic signal
+
+            Parameters
+            ----------
+                phase (Phase): a phase of the trafficsignal
+
+        """
+        self.phases.append(phase)
+
+    def get_attributes(self):
+        """ returns the attributes of the TrafficSignalController
+        
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        if self.delay:
+            retdict['delay'] = str(self.delay)
+        if self.reference:
+            retdict['reference'] = self.reference
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the TrafficSignalController
+
+        """
+        element = ET.Element('TrafficSignalController',attrib=self.get_attributes())
+        for ph in self.phases: 
+            element.append(ph.get_element())
+        return element
+
+
+
+
+
 def merge_dicts(*dict_args):
     """ Funciton to merge dicts 
     
@@ -906,3 +1091,6 @@ def merge_dicts(*dict_args):
         retdict.update(d)
 
     return retdict
+
+
+

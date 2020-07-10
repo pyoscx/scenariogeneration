@@ -133,3 +133,16 @@ def test_follow_traj_action_polyline():
 
     trajact = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position)
     OSC.prettyprint(trajact.get_element())
+
+
+def testParameterAddActions():
+    OSC.prettyprint(OSC.ParameterAddAction('Myparam',3).get_element())
+
+def testParameterMultiplyActions():
+    OSC.prettyprint(OSC.ParameterMultiplyAction('Myparam',3).get_element())
+
+def testParameterSetActions():
+    OSC.prettyprint(OSC.ParameterSetAction('Myparam',3).get_element())
+
+def test_trafficsignalstateaction():
+    OSC.prettyprint(OSC.TrafficSignalStateAction('my signal','red').get_element())

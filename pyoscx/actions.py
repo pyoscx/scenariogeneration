@@ -59,6 +59,9 @@ class _Action():
         element.append(self.action.get_element())
         return element
 
+
+#### Private Actions ####
+
 #LongitudinalAction
 
 class AbsoluteSpeedAction():
@@ -1639,5 +1642,231 @@ class RelativeSynchronizeAction():
         syncaction.append(self.target_position.get_element('TargetPosition'))
         finalspeed = ET.SubElement(syncaction,'FinalSpeed')
         ET.SubElement(finalspeed,'RelativeSpeedToMaster',attrib={'value':str(self.speed),'speedTargetValueType':self.speed_target_type})
+        
+        return element
+
+
+#### Global Actions ####
+
+
+class ParameterAddAction():
+    """ The ParameterAddAction class creates a ParameterAction of tyoe ParameterModifyAction which adds a value to an existing Parameter
+        
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be added to the parameter
+
+        Attributes
+        ----------
+
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be added to the parameter
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,parameter_ref,value):
+        """ initalize the ParameterAddAction
+
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be added to the parameter
+
+        """
+        self.parameter_ref = parameter_ref
+        self.value = value
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'value':str(self.value)}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('GlobalAction')
+        paramaction = ET.SubElement(element,'ParameterAction',{'parameterRef':self.parameter_ref})
+        modifaction = ET.SubElement(paramaction,'ModifyAction')
+        rule = ET.SubElement(modifaction,'Rule')
+        ET.SubElement(rule,'AddValue',self.get_attributes())
+
+        
+        return element
+
+
+class ParameterMultiplyAction():
+    """ The ParameterMultiplyAction class creates a ParameterAction of tyoe ParameterModifyAction which adds a value to an existing Parameter
+        
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be multiplied to the parameter
+
+        Attributes
+        ----------
+
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be multiplied to the parameter
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,parameter_ref,value):
+        """ initalize the ParameterMultiplyAction
+
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be added to the parameter
+
+        """
+        self.parameter_ref = parameter_ref
+        self.value = value
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'value':str(self.value)}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('GlobalAction')
+        paramaction = ET.SubElement(element,'ParameterAction',{'parameterRef':self.parameter_ref})
+        modifaction = ET.SubElement(paramaction,'ModifyAction')
+        rule = ET.SubElement(modifaction,'Rule')
+        ET.SubElement(rule,'MultiplyByValue',self.get_attributes())
+
+        return element
+
+
+class ParameterSetAction():
+    """ The ParameterSetAction class creates a ParameterAction which adds a value to an existing Parameter
+        
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be set to the parameter
+
+        Attributes
+        ----------
+
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be set to the parameter
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,parameter_ref,value):
+        """ initalize the ParameterSetAction
+
+        Parameters
+        ----------
+            parameter_ref (str): name of the parameter
+
+            value (double): the value that should be added to the parameter
+
+        """
+        self.parameter_ref = parameter_ref
+        self.value = value
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'value':str(self.value)}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('GlobalAction')
+        paramaction = ET.SubElement(element,'ParameterAction',{'parameterRef':self.parameter_ref})
+        ET.SubElement(paramaction,'SetAction',self.get_attributes())
+        
+        return element
+
+
+class TrafficSignalStateAction():
+    """ The TrafficSignalStateAction class creates a Infrastructure action which controls the state of a traffic signal
+        
+        Parameters
+        ----------
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        Attributes
+        ----------
+
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,name,state):
+        """ initalize the TrafficSignalStateAction
+
+        Parameters
+        ----------
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        """
+        self.name = name
+        self.state = state
+
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'name':self.name,'state':self.state}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('GlobalAction')
+        infra = ET.SubElement(element,'InfrastructureAction')
+        tsa = ET.SubElement(infra,'TrafficSignalAction')
+        ET.SubElement(tsa,'TrafficSignalStateAction',self.get_attributes())
         
         return element

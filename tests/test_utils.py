@@ -99,3 +99,26 @@ def test_trajectory():
 def test_timeref():
     timeref = OSC.TimeReference(OSC.ReferenceContext.absolute,1,2)
     OSC.prettyprint(timeref.get_element())
+
+def test_phase():
+    p1 = OSC.Phase('myphase',1)
+    OSC.prettyprint(p1.get_element())
+    p1.add_signal_state('myid','red')
+    p1.add_signal_state('myid','green')
+    OSC.prettyprint(p1.get_element())
+
+def test_TrafficSignalController():
+    p1 = OSC.Phase('myphase',1)
+    p1.add_signal_state('myid','red')
+    p1.add_signal_state('myid','green')
+
+    p2 = OSC.Phase('myphase2',3)
+    p2.add_signal_state('myid2','yellow')
+    p2.add_signal_state('myid2','green')
+    p2.add_signal_state('myid2','red')
+    OSC.prettyprint(p2.get_element())
+
+    tsc = OSC.TrafficSignalController('my trafficlights')
+    tsc.add_phase(p1)
+    tsc.add_phase(p2)
+    OSC.prettyprint(tsc.get_element())
