@@ -3,6 +3,7 @@ import pyoscx
 
 ## example of parametrized EUNCAP2020 CCRm case
 
+
 def CCRm(ego_speedvalue,offset):
 
     # create empty catalog
