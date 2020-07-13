@@ -146,3 +146,10 @@ def testParameterSetActions():
 
 def test_trafficsignalstateaction():
     OSC.prettyprint(OSC.TrafficSignalStateAction('my signal','red').get_element())
+
+
+def test_addEntity():
+    OSC.prettyprint(OSC.AddEntityAction('my new thingy',OSC.WorldPosition()).get_element())
+
+def test_deleteEntity():
+    OSC.prettyprint(OSC.DeleteEntityAction('my new thingy').get_element())

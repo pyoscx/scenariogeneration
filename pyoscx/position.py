@@ -470,10 +470,10 @@ class LanePosition():
             s (float): length along road
 
             offset (float): offset from center of lane
-
-            road_id (int): id of the road
-
+            
             lane_id (int): lane of the road
+
+            road_id (int): id of the road           
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()  

@@ -1650,7 +1650,7 @@ class RelativeSynchronizeAction():
 
 
 class ParameterAddAction():
-    """ The ParameterAddAction class creates a ParameterAction of tyoe ParameterModifyAction which adds a value to an existing Parameter
+    """ The ParameterAddAction class creates a ParameterAction of type ParameterModifyAction which adds a value to an existing Parameter
         
         Parameters
         ----------
@@ -1870,3 +1870,173 @@ class TrafficSignalStateAction():
         ET.SubElement(tsa,'TrafficSignalStateAction',self.get_attributes())
         
         return element
+
+
+class AddEntityAction():
+    """ The AddEntityAction class creates a EntityAction which adds a entity to the scenario
+        
+        Parameters
+        ----------
+            entityref (str): reference name of the newly added vehicle
+
+            position (*Position): position where the vehicle should be added
+
+        Attributes
+        ----------
+
+            entityref (str): reference name of the newly added vehicle
+
+            position (*Position): position where the vehicle should be added
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,entityref,position):
+        """ initalize the AddEntityAction
+
+        Parameters
+        ----------
+            entityref (str): reference name of the newly added vehicle
+
+            position (*Position): position where the vehicle should be added
+
+        """
+        
+        self.entityref = entityref
+        self.position = position
+
+    def get_attributes(self):
+        """ returns the attributes of the AddEntityAction as a dict
+
+        """
+        return {'entityRef':self.entityref}
+
+    def get_element(self):
+        """ returns the elementTree of the AddEntityAction
+
+        """
+        element = ET.Element('GlobalAction')
+        entityact = ET.SubElement(element,'EntityAction',attrib=self.get_attributes())
+        addentity = ET.SubElement(entityact,'AddEntityAction')
+        addentity.append(self.position.get_element())
+        
+        
+        return element
+
+
+
+class DeleteEntityAction():
+    """ The DeleteEntityAction class creates a EntityAction which removes a entity to the scenario
+        
+        Parameters
+        ----------
+            entityref (str): reference name of the vehicle to remove
+
+        Attributes
+        ----------
+
+            entityref (str): reference name of the vehicle to remove
+
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,entityref):
+        """ initalize the DeleteEntityAction
+
+        Parameters
+        ----------
+            entityref (str): reference name of the vehicle to remove
+
+        """
+        
+        self.entityref = entityref
+
+    def get_attributes(self):
+        """ returns the attributes of the DeleteEntityAction as a dict
+
+        """
+        return {'entityRef':self.entityref}
+
+    def get_element(self):
+        """ returns the elementTree of the DeleteEntityAction
+
+        """
+        element = ET.Element('GlobalAction')
+        entityact = ET.SubElement(element,'EntityAction',attrib=self.get_attributes())
+        ET.SubElement(entityact,'DeleteEntityAction')
+
+        
+        
+        return element
+
+
+### TODO ###
+class TrafficSignalControllerAction():
+    """ The TrafficSignalControllerAction class creates a Infrastructure action which activates a controller of a traffic signal
+        
+        Parameters
+        ----------
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        Attributes
+        ----------
+
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,name,state):
+        """ initalize the TrafficSignalStateAction
+
+        Parameters
+        ----------
+            name (str): id of the signal in the road network
+
+            state (str): the state to set to the traffic light
+
+        """
+        NotImplementedError('TrafficSignalControllerAction is not implemented yet.')
+        # self.name = name
+        # self.state = state
+
+    def get_attributes(self):
+        """ returns the attributes of the AbsoluteSpeedAction as a dict
+
+        """
+        return {'name':self.name,'state':self.state}
+
+    def get_element(self):
+        """ returns the elementTree of the AbsoluteSpeedAction
+
+        """
+        element = ET.Element('GlobalAction')
+        infra = ET.SubElement(element,'InfrastructureAction')
+        tsa = ET.SubElement(infra,'TrafficSignalAction')
+        ET.SubElement(tsa,'TrafficSignalStateAction',self.get_attributes())
+        
+        return element
+

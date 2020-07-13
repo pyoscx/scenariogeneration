@@ -101,3 +101,27 @@ def test_controller():
 
     cnt = OSC.Controller('mycontroler',prop)
     OSC.prettyprint(cnt.get_element())
+
+def test_controller_in_Entities():
+    bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
+    fa = OSC.Axel(2,2,2,1,1)
+    ba = OSC.Axel(1,1,2,1,1)
+    veh = OSC.Vehicle('mycar',OSC.ObjectType.vehicle,bb,fa,ba,150,10,10)
+
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+
+    cnt = OSC.Controller('mycontroler',prop)
+
+
+    entities = OSC.Entities()
+    entities.add_scenario_object('Ego',veh)
+    entities.add_scenario_object('Target_1',veh,cnt)
+    entities.add_entity_bytype('Target_2',OSC.ObjectType.vehicle)
+    entities.add_entity_byref('Target_3','something')
+    OSC.prettyprint(entities.get_element())
+
+
+    
+    OSC.prettyprint(veh.get_element())
