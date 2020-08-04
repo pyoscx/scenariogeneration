@@ -153,3 +153,65 @@ def test_addEntity():
 
 def test_deleteEntity():
     OSC.prettyprint(OSC.DeleteEntityAction('my new thingy').get_element())
+
+def test_trafficsourceaction():
+    
+    prop = OSC.Properties()
+    prop.add_file('mycontrollerfile.xml')
+    controller = OSC.Controller('mycontroller',prop)
+
+    traffic = OSC.TrafficDefinition('my traffic')
+    traffic.add_controller(controller,0.5)
+    traffic.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+
+    traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
+    traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+
+    source_action = OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic,100)
+
+    OSC.prettyprint(source_action.get_element())
+
+    source_action = OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic)
+    OSC.prettyprint(source_action.get_element())
+
+
+def test_trafficsinkaction():
+    
+    prop = OSC.Properties()
+    prop.add_file('mycontrollerfile.xml')
+    controller = OSC.Controller('mycontroller',prop)
+
+    traffic = OSC.TrafficDefinition('my traffic')
+    traffic.add_controller(controller,0.5)
+    traffic.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+
+    traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
+    traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+
+    sink_action = OSC.TrafficSinkAction(10,10,OSC.WorldPosition(),traffic)
+    OSC.prettyprint(sink_action.get_element())
+
+
+    
+def test_trafficswarmaction():
+    
+    prop = OSC.Properties()
+    prop.add_file('mycontrollerfile.xml')
+    controller = OSC.Controller('mycontroller',prop)
+
+    traffic = OSC.TrafficDefinition('my traffic')
+    traffic.add_controller(controller,0.5)
+    traffic.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+
+    traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
+    traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+
+    source_action = OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic,100)
+
+    OSC.prettyprint(source_action.get_element())
+
+    swarm_action = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic)
+    OSC.prettyprint(swarm_action.get_element())
+
+    swarm_action = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic,10)
+    OSC.prettyprint(swarm_action.get_element())

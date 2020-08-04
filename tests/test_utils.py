@@ -122,3 +122,19 @@ def test_TrafficSignalController():
     tsc.add_phase(p1)
     tsc.add_phase(p2)
     OSC.prettyprint(tsc.get_element())
+
+
+def test_trafficdefinition():
+    prop = OSC.Properties()
+    prop.add_file('mycontrollerfile.xml')
+    controller = OSC.Controller('mycontroller',prop)
+
+    traffic = OSC.TrafficDefinition('my traffic')
+    traffic.add_controller(controller,0.5)
+    traffic.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+
+
+    traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
+    traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+
+    OSC.prettyprint(traffic.get_element())

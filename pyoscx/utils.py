@@ -1080,124 +1080,120 @@ class TrafficSignalController():
 
 
 
-# class TrafficDefinition():
-#     """ the TrafficDefinition class creates a TrafficDefinition used by the different TrafficActions
+class TrafficDefinition():
+    """ the TrafficDefinition class creates a TrafficDefinition used by the different TrafficActions
         
-#         Parameters
-#         ----------
-#             name (str): name of the traffic definition
+        Parameters
+        ----------
+            name (str): name of the traffic definition
        
 
-#         Attributes
-#         ----------
-#             name (str): name of the traffic definition
+        Attributes
+        ----------
+            name (str): name of the traffic definition
 
-#             vehicleweights (list of floats): The weights of the vehicle categories (VehicleCategoryDistribution-wight)
+            vehicleweights (list of floats): The weights of the vehicle categories (VehicleCategoryDistribution-wight)
 
-#             vehiclecategories (list of VehicleCategory): the vehicle category ((VehicleCategoryDistribution-category))
+            vehiclecategories (list of VehicleCategory): the vehicle category ((VehicleCategoryDistribution-category))
 
-#             controllerweights (list of floats): The weights of the controllers
+            controllerweights (list of floats): The weights of the controllers
 
-#             controllers (list of Controller/CatalogReference): The controllers for the traffic
+            controllers (list of Controller/CatalogReference): The controllers for the traffic
 
 
-#         Methods
-#         -------
-#             get_element()
-#                 Returns the full ElementTree of the class
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
 
-#             get_attributes()
-#                 Returns a dictionary of all attributes of the class
+            get_attributes()
+                Returns a dictionary of all attributes of the class
 
-#             add_vehicle(vehiclecategory,weight)
-#                 Adds a vehicle to the traffic definition
+            add_vehicle(vehiclecategory,weight)
+                Adds a vehicle to the traffic definition
 
-#             add_controller(controller,weight)
-#                 Adds a controller to the traffic definition
+            add_controller(controller,weight)
+                Adds a controller to the traffic definition
                 
-#     """
+    """
 
-#     def __init__(self, name, delay = None,reference = None):
-#         """ initalize the TrafficDefinition 
+    def __init__(self, name):
+        """ initalize the TrafficDefinition 
         
-#         Parameters
-#         ----------
-#             name (str): name of the traffic definition
+        Parameters
+        ----------
+            name (str): name of the traffic definition
 
-#         """            
+        """            
         
-#         self.name = name
-#         self.vehicleweights = [] 
-#         self.vehiclecategories = [] 
-#         self.controllerweights = []
-#         self.controllers = []
+        self.name = name
+        self.vehicleweights = [] 
+        self.vehiclecategories = [] 
+        self.controllerweights = []
+        self.controllers = []
         
 
 
 
-#     def add_vehicle(self,vehiclecategory,weight):
-#         """ Adds a vehicle to the traffic distribution
+    def add_vehicle(self,vehiclecategory,weight):
+        """ Adds a vehicle to the traffic distribution
 
-#             Parameters
-#             ----------
-#                 vehiclecategory (VehicleCategory): vehicle category of the entity in the traffic
+            Parameters
+            ----------
+                vehiclecategory (VehicleCategory): vehicle category of the entity in the traffic
 
-#                 weight (float): the corresponding weight for the distribution of the vehicle category
+                weight (float): the corresponding weight for the distribution of the vehicle category
 
-#         """
+        """
 
-#         self.vehiclecategories.append(vehiclecategory)
-#         self.vehicleweights.append(weight)
+        self.vehiclecategories.append(vehiclecategory)
+        self.vehicleweights.append(weight)
 
-#     def add_controller(self,controller,weight):
-#         """ Adds a controller to the traffic distribution
+    def add_controller(self,controller,weight):
+        """ Adds a controller to the traffic distribution
 
-#             Parameters
-#             ----------
-#                 controller (Controller or CatalogReference): a controller or catalog reference to a controller
+            Parameters
+            ----------
+                controller (Controller or CatalogReference): a controller or catalog reference to a controller
 
-#                 weight (float): the corresponding weight for the controller
+                weight (float): the corresponding weight for the controller
 
-#         """
-#         self.controllers.append(controller)
-#         self.controllerweights.append(weight)
+        """
+        self.controllers.append(controller)
+        self.controllerweights.append(weight)
     
-#     def get_attributes(self):
-#         """ returns the attributes of the TrafficDefinition
+    def get_attributes(self):
+        """ returns the attributes of the TrafficDefinition
         
-#         """
-#         retdict = {}
-#         retdict['name'] = self.name
-#         return retdict
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        return retdict
 
-#     def get_element(self):
-#         """ returns the elementTree of the TrafficDefinition
+    def get_element(self):
+        """ returns the elementTree of the TrafficDefinition
 
-#         """
-#         if not self.controllers:
-#             ValueError('No controllers defined for the TrafficDefinition')
-#         if not self.vehiclecategories:
-#             ValueError('No Vehicles defined for the TrafficDefinition')
+        """
+        if not self.controllers:
+            ValueError('No controllers defined for the TrafficDefinition')
+        if not self.vehiclecategories:
+            ValueError('No Vehicles defined for the TrafficDefinition')
                 
-#         element = ET.Element('TrafficDefinition',attrib=self.get_attributes())
+        element = ET.Element('TrafficDefinition',attrib=self.get_attributes())
         
-#         veh_element = ET.SubElement(element,'VehicleCategoryDistribution')
-#         for i in range(len(self.vehiclecategories)):
-#             ET.SubElement(veh_element,'VehicleCategoryDistributionEntry',attrib={'category': self.vehiclecategories[i].name,'weight': self.vehicleweights[i]})
+        veh_element = ET.SubElement(element,'VehicleCategoryDistribution')
+        for i in range(len(self.vehiclecategories)):
+            ET.SubElement(veh_element,'VehicleCategoryDistributionEntry',attrib={'category': self.vehiclecategories[i].name,'weight': str(self.vehicleweights[i])})
 
-#         cnt_element = ET.SubElement(element,'ControllerDistribution')
-#         for i in range(len(self.controllers)):
-#             tmp_controller = ET.SubElement(cnt_element,'ControllerDistributionEntry',attrib={'weight':self.controllerweights[i]})
-#             tmp_controller.append(self.controllers[i].get_element())
+        cnt_element = ET.SubElement(element,'ControllerDistribution')
+        for i in range(len(self.controllers)):
+            tmp_controller = ET.SubElement(cnt_element,'ControllerDistributionEntry',attrib={'weight':str(self.controllerweights[i])})
+            tmp_controller.append(self.controllers[i].get_element())
 
-#         return element
+        return element
 
 
-import os
-import xml.etree.ElementTree as ET
-from .utils import FileHeader
-from .enumerations import XSI,XMLNS
-from .helpers import printToFile
+
 
 class CatalogFile():
     """ The CatalogFile class handles any catalogs in open scenario, such as writing, and updating them

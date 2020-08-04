@@ -2040,3 +2040,273 @@ class TrafficSignalControllerAction():
         
         return element
 
+
+
+
+class TrafficSourceAction():
+    """ The TrafficSourceAction class creates a TrafficAction of the typ TrafficSourceAction
+        
+        Parameters
+        ----------
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the source around the position
+
+            position (*Position): any Position to define the source
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity of the traffic
+                Default: None
+
+        Attributes
+        ----------
+
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the source around the position
+
+            position (*Position): any Position to define the source
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity of the traffic
+                Default: None
+
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,rate,radius,position,trafficdefinition,velocity = None):
+        """ initalize the TrafficSourceAction
+
+        Parameters
+        ----------
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the source around the position
+
+            position (*Position): any Position to define the source
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity of the traffic
+                Default: None
+
+        """
+        self.rate = rate
+        self.radius = radius
+        self.position = position
+        self.trafficdefinition = trafficdefinition
+        self.velocity = velocity
+
+    def get_attributes(self):
+        """ returns the attributes of the TrafficSourceAction as a dict
+
+        """
+        retdict = {}
+        retdict['rate'] = str(self.rate)
+        retdict['radius'] = str(self.radius)
+        if self.velocity:
+            retdict['velocity'] = str(self.velocity)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the TrafficSourceAction
+
+        """
+        element = ET.Element('TrafficAction')
+        sourceaction = ET.SubElement(element,'TrafficSourceAction',attrib=self.get_attributes())
+        sourceaction.append(self.position.get_element())
+        sourceaction.append(self.trafficdefinition.get_element())
+
+        
+        
+        return element
+
+
+class TrafficSinkAction():
+    """ The TrafficSinkAction class creates a TrafficAction of the typ TrafficSinkAction
+        
+        Parameters
+        ----------
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the sink around the position
+
+            position (*Position): any Position to define the sink
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+        Attributes
+        ----------
+
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the source around the position
+
+            position (*Position): any Position to define the source
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,rate,radius,position,trafficdefinition):
+        """ initalize the TrafficSinkAction
+
+        Parameters
+        ----------
+            rate (float): rate of appearing traffic
+
+            radius (float): the radius of the source around the position
+
+            position (*Position): any Position to define the source
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+        """
+        self.rate = rate
+        self.radius = radius
+        self.position = position
+        self.trafficdefinition = trafficdefinition
+
+
+    def get_attributes(self):
+        """ returns the attributes of the TrafficSinkAction as a dict
+
+        """
+        retdict = {}
+        retdict['rate'] = str(self.rate)
+        retdict['radius'] = str(self.radius)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the TrafficSinkAction
+
+        """
+        element = ET.Element('TrafficAction')
+        sinkaction = ET.SubElement(element,'TrafficSinkAction',attrib=self.get_attributes())
+        sinkaction.append(self.position.get_element())
+        sinkaction.append(self.trafficdefinition.get_element())
+
+        return element
+
+
+class TrafficSwarmAction():
+    """ The TrafficSwarmAction class creates a TrafficAction of the typ TrafficSwarmAction
+        
+        Parameters
+        ----------
+            semimajoraxis (float): half length of major axis of ellipsis around target
+
+            semiminoraxis (float): half length of minor axis of ellipsis around target
+
+            innerradius (float): radius of inner cirvle
+
+            offset (float): longitudinal offset from central entity
+
+            numberofvehicles (int): maximum number of vehicles around entity
+
+            centralobject (str): entity to swarm around
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity
+                Default: None
+        Attributes
+        ----------
+
+            semimajoraxis (float): half length of major axis of ellipsis around target
+
+            semiminoraxis (float): half length of minor axis of ellipsis around target
+
+            innerradius (float): radius of inner cirvle
+
+            offset (float): longitudinal offset from central entity
+
+            numberofvehicles (int): maximum number of vehicles around entity
+
+            centralobject (str): entity to swarm around
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity
+                Default: None
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self,semimajoraxis,semiminoraxis,innerradius,offset,numberofvehicles,centralobject,trafficdefinition,velocity = None):
+        """ initalize the TrafficSinkAction
+
+        Parameters
+        ----------
+            semimajoraxis (float): half length of major axis of ellipsis around target
+
+            semiminoraxis (float): half length of minor axis of ellipsis around target
+
+            innerradius (float): radius of inner circle
+
+            offset (float): longitudinal offset from central entity
+
+            numberofvehicles (int): maximum number of vehicles around entity
+
+            centralobject (str): entity to swarm around
+
+            trafficdefinition (TrafficDefinition): definition of the traffic
+
+            velocity (float): optional starting velocity
+                Default: None
+        """
+        self.semimajoraxis = semimajoraxis
+        self.semiminoraxis = semiminoraxis
+        self.innerradius = innerradius
+        self.offset = offset
+        self.numberofvehicles = numberofvehicles
+        self.centralobject = centralobject
+        self.trafficdefinition = trafficdefinition
+        self.velocity = velocity
+
+    def get_attributes(self):
+        """ returns the attributes of the TrafficSinkAction as a dict
+
+        """
+        retdict = {}
+        retdict['semiMajorAxis'] = str(self.semimajoraxis)
+        retdict['semiMinorAxis'] = str(self.semiminoraxis)
+        retdict['innerRadius'] = str(self.innerradius)
+        retdict['offset'] = str(self.offset)
+        retdict['numberOfVehicles'] = str(self.numberofvehicles)
+        if self.velocity:
+            retdict['velocity'] = str(self.velocity)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the TrafficSinkAction
+
+        """
+        element = ET.Element('TrafficAction')
+        swarmaction = ET.SubElement(element,'TrafficSwarmAction',attrib=self.get_attributes())
+        swarmaction.append(self.trafficdefinition.get_element())
+        ET.SubElement(swarmaction,'CentralSwarmObject',attrib={'entityRef':self.centralobject})
+
+        return element
