@@ -8,5 +8,4 @@ from .triggers import *
 from .scenario import *
 from .storyboard import *
 from .entities import *
-from .catalog import *
 from .enumerations import *

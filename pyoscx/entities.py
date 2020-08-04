@@ -3,8 +3,8 @@ import xml.etree.ElementTree as ET
 from .utils import EntityRef, ObjectType
 from .scenario import ParameterDeclarations
 from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory
-from .utils import DynamicsConstrains
-from .catalog import CatalogFile
+from .utils import DynamicsConstrains, CatalogFile
+# from .catalog import 
 
 class Entities():
     """ The Entities class creates the entities part of OpenScenario

@@ -4,7 +4,7 @@ from .actions import _Action
 
 from .triggers import EmptyTrigger
 from .utils import EntityRef
-from .utils import ParameterDeclarations
+from .utils import ParameterDeclarations, CatalogFile
 from .enumerations import Priority
 
 class StoryBoard():
@@ -70,8 +70,8 @@ class StoryBoard():
         """
         element = ET.Element('Storyboard')
         element.append(self.init.get_element())
-        if not self.stories:
-            raise ValueError('no stories available for storyboard')
+        # if not self.stories:
+        #     raise ValueError('no stories available for storyboard')
         
         for story in self.stories:
             element.append(story.get_element())
