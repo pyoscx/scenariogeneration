@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 from .enumerations import ConditionEdge, ObjectType, ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy
 import datetime as dt
-
+from .catalog import CatalogFile
 
 class ParameterDeclarations():
     """ The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
