@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from .utils import EntityRef
 from .enumerations import Rule, ConditionEdge
 
-
+## TODO: Add possibility to add multiple ConditionGroups and Conditions to triggers.. only one of each is supported right now.
 
 class EmptyTrigger():
     """ EmptyTrigger creates an empty trigger
