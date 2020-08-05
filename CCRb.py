@@ -1,12 +1,12 @@
 import pyoscx
+import numpy as np
+
+## example of parametrized EUNCAP2020 CCRb case
 
 
-## example of parametrized EUNCAP2020 CCRm case
-
-ttc_at_speed = 5
 acceleration_time = 5
 
-def CCRm(ego_speedvalue,offset):
+def CCRb(distance,decelleration):
 
     # create empty catalog
     catalog = pyoscx.Catalog()
@@ -52,16 +52,13 @@ def CCRm(ego_speedvalue,offset):
     step_time = pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)
     
     # caluclate correct offset based on target vehicle width
-    cal_offset = offset/100*target_width
+    cal_offset = 0
 
     egospeed = pyoscx.AbsoluteSpeedAction(0,step_time)
     egostart = pyoscx.TeleportAction(pyoscx.LanePosition(25,cal_offset,-1,1))
 
-
-    startpos = 25 + (ego_speedvalue-20)/3.6* (acceleration_time+ttc_at_speed)
-
     targetspeed = pyoscx.AbsoluteSpeedAction(0,step_time)
-    targetstart = pyoscx.TeleportAction(pyoscx.LanePosition(startpos,0,-1,1))
+    targetstart = pyoscx.TeleportAction(pyoscx.LanePosition(25+distance,0,-1,1))
 
     init.add_init_action(egoname,egospeed)
     init.add_init_action(egoname,egostart)
@@ -75,14 +72,21 @@ def CCRm(ego_speedvalue,offset):
     eventego = pyoscx.Event('egospeedchange',pyoscx.Priority.overwrite)
     eventego.add_trigger(trigger)
 
-    ego_action = pyoscx.AbsoluteSpeedAction(ego_speedvalue/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
+    ego_action = pyoscx.AbsoluteSpeedAction(50/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
     eventego.add_action('newspeed',ego_action)
 
     event_tar = pyoscx.Event('targetspeedchange',pyoscx.Priority.overwrite)
     event_tar.add_trigger(trigger)
 
-    target_action = pyoscx.AbsoluteSpeedAction(20/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
+    target_action = pyoscx.LongitudinalDistanceAction(-distance,egoname)
     event_tar.add_action('targetspeed',target_action)
+
+    # trigger here could be changed to speed but tested for esmini at the point where speed condition was not implemented
+    target_slowingdown_trigger = pyoscx.ValueTrigger('slowingdowntrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(6,pyoscx.Rule.greaterThan))
+    target_slowingdown_action = pyoscx.AbsoluteSpeedAction(0,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.rate,abs(decelleration)))
+    event_tar_slowdown = pyoscx.Event('target slowing down',pyoscx.Priority.overwrite)
+    event_tar_slowdown.add_trigger(target_slowingdown_trigger)
+    event_tar_slowdown.add_action('slowdownaction',target_slowingdown_action)
 
     # create maneuvers/maneuvergroups
     ego_man = pyoscx.Maneuver('ego man')
@@ -90,6 +94,8 @@ def CCRm(ego_speedvalue,offset):
 
     tar_man = pyoscx.Maneuver('target man')
     tar_man.add_event(event_tar)
+    tar_man.add_event(event_tar_slowdown)
+    
 
     egomangr = pyoscx.ManeuverGroup('egomangr')
     egomangr.add_actor(egoname)
@@ -110,15 +116,15 @@ def CCRm(ego_speedvalue,offset):
     story.add_act(act)
 
     ## create the storyboard
-    sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(ttc_at_speed*2+acceleration_time,pyoscx.Rule.greaterThan),'stop'))
+    sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',2,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(acceleration_time + np.ceil(np.sqrt(2*distance/abs(decelleration))) + distance/50 ,pyoscx.Rule.greaterThan),'stop'))
     sb.add_story(story)
 
     ## create and return the scenario
-    sce = pyoscx.Scenario('CCRm_v: ' +str(ego_speedvalue) + ', offset: ' + str(offset),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+    sce = pyoscx.Scenario('CCRb, distance: ' +str(distance) + ', decelleration: ' + str(decelleration),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     return sce
 
 if __name__ == '__main__':
-    all_egospeeds = [x for x in range(30,85,5)]
-    all_offsets = [-50, -25, 0, 25, 50]
-    sce = CCRm(all_egospeeds[-1],all_offsets[1])
+    distance = [12, 40]
+    decel = [-2,-6]
+    sce = CCRb(distance[0],decel[0])
     pyoscx.esminiRunner(sce)

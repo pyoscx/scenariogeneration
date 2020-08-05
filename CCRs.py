@@ -1,13 +1,13 @@
 import pyoscx
 
 
-## example of parametrized EUNCAP2020 CCRm case
+## example of parametrized EUNCAP2020 CCRs case
 
-ttc_at_speed = 5
+ttc_at_speed = 4
 acceleration_time = 5
 
-def CCRm(ego_speedvalue,offset):
-
+def CCRs(ego_speedvalue,offset):
+    
     # create empty catalog
     catalog = pyoscx.Catalog()
 
@@ -57,9 +57,7 @@ def CCRm(ego_speedvalue,offset):
     egospeed = pyoscx.AbsoluteSpeedAction(0,step_time)
     egostart = pyoscx.TeleportAction(pyoscx.LanePosition(25,cal_offset,-1,1))
 
-
-    startpos = 25 + (ego_speedvalue-20)/3.6* (acceleration_time+ttc_at_speed)
-
+    startpos = 25 + ego_speedvalue/3.6* (acceleration_time+ttc_at_speed)
     targetspeed = pyoscx.AbsoluteSpeedAction(0,step_time)
     targetstart = pyoscx.TeleportAction(pyoscx.LanePosition(startpos,0,-1,1))
 
@@ -78,32 +76,20 @@ def CCRm(ego_speedvalue,offset):
     ego_action = pyoscx.AbsoluteSpeedAction(ego_speedvalue/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
     eventego.add_action('newspeed',ego_action)
 
-    event_tar = pyoscx.Event('targetspeedchange',pyoscx.Priority.overwrite)
-    event_tar.add_trigger(trigger)
-
-    target_action = pyoscx.AbsoluteSpeedAction(20/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
-    event_tar.add_action('targetspeed',target_action)
 
     # create maneuvers/maneuvergroups
     ego_man = pyoscx.Maneuver('ego man')
     ego_man.add_event(eventego)
 
-    tar_man = pyoscx.Maneuver('target man')
-    tar_man.add_event(event_tar)
-
     egomangr = pyoscx.ManeuverGroup('egomangr')
     egomangr.add_actor(egoname)
     egomangr.add_maneuver(ego_man)
 
-    tarmangr = pyoscx.ManeuverGroup('tarmangr')
-    tarmangr.add_actor(targetname)
-    tarmangr.add_maneuver(tar_man)
 
     # create act 
     act = pyoscx.Act('ccrm act',pyoscx.ValueTrigger('starttrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(0,pyoscx.Rule.greaterThan)))
 
     act.add_maneuver_group(egomangr)
-    act.add_maneuver_group(tarmangr)
 
     # create story
     story = pyoscx.Story('mystory')
@@ -114,11 +100,12 @@ def CCRm(ego_speedvalue,offset):
     sb.add_story(story)
 
     ## create and return the scenario
-    sce = pyoscx.Scenario('CCRm_v: ' +str(ego_speedvalue) + ', offset: ' + str(offset),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+    sce = pyoscx.Scenario('CCRs v: ' +str(ego_speedvalue) + ', offset: ' + str(offset),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     return sce
 
 if __name__ == '__main__':
-    all_egospeeds = [x for x in range(30,85,5)]
+    all_egospeeds = [x for x in range(10,85,5)]
+
     all_offsets = [-50, -25, 0, 25, 50]
-    sce = CCRm(all_egospeeds[-1],all_offsets[1])
+    sce = CCRs(all_egospeeds[14],all_offsets[1])
     pyoscx.esminiRunner(sce)
