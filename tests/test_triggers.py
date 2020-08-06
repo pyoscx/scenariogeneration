@@ -83,7 +83,7 @@ def test_trafficsignalcondition():
     cond = OSC.TrafficSignalCondition('traflight','green')
     OSC.prettyprint(cond.get_element())
 
-def test_trafficsignalcondition():
+def test_trafficsignalconditioncontroller():
     cond = OSC.TrafficSignalControllerCondition('somereferens','yellow')
     OSC.prettyprint(cond.get_element())
 
@@ -91,10 +91,8 @@ def test_triggeringentities():
     cond =OSC.TriggeringEntities('Ego','any')
     OSC.prettyprint(cond.get_element())
 
-
 def test_entitytrigger():
     trigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,True,freespace=False,position=OSC.WorldPosition())
-
     trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,'Target_1')
     OSC.prettyprint(trigger.get_element())
 
@@ -102,3 +100,37 @@ def test_valuetrigger():
     trigcond = OSC.ParameterCondition('something',2,OSC.Rule.equalTo)
     trigger = OSC.ValueTrigger('myvaluetrigger',0.2,OSC.ConditionEdge.rising,trigcond,triggeringpoint='stop')
     OSC.prettyprint(trigger.get_element())
+
+def test_conditiongroup():
+    condgr = OSC.ConditionGroup()
+
+    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig2 = OSC.EntityTrigger('secondtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
+    condgr.add_condition(trig1)
+    condgr.add_condition(trig2)
+
+    OSC.prettyprint(condgr.get_element())
+
+def test_trigger():
+    
+    condgr = OSC.ConditionGroup()
+
+    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig2 = OSC.EntityTrigger('secondtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
+
+    condgr.add_condition(trig1)
+    condgr.add_condition(trig2)
+
+    condgr2 = OSC.ConditionGroup()
+
+    trig3 = OSC.EntityTrigger('thirdtrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig4 = OSC.EntityTrigger('forthtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
+
+    condgr2.add_condition(trig3)
+    condgr2.add_condition(trig4)
+
+    trig = OSC.Trigger()
+
+    trig.add_conditiongroup(condgr)
+    trig.add_conditiongroup(condgr2)
+    OSC.prettyprint(trig.get_element())

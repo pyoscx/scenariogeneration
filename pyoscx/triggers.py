@@ -43,8 +43,148 @@ class EmptyTrigger():
         return ET.Element(self._triggerpoint)
         
 
+
+class Trigger():
+    """ The Trigger class creates a Trigger that can be used if multiple ConditionGroups are wanted
+        
+        Parameters
+        ----------
+            triggeringpoint (str): start or stop 
+                Default: start
+
+        Attributes
+        ----------
+            triggeringpoint (str): start or stop 
+
+            conditiongroups (list of ConditionGroup): a list of all conditiongroups
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            add_conditiongroup(conditiongroup)
+                Adds a conditiongroup to the trigger 
+
+    """
+    def __init__(self,triggeringpoint = 'start'):
+        """ initalize the Trigger
+
+        Parameters
+        ----------
+            triggeringpoint (str): start or stop
+         
+        """
+        if triggeringpoint not in ['start','stop']:
+            raise ValueError('not a valid triggering point, valid start or stop')
+        if triggeringpoint == 'start':
+            self._triggerpoint = 'StartTrigger'
+        else:
+            self._triggerpoint = 'StopTrigger'
+        self.conditiongroups = []
+
+    def add_conditiongroup(self,conditiongroup):
+        """ Adds a conditiongroup to the trigger
+
+        Parameters
+        ----------
+            conditiongroup (ConditionGroup): a conditiongroup to add to the trigger
+         
+        """
+        conditiongroup._set_used_by_parent()
+        self.conditiongroups.append(conditiongroup)
+    
+    def get_element(self):
+        """ returns the elementTree of the Trigger
+
+        """
+        element = ET.Element(self._triggerpoint)
+        if not self.conditiongroups:
+            ValueError('No conditiongroups were added to the trigger')
+        for c in self.conditiongroups:
+            element.append(c.get_element())
+        return element
+
+class ConditionGroup():
+    """ The ConditionGroup class creates a Trigger that can be used if multiple Conditions are wanted
+        
+        Parameters
+        ----------
+            triggeringpoint (str): start or stop (not needed if used with the Trigger class)
+                Default: start
+
+        Attributes
+        ----------
+            triggeringpoint (str): start or stop 
+
+            conditions (list of EntityTriggers and Valuetriggers): a list of all conditions
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            add_condition(condition)
+                Adds a condition to the ConditionGroup
+
+    """
+    def __init__(self,triggeringpoint = 'start'):
+        """ initalize the ConditionGroup
+
+        Parameters
+        ----------
+            triggeringpoint (str): start or stop
+         
+        """
+        if triggeringpoint not in ['start','stop']:
+            raise ValueError('not a valid triggering point, valid start or stop')
+        if triggeringpoint == 'start':
+            self._triggerpoint = 'StartTrigger'
+        else:
+            self._triggerpoint = 'StopTrigger'
+        self.conditions = []
+
+    def add_condition(self,condition):
+        """ Adds a condition (EntityTrigger or ValueTrigger) to the ConditionGroup
+
+        Parameters
+        ----------
+            conditiongroup (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
+         
+        """
+        condition._set_used_by_parent()
+        self.conditions.append(condition)
+        self._used_by_parent = False
+    
+    def _set_used_by_parent(self):
+        """ _set_used_by_parent is used internaly if the condition group is added to a Trigger
+
+        """
+        self._used_by_parent = True
+    
+    def get_element(self):
+        """ returns the elementTree of the ConditionGroup
+
+        """
+        if not self.conditions:
+            ValueError('No conditions were added to the ConditionGroup')
+        condgroup = ET.Element('ConditionGroup')
+
+        for c in self.conditions:
+            condgroup.append(c.get_element())
+
+        if self._used_by_parent:
+            return condgroup
+        else:
+            # could create a new Trigger here, but went with this solution for now
+            element = ET.Element(self._triggerpoint)
+            element.append(condgroup)
+            return element
+
+
+
 class EntityTrigger():
-    """ the EntityTrigger creates an EntityTrigger of openScenario
+    """ the EntityTrigger creates an Trigger containing an EntityTrigger 
         
         Parameters
         ----------
@@ -120,6 +260,13 @@ class EntityTrigger():
         self.entitycondition = entitycondition
         self.triggerentity = TriggeringEntities(triggerentity,triggeringrule)
         
+        self._used_by_parent = False
+
+    def _set_used_by_parent(self):
+        """ _set_used_by_parent is used internaly if the condition is added to a ConditionGroup
+
+        """
+        self._used_by_parent = True
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
@@ -131,18 +278,26 @@ class EntityTrigger():
         """ returns the elementTree of the LaneOffsetAction
 
         """
-        element = ET.Element(self._triggerpoint)
-        condgroup = ET.SubElement(element,'ConditionGroup')
-        condition = ET.SubElement(condgroup,'Condition',attrib=self.get_attributes())
+        condition = ET.Element('Condition',attrib=self.get_attributes())
         byentity = ET.SubElement(condition,'ByEntityCondition')
         byentity.append(self.triggerentity.get_element())
         byentity.append(self.entitycondition.get_element())
-        return element
+
+
+        if self._used_by_parent:
+            return condition
+        else:
+            # could create a new Trigger ConditionGroup here, but went with this solution for now
+            element = ET.Element(self._triggerpoint)
+            condgroup = ET.SubElement(element,'ConditionGroup')
+            condgroup.append(condition)
+            return element
+
 
 
 
 class ValueTrigger():
-    """ the ValueTrigger creates a ValueTrigger of openscenario
+    """ the ValueTrigger creates a Trigger of the type ValueTrigger of openscenario
         
         Parameters
         ----------
@@ -207,16 +362,22 @@ class ValueTrigger():
         if triggeringpoint not in ['start','stop']:
             raise ValueError('not a valid triggering point, valid start or stop')
         if triggeringpoint == 'start':
-            self.triggerpoint = 'StartTrigger'
+            self._triggerpoint = 'StartTrigger'
         else:
-            self.triggerpoint = 'StopTrigger'
+            self._triggerpoint = 'StopTrigger'
             
         self.delay = delay
         if conditionedge not in ConditionEdge:
             raise ValueError('not a valid condition edge')
         self.conditionedge = conditionedge
         self.valuecondition = valuecondition
-        
+        self._used_by_parent = False
+
+    def _set_used_by_parent(self):
+        """ _set_used_by_parent is used internaly if the condition is added to a ConditionGroup
+
+        """
+        self._used_by_parent = True
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
@@ -228,15 +389,17 @@ class ValueTrigger():
         """ returns the elementTree of the LaneOffsetAction
 
         """
-        element = ET.Element(self.triggerpoint)
-        condgroup = ET.SubElement(element,'ConditionGroup')
-        condition = ET.SubElement(condgroup,'Condition',attrib=self.get_attributes())
+        condition = ET.Element('Condition',attrib=self.get_attributes())
         byvalue = ET.SubElement(condition,'ByValueCondition')
         byvalue.append(self.valuecondition.get_element())
-        
-        return element
-
-
+        if self._used_by_parent:
+            return condition
+        else:
+            # could create a new Trigger ConditionGroup here, but went with this solution for now
+            element = ET.Element(self._triggerpoint)
+            condgroup = ET.SubElement(element,'ConditionGroup')
+            condgroup.append(condition)
+            return element
 
 
 class TriggeringEntities():
