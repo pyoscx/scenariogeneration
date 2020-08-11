@@ -84,8 +84,6 @@ class WorldPosition():
         ET.SubElement(element,'WorldPosition',attrib=self.get_attributes())
         return element
 
-
-
 class RelativeWorldPosition():
     """ the WorldRelativePosition creates a RelativePosition with the option of world as reference
         
@@ -339,9 +337,9 @@ class RoadPosition():
                     
         """
         element = ET.Element(elementname)
-        ET.SubElement(element,'RoadPosition',attrib=self.get_attributes())
+        roadpos = ET.SubElement(element,'RoadPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
-            element.append(self.orient.get_element())
+            roadpos.append(self.orient.get_element())
         return element
 
 
@@ -419,9 +417,9 @@ class RelativeRoadPosition():
                     
         """
         element = ET.Element(elementname)    
-        ET.SubElement(element,'RelativeRoadPosition',attrib=self.get_attributes())
+        roadpos = ET.SubElement(element,'RelativeRoadPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
-            element.append(self.orient.get_element())
+            roadpos.append(self.orient.get_element())
         return element
 
 class LanePosition():
@@ -507,9 +505,9 @@ class LanePosition():
                     
         """
         element = ET.Element(elementname)    
-        ET.SubElement(element,'LanePosition',attrib=self.get_attributes())
+        lanepos = ET.SubElement(element,'LanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
-            element.append(self.orient.get_element())
+            lanepos.append(self.orient.get_element())
         return element
 
 
@@ -595,9 +593,9 @@ class RelativeLanePosition():
                     
         """
         element = ET.Element(elementname)    
-        ET.SubElement(element,'RelativeLanePosition',attrib=self.get_attributes())
+        lanepos = ET.SubElement(element,'RelativeLanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
-            element.append(self.orient.get_element())
+            lanepos.append(self.orient.get_element())
         return element
 
 
