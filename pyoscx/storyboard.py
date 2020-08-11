@@ -2,82 +2,12 @@ import xml.etree.ElementTree as ET
 
 from .actions import _Action
 
-from .triggers import EmptyTrigger
+from .triggers import EmptyTrigger, ValueTrigger, SimulationTimeCondition
 from .utils import EntityRef
 from .utils import ParameterDeclarations, CatalogFile
-from .enumerations import Priority
-
-class StoryBoard():
-    """ The StoryBoard class creates the storyboard of OpenScenario
-        
-        Parameters
-        ----------
-            init (Init): the init part of the storyboard
-
-            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
-                the stoptrigger of the storyboard (optional)
-                Default (EmptyTrigger) 
-
-        Attributes
-        ----------
-
-            init (Init): the init of the storyboard
-
-            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
-                the stoptrigger
-
-            stories (list of Story): all stories of the scenario
-
-        Methods
-        -------
-            add_story (story)
-                adds a story to the storyboard
-
-            get_element()
-                Returns the full ElementTree of the class
+from .enumerations import Priority, Rule, ConditionEdge
 
 
-    """
-    def __init__(self,init,stoptrigger=EmptyTrigger('stop')):
-        """ initalizes the storyboard
-
-        Parameters
-        ----------
-            init (Init): the init part of the storyboard
-
-            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
-                the stoptrigger of the storyboard (optional)
-                Default (EmptyTrigger) 
-
-        """
-        self.init = init
-        self.stoptrigger = stoptrigger
-        self.stories = []
-
-    def add_story(self,story):
-        """ adds a story to the storyboard
-
-        Parameters
-        ----------
-            story (Story): the story to be added 
-
-        """
-        self.stories.append(story)
-
-    def get_element(self):
-        """ returns the elementTree of the Storyboard
-
-        """
-        element = ET.Element('Storyboard')
-        element.append(self.init.get_element())
-        # if not self.stories:
-        #     raise ValueError('no stories available for storyboard')
-        
-        for story in self.stories:
-            element.append(story.get_element())
-        element.append(self.stoptrigger.get_element())
-
-        return element
 
 class Init():
     """ the Init class, creates the init part of the storyboard
@@ -131,6 +61,155 @@ class Init():
 
         return element
 
+class StoryBoard():
+    """ The StoryBoard class creates the storyboard of OpenScenario
+        
+        Parameters
+        ----------
+            init (Init): the init part of the storyboard
+
+            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
+                the stoptrigger of the storyboard (optional)
+                Default (EmptyTrigger) 
+
+        Attributes
+        ----------
+
+            init (Init): the init of the storyboard
+
+            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
+                the stoptrigger
+
+            stories (list of Story): all stories of the scenario
+
+        Methods
+        -------
+            add_story (story)
+                adds a story to the storyboard
+
+            get_element()
+                Returns the full ElementTree of the class
+
+
+    """
+    def __init__(self,init=Init(),stoptrigger=EmptyTrigger('stop')):
+        """ initalizes the storyboard
+
+        Parameters
+        ----------
+            init (Init): the init part of the storyboard
+                Default: Init()
+
+            stoptrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): 
+                the stoptrigger of the storyboard (optional)
+                Default: (EmptyTrigger) 
+
+        """
+        self.init = init
+        self.stoptrigger = stoptrigger
+        self.stories = []
+
+    def add_story(self,story):
+        """ adds a story to the storyboard
+
+        Parameters
+        ----------
+            story (Story): the story to be added 
+
+        """
+        self.stories.append(story)
+
+    def add_act(self,act,parameters=ParameterDeclarations()):
+        """ add_act is a quick way to add a single act to one story, for multi act type of scenarios, use Story instead.
+    
+            NOTE: if used multiple times multiple stories will be created
+
+            Parameters
+            ----------
+                act (Act): the Act to add
+
+                parameters (ParameterDeclarations): the parameters of the story (optional)
+                    Default: ParameterDeclarations()
+        """
+        newstory = Story('story_' + act.name,parameters)
+        newstory.add_act(act)
+        self.stories.append(newstory)
+
+    def add_maneuver_group(self,maneuvergroup,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
+        """ add_maneuver_group is a quick way to add a single maneuver_group to one story, for multi maneuver_group type of scenarios, use Act instead.
+    
+            NOTE: if used multiple times multiple stories will be created
+
+            Parameters
+            ----------
+                maneuvergroup (ManeuverGroup): the ManeuverGroup to add
+
+                starttrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): starttrigger for the act
+                    Default: at simulationtime 0
+
+                stoptrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): stoptrigger for the act
+                    Default: EmptyTrigger('stop')
+
+                parameters (ParameterDeclarations): the parameters of the story (optional)
+                    Default: ParameterDeclarations()
+
+        """
+        if starttrigger == None:
+            starttrigger = ValueTrigger('act_start',0,ConditionEdge.rising,SimulationTimeCondition(0,Rule.greaterThan))
+        newact = Act('act_' + maneuvergroup.name,starttrigger,stoptrigger)
+        newact.add_maneuver_group(maneuvergroup)
+        self.add_act(newact,parameters)
+
+
+    def add_maneuver(self,maneuver,actors,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
+        """ add_maneuver is a quick way to add a single maneuver to one story, for multi maneuver type of scenarios, use ManeuverGroup instead.
+    
+            NOTE: if used multiple times multiple stories will be created
+
+            Parameters
+            ----------
+                maneuver (Maneuver): the Maneuver to add
+
+                actors (list of 'str', or 'str'): list of all actors in the maneuver or just a name of the actor
+
+                starttrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): starttrigger for the act
+                    Default: at simulationtime 0
+
+                stoptrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): stoptrigger for the act
+                    Default: EmptyTrigger('stop')
+
+                parameters (ParameterDeclarations): the parameters of the story (optional)
+                    Default: ParameterDeclarations()
+
+        """
+        mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
+        if isinstance(actors,list):
+            for a in actors:
+                mangr.add_actor(a)
+        else:
+            mangr.add_actor(actors)
+        mangr.add_maneuver(maneuver)
+        self.add_maneuver_group(mangr)
+
+    def get_element(self):
+        """ returns the elementTree of the Storyboard
+
+        """
+        element = ET.Element('Storyboard')
+        element.append(self.init.get_element())
+        # if not self.stories:
+        #     raise ValueError('no stories available for storyboard')
+        
+        if not self.stories:
+            self.add_maneuver_group(ManeuverGroup('empty'),EmptyTrigger())
+        for story in self.stories:
+            element.append(story.get_element())
+                
+        element.append(self.stoptrigger.get_element())
+
+        return element
+    
+
 class Story():
     """ The Story class creates a story of the OpenScenario
         
@@ -139,6 +218,7 @@ class Story():
             name (str): name of the story
 
             parameters (ParameterDeclarations): the parameters of the Story
+                Default: ParameterDeclarations()
             
         Attributes
         ----------
@@ -308,7 +388,7 @@ class ManeuverGroup():
 
             maneuvers (list of Maneuver): the maneuvers in the ManeuverGroup
 
-            actprs (_Actors): all actors of the ManeuverGroup
+            actors (_Actors): all actors of the ManeuverGroup
 
         Methods
         -------
@@ -442,8 +522,8 @@ class _Actors():
         """ returns the elementTree of the _Actors
 
         """
-        if not self.actors:
-            raise ValueError('no actors are set')
+        # if not self.actors:
+        #     raise ValueError('no actors are set')
 
         element = ET.Element('Actors',attrib=self.get_attributes())
         for ent in self.actors:
