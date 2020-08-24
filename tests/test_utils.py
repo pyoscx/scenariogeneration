@@ -86,6 +86,13 @@ def test_polyline():
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
     OSC.prettyprint(polyline.get_element())
 
+
+def test_clothoid():
+    clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
+    OSC.prettyprint(clot.get_element())
+    clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition())
+    OSC.prettyprint(clot.get_element())
+    
 def test_trajectory():
     positionlist = []
     positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))

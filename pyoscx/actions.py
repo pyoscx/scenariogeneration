@@ -984,7 +984,7 @@ class FollowTrajectoryAction():
             ----------
                 trajectory (Trajectory, or CatalogReference): the trajectory to follow
 
-                following_mode (str): the following mode of the action
+                following_mode (FollowMode): the following mode of the action
 
                 referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
                     Default: None

@@ -815,6 +815,112 @@ class Polyline():
             vert.append(self.positions[i].get_element())
         return element
 
+class Clothoid():
+    """ the Clothoid class creates a Clothoid shape
+        
+        Parameters
+        ----------
+            curvature (float): start curvature of the clothoid
+
+            curvature_change (float): rate of clothoid curvature change
+
+            length (float): lenght of clothoid
+
+            startposition (*Position): start position of the clothoid
+
+            starttime (float): (optional) start time of the clothoid
+
+            stoptime (float): (optional) end time of the clothoid
+
+        Attributes
+        ----------
+            curvature (float): start curvature of the clothoid
+
+            curvature_change (float): rate of clothoid curvature change
+
+            length (float): lenght of clothoid
+
+            startposition (*Position): start position of the clothoid
+
+            starttime (float): (optional) start time of the clothoid
+
+            stoptime (float): (optional) end time of the clothoid
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, curvature, curvature_change, length, startposition, starttime = None, stoptime = None):
+        """ initalize the Clothoid
+
+        Parameters
+        ----------
+            curvature (float): start curvature of the clothoid
+
+            curvature_change (float): rate of clothoid curvature change
+
+            length (float): lenght of clothoid
+
+            startposition (*Position): start position of the clothoid
+
+            starttime (float): (optional) start time of the clothoid
+
+            stoptime (float): (optional) end time of the clothoid
+
+        """
+
+        
+        self.curvature = curvature
+        self.curvature_change = curvature_change
+        self.length = length
+        self.startposition = startposition
+        
+        self.starttime = starttime
+        self.stoptime = stoptime
+        if (self.starttime == None and self.stoptime != None) or (self.starttime != None and self.stoptime == None):
+            raise ValueError('Both start and stoptime has to be set, or none of them')
+    
+    def get_attributes(self):
+        """ returns the attributes as a dict of the FileHeader
+
+        """
+        retdict = {}
+        retdict['curvature'] = str(self.curvature)
+        retdict['curvatureDot'] = str(self.curvature_change)
+        retdict['length'] = str(self.length)
+        if self.starttime != None:
+            retdict['startTime'] = str(self.starttime)
+            retdict['stopTime'] = str(self.stoptime)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Clothoid
+
+        """
+        element = ET.Element('Clothoid',attrib=self.get_attributes())
+        element.append(self.startposition.get_element())
+
+        return element
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class FileHeader():
     """ FileHeader creates the header of the OpenScenario file
