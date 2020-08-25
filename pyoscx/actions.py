@@ -901,7 +901,7 @@ class AssingRouteAction():
         """
         element = ET.Element('PrivateAction')
         routeaction = ET.SubElement(element,'RoutingAction')
-        assignrouteaction = ET.SubElement(routeaction,'AssignRoutingAction')
+        assignrouteaction = ET.SubElement(routeaction,'AssignRouteAction')
         assignrouteaction.append(self.route.get_element())
 
         return element
