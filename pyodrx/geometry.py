@@ -16,8 +16,6 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            lenght (float): length of the geometry
-
             geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
 
         Attributes
@@ -30,8 +28,6 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            lenght (float): length of the geometry
-
             geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
 
         Methods
@@ -43,7 +39,7 @@ class _Geometry():
                 Returns a dictionary of all attributes of the class
     """
 
-    def __init__(self,s,x,y,heading,length,geom_type):
+    def __init__(self,s,x,y,heading,geom_type):
         """ initalizes the PlanView
 
         Parameters
@@ -56,19 +52,18 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            lenght (float): length of the geometry
-
             geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
+
         """ 
         self.s = s
         self.x = x
         self.y = y
         self.heading = heading
-        self.length = length
         self.geom_type = geom_type
-
+        _,_,_,self.length = self.geom_type.get_end_data(self.x,self.y,self.heading)
+        
     def get_end_data(self):
-        return self.geom_type.get_end_data(self.length,self.x,self.y,self.heading)
+        return self.geom_type.get_end_data(self.x,self.y,self.heading)
         
     def get_attributes(self):
         """ returns the attributes of the _Geometry as a dict
@@ -149,23 +144,22 @@ class PlanView():
         self.present_h = h_start
         self.present_s = 0
 
-
         self._geometries = []
 
-    def add_geometry(self,geom,length):
+    def add_geometry(self,geom,heading = None):
         """ add_geometry adds a geometry to the planview and calculates
         
         Parameters
         ----------
-            geom (Line, Sprial,ParamPoly3, or Arc): the type of geometry
+            geom (Line, Sprial, ParamPoly3, or Arc): the type of geometry
 
-            length (float): length of the geometry 
+            heading (float): override the previous heading (optional), this will create an ugly road :)
 
         """
 
-        newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,length,geom)
+        newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,geom)
 
-        self.present_x, self.present_y, self.present_h = newgeom.get_end_data()
+        self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
 
         self.present_s += length
         
@@ -204,8 +198,9 @@ class Line():
             get_element(elementname)
                 Returns the full ElementTree of the class
 
-            get_end_data(length,x,y,h)
+            get_end_data(x,y,h)
                 Returns the end point of the geometry
+
     """
     def __init__(self,length):
         self.length = length
@@ -222,11 +217,15 @@ class Line():
             h (float): start heading of the geometry
 
         Returns
-        ---------
+        ----------
             x (float): the final x point
+
             y (float): the final y point
+
             h (float): the final heading
+
             length (float): length of the road
+
         """
 
         new_x = self.length*np.cos(h) + x
@@ -411,14 +410,21 @@ class Arc():
             phi_0 = h - np.pi/2
             x_0 = x - np.cos(phi_0)*radius
             y_0 = y - np.sin(phi_0)*radius
-            
-        if self.angle:
-            new_ang = self.angle + phi_0
-            self.length = radius*new_ang
+        print(x_0)
+        print(y_0)
+        print(phi_0)
+
         if self.length:
-            new_ang = self.length * self.curvature + phi_0
+            self.angle = self.length * self.curvature
+        print(self.angle)
+        new_ang = self.angle + phi_0
+        if self.angle:         
+            self.length = np.abs(radius*self.angle)
+
+            
         
-        new_h = h + self.length * self.curvature
+        print(new_ang)
+        new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
         new_y = np.sin(new_ang)*radius + y_0
 
@@ -463,9 +469,11 @@ class ParamPoly3():
             cv (float): coefficient c of the v polynomial
 
             dv (float): coefficient d of the v polynomial
-           
+
             prange (str): "normalized" or "arcLength"
                 Default: "normalized"
+
+            length (float): total length of arc, used if prange == arcLength
 
         Attributes
         ----------
@@ -487,7 +495,8 @@ class ParamPoly3():
            
             prange (str): "normalized" or "arcLength"
                 Default: "normalized"
-                
+
+            length (float): total length of arc, used if prange == arcLength
 
         Methods
         -------
@@ -500,7 +509,7 @@ class ParamPoly3():
             get_end_coordinate(length,x,y,h)
                 Returns the end point of the geometry
     """
-    def __init__(self,au,bu,cu,du,av,bv,cv,dv,prange='normalized'):
+    def __init__(self,au,bu,cu,du,av,bv,cv,dv,prange='normalized',length=None):
         """ initalizes the ParamPoly3
 
         Parameters
@@ -524,6 +533,7 @@ class ParamPoly3():
             prange (str): "normalized" or "arcLength"
                 Default: "normalized"
                 
+            length (float): total length of arc, used if prange == arcLength
         """ 
         
         self.au = au
@@ -535,6 +545,9 @@ class ParamPoly3():
         self.cv = cv
         self.dv = dv
         self.prange = prange
+        if prange == 'arcLength' and length == None:
+            raise ValueError('No length was provided for Arc with arcLength option')
+        self.length = length
 
     def get_end_data(self,length,x,y,h):
         """ Returns the end point of the geometry
@@ -559,14 +572,13 @@ class ParamPoly3():
         if self.prange == 'normalized':
             p = 1
         else:
-            p = length
+            p = self.length
         newu = self.au + self.bu*p + self.cu*p**2 + self.du*p**3
         newv = self.av + self.bv*p + self.cv*p**2 + self.dv*p**3
 
         new_x = x + newu*np.cos(h)-np.sin(h)*newv
         new_y = y + newu*np.sin(h)+np.cos(h)*newv
         new_h = h + np.arctan2(self.bv + self.cv*p + self.dv*p**2,self.bu + self.cu*p + self.du*p**2)
-
 
         return new_x, new_y, new_h
 
