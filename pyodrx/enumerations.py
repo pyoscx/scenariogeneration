@@ -1,0 +1,102 @@
+from enum import Enum, auto
+
+
+
+class MarkRule(Enum):
+    """ Enum for MarkRule
+    """
+    no_passing = auto()
+    caution = auto()
+    none = auto()
+    
+class LaneType(Enum):
+    """ Enum for LaneType
+    """
+    none = auto()
+    driving = auto()
+    stop = auto()
+    shoulder = auto()
+    biking = auto()
+    sidewalk = auto()
+    border = auto()
+    restricted = auto()
+    parking = auto()
+    bidirectional = auto()
+    median = auto()
+    special1 = auto()
+    special2 = auto()
+    special3 = auto()
+    roadWorks = auto()
+    tram = auto()
+    rail = auto()
+    entry = auto()
+    exit = auto()
+    offRamp = auto()
+    onRamp = auto()
+    connectingRamp = auto()
+    bus = auto()
+    taxi = auto()
+    HOV = auto()
+    mwyEntry = auto()
+    mwyExit = auto()
+
+class RoadMarkColor(Enum):
+    """ Enum for RoadMarkColor
+    """
+    standard = auto()
+    blue = auto()
+    green = auto()
+    red = auto()
+    white = auto()
+    yellow = auto()
+    orange = auto()
+
+
+
+class RoadMarkWeight(Enum):
+    """ Enum for RoadMarkWeight
+    """
+    standard = auto()
+    bold = auto()
+
+class RoadMarkType(Enum):
+    """ Enum for RoadMarkType
+    """
+    none = auto()
+    solid = auto()
+    broken = auto()
+    solid_solid = auto()
+    solid_broken = auto()
+    broken_solid = auto()
+    broken_broken = auto()
+    botts_dots = auto()
+    grass = auto()
+    curb = auto()
+    custom = auto()
+    edge = auto()
+
+class RoadType():
+    """ Enum for RoadType
+    """
+    unknown = auto()
+    rural = auto()
+    motorway = auto()
+    town = auto()
+    lowSpeed = auto()
+    pedestrian = auto()
+    bicycle = auto()
+    townExpressway = auto()
+    townCollector = auto()
+    townArterial = auto()
+    townPrivate = auto()
+    townLocal = auto()
+    townPlayStreet = auto()
+
+
+class LaneChange(Enum):
+    """ Enum for LaneChange
+    """
+    increase = auto()
+    decrease = auto()
+    both = auto()
+    none = auto()    

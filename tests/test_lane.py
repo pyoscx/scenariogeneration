@@ -7,14 +7,14 @@ def test_roadline():
     line = pyodrx.RoadLine()
     
     pyodrx.prettyprint(line.get_element())
-    line = pyodrx.RoadLine(1,2,3,5,1,'no passing','standard')
+    line = pyodrx.RoadLine(1,2,3,5,1,pyodrx.MarkRule.no_passing,pyodrx.RoadMarkColor.standard)
     pyodrx.prettyprint(line.get_element())
 
 
 def test_roadmark():
-    mark = pyodrx.RoadMark('solid',0.2)
+    mark = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2)
     pyodrx.prettyprint(mark.get_element())
-    mark = pyodrx.RoadMark('solid',0.2,1,1,1,'no passing','standard')   
+    mark = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,1,1,1,pyodrx.MarkRule.no_passing,pyodrx.RoadMarkColor.standard)
     pyodrx.prettyprint(mark.get_element())
 
 def test_lane():

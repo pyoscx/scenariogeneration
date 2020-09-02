@@ -2,6 +2,19 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
 
+def enum2str(enum):
+    """ helper to create strings from enums that should contain space but have to have _
+
+        Parameters
+        ----------
+            enum (Enum): a enum of pyodrx
+
+        Returns
+        -------
+            enumstr (str): the enum as a string replacing _ with ' '
+
+    """
+    return enum.name.replace('_',' ')
 
 def prettyprint(element):
     """ prints the element to the commandline

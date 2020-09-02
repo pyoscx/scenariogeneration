@@ -1,4 +1,7 @@
 import xml.etree.ElementTree as ET
+from .helpers import enum2str
+from .enumerations import LaneChange, RoadMarkWeight, RoadMarkColor
+
 
 
 class Lanes():
@@ -311,7 +314,7 @@ class RoadLine():
                 Default: 0
             rule (MarkRule): mark rule (optional)
 
-            color (str): color of line (optional)
+            color (RoadMarkColor): color of line (optional)
 
         Attributes
         ----------
@@ -327,7 +330,7 @@ class RoadLine():
 
             width (float): with of the line
 
-            color (str): color of line
+            color (RoadMarkColor): color of line
 
         Methods
         -------
@@ -356,7 +359,7 @@ class RoadLine():
                 Default: 0
             rule (MarkRule): mark rule (optional)
 
-            color (str): color of line (optional)
+            color (RoadMarkColor): color of line (optional)
 
 
         """ 
@@ -383,9 +386,9 @@ class RoadLine():
         retdict['width'] = str(self.width)
         retdict['sOffset'] = str(self.soffset)
         # if self.color:
-            # retdict['color'] = self.color
+            # retdict['color'] = enum2str(self.color)
         if self.rule:
-            retdict['rule'] = self.rule
+            retdict['rule'] = enum2str(self.rule)
         return retdict
 
     def get_element(self):
@@ -401,7 +404,7 @@ class RoadMark():
 
         Parameters
         ----------
-            marking_type (str): the type of marking
+            marking_type (RoadMarkType): the type of marking
 
             width (float): with of the line
 
@@ -413,7 +416,7 @@ class RoadMark():
                 Default: 0
             rule (MarkRule): mark rule (optional)
 
-            color (str): color of line (optional)
+            color (RoadMarkColor): color of line (optional)
 
         Attributes
         ----------
@@ -429,7 +432,7 @@ class RoadMark():
                 Default: 0
             rule (MarkRule): mark rule (optional)
 
-            color (str): color of line (optional)
+            color (RoadMarkColor): color of line (optional)
 
         Methods
         -------
@@ -443,7 +446,7 @@ class RoadMark():
                 adds a new roadmark to the lane
 
     """
-    def __init__(self,marking_type,width,length=0,toffset=0,soffset=0,rule=None,color="standard"):
+    def __init__(self,marking_type,width,length=0,toffset=0,soffset=0,rule=None,color=RoadMarkColor.standard):
         """ initalizes the Lane
 
         Parameters
@@ -460,7 +463,7 @@ class RoadMark():
                 Default: 0
             rule (MarkRule): mark rule (optional)
 
-            color (str): color of line
+            color (RoadMarkColor): color of line
                 Default: 'standard'
 
         """ 
@@ -483,12 +486,12 @@ class RoadMark():
         """
         retdict = {}
         retdict['sOffset'] = str(self.soffset)
-        retdict['type'] = str(self.marking_type)
-        retdict['weight'] = 'standard'
-        retdict['color'] = self.color
+        retdict['type'] = enum2str(self.marking_type)
+        retdict['weight'] = enum2str(RoadMarkWeight.standard)
+        retdict['color'] = enum2str(self.color)
         retdict['sOffset'] = str(self.soffset)
         retdict['width'] = str(self.width)
-        retdict['laneChange'] = 'none'
+        retdict['laneChange'] = enum2str(LaneChange.none)
         retdict['height'] = str(2e-02)
         return retdict
 
@@ -497,7 +500,7 @@ class RoadMark():
 
         """
         element = ET.Element('roadMark',attrib=self.get_attributes())
-        typeelement = ET.SubElement(element,'type', attrib={'name':'solid','width':str(self.width)})
+        typeelement = ET.SubElement(element,'type', attrib={'name':enum2str(self.marking_type),'width':str(self.width)})
         typeelement.append(self._line.get_element())
         return element
 
