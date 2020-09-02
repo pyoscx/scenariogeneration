@@ -72,7 +72,7 @@ class Road():
             lanes (Lanes): the lanes of the road
 
             road_type (int): type of road (junction)
-                Derault: -1
+                Default: -1
 
             name (str): name of the road (optional)
 
