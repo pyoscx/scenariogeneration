@@ -61,7 +61,7 @@ class _Geometry():
         self.heading = heading
         self.geom_type = geom_type
         _,_,_,self.length = self.geom_type.get_end_data(self.x,self.y,self.heading)
-        
+
     def get_end_data(self):
         return self.geom_type.get_end_data(self.x,self.y,self.heading)
         
@@ -156,11 +156,11 @@ class PlanView():
             heading (float): override the previous heading (optional), this will create an ugly road :)
 
         """
-
+        if heading:
+            self.present_h = heading
         newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,geom)
 
         self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
-
         self.present_s += length
         
         self._geometries.append(newgeom)
