@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
+from scipy.integrate import quad
 
 class _Geometry():
     """ the _Geometry describes the geometry entry of open drive
@@ -410,20 +411,17 @@ class Arc():
             phi_0 = h - np.pi/2
             x_0 = x - np.cos(phi_0)*radius
             y_0 = y - np.sin(phi_0)*radius
-        print(x_0)
-        print(y_0)
-        print(phi_0)
 
         if self.length:
             self.angle = self.length * self.curvature
-        print(self.angle)
+
         new_ang = self.angle + phi_0
         if self.angle:         
             self.length = np.abs(radius*self.angle)
 
             
         
-        print(new_ang)
+
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
         new_y = np.sin(new_ang)*radius + y_0
@@ -549,13 +547,22 @@ class ParamPoly3():
             raise ValueError('No length was provided for Arc with arcLength option')
         self.length = length
 
-    def get_end_data(self,length,x,y,h):
+    def _integrand(self,p):
+        """ integral function to calulate length of polynomial,
+            #TODO: This is not tested or verified...
+        """
+        return np.sqrt( \
+            (self.bu**2 + self.bv**2) + \
+            4*(self.bu*self.cu + self.bv*self.cv)*p + \
+            2*(3*self.bu*self.du + 2*self.cu**2 +3*self.bv*self.dv + 2*self.cv**2 )*p**2 + \
+            12*(self.cu*self.du + self.cv*self.dv)*p**3 +\
+            9*(self.du**2 + self.dv**2)*p**4 )
+
+    def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
         
         Parameters
         ----------
-            length (float): length of the geometry
-
             x (float): x start point of the geometry
 
             y (float): y start point of the geometry
@@ -571,6 +578,8 @@ class ParamPoly3():
         """
         if self.prange == 'normalized':
             p = 1
+            I = quad(self._integrand,0,1)
+            self.length = I[0]
         else:
             p = self.length
         newu = self.au + self.bu*p + self.cu*p**2 + self.du*p**3
@@ -580,7 +589,7 @@ class ParamPoly3():
         new_y = y + newu*np.sin(h)+np.cos(h)*newv
         new_h = h + np.arctan2(self.bv + self.cv*p + self.dv*p**2,self.bu + self.cu*p + self.du*p**2)
 
-        return new_x, new_y, new_h
+        return new_x, new_y, new_h, self.length
 
     def get_attributes(self):
         """ returns the attributes of the ParamPoly3 as a dict

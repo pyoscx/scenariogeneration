@@ -94,12 +94,12 @@ def test_polyparam():
 # data: length, x, y, h
 # expdata: new x, new y, new h
 def test_arc_calc(data,expdata):
-    arc = pyodrx.ParamPoly3(0,1,0,0,0,1,0,0)
-    x,y,h = arc.get_end_data(data[0],data[1],data[2],data[3])
+    arc = pyodrx.ParamPoly3(0,1,0,0,0,1,0,0,'arcLength',data[0])
+    x,y,h,l = arc.get_end_data(data[1],data[2],data[3])
     assert pytest.approx(x,0.000001) == expdata[0]
     assert pytest.approx(y,0.000001) == expdata[1]
     assert pytest.approx(h,0.000001) == expdata[2]
-
+    assert pytest.approx(l,0.000001) == data[0]
 
 
 def test_geometry():
