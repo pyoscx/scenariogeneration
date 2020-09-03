@@ -299,14 +299,14 @@ class Lane():
 
 class RoadLine():
     """ creates a Line type of to be used in roadmark
-    
+
         Parameters
         ----------
             width (float): with of the line
                 Default: 0
             length (float): length of the line
                 Default: 0
-            space (float): ????
+            space (float): length of space between (broken) lines
                 Default: 0
             toffset (float): offset in t
                 Default: 0
@@ -320,7 +320,7 @@ class RoadLine():
         ----------
             length (float): length of the line
 
-            space (float): ????
+            space (float): length of space between (broken) lines
 
             toffset (float): offset in t
 
@@ -351,7 +351,7 @@ class RoadLine():
                 Default: 0
             length (float): length of the line
                 Default: 0
-            space (float): ????
+            space (float): length of space between (broken) lines
                 Default: 0
             toffset (float): offset in t
                 Default: 0
@@ -381,7 +381,7 @@ class RoadLine():
         """
         retdict = {}
         retdict['length'] = str(self.length)
-        retdict['space'] = str(self.soffset)
+        retdict['space'] = str(self.space)
         retdict['tOffset'] = str(self.toffset)
         retdict['width'] = str(self.width)
         retdict['sOffset'] = str(self.soffset)
