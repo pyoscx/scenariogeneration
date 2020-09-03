@@ -446,7 +446,7 @@ class RoadMark():
                 adds a new roadmark to the lane
 
     """
-    def __init__(self,marking_type,width,length=0,toffset=0,soffset=0,rule=None,color=RoadMarkColor.standard):
+    def __init__(self,marking_type,width,length=0,space=0,toffset=0,soffset=0,rule=None,color=RoadMarkColor.standard):
         """ initalizes the Lane
 
         Parameters
@@ -469,7 +469,7 @@ class RoadMark():
         """ 
         self.marking_type = marking_type
         self.length = length
-        self.space = 0
+        self.space = space
         self.toffset = toffset
         self.rule = rule
         self.soffset = soffset
