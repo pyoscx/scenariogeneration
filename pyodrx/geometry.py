@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 from scipy.integrate import quad
+from scipy.special import fresnel
 
 class _Geometry():
     """ the _Geometry describes the geometry entry of open drive
@@ -17,7 +18,7 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
+            geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
 
         Attributes
         ----------
@@ -29,7 +30,7 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
+            geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
 
         Methods
         -------
@@ -53,7 +54,7 @@ class _Geometry():
                 
             heading (float): heading of the geometry
 
-            geom_type (Line, Sprial,ParamPoly3, or Arc): the type of geometry
+            geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
 
         """ 
         self.s = s
@@ -152,7 +153,7 @@ class PlanView():
         
         Parameters
         ----------
-            geom (Line, Sprial, ParamPoly3, or Arc): the type of geometry
+            geom (Line, Spiral, ParamPoly3, or Arc): the type of geometry
 
             heading (float): override the previous heading (optional), this will create an ugly road :)
 
@@ -242,81 +243,84 @@ class Line():
         element = ET.Element('line')
         
         return element
-        
 
 
-class Sprial():
+
+class Spiral():
     """ the Spiral (Clothoid) creates a spiral type of geometry
         
         Parameters
         ----------
             curvstart (float): starting curvature of the Spiral
-
+ 
             curvend (float): final curvature of the Spiral
-
+ 
             
         Attributes
         ----------
             curvstart (float): starting curvature of the Spiral
-
+ 
             curvend (float): final curvature of the Spiral
-
+ 
         Methods
         -------
             get_element()
                 Returns the full ElementTree of the class
-
+ 
             get_attributes()
                 Returns a dictionary of all attributes of the class
-
-            get_end_data(length,x,y,h)
+ 
+            get_end_data(x,y,h)
                 Returns the end point of the geometry        
     """
-    def __init__(self,curvstart,curvend):
-        """ initalizes the Line
-
+    def __init__(self,curvstart,curvend,length):
+        """ initalizes the Spline
+ 
         Parameters
         ----------
             curvstart (float): starting curvature of the Spiral
-
+ 
             curvend (float): final curvature of the Spiral
         """ 
         self.curvstart = curvstart
         self.curvend = curvend
-
-    def get_end_data(self,length,x,y,h):
+        self.length = length
+ 
+    def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
         
         Parameters
         ----------
-            length (float): length of the geometry
-
             x (float): x start point of the geometry
-
+ 
             y (float): y start point of the geometry
-
+ 
             h (float): start heading of the geometry
-
+ 
         Returns
         ---------
-
+ 
             x (float): the final x point
             y (float): the final y point
             h (float): the final heading
+            l (float): length of the spiral
         """
 
-        pass
-        # TODO: fix this stuffs...
+        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvstart, self.curvend)
+        (deltax, deltay, t) = spiral.calc(self.length, x, y, self.curvstart, h)
 
+ 
+        return deltax, deltay, t, self.length
+ 
     def get_attributes(self):
         """ returns the attributes of the Line as a dict
-
+ 
         """
         return {'curvStart': str(self.curvstart), 'curvEnd': str(self.curvend)}
-
+ 
     def get_element(self):
         """ returns the elementTree of the Line
-
+ 
         """
         element = ET.Element('spiral',attrib=self.get_attributes())
         
@@ -615,3 +619,42 @@ class ParamPoly3():
         element = ET.Element('paramPoly3',attrib=self.get_attributes())
         
         return element
+
+
+class EulerSpiral(object):
+
+    def __init__(self, gamma):
+        self._gamma = gamma
+
+    @staticmethod
+    def createFromLengthAndCurvature(length, curvStart, curvEnd):
+        return EulerSpiral(1 * (curvEnd - curvStart) / length)
+
+    def calc(self, s, x0=0, y0=0, kappa0=0, theta0=0):
+
+        # Start
+        C0 = x0 + 1j * y0
+
+        if self._gamma == 0 and kappa0 == 0:
+            # Straight line
+            Cs = C0 + np.exp(1j * theta0 * s)
+
+        elif self._gamma == 0 and kappa0 != 0:
+            # Arc
+            Cs = C0 + np.exp(1j * theta0) / kappa0 * (np.sin(kappa0 * s) + 1j * (1 - np.cos(kappa0 * s)))
+
+        else:
+            # Fresnel integrals
+            Sa, Ca = fresnel((kappa0 + self._gamma * s) / np.sqrt(np.pi * np.abs(self._gamma)))
+            Sb, Cb = fresnel(kappa0 / np.sqrt(np.pi * np.abs(self._gamma)))
+
+            # Euler Spiral
+            Cs1 = np.sqrt(np.pi / np.abs(self._gamma)) * np.exp(1j * (theta0 - kappa0**2 / 2 / self._gamma))
+            Cs2 = np.sign(self._gamma) * (Ca - Cb) + 1j * Sa - 1j * Sb
+
+            Cs = C0 + Cs1 * Cs2
+
+        # Tangent at each point
+        theta = self._gamma * s**2 / 2 + kappa0 * s + theta0
+
+        return (Cs.real, Cs.imag, theta)
