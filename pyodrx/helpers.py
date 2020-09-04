@@ -2,6 +2,29 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
 
+import os
+
+
+def run_road(opendrive,esminipath = 'esmini'):
+    """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
+        Parameters
+        ----------
+            opendrive (OpenDrive): the pyodrx road to run
+
+            esminipath (str): the path to esmini 
+                Default: pyoscx
+
+    """
+    _scenariopath = os.path.join(esminipath,'resources','xodr')
+    print(_scenariopath)
+    opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
+    
+    if os.name == 'posix':
+        os.system(os.path.join('.', esminipath, 'bin','OpenDriveViewer') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 5' )
+    elif os.name == 'nt':
+        os.system(os.path.join(esminipath,'bin','OpenDriveViewer.exe') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 5' )
+
+
 def enum2str(enum):
     """ helper to create strings from enums that should contain space but have to have _
 
