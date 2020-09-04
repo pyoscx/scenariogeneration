@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
-from .enumerations import LaneChange, RoadMarkWeight, RoadMarkColor
+from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor
 
 
 
@@ -209,7 +209,7 @@ class Lane():
                 adds a new roadmark to the lane
 
     """
-    def __init__(self,lane_type='driving',a=0,b=0,c=0,d=0,soffset=0):
+    def __init__(self,lane_type=LaneType.driving,a=0,b=0,c=0,d=0,soffset=0):
         """ initalizes the Lane
 
         Parameters
@@ -271,7 +271,7 @@ class Lane():
         if self.lane_id == None:
             raise ValueError('lane id is not set correctly.')
         retdict['id'] = str(self.lane_id)
-        retdict['type'] = self.lane_type
+        retdict['type'] = enum2str(self.lane_type)
         retdict['level'] = 'false'
         return retdict
 

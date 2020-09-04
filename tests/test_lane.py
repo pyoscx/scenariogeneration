@@ -22,7 +22,7 @@ def test_lane():
     lane = pyodrx.Lane()
     lane._set_lane_id(1)
     pyodrx.prettyprint(lane.get_element())
-    lane = pyodrx.Lane('driving',1,1,1,1,2)
+    lane = pyodrx.Lane(pyodrx.LaneType.driving,1,1,1,1,2)
     lane._set_lane_id(1)
     pyodrx.prettyprint(lane.get_element())
 
