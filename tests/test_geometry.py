@@ -30,10 +30,95 @@ def test_line_calc(data,expdata):
     assert pytest.approx(l,0.000001) == data[0]
 
 def test_spiral():
-    spiral = pyodrx.Spiral(0,1,10)
+    spiral = pyodrx.Spiral(0,1, 10)
     
     p = spiral.get_element()
     pyodrx.prettyprint(p)
+
+def test_spiral_inputs():
+    cloth = pyodrx.Spiral(0.0,0.05,10.0)
+    assert cloth.curvstart == 0
+    assert cloth.curvend == 0.05
+    assert cloth.length == 10
+
+
+
+@pytest.mark.parametrize("data, expdata",[\
+([0, 0   , 10, 0, 0, 0], [10,0,0]),
+([0, 0   , 10, 10, 0, 0], [20,0,0]),
+([0, 0   , 10, 0, 10, 0], [10,10,0]),
+([0, 0   , 10, 0, 0, np.pi/2], [0,10,np.pi/2]),
+([0, 0   , 10, 0, 0, -np.pi/2], [0,-10,-np.pi/2]),
+])
+
+# data: curvestart, curveend, length, x, y, initial heading
+# expdata: new x, new y, new h, new l
+def test_spiral_zero_curv(data,expdata):
+    cloth = pyodrx.Spiral(data[0], data[1], data[2])
+    x,y,h,l = cloth.get_end_data(data[3], data[4], data[5])
+
+    assert pytest.approx(x,0.000001) == expdata[0]
+    assert pytest.approx(y,0.000001) == expdata[1]
+    assert pytest.approx(h,0.000001) == expdata[2]
+    assert pytest.approx(l,0.000001) == data[2]
+
+@pytest.mark.parametrize("data, expdata",[\
+([0, 0.05, 10, 0, 0, 0], [9.937680,0.829620,0.25]),\
+([0, -0.05, 10, 0, 0, 0], [9.937680,-0.829620,-0.25]),\
+([0, 0.08, 20, 0, 0, 0], [18.757370,5.094433,0.8]),\
+([0, -0.08, 20, 0, 0, 0], [18.757370,-5.094433,-0.8]),\
+([0, 0.05, 10, 10, 0, 0], [19.937680,0.829620,0.25]),\
+([0, 0.05, 10, 0, 10, 0], [9.9376805,0.829620+10,0.25]),\
+([0, 0.05, 10, -10, 0, 0], [-0.062319415,0.829620,0.25]),\
+([0, 0.05, 10, 0, -10, 0], [9.937680,-9.17037951,0.25]),\
+([0, 0.05, 10, 0, 0, np.pi/2], [-0.829620,9.937680,0.25+np.pi/2]),\
+([0, 0.05, 10, 0, 0, -np.pi/2], [0.829620,-9.937680,-np.pi/2+0.25]),\
+])
+
+# data: curvestart, curveend, length, x, y, initial heading
+# expdata: new x, new y, new h, new l
+def test_spiral_from_zero_curv(data,expdata):
+    cloth = pyodrx.Spiral(data[0], data[1], data[2])
+    x,y,h,l = cloth.get_end_data(data[3], data[4], data[5])
+
+    assert pytest.approx(x,0.000001) == expdata[0]
+    assert pytest.approx(y,0.000001) == expdata[1]
+    assert pytest.approx(h,0.000001) == expdata[2]
+    assert pytest.approx(l,0.000001) == data[2]
+
+@pytest.mark.parametrize("data, expdata",[\
+([0.05, 0, 10, 0, 0, 0], [9.833993,1.654791,0.25]),\
+([-0.05, 0, 10, 0, 0, 0], [9.833993,-1.654791,-0.25]),\
+([0.05, 0, 20, 0, 0, 0], [18.687683,6.478104,0.5]),\
+([-0.05, 0, 20, 0, 0, 0], [18.687683,-6.478104, -0.5]),\
+])
+
+# data: curvestart, curveend, length, x, y, initial heading
+# expdata: new x, new y, new h, new l
+def test_spiral_to_zero_curv(data,expdata):
+    cloth = pyodrx.Spiral(data[0], data[1], data[2])
+    x,y,h,l = cloth.get_end_data(data[3], data[4], data[5])
+
+    assert pytest.approx(x,0.000001) == expdata[0]
+    assert pytest.approx(y,0.000001) == expdata[1]
+    assert pytest.approx(h,0.000001) == expdata[2]
+    assert pytest.approx(l,0.000001) == data[2]
+
+@pytest.mark.parametrize("data, expdata",[\
+([-0.05, 0.05, 10, 0, 0, 0], [9.958374, -0.831846, 0.0]),\
+([0.05, -0.05, 10, 0, 0, 0], [9.958374, 0.831846, 0.0]),\
+])
+
+# data: curvestart, curveend, length, x, y, initial heading
+# expdata: new x, new y, new h, new l
+def test_spiral_from_neg_to_pos_curv(data,expdata):
+    cloth = pyodrx.Spiral(data[0], data[1], data[2])
+    x,y,h,l = cloth.get_end_data(data[3], data[4], data[5])
+
+    assert pytest.approx(x,0.000001) == expdata[0]
+    assert pytest.approx(y,0.000001) == expdata[1]
+    assert pytest.approx(h,0.000001) == expdata[2]
+    assert pytest.approx(l,0.000001) == data[2]
 
 def test_arc():
     arc = pyodrx.Arc(1,length = 1)
