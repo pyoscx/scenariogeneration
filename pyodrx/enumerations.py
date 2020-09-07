@@ -100,3 +100,21 @@ class LaneChange(Enum):
     decrease = auto()
     both = auto()
     none = auto()    
+
+class ElementType(Enum):
+    """ Enum for LaneChange
+    """
+    road = auto()
+    junction = auto()
+
+class ContactPoint(Enum):
+    """ Enum for ContactPoint
+    """
+    start = auto()
+    end = auto()
+
+class Direction(Enum):
+    """ Enum for Direction
+    """
+    same = auto()
+    opposite = auto()
