@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
 from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor
-
+from .links import _Links,_Link
 
 
 class Lanes():
@@ -242,9 +242,20 @@ class Lane():
         self.d = d
         self.soffset = soffset
         self.roadmark = None
+        self.links = _Links()
 
         
         #TODO: add more features to add for lane
+    def add_link(self,link_type,id):
+        """ adds a link to the lane section
+
+        Parameters
+        ----------
+            link_type (str): type of link, successor or predecessor
+
+            id (str/id): id of the linked lane
+        """
+        self.links.add_link(_Link(link_type,str(id)))
 
     def _set_lane_id(self,lane_id):
         """ set the lane id of the lane
@@ -280,7 +291,7 @@ class Lane():
 
         """
         element = ET.Element('lane',attrib=self.get_attributes())
-
+        element.append(self.links.get_element())
 
         widthdict = {}
         widthdict['a'] = str(self.a)
