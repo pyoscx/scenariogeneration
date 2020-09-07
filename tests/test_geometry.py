@@ -30,7 +30,7 @@ def test_line_calc(data,expdata):
     assert pytest.approx(l,0.000001) == data[0]
 
 def test_spiral():
-    spiral = pyodrx.Sprial(0,1)
+    spiral = pyodrx.Spiral(0,1,10)
     
     p = spiral.get_element()
     pyodrx.prettyprint(p)
