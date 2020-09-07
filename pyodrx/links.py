@@ -2,8 +2,56 @@ import xml.etree.ElementTree as ET
 from .helpers import enum2str
 
 
+
+class _Links():
+    """ Link creates a Link element used for roadlinking in OpenDrive
+        
+        Parameters
+        ----------
+
+        Attributes
+        ----------
+            links (_Link): all links added
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            add_link(link)
+                adds a link to links
+
+    """
+    def __init__(self):
+        """ initalize the _Links
+
+        """
+
+        self.links = []
+
+    def add_link(self,link):
+        """ Adds a _Link 
+
+            Parameters
+            ----------
+                link (_Link): a link to be added to the Links
+
+        """
+        self.links.append(link)
+
+    def get_element(self):
+        """ returns the elementTree of the _Link
+
+        """
+        
+        element = ET.Element('link')
+        for l in self.links:
+            element.append(l.get_element())
+        return element
+
+
 class _Link():
-    """ Link creates a link element used for roadlinking in OpenDrive
+    """ Link creates a predecessor/successor/neghbor element used for Links in OpenDrive
         
         Parameters
         ----------
