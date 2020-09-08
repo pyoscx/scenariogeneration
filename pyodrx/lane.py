@@ -25,7 +25,7 @@ class Lanes():
 
         """
         self.lanesections = []
-    def add_lanesection(self,lanesection):
+    def add_lanesection(self,lanesection, lanelinks=None):
         """ creates the Lanes element of opendrive
     
 
@@ -33,7 +33,22 @@ class Lanes():
         ----------
             lanesection (LaneSection): a LaneSection to add
 
+            lanelink (LaneLinker): (optional) a LaneLink to add 
+
         """
+        # add links to the lanes
+        if lanelinks: 
+            #loop over all links 
+            if not isinstance(lanelinks, list):
+                lanelinks = [lanelinks]
+            for lanelink in lanelinks:
+                for link in lanelink.links:
+                    # check if link already added 
+                    if not link[2]:
+                        link[0].add_link('successor',link[1].lane_id)
+                        link[1].add_link('predecessor',link[0].lane_id)
+                        link[2] = True
+          
         self.lanesections.append(lanesection)
 
     def get_element(self):
