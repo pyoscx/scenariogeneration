@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 from .helpers import printToFile
-
+from .links import _Link, _Links
 import datetime as dt
 
 
@@ -100,9 +100,6 @@ class Road():
 
             get_attributes()
                 Returns a dictionary of all attributes of the class
-            
-            add_road(road)
-                Adds a road to the opendrive
 
             write_xml(filename)
                 write a open scenario xml
@@ -133,7 +130,63 @@ class Road():
         self.road_type = road_type
         self.name = name
         self.rule = rule
+        self.links = _Links()
+        self._successor_added = False
+        self._predecessor_added = False
+        self._neighbor_added = 0
 
+    def add_successor(self,element_type,element_id,contact_point):
+        """ add_successor adds a successor link to the road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            contact_point (ContactPoint): the contact point of the link
+
+        """
+        if self._successor_added:
+            raise ValueError('only one successor is allowed')
+        suc = _Link('successor',str(element_id),element_type,contact_point)
+        self.links.add_link(suc)
+        self._successor_added = True
+
+    def add_predecessor(self,element_type,element_id,contact_point):
+        """ add_successor adds a successor link to the road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            contact_point (ContactPoint): the contact point of the link
+
+        """
+        if self._predecessor_added:
+            raise ValueError('only one predecessor is allowed')
+        suc = _Link('predecessor',str(element_id),element_type,contact_point)
+        self.links.add_link(suc)
+        self._predecessor_added = True
+
+    def add_neighbor(self,element_type,element_id,direction): 
+        """ add_neighbor adds a neighbor to a road
+        
+        Parameters
+        ----------
+            element_type (ElementType): type of element the linked road
+
+            element_id (str/int): name of the linked road
+
+            direction (Direction): the direction of the link 
+        """
+        if self._neighbor_added > 1:
+            raise ValueError('only two neighbors are allowed')
+        suc = _Link('neighbor',str(element_id),element_type,direction=direction)
+        self.links.add_link(suc)
+        self._neighbor_added += 1
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Road
@@ -154,8 +207,10 @@ class Road():
 
         """
         element = ET.Element('road',attrib=self.get_attributes())
+        element.append(self.links.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
+        
         return element
 
 class OpenDrive():
@@ -171,6 +226,8 @@ class OpenDrive():
 
             roads (list of Road): all roads 
 
+            junctions (list of Junction): all junctions
+
         Methods
         -------
             get_element()
@@ -178,6 +235,9 @@ class OpenDrive():
 
             add_road(road)
                 Adds a road to the opendrive
+
+            add_junction(junction)
+                Adds a junction to the opendrive
 
             write_xml(filename)
                 write a open scenario xml
@@ -194,17 +254,28 @@ class OpenDrive():
         self.name = name
         self._header = _Header(self.name)
         self.roads = []
+        self.junctions = []
 
     def add_road(self,road):
         """ Adds a new road to the opendrive
 
-         Parameters
-        ----------
-            road (Road): the road to add 
+            Parameters
+            ----------
+                road (Road): the road to add 
 
         """
         self.roads.append(road)
-    
+
+    def add_junction(self,junction):
+        """ Adds a junction to the opendrive
+
+            Parameters
+            ----------
+                junction (Junction): the junction to add
+
+        """
+        self.junctions.append(junction)
+
     def get_element(self):
         """ returns the elementTree of the FileHeader
 
@@ -213,6 +284,9 @@ class OpenDrive():
         element.append(self._header.get_element())
         for r in self.roads:
             element.append(r.get_element())
+    
+        for j in self.junctions:
+            element.append(j.get_element())
 
         return element
 
