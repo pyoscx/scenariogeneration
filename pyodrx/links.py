@@ -166,6 +166,38 @@ class _Link():
         element = ET.Element(self.link_type,attrib=self.get_attributes())
         return element
 
+class LaneLinker():
+    """ LaneLinker stored information for linking lane sections 
+        
+        Parameters
+        ----------
+
+        Attributes
+        ----------
+            links: all lane links added (predlane (Lane), succlane (Lane), found=bool)
+
+        Methods
+        -------
+            add_link(predlane, succlane)
+                adds a lane link 
+
+    """
+    def __init__(self):
+        """ initalize the _Links
+
+        """
+
+        self.links = []
+
+    def add_link(self,predlane, succlane):
+        """ Adds a _Link 
+
+            Parameters
+            ----------
+                link (_Link): a link to be added to the Links
+
+        """
+        self.links.append([predlane, succlane, False])
 
 class Connection():
     """ Connection creates a connection as a base of junction

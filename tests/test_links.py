@@ -17,6 +17,13 @@ def test_links():
     links.add_link(link)    
     pyodrx.prettyprint(links.get_element())
 
+def test_lanelinker():
+
+    lane = pyodrx.Lane(a=3)
+    lane._set_lane_id(1)
+    lane.add_link('successor','2')
+
+    pyodrx.prettyprint(lane.get_element())
 
 def test_connection():
     con = pyodrx.Connection(1,2,pyodrx.ContactPoint.start,5)
