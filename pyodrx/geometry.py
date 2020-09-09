@@ -128,25 +128,18 @@ class PlanView():
     """
     def __init__(self,x_start=0,y_start=0,h_start=0):
         """ initalizes the PlanView
+            Note: if multiple roads are used, the start values can be recalculated.
 
-        Parameters
-        ----------
-            x_start (float): start x coordinate of the first geometry
-                Default: 0
-
-            y_start (float): start y coordinate of the first geometry
-                Default: 0
-
-            h_start (float): starting heading of the first geometry
-                Default: 0
 
         """ 
-        self.present_x = x_start
-        self.present_y = y_start
-        self.present_h = h_start
+        self.present_x = 0
+        self.present_y = 0
+        self.present_h = 0
         self.present_s = 0
 
-        self._geometries = []
+        self._raw_geometries = []
+        self._adjusted_geometries = []
+        self._overridden_headings = []
 
     def add_geometry(self,geom,heading = None):
         """ add_geometry adds a geometry to the planview and calculates
@@ -155,17 +148,49 @@ class PlanView():
         ----------
             geom (Line, Spiral, ParamPoly3, or Arc): the type of geometry
 
-            heading (float): override the previous heading (optional), this will create an ugly road :)
+            heading (float): override the previous heading (optional), not recommended
+                if used, use for ALL geometries
 
         """
-        if heading:
-            self.present_h = heading
-        newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,geom)
 
-        self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
-        self.present_s += length
-        
-        self._geometries.append(newgeom)
+
+        if heading:
+            self._overridden_headings.append(heading)
+        self._raw_geometries.append(geom)
+
+    def set_start_point(self,x_start=0,y_start=0,h_start=0):
+        """ sets the start point of the planview
+
+            Parameters
+            ----------
+            x_start (float): start x coordinate of the first geometry
+                Default: 0
+
+            y_start (float): start y coordinate of the first geometry
+                Default: 0
+
+            h_start (float): starting heading of the first geometry
+                Default: 0
+        """
+        self.present_x = x_start
+        self.present_y = y_start
+        self.present_h = h_start
+
+    def adjust_geometires(self):
+        """ Adjusts all geometries to have the correct start point and heading
+
+        """
+
+        for i in range(len(self._raw_geometries)):
+
+            if len(self._overridden_headings) > 0:
+                self.present_h = self._overridden_headings[i]
+            newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
+
+            self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
+            self.present_s += length
+            
+            self._adjusted_geometries.append(newgeom)
 
     def get_total_length(self):
         """ returns the total length of the planView
@@ -177,7 +202,7 @@ class PlanView():
 
         """
         element = ET.Element('planView')
-        for geom in self._geometries:
+        for geom in self._adjusted_geometries:
             element.append(geom.get_element())
         return element
 

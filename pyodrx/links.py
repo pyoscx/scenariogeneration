@@ -38,7 +38,29 @@ class _Links():
 
         """
         self.links.append(link)
+    def get_predecessor_id(self):
+        """ returns the predecessor id of the link (if exists)
 
+            Return
+                id (int): id of the predecessor road
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'predecessor':
+                retval = l.element_id
+        return retval
+
+    def get_successor_id(self):
+        """ returns the successor id of the link (if exists)
+
+            Return
+                id (int): id of the successor road (None if no successor available)
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'successor':
+                retval = l.element_id
+        return retval
     def get_element(self):
         """ returns the elementTree of the _Link
 
@@ -126,10 +148,10 @@ class _Link():
         """
         retdict = {}
         if self.element_type == None:
-            retdict['Id'] = self.element_id
+            retdict['Id'] = str(self.element_id)
         else:
             retdict['elementType'] = enum2str(self.element_type)
-            retdict['elementId'] = self.element_id
+            retdict['elementId'] = str(self.element_id)
         
         if self.contact_point:
             retdict['contactPoint'] = enum2str(self.contact_point)

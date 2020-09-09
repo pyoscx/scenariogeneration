@@ -65,7 +65,7 @@ class Road():
         
         Parameters
         ----------
-            id (int): identifier of the road
+            road_id (int): identifier of the road
 
             planview (PlanView): the planview of the road
 
@@ -105,12 +105,12 @@ class Road():
                 write a open scenario xml
                 
     """
-    def __init__(self,id,planview,lanes, road_type = -1,name=None, rule=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         """ initalize the Road
 
             Parameters
             ----------
-                id (int): identifier of the road
+                road_id (int): identifier of the road
 
                 planview (PlanView): the planview of the road
 
@@ -124,7 +124,7 @@ class Road():
                 rule (TrafficRule): traffic rule (optional)
 
         """
-        self.id = id
+        self.id = road_id
         self.planview = planview
         self.lanes = lanes
         self.road_type = road_type
@@ -149,7 +149,7 @@ class Road():
         """
         if self._successor_added:
             raise ValueError('only one successor is allowed')
-        suc = _Link('successor',str(element_id),element_type,contact_point)
+        suc = _Link('successor',element_id,element_type,contact_point)
         self.links.add_link(suc)
         self._successor_added = True
 
@@ -167,8 +167,8 @@ class Road():
         """
         if self._predecessor_added:
             raise ValueError('only one predecessor is allowed')
-        suc = _Link('predecessor',str(element_id),element_type,contact_point)
-        self.links.add_link(suc)
+        pre = _Link('predecessor',element_id,element_type,contact_point)
+        self.links.add_link(pre)
         self._predecessor_added = True
 
     def add_neighbor(self,element_type,element_id,direction): 
@@ -184,10 +184,20 @@ class Road():
         """
         if self._neighbor_added > 1:
             raise ValueError('only two neighbors are allowed')
-        suc = _Link('neighbor',str(element_id),element_type,direction=direction)
+        suc = _Link('neighbor',element_id,element_type,direction=direction)
         self.links.add_link(suc)
         self._neighbor_added += 1
+    def get_end_point(self):
+        """ get the x, y, and heading, of the end of the road
 
+            Return
+            ------
+                x (float): the end x coordinate
+                y (float): the end y coordinate
+                h (float): the end heading
+
+        """
+        return self.planview.present_x, self.planview.present_y, self.planview.present_h
     def get_attributes(self):
         """ returns the attributes as a dict of the Road
 
@@ -246,8 +256,8 @@ class OpenDrive():
     def __init__(self,name):
         """ Initalize the Header
 
-         Parameters
-        ----------
+            Parameters
+            ----------
             name (str): name of the road 
 
         """
@@ -264,6 +274,17 @@ class OpenDrive():
                 road (Road): the road to add 
 
         """
+        if (len(self.roads) == 0) and road._predecessor_added:
+            ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
+        # adjust start position for new road
+        if road._predecessor_added:
+            for r in self.roads:
+                if r.links.get_successor_id() == road.id:
+                   x,y,h = r.get_end_point()
+                   road.planview.set_start_point(x,y,h)
+                   break
+   
+        road.planview.adjust_geometires()
         self.roads.append(road)
 
     def add_junction(self,junction):
