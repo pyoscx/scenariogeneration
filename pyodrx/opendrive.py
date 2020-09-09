@@ -277,12 +277,24 @@ class OpenDrive():
         if (len(self.roads) == 0) and road._predecessor_added:
             ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
         # adjust start position for new road
-        if road._predecessor_added:
+        if road._predecessor_added :
             for r in self.roads:
                 if r.links.get_successor_id() == road.id:
-                   x,y,h = r.get_end_point()
-                   road.planview.set_start_point(x,y,h)
-                   break
+                    x,y,h = r.get_end_point()
+                    road.planview.set_start_point(x,y,h)
+                    #try to link lanes
+                    if len(road.lanes.lanesections[-1].leftlanes) == len(r.lanes.lanesections[-1].leftlanes):
+                        for i in range(len(road.lanes.lanesections[-1].leftlanes)):
+                            linkid = road.lanes.lanesections[-1].leftlanes[i].lane_id
+                            road.lanes.lanesections[-1].leftlanes[i].add_link('predecessor',linkid)
+                            r.lanes.lanesections[0].leftlanes[i].add_link('successor',linkid)
+
+                    if len(road.lanes.lanesections[-1].rightlanes) == len(r.lanes.lanesections[-1].rightlanes):
+                        for i in range(len(road.lanes.lanesections[-1].rightlanes)):
+                            linkid = road.lanes.lanesections[-1].rightlanes[i].lane_id
+                            road.lanes.lanesections[-1].rightlanes[i].add_link('predecessor',linkid)
+                            r.lanes.lanesections[0].rightlanes[i].add_link('successor',linkid)
+                    break
    
         road.planview.adjust_geometires()
         self.roads.append(road)
