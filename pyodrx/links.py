@@ -170,7 +170,7 @@ class _Link():
         """
         retdict = {}
         if self.element_type == None:
-            retdict['Id'] = str(self.element_id)
+            retdict['id'] = str(self.element_id)
         else:
             retdict['elementType'] = enum2str(self.element_type)
             retdict['elementId'] = str(self.element_id)
