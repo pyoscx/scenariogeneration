@@ -125,6 +125,12 @@ class PlanView():
             add_geometry(geom,lenght)
                 adds a new geometry entry to the planeview
 
+            set_start_point(x_start,y_start,h_start)
+                sets the start point and heading of the planview
+
+            adjust_geometires()
+                based on the start point, it will adjust all geometries in the planview
+
     """
     def __init__(self,x_start=0,y_start=0,h_start=0):
         """ initalizes the PlanView
@@ -180,7 +186,7 @@ class PlanView():
         """ Adjusts all geometries to have the correct start point and heading
 
         """
-
+        
         for i in range(len(self._raw_geometries)):
 
             if len(self._overridden_headings) > 0:

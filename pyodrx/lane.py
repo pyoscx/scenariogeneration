@@ -162,7 +162,6 @@ class LaneSection():
             for l in self.rightlanes:
                 right.append(l.get_element())
 
-
         return element
         
 
@@ -211,6 +210,8 @@ class Lane():
             soffset (float): soffset of lane
 
             roadmark (RoadMark): roadmarks related to the lane
+
+            links (_Links): Lane links to the lane
 
         Methods
         -------
