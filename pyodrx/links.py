@@ -38,6 +38,28 @@ class _Links():
 
         """
         self.links.append(link)
+    def get_predecessor_type(self):
+        """ returns the predecessor id of the link (if exists)
+
+            Return
+                id (int): id of the predecessor road
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'predecessor':
+                retval = l.element_type
+        return retval
+    def get_successor_type(self):
+        """ returns the successor id of the link (if exists)
+
+            Return
+                id (int): id of the successor road (None if no successor available)
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'successor':
+                retval = l.element_type
+        return retval
     def get_predecessor_id(self):
         """ returns the predecessor id of the link (if exists)
 
