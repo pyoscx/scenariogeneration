@@ -132,10 +132,9 @@ class Road():
         self.name = name
         self.rule = rule
         self.links = _Links()
-        self._successor_added = False
-        self._predecessor_added = False
         self._neighbor_added = 0
-
+        self.successor = None
+        self.predecessor = None
     def add_successor(self,element_type,element_id,contact_point=None):
         """ add_successor adds a successor link to the road
         
@@ -148,11 +147,11 @@ class Road():
             contact_point (ContactPoint): the contact point of the link
 
         """
-        if self._successor_added:
+        if self.successor:
             raise ValueError('only one successor is allowed')
-        suc = _Link('successor',element_id,element_type,contact_point)
-        self.links.add_link(suc)
-        self._successor_added = True
+        self.successor = _Link('successor',element_id,element_type,contact_point)
+        self.links.add_link(self.successor)
+
 
     def add_predecessor(self,element_type,element_id,contact_point=None):
         """ add_successor adds a successor link to the road
@@ -166,11 +165,11 @@ class Road():
             contact_point (ContactPoint): the contact point of the link
 
         """
-        if self._predecessor_added:
+        if self.predecessor:
             raise ValueError('only one predecessor is allowed')
-        pre = _Link('predecessor',element_id,element_type,contact_point)
-        self.links.add_link(pre)
-        self._predecessor_added = True
+        self.predecessor = _Link('predecessor',element_id,element_type,contact_point)
+        self.links.add_link(self.predecessor)
+        
 
     def add_neighbor(self,element_type,element_id,direction): 
         """ add_neighbor adds a neighbor to a road
@@ -186,6 +185,7 @@ class Road():
         if self._neighbor_added > 1:
             raise ValueError('only two neighbors are allowed')
         suc = _Link('neighbor',element_id,element_type,direction=direction)
+    
         self.links.add_link(suc)
         self._neighbor_added += 1
     def get_end_point(self):
@@ -275,7 +275,7 @@ class OpenDrive():
                 road (Road): the road to add 
 
         """
-        if (len(self.roads) == 0) and road._predecessor_added:
+        if (len(self.roads) == 0) and road.predecessor:
             ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
 
         self.roads.append(road)
