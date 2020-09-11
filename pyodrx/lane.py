@@ -44,10 +44,10 @@ class Lanes():
             for lanelink in lanelinks:
                 for link in lanelink.links:
                     # check if link already added 
-                    if not link[2]:
-                        link[0].add_link('successor',link[1].lane_id)
-                        link[1].add_link('predecessor',link[0].lane_id)
-                        link[2] = True
+                    if not link.used:
+                        link.predecessor.add_link('successor',link.lane_id)
+                        link.successor.add_link('predecessor',link[0].lane_id)
+                        link.used = True
           
         self.lanesections.append(lanesection)
 
@@ -174,8 +174,8 @@ class Lane():
         Parameters
         ----------
             
-            lane_type (str): type of lane
-                Default: 'driving'
+            lane_type (LaneType): type of lane
+                Default: LaneType.driving
 
             a (float): a coefficient
                 Default: 0
@@ -197,7 +197,7 @@ class Lane():
         ----------
             lane_id (int): id of the lane (automatically assigned by LaneSection)
             
-            lane_type (str): type of lane
+            lane_type (LaneType): type of lane
 
             a (float): a coefficient
 
@@ -231,8 +231,8 @@ class Lane():
         Parameters
         ----------
             
-            lane_type (str): type of lane
-                Default: 'driving'
+            lane_type (LaneType): type of lane
+                Default: LaneType.driving
 
             a (float): a coefficient
                 Default: 0

@@ -1,8 +1,9 @@
 import xml.etree.ElementTree as ET
 
 from .helpers import printToFile
-from .links import _Link, _Links
+from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType
+
 import datetime as dt
 
 
@@ -279,6 +280,7 @@ class OpenDrive():
             ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
 
         self.roads.append(road)
+
     def adjust_startpoints(self): 
         """ Adjust starting position of all added roads
 
@@ -299,21 +301,7 @@ class OpenDrive():
                             road.planview.set_start_point(x,y,h)                            
                             road.planview.adjust_geometires()
 
-                            #if road is junction then try to mirror lanes into predecessor road 
-                            if len(road.lanes.lanesections[-1].leftlanes) == len(r.lanes.lanesections[-1].leftlanes) and road.road_type != -1:
-                                for i in range(len(road.lanes.lanesections[-1].leftlanes)):
-                                    linkid = r.lanes.lanesections[-1].leftlanes[i].lane_id
-                                    print('adding link to lane ', linkid)
-                                    road.lanes.lanesections[-1].leftlanes[i].add_link('predecessor',linkid)
-                            # else:
-                            #     raise ValueError('different amount of left lanes')
-                            if len(road.lanes.lanesections[-1].rightlanes) == len(r.lanes.lanesections[-1].rightlanes) and road.road_type != -1:
-                                for i in range(len(road.lanes.lanesections[-1].rightlanes)):
-                                    print('adding link')
-                                    linkid = r.lanes.lanesections[-1].rightlanes[i].lane_id
-                                    road.lanes.lanesections[-1].rightlanes[i].add_link('predecessor',linkid)
-                            # else:
-                            #     raise ValueError('different amount of right lanes')
+                            
                         elif road.links.get_successor_id() == r.id and road.links.get_successor_type() is not ElementType.junction:
                             x,y,h = road.get_end_point()
                             #adjust next road 
@@ -321,20 +309,6 @@ class OpenDrive():
                             print('junction cords are ', x, y, h)
                             r.planview.set_start_point(x,y,h)
                             r.planview.adjust_geometires()
-                            #if road is junction then try to mirror lanes into successor road 
-                            if len(road.lanes.lanesections[-1].leftlanes) == len(r.lanes.lanesections[-1].leftlanes) and road.road_type != -1:
-                                for i in range(len(road.lanes.lanesections[-1].leftlanes)):
-                                    linkid = r.lanes.lanesections[-1].leftlanes[i].lane_id
-                                    print('adding link to lane ', linkid)
-                                    road.lanes.lanesections[-1].leftlanes[i].add_link('successor',linkid)
-                            # else:
-                            #     raise ValueError('different amount of left lanes')
-                            if len(road.lanes.lanesections[-1].rightlanes) == len(r.lanes.lanesections[-1].rightlanes) and road.road_type != -1:
-                                for i in range(len(road.lanes.lanesections[-1].rightlanes)):
-                                    linkid = r.lanes.lanesections[-1].rightlanes[i].lane_id
-                                    road.lanes.lanesections[-1].rightlanes[i].add_link('successor',linkid)
-                            # else:
-                            #     raise ValueError('different amount of right lanes')
             else: # normal road   
                 for r in self.roads:        
                     if road.links.get_predecessor_id() == r.id and road.links.get_predecessor_type() is not ElementType.junction:
@@ -342,30 +316,16 @@ class OpenDrive():
                         x,y,h = r.get_end_point()
                         road.planview.set_start_point(x,y,h)
                         road.planview.adjust_geometires()
-
-                        #try to link lanes
-                        if len(road.lanes.lanesections[-1].leftlanes) == len(r.lanes.lanesections[-1].leftlanes):
-                            for i in range(len(road.lanes.lanesections[-1].leftlanes)):
-                                linkid = road.lanes.lanesections[-1].leftlanes[i].lane_id
-                                road.lanes.lanesections[-1].leftlanes[i].add_link('predecessor',linkid)
-                                r.lanes.lanesections[0].leftlanes[i].add_link('successor',linkid)
-                        # else:
-                        #     raise ValueError('different amount of left lanes')
-
-                        if len(road.lanes.lanesections[-1].rightlanes) == len(r.lanes.lanesections[-1].rightlanes):
-                            for i in range(len(road.lanes.lanesections[-1].rightlanes)):
-                                linkid = road.lanes.lanesections[-1].rightlanes[i].lane_id
-                                road.lanes.lanesections[-1].rightlanes[i].add_link('predecessor',linkid)
-                                r.lanes.lanesections[0].rightlanes[i].add_link('successor',linkid)
-                                break
-                        # else:
-                        #     raise ValueError('different amount of right lanes')
+                        break
                     elif road.links.get_predecessor_id() == r.id and road.links.get_predecessor_type() is ElementType.junction:
                         break
                     elif len(road.planview._adjusted_geometries) == 0:
                         road.planview.adjust_geometires()
                         break
-
+        # create lane links (if possible)
+        for i in range(len(self.roads)-1):
+            for j in range(i+1,len(self.roads)):
+                create_lane_links(self.roads[i],self.roads[j])
     def add_junction(self,junction):
         """ Adds a junction to the opendrive
 

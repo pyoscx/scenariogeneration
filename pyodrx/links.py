@@ -211,15 +211,30 @@ class LaneLinker():
 
         self.links = []
 
-    def add_link(self,predlane, succlane):
+    def add_link(self,predlane, succlane,connecting_road=None):
         """ Adds a _Link 
 
             Parameters
             ----------
-                link (_Link): a link to be added to the Links
+                predlane (Lane): predecessor lane
+
+                succlane (Lane): successor lane
+
+                connecting_road (id): id of a connecting road (used for junctions)
 
         """
-        self.links.append([predlane, succlane, False])
+        self.links.append(_lanelink(predlane,succlane,connecting_road))
+
+class _lanelink():
+    """ helper class for LaneLinker
+
+    """
+    def __init__(self,predecessor,successor,connecting_road):
+        self.predecessor = predecessor
+        self.successor = successor
+        self.connecting_road = connecting_road 
+        self.used = False
+
 
 class Connection():
     """ Connection creates a connection as a base of junction
@@ -393,4 +408,140 @@ class Junction():
             element.append(con.get_element())
         return element
 
+from .exceptions import NotSameAmountOfLanesError
+from .enumerations import ContactPoint
+
+def create_lane_links(road1,road2):
+    """ create_lane_links takes to roads and if they are connected, match their lanes 
+        and creates lane links. 
+        NOTE: now only works for roads/connecting roads with the same amount of lanes
+
+        Parameters
+        ----------
+            road1 (Road): first road to be lane linked
+
+            road2 (Road): second road to be lane linked
+    """
+    
+    if road1.road_type == -1 and road2.road_type == -1:
+        #both are roads
+        if road1.successor and road1.successor.element_id == road2.id:
+            _create_links_roads(road1,road2)
+        elif road1.predecessor and road1.predecessor.element_id == road2.id:
+            _create_links_roads(road2,road1)
+    elif road1.road_type != -1:
+        _create_links_connecting_road(road1,road2)
+    elif road2.road_type != -1:
+
+        _create_links_connecting_road(road2,road1)
+    
+def _create_links_connecting_road(connecting,road):
+    """ _create_links_connecting_road will create lane links between a connecting road and a normal road
+
+        Parameters
+        ----------
+            connecting (Road): a road of type connecting road (not -1)
+
+            road (Road): a that connects to the connecting road
+
+    """
+    linktype, sign, connecting_lanesec =  _get_related_lanesection(connecting,road)
+    _, _, road_lanesection_id =  _get_related_lanesection(connecting,road) 
+
+    if connecting_lanesec != None:
+        if connecting.lanes.lanesections[connecting_lanesec].leftlanes:
+            # do left lanes
+            if len(connecting.lanes.lanesections[connecting_lanesec].leftlanes) == len(road.lanes.lanesections[road_lanesection_id].leftlanes):
+                for i in range(len(road.lanes.lanesections[road_lanesection_id].leftlanes)):
+                    linkid = road.lanes.lanesections[road_lanesection_id].leftlanes[i].lane_id*sign
+                    connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(linktype,linkid)
+            else:
+                raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of left lanes.')
+        if connecting.lanes.lanesections[connecting_lanesec].rightlanes:
+            # do right lanes
+            if len(connecting.lanes.lanesections[connecting_lanesec].rightlanes) == len(road.lanes.lanesections[road_lanesection_id].rightlanes):
+                for i in range(len(road.lanes.lanesections[road_lanesection_id].rightlanes)):
+                    linkid = road.lanes.lanesections[road_lanesection_id].rightlanes[i].lane_id*sign
+                    connecting.lanes.lanesections[connecting_lanesec].rightlanes[i].add_link(linktype,linkid)
+            else:
+                raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
+
+def _get_related_lanesection(road,connected_road):
+    """ _get_related_lanesection takes to roads, and gives the correct lane section to use
+        the type of link and if the sign of lanes should be switched
+
+        Parameters
+        ----------
+            road (Road): the road that you want the information about
+
+            connected_road (Road): the connected road
+
+        Returns
+        -------
+            linktype (str): the linktype of road to connected road (successor or predecessor)
+
+            sign (int): +1 or -1 depending on if the sign should change in the linking
+
+            road_lanesection_id (int): what lanesection in the road that should be used to link
+    """
+    linktype = None
+    sign = None
+    road_lanesection_id = None
+ 
+    if road.successor.element_id == connected_road.id:
+        linktype = 'successor'
+        if road.successor.link_type == ContactPoint.start:
+            sign = -1
+        else:
+            sign = 1
+        road_lanesection_id = -1
+
+    elif road.predecessor.element_id == connected_road.id:
+        linktype = 'predecessor'
+        if road.predecessor.link_type == ContactPoint.start:
+            sign = -1
+        else:
+            sign = 1
+        road_lanesection_id = 0
+
+    if connected_road.road_type != -1:
+        # treat connecting road in junction differently 
+        if connected_road.predecessor.element_id == road.id:
+            if connected_road.predecessor.link_type == ContactPoint.start:
+                road_lanesection_id = -1
+            else:
+                road_lanesection_id = 0
+        elif connected_road.successor.element_id == road.id:
+            if connected_road.predecessor.link_type == ContactPoint.start:
+                road_lanesection_id = 0
+            else:
+                road_lanesection_id = -1
+    return linktype, sign, road_lanesection_id
+
+def _create_links_roads(pre_road,suc_road):
+    """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount. 
+
+        Parameters
+        ----------
+            pre_road (Road): the predecessor road 
+
+            suc_road (Road): the successor road
+
+    """
+    if len(pre_road.lanes.lanesections[-1].leftlanes) == len(suc_road.lanes.lanesections[-1].leftlanes):
+        for i in range(len(pre_road.lanes.lanesections[-1].leftlanes)):
+            linkid = pre_road.lanes.lanesections[-1].leftlanes[i].lane_id
+            pre_road.lanes.lanesections[-1].leftlanes[i].add_link('predecessor',linkid)
+            suc_road.lanes.lanesections[0].leftlanes[i].add_link('successor',linkid)
+    else:
+        raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
+
+
+    if len(pre_road.lanes.lanesections[-1].rightlanes) == len(suc_road.lanes.lanesections[-1].rightlanes):
+        for i in range(len(pre_road.lanes.lanesections[-1].rightlanes)):
+            linkid = pre_road.lanes.lanesections[-1].rightlanes[i].lane_id
+            pre_road.lanes.lanesections[-1].rightlanes[i].add_link('predecessor',linkid)
+            suc_road.lanes.lanesections[0].rightlanes[i].add_link('successor',linkid)
+    else:
+        raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
