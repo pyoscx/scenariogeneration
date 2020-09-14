@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 
 import numpy as np
-
+from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments
 from scipy.integrate import quad
 from scipy.special import fresnel
 
@@ -286,7 +286,12 @@ class Spiral():
  
             curvend (float): final curvature of the Spiral
  
-            
+            length (float): length of the spiral (optional, or use, angle, or cdot)
+
+            angle (float): the angle of the spiral (optional, or use length, or cdot)
+
+            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
+
         Attributes
         ----------
             curvstart (float): starting curvature of the Spiral
@@ -304,7 +309,7 @@ class Spiral():
             get_end_data(x,y,h)
                 Returns the end point of the geometry        
     """
-    def __init__(self,curvstart,curvend,length):
+    def __init__(self,curvstart,curvend,length=None,angle=None,cdot=None):
         """ initalizes the Spline
  
         Parameters
@@ -315,7 +320,16 @@ class Spiral():
         """ 
         self.curvstart = curvstart
         self.curvend = curvend
-        self.length = length
+        if length == None and angle == None and cdot == None:
+            raise NotEnoughInputArguments('Spiral is underdefined')
+        if sum([x!=None for x in [length,angle,cdot]]) > 1:
+            raise ToManyOptionalArguments('Spiral is overdefined, please use only one of the optional inputs')
+        if angle:
+            self.length = 2*angle/np.maximum(curvend,curvstart)
+        elif cdot:
+            self.length =  (self.curvend - self.curvstart) / cdot
+        else:
+            self.length = length
  
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
@@ -402,10 +416,10 @@ class Arc():
         """
 
         if length == None and angle == None:
-            raise ValueError('neither length nor angle defined, for arc')
+            raise NotEnoughInputArguments('neither length nor angle defined, for arc')
         
         if length != None and angle != None:
-            raise ValueError('both length and angle set, only one is requiered')
+            raise ToManyOptionalArguments('both length and angle set, only one is requiered')
 
         self.length = length
         self.angle = angle
