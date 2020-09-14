@@ -281,6 +281,15 @@ class OpenDrive():
 
         self.roads.append(road)
 
+    def adjust_roads_and_lanes(self, base_road): 
+        self.adjust_startpoints_recursive(base_road, initial=True)
+
+        # create lane links (if possible)
+        for i in range(len(self.roads)-1):
+            for j in range(i+1,len(self.roads)):
+                create_lane_links(self.roads[i],self.roads[j])  
+
+
     def adjust_startpoints_recursive(self, base_road, initial=True): 
         """ Adjust starting position of all added roads
 
@@ -289,7 +298,7 @@ class OpenDrive():
             base_road (Road): the road where we adjust all other geometries from
 
         """
-        print('Calling recursive function on road ', base_road.id)
+        #print('Calling recursive function on road ', base_road.id)
 
         if base_road.road_type != -1 and initial:
             raise ValueError('We cannot use a junction road as base road to adjust the other geometries')
@@ -300,7 +309,7 @@ class OpenDrive():
 
         # add geometry of base road 
         if initial: 
-            print('adjusting base road ', base_road.id)
+            #print('adjusting base road ', base_road.id)
             base_road.planview.adjust_geometires()
 
 
@@ -310,85 +319,50 @@ class OpenDrive():
 
         # adjust and add geometry of next normal road 
         if next_road_type is ElementType.road: 
-        
+            #print('i am in normal case and next road is ', next_road_id)
             # adjust the next road starting point 
             for r in self.roads:     
                 if r.id == next_road_id:
+                    #print('found next road with id ', next_road_id)
                     if base_road.links.get_successor_contact_point() is ContactPoint.start or base_road.links.get_successor_contact_point() is None:
+                        #print('contact point is start ')
                         x,y,h = base_road.get_end_point()
                         r.planview.set_start_point(x,y,h)
+                        #print('adjusting road ', r.id)
                         r.planview.adjust_geometires()
+
                     elif base_road.links.get_successor_contact_point() is ContactPoint.end:
+                        #print('contact point is end ')
                         x,y,h = base_road.get_end_point()
                         r.planview.set_start_point(x,y,h)
-                        r.planview.adjust_geometires()
+                        #print('adjusting road ', r.id)
+                        r.planview.adjust_geometires(True)
+
                     #try to link lanes 
-                    #self.link_lanes(base_road, r)
                     self.adjust_startpoints_recursive(r, False)
                     break 
         # if next road is junction I look for the next road, adjust its geometry, add its geometry and go to the next road
         elif next_road_type is ElementType.junction:
+            #print('i am in junction case')
             for j in self.junctions: 
                 if j.id == next_road_id:
                     for c in j.connections:
                         if c.incoming_road == base_road.id:
                             next_road_id = c.connecting_road
+                            #print('found a successor road in connection level ', next_road_id)
                             for r in self.roads:
                                 if r.id == next_road_id:
+                                    #print('found next road ', r.id)
                                     x,y,h = base_road.get_end_point()
                                     r.planview.set_start_point(x,y,h)
+                                    #print('adjusting road ', r.id)
                                     r.planview.adjust_geometires()
                                     self.adjust_startpoints_recursive(r, False)
                                     break
-                            break
-                    break
-          
-
-    def adjust_startpoints(self): 
-        """ Adjust starting position of all added roads
-
-            Parameters
-            ----------
-
-        """
-        for road in self.roads:
-            if road.road_type != -1: # road is junction 
-                for r in self.roads:
-
-                        if road.links.get_predecessor_id() == r.id:
-                            #save end position 
-                            x,y,h = r.get_end_point()
-                            print('predecessor is ', road.links.get_predecessor_id() )
-                            print('predecessor cords are ', x, y, h)
-                            #adjust current road 
-                            road.planview.set_start_point(x,y,h)                            
-                            road.planview.adjust_geometires()
-
                             
-                        elif road.links.get_successor_id() == r.id and road.links.get_successor_type() is not ElementType.junction:
-                            x,y,h = road.get_end_point()
-                            #adjust next road 
-                            print('successor is ', road.links.get_successor_id() )
-                            print('junction cords are ', x, y, h)
-                            r.planview.set_start_point(x,y,h)
-                            r.planview.adjust_geometires()
-            else: # normal road   
-                for r in self.roads:        
-                    if road.links.get_predecessor_id() == r.id and road.links.get_predecessor_type() is not ElementType.junction:
-                        print('am i here')
-                        x,y,h = r.get_end_point()
-                        road.planview.set_start_point(x,y,h)
-                        road.planview.adjust_geometires()
-                        break
-                    elif road.links.get_predecessor_id() == r.id and road.links.get_predecessor_type() is ElementType.junction:
-                        break
-                    elif len(road.planview._adjusted_geometries) == 0:
-                        road.planview.adjust_geometires()
-                        break
-        # create lane links (if possible)
-        for i in range(len(self.roads)-1):
-            for j in range(i+1,len(self.roads)):
-                create_lane_links(self.roads[i],self.roads[j])
+                    break
+        elif next_road_id is None:
+            print('road does not have any successor ' )
 
     def add_junction(self,junction):
         """ Adds a junction to the opendrive

@@ -195,21 +195,63 @@ class PlanView():
         self.present_y = y_start
         self.present_h = h_start
 
-    def adjust_geometires(self):
+    def adjust_geometires(self, from_end=False):
         """ Adjusts all geometries to have the correct start point and heading
 
         """
         
-        for i in range(len(self._raw_geometries)):
+        if from_end== False:
+            print('i am adjusting geometries from start')
+            for i in range(len(self._raw_geometries)):
 
-            if len(self._overridden_headings) > 0:
-                self.present_h = self._overridden_headings[i]
-            newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
+                if len(self._overridden_headings) > 0:
+                    self.present_h = self._overridden_headings[i]
 
-            self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
-            self.present_s += length
-            
-            self._adjusted_geometries.append(newgeom)
+
+                newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
+
+                self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
+                self.present_s += length
+                
+                self._adjusted_geometries.append(newgeom)
+                print('n geometries is ', len(self._adjusted_geometries))
+        else: 
+            print('i am adjusting geometries from end')
+            # the start point is the "end point"
+            rev_x = self.present_x
+            rev_y = self.present_y
+            rev_h = self.present_h
+
+            print('ending x is ', rev_x)
+            print('ending y is ', rev_y)
+            print('ending h is ', rev_h)
+
+            for i in range(len(self._raw_geometries)-1, -1, -1):
+
+                #print('i is ', i)
+                if len(self._overridden_headings) > 0:
+                    self.present_h = self._overridden_headings[i]
+
+                #self._raw_geometries[i].set_end_point(rev_x, rev_y, rev_h)
+                rev_x,rev_y,rev_h = self._raw_geometries[i].get_start_data(rev_x, rev_y, rev_h)     
+
+            self.present_x = rev_x 
+            self.present_y = rev_y 
+            self.present_h = rev_h - np.pi 
+
+            print('rev x is ', rev_x)
+            print('rev y is ', rev_y)
+            print('rev h is ', rev_h)
+
+             
+            for i in range(len(self._raw_geometries)):
+
+                newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
+
+                self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
+                self.present_s += length
+                
+                self._adjusted_geometries.append(newgeom)  
 
     def get_total_length(self):
         """ returns the total length of the planView
@@ -279,6 +321,14 @@ class Line():
         new_h = h
 
         return new_x, new_y, new_h, self.length
+
+    def get_start_data(self, end_x, end_y, end_h):
+
+        start_x = self.length*np.cos(end_h) + end_x
+        start_y = self.length*np.sin(end_h) + end_y
+        start_h = end_h
+
+        return start_x, start_y, start_h
     
     def get_element(self):
         """ returns the elementTree of the WorldPostion
@@ -489,6 +539,35 @@ class Arc():
         new_y = np.sin(new_ang)*radius + y_0
 
         return new_x, new_y, new_h, self.length
+
+    def get_start_data(self, end_x, end_y, end_h):
+
+        # isn't it enough to take the inverse of the curvature? 
+        curv = -self.curvature
+        radius = 1/np.abs(curv)
+        if curv < 0:
+            phi_0 = h + np.pi/2
+            x_0 = x - np.cos(phi_0)*radius
+            y_0 = y - np.sin(phi_0)*radius
+
+        else:
+            phi_0 = h - np.pi/2
+            x_0 = x - np.cos(phi_0)*radius
+            y_0 = y - np.sin(phi_0)*radius
+
+        if self.length:
+            self.angle = self.length * curv
+
+        new_ang = self.angle + phi_0
+        if self.angle:         
+            self.length = np.abs(radius*self.angle)
+
+
+        start_h = h + self.angle
+        start_x = np.cos(new_ang)*radius + x_0
+        start_y = np.sin(new_ang)*radius + y_0
+
+        return start_x, start_y, start_h
 
     def get_attributes(self):
         """ returns the attributes of the Arc as a dict
