@@ -2,10 +2,10 @@ import xml.etree.ElementTree as ET
 
 from .helpers import printToFile
 from .links import _Link, _Links, create_lane_links
-from .enumerations import ElementType
+from .enumerations import ElementType, ContactPoint
 
 import datetime as dt
-
+import warnings
 
 class _Header():
     """ Header creates the header of the OpenDrive file
@@ -281,6 +281,69 @@ class OpenDrive():
 
         self.roads.append(road)
 
+    def adjust_startpoints_recursive(self, base_road, initial=True): 
+        """ Adjust starting position of all added roads
+
+            Parameters
+            ----------
+            base_road (Road): the road where we adjust all other geometries from
+
+        """
+        print('Calling recursive function on road ', base_road.id)
+
+        if base_road.road_type != -1 and initial:
+            raise ValueError('We cannot use a junction road as base road to adjust the other geometries')
+
+        if base_road.links.get_predecessor_type() != None and initial:
+            warnings.simplefilter("The base road has a predecessor! The geometries of the previous roads will not be added")
+
+
+        # add geometry of base road 
+        if initial: 
+            print('adjusting base road ', base_road.id)
+            base_road.planview.adjust_geometires()
+
+
+        next_road_id = base_road.links.get_successor_id()
+        next_road_type = base_road.links.get_successor_type()
+
+
+        # adjust and add geometry of next normal road 
+        if next_road_type is ElementType.road: 
+        
+            # adjust the next road starting point 
+            for r in self.roads:     
+                if r.id == next_road_id:
+                    if base_road.links.get_successor_contact_point() is ContactPoint.start or base_road.links.get_successor_contact_point() is None:
+                        x,y,h = base_road.get_end_point()
+                        r.planview.set_start_point(x,y,h)
+                        r.planview.adjust_geometires()
+                    elif base_road.links.get_successor_contact_point() is ContactPoint.end:
+                        x,y,h = base_road.get_end_point()
+                        r.planview.set_start_point(x,y,h)
+                        r.planview.adjust_geometires()
+                    #try to link lanes 
+                    #self.link_lanes(base_road, r)
+                    self.adjust_startpoints_recursive(r, False)
+                    break 
+        # if next road is junction I look for the next road, adjust its geometry, add its geometry and go to the next road
+        elif next_road_type is ElementType.junction:
+            for j in self.junctions: 
+                if j.id == next_road_id:
+                    for c in j.connections:
+                        if c.incoming_road == base_road.id:
+                            next_road_id = c.connecting_road
+                            for r in self.roads:
+                                if r.id == next_road_id:
+                                    x,y,h = base_road.get_end_point()
+                                    r.planview.set_start_point(x,y,h)
+                                    r.planview.adjust_geometires()
+                                    self.adjust_startpoints_recursive(r, False)
+                                    break
+                            break
+                    break
+          
+
     def adjust_startpoints(self): 
         """ Adjust starting position of all added roads
 
@@ -326,6 +389,7 @@ class OpenDrive():
         for i in range(len(self.roads)-1):
             for j in range(i+1,len(self.roads)):
                 create_lane_links(self.roads[i],self.roads[j])
+
     def add_junction(self,junction):
         """ Adds a junction to the opendrive
 

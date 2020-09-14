@@ -38,6 +38,28 @@ class _Links():
 
         """
         self.links.append(link)
+    def get_predecessor_contact_point(self):
+        """ returns the predecessor contact_point of the link (if exists)
+
+            Return
+                id (int): id of the predecessor road
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'predecessor':
+                retval = l.contact_point
+        return retval
+    def get_successor_contact_point(self):
+        """ returns the successor contact_point of the link (if exists)
+
+            Return
+                id (int): id of the successor road (None if no successor available)
+        """
+        retval = None
+        for l in self.links:
+            if l.link_type == 'successor':
+                retval = l.contact_point
+        return retval
     def get_predecessor_type(self):
         """ returns the predecessor id of the link (if exists)
 
@@ -408,7 +430,7 @@ class Junction():
             element.append(con.get_element())
         return element
 
-from .exceptions import NotSameAmountOfLanesError
+#from .exceptions import NotSameAmountOfLanesError
 from .enumerations import ContactPoint
 
 def create_lane_links(road1,road2):
