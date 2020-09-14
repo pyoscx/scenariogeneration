@@ -60,6 +60,8 @@ class _Geometry():
         self.s = s
         self.x = x
         self.y = y
+  
+        
         self.heading = heading
         self.geom_type = geom_type
         _,_,_,self.length = self.geom_type.get_end_data(self.x,self.y,self.heading)
@@ -67,6 +69,17 @@ class _Geometry():
     def get_end_data(self):
         return self.geom_type.get_end_data(self.x,self.y,self.heading)
         
+    def get_start_data(self):
+        x,y,heading,self.length = self.geom_type.get_start_data(self.x,self.y,self.heading)
+        self.x = x
+        self.y = y
+        self.heading = heading
+        self.s = None
+        return x,y,heading,self.length
+
+    def set_s(self,s):
+        self.s = s
+
     def get_attributes(self):
         """ returns the attributes of the _Geometry as a dict
 
@@ -607,6 +620,39 @@ class ParamPoly3():
             12*(self.cu*self.du + self.cv*self.dv)*p**3 +\
             9*(self.du**2 + self.dv**2)*p**4 )
 
+    def get_start_data(self,x,y,h):
+        """ Returns the start point of the geometry
+        
+        Parameters
+        ----------
+            x (float): x end point of the geometry
+
+            y (float): y end point of the geometry
+
+            h (float): end heading of the geometry
+
+        Returns
+        ---------
+            x (float): the start x point
+            y (float): the start y point
+            h (float): the start heading
+            length (float): the length of the geometry
+
+        """
+        if self.prange == 'normalized':
+            p = 1
+            I = quad(self._integrand,0,1)
+            self.length = I[0]
+        else:
+            p = self.length
+        newu = self.au + self.bu*p + self.cu*p**2 + self.du*p**3
+        newv = self.av + self.bv*p + self.cv*p**2 + self.dv*p**3
+
+        new_x = x - newu*np.cos(h)-np.sin(h)*newv
+        new_y = y - newu*np.sin(h)+np.cos(h)*newv
+        new_h = h - np.arctan2(self.bv + self.cv*p + self.dv*p**2,self.bu + self.cu*p + self.du*p**2)
+
+        return new_x, new_y, new_h, self.length
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
         
