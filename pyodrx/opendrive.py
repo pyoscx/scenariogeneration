@@ -136,6 +136,7 @@ class Road():
         self._neighbor_added = 0
         self.successor = None
         self.predecessor = None
+        self.adjusted = False
     def add_successor(self,element_type,element_id,contact_point=None):
         """ add_successor adds a successor link to the road
         
@@ -309,7 +310,6 @@ class OpenDrive():
 
         # add geometry of base road 
         if initial: 
-            #print('adjusting base road ', base_road.id)
             base_road.planview.adjust_geometires()
 
 
@@ -319,23 +319,18 @@ class OpenDrive():
 
         # adjust and add geometry of next normal road 
         if next_road_type is ElementType.road: 
-            #print('i am in normal case and next road is ', next_road_id)
-            # adjust the next road starting point 
             for r in self.roads:     
                 if r.id == next_road_id:
-                    #print('found next road with id ', next_road_id)
+                    if r.planview.adjusted == True:
+                        return
                     if base_road.links.get_successor_contact_point() is ContactPoint.start or base_road.links.get_successor_contact_point() is None:
-                        #print('contact point is start ')
                         x,y,h = base_road.get_end_point()
                         r.planview.set_start_point(x,y,h)
-                        #print('adjusting road ', r.id)
                         r.planview.adjust_geometires()
 
                     elif base_road.links.get_successor_contact_point() is ContactPoint.end:
-                        #print('contact point is end ')
                         x,y,h = base_road.get_end_point()
                         r.planview.set_start_point(x,y,h)
-                        #print('adjusting road ', r.id)
                         r.planview.adjust_geometires(True)
 
                     #try to link lanes 
@@ -343,19 +338,17 @@ class OpenDrive():
                     break 
         # if next road is junction I look for the next road, adjust its geometry, add its geometry and go to the next road
         elif next_road_type is ElementType.junction:
-            #print('i am in junction case')
             for j in self.junctions: 
                 if j.id == next_road_id:
                     for c in j.connections:
                         if c.incoming_road == base_road.id:
                             next_road_id = c.connecting_road
-                            #print('found a successor road in connection level ', next_road_id)
                             for r in self.roads:
                                 if r.id == next_road_id:
-                                    #print('found next road ', r.id)
+                                    if r.planview.adjusted == True:
+                                        return
                                     x,y,h = base_road.get_end_point()
                                     r.planview.set_start_point(x,y,h)
-                                    #print('adjusting road ', r.id)
                                     r.planview.adjust_geometires()
                                     self.adjust_startpoints_recursive(r, False)
                                     break

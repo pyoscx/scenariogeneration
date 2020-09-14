@@ -160,6 +160,8 @@ class PlanView():
         self._adjusted_geometries = []
         self._overridden_headings = []
 
+        self.adjusted = False
+
     def add_geometry(self,geom,heading = None):
         """ add_geometry adds a geometry to the planview and calculates
         
@@ -201,7 +203,6 @@ class PlanView():
         """
         
         if from_end== False:
-            print('i am adjusting geometries from start')
             for i in range(len(self._raw_geometries)):
 
                 if len(self._overridden_headings) > 0:
@@ -214,17 +215,15 @@ class PlanView():
                 self.present_s += length
                 
                 self._adjusted_geometries.append(newgeom)
-                print('n geometries is ', len(self._adjusted_geometries))
         else: 
-            print('i am adjusting geometries from end')
             # the start point is the "end point"
             rev_x = self.present_x
             rev_y = self.present_y
             rev_h = self.present_h
 
-            print('ending x is ', rev_x)
-            print('ending y is ', rev_y)
-            print('ending h is ', rev_h)
+            #print('ending x is ', rev_x)
+            #print('ending y is ', rev_y)
+            #print('ending h is ', rev_h)
 
             for i in range(len(self._raw_geometries)-1, -1, -1):
 
@@ -239,9 +238,9 @@ class PlanView():
             self.present_y = rev_y 
             self.present_h = rev_h - np.pi 
 
-            print('rev x is ', rev_x)
-            print('rev y is ', rev_y)
-            print('rev h is ', rev_h)
+            #print('rev x is ', rev_x)
+            #print('rev y is ', rev_y)
+            #print('rev h is ', rev_h)
 
              
             for i in range(len(self._raw_geometries)):
@@ -252,6 +251,8 @@ class PlanView():
                 self.present_s += length
                 
                 self._adjusted_geometries.append(newgeom)  
+
+        self.adjusted = True
 
     def get_total_length(self):
         """ returns the total length of the planView
