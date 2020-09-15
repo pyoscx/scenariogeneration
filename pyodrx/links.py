@@ -510,7 +510,7 @@ def _get_related_lanesection(road,connected_road):
     sign = None
     road_lanesection_id = None
  
-    if road.successor.element_id == connected_road.id:
+    if road.successor and road.successor.element_id == connected_road.id:
         linktype = 'successor'
         if road.successor.contact_point == ContactPoint.start:
             sign = 1
@@ -518,7 +518,7 @@ def _get_related_lanesection(road,connected_road):
             sign = -1
         road_lanesection_id = -1
 
-    elif road.predecessor.element_id == connected_road.id:
+    elif road.predecessor and road.predecessor.element_id == connected_road.id:
         linktype = 'predecessor'
         if road.predecessor.contact_point == ContactPoint.start:
             sign = -1
@@ -550,20 +550,23 @@ def _create_links_roads(pre_road,suc_road):
             suc_road (Road): the successor road
 
     """
-    if len(pre_road.lanes.lanesections[-1].leftlanes) == len(suc_road.lanes.lanesections[-1].leftlanes):
-        for i in range(len(pre_road.lanes.lanesections[-1].leftlanes)):
-            linkid = pre_road.lanes.lanesections[-1].leftlanes[i].lane_id
-            pre_road.lanes.lanesections[-1].leftlanes[i].add_link('predecessor',linkid)
-            suc_road.lanes.lanesections[0].leftlanes[i].add_link('successor',linkid)
+    pre_linktype, pre_sign, pre_connecting_lanesec =  _get_related_lanesection(pre_road,suc_road)
+    suc_linktype, _, suc_connecting_lanesec =  _get_related_lanesection(suc_road,pre_road)
+    
+    if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(suc_road.lanes.lanesections[-1].leftlanes):
+        for i in range(len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)):
+            linkid = pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].lane_id*pre_sign
+            pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].add_link(pre_linktype,linkid)
+            suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
     else:
         raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
 
-    if len(pre_road.lanes.lanesections[-1].rightlanes) == len(suc_road.lanes.lanesections[-1].rightlanes):
-        for i in range(len(pre_road.lanes.lanesections[-1].rightlanes)):
-            linkid = pre_road.lanes.lanesections[-1].rightlanes[i].lane_id
-            pre_road.lanes.lanesections[-1].rightlanes[i].add_link('predecessor',linkid)
-            suc_road.lanes.lanesections[0].rightlanes[i].add_link('successor',linkid)
+    if len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes) == len(suc_road.lanes.lanesections[-1].rightlanes):
+        for i in range(len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes)):
+            linkid = pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes[i].lane_id
+            pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes[i].add_link(pre_linktype,linkid)
+            suc_road.lanes.lanesections[suc_connecting_lanesec].rightlanes[i].add_link(suc_linktype,linkid)
     else:
         raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
 
