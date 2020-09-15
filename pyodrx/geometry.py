@@ -324,12 +324,32 @@ class Line():
         return new_x, new_y, new_h, self.length
 
     def get_start_data(self, end_x, end_y, end_h):
+        """ Returns the end point of the geometry
+        
+        Parameters
+        ----------
+            end_x (float): x end point of the geometry
 
+            end_y (float): y end point of the geometry
+
+            end_h (float): end heading of the geometry
+
+        Returns
+        ----------
+            x (float): the start x point
+
+            y (float): the start y point
+
+            h (float): the start heading
+
+            length (float): length of the road
+
+        """
         start_x = self.length*np.cos(end_h) + end_x
         start_y = self.length*np.sin(end_h) + end_y
         start_h = end_h
 
-        return start_x, start_y, start_h
+        return start_x, start_y, start_h, self.length
     
     def get_element(self):
         """ returns the elementTree of the WorldPostion
@@ -542,19 +562,40 @@ class Arc():
         return new_x, new_y, new_h, self.length
 
     def get_start_data(self, end_x, end_y, end_h):
+        """ Returns information about the end point of the geometry
+        
+        Parameters
+        ----------
+            end_x (float): x end point of the geometry
 
+            end_y (float): y end point of the geometry
+
+            end_h (float): end heading of the geometry
+
+        Returns
+        ---------
+            
+            x (float): the start x point
+
+            y (float): the start y point
+
+            h (float): the start heading
+
+            length (float): length of the element
+
+        """
         # isn't it enough to take the inverse of the curvature? 
         curv = -self.curvature
         radius = 1/np.abs(curv)
         if curv < 0:
-            phi_0 = h + np.pi/2
-            x_0 = x - np.cos(phi_0)*radius
-            y_0 = y - np.sin(phi_0)*radius
+            phi_0 = end_h + np.pi/2
+            x_0 = end_x - np.cos(phi_0)*radius
+            y_0 = end_y - np.sin(phi_0)*radius
 
         else:
-            phi_0 = h - np.pi/2
-            x_0 = x - np.cos(phi_0)*radius
-            y_0 = y - np.sin(phi_0)*radius
+            phi_0 = end_h - np.pi/2
+            x_0 = end_x - np.cos(phi_0)*radius
+            y_0 = end_y - np.sin(phi_0)*radius
 
         if self.length:
             self.angle = self.length * curv
@@ -564,11 +605,11 @@ class Arc():
             self.length = np.abs(radius*self.angle)
 
 
-        start_h = h + self.angle
+        start_h = end_h + self.angle
         start_x = np.cos(new_ang)*radius + x_0
         start_y = np.sin(new_ang)*radius + y_0
 
-        return start_x, start_y, start_h
+        return start_x, start_y, start_h, self.length
 
     def get_attributes(self):
         """ returns the attributes of the Arc as a dict
