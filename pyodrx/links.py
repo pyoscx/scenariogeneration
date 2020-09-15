@@ -512,15 +512,15 @@ def _get_related_lanesection(road,connected_road):
  
     if road.successor.element_id == connected_road.id:
         linktype = 'successor'
-        if road.successor.link_type == ContactPoint.start:
-            sign = -1
-        else:
+        if road.successor.contact_point == ContactPoint.start:
             sign = 1
+        else:
+            sign = -1
         road_lanesection_id = -1
 
     elif road.predecessor.element_id == connected_road.id:
         linktype = 'predecessor'
-        if road.predecessor.link_type == ContactPoint.start:
+        if road.predecessor.contact_point == ContactPoint.start:
             sign = -1
         else:
             sign = 1
