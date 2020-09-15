@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
 
-
+from .exceptions import NotSameAmountOfLanesError
 
 class _Links():
     """ Link creates a Link element used for roadlinking in OpenDrive
