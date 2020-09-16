@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
+from .enumerations import ElementType
 
 from .exceptions import NotSameAmountOfLanesError
 
@@ -447,10 +448,11 @@ def create_lane_links(road1,road2):
     
     if road1.road_type == -1 and road2.road_type == -1:
         #both are roads
-        if road1.successor and road1.successor.element_id == road2.id:
-            _create_links_roads(road1,road2)
-        elif road1.predecessor and road1.predecessor.element_id == road2.id:
-            _create_links_roads(road2,road1)
+        if road1.successor.element_type == ElementType.road and road2.successor.element_type == ElementType.road:
+            if road1.successor and road1.successor.element_id == road2.id:
+                _create_links_roads(road1,road2)
+            elif road1.predecessor and road1.predecessor.element_id == road2.id:
+                _create_links_roads(road2,road1)
     elif road1.road_type != -1:
         _create_links_connecting_road(road1,road2)
     elif road2.road_type != -1:
@@ -552,11 +554,12 @@ def _create_links_roads(pre_road,suc_road):
     """
     pre_linktype, pre_sign, pre_connecting_lanesec =  _get_related_lanesection(pre_road,suc_road)
     suc_linktype, _, suc_connecting_lanesec =  _get_related_lanesection(suc_road,pre_road)
-    
     if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(suc_road.lanes.lanesections[-1].leftlanes):
         for i in range(len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)):
             linkid = pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].lane_id*pre_sign
             pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].add_link(pre_linktype,linkid)
+            
+
             suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes[i].add_link(suc_linktype,linkid*pre_sign)
     else:
         raise NotSameAmountOfLanesError('Road ' + str(pre_road.id) + ' and road ' + str(suc_road.id) + ' does not have the same number of right lanes.')
