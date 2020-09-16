@@ -73,7 +73,7 @@ class _Geometry():
         x,y,heading,self.length = self.geom_type.get_start_data(self.x,self.y,self.heading)
         self.x = x
         self.y = y
-        self.heading = heading
+        self.heading = heading + np.pi
         self.s = None
         return x,y,heading,self.length
 
@@ -156,6 +156,14 @@ class PlanView():
         self.present_h = 0
         self.present_s = 0
 
+        self.x_start = None
+        self.y_start = None
+        self.h_start = None 
+
+        self.x_end = None
+        self.y_end = None
+        self.h_end = None
+
         self._raw_geometries = []
         self._adjusted_geometries = []
         self._overridden_headings = []
@@ -196,6 +204,44 @@ class PlanView():
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
+        #self.x_start = x_start
+        #self.y_start = y_start
+        #self.h_start = h_start
+
+    def get_start_point(self):
+        """ sets the start point of the planview
+
+            Parameters
+            ----------
+            x_start (float): start x coordinate of the first geometry
+                Default: 0
+
+            y_start (float): start y coordinate of the first geometry
+                Default: 0
+
+            h_start (float): starting heading of the first geometry
+                Default: 0
+        """
+        return self.x_start, self.y_start, self.h_start 
+        #return self._adjusted_geometries[-1].get_end_point
+
+    def get_end_point(self):
+        """ sets the start point of the planview
+
+            Parameters
+            ----------
+            x_start (float): start x coordinate of the first geometry
+                Default: 0
+
+            y_start (float): start y coordinate of the first geometry
+                Default: 0
+
+            h_start (float): starting heading of the first geometry
+                Default: 0
+        """
+        return self.x_end, self.y_end, self.h_end 
+        #x, y, h, _ = self._adjusted_geometries[-1].get_end_data() 
+        #return x, y, h
 
     def adjust_geometires(self, from_end=False):
         """ Adjusts all geometries to have the correct start point and heading
@@ -203,54 +249,68 @@ class PlanView():
         """
         
         if from_end== False:
-            for i in range(len(self._raw_geometries)):
+            self.x_start = self.present_x
+            self.y_start = self.present_y
+            self.h_start = self.present_h
 
+            for i in range(len(self._raw_geometries)):
                 if len(self._overridden_headings) > 0:
                     self.present_h = self._overridden_headings[i]
-
 
                 newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
 
                 self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
                 self.present_s += length
-                
+
                 self._adjusted_geometries.append(newgeom)
+            self.x_end = self.present_x
+            self.y_end = self.present_y
+            self.h_end = self.present_h
+
         else: 
-            # the start point is the "end point"
-            rev_x = self.present_x
-            rev_y = self.present_y
-            rev_h = self.present_h
+            # the start point is the "end point" --> will be modified to the correct one later at line 277
 
-            #print('ending x is ', rev_x)
-            #print('ending y is ', rev_y)
-            #print('ending h is ', rev_h)
+            self.x_end = self.present_x
+            self.y_end = self.present_y
+            self.h_end = self.present_h + np.pi
 
+            # print('from last geom, ending  x is ', rev_x)
+            # print('from last geom, ending y is ', rev_y)
+            # print('from last geom, ending h is ', rev_h)
+            lengths = []
             for i in range(len(self._raw_geometries)-1, -1, -1):
 
                 #print('i is ', i)
-                if len(self._overridden_headings) > 0:
-                    self.present_h = self._overridden_headings[i]
+                #if len(self._overridden_headings) > 0:
+                #    self.present_h = self._overridden_headings[i]
+                newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
 
-                #self._raw_geometries[i].set_end_point(rev_x, rev_y, rev_h)
-                rev_x,rev_y,rev_h = self._raw_geometries[i].get_start_data(rev_x, rev_y, rev_h)     
+                self.present_x,self.present_y,self.present_h, partial_length = newgeom.get_start_data()
+                lengths.append(partial_length)
+                self._adjusted_geometries.append(newgeom)  
 
-            self.present_x = rev_x 
-            self.present_y = rev_y 
-            self.present_h = rev_h - np.pi 
 
-            #print('rev x is ', rev_x)
-            #print('rev y is ', rev_y)
-            #print('rev h is ', rev_h)
+                
 
+            self.x_start = self.present_x
+            self.y_start = self.present_y
+            self.h_start = self.present_h + np.pi
+
+            length = sum(lengths)
+
+             
+
+            self.present_s = 0
              
             for i in range(len(self._raw_geometries)):
 
-                newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
+                #newgeom = _adjusted_geometries(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
 
-                self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
-                self.present_s += length
+                #self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
+                newgeom.set_s(self.present_s)
+                self.present_s += lengths[i]
                 
-                self._adjusted_geometries.append(newgeom)  
+                #self._adjusted_geometries.append(newgeom)  
 
         self.adjusted = True
 
@@ -440,6 +500,15 @@ class Spiral():
 
  
         return deltax, deltay, t, self.length
+
+    def get_start_data(self, end_x, end_y, end_h):
+
+        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvend, self.curvstart)
+        (deltax, deltay, t) = spiral.calc(self.length, end_x, end_y, self.curvend, end_h)
+
+ 
+        return deltax, deltay, t, self.length
+
  
     def get_attributes(self):
         """ returns the attributes of the Line as a dict
@@ -561,55 +630,63 @@ class Arc():
 
         return new_x, new_y, new_h, self.length
 
-    def get_start_data(self, end_x, end_y, end_h):
+    def get_start_data(self,end_x,end_y,end_h):
         """ Returns information about the end point of the geometry
         
         Parameters
         ----------
-            end_x (float): x end point of the geometry
+            x (float): x start point of the geometry
 
-            end_y (float): y end point of the geometry
+            y (float): y start point of the geometry
 
-            end_h (float): end heading of the geometry
+            h (float): start heading of the geometry
 
         Returns
         ---------
             
-            x (float): the start x point
+            x (float): the final x point
 
-            y (float): the start y point
+            y (float): the final y point
 
-            h (float): the start heading
+            h (float): the final heading
 
             length (float): length of the element
 
         """
-        # isn't it enough to take the inverse of the curvature? 
-        curv = -self.curvature
-        radius = 1/np.abs(curv)
-        if curv < 0:
-            phi_0 = end_h + np.pi/2
-            x_0 = end_x - np.cos(phi_0)*radius
-            y_0 = end_y - np.sin(phi_0)*radius
+        print('inside the geometry we have ', end_x, end_y, end_h)
+        x = end_x
+        y = end_y 
+        h = end_h
+        inv_curv = - self.curvature 
+        radius = 1/np.abs(inv_curv)
+        if inv_curv < 0:
+            phi_0 = h + np.pi/2
+            x_0 = x - np.cos(phi_0)*radius
+            y_0 = y - np.sin(phi_0)*radius
 
         else:
-            phi_0 = end_h - np.pi/2
-            x_0 = end_x - np.cos(phi_0)*radius
-            y_0 = end_y - np.sin(phi_0)*radius
+            phi_0 = h - np.pi/2
+            x_0 = x - np.cos(phi_0)*radius
+            y_0 = y - np.sin(phi_0)*radius
 
         if self.length:
-            self.angle = self.length * curv
+            self.angle = self.length * inv_curv
 
         new_ang = self.angle + phi_0
         if self.angle:         
             self.length = np.abs(radius*self.angle)
 
+            
+        
+        print('self andgle is ', self.angle )
+        print('h is ', h)
+        new_h = h + self.angle
+        new_x = np.cos(new_ang)*radius + x_0
+        new_y = np.sin(new_ang)*radius + y_0
 
-        start_h = end_h + self.angle
-        start_x = np.cos(new_ang)*radius + x_0
-        start_y = np.sin(new_ang)*radius + y_0
+        print('out of the geometry we get ', new_x, new_y, new_h)
 
-        return start_x, start_y, start_h, self.length
+        return new_x, new_y, new_h, self.length
 
     def get_attributes(self):
         """ returns the attributes of the Arc as a dict

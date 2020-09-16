@@ -20,9 +20,9 @@ def run_road(opendrive,esminipath = 'esmini'):
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
     
     if os.name == 'posix':
-        os.system(os.path.join('.', esminipath, 'bin','OpenDriveViewer') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 5' )
+        os.system(os.path.join('.', esminipath, 'bin','OpenDriveViewer') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 15' )
     elif os.name == 'nt':
-        os.system(os.path.join(esminipath,'bin','OpenDriveViewer.exe') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 5' )
+        os.system(os.path.join(esminipath,'bin','OpenDriveViewer.exe') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 50 50 800 400 --density 15' )
 
 
 def enum2str(enum):

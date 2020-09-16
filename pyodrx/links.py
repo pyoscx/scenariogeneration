@@ -448,11 +448,12 @@ def create_lane_links(road1,road2):
     
     if road1.road_type == -1 and road2.road_type == -1:
         #both are roads
-        if road1.successor.element_type == ElementType.road and road2.successor.element_type == ElementType.road:
-            if road1.successor and road1.successor.element_id == road2.id:
-                _create_links_roads(road1,road2)
-            elif road1.predecessor and road1.predecessor.element_id == road2.id:
-                _create_links_roads(road2,road1)
+        if road1.successor is not None and road2.successor is not None: 
+            if road1.successor.element_type == ElementType.road and road2.successor.element_type == ElementType.road:
+                if road1.successor and road1.successor.element_id == road2.id:
+                    _create_links_roads(road1,road2)
+                elif road1.predecessor and road1.predecessor.element_id == road2.id:
+                    _create_links_roads(road2,road1)
     elif road1.road_type != -1:
         _create_links_connecting_road(road1,road2)
     elif road2.road_type != -1:
