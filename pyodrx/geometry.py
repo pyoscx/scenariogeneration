@@ -182,7 +182,6 @@ class PlanView():
 
         """
 
-
         if heading:
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
@@ -201,27 +200,18 @@ class PlanView():
             h_start (float): starting heading of the first geometry
                 Default: 0
         """
+
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
-        #self.x_start = x_start
-        #self.y_start = y_start
-        #self.h_start = h_start
 
     def get_start_point(self):
-        """ sets the start point of the planview
+        """ returns the start point of the planview
 
             Parameters
             ----------
-            x_start (float): start x coordinate of the first geometry
-                Default: 0
-
-            y_start (float): start y coordinate of the first geometry
-                Default: 0
-
-            h_start (float): starting heading of the first geometry
-                Default: 0
         """
+
         return self.x_start, self.y_start, self.h_start 
         #return self._adjusted_geometries[-1].get_end_point
 
@@ -239,12 +229,15 @@ class PlanView():
             h_start (float): starting heading of the first geometry
                 Default: 0
         """
+
         return self.x_end, self.y_end, self.h_end 
-        #x, y, h, _ = self._adjusted_geometries[-1].get_end_data() 
-        #return x, y, h
 
     def adjust_geometires(self, from_end=False):
         """ Adjusts all geometries to have the correct start point and heading
+
+            Parameters
+            ----------
+            from_end ([optional]bool): states if (self.present_x, self.present_y, self.present_h) are being interpreted as starting point or ending point of the geometry
 
         """
         
@@ -268,49 +261,31 @@ class PlanView():
             self.h_end = self.present_h
 
         else: 
-            # the start point is the "end point" --> will be modified to the correct one later at line 277
 
             self.x_end = self.present_x
             self.y_end = self.present_y
             self.h_end = self.present_h + np.pi
 
-            # print('from last geom, ending  x is ', rev_x)
-            # print('from last geom, ending y is ', rev_y)
-            # print('from last geom, ending h is ', rev_h)
             lengths = []
             for i in range(len(self._raw_geometries)-1, -1, -1):
 
-                #print('i is ', i)
-                #if len(self._overridden_headings) > 0:
-                #    self.present_h = self._overridden_headings[i]
                 newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
 
                 self.present_x,self.present_y,self.present_h, partial_length = newgeom.get_start_data()
                 lengths.append(partial_length)
-                self._adjusted_geometries.append(newgeom)  
-
-
-                
+                self._adjusted_geometries.append(newgeom)                  
 
             self.x_start = self.present_x
             self.y_start = self.present_y
             self.h_start = self.present_h + np.pi
 
-            length = sum(lengths)
-
-             
-
+            length = sum(lengths)           
             self.present_s = 0
              
             for i in range(len(self._raw_geometries)):
 
-                #newgeom = _adjusted_geometries(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
-
-                #self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
                 newgeom.set_s(self.present_s)
-                self.present_s += lengths[i]
-                
-                #self._adjusted_geometries.append(newgeom)  
+                self.present_s += lengths[i]  
 
         self.adjusted = True
 
@@ -318,16 +293,18 @@ class PlanView():
         """ returns the total length of the planView
 
         """
+
         return self.present_s
+
     def get_element(self):
         """ returns the elementTree of the WorldPostion
 
         """
+
         element = ET.Element('planView')
         for geom in self._adjusted_geometries:
             element.append(geom.get_element())
         return element
-
 
 
 
@@ -502,6 +479,25 @@ class Spiral():
         return deltax, deltay, t, self.length
 
     def get_start_data(self, end_x, end_y, end_h):
+        """ Returns the end point of the geometry
+        
+        Parameters
+        ----------
+            end_x (float): x end point of the geometry
+ 
+            end_y (float): y end point of the geometry
+ 
+            end_h (float): end heading of the geometry
+
+        Returns
+        ---------
+ 
+            x (float): the start x point
+            y (float): the start y point
+            h (float): the start heading of the inverse geometry 
+            l (float): length of the spiral
+
+        """
 
         spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvend, self.curvstart)
         (deltax, deltay, t) = spiral.calc(self.length, end_x, end_y, self.curvend, end_h)
@@ -635,20 +631,20 @@ class Arc():
         
         Parameters
         ----------
-            x (float): x start point of the geometry
+            end_x (float): x final point of the geometry
 
-            y (float): y start point of the geometry
+            end_y (float): y final point of the geometry
 
-            h (float): start heading of the geometry
+            end_h (float): final heading of the geometry
 
         Returns
         ---------
             
-            x (float): the final x point
+            x (float): the start x point
 
-            y (float): the final y point
+            y (float): the start y point
 
-            h (float): the final heading
+            h (float): the start heading of the inverse geometry 
 
             length (float): length of the element
 
@@ -856,17 +852,18 @@ class ParamPoly3():
         
         Parameters
         ----------
-            x (float): x start point of the geometry
+            x (float): x final point of the geometry
 
-            y (float): y start point of the geometry
+            y (float): y final point of the geometry
 
-            h (float): start heading of the geometry
+            h (float): final heading of the geometry
 
         Returns
         ---------
-            x (float): the final x point
-            y (float): the final y point
-            h (float): the final heading
+            x (float): the start x point
+            y (float): the start y point
+            h (float): the start heading of the inverse geometry 
+            length (float): length of the polynomial
 
         """
         if self.prange == 'normalized':

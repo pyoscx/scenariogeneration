@@ -284,47 +284,41 @@ class OpenDrive():
         self.roads[str(road.id)] = road        
 
     def adjust_roads_and_lanes(self): 
+        """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 
+
+            Parameters
+            ----------
+
+        """
+        #adjust roads and their geometries 
         self.adjust_startpoints()
 
-        # create lane links (if possible)
-        #for i in range(1, len(self.roads)-1):
+        #try to link lanes 
         for i in self.roads:
             for j in self.roads:
-                #print(i)
-                #print(j)
                 create_lane_links(self.roads[str(i)],self.roads[str(j)])  
 
 
     def adjust_startpoints(self): 
-        """ Adjust starting position of all added roads
+        """ Adjust starting position of all geoemtries of all roads
 
             Parameters
             ----------
-            base_road (Road): the road where we adjust all other geometries from
 
         """
         
         count_adjusted_roads = 0; 
-        while_count = 1
 
         while count_adjusted_roads < len(self.roads):
 
-            print('WHILE LOOP N ', while_count)
-            print('NUMBER OF ADJUSTED ROADS IS ', count_adjusted_roads)
-
-            while_count += 1
-
             for k in self.roads: 
-                print('checking out road ', self.roads[k].id)
 
                 if count_adjusted_roads == 0: 
                     self.roads[k].planview.adjust_geometires() 
                     count_adjusted_roads += 1
-                    print('adjusted initial road ', self.roads[k].id)
                     continue
 
                 if self.roads[k].planview.adjusted is True: 
-                    print('road is already adjusted ', self.roads[k].id)
                     continue                
 
                 # check if it has a normal predecessor 
@@ -338,21 +332,17 @@ class OpenDrive():
                     self.roads[k].planview.set_start_point(x,y,h)
                     self.roads[k].planview.adjust_geometires()
                     count_adjusted_roads +=1
-                    print('1 adjusted road ', self.roads[k].id)
 
                     if self.roads[k].road_type == 1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
                         
                         succ_id = self.roads[k].successor.element_id
                         x,y,h = self.roads[k].get_end_point()
-                        print('the end point of first arc is ', x, y, h )
                         self.roads[str(succ_id)].planview.set_start_point(x,y,h)
                         if self.roads[k].successor.contact_point == ContactPoint.start:                            
                             self.roads[str(succ_id)].planview.adjust_geometires()
                         else:
-                            print('im here ')
                             self.roads[str(succ_id)].planview.adjust_geometires(True)
                         count_adjusted_roads +=1
-                        print('2 adjusted road ', succ_id)
 
                     continue 
 
@@ -371,7 +361,6 @@ class OpenDrive():
                     self.roads[k].planview.set_start_point(x,y,h)
                     self.roads[k].planview.adjust_geometires(True)
                     count_adjusted_roads +=1
-                    print('3 adjusted road ', self.roads[k].id)
 
                     if self.roads[k].road_type == 1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
                         pred_id = self.roads[k].predecessor.element_id
@@ -383,11 +372,8 @@ class OpenDrive():
                         else:
                             self.roads[str(pred_id)].planview.adjust_geometires(True)
                         count_adjusted_roads +=1
-                        print('4 adjusted road ', pred_id)
 
                     continue
-
-            print('NUMBER OF ADJUSTED ROADS IS ', count_adjusted_roads)
 
 
     def add_junction(self,junction):
