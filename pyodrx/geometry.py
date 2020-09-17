@@ -270,7 +270,6 @@ class PlanView():
             for i in range(len(self._raw_geometries)-1, -1, -1):
 
                 newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
-
                 self.present_x,self.present_y,self.present_h, partial_length = newgeom.get_start_data()
                 lengths.append(partial_length)
                 self._adjusted_geometries.append(newgeom)                  
@@ -499,8 +498,8 @@ class Spiral():
 
         """
 
-        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvend, self.curvstart)
-        (deltax, deltay, t) = spiral.calc(self.length, end_x, end_y, self.curvend, end_h)
+        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, -self.curvend, -self.curvstart)
+        (deltax, deltay, t) = spiral.calc(self.length, end_x, end_y, -self.curvend, end_h)
 
  
         return deltax, deltay, t, self.length
