@@ -617,7 +617,6 @@ class Arc():
             self.length = np.abs(radius*self.angle)
 
             
-        
 
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0

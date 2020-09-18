@@ -156,6 +156,12 @@ def test_arc_calc_length(data,expdata):
 ([np.pi, 0,0,0,1], [0,2,np.pi,np.pi]),  
 ([np.pi, 0,0,0,1/2], [0,4,np.pi,np.pi*2]),
 ([np.pi/2, 1,1,0,1], [2,2,np.pi/2,np.pi/2]),
+([-np.pi, 0,0,0,-1], [0,-2,-np.pi,np.pi]),
+([-np.pi, 0,0,0,-0.5], [0,-4,-np.pi,2*np.pi]),
+([-np.pi/2, 0,0,0,-1], [1,-1,-np.pi/2,np.pi/2]),
+([-np.pi, 1,0,0,-1], [1,-2,-np.pi,np.pi]),
+([-np.pi, 0,1,0,-1], [0,-1,-np.pi,np.pi]),
+([-np.pi, 0,0,np.pi,-1], [0,2,0,np.pi]),
 ])
 # data: angle, x, y, h, curvature
 # expdata: new x, new y, new h, length
@@ -191,3 +197,59 @@ def test_geometry():
     geom = pyodrx.geometry._Geometry(1,2,3,4,pyodrx.Line(1))
     p = geom.get_element()
     pyodrx.prettyprint(p)
+
+@pytest.mark.parametrize("data",[\
+([100, 0,0,0]),
+([100, 10, 0, 0]),
+([100, 0, 10, 0]),
+([100, 0, 0, np.pi])
+])
+
+def test_inverted_Line(data):
+    line = pyodrx.Line(data[0])
+
+    end_x,end_y,end_h,end_l = line.get_end_data(data[1],data[2],data[3])
+
+    end_h += np.pi 
+
+    start_x,start_y,start_h,start_l = line.get_start_data(end_x,end_y,end_h)
+
+    start_h -= np.pi
+
+    assert pytest.approx(start_x, 0.000001) == data[1]
+    assert pytest.approx(start_y, 0.000001) == data[2]
+    assert pytest.approx(start_h, 0.1) == data[3] 
+
+@pytest.mark.parametrize("data",[\
+([1, np.pi, 0,0,0]), 
+([1, np.pi/2, 0,0,0]),
+([1, np.pi, 1,0,0]),
+([1, np.pi, -1,0,0]),
+([1, np.pi, 0,1,0]),
+([1, np.pi, 0,-1,0]),
+([1, np.pi, 0,0,1]),
+([1, np.pi, 0,0,-1]),
+([-1, -np.pi, 0,0,0]),
+([-1, -np.pi, 1,0,0]),
+([-1, -np.pi, -1,0,0]),
+([-1, -np.pi, 0,1,0]),
+([-1, -np.pi, 0,-1,0]),
+([-1, -np.pi, 0,0,1]),
+([-1, -np.pi, 0,0,-1]),
+])
+
+def test_inverted_Arc(data):
+    
+    arc = pyodrx.Arc(data[0],angle=data[1])
+
+    end_x,end_y,end_h,end_l = arc.get_end_data(data[2],data[3],data[4])
+
+    end_h += np.pi 
+
+    start_x,start_y,start_h,start_l = arc.get_start_data(end_x,end_y,end_h)
+
+    start_h -= np.pi
+
+    assert pytest.approx(start_x, 0.000001) == data[2]
+    assert pytest.approx(start_y, 0.000001) == data[3]
+    assert pytest.approx(start_h, 0.00001) == data[4] 
