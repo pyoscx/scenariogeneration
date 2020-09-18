@@ -256,3 +256,39 @@ def test_inverted_Arc(data):
     assert pytest.approx(start_x, 0.000001) == data[2]
     assert pytest.approx(start_y, 0.000001) == data[3]
     assert pytest.approx(start_h, 0.00001) == data[4] 
+
+
+@pytest.mark.parametrize("data",[\
+([0.01, 0.05,15, 0, 0, 0]),
+([0.01, -0.05,15, 0, 0, 0]),
+([-0.01, 0.05,15, 0, 0, 0]),
+([-0.01, -0.05,15, 0, 0, 0]),
+([0.01, 0.05,15, 1, 0, 0]),
+([0.01, 0.05,15, 0, 1, 0]),
+([0.01, 0.05,15, 0, 0, 1]),
+([0.01, 0.05,15, -1, 0, 0]),
+([0.01, 0.05,15, 0, -1, 0]),
+([0.01, 0.05,15, 0, 0, -1]),
+([-0.01, -0.05,15, 1, 0, 0]),
+([-0.01, -0.05,15, 0, 1, 0]),
+([-0.01, -0.05,15, 0, 0, 1]),
+([-0.01, -0.05,15, -1, 0, 0]),
+([-0.01, -0.05,15, 0, -1, 0]),
+([-0.01, -0.05,15, 0, 0, -1]),
+
+])
+
+def test_inverted_Spiral(data):
+    cloth = pyodrx.Spiral(data[0], data[1], data[2])
+
+    end_x,end_y,end_h,end_l = cloth.get_end_data(data[3],data[4],data[5])
+
+    end_h += np.pi 
+
+    start_x,start_y,start_h,start_l = cloth.get_start_data(end_x,end_y,end_h)
+
+    start_h -= np.pi
+
+    assert pytest.approx(start_x, 0.000001) == data[3]
+    assert pytest.approx(start_y, 0.000001) == data[4]
+    assert pytest.approx(start_h, 0.000001) == data[5] 
