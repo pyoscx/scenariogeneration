@@ -201,8 +201,11 @@ def test_geometry():
 @pytest.mark.parametrize("data",[\
 ([100, 0,0,0]),
 ([100, 10, 0, 0]),
+([100, -10, 0, 0]),
 ([100, 0, 10, 0]),
-([100, 0, 0, np.pi])
+([100, 0, -10, 0]),
+([100, 0, 0, np.pi]),
+([100, 0, 0, -np.pi]),
 ])
 
 def test_inverted_Line(data):
