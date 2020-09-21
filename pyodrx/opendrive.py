@@ -6,6 +6,8 @@ from .enumerations import ElementType, ContactPoint
 
 import datetime as dt
 import warnings
+from itertools import combinations
+import numpy as np
 
 class _Header():
     """ Header creates the header of the OpenDrive file
@@ -293,10 +295,12 @@ class OpenDrive():
         #adjust roads and their geometries 
         self.adjust_startpoints()
 
-        #try to link lanes 
-        for i in self.roads:
-            for j in self.roads:
-                create_lane_links(self.roads[str(i)],self.roads[str(j)])  
+        results = list(combinations(self.roads, 2))
+
+        for r in range(len(results)):
+            print('analizing roads', results[r][0], results[r][1] )
+            create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
+
 
     def adjust_road_wrt_neightbour(self, road_id, neightbour_id, contact_point, neightbour_type): 
         """ Adjust geometries of road[road_id] taking as a successor/predecessor the neightbouring road with id neightbour_id. 
@@ -323,6 +327,7 @@ class OpenDrive():
 
             if contact_point == ContactPoint.start :    
                 x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
             main_road.planview.set_start_point(x,y,h)
