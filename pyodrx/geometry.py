@@ -422,7 +422,7 @@ class Spiral():
         -------
             get_element()
                 Returns the full ElementTree of the class
- 
+ cloth_anglecloth_angle
             get_attributes()
                 Returns a dictionary of all attributes of the class
  
@@ -445,7 +445,8 @@ class Spiral():
         if sum([x!=None for x in [length,angle,cdot]]) > 1:
             raise ToManyOptionalArguments('Spiral is overdefined, please use only one of the optional inputs')
         if angle:
-            self.length = 2*angle/np.maximum(curvend,curvstart)
+            self.length = 2*abs(angle)/np.maximum(abs(curvend),abs(curvstart))
+
         elif cdot:
             self.length =  (self.curvend - self.curvstart) / cdot
         else:
@@ -470,7 +471,6 @@ class Spiral():
             h (float): the final heading
             l (float): length of the spiral
         """
-
         spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvstart, self.curvend)
         (deltax, deltay, t) = spiral.calc(self.length, x, y, self.curvstart, h)
 
@@ -842,7 +842,7 @@ class ParamPoly3():
 
         new_x = x - newu*np.cos(h)-np.sin(h)*newv
         new_y = y - newu*np.sin(h)+np.cos(h)*newv
-        new_h = h - np.arctan2(self.bv + self.cv*p + self.dv*p**2,self.bu + self.cu*p + self.du*p**2)
+        new_h = h - np.arctan2(self.bv + 2*self.cv*p + 3*self.dv*p**2,self.bu + 2*self.cu*p + 3*self.du*p**2)
 
         return new_x, new_y, new_h, self.length
     def get_end_data(self,x,y,h):
@@ -875,9 +875,10 @@ class ParamPoly3():
 
         new_x = x + newu*np.cos(h)-np.sin(h)*newv
         new_y = y + newu*np.sin(h)+np.cos(h)*newv
-        new_h = h + np.arctan2(self.bv + self.cv*p + self.dv*p**2,self.bu + self.cu*p + self.du*p**2)
+        new_h = h + np.arctan2(self.bv + 2*self.cv*p + 3*self.dv*p**2,self.bu + 2*self.cu*p + 3*self.du*p**2)
 
         return new_x, new_y, new_h, self.length
+
 
     def get_attributes(self):
         """ returns the attributes of the ParamPoly3 as a dict
