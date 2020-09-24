@@ -486,7 +486,7 @@ def _create_links_connecting_road(connecting,road):
 
     """
     linktype, sign, connecting_lanesec =  _get_related_lanesection(connecting,road)
-    _, _, road_lanesection_id =  _get_related_lanesection(connecting,road) 
+    _, _, road_lanesection_id =  _get_related_lanesection(road,connecting) 
 
     if connecting_lanesec != None:
         if connecting.lanes.lanesections[connecting_lanesec].leftlanes:

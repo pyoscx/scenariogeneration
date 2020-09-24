@@ -422,7 +422,7 @@ class Spiral():
         -------
             get_element()
                 Returns the full ElementTree of the class
- cloth_anglecloth_angle
+ 
             get_attributes()
                 Returns a dictionary of all attributes of the class
  

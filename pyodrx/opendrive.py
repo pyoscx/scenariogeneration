@@ -351,7 +351,7 @@ class OpenDrive():
 
         """
         
-        count_adjusted_roads = 0; 
+        count_adjusted_roads = 0
 
         while count_adjusted_roads < len(self.roads):
 
@@ -359,7 +359,7 @@ class OpenDrive():
 
                 if count_adjusted_roads == 0: 
                     self.roads[k].planview.adjust_geometires() 
-                    #print('1 edjusted road ', self.roads[k].id)
+                    #print('1 adjusted road ', self.roads[k].id)
                     count_adjusted_roads += 1
                     continue
 
