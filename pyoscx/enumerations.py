@@ -3,8 +3,8 @@ XSI = 'OpenSccenario.xsd'
 
 from enum import Enum, auto
 
-class Cloudstate(Enum):
-    """ Enum for Cloudstate
+class CloudState(Enum):
+    """ Enum for CloudState
     """
     skyOff = auto()
     free = auto()
@@ -88,7 +88,7 @@ class PedestrianCategory(Enum):
     wheelchair = auto()
     animal = auto()
 
-class PercipitationType(Enum):
+class PrecipitationType(Enum):
     """ Enum for PercipitationType
     """
     dry = auto()

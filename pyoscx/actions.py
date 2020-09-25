@@ -1983,7 +1983,7 @@ class DeleteEntityAction():
         return element
 
 
-### TODO ###
+
 class TrafficSignalControllerAction():
     """ The TrafficSignalControllerAction class creates a Infrastructure action which activates a controller of a traffic signal
         
@@ -2019,9 +2019,8 @@ class TrafficSignalControllerAction():
             state (str): the state to set to the traffic light
 
         """
-        NotImplementedError('TrafficSignalControllerAction is not implemented yet.')
-        # self.name = name
-        # self.state = state
+        self.name = name
+        self.state = state
 
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSpeedAction as a dict
@@ -2039,8 +2038,6 @@ class TrafficSignalControllerAction():
         ET.SubElement(tsa,'TrafficSignalStateAction',self.get_attributes())
         
         return element
-
-
 
 
 class TrafficSourceAction():
@@ -2121,8 +2118,9 @@ class TrafficSourceAction():
         """ returns the elementTree of the TrafficSourceAction
 
         """
-        element = ET.Element('TrafficAction')
-        sourceaction = ET.SubElement(element,'TrafficSourceAction',attrib=self.get_attributes())
+        element = ET.Element('GlobalAction')
+        trafficaction = ET.SubElement(element, 'TrafficAction')
+        sourceaction = ET.SubElement(trafficaction,'TrafficSourceAction',attrib=self.get_attributes())
         sourceaction.append(self.position.get_element())
         sourceaction.append(self.trafficdefinition.get_element())
 
@@ -2197,8 +2195,10 @@ class TrafficSinkAction():
         """ returns the elementTree of the TrafficSinkAction
 
         """
-        element = ET.Element('TrafficAction')
-        sinkaction = ET.SubElement(element,'TrafficSinkAction',attrib=self.get_attributes())
+
+        element = ET.Element('GlobalAction')
+        trafficaction = ET.SubElement(element, 'TrafficAction')
+        sinkaction = ET.SubElement(trafficaction,'TrafficSinkAction',attrib=self.get_attributes())
         sinkaction.append(self.position.get_element())
         sinkaction.append(self.trafficdefinition.get_element())
 
@@ -2304,9 +2304,67 @@ class TrafficSwarmAction():
         """ returns the elementTree of the TrafficSinkAction
 
         """
-        element = ET.Element('TrafficAction')
-        swarmaction = ET.SubElement(element,'TrafficSwarmAction',attrib=self.get_attributes())
+        element = ET.Element('GlobalAction')
+        trafficaction = ET.SubElement(element, 'TrafficAction')
+        swarmaction = ET.SubElement(trafficaction,'TrafficSwarmAction',attrib=self.get_attributes())
         swarmaction.append(self.trafficdefinition.get_element())
         ET.SubElement(swarmaction,'CentralSwarmObject',attrib={'entityRef':self.centralobject})
 
+        return element
+
+
+class EnvironmentAction():
+    """ The EnvironmentAction class creates a GlobalAction of the typ EnvironmentAction
+        
+        Parameters
+        ----------
+            name (str): name of the action
+
+            environment (Environment or CatalogReference): the environment to change to
+
+        Attributes
+        ----------
+
+            name (str): name of the action
+
+            environment (Environment or CatalogReference): the environment to change to
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+    """
+    def __init__(self, name, environment):
+        """ initalize the EnvironmentAction
+
+            Parameters
+            ----------
+                name (str): name of the action
+
+                environment (Environment or CatalogReference): the environment to change to
+
+        """
+        self.name = name
+        self.environment = environment
+
+
+    def get_attributes(self):
+        """ returns the attributes of the EnvironmentAction as a dict
+
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the EnvironmentAction
+
+        """
+        element = ET.Element('GlobalAction')
+        envaction = ET.SubElement(element, 'EnvironmentAction')
+        envaction.append(self.environment.get_element())
+        
         return element

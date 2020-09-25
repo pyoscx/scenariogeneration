@@ -1526,6 +1526,320 @@ class CatalogReference():
 
 
 
+
+class TimeOfDay():
+    """ TimeOfDay creates an TimeOfDay element of openscenario
+        
+        Parameters
+        ----------
+            animation (bool): if animation should be used
+
+            year (int): year
+
+            month (int): month
+
+            day (int): day
+
+            hour (int): hour
+
+            minute (int): minute
+
+            second (int): second
+
+        Attributes
+        ----------
+            animation (bool): if animation should be used
+
+            year (int): year
+
+            month (int): month
+
+            day (int): day
+
+            hour (int): hour
+
+            minute (int): minute
+
+            second (int): second
+
+        Methods
+        -------
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,animation,year,month,day,hour,minute,second):
+        """ initalize the TimeOfDay
+
+            Parameters
+            ----------
+                animation (bool): if animation should be used
+
+                year (int): year
+
+                month (int): month
+
+                day (int): day
+
+                hour (int): hour
+
+                minute (int): minute
+
+                second (int): second   
+                
+        """
+        self.animation = animation 
+        self.year = year
+        self.month = month
+        self.day = day
+        self.hour = hour
+        self.minute = minute
+        self.second = second
+
+    def get_attributes(self):
+        """ returns the attributes of the TimeOfDay as a dict
+
+        """
+        dt = str(self.year) + '-' + str(self.month) + '-' + str(self.day) + 'T' + str(self.hour) + ':' + str(self.minute) + ':' +str(self.second)
+        return {'animation':str(self.animation),'dateTime':dt}
+
+    def get_element(self):
+        """ returns the elementTree of the TimeOfDay
+
+        """
+        return ET.Element('TimeOfDay',attrib=self.get_attributes())
+
+
+
+class Weather():
+    """ Weather creates an Weather element of openscenario
+        
+        Parameters
+        ----------
+            cloudstate (CloudState): cloudstate of the weather
+
+            sun_intensity (int): intensity of the sun (in lux)
+
+            sun_azimuth (int): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+            sun_elevation (int): sun elevation angle 0 x/y plane, pi/2 zenith
+
+            precipitation (precipitationType): dry, rain or snow
+
+            precipitation_intensity (double): intensity of precipitation (0...1)
+
+            visual_fog_range (int): visual range of fog
+                Default: 100000
+
+            fog_bounding_box (BoundingBox): bounding box of fog
+                Default: None
+
+        Attributes
+        ----------
+            cloudstate (CloudState): cloudstate of the weather
+
+            sun_intensity (int): intensity of the sun (in lux)
+
+            sun_azimuth (int): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+            sun_elevation (int): sun elevation angle 0 x/y plane, pi/2 zenith
+
+            precipitation (precipitationType): dry, rain or snow
+
+            precipitation_intensity (double): intensity of precipitation (0...1)
+
+            visual_fog_range (int): visual range of fog
+
+            fog_bounding_box (BoundingBox): bounding box of fog
+
+        Methods
+        -------
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,cloudstate,sun_intensity,sun_azimuth,sun_elevation,precipitation,precipitation_intensity,visual_fog_range = 100000,fog_bounding_box = None):
+        """ initalize the Weather
+
+            Parameters
+            ----------
+                cloudstate (CloudState): cloudstate of the weather
+
+                sun_intensity (double): intensity of the sun (in lux)
+
+                sun_azimuth (double): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+                sun_elevation (double): sun elevation angle 0 x/y plane, pi/2 zenith
+
+                precipitation (PrecipitationType): dry, rain or snow
+
+                precipitation_intensity (double): intensity of precipitation (0...1)
+
+                visual_fog_range (double): visual range of fog
+                    Default: 100000
+
+                fog_bounding_box (BoundingBox): bounding box of fog
+                    Default: None  
+                
+        """
+        self.cloudstate = cloudstate 
+        self.sun_intensity = sun_intensity
+        self.sun_azimuth = sun_azimuth
+        self.sun_elevation = sun_elevation
+        self.precipitation = precipitation
+        self.precipitation_intensity = precipitation_intensity
+        self.visual_fog_range = visual_fog_range
+        self.fog_bounding_box = fog_bounding_box
+
+    def get_attributes(self):
+        """ returns the attributes of the Weather as a dict
+
+        """
+        return {'cloudState':self.cloudstate.name}
+
+    def get_element(self):
+        """ returns the elementTree of the Weather
+
+        """
+        element = ET.Element('Weather',attrib=self.get_attributes())
+        ET.SubElement(element,'Sun',attrib={'intensity':str(self.sun_intensity),'azimuth':str(self.sun_azimuth),'elevation':str(self.sun_elevation)})
+        fog = ET.SubElement(element,'Fog',attrib={'visualRange':str(self.visual_fog_range)})
+        if self.fog_bounding_box:
+            fog.append(self.fog_bounding_box.get_element())
+        ET.SubElement(element,'Precipitation',attrib={'precipitationType':self.precipitation.name,'intensity':str(self.precipitation_intensity)})
+        return element
+
+
+class RoadCondition():
+    """ Weather creates an Weather element of openscenario
+        
+        Parameters
+        ----------
+            friction_scale_factor (double): scale factor of the friction
+
+            properties (Properties): properties of the roadcondition
+                Default: None
+
+        Attributes
+        ----------
+            friction_scale_factor (double): scale factor of the friction
+
+            properties (Properties): properties of the roadcondition
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,friction_scale_factor,properties = None):
+        """ initalize the Weather
+
+            Parameters
+            ----------
+                friction_scale_factor (double): scale factor of the friction
+
+                properties (Properties): properties of the roadcondition
+                    Default: None
+                
+        """
+        self.friction_scale_factor = friction_scale_factor 
+        self.properties = properties
+
+    def get_attributes(self):
+        """ returns the attributes of the RoadCondition as a dict
+
+        """
+        return {'frictionScaleFactor':str(self.friction_scale_factor)}
+
+    def get_element(self):
+        """ returns the elementTree of the RoadCondition
+
+        """
+        element = ET.Element('RoadCondition',attrib=self.get_attributes())
+        if self.properties:
+            element.append(self.properties.get_element())
+        return element
+
+
+
+
+class Environment():
+    """ The Environment class creates a environment used by Environment
+        
+        Parameters
+        ----------
+            timeofday (TimeOfDay): time of day for the environment
+
+            weather (Weather): weather of the environment
+
+            roadcondition (RoadCondition): road condition of the environment
+
+            parameters (ParameterDeclarations): the parameters to be used in the scenario
+                Default: None
+
+        Attributes
+        ----------
+
+            timeofday (TimeOfDay): time of day for the environment
+
+            weather (Weather): weather of the environment
+
+            roadcondition (RoadCondition): road condition of the environment
+
+            parameters (ParameterDeclarations): the parameters to be used in the scenario
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+
+    def __init__(self, timeofday, weather, roadcondition, parameters = None):
+        """ initalize the Environment
+
+            Parameters
+            ----------
+                timeofday (TimeOfDay): time of day for the environment
+
+                weather (Weather): weather of the environment
+
+                roadcondition (RoadCondition): road condition of the environment
+
+                parameters (ParameterDeclarations): the parameters to be used in the scenario
+                    Default: None
+        """
+        self.timeofday = timeofday
+        self.weather = weather
+        self.roadcondition = roadcondition
+        self.parameters = parameters
+
+    def get_element(self):
+        """ returns the elementTree of the Environment
+
+        """
+        element = ET.Element('Environment')
+        element.append(self.timeofday.get_element())
+        element.append(self.weather.get_element())
+        element.append(self.roadcondition.get_element())
+        if self.parameters:
+            element.append(self.parameters.get_element())
+        return element
+
+
+
 def merge_dicts(*dict_args):
     """ Funciton to merge dicts 
     

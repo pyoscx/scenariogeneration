@@ -145,3 +145,23 @@ def test_trafficdefinition():
     traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
 
     OSC.prettyprint(traffic.get_element())
+
+def test_weather():
+    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    OSC.prettyprint(weather.get_element())
+
+def test_tod():
+    tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
+    OSC.prettyprint(tod.get_element())
+
+def test_roadcondition():
+    rc = OSC.RoadCondition(1)
+    OSC.prettyprint(rc.get_element())
+
+def test_environment():
+    tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
+    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    rc = OSC.RoadCondition(1)
+
+    env = OSC.Environment(tod,weather,rc)
+    OSC.prettyprint(env.get_element())

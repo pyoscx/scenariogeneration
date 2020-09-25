@@ -215,3 +215,13 @@ def test_trafficswarmaction():
 
     swarm_action = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic,10)
     OSC.prettyprint(swarm_action.get_element())
+
+
+def test_environmentaction():
+    tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
+    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    rc = OSC.RoadCondition(1)
+
+    env = OSC.Environment(tod,weather,rc)
+    ea = OSC.EnvironmentAction('myaction',env)
+    OSC.prettyprint(ea.get_element())

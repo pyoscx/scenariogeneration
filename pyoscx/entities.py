@@ -388,7 +388,7 @@ class Pedestrian():
         """ returns the attributes as a dict of the pedestrian
 
         """
-        return {'name':str(self.name),'pedestrianCategory':str(self.category),'model':self.model,'mass':str(self.mass)}
+        return {'name':str(self.name),'pedestrianCategory':self.category.name,'model':self.model,'mass':str(self.mass)}
 
     def get_element(self):
         """ returns the elementTree of the pedestrian
