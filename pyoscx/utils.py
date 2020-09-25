@@ -203,7 +203,7 @@ class Orientation():
         self.p = p
         self.r = r
 
-        if (reference not in ReferenceContext) and (reference != None):
+        if (reference not in ReferenceContext.__members__) and (reference is not None):
             raise ValueError(str(reference) + '; is not a valid reference type.')
         self.ref = reference
 

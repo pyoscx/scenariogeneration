@@ -17,7 +17,7 @@ class ConditionEdge(Enum):
     """
     rising = auto()
     falling = auto()
-    risingorFalling = auto()
+    risingOrFalling = auto()
     none = auto()
 
 class DynamicsDimension(Enum):
