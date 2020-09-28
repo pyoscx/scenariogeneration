@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from .utils import EntityRef
 from .enumerations import Rule, ConditionEdge
 
-## TODO: Add possibility to add multiple ConditionGroups and Conditions to triggers.. only one of each is supported right now.
+
 
 class EmptyTrigger():
     """ EmptyTrigger creates an empty trigger
@@ -511,11 +511,11 @@ class CollisionCondition():
         
         Parameters
         ----------
-            entity (str): name of the entity to collide with
+            entity (str or ObjectType): name of the entity to collide with
 
         Attributes
         ----------
-            entity (str): name of the entity to collide with
+            entity (str or ObjectType): name of the entity to collide with
 
         Methods
         -------
@@ -531,24 +531,22 @@ class CollisionCondition():
         
         Parameters
         ----------
-            entity (str): name of the entity to collide with
+            entity (str or ObjectType): name of the entity to collide with
 
         """
-        #TODO: Add by ObjectType
+        
         self.entity = entity
-
-    def get_attributes(self):
-        """ returns the attributes of the CollisionCondition as a dict
-
-        """
-        return {'EntityRef':self.entity}
 
     def get_element(self):
         """ returns the elementTree of the CollisionCondition
 
         """
         element = ET.Element('EntityCondition')
-        ET.SubElement(element,'CollisionCondition',attrib=self.get_attributes())
+        colcond = ET.SubElement(element,'CollisionCondition')
+        if isinstance(self.entity,str):
+            colcond.append(EntityRef(self.entity).get_element())
+        else:
+            ET.SubElement(colcond,'ByType',{'type':self.entity.name})
         return element
 
 class OffroadCondition():

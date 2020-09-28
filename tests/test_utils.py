@@ -11,9 +11,9 @@ def test_transition_dynamics(teststring):
     
     OSC.prettyprint(td.get_element())
 
-def test_transition_dynamics_faults():
-    with pytest.raises(ValueError):
-        OSC.TransitionDynamics('step','hej',1)
+# def test_transition_dynamics_faults():
+#     with pytest.raises(ValueError):
+#         OSC.TransitionDynamics('step','hej',1)
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],0),([1,None,None],1),([1,None,2],2),([1,2,4],3) ] )
 def test_dynamics_constraints(testinp,results):
@@ -39,9 +39,9 @@ def test_orientation_filled(testinp,results):
     
     assert dyncon.is_filled() == results
     
-def test_orientation_failed():
-    with pytest.raises(ValueError):
-        OSC.Orientation(reference='hej')
+# def test_orientation_failed():
+#     with pytest.raises(ValueError):
+#         OSC.Orientation(reference='hej')
    
 def test_parameter():
     param = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')

@@ -993,8 +993,8 @@ class FollowTrajectoryAction():
                 offset (double): offset for time values (must be combined with referece_domain and scale)
                     Default: None
         """
-        if following_mode not in FollowMode:
-            ValueError(str(following_mode) + ' is not a valied following mode.')
+        # if following_mode not in FollowMode:
+        #     ValueError(str(following_mode) + ' is not a valied following mode.')
         self.trajectory = trajectory
         self.following_mode = following_mode
 
@@ -1622,8 +1622,8 @@ class RelativeSynchronizeAction():
         self.entity_position = entity_position
         self.target_position = target_position
         self.speed = speed
-        if speed_target_type not in SpeedTargetValueType:
-            ValueError(speed_target_type + ' is not a valid speed_target_type')
+        # if speed_target_type not in SpeedTargetValueType:
+            # ValueError(speed_target_type + ' is not a valid speed_target_type')
         self.speed_target_type = speed_target_type
 
     def get_attributes(self):
@@ -2367,4 +2367,55 @@ class EnvironmentAction():
         envaction = ET.SubElement(element, 'EnvironmentAction')
         envaction.append(self.environment.get_element())
         
+        return element
+
+
+class CustomCommandAction():
+    """ The CustomCommandAction creates a simulator defined action, can add any number of xml.etree.ElementTree to an Action
+
+        NOTE: this is a very crude implementation, and the element has to be created by the user.
+        
+        Parameters
+        ----------
+            
+        Attributes
+        ----------
+
+            elements (list of xml.etree.ElementTree): elements to add to the action
+
+        Methods
+        -------
+            add_element(element)
+                Adds an element to the action
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+
+    def __init__(self,semimajoraxis,semiminoraxis,innerradius,offset,numberofvehicles,centralobject,trafficdefinition,velocity = None):
+        """ initalize the CustomCommandAction
+
+            Parameters
+            ----------
+
+        """
+        self.elements = []
+
+    def add_element(self,element):
+        """ adds an element to the CustomCommandAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree): the element to add
+        """
+        self.elements.append(element)
+
+    def get_element(self):
+        """ returns the elementTree of the CustomCommandAction
+
+        """
+        element = ET.Element('UserDefinedAction')
+        for e in self.elements:
+            element.append(e)
+
         return element

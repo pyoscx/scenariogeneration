@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from .helpers import printToFile
 from .enumerations import ConditionEdge, ObjectType, ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy,XSI,XMLNS
 import datetime as dt
-# from .catalog import CatalogFile
+
 
 class ParameterDeclarations():
     """ The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
@@ -203,8 +203,8 @@ class Orientation():
         self.p = p
         self.r = r
 
-        if (reference not in ReferenceContext.__members__) and (reference is not None):
-            raise ValueError(str(reference) + '; is not a valid reference type.')
+        # if (reference not in ReferenceContext.__members__) and (reference is not None):
+        #     raise ValueError(str(reference) + '; is not a valid reference type.')
         self.ref = reference
 
     def is_filled(self):
@@ -283,12 +283,12 @@ class TransitionDynamics():
                 value (float): the value of the dynamics (time rate or distance)
 
         """
-        if shape not in DynamicsShapes:
-            raise ValueError(shape + '; is not a valid shape.')
+        # if shape not in DynamicsShapes:
+        #     raise ValueError(shape + '; is not a valid shape.')
         
         self.shape = shape
-        if dimension not in DynamicsDimension:
-            raise ValueError(dimension + ' is not a valid dynamics dimension')
+        # if dimension not in DynamicsDimension:
+        #     raise ValueError(dimension + ' is not a valid dynamics dimension')
         self.dimension = dimension
         self.value = value
 
@@ -593,6 +593,12 @@ class Trajectory():
             add_parameter(Parameter)
                 adds a parameter to the route
 
+            append_to_catalog(filename)
+                adds the vehicle to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the vehicle
+                
             get_element()
                 Returns the full ElementTree of the class
 
@@ -734,8 +740,8 @@ class TimeReference():
             self._only_nones = False
         else:
             ValueError('missing inputs for time reference')
-        if referece_domain not in ReferenceContext:
-            ValueError('not a valid reference domain')
+        # if referece_domain not in ReferenceContext:
+        #     ValueError('not a valid reference domain')
         self.referece_domain = referece_domain
         self.scale = scale
         self.offset = offset
@@ -1802,6 +1808,12 @@ class Environment():
 
         Methods
         -------
+            append_to_catalog(filename)
+                adds the vehicle to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the vehicle
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1826,6 +1838,38 @@ class Environment():
         self.roadcondition = roadcondition
         self.parameters = parameters
 
+
+    def dump_to_catalog(self,filename,catalogtype,description,author):
+        """ dump_to_catalog creates a new catalog and adds the vehicle to it
+            
+            Parameters
+            ----------
+                filename (str): path of the new catalog file
+
+                catalogtype (str): name of the catalog
+
+                description (str): description of the catalog
+
+                author (str): author of the catalog
+        
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename,catalogtype,description,author)
+        cf.add_to_catalog(self)
+        cf.dump()
+        
+    def append_to_catalog(self,filename):
+        """ adds the vehicle to an existing catalog
+
+            Parameters
+            ----------
+                filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
     def get_element(self):
         """ returns the elementTree of the Environment
 

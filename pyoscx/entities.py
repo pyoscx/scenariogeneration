@@ -4,7 +4,7 @@ from .utils import EntityRef, ObjectType
 from .scenario import ParameterDeclarations
 from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory
 from .utils import DynamicsConstrains, CatalogFile
-# from .catalog import 
+
 
 class Entities():
     """ The Entities class creates the entities part of OpenScenario
@@ -106,7 +106,6 @@ class ScenarioObject():
 
             controller (CatalogReference, or Controller): controller for the object
 
-
         Attributes
         ----------
             name (str): name of the object
@@ -122,19 +121,18 @@ class ScenarioObject():
             
             get_attributes()
                 returns the attributes of the class
-
     """ 
     def __init__(self ,name ,entityobject ,controller = None):
         """ initalizes the ScenarioObject
 
-        Parameters
-        ----------
-            name (str): name of the object
+            Parameters
+            ----------
+                name (str): name of the object
 
-            entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
+                entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
 
-            controller (CatalogReference, or Controller): controller for the object
-                Default (None)
+                controller (CatalogReference, or Controller): controller for the object
+                    Default (None)
 
         """
         self.name = name
@@ -468,8 +466,8 @@ class MiscObject():
         """
         self.name = name
         self.mass = mass
-        if category not in MiscObjectCategory:
-            ValueError(str(category) + ' is not a valid MiscObject type')    
+        # if category not in MiscObjectCategory:
+        #     ValueError(str(category) + ' is not a valid MiscObject type')    
         self.category = category
         self.boundingbox = boundingbox
         self.parameters = ParameterDeclarations()
@@ -626,23 +624,23 @@ class Vehicle():
     def __init__(self,name, vehicle_type, boundingbox, frontaxel, backaxel, max_speed, max_acceleration, max_deceleration):
         """ initalzie the Vehicle Class
 
-        Parameters
-        ----------
-            name (str): name of the vehicle
+            Parameters
+            ----------
+                name (str): name of the vehicle
 
-            vehicle_type (VehicleCategory): type of vehicle
+                vehicle_type (VehicleCategory): type of vehicle
 
-            boundingbox (BoundingBox): the bounding box of the vehicle
+                boundingbox (BoundingBox): the bounding box of the vehicle
 
-            frontaxel (Axel): the front axel properties of the vehicle
+                frontaxel (Axel): the front axel properties of the vehicle
 
-            backaxel (Axel): the back axel properties of the vehicle
+                backaxel (Axel): the back axel properties of the vehicle
 
-            max_speed (float): the maximum speed of the vehicle
+                max_speed (float): the maximum speed of the vehicle
 
-            max_acceleration (float): the maximum acceleration of the vehicle
+                max_acceleration (float): the maximum acceleration of the vehicle
 
-            max_deceleration (float): the maximum deceleration of the vehicle
+                max_deceleration (float): the maximum deceleration of the vehicle
         
         """
         self.name = name
@@ -1142,6 +1140,12 @@ class Controller():
         -------
             add_parameter(parameter)
                 adds a parameter declaration to the Controller
+
+            append_to_catalog(filename)
+                adds the vehicle to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the vehicle
 
             get_element()
                 Returns the full ElementTree of the class

@@ -11,6 +11,8 @@ def test_endofroadcond():
 def test_collision_condition():
     cond = OSC.CollisionCondition('Ego')
     OSC.prettyprint(cond.get_element())
+    cond1 = OSC.CollisionCondition(OSC.ObjectType.pedestrian)
+    OSC.prettyprint(cond1.get_element())
 
 def test_offroadcondition():
     cond = OSC.OffroadCondition(20)

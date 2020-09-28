@@ -549,6 +549,13 @@ class Maneuver():
         -------
             add_event (event)
                 adds an event to the Maneuver
+
+            append_to_catalog(filename)
+                adds the vehicle to an existing catalog
+
+            dump_to_catalog(filename,name,description,author)
+                crates a new catalog with the vehicle
+
             get_element()
                 Returns the full ElementTree of the class
 
