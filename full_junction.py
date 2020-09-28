@@ -32,4 +32,4 @@ for j in junc:
 
 odr.adjust_roads_and_lanes()
 
-pyodrx.run_road(odr,os.path.join('..','esmini'))
+pyodrx.run_road(odr,os.path.join('..','pyoscx','esmini')) 
