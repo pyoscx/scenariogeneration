@@ -43,3 +43,33 @@ def test_link_road():
     road = pyodrx.Road(1,planview,lanes)
     road.add_predecessor(pyodrx.ElementType.road,'1',pyodrx.ContactPoint.start)
     pyodrx.prettyprint(road.get_element())
+
+
+@pytest.mark.parametrize("data",[\
+([10, 100,-1,1, 3]),
+([10, 50,-1,1, 3]),
+([10, 100,1,1, 3]),
+([10, 100,-1,2, 3]),
+([10, 100,-1,10, 3]),
+([10, 100,-1,10, 5]),
+])
+
+def test_create_straight_road(data): 
+
+    road = pyodrx.generators.create_straight_road(data[0], length=data[1], junction=data[2], n_lanes=data[3], lane_offset=data[4])
+    odr = pyodrx.OpenDrive('myroad')
+    odr.add_road(road)
+    odr.adjust_roads_and_lanes()
+
+    redict = road.get_attributes()
+
+    assert int(redict['id']) == data[0]
+    assert int(redict['length']) == data[1]
+    assert int(redict['junction']) == data[2]
+    assert len(road.lanes.lanesections[0].leftlanes) == data[3]
+    assert len(road.lanes.lanesections[0].rightlanes) == data[3]
+    assert road.lanes.lanesections[0].leftlanes[0].a == data[4]
+    assert road.lanes.lanesections[0].leftlanes[0].b == 0
+    assert road.lanes.lanesections[0].leftlanes[0].c == 0
+    assert road.lanes.lanesections[0].leftlanes[0].d == 0
+    
