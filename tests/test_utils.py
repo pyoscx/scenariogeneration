@@ -165,3 +165,17 @@ def test_environment():
 
     env = OSC.Environment(tod,weather,rc)
     OSC.prettyprint(env.get_element())
+
+def test_nurbs():
+    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    cp2 = OSC.ControlPoint(OSC.WorldPosition(),2,0.2)
+    cp3 = OSC.ControlPoint(OSC.WorldPosition(),3,0.3)
+
+
+    nurb = OSC.Nurbs(2)
+    nurb.add_control_point(cp1)
+    nurb.add_control_point(cp2)
+    nurb.add_control_point(cp3)
+    nurb.add_knots([5,4,3,2,1])
+
+    OSC.prettyprint(nurb.get_element())

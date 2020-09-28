@@ -893,7 +893,7 @@ class Clothoid():
             raise ValueError('Both start and stoptime has to be set, or none of them')
     
     def get_attributes(self):
-        """ returns the attributes as a dict of the FileHeader
+        """ returns the attributes as a dict of the Clothoid
 
         """
         retdict = {}
@@ -914,7 +914,160 @@ class Clothoid():
 
         return element
 
+class ControlPoint():
+    """ the ControlPoint class is used by Nurbs to define points 
+        
+        Parameters
+        ----------
+            position (*Position): a position for the point
 
+            time (float): optional time specification of the point
+                Default: None
+
+            weight (float): optional weight of the point
+                Default: None
+
+        Attributes
+        ----------
+            position (*Position): a position for the point
+
+            time (float): optional time specification of the point
+
+            weight (float): optional weight of the point
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, position, time = None, weight = None):
+        """ initalize the ControlPoint
+
+        Parameters
+        ----------
+            position (*Position): a position for the point
+
+            time (float): optional time specification of the point
+                Default: None
+
+            weight (float): optional weight of the point
+                Default: None
+
+        """
+
+        
+        self.position = position
+        self.time = time
+        self.weight = weight
+    
+    def get_attributes(self):
+        """ returns the attributes as a dict of the ControlPoint
+
+        """
+        retdict = {}
+        if self.time:
+            retdict['time'] = str(self.time)
+        if self.weight:
+            retdict['weight'] = str(self.weight)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the ControlPoint
+
+        """
+        element = ET.Element('ControlPoint',attrib=self.get_attributes())
+        element.append(self.position.get_element())
+        return element
+
+class Nurbs():
+    """ the Nurbs class creates a Nurbs shape
+        
+        Parameters
+        ----------
+            order (int): order of the nurbs
+
+        Attributes
+        ----------
+            order (int): order of the nurbs
+
+            controlpoints (list of *ControlPoint): a list of control point createing the nurbs 
+
+            knots (list of double): knots of the nurbs (must be order + len(controlpoints)) in decending order
+
+        Methods
+        -------
+            add_knots(knots)
+                Adds the knots to the nurbs
+
+            add_control_point(controlpoint)
+                Adds a control point to the nurbs
+
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, order):
+        """ initalize the Nurbs
+
+        Parameters
+        ----------
+            order (int): order of the nurbs
+
+        """
+
+        
+        self.order = order
+        self.controlpoints = []
+        self.knots = []
+    
+    def add_knots(self,knots):
+        """ adds a list of knots to the Nurbs
+
+            Parameters
+            ----------
+                knots (list of double): knots of the nurbs (must be order + len(controlpoints)) in decending order
+        """
+        self.knots = knots
+    def add_control_point(self,controlpoint):
+        """ adds a controlpoint to the Nurbs
+
+            Parameters
+            ----------
+                controlpoint (ControlPoint): a contact point to add to the nurbs
+        """
+        self.controlpoints.append(controlpoint)
+
+    def get_attributes(self):
+        """ returns the attributes as a dict of the Nurbs
+
+        """
+        retdict = {}
+        retdict['order'] = str(self.order)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Nurbs
+
+        """
+        element = ET.Element('Nurbs',attrib=self.get_attributes())
+        if (len(self.controlpoints) + self.order) != len(self.knots):
+            raise ValueError('Number of knots is not equal to the number of contactpoints + order')
+        for c in self.controlpoints:
+            element.append(c.get_element())
+        for k in self.knots:
+            ET.SubElement(element,'Knot',attrib={'value':str(k)})
+        
+
+        return element
 
 
 
