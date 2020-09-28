@@ -11,7 +11,8 @@ numintersections = 4 # 3 or 4
 angles = []
 for i in range(numintersections):
     roads.append(pyodrx.create_straight_road(i))
-
+    # use this instead to change the number of lanes in the crossing 
+    #roads.append(pyodrx.generators.create_straight_road(i, length=100, junction=-1, n_lanes=2, lane_offset=3))
     angles.append(i * 2*np.pi/numintersections)
 
 # use this for a T-crossing instead
@@ -31,4 +32,4 @@ for j in junc:
 
 odr.adjust_roads_and_lanes()
 
-pyodrx.run_road(odr,os.path.join('..','pyoscx','esmini'))
+pyodrx.run_road(odr,os.path.join('..','esmini'))
