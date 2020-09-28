@@ -37,7 +37,7 @@ def standard_lane(offset=3,rm = STD_ROADMARK):
     return lc
 
 
-def create_straight_road(road_id,length=100,junction = -1):
+def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offset=3):
     """ creates a standard straight road with two lanes
 
         Parameters
@@ -62,8 +62,9 @@ def create_straight_road(road_id,length=100,junction = -1):
 
     # create lanesections
     lanesec1 = LaneSection(0,standard_lane())
-    lanesec1.add_right_lane(standard_lane())
-    lanesec1.add_left_lane(standard_lane())
+    for i in range(1, n_lanes+1, 1):
+        lanesec1.add_right_lane(standard_lane(lane_offset))
+        lanesec1.add_left_lane(standard_lane(lane_offset))
 
     # create lanes
     lanes1 = Lanes()
@@ -73,7 +74,7 @@ def create_straight_road(road_id,length=100,junction = -1):
     return Road(road_id,planview1,lanes1,road_type=junction)
 
 
-def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH):
+def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH, n_lanes=1, lane_offset=3):
     """ creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
 
         Parameters
@@ -116,13 +117,45 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,
 
     # create lanes
     lsec = LaneSection(0,standard_lane())
-    lsec.add_right_lane(standard_lane())
-    lsec.add_left_lane(standard_lane())
+    for i in range(1, n_lanes+1, 1):
+        lsec.add_right_lane(standard_lane(lane_offset))
+        lsec.add_left_lane(standard_lane(lane_offset))
     lanes = Lanes()
     lanes.add_lanesection(lsec)
 
     # create road
     return Road(r_id,pv,lanes,road_type=junction)
+
+def get_lanes_offset(road1, road2, contactpoint):
+    """ returns number of lanes (hp #left lanes = # right lanes) and their offset (hp offset is constant)
+
+
+        Parameters
+        ----------
+            road1 (Road): first road 
+
+            road2 (Road): second road 
+
+        Returns
+        -------
+            n_lanes (int): 
+
+            lane_offset (int):
+    """
+    #now we always look at lanesection[0] to take the number of lanes 
+    #TO DO - understand if the roads are connect through end or start and then take the relative lane section 
+    if contactpoint == ContactPoint.end: 
+        n_lanesection = 0 
+    else:
+        n_lanesection = -1
+    if len(road1.lanes.lanesections[n_lanesection].leftlanes) == len(road2.lanes.lanesections[0].leftlanes) and len(road1.lanes.lanesections[n_lanesection].rightlanes) == len(road2.lanes.lanesections[0].rightlanes):
+        n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes) 
+        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].a     
+    else:
+        raise NotSameAmountOfLanesError('Incoming oad ',road1.id, ' and outcoming road ', road2.id, 'do not have the same number of left lanes.')
+        
+    return n_lanes, lane_offset 
+
 
 
 
@@ -195,10 +228,13 @@ def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part 
                 an1 = -(2*np.pi - an1)
 
             # create road, either straight or curved
+            n_lanes, lanes_offset = get_lanes_offset(roads[i], roads[j], cp )
             if an == 0:
-                tmp_junc = create_straight_road(startnum,length= linelength,junction=junction)
+                print('n_lanes is ', n_lanes)
+                print('lane offset is ', lanes_offset )
+                tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
             else: 
-                tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction)
+                tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lanes_offset )
 
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road,roads[i].id,cp)
@@ -230,19 +266,24 @@ def create_junction(junction_roads, id, roads):
 
     """
     junc = Junction('my junction',id)
+    
     for jr in junction_roads:
 
-        _, sign, _ =  _get_related_lanesection(jr,roads[jr.successor.element_id]) 
         conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end)
-        conne1.add_lanelink( 1, 1*sign)
-        conne1.add_lanelink(-1,-1*sign)
-        junc.add_connection(conne1)
+        _, sign, _ =  _get_related_lanesection(jr,roads[jr.successor.element_id]) 
+        n_lanes = len(jr.lanes.lanesections[-1].leftlanes) 
+        for i in range(1, n_lanes+1, 1):
+            conne1.add_lanelink( 1*i, 1*sign*i)
+            conne1.add_lanelink(-1*i,-1*sign*i)
+            junc.add_connection(conne1)
 
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
         _, sign, _ =  _get_related_lanesection(jr,roads[jr.predecessor.element_id]) 
-        conne2.add_lanelink( 1, 1*sign)
-        conne2.add_lanelink(-1,-1*sign)
-        junc.add_connection(conne2)
+        n_lanes = len(jr.lanes.lanesections[0].leftlanes) 
+        for i in range(1, n_lanes+1, 1):
+            conne2.add_lanelink( 1*i, 1*sign*i)
+            conne2.add_lanelink(-1*i,-1*sign*i)
+            junc.add_connection(conne2)
 
  
 
