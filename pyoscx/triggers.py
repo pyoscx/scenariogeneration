@@ -1434,19 +1434,19 @@ class StoryboardElementStateCondition():
         
         Parameters
         ----------
-            element (str): the element to trigger on
+            element (StoryboardElementType): the element to trigger on
 
             reference (str): reference of the parameter
 
-            state (str): state to trigger on
+            state (StoryboardElementState): state to trigger on
 
         Attributes
         ----------
-            element (str): the element to trigger on
+            element (StoryboardElementType): the element to trigger on
 
             reference (str): reference of the parameter
 
-            state (str): state to trigger on
+            state (StoryboardElementState): state to trigger on
 
         Methods
         -------
@@ -1462,11 +1462,11 @@ class StoryboardElementStateCondition():
 
             Parameters
             ----------
-                element (str): the element to trigger on
+                element (StoryboardElementType): the element to trigger on
 
                 reference (str): reference of the parameter
 
-                state (str): state to trigger on
+                state (StoryboardElementType): state to trigger on
         """
         self.element = element
         self.reference = reference
@@ -1476,7 +1476,7 @@ class StoryboardElementStateCondition():
         """ returns the attributes of the StoryboardElementStateCondition as a dict
 
         """
-        return {'storyboardElementType':self.element,'storyboardElementRef':self.reference,'state':self.state}
+        return {'storyboardElementType':self.element.name,'storyboardElementRef':self.reference,'state':self.state.name}
 
     def get_element(self):
         """ returns the elementTree of the StoryboardElementStateCondition

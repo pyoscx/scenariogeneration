@@ -431,9 +431,9 @@ class LanePosition():
 
             offset (float): offset from center of lane
 
-            road_id (int): id of the road
-
             lane_id (int): lane of the road
+
+            road_id (int): id of the road           
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()    
@@ -520,9 +520,9 @@ class RelativeLanePosition():
 
             offset (float): offset from center of lane
 
-            entity (str): id of the entity
-
             lane_id (str): lane of the road
+
+            entity (str): id of the entity    
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()    
@@ -558,9 +558,9 @@ class RelativeLanePosition():
 
             offset (float): offset from center of lane
 
-            entity (str): id of the entity
-
             lane_id (str): lane of the road
+
+            entity (str): id of the entity           
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()  
