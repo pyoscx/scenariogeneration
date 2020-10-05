@@ -269,8 +269,8 @@ def create_junction(junction_roads, id, roads):
     
     for jr in junction_roads:
 
-        conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end)
-        _, sign, _ =  _get_related_lanesection(jr,roads[jr.successor.element_id]) 
+        conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
+        _, sign, _ =  _get_related_lanesection(roads[jr.successor.element_id], jr ) 
         n_lanes = len(jr.lanes.lanesections[-1].leftlanes) 
         for i in range(1, n_lanes+1, 1):
             conne1.add_lanelink( 1*i, 1*sign*i)
@@ -278,7 +278,7 @@ def create_junction(junction_roads, id, roads):
             junc.add_connection(conne1)
 
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
-        _, sign, _ =  _get_related_lanesection(jr,roads[jr.predecessor.element_id]) 
+        _, sign, _ =  _get_related_lanesection(roads[jr.predecessor.element_id], jr) 
         n_lanes = len(jr.lanes.lanesections[0].leftlanes) 
         for i in range(1, n_lanes+1, 1):
             conne2.add_lanelink( 1*i, 1*sign*i)
