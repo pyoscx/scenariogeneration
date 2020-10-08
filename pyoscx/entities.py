@@ -543,7 +543,7 @@ class MiscObject():
         """ returns the attributes as a dict of the MiscObject
 
         """
-        return {'name':str(self.name),'miscObjectCategory':str(self.category),'mass':str(self.mass)}
+        return {'name':str(self.name),'MiscObjectCategory':str(self.category),'mass':str(self.mass)}
 
     def get_element(self):
         """ returns the elementTree of the MiscObject
