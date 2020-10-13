@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-from .utils import EntityRef
+from .utils import EntityRef, convert_bool
 from .enumerations import Rule, ConditionEdge
 
 
@@ -664,8 +664,8 @@ class TimeHeadwayCondition():
         basedict = {}
         basedict['entityRef'] = self.entity
         basedict['value'] = str(self.value)
-        basedict['alongRoute'] = str(self.alongroute)
-        basedict['freespace'] = str(self.freespace)
+        basedict['alongRoute'] = convert_bool(self.alongroute)
+        basedict['freespace'] = convert_bool(self.freespace)
         basedict['rule'] = self.rule.name
         return basedict
 
@@ -767,8 +767,8 @@ class TimeToCollisionCondition():
         """
         basedict = {}
         basedict['value'] = str(self.value)
-        basedict['alongRoute'] = str(self.alongroute)
-        basedict['freespace'] = str(self.freespace)
+        basedict['alongRoute'] = convert_bool(self.alongroute)
+        basedict['freespace'] = convert_bool(self.freespace)
         basedict['rule'] = self.rule.name
         return basedict
         
@@ -1158,8 +1158,8 @@ class DistanceCondition():
         """
         basedict = {}
         basedict['value'] = str(self.value)
-        basedict['alongRoute'] = str(self.alongroute)
-        basedict['freespace'] = str(self.freespace)
+        basedict['alongRoute'] = convert_bool(self.alongroute)
+        basedict['freespace'] = convert_bool(self.freespace)
         basedict['rule'] = self.rule.name
         return basedict
 
@@ -1242,8 +1242,8 @@ class RelativeDistanceCondition():
         """
         basedict = {}
         basedict['value'] = str(self.value)
-        basedict['alongRoute'] = str(self.alongroute)
-        basedict['freespace'] = str(self.freespace)
+        basedict['alongRoute'] = convert_bool(self.alongroute)
+        basedict['freespace'] = convert_bool(self.freespace)
         basedict['entityRef'] = self.entity
         basedict['rule'] = self.rule.name
         return basedict

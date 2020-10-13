@@ -495,7 +495,7 @@ class Route():
         """
         retdict = {}
         retdict['name'] = self.name
-        retdict['closed'] = str(self.closed)
+        retdict['closed'] = convert_bool(self.closed)
         return retdict
 
     def get_element(self):
@@ -679,7 +679,7 @@ class Trajectory():
         """
         retdict = {}
         retdict['name'] = self.name
-        retdict['closed'] = str(self.closed)
+        retdict['closed'] = convert_bool(self.closed)
         return retdict
 
     def get_element(self):
@@ -2047,5 +2047,9 @@ def merge_dicts(*dict_args):
 
     return retdict
 
-
+def convert_bool(value):
+    if value:
+        return 'true'
+    else:
+        return 'false'
 

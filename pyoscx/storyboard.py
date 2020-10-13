@@ -4,7 +4,7 @@ from .actions import _Action
 
 from .triggers import EmptyTrigger, ValueTrigger, SimulationTimeCondition
 from .utils import EntityRef
-from .utils import ParameterDeclarations, CatalogFile
+from .utils import ParameterDeclarations, CatalogFile, convert_bool
 from .enumerations import Priority, Rule, ConditionEdge
 
 
@@ -516,7 +516,7 @@ class _Actors():
         """ returns the attributes of the _Actors as a dict
 
         """
-        return {'selectTriggeringEntities':str(self.select)}
+        return {'selectTriggeringEntities':convert_bool(self.select)}
 
     def get_element(self):
         """ returns the elementTree of the _Actors
