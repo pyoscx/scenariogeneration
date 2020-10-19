@@ -1557,7 +1557,7 @@ class AbsoluteSynchronizeAction():
 
         """
         element = ET.Element('PrivateAction')
-        syncaction = ET.SubElement(element,'SyncronizeAction',self.get_attributes())
+        syncaction = ET.SubElement(element,'SynchronizeAction',self.get_attributes())
         syncaction.append(self.entity_position.get_element('TargetPositionMaster'))
         syncaction.append(self.target_position.get_element('TargetPosition'))
         finalspeed = ET.SubElement(syncaction,'FinalSpeed')
@@ -1637,7 +1637,7 @@ class RelativeSynchronizeAction():
 
         """
         element = ET.Element('PrivateAction')
-        syncaction = ET.SubElement(element,'SyncronizeAction',self.get_attributes())
+        syncaction = ET.SubElement(element,'SynchronizeAction',self.get_attributes())
         syncaction.append(self.entity_position.get_element('TargetPositionMaster'))
         syncaction.append(self.target_position.get_element('TargetPosition'))
         finalspeed = ET.SubElement(syncaction,'FinalSpeed')
