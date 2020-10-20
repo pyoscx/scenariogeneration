@@ -525,7 +525,7 @@ class _Actors():
         # if not self.actors:
         #     raise ValueError('no actors are set')
         if len(self.actors) == 0:
-            raise ValueError('No Actors are defined')
+            Warning('No Actors are defined')
         element = ET.Element('Actors',attrib=self.get_attributes())
         for ent in self.actors:
             element.append(ent.get_element())
