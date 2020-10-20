@@ -780,12 +780,13 @@ class TimeToCollisionCondition():
         element = ET.Element('EntityCondition')
         collisionevent = ET.SubElement(element,'TimeToCollisionCondition',attrib=self.get_attributes())
         
+        targetelement = ET.SubElement(collisionevent,'TimeToCollisionConditionTarget')
         if self.use_entity == None:
             raise ValueError('neither position or entity was set.')
         elif self.use_entity:
-            collisionevent.append(self.entity.get_element())
+            targetelement.append(self.entity.get_element())
         else: 
-            collisionevent.append(self.position.get_element())
+            targetelement.append(self.position.get_element())
         
         
         return element

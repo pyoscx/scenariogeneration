@@ -42,7 +42,7 @@ class WorldPosition():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,x=0,y=0,z=0,h=0,p=0,r=0):
+    def __init__(self,x=0,y=0,z=None,h=None,p=None,r=None):
         """ initalizes the WorldPosition
 
         Parameters
@@ -70,8 +70,16 @@ class WorldPosition():
         """ returns the attributes of the WorldPostion as a dict
 
         """
-        return {'x':str(self.x),'y':str(self.y),'z':str(self.z),'h':str(self.h),'p':str(self.p),'r':str(self.r)}
-
+        retdict = {'x':str(self.x),'y':str(self.y)}
+        if self.z:
+            retdict['z'] = str(self.z)
+        if self.h:
+            retdict['h'] = str(self.h)
+        if self.p:
+            retdict['p'] = str(self.p)
+        if self.r:
+            retdict['r'] = str(self.r)
+        return retdict
     def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the WorldPostion
 
