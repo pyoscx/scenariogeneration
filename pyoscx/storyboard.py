@@ -23,7 +23,13 @@ class Init():
                 Returns the full ElementTree of the class
 
             add_init_action(entityname, action):
-                adds an action to the init
+                adds a private action to the init
+
+            add_global_action(action):
+                adds a global action to the init
+
+            add_user_defined_action(action):
+                adds a user defined action to the init
 
     """
     def __init__(self):
@@ -31,20 +37,42 @@ class Init():
 
         """
         self.initactions = {}
+        self.global_actions = []
+        self.user_defined_actions = []
 
     def add_init_action(self,entityname,action):
-        """ add_init_action adds an Action to the init.
+        """ add_init_action adds an Private Action to the init.
 
         Parameters
         ----------
             entityname (str): name of the entity to add the action to
-            Action (*Action): Any action to be added (like TeleportAction)
+            action (*Action): Any private action to be added (like TeleportAction)
             
         """
         if entityname not in self.initactions:
             self.initactions[entityname] = []
 
         self.initactions[entityname].append(action)
+
+    def add_global_action(self,action):
+        """ add_global_action adds a global action to the init
+
+        Parameters
+        ----------
+            action (*Action): any global action to add to the init
+
+        """
+        self.global_actions.append(action)
+    
+    def add_user_defined_action(self,action):
+        """ add_user_defined_action adds a userDefined action to the init
+
+        Parameters
+        ----------
+            action (CustomCommandAction): a custom command action (NOTE: a very crude implementation see actions.py)
+
+        """
+        self.user_defined_actions.append(action)
 
     def get_element(self):
         """ returns the elementTree of the Init
@@ -53,11 +81,17 @@ class Init():
         element = ET.Element('Init')
         actions = ET.SubElement(element,'Actions')
         
+        # add private actions
         for i in self.initactions:
             private = ET.SubElement(actions,'Private',attrib={'entityRef':i})
             for j in self.initactions[i]:
                 private.append(j.get_element())
-
+        
+        for i in self.global_actions:
+            actions.append(i.get_element())
+        
+        for i in self.user_defined_actions:
+            actions.append(i.get_element())
 
         return element
 
@@ -291,6 +325,7 @@ class Act():
             name (str): name of the act
 
             starttrigger (*Trigger): starttrigger of the act
+                Default: ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
 
             stoptrigger (*Trigger): stoptrigger of the act (optional)
             
@@ -316,7 +351,7 @@ class Act():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name,starttrigger,stoptrigger=None):
+    def __init__(self,name,starttrigger=None,stoptrigger=None):
         """ Initalize the Act
 
         Parameters
@@ -324,13 +359,17 @@ class Act():
             name (str): name of the act
 
             starttrigger (*Trigger): starttrigger of the act
+                Default: ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
 
             stoptrigger (*Trigger): stoptrigger of the act (optional)
                 Default: Emptytrigger
 
         """
         self.name = name
-        self.starttrigger = starttrigger
+        if starttrigger == None:
+            self.starttrigger = starttrigger = ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
+        else:
+            self.starttrigger = starttrigger
         if stoptrigger == None:
             self.stoptrigger = EmptyTrigger('stop')
         else:
