@@ -1,9 +1,16 @@
+""" Notes:
+    An example how to add a controller to an object
+
+    for different behaviour change speed_of_outer_car
+
+    Some features used:
+        Controller 
+        Properties
+
+"""
+
+
 import pyoscx   
-
-
-
-
-
 
 ### create catalogs
 catalog = pyoscx.Catalog()

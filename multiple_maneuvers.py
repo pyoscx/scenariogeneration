@@ -1,9 +1,13 @@
+""" Notes:
+    An example setting up multiple vehicles triggering on eachother and running in parallel
+
+    Some features used:
+        AbsoluteLaneChangeAction
+        TimeHeadwayCondition
+        
+"""
+
 import pyoscx   
-
-
-
-
-
 
 ### create catalogs
 catalog = pyoscx.Catalog()

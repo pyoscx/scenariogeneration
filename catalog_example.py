@@ -1,9 +1,14 @@
-import pyoscx 
 
-""" example of how to create a vehicle catalog
-    the properties are added in order to work with esmini
+""" Notes: 
+
+    example of how to create a vehicle catalog
+    the properties are added in order to work with esmini 1.5-1.7
 
 """
+
+import pyoscx 
+
+
 
 # create a vehicle
 bb = pyoscx.BoundingBox(2,5,1.8,2.0,0,0.9)

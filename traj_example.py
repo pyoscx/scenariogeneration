@@ -1,3 +1,19 @@
+""" Notes:
+    An example showing how to create a trajector based on polyline 
+    Also shows how to create a vehicle from start
+
+    Some features used:
+        RelativeLanePosition 
+        Polyline
+        Trajectory
+        TimeHeadwayCondition
+        FollowTrajectoryAction
+
+        Vehicle
+        BoundingBox
+        Axel
+        
+"""
 import pyoscx
 
 
