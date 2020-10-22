@@ -1184,6 +1184,8 @@ class RelativeDistanceCondition():
 
             entity (str): name of the entity fore relative distance
 
+            dist_type (RelativeDistanceType): type of relative distance
+
             alongroute (bool): if the route should count
                 Default: True
 
@@ -1198,6 +1200,8 @@ class RelativeDistanceCondition():
 
             entity (str): name of the entity fore relative distance
 
+            dist_type (RelativeDistanceType): type of relative distance
+
             alongroute (bool): if the route should count
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
@@ -1211,7 +1215,7 @@ class RelativeDistanceCondition():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,value,rule,entity,alongroute=True,freespace=True):
+    def __init__(self,value,rule,dist_type,entity,alongroute=True,freespace=True):
         """ initalize the RelativeDistanceCondition
         
         Parameters
@@ -1221,6 +1225,8 @@ class RelativeDistanceCondition():
             rule (Rule): condition rule of triggering 
 
             entity (str): name of the entity fore relative distance
+
+            dist_type (RelativeDistanceType): type of relative distance
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1232,6 +1238,7 @@ class RelativeDistanceCondition():
         self.value = value
         self.alongroute = alongroute
         self.freespace = freespace
+        self.dist_type = dist_type
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
@@ -1247,6 +1254,7 @@ class RelativeDistanceCondition():
         basedict['freespace'] = convert_bool(self.freespace)
         basedict['entityRef'] = self.entity
         basedict['rule'] = self.rule.name
+        basedict['relativeDistancetype'] = self.dist_type.name
         return basedict
 
     def get_element(self):
