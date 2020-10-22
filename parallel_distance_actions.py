@@ -51,7 +51,7 @@ trig_cond = pyoscx.RelativeDistanceCondition(5,pyoscx.Rule.lessThan,pyoscx.Relat
 event.add_trigger(pyoscx.EntityTrigger('trigger',0,pyoscx.ConditionEdge.none,trig_cond,egoname))
 
 man = pyoscx.Maneuver('mymaneuver')
-# man.add_event(lc_event)
+man.add_event(lc_event)
 man.add_event(event)
 
 ## create the storyboard
