@@ -196,7 +196,7 @@ class EntityTrigger():
 
             entitycondotion (*Condition): an entity condition
 
-            triggeringentity (str): the entity of the trigger 
+            triggeringentity (str): the entity of the trigger
 
             triggeringrule (str): rule of the trigger
                 Default: 'any'
@@ -258,7 +258,8 @@ class EntityTrigger():
             raise ValueError('not a valid condition edge')
         self.conditionedge = conditionedge
         self.entitycondition = entitycondition
-        self.triggerentity = TriggeringEntities(triggerentity,triggeringrule)
+        self.triggerentity = TriggeringEntities(triggeringrule)
+        self.triggerentity.add_entity(triggerentity)
         
         self._used_by_parent = False
 
@@ -268,6 +269,14 @@ class EntityTrigger():
         """
         self._used_by_parent = True
 
+    def add_triggering_entity(self,triggerentity):
+        """ adds additional triggering entities to a trigger
+
+        Parameters
+        ----------
+            triggeringentity (str)
+        """
+        self.triggerentity.add_entity(triggerentity)
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
 
@@ -407,18 +416,19 @@ class TriggeringEntities():
         
         Parameters
         ----------
-            entity (str): name of the entity
-
             triggeringrule (str): all or any
 
         Attributes
         ----------
-            entity (EntityRef): refernce to the entity
+            entity (list of EntityRef): refernce to the entity
 
             triggeringrule (str): all or any
 
         Methods
         -------
+            add_entity(entity)
+                adds a entityref to the triggering entities
+                
             get_element()
                 Returns the full ElementTree of the class
 
@@ -426,7 +436,7 @@ class TriggeringEntities():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,entity,triggeringrule):
+    def __init__(self,triggeringrule):
         """ initalize the TriggeringEntities
         
         Parameters
@@ -438,8 +448,18 @@ class TriggeringEntities():
         """
         if triggeringrule not in ['any','all']:
             raise ValueError('not a vaild triggering rule')
-        self.entity = EntityRef(entity)
+        self.entity = [] 
         self.triggeringrule = triggeringrule
+
+    def add_entity(self,entity):
+        """ add_entity adds an entity to the TriggeringEntities
+
+        Parameters
+        ----------
+            entity (str): name of the entity to add
+        
+        """
+        self.entity.append(EntityRef(entity))
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
@@ -452,7 +472,8 @@ class TriggeringEntities():
 
         """
         element = ET.Element('TriggeringEntities',attrib=self.get_attributes())
-        element.append(self.entity.get_element())
+        for ent in self.entity:
+            element.append(ent.get_element())
         return element
 
 
