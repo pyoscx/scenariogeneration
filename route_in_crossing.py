@@ -64,3 +64,4 @@ sce = pyoscx.Scenario('adaptspeed_example','User',paramdec,entities=entities,sto
 # display the scenario
 pyoscx.prettyprint(sce.get_element())
 
+# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')

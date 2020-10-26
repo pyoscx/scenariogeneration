@@ -13,7 +13,7 @@
         
 """
 #change this to have different Ego behaviors (use 20 or 30)
-speed_of_outer_car = 30
+speed_of_outer_car = 20
 
 
 import pyoscx
@@ -113,4 +113,4 @@ sce = pyoscx.Scenario('adaptspeed_example','User',paramdec,entities=entities,sto
 pyoscx.prettyprint(sce.get_element())
 
 
-pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
+# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')

@@ -30,7 +30,6 @@ def CCRm(ego_speedvalue,offset):
     white_veh = pyoscx.Vehicle('car_white',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
 
     white_veh.add_property_file('../models/car_white.osgb')
-    white_veh.add_property('control','internal')
     white_veh.add_property('model_id','0')
 
     bb = pyoscx.BoundingBox(target_width,4.5,1.5,1.3,0,0.8)
@@ -121,4 +120,4 @@ if __name__ == '__main__':
     all_egospeeds = [x for x in range(30,85,5)]
     all_offsets = [-50, -25, 0, 25, 50]
     sce = CCRm(all_egospeeds[-1],all_offsets[1])
-    pyoscx.esminiRunner(sce)
+    # pyoscx.esminiRunner(sce)

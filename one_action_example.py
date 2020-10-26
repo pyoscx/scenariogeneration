@@ -38,7 +38,6 @@ ba = pyoscx.Axel(30,0.8,1.68,0,0.4)
 white_veh = pyoscx.Vehicle('car_white',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
 
 white_veh.add_property_file('../models/car_white.osgb')
-white_veh.add_property('control','internal')
 white_veh.add_property('model_id','0')
 
 
@@ -81,7 +80,7 @@ init.add_init_action(targetname,targetstart)
 
 trigcond = pyoscx.TimeHeadwayCondition(targetname,0.1,pyoscx.Rule.greaterThan)
 
-trigger = pyoscx.EntityTrigger('mytesttrigger',0.2,pyoscx.ConditionEdge.rising,trigcond,egoname)
+trigger = pyoscx.EntityTrigger('mytesttrigger',0.2,pyoscx.ConditionEdge.none,trigcond,egoname)
 
 event = pyoscx.Event('myfirstevent',pyoscx.Priority.overwrite)
 event.add_trigger(trigger)
@@ -121,4 +120,4 @@ pyoscx.prettyprint(sce.get_element())
 # sce.write_xml('myfirstscenario.xml',True)
 
 # if you have esmini downloaded and want to see the scenario (add path to esmini as second argument)
-# pyoscx.esminiRunner(sce)
+# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')

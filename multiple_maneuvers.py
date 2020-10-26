@@ -112,4 +112,4 @@ pyoscx.prettyprint(sce.get_element())
 # sce.write_xml('myfirstscenario.xml',True)
 
 # if you have esmini downloaded and want to see the scenario
-# pyoscx.esminiRunner(sce)
+# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')

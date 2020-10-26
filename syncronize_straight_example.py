@@ -77,4 +77,4 @@ pyoscx.prettyprint(sce.get_element())
 
 # if you have esmini downloaded and want to see the scenario
 
-pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
+# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
