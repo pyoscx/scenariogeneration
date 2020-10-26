@@ -18,9 +18,9 @@ def esminiRunner(scenario,esminipath = 'esmini'):
     scenario.write_xml(os.path.join(_scenariopath,'pythonscenario2.xosc'),True)
     
     if os.name == 'posix':
-        os.system(os.path.join('.', esminipath, 'bin','EgoSimulator') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
+        os.system(os.path.join('.', esminipath, 'bin','esmini') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
     elif os.name == 'nt':
-        os.system(os.path.join(esminipath,'bin','EgoSimulator.exe') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
+        os.system(os.path.join(esminipath,'bin','esmini.exe') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
     
 
 def prettyprint(element):
