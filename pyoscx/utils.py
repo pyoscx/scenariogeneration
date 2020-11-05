@@ -1552,7 +1552,7 @@ class CatalogFile():
                 author (str): author of the catalog
         
         """
-        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':XMLNS,'xsi:noNamespaceShemaLocation':'../../'+XSI})
+        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':XMLNS,'xsi:noNamespaceSchemaLocation':'../../'+XSI})
         header = FileHeader(description,author)
         element.append(header.get_element())
         ET.SubElement(element,'Catalog',attrib={'name':catalogtype})
