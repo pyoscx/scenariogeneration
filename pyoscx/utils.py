@@ -1114,7 +1114,7 @@ class FileHeader():
         """ returns the attributes as a dict of the FileHeader
 
         """
-        return {'decription':self.name,'author':self.author,'revMajor':'1','revMinor':'0','date':str(dt.datetime.now())}
+        return {'description':self.name,'author':self.author,'revMajor':'1','revMinor':'0','date':dt.datetime.now().isoformat()}
 
     def get_element(self):
         """ returns the elementTree of the FileHeader
@@ -1552,7 +1552,7 @@ class CatalogFile():
                 author (str): author of the catalog
         
         """
-        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':XMLNS,'xsi:noNamespaceShemaLocation':'../../'+XSI})
+        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':XMLNS,'xsi:noNamespaceSchemaLocation':'../../'+XSI})
         header = FileHeader(description,author)
         element.append(header.get_element())
         ET.SubElement(element,'Catalog',attrib={'name':catalogtype})
