@@ -1527,9 +1527,9 @@ class AbsoluteSynchronizeAction():
                 Returns the the attributes of the class
 
     """
-    def __init__(self,entity,entity_position,target_position,speed):
+    def __init__(self,entity,entity_position,target_position,speed,entity_tolerance=None,target_tolerance=None):
         """ initalize the AbsoluteSynchronizeAction
-    
+
             Parameters
             ----------
                 entity (str): entity to syncronize with
@@ -1539,12 +1539,18 @@ class AbsoluteSynchronizeAction():
                 target_position (*Position): the position of the target that should syncronize
 
                 speed (double): the absolute speed of the target that should syncronize
+
+                entity_tolerance (optional) (double): tolerance offset of the entity's position [m]
+
+                target_tolerance (optional) (double): tolerance offset of the target's position [m]
         """
 
         self.entity = entity
         self.entity_position = entity_position
         self.target_position = target_position
         self.speed = speed
+        self.entity_tolerance = entity_tolerance
+        self.target_tolerance = target_tolerance
 
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSynchronizeAction as a dict
@@ -1558,8 +1564,14 @@ class AbsoluteSynchronizeAction():
         """
         element = ET.Element('PrivateAction')
         syncaction = ET.SubElement(element,'SynchronizeAction',self.get_attributes())
-        syncaction.append(self.entity_position.get_element('TargetPositionMaster'))
-        syncaction.append(self.target_position.get_element('TargetPosition'))
+        targetPosMaster = self.entity_position.get_element('TargetPositionMaster')
+        if self.entity_tolerance is not None:
+            targetPosMaster.attrib.update({'tolerance': str(self.entity_tolerance)})
+        targetPos = self.target_position.get_element('TargetPosition')
+        if self.target_tolerance is not None:
+            targetPos.attrib.update({'tolerance': str(self.target_tolerance)})
+        syncaction.append(targetPosMaster)
+        syncaction.append(targetPos)
         finalspeed = ET.SubElement(syncaction,'FinalSpeed')
         ET.SubElement(finalspeed,'AbsoluteSpeed',attrib={'value':str(self.speed)})
         
