@@ -42,7 +42,7 @@ init.add_init_action(targetname,pyoscx.AbsoluteSpeedAction(20,pyoscx.TransitionD
 
 ## target action
 
-tar_action = pyoscx.AbsoluteSynchronizeAction(egoname,pyoscx.LanePosition(200,0,-1,0),pyoscx.LanePosition(200,0,-2,0),10)
+tar_action = pyoscx.AbsoluteSynchronizeAction(egoname,pyoscx.LanePosition(200,0,-1,0),pyoscx.LanePosition(200,0,-2,0),10,target_tolerance_master=1,target_tolerance=1)
 
 tar_event = pyoscx.Event('target_event',pyoscx.Priority.overwrite)
 tar_event.add_trigger(pyoscx.ValueTrigger('ego_start',0,pyoscx.ConditionEdge.none,pyoscx.SimulationTimeCondition(3,pyoscx.Rule.greaterThan)))
