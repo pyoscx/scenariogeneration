@@ -1,10 +1,9 @@
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
-
-
 import os
 
-def esminiRunner(scenario,esminipath = 'esmini'):
+
+def esminiRunner(scenario, esminipath='esmini', args='--window 50 50 800 400'):
     """ write a scenario and runs it in esmini
         Parameters
         ----------
@@ -13,15 +12,22 @@ def esminiRunner(scenario,esminipath = 'esmini'):
             esminipath (str): the path to esmini 
                 Default: pyoscx
 
+            args: pass through esmini launch commands
+
     """
-    _scenariopath = os.path.join(esminipath,'resources','xosc')
-    scenario.write_xml(os.path.join(_scenariopath,'pythonscenario2.xosc'),True)
-    
+    _scenariopath = os.path.join(esminipath, 'resources', 'xosc')
+    scenario.write_xml(os.path.join(_scenariopath, 'pythonscenario2.xosc'), True)
+
     if os.name == 'posix':
-        os.system(os.path.join('.', esminipath, 'bin','esmini') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
+        os.system(os.path.join('.',
+                               esminipath,
+                               'bin',
+                               'esmini') + ' --osc ' + esminipath + '/resources/xosc/pythonscenario2.xosc ' + args)
     elif os.name == 'nt':
-        os.system(os.path.join(esminipath,'bin','esmini.exe') + ' --osc '+esminipath+'/resources/xosc/pythonscenario2.xosc --window 50 50 800 400' )
-    
+        os.system(os.path.join(esminipath,
+                               'bin',
+                               'esmini.exe') + ' --osc ' + esminipath + '/resources/xosc/pythonscenario2.xosc ' + args)
+
 
 def prettyprint(element):
     """ prints the element to the commandline
@@ -31,11 +37,12 @@ def prettyprint(element):
             element (Element): element to print
 
     """
-    rough = ET.tostring(element,'utf-8')
+    rough = ET.tostring(element, 'utf-8')
     reparsed = mini.parseString(rough)
     print(reparsed.toprettyxml(indent="\t"))
 
-def printToFile(element,filename,prettyprint=True):
+
+def printToFile(element, filename, prettyprint=True):
     """ prints the element to a xml file
 
         Parameters
@@ -47,13 +54,13 @@ def printToFile(element,filename,prettyprint=True):
             prettyprint (bool): pretty or "ugly" print
 
     """
-    if prettyprint:    
-        rough = ET.tostring(element,'utf-8').replace(b'\n',b'').replace(b'\t',b'')
+    if prettyprint:
+        rough = ET.tostring(element, 'utf-8').replace(b'\n', b'').replace(b'\t', b'')
         reparsed = mini.parseString(rough)
         towrite = reparsed.toprettyxml(indent="\t")
-        with open(filename,"w") as file_handle:
+        with open(filename, "w") as file_handle:
             file_handle.write(towrite)
     else:
         tree = ET.ElementTree(element)
-        with open(filename,"wb") as file_handle:
+        with open(filename, "wb") as file_handle:
             tree.write(file_handle)
