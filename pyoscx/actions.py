@@ -1508,6 +1508,10 @@ class AbsoluteSynchronizeAction():
 
             speed (double): the absolute speed of the target that should syncronize
 
+            target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+            target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
         Attributes
         ----------
             entity (str): entity to syncronize with
@@ -1518,6 +1522,10 @@ class AbsoluteSynchronizeAction():
 
             speed (double): the absolute speed of the target that should syncronize
 
+            target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+            target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
         Methods
         -------
             get_element()
@@ -1527,9 +1535,9 @@ class AbsoluteSynchronizeAction():
                 Returns the the attributes of the class
 
     """
-    def __init__(self,entity,entity_position,target_position,speed):
+    def __init__(self,entity,entity_position,target_position,speed,target_tolerance_master=None,target_tolerance=None):
         """ initalize the AbsoluteSynchronizeAction
-    
+
             Parameters
             ----------
                 entity (str): entity to syncronize with
@@ -1539,18 +1547,29 @@ class AbsoluteSynchronizeAction():
                 target_position (*Position): the position of the target that should syncronize
 
                 speed (double): the absolute speed of the target that should syncronize
+
+                target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+                target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
         """
 
         self.entity = entity
         self.entity_position = entity_position
         self.target_position = target_position
         self.speed = speed
+        self.target_tolerance_master = target_tolerance_master
+        self.target_tolerance = target_tolerance
 
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSynchronizeAction as a dict
 
         """
-        return {'masterEntityRef':self.entity}
+        attr = {'masterEntityRef':self.entity}
+        if self.target_tolerance_master is not None:
+            attr.update({'targetToleranceMaster': str(self.target_tolerance_master)})
+        if self.target_tolerance is not None:
+            attr.update({'targetTolerance': str(self.target_tolerance)})
+        return attr
 
     def get_element(self):
         """ returns the elementTree of the AbsoluteSynchronizeAction
@@ -1581,6 +1600,10 @@ class RelativeSynchronizeAction():
 
             speed_target_type (str): the semantics of the value (delta, factor)
 
+            target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+            target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
         Attributes
         ----------
             entity (str): entity to syncronize with
@@ -1593,6 +1616,10 @@ class RelativeSynchronizeAction():
 
             speed_target_type (str): the semantics of the value (delta, factor)
 
+            target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+            target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
         Methods
         -------
             get_element()
@@ -1602,7 +1629,7 @@ class RelativeSynchronizeAction():
                 Returns the the attributes of the class
 
     """
-    def __init__(self,entity,entity_position,target_position,speed,speed_target_type):
+    def __init__(self,entity,entity_position,target_position,speed,speed_target_type,target_tolerance_master=None,target_tolerance=None):
         """ initalize the RelativeSynchronizeAction
     
             Parameters
@@ -1616,6 +1643,10 @@ class RelativeSynchronizeAction():
                 speed (double): the absolute speed of the target that should syncronize
 
                 speed_target_type (str): the semantics of the value (delta, factor)
+
+                target_tolerance_master (optional) (double): tolerance offset of the master's position [m]. Not officially part of OpenSCENARIO but supported in esmini
+
+                target_tolerance (optional) (double): tolerance offset of the target's position [m]. Not officially part of OpenSCENARIO but supported in esmini
         """
 
         self.entity = entity
@@ -1625,12 +1656,19 @@ class RelativeSynchronizeAction():
         # if speed_target_type not in SpeedTargetValueType:
             # ValueError(speed_target_type + ' is not a valid speed_target_type')
         self.speed_target_type = speed_target_type
+        self.target_tolerance_master = target_tolerance_master
+        self.target_tolerance = target_tolerance
 
     def get_attributes(self):
         """ returns the attributes of the VisibilityAction as a dict
 
         """
-        return {'masterEntityRef':self.entity}
+        attr = {'masterEntityRef':self.entity}
+        if self.target_tolerance_master is not None:
+            attr.update({'targetToleranceMaster': str(self.target_tolerance_master)})
+        if self.target_tolerance is not None:
+            attr.update({'targetTolerance': str(self.target_tolerance)})
+        return attr
 
     def get_element(self):
         """ returns the elementTree of the VisibilityAction
