@@ -286,7 +286,7 @@ class OpenDrive():
         self.roads[str(road.id)] = road        
 
     def adjust_roads_and_lanes(self): 
-        """ Adjust starting position of all geoemtries of all roads and try to link lanes in neightbouring roads 
+        """ Adjust starting position of all geometries of all roads and try to link lanes in neighbouring roads
 
             Parameters
             ----------
@@ -302,8 +302,8 @@ class OpenDrive():
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
-    def adjust_road_wrt_neightbour(self, road_id, neightbour_id, contact_point, neightbour_type): 
-        """ Adjust geometries of road[road_id] taking as a successor/predecessor the neightbouring road with id neightbour_id. 
+    def adjust_road_wrt_neighbour(self, road_id, neighbour_id, contact_point, neighbour_type):
+        """ Adjust geometries of road[road_id] taking as a successor/predecessor the neighbouring road with id neighbour_id.
             NB Passing the type of contact_point is necessary because we call this function also on roads connecting to 
             to a junction road (which means that the road itself do not know the contact point of the junction road it connects to)
 
@@ -312,35 +312,35 @@ class OpenDrive():
             ----------
             road_id (int): id of the road we want to adjust 
 
-            neightbour_id(int): id of the neightbour road we take as reference (we suppose the neightbour road is already adjusted)
+            neighbour_id(int): id of the neighbour road we take as reference (we suppose the neighbour road is already adjusted)
 
             contact_point(ContactPoint): type of contact point with point of view of roads[road_id]
             
-            neightbour_type(str): 'successor'/'predecessor' type of linking to the neightbouring road 
+            neighbour_type(str): 'successor'/'predecessor' type of linking to the neighbouring road
 
 
         """
 
         main_road = self.roads[str(road_id)]
 
-        if neightbour_type == 'predecessor':
+        if neighbour_type == 'predecessor':
 
             if contact_point == ContactPoint.start :    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = self.roads[str(neighbour_id)].planview.get_start_point()
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             main_road.planview.set_start_point(x,y,h)
-            main_road.planview.adjust_geometires()
+            main_road.planview.adjust_geometries()
 
-        elif neightbour_type == 'successor':
+        elif neighbour_type == 'successor':
 
             if contact_point == ContactPoint.start:    
-                x,y,h = self.roads[str(neightbour_id)].planview.get_start_point()
+                x,y,h = self.roads[str(neighbour_id)].planview.get_start_point()
             elif contact_point == ContactPoint.end:
-                x,y,h = self.roads[str(neightbour_id)].planview.get_end_point()
+                x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             main_road.planview.set_start_point(x,y,h)
-            main_road.planview.adjust_geometires(True)      
+            main_road.planview.adjust_geometries(True)
 
 
     def adjust_startpoints(self): 
@@ -358,7 +358,7 @@ class OpenDrive():
             for k in self.roads: 
 
                 if count_adjusted_roads == 0: 
-                    self.roads[k].planview.adjust_geometires() 
+                    self.roads[k].planview.adjust_geometries()
                     #print('1 adjusted road ', self.roads[k].id)
                     count_adjusted_roads += 1
                     continue
@@ -369,16 +369,17 @@ class OpenDrive():
                 # check if it has a normal predecessor 
                 if self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is True and self.roads[k].predecessor.element_type is not ElementType.junction: 
 
-                    self.adjust_road_wrt_neightbour(k, self.roads[k].predecessor.element_id, self.roads[k].predecessor.contact_point, 'predecessor')
+                    self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
+                                                   self.roads[k].predecessor.contact_point, 'predecessor')
                     count_adjusted_roads +=1
 
                     if self.roads[k].road_type == 1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
                         
                         succ_id = self.roads[k].successor.element_id
-                        if self.roads[k].successor.contact_point == ContactPoint.start:   
-                            self.adjust_road_wrt_neightbour(succ_id, k, ContactPoint.end, 'predecessor')
-                        else: 
-                            self.adjust_road_wrt_neightbour(succ_id, k, ContactPoint.end, 'successor')
+                        if self.roads[k].successor.contact_point == ContactPoint.start:
+                            self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
+                        else:
+                            self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'successor')
                         count_adjusted_roads +=1
 
                     continue 
@@ -386,16 +387,17 @@ class OpenDrive():
                 # check if geometry has a normal successor 
                 elif self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is True and self.roads[k].successor.element_type is not ElementType.junction: 
 
-                    self.adjust_road_wrt_neightbour(k, self.roads[k].successor.element_id, self.roads[k].successor.contact_point, 'successor')
+                    self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
+                                                   self.roads[k].successor.contact_point, 'successor')
                     count_adjusted_roads +=1
 
                     if self.roads[k].road_type == 1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
                         
                         pred_id = self.roads[k].predecessor.element_id
-                        if self.roads[k].predecessor.contact_point == ContactPoint.start:   
-                            self.adjust_road_wrt_neightbour(pred_id,k, ContactPoint.start, 'predecessor')
-                        else: 
-                            self.adjust_road_wrt_neightbour(pred_id,k, ContactPoint.start, 'successor')
+                        if self.roads[k].predecessor.contact_point == ContactPoint.start:
+                            self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'predecessor')
+                        else:
+                            self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'successor')
                         count_adjusted_roads +=1
 
                     continue

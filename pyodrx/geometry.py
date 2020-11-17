@@ -141,7 +141,7 @@ class PlanView():
             set_start_point(x_start,y_start,h_start)
                 sets the start point and heading of the planview
 
-            adjust_geometires()
+            adjust_geometries()
                 based on the start point, it will adjust all geometries in the planview
 
     """
@@ -232,7 +232,7 @@ class PlanView():
 
         return self.x_end, self.y_end, self.h_end 
 
-    def adjust_geometires(self, from_end=False):
+    def adjust_geometries(self, from_end=False):
         """ Adjusts all geometries to have the correct start point and heading
 
             Parameters
