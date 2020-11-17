@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
-from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor
+from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType 
 from .links import _Links,_Link
 
 
@@ -502,6 +502,12 @@ class RoadMark():
         self.soffset = soffset
         self.width = width
         self.color = color
+        #change default line values for broken lines 
+        if marking_type == RoadMarkType.broken: 
+            if self.length == 0:
+                self.length = 3
+            if self.space == 0: 
+                self.space = 3
         self._line = RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color)
         
         #TODO: add more inputs and check 1.5
