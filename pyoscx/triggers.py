@@ -1275,7 +1275,7 @@ class RelativeDistanceCondition():
         basedict['freespace'] = convert_bool(self.freespace)
         basedict['entityRef'] = self.entity
         basedict['rule'] = self.rule.name
-        basedict['relativeDistancetype'] = self.dist_type.name
+        basedict['relativeDistanceType'] = self.dist_type.name
         return basedict
 
     def get_element(self):
