@@ -956,11 +956,11 @@ class FollowTrajectoryAction():
 
             following_mode (FollowMode): the following mode of the action
 
-            referece_domain (ReferenceContext): how to follow
+            reference_domain (ReferenceContext): how to follow
                 Default: None
-            scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
+            scale (double): scalefactor of the timeings (must be combined with reference_domain and offset)
                 Default: None
-            offset (double): offset for time values (must be combined with referece_domain and scale)
+            offset (double): offset for time values (must be combined with reference_domain and scale)
                 Default: None
 
         Attributes
@@ -977,7 +977,7 @@ class FollowTrajectoryAction():
                 Returns the full ElementTree of the class
 
     """
-    def __init__(self,trajectory,following_mode,referece_domain=None,scale=None,offset=None):
+    def __init__(self,trajectory,following_mode,reference_domain=None,scale=None,offset=None):
         """ initalize the FollowTrajectoryAction 
 
             Parameters
@@ -986,11 +986,11 @@ class FollowTrajectoryAction():
 
                 following_mode (FollowMode): the following mode of the action
 
-                referece_domain (str): absolute or relative time reference (must be combined with scale and offset)
+                reference_domain (str): absolute or relative time reference (must be combined with scale and offset)
                     Default: None
-                scale (double): scalefactor of the timeings (must be combined with referece_domain and offset)
+                scale (double): scalefactor of the timings (must be combined with reference_domain and offset)
                     Default: None
-                offset (double): offset for time values (must be combined with referece_domain and scale)
+                offset (double): offset for time values (must be combined with reference_domain and scale)
                     Default: None
         """
         # if following_mode not in FollowMode:
@@ -998,7 +998,7 @@ class FollowTrajectoryAction():
         self.trajectory = trajectory
         self.following_mode = following_mode
 
-        self.timeref = TimeReference(referece_domain,scale,offset)
+        self.timeref = TimeReference(reference_domain,scale,offset)
 
     def get_element(self):
         """ returns the elementTree of the AssingRouteAction

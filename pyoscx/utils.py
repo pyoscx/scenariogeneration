@@ -723,7 +723,7 @@ class TimeReference():
                 Returns a dictionary of all attributes of the class
     """
 
-    def __init__(self, referece_domain=None,scale=None,offset=None):
+    def __init__(self, reference_domain=None,scale=None,offset=None):
         """ initalize the TimeReference
 
             Parameters
@@ -733,25 +733,26 @@ class TimeReference():
             closed (boolean): if the trajectory is closed at the end
 
         """
-        nones = [referece_domain == None, scale == None, offset == None]
+        nones = [reference_domain == None, scale == None, offset == None]
         if sum(nones) == 3:
             self._only_nones = True
         elif sum(nones) == 0:
             self._only_nones = False
         else:
-            ValueError('missing inputs for time reference')
-        # if referece_domain not in ReferenceContext:
+            print('reference_domain={}, scale={}, offset={}'.format(reference_domain, scale, offset))
+            raise ValueError('missing inputs for time reference')
+        # if reference_domain not in ReferenceContext:
         #     ValueError('not a valid reference domain')
-        self.referece_domain = referece_domain
+        self.reference_domain = reference_domain
         self.scale = scale
         self.offset = offset
-        
+
     def get_attributes(self):
         """ returns the attributes of the TimeReference as a dict
 
         """
         retdict = {}
-        retdict['domainAbsoluteRelative'] = self.referece_domain.name
+        retdict['domainAbsoluteRelative'] = self.reference_domain.name
         retdict['scale'] = str(self.scale)
         retdict['offset'] = str(self.offset)
         return retdict
