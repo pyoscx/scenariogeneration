@@ -741,8 +741,9 @@ class TimeReference():
         else:
             print('reference_domain={}, scale={}, offset={}'.format(reference_domain, scale, offset))
             raise ValueError('missing inputs for time reference')
-        # if reference_domain not in ReferenceContext:
-        #     ValueError('not a valid reference domain')
+        if reference_domain not in ReferenceContext:
+            raise TypeError('not a valid reference domain')
+
         self.reference_domain = reference_domain
         self.scale = scale
         self.offset = offset

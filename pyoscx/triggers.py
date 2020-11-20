@@ -5,6 +5,16 @@ from .enumerations import Rule, ConditionEdge
 
 
 
+class _ValueTriggerType():
+    """ helper class for typesetting
+    """
+    pass
+
+class _EntityTriggerType():
+    """ helper class for typesetting
+    """
+    pass
+
 class EmptyTrigger():
     """ EmptyTrigger creates an empty trigger
         
@@ -483,7 +493,7 @@ class TriggeringEntities():
 
 """ 
 
-class EndOfRoadCondition():
+class EndOfRoadCondition(_EntityTriggerType):
     """ the EndOfRoadCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -527,7 +537,7 @@ class EndOfRoadCondition():
         ET.SubElement(element,'EndOfRoadCondition',attrib=self.get_attributes())
         return element
 
-class CollisionCondition():
+class CollisionCondition(_EntityTriggerType):
     """ the CollisionCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -570,7 +580,7 @@ class CollisionCondition():
             ET.SubElement(colcond,'ByType',{'type':self.entity.name})
         return element
 
-class OffroadCondition():
+class OffroadCondition(_EntityTriggerType):
     """ the OffroadCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -614,7 +624,7 @@ class OffroadCondition():
         ET.SubElement(element,'OffroadCondition',attrib=self.get_attributes())
         return element
 
-class TimeHeadwayCondition():
+class TimeHeadwayCondition(_EntityTriggerType):
     """ the TimeHeadwayCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -699,7 +709,7 @@ class TimeHeadwayCondition():
         return element
 
 
-class TimeToCollisionCondition():
+class TimeToCollisionCondition(_EntityTriggerType):
     """ the TimeToCollisionCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -815,7 +825,7 @@ class TimeToCollisionCondition():
 
 
 
-class AccelerationCondition():
+class AccelerationCondition(_EntityTriggerType):
     """ the AccelerationCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -867,7 +877,7 @@ class AccelerationCondition():
         ET.SubElement(element,'AccelerationCondition',attrib=self.get_attributes())
         return element
 
-class StandStillCondition():
+class StandStillCondition(_EntityTriggerType):
     """ the StandStillCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -910,7 +920,7 @@ class StandStillCondition():
         ET.SubElement(element,'StandStillCondition',attrib=self.get_attributes())
         return element
 
-class SpeedCondition():
+class SpeedCondition(_EntityTriggerType):
     """ the SpeedCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -966,7 +976,7 @@ class SpeedCondition():
         ET.SubElement(element,'SpeedCondition',attrib=self.get_attributes())
         return element
 
-class RelativeSpeedCondition():
+class RelativeSpeedCondition(_EntityTriggerType):
     """ the RelativeSpeedCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -1030,7 +1040,7 @@ class RelativeSpeedCondition():
         ET.SubElement(element,'RelativeSpeedCondition',attrib=self.get_attributes())
         return element
 
-class TraveledDistanceCondition():
+class TraveledDistanceCondition(_EntityTriggerType):
     """ the TraveledDistanceCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -1074,7 +1084,7 @@ class TraveledDistanceCondition():
         ET.SubElement(element,'TraveledDistanceCondition',attrib=self.get_attributes())
         return element 
     
-class ReachPositionCondition():
+class ReachPositionCondition(_EntityTriggerType):
     """ the ReachPositionCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -1127,7 +1137,7 @@ class ReachPositionCondition():
         reachposcond.append(self.position.get_element())
         return element
 
-class DistanceCondition():
+class DistanceCondition(_EntityTriggerType):
     """ the DistanceCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -1194,7 +1204,7 @@ class DistanceCondition():
         distancecond.append(self.position.get_element())
         return element
 
-class RelativeDistanceCondition():
+class RelativeDistanceCondition(_EntityTriggerType):
     """ the RelativeDistanceCondition class is an Entity Condition used by the EntityTrigger
         
         Parameters
@@ -1293,7 +1303,7 @@ class RelativeDistanceCondition():
 """
 
 
-class ParameterCondition():
+class ParameterCondition(_ValueTriggerType):
     """ the ParameterCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1353,7 +1363,7 @@ class ParameterCondition():
         """
         return ET.Element('ParameterCondition',attrib=self.get_attributes())
 
-class TimeOfDayCondition():
+class TimeOfDayCondition(_ValueTriggerType):
     """ the TimeOfDayCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1407,7 +1417,7 @@ class TimeOfDayCondition():
         return ET.Element('TimeOfDayCondition',attrib=self.get_attributes())
 
 
-class SimulationTimeCondition():
+class SimulationTimeCondition(_ValueTriggerType):
     """ the SimulationTimeCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1459,7 +1469,7 @@ class SimulationTimeCondition():
         """
         return ET.Element('SimulationTimeCondition',attrib=self.get_attributes())
 
-class StoryboardElementStateCondition():
+class StoryboardElementStateCondition(_ValueTriggerType):
     """ the StoryboardElementStateCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1514,7 +1524,7 @@ class StoryboardElementStateCondition():
         """
         return ET.Element('StoryboardElementStateCondition',attrib=self.get_attributes())
 
-class UserDefinedValueCondition():
+class UserDefinedValueCondition(_ValueTriggerType):
     """ the UserDefinedValueCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1572,7 +1582,7 @@ class UserDefinedValueCondition():
         """
         return ET.Element('UserDefinedValueCondition',attrib=self.get_attributes())
 
-class TrafficSignalCondition():
+class TrafficSignalCondition(_ValueTriggerType):
     """ the TrafficSignalCondition class is an Value Condition used by the ValueTrigger
         
         Parameters
@@ -1622,7 +1632,7 @@ class TrafficSignalCondition():
         return ET.Element('TrafficSignalCondition',attrib=self.get_attributes())
 
 
-class TrafficSignalControllerCondition():
+class TrafficSignalControllerCondition(_ValueTriggerType):
     """ the TrafficSignalControllerCondition class is an Value Condition used by the ValueTrigger
         
         Parameters

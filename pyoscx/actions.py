@@ -1,10 +1,15 @@
 import xml.etree.ElementTree as ET
 
-from .utils import DynamicsConstrains, TimeReference, convert_bool
+from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, Route
 
-from .enumerations import DynamicsShapes, SpeedTargetValueType, FollowMode
+from .enumerations import DynamicsShapes, SpeedTargetValueType, FollowMode, ReferenceContext
 
+from .position import _PositionType
 
+class _ActionType():
+    """ helper class for typesetting
+    """
+    pass
 class _Action():
     """ Private class used to define an action, should not be used by the user.
         Used as a wrapper to create the extra elements needed
@@ -64,7 +69,7 @@ class _Action():
 
 #LongitudinalAction
 
-class AbsoluteSpeedAction():
+class AbsoluteSpeedAction(_ActionType):
     """ The AbsoluteSpeedAction class specifies a LongitudinalAction of type SpeedAction with an abosulte target speed
         
         Parameters
@@ -100,6 +105,8 @@ class AbsoluteSpeedAction():
 
         """
         self.speed = speed
+        if not isinstance(transition_dynamics,TransitionDynamics):
+            raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSpeedAction as a dict
@@ -122,16 +129,16 @@ class AbsoluteSpeedAction():
         
         return element
 
-class RelativeSpeedAction():
+class RelativeSpeedAction(_ActionType):
     """ The RelativeSpeedAction creates a LongitudinalAction of type SpeedAction with a relative target
         
         Parameters
         ----------
-            transition_dynamics (TransitionDynamics): how the change should be made
-
             speed (float): the speed wanted
 
             target (str): the name of the relative target (used for relative speed)
+
+            transition_dynamics (TransitionDynamics): how the change should be made
 
             valuetype (str): the type of relative speed wanted (used for relative speed)
 
@@ -177,8 +184,13 @@ class RelativeSpeedAction():
         self.speed = speed
         self.target = entity
         self.valuetype = valuetype
-        self.continious = continious
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+        
+        if not isinstance(transition_dynamics,TransitionDynamics):
+            raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
+        self.continious = continious
 
     
     def get_attributes(self):
@@ -201,7 +213,7 @@ class RelativeSpeedAction():
         
         return element
             
-class LongitudinalDistanceAction():
+class LongitudinalDistanceAction(_ActionType):
     """ The LongitudinalDistanceAction creates a LongitudinalAction of type LongitudinalDistanceAction with a distance target
         
         Parameters
@@ -272,6 +284,13 @@ class LongitudinalDistanceAction():
 
         """
         self.target = entity
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+        
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
+
+
         self.freespace = freespace
         self.continious = continious
         self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
@@ -301,7 +320,7 @@ class LongitudinalDistanceAction():
             longdistaction.append(self.dynamic_constraint.get_element())
         return element
 
-class LongitudinalTimegapAction():
+class LongitudinalTimegapAction(_ActionType):
     """ The LongitudinalTimegapAction creates a LongitudinalAction of type LongitudinalDistanceAction with the timegap option
         
         Parameters
@@ -372,6 +391,14 @@ class LongitudinalTimegapAction():
 
         """
         self.target = entity
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+
+
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
+
+
         self.freespace = freespace
         self.continious = continious
         self.timegap = timegap
@@ -404,7 +431,7 @@ class LongitudinalTimegapAction():
 
 # lateral actions
 
-class AbsoluteLaneChangeAction():
+class AbsoluteLaneChangeAction(_ActionType):
     """ the AbsoluteLaneChangeAction creates a LateralAction of type LaneChangeAction with an absolute target
         
         Parameters
@@ -448,7 +475,9 @@ class AbsoluteLaneChangeAction():
         """
 
         self.lane = lane
-        self.target_lane_offset = target_lane_offset
+        self.target_lane_offset = target_lane_offset       
+        if not isinstance(transition_dynamics,TransitionDynamics):
+            raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
 
     def get_attributes(self):
@@ -478,7 +507,7 @@ class AbsoluteLaneChangeAction():
         return element
 
 
-class RelativeLaneChangeAction():
+class RelativeLaneChangeAction(_ActionType):
     """ the RelativeLaneChangeAction creates a LateralAction of type LaneChangeAction with a relative target
         
         Parameters
@@ -530,6 +559,8 @@ class RelativeLaneChangeAction():
         self.lane = lane
         self.target = entity
         self.target_lane_offset = target_lane_offset
+        if not isinstance(transition_dynamics,TransitionDynamics):
+            raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
 
 
@@ -559,7 +590,7 @@ class RelativeLaneChangeAction():
         ET.SubElement(lanchangetarget,'RelativeTargetLane',self.get_attributes())
         return element
 
-class AbsoluteLaneOffsetAction():
+class AbsoluteLaneOffsetAction(_ActionType):
     """ the AbsoluteLaneOffsetAction class creates a LateralAction of type LaneOffsetAction with an absolute target
         
         Parameters
@@ -607,6 +638,9 @@ class AbsoluteLaneOffsetAction():
                 continious (bool): if the controller tries to keep the relative speed 
                     Default: True
         """
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+
         self.continious = continious
         self.value = value
         if shape not in DynamicsShapes:
@@ -635,7 +669,7 @@ class AbsoluteLaneOffsetAction():
 
         return element
 
-class RelativeLaneOffsetAction():
+class RelativeLaneOffsetAction(_ActionType):
     """ the RelativeLaneOffsetAction class creates a LateralAction of type LaneOffsetAction with a relative target
         
         Parameters
@@ -688,6 +722,9 @@ class RelativeLaneOffsetAction():
                 continious (bool): if the controller tries to keep the relative speed 
                     Default: True
         """
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+        
         self.continious = continious
         self.value = value
         self.target = entity
@@ -719,7 +756,7 @@ class RelativeLaneOffsetAction():
         return element
 
 
-class LateralDistanceAction():
+class LateralDistanceAction(_ActionType):
     """ 
         
         Parameters
@@ -795,6 +832,12 @@ class LateralDistanceAction():
         """
         self.distance = distance
         self.target = entity
+        if not isinstance(continious,bool):
+            raise TypeError('continious input not of type bool')
+
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
+        
         self.freespace = freespace
         self.continious = continious
         self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
@@ -826,7 +869,7 @@ class LateralDistanceAction():
 
 
 # teleport
-class TeleportAction():
+class TeleportAction(_ActionType):
     """ the TeleportAction creates the Teleport action of OpenScenario
         
         Parameters
@@ -852,6 +895,9 @@ class TeleportAction():
             position (*Position): any position object
 
         """
+        if not isinstance(position,_Position):
+            raise TypeError('position input not a valid Position type')        
+
         self.position = position
 
     def get_element(self):
@@ -867,7 +913,7 @@ class TeleportAction():
 
 # Routing actions
 
-class AssingRouteAction():
+class AssingRouteAction(_ActionType):
     """ AssingRouteAction creates a RouteAction of type AssingRouteAction
 
         Parameters
@@ -893,6 +939,9 @@ class AssingRouteAction():
                 route (Route, or CatalogReference): the route to follow
 
         """
+        if not ( isinstance(route,Route) or isinstance(route,CatalogReference)):
+            raise TypeError('route input not of type Route or CatalogReference') 
+
         self.route = route
 
     def get_element(self):
@@ -907,7 +956,7 @@ class AssingRouteAction():
         return element
 
 
-class AcquirePositionAction():
+class AcquirePositionAction(_ActionType):
     """ AcquirePositionAction creates a RouteAction of type AcquirePositionAction
         
         Parameters
@@ -932,6 +981,9 @@ class AcquirePositionAction():
                 position (*Position): target position
 
         """
+        if not isinstance(position,_Position):
+            raise TypeError('position input not a valid Position type')        
+
         self.position = position
 
     def get_element(self):
@@ -947,7 +999,7 @@ class AcquirePositionAction():
 
 
 
-class FollowTrajectoryAction():
+class FollowTrajectoryAction(_ActionType):
     """ FollowTrajectoryAction creates a RouteAction of type FollowTrajectoryAction
 
         Parameters
@@ -995,6 +1047,8 @@ class FollowTrajectoryAction():
         """
         # if following_mode not in FollowMode:
         #     ValueError(str(following_mode) + ' is not a valied following mode.')
+        if not ( isinstance(route,Route) or isinstance(route,CatalogReference)):
+            raise TypeError('route input not of type Route or CatalogReference') 
         self.trajectory = trajectory
         self.following_mode = following_mode
 
@@ -1017,7 +1071,7 @@ class FollowTrajectoryAction():
 
 
 
-class ActivateControllerAction():
+class ActivateControllerAction(_ActionType):
     """ ActivateControllerAction creates a ActivateControllerAction of open scenario
         
         Parameters
@@ -1070,7 +1124,7 @@ class ActivateControllerAction():
         return element
 
 
-class AssignControllerAction():
+class AssignControllerAction(_ActionType):
     """ AssignControllerAction creates a ControllerAction of type AssignControllerAction
         
         Parameters
@@ -1108,7 +1162,7 @@ class AssignControllerAction():
         return element
 
 
-class OverrideThrottleAction():
+class OverrideThrottleAction(_ActionType):
     """ OverrideThrottleAction creates a ControllerAction of type OverrideControllerValueAction and OverrideThrottleAction 
         
         Parameters
@@ -1162,7 +1216,7 @@ class OverrideThrottleAction():
         return element
 
 
-class OverrideBrakeAction():
+class OverrideBrakeAction(_ActionType):
     """ OverrideBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideBrakeAction 
         
         Parameters
@@ -1216,7 +1270,7 @@ class OverrideBrakeAction():
         return element
 
 
-class OverrideClutchAction():
+class OverrideClutchAction(_ActionType):
     """ OverrideClutchAction creates a ControllerAction of type OverrideControllerValueAction and OverrideClutchAction
         
         Parameters
@@ -1271,7 +1325,7 @@ class OverrideClutchAction():
 
 
 
-class OverrideParkingBrakeAction():
+class OverrideParkingBrakeAction(_ActionType):
     """ OverrideParkingBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideParkingBrakeAction 
         
         Parameters
@@ -1327,7 +1381,7 @@ class OverrideParkingBrakeAction():
 
 
 
-class OverrideSteeringWheelAction():
+class OverrideSteeringWheelAction(_ActionType):
     """ OverrideSteeringWheelAction creates a ControllerAction of type OverrideControllerValueAction and OverrideSteeringWheelAction 
         
         Parameters
@@ -1382,7 +1436,7 @@ class OverrideSteeringWheelAction():
 
 
 
-class OverrideGearAction():
+class OverrideGearAction(_ActionType):
     """ OverrideGearAction creates a ControllerAction of type OverrideControllerValueAction and OverrideGearAction 
         
         Parameters
@@ -1437,7 +1491,7 @@ class OverrideGearAction():
 
 
 
-class VisibilityAction():
+class VisibilityAction(_ActionType):
     """ creates a VisibilityAction
         
         Parameters
@@ -1495,7 +1549,7 @@ class VisibilityAction():
         ET.SubElement(element,'VisibilityAction',self.get_attributes())
         return element
 
-class AbsoluteSynchronizeAction():
+class AbsoluteSynchronizeAction(_ActionType):
     """ creates a SynchronizeAction with an absolute speed as target speed
         
         Parameters
@@ -1585,7 +1639,7 @@ class AbsoluteSynchronizeAction():
         return element
 
 
-class RelativeSynchronizeAction():
+class RelativeSynchronizeAction(_ActionType):
     """ creates a SynchronizeAction with a relative speed target
         
         Parameters
@@ -1687,7 +1741,7 @@ class RelativeSynchronizeAction():
 #### Global Actions ####
 
 
-class ParameterAddAction():
+class ParameterAddAction(_ActionType):
     """ The ParameterAddAction class creates a ParameterAction of type ParameterModifyAction which adds a value to an existing Parameter
         
         Parameters
@@ -1744,7 +1798,7 @@ class ParameterAddAction():
         return element
 
 
-class ParameterMultiplyAction():
+class ParameterMultiplyAction(_ActionType):
     """ The ParameterMultiplyAction class creates a ParameterAction of tyoe ParameterModifyAction which adds a value to an existing Parameter
         
         Parameters
@@ -1800,7 +1854,7 @@ class ParameterMultiplyAction():
         return element
 
 
-class ParameterSetAction():
+class ParameterSetAction(_ActionType):
     """ The ParameterSetAction class creates a ParameterAction which adds a value to an existing Parameter
         
         Parameters
@@ -1854,7 +1908,7 @@ class ParameterSetAction():
         return element
 
 
-class TrafficSignalStateAction():
+class TrafficSignalStateAction(_ActionType):
     """ The TrafficSignalStateAction class creates a Infrastructure action which controls the state of a traffic signal
         
         Parameters
@@ -1910,7 +1964,7 @@ class TrafficSignalStateAction():
         return element
 
 
-class AddEntityAction():
+class AddEntityAction(_ActionType):
     """ The AddEntityAction class creates a EntityAction which adds a entity to the scenario
         
         Parameters
@@ -1969,7 +2023,7 @@ class AddEntityAction():
 
 
 
-class DeleteEntityAction():
+class DeleteEntityAction(_ActionType):
     """ The DeleteEntityAction class creates a EntityAction which removes a entity to the scenario
         
         Parameters
@@ -2022,7 +2076,7 @@ class DeleteEntityAction():
 
 
 
-class TrafficSignalControllerAction():
+class TrafficSignalControllerAction(_ActionType):
     """ The TrafficSignalControllerAction class creates a Infrastructure action which activates a controller of a traffic signal
         
         Parameters
@@ -2078,7 +2132,7 @@ class TrafficSignalControllerAction():
         return element
 
 
-class TrafficSourceAction():
+class TrafficSourceAction(_ActionType):
     """ The TrafficSourceAction class creates a TrafficAction of the typ TrafficSourceAction
         
         Parameters
@@ -2167,7 +2221,7 @@ class TrafficSourceAction():
         return element
 
 
-class TrafficSinkAction():
+class TrafficSinkAction(_ActionType):
     """ The TrafficSinkAction class creates a TrafficAction of the typ TrafficSinkAction
         
         Parameters
@@ -2243,7 +2297,7 @@ class TrafficSinkAction():
         return element
 
 
-class TrafficSwarmAction():
+class TrafficSwarmAction(_ActionType):
     """ The TrafficSwarmAction class creates a TrafficAction of the typ TrafficSwarmAction
         
         Parameters
@@ -2351,7 +2405,7 @@ class TrafficSwarmAction():
         return element
 
 
-class EnvironmentAction():
+class EnvironmentAction(_ActionType):
     """ The EnvironmentAction class creates a GlobalAction of the typ EnvironmentAction
         
         Parameters
@@ -2408,7 +2462,7 @@ class EnvironmentAction():
         return element
 
 
-class CustomCommandAction():
+class CustomCommandAction(_ActionType):
     """ The CustomCommandAction creates a simulator defined action, can add any number of xml.etree.ElementTree to an Action
 
         NOTE: this is a very crude implementation, and the element has to be created by the user.

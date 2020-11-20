@@ -1,8 +1,11 @@
 import xml.etree.ElementTree as ET
 
 from .utils import Orientation
-
-class WorldPosition():
+class _PositionType():
+    """ helper class for typesetting
+    """
+    pass
+class WorldPosition(_PositionType):
     """ the WorldPostion creates a worldposition of openScenario
         
         Parameters
@@ -92,7 +95,7 @@ class WorldPosition():
         ET.SubElement(element,'WorldPosition',attrib=self.get_attributes())
         return element
 
-class RelativeWorldPosition():
+class RelativeWorldPosition(_PositionType):
     """ the WorldRelativePosition creates a RelativePosition with the option of world as reference
         
         Parameters
@@ -180,7 +183,7 @@ class RelativeWorldPosition():
         return element
 
 
-class RelativeObjectPosition():
+class RelativeObjectPosition(_PositionType):
     """ the RelativeObjectPosition creates a RelativePosition with the option of object as reference
         
         Parameters
@@ -271,7 +274,7 @@ class RelativeObjectPosition():
 
 
 
-class RoadPosition():
+class RoadPosition(_PositionType):
     """  the RoadPosition creates a RoadPosition of openScenario
         
         Parameters
@@ -351,7 +354,7 @@ class RoadPosition():
         return element
 
 
-class RelativeRoadPosition():
+class RelativeRoadPosition(_PositionType):
     """  the RelativeRoadPosition creates a RelativeRoadPosition of openScenario
         
         Parameters
@@ -430,7 +433,7 @@ class RelativeRoadPosition():
             roadpos.append(self.orient.get_element())
         return element
 
-class LanePosition():
+class LanePosition(_PositionType):
     """ the LanePosition creates a LanePosition of openScenario
         
         Parameters
@@ -519,7 +522,7 @@ class LanePosition():
         return element
 
 
-class RelativeLanePosition():
+class RelativeLanePosition(_PositionType):
     """ the RelativeLanePosition creates a RelativeLanePosition of openScenario
         
         Parameters
@@ -607,7 +610,7 @@ class RelativeLanePosition():
         return element
 
 
-class RoutePositionOfCurrentEntity():
+class RoutePositionOfCurrentEntity(_PositionType):
     """ RoutePositionOfCurrentEntity creates a RoutePosition with the InRoutePosition of type PositionOfCurrentEntity
         
         Parameters
@@ -663,7 +666,7 @@ class RoutePositionOfCurrentEntity():
 
 
 
-class RoutePositionInRoadCoordinates():
+class RoutePositionInRoadCoordinates(_PositionType):
     """ RoutePositionInRoadCoordinates creates a RoutePosition with the InRoutePosition of type PositionInRoadCooardinates
         
         Parameters
@@ -725,7 +728,7 @@ class RoutePositionInRoadCoordinates():
         return element
 
 
-class RoutePositionInLaneCoordinates():
+class RoutePositionInLaneCoordinates(_PositionType):
     """ RoutePositionInLaneCoordinates creates a RoutePosition with the InRoutePosition of type PositionInLaneCoordinates
         
         Parameters
