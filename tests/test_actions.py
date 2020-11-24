@@ -33,11 +33,11 @@ def test_lanechange_rel():
     OSC.prettyprint(lanechange.get_element())
 
 def test_laneoffset_abs():
-    laneoffset = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,0,3)
+    laneoffset = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,3,False)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_laneoffset_rel():
-    laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,0,3)
+    laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,3,False)
     OSC.prettyprint(laneoffset.get_element())
 
 def test_lateraldistance_noconst():
@@ -59,7 +59,7 @@ def test_assign_route():
     OSC.AssingRouteAction(route)
 
 def test_aqcuire_position_route():
-    ara = OSC.AssingRouteAction(OSC.WorldPosition(1,1,0,0,0,0))
+    ara = OSC.AcquirePositionAction(OSC.WorldPosition(1,1,0,0,0,0))
     OSC.prettyprint(ara.get_element())
 
 def test_activate_controller_action():
@@ -128,7 +128,7 @@ def test_follow_traj_action_polyline():
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
 
 
-    traj = OSC.Trajectory('my_trajectory','False')
+    traj = OSC.Trajectory('my_trajectory',False)
     traj.add_shape(polyline)
 
     trajact = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position)

@@ -48,8 +48,11 @@ def test_parameter():
     OSC.prettyprint(param.get_element())
 
 def test_catalogreference():
-    OSC.CatalogReference('VehicleCatalog','S60')
-
+    catref = OSC.CatalogReference('VehicleCatalog','S60')
+    OSC.prettyprint(catref.get_element())
+    catref.add_parameter_assignment('stuffs',1)
+    OSC.prettyprint(catref.get_element())
+    
 
 def test_waypoint():
     wp = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
@@ -71,6 +74,17 @@ def test_paramdeclaration():
     pardec.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.double,'0.01'))
     OSC.prettyprint(pardec.get_element())
 
+def test_parameterassignment():
+    parass = OSC.ParameterAssignment('param1',1)
+    OSC.prettyprint(parass.get_element())
+
+def test_controller():
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+
+    cnt = OSC.Controller('mycontroler',prop)
+    OSC.prettyprint(cnt.get_element())
 
 def test_fileheader():
     fh = OSC.FileHeader('my_scenario','Mandolin')

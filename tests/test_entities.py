@@ -41,12 +41,13 @@ def test_vehicle():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axel(2,2,2,1,1)
     ba = OSC.Axel(1,1,2,1,1)
+    
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
     OSC.prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
     veh.add_property('myprop','12')
-    veh.add_axel(bb)
+    veh.add_axel(ba)
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
     veh.add_parameter(param)
     
@@ -66,7 +67,7 @@ def test_pedestrian():
 
 def test_miscobj():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    veh = OSC.MiscObject('mycar',100,'obstacle',bb)
+    veh = OSC.MiscObject('mycar',100,OSC.MiscObjectCategory.obstacle,bb)
     
     OSC.prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
@@ -85,7 +86,7 @@ def test_entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axel(2,2,2,1,1)
     ba = OSC.Axel(1,1,2,1,1)
-    veh = OSC.Vehicle('mycar',OSC.ObjectType.vehicle,bb,fa,ba,150,10,10)
+    veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
     entities = OSC.Entities()
     entities.add_scenario_object('Ego',veh)
@@ -106,7 +107,7 @@ def test_controller_in_Entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axel(2,2,2,1,1)
     ba = OSC.Axel(1,1,2,1,1)
-    veh = OSC.Vehicle('mycar',OSC.ObjectType.vehicle,bb,fa,ba,150,10,10)
+    veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
 
     prop = OSC.Properties()
     prop.add_property('mything','2')

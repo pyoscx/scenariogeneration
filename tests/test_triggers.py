@@ -58,7 +58,7 @@ def test_distancecondition():
     OSC.prettyprint(cond.get_element())
 
 def test_relativedistancecondition():
-    cond = OSC.RelativeDistanceCondition(1,OSC.Rule.equalTo,'Ego',True,False)
+    cond = OSC.RelativeDistanceCondition(1,OSC.Rule.equalTo,OSC.RelativeDistanceType.longitudinal,'Ego',True,False)
     OSC.prettyprint(cond.get_element())
 
 def test_parametercondition():
@@ -74,7 +74,7 @@ def test_simulationtimecondition():
     OSC.prettyprint(cond.get_element())
 
 def test_storyboardelementstatecondition():
-    cond = OSC.StoryboardElementStateCondition('Elementref','hej','on')
+    cond = OSC.StoryboardElementStateCondition(OSC.StoryboardElementType.action,'hej',OSC.StoryboardElementState.endTransition)
     OSC.prettyprint(cond.get_element())
 
 def test_userdefinedcondition():
@@ -90,7 +90,7 @@ def test_trafficsignalconditioncontroller():
     OSC.prettyprint(cond.get_element())
 
 def test_triggeringentities():
-    cond =OSC.TriggeringEntities('Ego','any')
+    cond =OSC.TriggeringEntities(OSC.TriggeringEntitiesRule.all)
     OSC.prettyprint(cond.get_element())
 
 def test_entitytrigger():
@@ -106,7 +106,7 @@ def test_valuetrigger():
 def test_conditiongroup():
     condgr = OSC.ConditionGroup()
 
-    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.longitudinal,'Ego'),'Target')
     trig2 = OSC.EntityTrigger('secondtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
     condgr.add_condition(trig1)
     condgr.add_condition(trig2)
@@ -117,7 +117,7 @@ def test_trigger():
     
     condgr = OSC.ConditionGroup()
 
-    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.longitudinal,'Ego'),'Target')
     trig2 = OSC.EntityTrigger('secondtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
 
     condgr.add_condition(trig1)
@@ -125,7 +125,7 @@ def test_trigger():
 
     condgr2 = OSC.ConditionGroup()
 
-    trig3 = OSC.EntityTrigger('thirdtrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,'Ego'),'Target')
+    trig3 = OSC.EntityTrigger('thirdtrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.longitudinal,'Ego'),'Target')
     trig4 = OSC.EntityTrigger('forthtrigger',2,OSC.ConditionEdge.rising,OSC.SpeedCondition(2,OSC.Rule.equalTo),'Target')
 
     condgr2.add_condition(trig3)

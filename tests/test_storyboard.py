@@ -175,7 +175,7 @@ def test_storyboard_act_input():
     OSC.prettyprint(sb.get_element())
 
 
-def test_storyboard_act_input():
+def test_storyboard_mangr_input():
     
     egoname = "Ego"
     targetname = "target"
@@ -227,7 +227,7 @@ def test_storyboard_act_input():
     OSC.prettyprint(sb.get_element())
 
 
-def test_storyboard_act_input():
+def test_storyboard_man_input():
     
     egoname = "Ego"
     targetname = "target"

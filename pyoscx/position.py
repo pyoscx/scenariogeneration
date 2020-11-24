@@ -1,10 +1,7 @@
 import xml.etree.ElementTree as ET
 
-from .utils import Orientation
-class _PositionType():
-    """ helper class for typesetting
-    """
-    pass
+from .utils import Orientation, CatalogReference, Route, _PositionType
+
 class WorldPosition(_PositionType):
     """ the WorldPostion creates a worldposition of openScenario
         
@@ -154,6 +151,8 @@ class RelativeWorldPosition(_PositionType):
         self.dx = dx
         self.dy = dy
         self.dz = dz
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
 
     def get_attributes(self):
@@ -243,6 +242,8 @@ class RelativeObjectPosition(_PositionType):
         self.dx = dx
         self.dy = dy
         self.dz = dz
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
 
     def get_attributes(self):
@@ -326,6 +327,8 @@ class RoadPosition(_PositionType):
         self.s = s
         self.t = t
         self.id = reference_id
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
     def get_attributes(self):
@@ -406,6 +409,8 @@ class RelativeRoadPosition(_PositionType):
         self.s = s
         self.t = t
         self.target = entity
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
     def get_attributes(self):
@@ -492,6 +497,8 @@ class LanePosition(_PositionType):
         self.lane_id = lane_id
         self.offset = offset
         self.road_id = road_id
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
     def get_attributes(self):
@@ -581,6 +588,8 @@ class RelativeLanePosition(_PositionType):
         self.lane_id = lane_id
         self.offset = offset
         self.entity = entity
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
     def get_attributes(self):
@@ -648,8 +657,12 @@ class RoutePositionOfCurrentEntity(_PositionType):
                 orientation (Orientation): Oritation of the entity
                     Default: Orientation()
         """
+        if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
+            raise TypeError('route input not of type Route or CatalogReference') 
         self.route_ref = route_ref
         self.entity = entity
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
     
     def get_element(self):
@@ -710,9 +723,13 @@ class RoutePositionInRoadCoordinates(_PositionType):
                 orientation (Orientation): Oritation of the entity
                     Default: Orientation()
         """
+        if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
+            raise TypeError('route input not of type Route or CatalogReference') 
         self.route_ref = route_ref
         self.s = s
         self.t = t
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
     
     def get_element(self):
@@ -781,10 +798,14 @@ class RoutePositionInLaneCoordinates(_PositionType):
                 orientation (Orientation): Oritation of the entity
                     Default: Orientation()
         """
+        if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
+            raise TypeError('route input not of type Route or CatalogReference') 
         self.route_ref = route_ref
         self.s = s
         self.laneid = laneid
         self.offset = offset
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
     
     def get_element(self):

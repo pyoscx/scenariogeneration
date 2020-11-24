@@ -31,7 +31,7 @@ class DynamicsShapes(Enum):
     """ Enum for DynamicsShapes
     """
     linear = auto()
-    cubic = auto()
+    cubic = auto() 
     sinusoidal = auto()
     step = auto()
 

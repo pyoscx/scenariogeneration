@@ -1,9 +1,9 @@
 import xml.etree.ElementTree as ET
 
-from .actions import _Action
+from .actions import _Action, _ActionType, _PrivateActionType
 
 from .triggers import EmptyTrigger, ValueTrigger, SimulationTimeCondition
-from .utils import EntityRef
+from .utils import EntityRef, _TriggerType, _EntityTriggerType, _ValueTriggerType
 from .utils import ParameterDeclarations, CatalogFile, convert_bool
 from .enumerations import Priority, Rule, ConditionEdge
 
@@ -49,6 +49,10 @@ class Init():
             action (*Action): Any private action to be added (like TeleportAction)
             
         """
+        if not isinstance(action,_PrivateActionType):
+            if isinstance(action,_ActionType):
+                raise TypeError('the action provided is a global action, please use add_global_action instead')
+            raise TypeError('action input is not a valid action')
         if entityname not in self.initactions:
             self.initactions[entityname] = []
 
@@ -62,6 +66,10 @@ class Init():
             action (*Action): any global action to add to the init
 
         """
+        if isinstance(action,_PrivateActionType):
+            raise TypeError('action input is a Private action, please use add_init_action instead')
+        if not isinstance(action,_ActionType):
+            raise TypeError('action input is not a valid action')
         self.global_actions.append(action)
     
     def add_user_defined_action(self,action):
@@ -72,6 +80,7 @@ class Init():
             action (CustomCommandAction): a custom command action (NOTE: a very crude implementation see actions.py)
 
         """
+        # NOTE: since this is not really implemented no checkes are done here.
         self.user_defined_actions.append(action)
 
     def get_element(self):
@@ -139,6 +148,13 @@ class StoryBoard():
                 Default: (EmptyTrigger) 
 
         """
+        if not isinstance(init,Init):
+            raise TypeError('init is not of type Init')
+        if not isinstance(stoptrigger,_TriggerType):
+            raise TypeError('stoptrigger is not a valid Trigger')
+        # check that the stoptrigger has a triggeringpoint that is 'stop'
+        if stoptrigger._triggerpoint == 'StartTrigger':
+            raise ValueError('the stoptrigger provided does not have stop as the triggeringpoint')
         self.init = init
         self.stoptrigger = stoptrigger
         self.stories = []
@@ -151,6 +167,8 @@ class StoryBoard():
             story (Story): the story to be added 
 
         """
+        if not isinstance(story,Story):
+            raise TypeError('story input is not of type Story')
         self.stories.append(story)
 
     def add_act(self,act,parameters=ParameterDeclarations()):
@@ -165,6 +183,8 @@ class StoryBoard():
                 parameters (ParameterDeclarations): the parameters of the story (optional)
                     Default: ParameterDeclarations()
         """
+        if not isinstance(act,Act):
+            raise TypeError('act input is not of type Act')
         newstory = Story('story_' + act.name,parameters)
         newstory.add_act(act)
         self.stories.append(newstory)
@@ -188,8 +208,15 @@ class StoryBoard():
                     Default: ParameterDeclarations()
 
         """
+        if not isinstance(maneuvergroup,ManeuverGroup):
+            raise TypeError('maneuvergroup input is not of type ManeuverGroup')
         if starttrigger == None:
             starttrigger = ValueTrigger('act_start',0,ConditionEdge.rising,SimulationTimeCondition(0,Rule.greaterThan))
+        elif starttrigger._triggerpoint == 'StopTrigger':
+            raise ValueError('the starttrigger provided does not have start as the triggeringpoint')
+
+        if stoptrigger._triggerpoint == 'StartTrigger':
+            raise ValueError('the stoptrigger provided is not of type StopTrigger')
         newact = Act('act_' + maneuvergroup.name,starttrigger,stoptrigger)
         newact.add_maneuver_group(maneuvergroup)
         self.add_act(newact,parameters)
@@ -216,6 +243,8 @@ class StoryBoard():
                     Default: ParameterDeclarations()
 
         """
+        if not isinstance(maneuver,Maneuver):
+            raise TypeError('maneuver input is not of type Maneuver')
         mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
         if isinstance(actors,list):
             for a in actors:
@@ -223,7 +252,7 @@ class StoryBoard():
         else:
             mangr.add_actor(actors)
         mangr.add_maneuver(maneuver)
-        self.add_maneuver_group(mangr)
+        self.add_maneuver_group(mangr,starttrigger=starttrigger,stoptrigger=stoptrigger,parameters=parameters)
 
     def get_element(self):
         """ returns the elementTree of the Storyboard
@@ -286,6 +315,8 @@ class Story():
         self.name = name
 
         self.acts = []
+        if not isinstance(parameters,ParameterDeclarations):
+            raise TypeError('parameters input is not of type ParameterDeclarations')
 
         self.parameter = parameters
 
@@ -297,6 +328,8 @@ class Story():
             act (Act): act to add to the story
 
         """
+        if not isinstance(act,Act):
+            raise TypeError('act input is not of type Act')
         self.acts.append(act)
 
     def get_attributes(self):
@@ -354,36 +387,45 @@ class Act():
     def __init__(self,name,starttrigger=None,stoptrigger=None):
         """ Initalize the Act
 
-        Parameters
-        ----------
-            name (str): name of the act
+            Parameters
+            ----------
+                name (str): name of the act
 
-            starttrigger (*Trigger): starttrigger of the act
-                Default: ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
+                starttrigger (*Trigger): starttrigger of the act
+                    Default: ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
 
-            stoptrigger (*Trigger): stoptrigger of the act (optional)
-                Default: Emptytrigger
+                stoptrigger (*Trigger): stoptrigger of the act (optional)
+                    Default: Emptytrigger
 
         """
+
         self.name = name
         if starttrigger == None:
             self.starttrigger = starttrigger = ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
+        elif starttrigger._triggerpoint == 'StopTrigger':
+            raise ValueError('the starttrigger provided does not have start as the triggeringpoint')
         else:
             self.starttrigger = starttrigger
+
         if stoptrigger == None:
             self.stoptrigger = EmptyTrigger('stop')
+        elif stoptrigger._triggerpoint == 'StartTrigger':
+            raise ValueError('the stoptrigger provided is not of type StopTrigger')
         else:
             self.stoptrigger = stoptrigger
+
         self.maneuvergroup = []
 
     def add_maneuver_group(self,maneuvergroup):
         """ adds a maneuvuergroup to the act
 
-        Parameters
-        ----------
-            name (str): name of the act
+            Parameters
+            ----------
+                maneuvergroup (ManeuverGroup): the maneuvergroup to add
 
         """
+        if not isinstance(maneuvergroup,ManeuverGroup):
+            raise TypeError('maneuvergroup is not of type ManeuverGroup')
         self.maneuvergroup.append(maneuvergroup)
 
     def get_attributes(self):
@@ -460,9 +502,7 @@ class ManeuverGroup():
         self.maxexecution = maxexecution
         self.actors = _Actors(selecttriggeringentities)
         self.maneuvers = []
- 
-
-    
+     
     def add_maneuver(self,maneuver):
         """ adds a maneuver to the ManeuverGroup
             
@@ -471,6 +511,8 @@ class ManeuverGroup():
             maneuver (Maneuver, or CatalogReference): maneuver to add
 
         """
+        if not isinstance(maneuver,Maneuver):
+            raise TypeError('maneuver input is not of type Maneuver')
         self.maneuvers.append(maneuver)
 
     def add_actor(self,entity):
@@ -579,11 +621,16 @@ class Maneuver():
         ----------
             name (str): name of the Maneuver
 
+            parameters (ParameterDeclaration): Parameter declarations for the maneuver
+                Default: None
+
         Attributes
         ----------
             name (str): name of the Maneuver
 
             events (list of Event): all events belonging to the Maneuver
+
+            parameters (ParameterDeclaration): Parameter declarations for the maneuver
 
         Methods
         -------
@@ -603,16 +650,19 @@ class Maneuver():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name):
+    def __init__(self,name,parameters = None):
         """ initalizes the Maneuver
         Parameters
         ----------
             name (str): name of the Maneuver
 
         """
+        if parameters is not None and not isinstance(parameters,ParameterDeclarations):
+            raise TypeError('parameters is not of type ParameterDeclarations')
+        self.parameters = parameters
         self.name = name
         self.events = []
-        # TODO:add parameter declaration
+
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
             
@@ -644,6 +694,7 @@ class Maneuver():
         cf.open_catalog(filename)
         cf.add_to_catalog(self)
         cf.dump()
+
     def add_event(self,event):
         """ adds an event to the Maneuver
 
@@ -652,6 +703,8 @@ class Maneuver():
             name (Event): the event to add to the Maneuver
 
         """
+        if not isinstance(event,Event):
+            raise TypeError('event input is not of type Event')
         self.events.append(event)
 
     def get_attributes(self):
@@ -668,6 +721,8 @@ class Maneuver():
             raise ValueError('no events added to the maneuver')
 
         element = ET.Element('Maneuver',attrib=self.get_attributes())
+        if self.parameters:
+            element.append(self.parameters.get_element())
         for event in self.events:
             element.append(event.get_element())
 
@@ -729,16 +784,24 @@ class Event():
             trigger (*Trigger): Adds a trigger to start the event (not EmptyTrigger)
 
         """
+        if not isinstance(trigger,_TriggerType):
+            if isinstance(trigger,_ValueTriggerType):
+                raise TypeError('trigger input is a value trigger condition, please add to a ValueTrigger.')
+            elif isinstance(_EntityTriggerType):
+                raise TypeError('trigger input is a entity trigger condition, please add to a EntityTrigger.')
+            raise TypeError('trigger input is not a valid trigger')
         self.trigger = trigger
 
     def add_action(self,actionname,action):
         """ adds an action to the Event, multiple actions can be added and will be ordered as added.
 
-        Parameters
-        ----------
-            action (*Action): any action to be added to the event
+            Parameters
+            ----------
+                action (*Action): any action to be added to the event
 
         """
+        if not isinstance(action,_ActionType):
+            raise TypeError('action input is not a valid Action')
         self.action.append(_Action(actionname,action))
 
     def get_attributes(self):

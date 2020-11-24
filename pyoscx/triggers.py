@@ -1,21 +1,13 @@
 import xml.etree.ElementTree as ET
 
-from .utils import EntityRef, convert_bool
-from .enumerations import Rule, ConditionEdge
+from .utils import EntityRef, convert_bool, _PositionType, _ValueTriggerType, _EntityTriggerType, _TriggerType
+from .enumerations import Rule, ConditionEdge, TriggeringEntitiesRule, RelativeDistanceType, StoryboardElementType, StoryboardElementState
 
 
 
-class _ValueTriggerType():
-    """ helper class for typesetting
-    """
-    pass
 
-class _EntityTriggerType():
-    """ helper class for typesetting
-    """
-    pass
 
-class EmptyTrigger():
+class EmptyTrigger(_TriggerType):
     """ EmptyTrigger creates an empty trigger
         
         Parameters
@@ -54,7 +46,7 @@ class EmptyTrigger():
         
 
 
-class Trigger():
+class Trigger(_TriggerType):
     """ The Trigger class creates a Trigger that can be used if multiple ConditionGroups are wanted
         
         Parameters
@@ -101,6 +93,8 @@ class Trigger():
             conditiongroup (ConditionGroup): a conditiongroup to add to the trigger
          
         """
+        if not isinstance(conditiongroup,ConditionGroup):
+            raise TypeError('conditiongroup input not of type ConditionGroup')   
         conditiongroup._set_used_by_parent()
         self.conditiongroups.append(conditiongroup)
     
@@ -115,7 +109,7 @@ class Trigger():
             element.append(c.get_element())
         return element
 
-class ConditionGroup():
+class ConditionGroup(_TriggerType):
     """ The ConditionGroup class creates a Trigger that can be used if multiple Conditions are wanted
         
         Parameters
@@ -157,11 +151,13 @@ class ConditionGroup():
     def add_condition(self,condition):
         """ Adds a condition (EntityTrigger or ValueTrigger) to the ConditionGroup
 
-        Parameters
-        ----------
-            conditiongroup (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
+            Parameters
+            ----------
+                condition (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
          
         """
+        if not ( isinstance(condition,EntityTrigger) or isinstance(condition,ValueTrigger)):
+            raise TypeError('condition input not of type EntityTrigger or ValueTrigger')   
         condition._set_used_by_parent()
         self.conditions.append(condition)
         self._used_by_parent = False
@@ -177,7 +173,7 @@ class ConditionGroup():
 
         """
         if not self.conditions:
-            ValueError('No conditions were added to the ConditionGroup')
+            raise ValueError('No conditions were added to the ConditionGroup')
         condgroup = ET.Element('ConditionGroup')
 
         for c in self.conditions:
@@ -193,7 +189,7 @@ class ConditionGroup():
 
 
 
-class EntityTrigger():
+class EntityTrigger(_TriggerType):
     """ the EntityTrigger creates an Trigger containing an EntityTrigger 
         
         Parameters
@@ -208,7 +204,7 @@ class EntityTrigger():
 
             triggeringentity (str): the entity of the trigger
 
-            triggeringrule (str): rule of the trigger
+            triggeringrule (TriggeringEntitiesRule): rule of the trigger
                 Default: 'any'
 
             triggeringpoint (str): start or stop 
@@ -234,7 +230,7 @@ class EntityTrigger():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name,delay,conditionedge,entitycondition,triggerentity,triggeringrule='any',triggeringpoint = 'start'):
+    def __init__(self,name,delay,conditionedge,entitycondition,triggerentity,triggeringrule=TriggeringEntitiesRule.any,triggeringpoint = 'start'):
         """ initalize the EntityTrigger
 
         Parameters
@@ -249,7 +245,7 @@ class EntityTrigger():
 
             triggeringentity (str): the entity of the trigger 
 
-            triggeringrule (str): rule of the trigger
+            triggeringrule (TriggeringEntitiesRule): rule of the trigger
                 Default: 'any'
 
             triggeringpoint (str): start or stop 
@@ -267,6 +263,8 @@ class EntityTrigger():
         if conditionedge not in ConditionEdge:
             raise ValueError('not a valid condition edge')
         self.conditionedge = conditionedge
+        if not isinstance(entitycondition,_EntityTriggerType):
+            raise TypeError('entitycondition is not a valid EntityCondition')
         self.entitycondition = entitycondition
         self.triggerentity = TriggeringEntities(triggeringrule)
         self.triggerentity.add_entity(triggerentity)
@@ -315,7 +313,7 @@ class EntityTrigger():
 
 
 
-class ValueTrigger():
+class ValueTrigger(_TriggerType):
     """ the ValueTrigger creates a Trigger of the type ValueTrigger of openscenario
         
         Parameters
@@ -389,6 +387,8 @@ class ValueTrigger():
         if conditionedge not in ConditionEdge:
             raise ValueError('not a valid condition edge')
         self.conditionedge = conditionedge
+        if not isinstance(valuecondition,_ValueTriggerType):
+            raise TypeError('entitycondition is not a valid EntityCondition')
         self.valuecondition = valuecondition
         self._used_by_parent = False
 
@@ -426,13 +426,13 @@ class TriggeringEntities():
         
         Parameters
         ----------
-            triggeringrule (str): all or any
+            triggeringrule (TriggeringEntitiesRule): all or any
 
         Attributes
         ----------
             entity (list of EntityRef): refernce to the entity
 
-            triggeringrule (str): all or any
+            triggeringrule (TriggeringEntitiesRule): all or any
 
         Methods
         -------
@@ -451,12 +451,12 @@ class TriggeringEntities():
         
         Parameters
         ----------
-            entity (str): name of the entity
+            entity (TriggeringEntitiesRule): name of the entity
 
             triggeringrule (str): all or any
 
         """
-        if triggeringrule not in ['any','all']:
+        if triggeringrule not in TriggeringEntitiesRule:
             raise ValueError('not a vaild triggering rule')
         self.entity = [] 
         self.triggeringrule = triggeringrule
@@ -475,7 +475,7 @@ class TriggeringEntities():
         """ returns the attributes of the LaneOffsetAction as a dict
 
         """
-        return {'triggeringEntitiesRule':self.triggeringrule}
+        return {'triggeringEntitiesRule':self.triggeringrule.name}
 
     def get_element(self):
         """ returns the elementTree of the LaneOffsetAction
@@ -682,6 +682,10 @@ class TimeHeadwayCondition(_EntityTriggerType):
         """
         self.entity = entity
         self.value = value
+        if not isinstance(alongroute,bool):
+            raise TypeError('alongroute input not of type bool')
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
         self.alongroute = alongroute
         self.freespace = freespace
         if rule not in Rule:
@@ -778,6 +782,10 @@ class TimeToCollisionCondition(_EntityTriggerType):
         
         """
         self.value = value
+        if not isinstance(alongroute,bool):
+            raise TypeError('alongroute input not of type bool')
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
         self.freespace = freespace
         self.alongroute = alongroute
         if rule not in Rule:
@@ -790,8 +798,11 @@ class TimeToCollisionCondition(_EntityTriggerType):
             self.entity = EntityRef(entity)
             self.use_entity = True
         if position:
+            if not isinstance(position,_PositionType):
+                raise TypeError('input position is not a valid Position')
             self.position = position
             self.use_entity = False
+
     def get_attributes(self):
         """ returns the attributes of the TimeToCollisionCondition as a dict
 
@@ -1118,6 +1129,8 @@ class ReachPositionCondition(_EntityTriggerType):
             tolerance (float): tolerance of the position
 
         """
+        if not (isinstance(position,_PositionType)):
+            raise TypeError('position input is not a valid Position')
         self.position = position
         self.tolerance = tolerance
 
@@ -1182,6 +1195,8 @@ class DistanceCondition(_EntityTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
+        if not (isinstance(position,_PositionType)):
+            raise TypeError('position input is not a valid Position')
         self.position = position
 
     def get_attributes(self):
@@ -1213,9 +1228,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
             rule (Rule): condition rule of triggering 
 
-            entity (str): name of the entity fore relative distance
-
             dist_type (RelativeDistanceType): type of relative distance
+
+            entity (str): name of the entity fore relative distance     
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1255,9 +1270,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
             rule (Rule): condition rule of triggering 
 
-            entity (str): name of the entity fore relative distance
-
             dist_type (RelativeDistanceType): type of relative distance
+
+            entity (str): name of the entity fore relative distance           
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1267,8 +1282,14 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
         """
         self.value = value
+        if not isinstance(alongroute,bool):
+            raise TypeError('alongroute input not of type bool')
+        if not isinstance(freespace,bool):
+            raise TypeError('freespace input not of type bool')
         self.alongroute = alongroute
         self.freespace = freespace
+        if dist_type not in RelativeDistanceType:
+            raise TypeError('dist_type is not of type RelativeDistanceType')
         self.dist_type = dist_type
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
@@ -1508,6 +1529,10 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
                 state (StoryboardElementType): state to trigger on
         """
+        if element not in StoryboardElementType:
+            raise TypeError('element input is not of type StoryBoardElementType')
+        if state not in StoryboardElementState:
+            raise TypeError('state input is not of type StoryBoardElementState')
         self.element = element
         self.reference = reference
         self.state = state

@@ -3,9 +3,10 @@ import xml.dom.minidom as mini
 
 
 from .helpers import printToFile
-from .utils import FileHeader, ParameterDeclarations
+from .utils import FileHeader, ParameterDeclarations, Catalog, TrafficSignalController
 from .enumerations import XMLNS, XSI
-
+from .entities import Entities
+from .storyboard import StoryBoard
 
 class Scenario():
     """ The Scenario class collects all parts of OpenScenario and creates a .xml file
@@ -53,6 +54,17 @@ class Scenario():
 
             catalog (Catalog): the catalogs used in the scenario
         """
+        if not isinstance(entities,Entities):
+            raise TypeError('entities input is not of type Entities')
+        if not isinstance(storyboard,StoryBoard):
+            raise TypeError('storyboard input is not of type StoryBoard')
+        if not isinstance(roadnetwork,RoadNetwork):
+            raise TypeError('roadnetwork input is not of type RoadNetwork')
+        if not isinstance(catalog,Catalog):
+            raise TypeError('catalog input is not of type StorCatalogyBoard')
+        if not isinstance(parameters,ParameterDeclarations):
+            raise TypeError('parameters input is not of type ParameterDeclarations')
+
         self.entities = entities
         self.storyboard = storyboard
         self.roadnetwork = roadnetwork
@@ -101,11 +113,11 @@ class RoadNetwork():
 
         Attributes
         ----------
-            road_file: path to the opendrive file
+            road_file (str): path to the opendrive file
 
-            scene: path to the opensceengraph file 
+            scene (str): path to the opensceengraph file 
 
-            traffic_signals (TrafficSignalController)
+            traffic_signals (list of TrafficSignalController): all traffic signals in the roadnetwork
             
         Methods
         -------
@@ -137,6 +149,8 @@ class RoadNetwork():
                 traffic_signal_controller (TrafficSignalController): the traffic signal controller to add
 
         """
+        if not isinstance(traffic_signal_controller,TrafficSignalController):
+            raise TypeError('traffic_signal_controller input is not of type TrafficSignalController')
         self.traffic_signals.append(traffic_signal_controller)
 
     def get_element(self):
