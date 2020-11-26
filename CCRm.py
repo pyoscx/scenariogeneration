@@ -25,16 +25,16 @@ def CCRm(ego_speedvalue,offset):
     target_width = 1.8
 
     bb = pyoscx.BoundingBox(ego_width,5,1.8,2.0,0,0.9)
-    fa = pyoscx.Axel(30,0.8,1.68,2.98,0.4)
-    ba = pyoscx.Axel(30,0.8,1.68,0,0.4)
+    fa = pyoscx.Axle(30,0.8,1.68,2.98,0.4, name='FrontAxle')
+    ba = pyoscx.Axle(30,0.8,1.68,0,0.4, name='RearAxle')
     white_veh = pyoscx.Vehicle('car_white',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
 
     white_veh.add_property_file('../models/car_white.osgb')
     white_veh.add_property('model_id','0')
 
     bb = pyoscx.BoundingBox(target_width,4.5,1.5,1.3,0,0.8)
-    fa = pyoscx.Axel(30,0.8,1.68,2.98,0.4)
-    ba = pyoscx.Axel(30,0.8,1.68,0,0.4)
+    fa = pyoscx.Axle(30,0.8,1.68,2.98,0.4, name='FrontAxle')
+    ba = pyoscx.Axle(30,0.8,1.68,0,0.4, name='RearAxle')
     red_veh = pyoscx.Vehicle('car_red',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
 
     red_veh.add_property_file('../models/car_red.osgb')
