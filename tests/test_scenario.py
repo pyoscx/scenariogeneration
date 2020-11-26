@@ -58,8 +58,8 @@ def test_scenario():
     story.add_act(act)
 
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axel(2,2,2,1,1)
-    ba = OSC.Axel(1,1,2,1,1)
+    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
+    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
 
     entities = OSC.Entities()

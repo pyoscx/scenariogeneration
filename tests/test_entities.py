@@ -26,28 +26,28 @@ def test_boundingbox():
 
 
 def test_axel():
-    ba = OSC.Axel(1,1,2,1,1)
+    ba = OSC.Axle(1,1,2,1,1)
     OSC.prettyprint(ba.get_element())
 
 def test_axels():
-    fa = OSC.Axel(2,2,2,1,1)
-    ba = OSC.Axel(1,1,2,1,1)
-    aa = OSC.Axel(1,1,2,1,1)
-    axels = OSC.Axels(fa,ba)
-    axels.add_axel(aa)
+    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
+    ra = OSC.Axle(1,1,2,1,1, name='RearAxle')
+    aa = OSC.Axle(1,1,2,1,1)
+    axels = OSC.Axles(fa,ra)
+    axels.add_axle(aa)
     OSC.prettyprint(axels.get_element())
 
 def test_vehicle():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axel(2,2,2,1,1)
-    ba = OSC.Axel(1,1,2,1,1)
+    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
+    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
     
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
     OSC.prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
     veh.add_property('myprop','12')
-    veh.add_axel(ba)
+    veh.add_axle(ba)
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
     veh.add_parameter(param)
     
@@ -84,8 +84,8 @@ def test_entity():
 
 def test_entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axel(2,2,2,1,1)
-    ba = OSC.Axel(1,1,2,1,1)
+    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
+    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
     entities = OSC.Entities()
@@ -105,8 +105,8 @@ def test_controller():
 
 def test_controller_in_Entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axel(2,2,2,1,1)
-    ba = OSC.Axel(1,1,2,1,1)
+    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
+    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
 
     prop = OSC.Properties()

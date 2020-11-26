@@ -1067,7 +1067,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         trajaction = ET.SubElement(routeaction,'FollowTrajectoryAction')
         trajaction.append(self.trajectory.get_element())
         trajaction.append(self.timeref.get_element())
-        ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'name':self.following_mode.name})
+        ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'followingMode':self.following_mode.name})
 
         return element
 
