@@ -138,8 +138,10 @@ class Road():
         self._neighbor_added = 0
         self.successor = None
         self.predecessor = None
+        self.lane_offset_suc = 0
+        self.lane_offset_pred = 0
         self.adjusted = False
-    def add_successor(self,element_type,element_id,contact_point=None):
+    def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
         
         Parameters
@@ -155,9 +157,10 @@ class Road():
             raise ValueError('only one successor is allowed')
         self.successor = _Link('successor',element_id,element_type,contact_point)
         self.links.add_link(self.successor)
+        self.lane_offset_suc = lane_offset
 
 
-    def add_predecessor(self,element_type,element_id,contact_point=None):
+    def add_predecessor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
         
         Parameters
@@ -173,6 +176,7 @@ class Road():
             raise ValueError('only one predecessor is allowed')
         self.predecessor = _Link('predecessor',element_id,element_type,contact_point)
         self.links.add_link(self.predecessor)
+        self.lane_offset_pred = lane_offset
         
 
     def add_neighbor(self,element_type,element_id,direction): 
@@ -330,6 +334,11 @@ class OpenDrive():
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
+            num_lane_offsets = main_road.lane_offset_pred
+            print(num_lane_offsets)
+            x = -num_lane_offsets*3*np.sin(h) + x
+            y = num_lane_offsets*3*np.cos(h) + y
+
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometries()
 
@@ -337,8 +346,13 @@ class OpenDrive():
 
             if contact_point == ContactPoint.start:    
                 x,y,h = self.roads[str(neighbour_id)].planview.get_start_point()
+                h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
+            num_lane_offsets = main_road.lane_offset_suc
+            print(num_lane_offsets)
+            x = num_lane_offsets*3*np.sin(h) + x
+            y = -num_lane_offsets*3*np.cos(h) + y
             main_road.planview.set_start_point(x,y,h)
             main_road.planview.adjust_geometries(True)
 

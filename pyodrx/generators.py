@@ -37,6 +37,56 @@ def standard_lane(offset=3,rm = STD_ROADMARK):
     return lc
 
 
+def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,road_mark = STD_ROADMARK,lane_width=3):
+    """ create_road creates a standard road with one lanesection with different lanes
+
+        Parameters
+        ----------
+            geometry (Line, Spiral, ParamPoly3, or Arc, or list with these): geometries to build the road
+
+            id (int): id of the new road
+
+            left_lanes (int): number of left lanes wanted
+                Default: 1
+
+            right_lanes (int): number of right lanes wanted
+                Default: 1
+
+            road_type (int): type of road, -1 normal road, otherwise connecting road
+
+            road_mark (RoadMark): roadmark for the lines
+
+            lane_width (float): the with of all lanes
+    
+        Returns
+        -------
+            road (Road): a straight road
+    """
+    pv = PlanView()
+    if isinstance(geometry,list):
+        for g in geometry:
+            pv.add_geometry
+    else:
+        pv.add_geometry(geometry)
+
+    # create centerlane
+    lc = Lane(a=0)
+    lc.add_roadmark(road_mark)
+
+    lsec = LaneSection(0,lc)
+    # create left lanes
+    for i in range(left_lanes):
+        leftlane = standard_lane(lane_width,road_mark) 
+        lsec.add_left_lane(leftlane)
+    
+    for i in range(right_lanes):
+        rightlane = standard_lane(lane_width,road_mark)
+        lsec.add_right_lane(rightlane)
+    lanes = Lanes()
+    lanes.add_lanesection(lsec)
+
+    return Road(id,pv,lanes,road_type=road_type)
+
 def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offset=3):
     """ creates a standard straight road with two lanes
 
@@ -247,7 +297,28 @@ def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part 
 
     return junction_roads
 
+def _create_junction_links(connection, nlanes,r_or_l,sign,from_offset=0,to_offset=0):
+    """ helper function to create junction links
 
+        Parameters
+        ----------
+            connection (Connection): the connection to fill
+
+            nlanes (int): number of lanes 
+
+            r_or_l (1 or -1): if the lane should start from -1 or 1
+
+            sign (1 or -1): if the sign should change 
+
+            from_offset (int): if there is an offset in the beginning 
+                Default: 0
+
+            to_offset (int): if there is an offset in the end of the road 
+                Default: 0
+    """
+    for i in range(1, nlanes+1, 1):
+        connection.add_lanelink( r_or_l*i+from_offset, r_or_l*sign*i+to_offset)
+    
 def create_junction(junction_roads, id, roads):
     """ create_junction creates the junction struct for a set of roads
 
@@ -265,26 +336,25 @@ def create_junction(junction_roads, id, roads):
             junction (Junction): the junction struct ready to use
 
     """
+
+
+
     junc = Junction('my junction',id)
     
     for jr in junction_roads:
-
+        # handle succesor lanes
         conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
-        _, sign, _ =  _get_related_lanesection(roads[jr.successor.element_id], jr ) 
-        n_lanes = len(jr.lanes.lanesections[-1].leftlanes) 
-        for i in range(1, n_lanes+1, 1):
-            conne1.add_lanelink( 1*i, 1*sign*i)
-            conne1.add_lanelink(-1*i,-1*sign*i)
-            junc.add_connection(conne1)
+        _, sign, _ =  _get_related_lanesection(jr,roads[jr.successor.element_id] ) 
 
+        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].rightlanes),-1,sign,to_offset=jr.lane_offset_suc)
+        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].leftlanes),1,sign,to_offset=jr.lane_offset_suc)
+        junc.add_connection(conne1)
+
+        # handle predecessor lanes
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
-        _, sign, _ =  _get_related_lanesection(roads[jr.predecessor.element_id], jr) 
-        n_lanes = len(jr.lanes.lanesections[0].leftlanes) 
-        for i in range(1, n_lanes+1, 1):
-            conne2.add_lanelink( 1*i, 1*sign*i)
-            conne2.add_lanelink(-1*i,-1*sign*i)
-            junc.add_connection(conne2)
-
- 
-
+        _, sign, _ =  _get_related_lanesection( jr,roads[jr.predecessor.element_id]) 
+        _create_junction_links(conne2,len(jr.lanes.lanesections[0].rightlanes),-1,sign,from_offset=jr.lane_offset_pred)
+        _create_junction_links(conne2,len(jr.lanes.lanesections[0].leftlanes),1,sign,from_offset=jr.lane_offset_pred)
+        junc.add_connection(conne2)
     return junc
+

@@ -486,25 +486,29 @@ def _create_links_connecting_road(connecting,road):
 
     """
     linktype, sign, connecting_lanesec =  _get_related_lanesection(connecting,road)
-    _, _, road_lanesection_id =  _get_related_lanesection(road,connecting) 
+    _, _, road_lanesection_id =  _get_related_lanesection(road,connecting)
 
     if connecting_lanesec != None:
         if connecting.lanes.lanesections[connecting_lanesec].leftlanes:
             # do left lanes
-            if len(connecting.lanes.lanesections[connecting_lanesec].leftlanes) == len(road.lanes.lanesections[road_lanesection_id].leftlanes):
-                for i in range(len(road.lanes.lanesections[road_lanesection_id].leftlanes)):
-                    linkid = road.lanes.lanesections[road_lanesection_id].leftlanes[i].lane_id*sign
-                    connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(linktype,linkid)
-            else:
-                raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of left lanes.')
+            for i in range(len(connecting.lanes.lanesections[road_lanesection_id].leftlanes)):
+                linkid = road.lanes.lanesections[road_lanesection_id].leftlanes[i].lane_id*sign
+                if linktype == 'predecessor':
+                    linkid += connecting.lane_offset_pred
+                else:
+                    linkid += connecting.lane_offset_suc
+                connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(linktype,linkid)
+            
         if connecting.lanes.lanesections[connecting_lanesec].rightlanes:
             # do right lanes
-            if len(connecting.lanes.lanesections[connecting_lanesec].rightlanes) == len(road.lanes.lanesections[road_lanesection_id].rightlanes):
-                for i in range(len(road.lanes.lanesections[road_lanesection_id].rightlanes)):
-                    linkid = road.lanes.lanesections[road_lanesection_id].rightlanes[i].lane_id*sign
-                    connecting.lanes.lanesections[connecting_lanesec].rightlanes[i].add_link(linktype,linkid)
-            else:
-                raise NotSameAmountOfLanesError('Connecting road ',connecting.id, ' and road ', road.id, 'do not have the same number of right lanes.')
+            for i in range(len(connecting.lanes.lanesections[connecting_lanesec].rightlanes)):
+                linkid = road.lanes.lanesections[road_lanesection_id].rightlanes[i].lane_id*sign
+                if linktype == 'predecessor':
+                    linkid += connecting.lane_offset_pred
+                else:
+                    linkid += connecting.lane_offset_suc
+                connecting.lanes.lanesections[connecting_lanesec].rightlanes[i].add_link(linktype,linkid)
+
 
 def _get_related_lanesection(road,connected_road):
     """ _get_related_lanesection takes to roads, and gives the correct lane section to use
