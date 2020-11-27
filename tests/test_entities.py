@@ -30,8 +30,8 @@ def test_axel():
     OSC.prettyprint(ba.get_element())
 
 def test_axels():
-    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
-    ra = OSC.Axle(1,1,2,1,1, name='RearAxle')
+    fa = OSC.Axle(2,2,2,1,1)
+    ra = OSC.Axle(1,1,2,1,1)
     aa = OSC.Axle(1,1,2,1,1)
     axels = OSC.Axles(fa,ra)
     axels.add_axle(aa)
@@ -39,8 +39,8 @@ def test_axels():
 
 def test_vehicle():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
-    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
+    fa = OSC.Axle(2,2,2,1,1)
+    ba = OSC.Axle(1,1,2,1,1)
     
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
@@ -84,8 +84,8 @@ def test_entity():
 
 def test_entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
-    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
+    fa = OSC.Axle(2,2,2,1,1)
+    ba = OSC.Axle(1,1,2,1,1)
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     
     entities = OSC.Entities()
@@ -105,8 +105,8 @@ def test_controller():
 
 def test_controller_in_Entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    fa = OSC.Axle(2,2,2,1,1, name='FrontAxle')
-    ba = OSC.Axle(1,1,2,1,1, name='RearAxle')
+    fa = OSC.Axle(2,2,2,1,1)
+    ba = OSC.Axle(1,1,2,1,1)
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
 
     prop = OSC.Properties()

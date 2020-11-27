@@ -812,7 +812,7 @@ class Axle():
 
             
     """
-    def __init__(self,maxsteer,wheeldia,track_width,xpos,zpos, name='AdditionalAxle'):
+    def __init__(self,maxsteer,wheeldia,track_width,xpos, zpos):
         """ initalzie the Axle
 
             Parameters
@@ -832,18 +832,18 @@ class Axle():
         self.track_width = track_width
         self.xpos = xpos
         self.zpos = zpos
-        self.name = name
 
     def get_attributes(self):
         """ returns the attributes of the Axle as a dict
 
         """
         return {'maxSteering':str(self.maxsteer),'wheelDiameter':str(self.wheeldia),'trackWidth':str(self.track_width),'positionX':str(self.xpos),'positionZ':str(self.zpos)}
-    def get_element(self):
+
+    def get_element(self, elementname='AdditionalAxle'):
         """ returns the elementTree of the Axle
 
         """
-        return ET.Element(self.name, attrib=self.get_attributes())
+        return ET.Element(elementname, attrib=self.get_attributes())
         
 class Axles():
     """ the Axles combines the different Axles to one Element
@@ -887,10 +887,6 @@ class Axles():
             raise TypeError('frontaxle input is not of type Axle')
         if not isinstance(rearaxle,Axle):
             raise TypeError('rearaxle input is not of type Axle')
-        if frontaxle.name not in ['FrontAxle']:
-            raise TypeError('axle is not a front axle')
-        if rearaxle.name not in ['RearAxle']:
-            raise TypeError('axle is not a rear axle')
         self.frontaxle = frontaxle
         self.rearaxle = rearaxle
         self.additionals = []
@@ -912,8 +908,8 @@ class Axles():
 
         """
         element = ET.Element('Axles')
-        element.append(self.frontaxle.get_element())
-        element.append(self.rearaxle.get_element())
+        element.append(self.frontaxle.get_element(elementname='FrontAxle'))
+        element.append(self.rearaxle.get_element(elementname='RearAxle'))
         for ax in self.additionals:
             element.append(ax.get_element())
 
