@@ -583,9 +583,9 @@ class Vehicle():
 
             boundingbox (BoundingBox): the bounding box of the vehicle
 
-            frontaxel (Axel): the front axel properties of the vehicle
+            frontaxle (Axle): the front axle properties of the vehicle
 
-            backaxel (Axel): the back axel properties of the vehicle
+            rearaxle (Axle): the back axle properties of the vehicle
 
             max_speed (float): the maximum speed of the vehicle
 
@@ -602,7 +602,7 @@ class Vehicle():
 
             boundingbox (BoundingBox): the bounding box of the vehicle
 
-            axels (Axels): an Axels object
+            axles (Axles): an Axles object
 
             dynamics (DynamicsConstraints): the allowed dynamics of the vehicle
 
@@ -612,8 +612,8 @@ class Vehicle():
 
         Methods
         -------
-            add_axel(axel)
-                adds an additional axel to the vehicle
+            add_axle(axle)
+                adds an additional axle to the vehicle
 
             add_parameter(parameter)
                 adds a parameter declaration to the vehicle
@@ -637,7 +637,7 @@ class Vehicle():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name, vehicle_type, boundingbox, frontaxel, backaxel, max_speed, max_acceleration, max_deceleration):
+    def __init__(self,name, vehicle_type, boundingbox, frontaxle, rearaxle, max_speed, max_acceleration, max_deceleration):
         """ initalzie the Vehicle Class
 
             Parameters
@@ -648,9 +648,9 @@ class Vehicle():
 
                 boundingbox (BoundingBox): the bounding box of the vehicle
 
-                frontaxel (Axel): the front axel properties of the vehicle
+                frontaxle (Axle): the front axle properties of the vehicle
 
-                backaxel (Axel): the back axel properties of the vehicle
+                rearaxle (Axle): the back axle properties of the vehicle
 
                 max_speed (float): the maximum speed of the vehicle
 
@@ -669,7 +669,7 @@ class Vehicle():
         self.vehicle_type = vehicle_type
         self.boundingbox = boundingbox
 
-        self.axels = Axels(frontaxel,backaxel)
+        self.axles = Axles(frontaxle,rearaxle)
         self.dynamics = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
@@ -707,16 +707,16 @@ class Vehicle():
         cf.add_to_catalog(self)
         cf.dump()
 
-    def add_axel(self,axel):
-        """ adds an additional axel to the vehicle
+    def add_axle(self,axle):
+        """ adds an additional axle to the vehicle
 
             Parameters
             ----------
-                axel (Axel): an additional Axel
+                axle (Axle): an additional Axle
 
         """
         
-        self.axels.add_axel(axel)
+        self.axles.add_axle(axle)
 
 
     def add_parameter(self,parameter):
@@ -767,7 +767,7 @@ class Vehicle():
         element.append(self.parameters.get_element())
         element.append(self.boundingbox.get_element())
         element.append(self.dynamics.get_element('Performance'))
-        element.append(self.axels.get_element())
+        element.append(self.axles.get_element())
         element.append(self.properties.get_element())
         
         return element
@@ -775,8 +775,8 @@ class Vehicle():
 
 
 
-class Axel():
-    """ the Axel describes the axel properties of a vehicle
+class Axle():
+    """ the Axle describes the axle properties of a vehicle
 
         Parameters
         ----------
@@ -786,9 +786,9 @@ class Axel():
 
             track_width (double): distance between wheelcenter
 
-            xpos (double): x position of axel relative to car reference
+            xpos (double): x position of axle relative to car reference
 
-            zpos (double): z position of axel relative to car reference
+            zpos (double): z position of axle relative to car reference
 
         Attributes
         ----------
@@ -798,9 +798,9 @@ class Axel():
 
             track_width (double): distance between wheelcenter
 
-            xpos (double): x position of axel relative to car reference
+            xpos (double): x position of axle relative to car reference
 
-            zpos (double): z position of axel relative to car reference
+            zpos (double): z position of axle relative to car reference
 
         Methods
         -------
@@ -812,8 +812,8 @@ class Axel():
 
             
     """
-    def __init__(self,maxsteer,wheeldia,track_width,xpos,zpos):
-        """ initalzie the Axel
+    def __init__(self,maxsteer,wheeldia,track_width,xpos, zpos):
+        """ initalzie the Axle
 
             Parameters
             ----------
@@ -823,9 +823,9 @@ class Axel():
 
                 track_width (double): distance between wheelcenter
 
-                xpos (double): x position of axel relative to car reference
+                xpos (double): x position of axle relative to car reference
 
-                zpos (double): z position of axel relative to car reference
+                zpos (double): z position of axle relative to car reference
         """
         self.maxsteer = maxsteer
         self.wheeldia = wheeldia
@@ -834,81 +834,82 @@ class Axel():
         self.zpos = zpos
 
     def get_attributes(self):
-        """ returns the attributes of the Axel as a dict
+        """ returns the attributes of the Axle as a dict
 
         """
         return {'maxSteering':str(self.maxsteer),'wheelDiameter':str(self.wheeldia),'trackWidth':str(self.track_width),'positionX':str(self.xpos),'positionZ':str(self.zpos)}
-    def get_element(self):
-        """ returns the elementTree of the Axel
+
+    def get_element(self, elementname='AdditionalAxle'):
+        """ returns the elementTree of the Axle
 
         """
-        return ET.Element('Axel',attrib=self.get_attributes())
+        return ET.Element(elementname, attrib=self.get_attributes())
         
-class Axels():
-    """ the Axels combines the different Axels to one Element
+class Axles():
+    """ the Axles combines the different Axles to one Element
 
         Parameters
         ----------
-            frontaxel (Axel): Axel properties of the front axel
+            frontaxle (Axle): Axle properties of the front axle
 
-            backaxel (Axel): Axel properties of the rear axel
+            rearaxle (Axle): Axle properties of the rear axle
 
         Attributes
         ----------
-            frontaxel (Axel): Axel properties of the front axel
+            frontaxle (Axle): Axle properties of the front axle
 
-            backaxel (Axel): Axel properties of the rear axel
+            rearaxle (Axle): Axle properties of the rear axle
 
-            additionals (Axel): additional axels if requiered
+            additionals (Axle): additional axles if requiered
 
 
         Methods
         -------
-            add_axel(Axel)
-                adds an additional axel to the Axels
+            add_axle(Axle)
+                adds an additional axle to the Axles
 
             get_element()
                 Returns the full ElementTree of the class
 
 
     """
-    def __init__(self,frontaxel,backaxel):
-        """ initalzie the Axel
+    def __init__(self,frontaxle,rearaxle):
+        """ initalzie the Axle
 
             Parameters
             ----------
-                frontaxel (Axel): Axel properties of the front axel
+                frontaxle (Axle): Axle properties of the front axle
 
-                backaxel (Axel): Axel properties of the rear axel
+                rearaxle (Axle): Axle properties of the rear axle
 
         """
-        if not isinstance(frontaxel,Axel):
-            raise TypeError('frontaxel input is not of type Axel')  
-        if not isinstance(backaxel,Axel):
-            raise TypeError('backaxel input is not of type Axel')  
-        self.frontaxel = frontaxel
-        self.backaxel = backaxel
+        if not isinstance(frontaxle,Axle):
+            raise TypeError('frontaxle input is not of type Axle')
+        if not isinstance(rearaxle,Axle):
+            raise TypeError('rearaxle input is not of type Axle')
+        self.frontaxle = frontaxle
+        self.rearaxle = rearaxle
         self.additionals = []
 
-    def add_axel(self,axel):
-        """ adds an additional axel to the Axels
+    def add_axle(self,axle):
+        """ adds an additional axle to the Axles
 
             Parameters
             ----------
-                frontaxel (Axel): Axel properties of the front axel
+                frontaxle (Axle): Axle properties of the front axle
 
         """
-        if not isinstance(axel,Axel):
-            raise TypeError('axel input is not of type Axel') 
-        self.additionals.append(axel)
+        if not isinstance(axle,Axle):
+            raise TypeError('axle input is not of type Axle')
+        self.additionals.append(axle)
 
     def get_element(self):
-        """ returns the elementTree of the Axel
+        """ returns the elementTree of the Axle
 
         """
-        element = ET.Element('Axels')
-        element.append(self.frontaxel.get_element())
-        element.append(self.backaxel.get_element())
+        element = ET.Element('Axles')
+        element.append(self.frontaxle.get_element(elementname='FrontAxle'))
+        element.append(self.rearaxle.get_element(elementname='RearAxle'))
         for ax in self.additionals:
             element.append(ax.get_element())
 
