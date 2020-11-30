@@ -65,7 +65,7 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,road_ma
     pv = PlanView()
     if isinstance(geometry,list):
         for g in geometry:
-            pv.add_geometry
+            pv.add_geometry(g)
     else:
         pv.add_geometry(geometry)
 
