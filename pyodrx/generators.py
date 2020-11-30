@@ -318,7 +318,8 @@ def _create_junction_links(connection, nlanes,r_or_l,sign,from_offset=0,to_offse
     """
     for i in range(1, nlanes+1, 1):
         connection.add_lanelink( r_or_l*i+from_offset, r_or_l*sign*i+to_offset)
-    
+
+
 def create_junction(junction_roads, id, roads):
     """ create_junction creates the junction struct for a set of roads
 
@@ -344,7 +345,7 @@ def create_junction(junction_roads, id, roads):
     for jr in junction_roads:
         # handle succesor lanes
         conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
-        _, sign, _ =  _get_related_lanesection(jr,roads[jr.successor.element_id] ) 
+        _, sign, _ =  _get_related_lanesection(jr,get_road_by_id(roads,jr.successor.element_id) ) 
 
         _create_junction_links(conne1,len(jr.lanes.lanesections[-1].rightlanes),-1,sign,to_offset=jr.lane_offset_suc)
         _create_junction_links(conne1,len(jr.lanes.lanesections[-1].leftlanes),1,sign,to_offset=jr.lane_offset_suc)
@@ -352,9 +353,25 @@ def create_junction(junction_roads, id, roads):
 
         # handle predecessor lanes
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
-        _, sign, _ =  _get_related_lanesection( jr,roads[jr.predecessor.element_id]) 
+        _, sign, _ =  _get_related_lanesection( jr,get_road_by_id(roads,jr.predecessor.element_id)) 
         _create_junction_links(conne2,len(jr.lanes.lanesections[0].rightlanes),-1,sign,from_offset=jr.lane_offset_pred)
         _create_junction_links(conne2,len(jr.lanes.lanesections[0].leftlanes),1,sign,from_offset=jr.lane_offset_pred)
         junc.add_connection(conne2)
     return junc
 
+def get_road_by_id(roads,id):
+    """ get_road_by_id returns a road based on the road id
+
+        Parameters
+        ----------
+            roads (list of Roads): a list of roads to seach through
+
+            id (int): the id of the road wanted
+
+        Returns
+        -------
+            Road
+    """
+    for r in roads:
+        if r.id == id:
+            return r

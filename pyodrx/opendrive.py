@@ -335,7 +335,7 @@ class OpenDrive():
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             num_lane_offsets = main_road.lane_offset_pred
-            print(num_lane_offsets)
+            print(road_id,num_lane_offsets)
             x = -num_lane_offsets*3*np.sin(h) + x
             y = num_lane_offsets*3*np.cos(h) + y
 
@@ -387,7 +387,7 @@ class OpenDrive():
                                                    self.roads[k].predecessor.contact_point, 'predecessor')
                     count_adjusted_roads +=1
 
-                    if self.roads[k].road_type == 1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
+                    if self.roads[k].road_type != -1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
                         
                         succ_id = self.roads[k].successor.element_id
                         if self.roads[k].successor.contact_point == ContactPoint.start:
@@ -405,7 +405,7 @@ class OpenDrive():
                                                    self.roads[k].successor.contact_point, 'successor')
                     count_adjusted_roads +=1
 
-                    if self.roads[k].road_type == 1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
+                    if self.roads[k].road_type != -1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
                         
                         pred_id = self.roads[k].predecessor.element_id
                         if self.roads[k].predecessor.contact_point == ContactPoint.start:
