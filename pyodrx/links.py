@@ -581,6 +581,7 @@ def _create_links_roads(pre_road,suc_road):
     if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(suc_road.lanes.lanesections[-1].leftlanes):
         for i in range(len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)):
             linkid = pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].lane_id*pre_sign
+            print(linkid)
             pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].add_link(pre_linktype,linkid)
             
 
