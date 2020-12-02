@@ -6,7 +6,7 @@ roads= []
 # start road
 roads.append(pyodrx.create_road([pyodrx.Spiral(-0.004,0.00001,100), pyodrx.Spiral(0.00001,0.005,50), pyodrx.Arc(0.005,50)],id =0,left_lanes=3,right_lanes=4))
 # intermittent road
-roads.append(pyodrx.create_road([pyodrx.Line(30), ],id =1,left_lanes=3,right_lanes=3))
+roads.append(pyodrx.create_road([pyodrx.Spiral(0.0001,0.003,65), pyodrx.Spiral(0.003,0.00001,50) ],id =1,left_lanes=3,right_lanes=3))
 
 
 #exit road
@@ -25,8 +25,6 @@ roads.append(pyodrx.create_road([pyodrx.Spiral(0.004,0.000001,50) ],id =7,left_l
 # entry road
 roads.append(pyodrx.create_road(pyodrx.Arc(0.004,60),id =8,left_lanes=1,right_lanes=0))
 
-
-# roads.append(pyodrx.create_road([pyodrx.Line(30), ],id =9,left_lanes=3,right_lanes=3))
 
 # add predecessors and succesors to the non junction roads
 roads[0].add_successor(pyodrx.ElementType.junction,1)
@@ -55,9 +53,6 @@ roads[7].add_successor(pyodrx.ElementType.road,8,pyodrx.ContactPoint.start)
 
 # add connection to the entry road
 roads[8].add_predecessor(pyodrx.ElementType.junction,2)
-
-# roads[9].add_predecessor(pyodrx.ElementType.road,1,pyodrx.ContactPoint.end)
-# roads[9].add_successor(pyodrx.ElementType.junction,2)
 
 # create the junction struct 
 exit_junction = pyodrx.create_junction(roads[3:5],1,roads[0:3])
