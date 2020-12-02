@@ -15,9 +15,10 @@ from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
 
 
-STD_ROADMARK = RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
+STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
+STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken,0.2,rule=MarkRule.no_passing)
 STD_START_CLOTH = 1/1000000000
-def standard_lane(offset=3,rm = STD_ROADMARK):
+def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     """ standard_lane creates a simple lane with an offset an a roadmark
         
         Parameters
@@ -37,8 +38,9 @@ def standard_lane(offset=3,rm = STD_ROADMARK):
     return lc
 
 
-def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,road_mark = STD_ROADMARK,lane_width=3):
-    """ create_road creates a standard road with one lanesection with different lanes
+def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID,lane_width=3):
+    """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken, 
+        except the outer lane, that will be solid. 
 
         Parameters
         ----------
@@ -54,7 +56,7 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,road_ma
 
             road_type (int): type of road, -1 normal road, otherwise connecting road
 
-            road_mark (RoadMark): roadmark for the lines
+            center_road_mark (RoadMark): roadmark for the center line
 
             lane_width (float): the with of all lanes
     
@@ -71,16 +73,22 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,road_ma
 
     # create centerlane
     lc = Lane(a=0)
-    lc.add_roadmark(road_mark)
+    lc.add_roadmark(center_road_mark)
 
     lsec = LaneSection(0,lc)
     # create left lanes
     for i in range(left_lanes):
-        leftlane = standard_lane(lane_width,road_mark) 
+        if i == left_lanes-1:
+            leftlane = standard_lane(lane_width,STD_ROADMARK_SOLID) 
+        else:
+            leftlane = standard_lane(lane_width,STD_ROADMARK_BROKEN) 
         lsec.add_left_lane(leftlane)
     
     for i in range(right_lanes):
-        rightlane = standard_lane(lane_width,road_mark)
+        if i == right_lanes-1:
+            rightlane = standard_lane(lane_width,STD_ROADMARK_SOLID)
+        else:
+            rightlane = standard_lane(lane_width,STD_ROADMARK_BROKEN)
         lsec.add_right_lane(rightlane)
     lanes = Lanes()
     lanes.add_lanesection(lsec)
