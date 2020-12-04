@@ -3,7 +3,7 @@
 
     Some features used:
         Route
-        AssingRouteAction
+        AssignRouteAction
         LanePosition
 """
 
@@ -43,7 +43,7 @@ ego_route.add_waypoint(pyoscx.LanePosition(10,0,-1,1),pyoscx.RouteStrategy.faste
 
 
 # create action
-ego_action = pyoscx.AssingRouteAction(ego_route)
+ego_action = pyoscx.AssignRouteAction(ego_route)
 
 
 ego_event = pyoscx.Event('ego_event',pyoscx.Priority.overwrite)
@@ -64,4 +64,4 @@ sce = pyoscx.Scenario('adaptspeed_example','User',paramdec,entities=entities,sto
 # display the scenario
 pyoscx.prettyprint(sce.get_element())
 
-# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
+pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
