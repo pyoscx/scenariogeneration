@@ -56,7 +56,7 @@ def test_assign_route():
     route = OSC.Route('myroute')
     route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
-    OSC.AssingRouteAction(route)
+    OSC.AssignRouteAction(route)
 
 def test_aqcuire_position_route():
     ara = OSC.AcquirePositionAction(OSC.WorldPosition(1,1,0,0,0,0))

@@ -917,8 +917,8 @@ class TeleportAction(_PrivateActionType):
 
 # Routing actions
 
-class AssingRouteAction(_PrivateActionType):
-    """ AssingRouteAction creates a RouteAction of type AssingRouteAction
+class AssignRouteAction(_PrivateActionType):
+    """ AssignRouteAction creates a RouteAction of type AssignRouteAction
 
         Parameters
         ----------
@@ -936,7 +936,7 @@ class AssingRouteAction(_PrivateActionType):
 
     """
     def __init__(self,route):
-        """ initalizes the AssingRouteAction
+        """ initalizes the AssignRouteAction
 
             Parameters
             ----------
@@ -949,7 +949,7 @@ class AssingRouteAction(_PrivateActionType):
         self.route = route
 
     def get_element(self):
-        """ returns the elementTree of the AssingRouteAction
+        """ returns the elementTree of the AssignRouteAction
 
         """
         element = ET.Element('PrivateAction')
@@ -978,7 +978,7 @@ class AcquirePositionAction(_PrivateActionType):
 
     """
     def __init__(self,position):
-        """ initalizes the AssingRouteAction
+        """ initalizes the AssignRouteAction
 
             Parameters
             ----------
@@ -991,7 +991,7 @@ class AcquirePositionAction(_PrivateActionType):
         self.position = position
 
     def get_element(self):
-        """ returns the elementTree of the AssingRouteAction
+        """ returns the elementTree of the AssignRouteAction
 
         """
         element = ET.Element('PrivateAction')
@@ -1059,7 +1059,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         self.timeref = TimeReference(reference_domain,scale,offset)
 
     def get_element(self):
-        """ returns the elementTree of the AssingRouteAction
+        """ returns the elementTree of the AssignRouteAction
 
         """
         element = ET.Element('PrivateAction')
