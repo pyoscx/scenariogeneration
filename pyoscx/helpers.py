@@ -59,7 +59,10 @@ def esminiRunViewer(scenario,esminipath='esmini',args=' --window 100 100 1000 80
                                'bin',
                                'esmini.exe') + ' --osc ' + esminipath + '/resources/xosc/pythonscenario2.xosc --record python_replay --headless' + args)
     
-
+        os.system(os.path.join('.',
+                               esminipath,
+                               'bin',
+                               'replayer.exe') + ' --file python_replay --res_path ' + os.path.join(esminipath,'resources') + args)
 
 def prettyprint(element):
     """ prints the element to the commandline
