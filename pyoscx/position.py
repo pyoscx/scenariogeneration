@@ -318,7 +318,7 @@ class RoadPosition(_PositionType):
 
                 t (float): lateral offset of center
 
-                reference_id (str): id of the road
+                reference_id (int): id of the road
 
                 orientation (Orientation): the angular orientation of the entity
                     Default: Orientation()
@@ -336,9 +336,9 @@ class RoadPosition(_PositionType):
 
         """
         retdict = {}
-        retdict['roadId'] = self.id
-        retdict['ds'] = str(self.s)
-        retdict['dt'] = str(self.t)                
+        retdict['roadId'] = str(self.id)
+        retdict['s'] = str(self.s)
+        retdict['t'] = str(self.t)                
         return retdict
     
     def get_element(self,elementname = 'Position'):
@@ -362,9 +362,9 @@ class RelativeRoadPosition(_PositionType):
         
         Parameters
         ----------
-            s (float): length along road
+            ds (float): length along road
 
-            t (float): lateral offset of center
+            dt (float): lateral offset of center
 
             entity (str): id of the entity
 
@@ -373,9 +373,9 @@ class RelativeRoadPosition(_PositionType):
         
         Attributes
         ----------
-            s (float): length along road
+            ds (float): length along road
 
-            t (float): lateral offset of center
+            dt (float): lateral offset of center
 
             target (str): id of the entity
 
@@ -391,14 +391,14 @@ class RelativeRoadPosition(_PositionType):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,s,t,entity,orientation=Orientation()):
+    def __init__(self,ds,dt,entity,orientation=Orientation()):
         """ initalize the RoadPosition
         
             Parameters
             ----------
-                s (float): length along road
+                ds (float): length along road
 
-                t (float): lateral offset of center
+                dt (float): lateral offset of center
 
                 entity (str): id of the entity
 
@@ -406,8 +406,8 @@ class RelativeRoadPosition(_PositionType):
                     Default: Orientation()
 
         """
-        self.s = s
-        self.t = t
+        self.ds = ds
+        self.dt = dt
         self.target = entity
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
@@ -419,8 +419,8 @@ class RelativeRoadPosition(_PositionType):
         """
         retdict = {}
         retdict['entityRef'] = self.target
-        retdict['s'] = str(self.s)
-        retdict['t'] = str(self.t)
+        retdict['ds'] = str(self.ds)
+        retdict['dt'] = str(self.dt)
         return retdict
     
     def get_element(self,elementname = 'Position'):

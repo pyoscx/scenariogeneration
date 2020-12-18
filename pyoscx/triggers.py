@@ -1040,6 +1040,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
         basedict = {}
         basedict['value'] = str(self.value)
         basedict['rule'] = self.rule.name
+        basedict['entityRef'] = self.entity
         return basedict
         # return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
 
