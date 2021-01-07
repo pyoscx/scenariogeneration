@@ -90,17 +90,19 @@ class Init():
         element = ET.Element('Init')
         actions = ET.SubElement(element,'Actions')
         
+        # add global actions
+        for i in self.global_actions:
+            actions.append(i.get_element())
+
+        # add user defined actions
+        for i in self.user_defined_actions:
+            actions.append(i.get_element())
+
         # add private actions
         for i in self.initactions:
             private = ET.SubElement(actions,'Private',attrib={'entityRef':i})
             for j in self.initactions[i]:
                 private.append(j.get_element())
-        
-        for i in self.global_actions:
-            actions.append(i.get_element())
-        
-        for i in self.user_defined_actions:
-            actions.append(i.get_element())
 
         return element
 
