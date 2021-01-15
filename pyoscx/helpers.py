@@ -3,7 +3,7 @@ import xml.dom.minidom as mini
 import os
 
 
-def esminiRunner(scenario, esminipath='esmini', args='--window 50 50 800 400'):
+def esminiRunner(scenario, esminipath='esmini', args='--window 60 60 800 400'):
     """ write a scenario and runs it in esmini
         Parameters
         ----------
