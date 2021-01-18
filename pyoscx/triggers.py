@@ -1233,9 +1233,6 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
             entity (str): name of the entity fore relative distance     
 
-            alongroute (bool): if the route should count
-                Default: True
-
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
                 Default: True
 
@@ -1248,8 +1245,6 @@ class RelativeDistanceCondition(_EntityTriggerType):
             entity (str): name of the entity fore relative distance
 
             dist_type (RelativeDistanceType): type of relative distance
-
-            alongroute (bool): if the route should count
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
 
@@ -1275,16 +1270,11 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
             entity (str): name of the entity fore relative distance           
 
-            alongroute (bool): if the route should count
-                Default: True
-
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
                 Default: True
 
         """
         self.value = value
-        if not isinstance(alongroute,bool):
-            raise TypeError('alongroute input not of type bool')
         if not isinstance(freespace,bool):
             raise TypeError('freespace input not of type bool')
         self.alongroute = alongroute
@@ -1303,7 +1293,6 @@ class RelativeDistanceCondition(_EntityTriggerType):
         """
         basedict = {}
         basedict['value'] = str(self.value)
-        basedict['alongRoute'] = convert_bool(self.alongroute)
         basedict['freespace'] = convert_bool(self.freespace)
         basedict['entityRef'] = self.entity
         basedict['rule'] = self.rule.name
