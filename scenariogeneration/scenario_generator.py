@@ -86,7 +86,7 @@ class ScenarioGenerator():
 
         if isinstance(self.parameters,dict):
             self._create_permutations()
-            print('Generated ' + str(len(self.all_permutations)) + ' scenarios, using all permutations of parameters input')
+            print('Generated ' + str(len(self.all_permutations)) + ' scenarios, using all permutations of parameters input...')
 
         elif isinstance(self.parameters,list):
             print('Using parameters as a list of cases')
@@ -103,7 +103,7 @@ class ScenarioGenerator():
                 
                 override_parameters (list of dicts, or dict of lists): overrides the self.parameters attribute
         """
-
+        scenario_files = []
         self._create_folder_structure(generation_folder)
         if override_parameters:
             print('Overriding inputs via input')
@@ -125,6 +125,7 @@ class ScenarioGenerator():
 
             scenario_name = os.path.basename(__file__).split('.')[0]+name_prefix
             
+            
             # generate road
             road = self.road(**p)
             
@@ -135,11 +136,16 @@ class ScenarioGenerator():
             sce = self.scenario(**p)
 
             scenario_file = os.path.join(generation_folder,'xosc',scenario_name+'.xosc')
+            scenario_files.append(scenario_file)
             sce.write_xml(scenario_file)
 
+        return scenario_files
     def _create_permutations(self):
         """ generates all permutations of the defined parameters.
 
+            Returns
+            -------
+                scenario_files (list of str): all scenenario files generated
         """
         parameterlist = []
         for key in self.parameters:

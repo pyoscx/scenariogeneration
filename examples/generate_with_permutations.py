@@ -56,4 +56,5 @@ class Scenario(ScenarioGenerator):
 if __name__ == "__main__":
     s = Scenario()
     s.print_permutations()
-    s.generate('my_scenarios')
+    files = s.generate('my_scenarios')
+    print(files)
