@@ -3,6 +3,7 @@ import os
 import pyoscx
 import pyodrx
 import shutil
+import sys
 
 class ScenarioGenerator():
     """ ScenarioTemplate is a class that should be inherited by a Scenario class in order to generate xodr and xosc files based on pyoscx and pyodrx
@@ -23,7 +24,7 @@ class ScenarioGenerator():
         self.road_file = ''
         self.parameters = {}
         self.naming = 'numerical' # can be 'numerical', 'parameter'
-
+    
     def road(self,**kwargs):
         """ Dummy method for generating an OpenDRIVE road
 
@@ -123,7 +124,7 @@ class ScenarioGenerator():
             else:
                 raise NameError('Attribute naming, can only be "numerical" or "parameter", not ' + self.naming)
 
-            scenario_name = os.path.basename(__file__).split('.')[0]+name_prefix
+            scenario_name = os.path.basename(sys.modules[self.__class__.__module__].__file__).split('.')[0]+name_prefix
             
             
             # generate road
