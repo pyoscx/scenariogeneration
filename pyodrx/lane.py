@@ -534,7 +534,7 @@ class RoadMark():
             elif marking_type == RoadMarkType.solid:
                 self.length = length or 3
                 self.space = space or 0
-            #create empty line in arguments are missing
+            #create empty line if arguments are missing
             else: 
                 self.length = length or 0
                 self.space = length or 0
