@@ -141,6 +141,7 @@ class Road():
         self.lane_offset_suc = 0
         self.lane_offset_pred = 0
         self.adjusted = False
+        self.objects = []
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
         
@@ -196,6 +197,15 @@ class Road():
     
         self.links.add_link(suc)
         self._neighbor_added += 1
+    def add_object(self,road_object):
+        """ add_object adds an object to a road
+        
+        
+        """
+        self.objects.append(road_object)
+
+        
+        
     def get_end_point(self):
         """ get the x, y, and heading, of the end of the road
 
@@ -229,7 +239,11 @@ class Road():
         element.append(self.links.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
-        
+        if len(self.objects) > 0:
+            objectselement = ET.SubElement(element,'objects')
+            for road_object in self.objects:
+                objectselement.append(road_object.get_element())        
+            
         return element
 
 class OpenDrive():
