@@ -1,7 +1,5 @@
 import pytest
-
-
-import pyodrx 
+import pyodrx
 
 
 def test_simple_road():
