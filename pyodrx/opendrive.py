@@ -316,7 +316,7 @@ class OpenDrive():
         results = list(combinations(self.roads, 2))
 
         for r in range(len(results)):
-            print('analizing roads', results[r][0], results[r][1] )
+            print('analyzing roads', results[r][0], results[r][1] )
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 

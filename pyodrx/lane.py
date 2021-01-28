@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
-from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType 
+from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType, MarkRule 
 from .links import _Links,_Link
 
 
@@ -474,45 +474,76 @@ class RoadMark():
                 adds a new roadmark to the lane
 
     """
-    def __init__(self,marking_type,width,length=0,space=0,toffset=0,soffset=0,rule=None,color=RoadMarkColor.standard):
-        """ initalizes the Lane
+    def __init__(self,marking_type,width=None,length=None,space=None,toffset=None,soffset=0,rule=None,color=RoadMarkColor.standard,marking_weight=RoadMarkWeight.standard,height=0.02,laneChange=None):
+        """ initializes the RoadMark
 
         Parameters
         ----------
-            marking_type (str): the type of marking
+            marking_type (str): the type of marking          
 
-            width (float): with of the line
-
-            length (float): length of the line
-                Default: 0
+            width (float): width of the marking / line
+                Default: None
+            length (float): length of the visible, marked part of the line
+                Default: None
+            space (float): length of the invisible, unmarked part of the line
+                Default: None
             toffset (float): offset in t
-                Default: 0
+                Default: None
             soffset (float): offset in s
                 Default: 0
             rule (MarkRule): mark rule (optional)
-
-            color (RoadMarkColor): color of line
+                Default: None
+            color (RoadMarkColor): color of marking
                 Default: 'standard'
+            marking_weight (str): the weight of marking
+                Default: standard
+            height (float): thickness of marking
+                Default: 0.02
+            laneChange (LaneChange): indicates direction in which lane change is allowed
+                Default: none
 
         """ 
+        #required arguments - must be provided by user
         self.marking_type = marking_type
+        
+        #required arguments - must be provided by user or taken from defaults
+        self.marking_weight = marking_weight
+        self.color = color
+        self.soffset = soffset
+        self.height = height
+        self.laneChange = laneChange
+
+        #optional arguments - roadmark is valid without them being defined
+        self.width = width
         self.length = length
         self.space = space
         self.toffset = toffset
         self.rule = rule
-        self.soffset = soffset
-        self.width = width
-        self.color = color
-        #change default line values for broken lines 
-        if marking_type == RoadMarkType.broken: 
-            if self.length == 0:
-                self.length = 3
-            if self.space == 0: 
-                self.space = 3
-        self._line = RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color)
-        
-        #TODO: add more inputs and check 1.5
-        
+
+            
+        #TODO: there may be more line child elements per roadmark, which is currently unsupported
+        self._line = None
+        #check if arguments were passed that require line child element
+        if any([length, space, toffset, rule]):
+            #set defaults in case no values were provided
+            #values for broken lines 
+            if marking_type == RoadMarkType.broken: 
+                self.length = length or 3
+                self.space = space or 3
+            #values for solid lines 
+            elif marking_type == RoadMarkType.solid:
+                self.length = length or 3
+                self.space = space or 0
+            #create empty line if arguments are missing
+            else: 
+                self.length = length or 0
+                self.space = length or 0
+                print ("No defaults for arguments 'space' and 'length' for roadmark type", enum2str(marking_type), "available and no values were passed. Creating an empty roadmark.")
+            #set remaining defaults
+            self.width = width or 0.2
+            self.toffset = toffset or 0
+            self.rule = rule or MarkRule.none
+            self._line = RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color)          
 
     def get_attributes(self):
         """ returns the attributes of the Lane as a dict
@@ -521,12 +552,13 @@ class RoadMark():
         retdict = {}
         retdict['sOffset'] = str(self.soffset)
         retdict['type'] = enum2str(self.marking_type)
-        retdict['weight'] = enum2str(RoadMarkWeight.standard)
+        retdict['weight'] = enum2str(self.marking_weight)
         retdict['color'] = enum2str(self.color)
-        retdict['sOffset'] = str(self.soffset)
-        retdict['width'] = str(self.width)
-        retdict['laneChange'] = enum2str(LaneChange.none)
-        retdict['height'] = str(2e-02)
+        retdict['height'] = str(self.height)
+        if self.width is not None:
+            retdict['width'] = str(self.width)
+        if self.laneChange is not None:
+            retdict['laneChange'] = enum2str(self.laneChange)
         return retdict
 
     def get_element(self):
@@ -534,8 +566,9 @@ class RoadMark():
 
         """
         element = ET.Element('roadMark',attrib=self.get_attributes())
-        typeelement = ET.SubElement(element,'type', attrib={'name':enum2str(self.marking_type),'width':str(self.width)})
-        typeelement.append(self._line.get_element())
+        if self._line != None:
+            typeelement = ET.SubElement(element,'type', attrib={'name':enum2str(self.marking_type),'width':str(self.width)})
+            typeelement.append(self._line.get_element())
         return element
 
 
