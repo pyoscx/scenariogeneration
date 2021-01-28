@@ -1738,9 +1738,13 @@ class CatalogReference():
 
         """
         element = ET.Element('CatalogReference',attrib=self.get_attributes())
+        if self.parameterassignments:
+            print('hej')
+            parameterassigns = ET.SubElement(element,'ParameterAssignments')
         for parass in self.parameterassignments:
-            element.append(parass.get_element())
+            parameterassigns.append(parass.get_element())
         return element
+        
     
 
 class ParameterAssignment():
