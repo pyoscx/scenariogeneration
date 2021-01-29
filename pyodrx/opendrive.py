@@ -379,7 +379,7 @@ class OpenDrive():
 
             for k in self.roads: 
 
-                if count_adjusted_roads == 0: 
+                if self.roads[k].planview.fixed or count_adjusted_roads == 0: 
                     self.roads[k].planview.adjust_geometries()
                     #print('1 adjusted road ', self.roads[k].id)
                     count_adjusted_roads += 1
@@ -423,6 +423,9 @@ class OpenDrive():
                         count_adjusted_roads +=1
 
                     continue
+                
+                print('Disconnected roads must have an explicit start point')
+                return
 
     
     def add_junction(self,junction):

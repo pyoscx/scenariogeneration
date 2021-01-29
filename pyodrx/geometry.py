@@ -156,6 +156,12 @@ class PlanView():
         self.present_h = 0
         self.present_s = 0
 
+        if x_start != 0 or y_start != 0 or h_start != 0:
+            self.fixed = True
+            self.set_start_point(x_start, y_start, h_start)
+        else:
+            self.fixed = False
+            
         self.x_start = None
         self.y_start = None
         self.h_start = None 
@@ -204,6 +210,7 @@ class PlanView():
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
+        self.fixed = True
 
     def get_start_point(self):
         """ returns the start point of the planview
