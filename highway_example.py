@@ -12,26 +12,26 @@ import os
 # create some simple roads
 roads= []
 # start road
-roads.append(pyodrx.create_road([pyodrx.Spiral(-0.004,0.00001,100), pyodrx.Spiral(0.00001,0.005,50), pyodrx.Arc(0.005,50)],id =0,left_lanes=3,right_lanes=4))
+roads.append(pyodrx.create_road([pyodrx.Spiral(-0.004,0.00001,100), pyodrx.Spiral(0.00001,0.005,50), pyodrx.Arc(0.005,50)],id =0,left_lanes=3,right_lanes=4,polesRight=True, guardrailRight=True, polesLeft=True, guardrailLeft=True))
 # intermittent road
-roads.append(pyodrx.create_road([pyodrx.Line(30), ],id =1,left_lanes=3,right_lanes=3))
+roads.append(pyodrx.create_road([pyodrx.Line(30), ],id =1,left_lanes=3,right_lanes=3, polesLeft=True, guardrailLeft=True))
 
 
 #exit road
-roads.append(pyodrx.create_road(pyodrx.Line(50),id =2,left_lanes=0,right_lanes=1))
+roads.append(pyodrx.create_road(pyodrx.Line(50),id =2,left_lanes=0,right_lanes=1,polesRight=True, guardrailRight=True, polesLeft=True, guardrailLeft=True))
 # junctions for exit
-roads.append(pyodrx.create_road(pyodrx.Spiral(0.005,0.0001,50),id =3,left_lanes=3,right_lanes=3,road_type=1)) # continue
-roads.append(pyodrx.create_road(pyodrx.Spiral(0.005,-0.02,100),id =4,left_lanes=0,right_lanes=1,road_type=1)) # exit
+roads.append(pyodrx.create_road(pyodrx.Spiral(0.005,0.0001,50),id =3,left_lanes=3,right_lanes=3,road_type=1, polesLeft=True, guardrailLeft=True)) # continue
+roads.append(pyodrx.create_road(pyodrx.Spiral(0.005,-0.02,100),id =4,left_lanes=0,right_lanes=1,road_type=1,polesRight=True, guardrailRight=True)) # exit
 
 # final road
-roads.append(pyodrx.create_road([pyodrx.Spiral(-0.00001,-0.003,45),pyodrx.Arc(-0.003,60)],id =5,left_lanes=2,right_lanes=3))
+roads.append(pyodrx.create_road([pyodrx.Spiral(-0.00001,-0.003,45),pyodrx.Arc(-0.003,60)],id =5,left_lanes=2,right_lanes=3, polesRight=True, guardrailRight=True, polesLeft=True, guardrailLeft=True))
 
 # entry junction
-roads.append(pyodrx.create_road([pyodrx.Line(30) ],id =6,left_lanes=2,right_lanes=3,road_type=2)) # continue
-roads.append(pyodrx.create_road([pyodrx.Spiral(0.004,0.000001,50) ],id =7,left_lanes=1,right_lanes=0,road_type=2)) # entry
+roads.append(pyodrx.create_road([pyodrx.Line(30) ],id =6,left_lanes=2,right_lanes=3,road_type=2, polesRight=True, guardrailRight=True)) # continue
+roads.append(pyodrx.create_road([pyodrx.Spiral(0.004,0.000001,50) ],id =7,left_lanes=1,right_lanes=0,road_type=2, polesLeft=True, guardrailLeft=True)) # entry
 
 # entry road
-roads.append(pyodrx.create_road(pyodrx.Arc(0.004,60),id =8,left_lanes=1,right_lanes=0))
+roads.append(pyodrx.create_road(pyodrx.Arc(0.004,60),id =8,left_lanes=1,right_lanes=0, polesRight=True, guardrailRight=True, polesLeft=True, guardrailLeft=True))
 
 
 # roads.append(pyodrx.create_road([pyodrx.Line(30), ],id =9,left_lanes=3,right_lanes=3))
@@ -68,22 +68,6 @@ roads[8].add_predecessor(pyodrx.ElementType.junction,2)
 # roads[9].add_successor(pyodrx.ElementType.junction,2)
 brokenRM = pyodrx.RoadMark(pyodrx.RoadMarkType.broken,0.2,rule=pyodrx.MarkRule.no_passing)
 
-
-
-guardRail0Right = pyodrx.Object(5,-13,0.3,zOffset=0.4,Type=pyodrx.ObjectType.barrier,object_id="100",name="guardRail")
-guardRail0Right.repeat(2, 0, sStart=0,zOffsetStart=0,zOffsetEnd=0.4)
-guardRail0Right.repeat(198, 0, sStart=2)
-
-guardRail0Left = pyodrx.Object(5,9.5,0.3,zOffset=0.4,Type=pyodrx.ObjectType.barrier,object_id="100",name="guardRail",hdg=3.14)
-guardRail0Left.repeat(2, 0, sStart=0,zOffsetStart=0,zOffsetEnd=0.4)
-guardRail0Left.repeat(198, 0, sStart=2)
-
-pole0Right = pyodrx.Object(5,-13.2,1,zOffset=-0.05,Type=pyodrx.ObjectType.pole,object_id="1",name="permanentDelineator")
-pole0Left = pyodrx.Object(5,9.7,1,zOffset=-0.05,Type=pyodrx.ObjectType.pole,object_id="2",name="permanentDelineator",hdg=3.14)
-pole0Right.repeat(200, 50)
-pole0Left.repeat(200, 50)
-
-
 jerseyBarrier0 = pyodrx.Object(0,0,0.75,zOffset=0,Type=pyodrx.ObjectType.barrier,object_id="100",name="jerseyBarrier")
 jerseyBarrier0.repeat(200, 0)
 
@@ -101,11 +85,7 @@ jerseyBarrier6.repeat(30, 0)
 
 roads[0].lanes.lanesections[0].rightlanes[0].add_roadmark(brokenRM)
 
-roads[0].add_object(pole0Right)
-roads[0].add_object(pole0Left)
 roads[0].add_object(jerseyBarrier0)
-roads[0].add_object(guardRail0Right)
-roads[0].add_object(guardRail0Left)
 roads[1].add_object(jerseyBarrier1)
 roads[3].add_object(jerseyBarrier3)
 roads[5].add_object(jerseyBarrier5)
