@@ -102,6 +102,8 @@ def create_straight_road(road_id, signals=None, length=100,junction = -1, n_lane
         ----------
             road_id (int): id of the road to create
 
+            signals (Signals): signals to be added to current road element
+
             length (float): length of the road
                 default: 100
 

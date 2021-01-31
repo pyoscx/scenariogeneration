@@ -82,6 +82,8 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
+            signals (Signals): Contains a list of signal objects (optional)
+
         Attributes
         ----------
             id (int): identifier of the road
