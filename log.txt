@@ -1,0 +1,440 @@
+esmini GIT REV: ec2f3e7
+esmini GIT TAG: v2.1.5
+esmini GIT BRANCH: tags/v2.1.5^0
+esmini BUILD VERSION: 2.1.5.build.1108
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=0)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=0)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=0)
+
+RoadManager.cpp / 2644 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type: R1 (road ids=0)
+
+RoadManager.cpp / 2679 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type: 1 (road ids=0)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=1)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=1)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=1)
+
+RoadManager.cpp / 2644 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type: R1 (road ids=1)
+
+RoadManager.cpp / 2679 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type: 1 (road ids=1)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=2)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=2)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=2)
+
+RoadManager.cpp / 2644 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type: R1 (road ids=2)
+
+RoadManager.cpp / 2679 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type: 1 (road ids=2)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=3)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=3)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=3)
+
+RoadManager.cpp / 2644 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal type: R1 (road ids=3)
+
+RoadManager.cpp / 2679 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown road signal sub-type: 1 (road ids=3)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=100)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=100)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=100)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=101)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=101)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=101)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=102)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=102)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=102)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=103)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=103)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=103)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=104)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=104)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=104)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=105)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=105)
+
+RoadManager.cpp / 2420 / roadmanager::OpenDrive::LoadOpenDriveFile(): Lane road mark lane change error
+RoadManager.cpp / 2440 / roadmanager::OpenDrive::LoadOpenDriveFile(): unknown lane road mark lane change:  (road id=105)
+
+RoadManager.cpp / 4451 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lanes
+RoadManager.cpp / 4453 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI road marks
+RoadManager.cpp / 4455 / roadmanager::OpenDrive::SetRoadOSI(): Generating OSI lane boundaries
+RoadManager.cpp / 4457 / roadmanager::OpenDrive::SetRoadOSI(): OSI road features done
+viewer.cpp / 716 / viewer::Viewer::Viewer(): Anti-Aliasing number of subsamples: 4
+viewer.cpp / 871 / viewer::Viewer::Viewer(): No scenegraph 3D model loaded. Generating a simplistic one...
+main.cpp / 125 / SetupCars(): Adding car of model 5 to road nr 0 (road id 0 s 10.00 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model van_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/van_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 2 to road nr 0 (road id 0 s 16.69 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 2 to road nr 0 (road id 0 s 53.20 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 0 (road id 0 s 61.00 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 0 (road id 0 s 67.81 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 5 to road nr 0 (road id 0 s 75.17 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model van_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/van_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 0 (road id 0 s 82.48 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 0 (road id 0 s 90.13 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 6 to road nr 1 (road id 1 s 10.00 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model bus_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/bus_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 0 to road nr 1 (road id 1 s 17.79 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_white.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_white.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 0 to road nr 1 (road id 1 s 24.97 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_white.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_white.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 4 to road nr 1 (road id 1 s 32.07 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model truck_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/truck_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 0 to road nr 1 (road id 1 s 39.16 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_white.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_white.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 5 to road nr 1 (road id 1 s 46.15 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model van_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/van_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 1 (road id 1 s 61.12 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 6 to road nr 1 (road id 1 s 68.66 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model bus_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/bus_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 1 (road id 1 s 75.50 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 1 (road id 1 s 82.17 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 4 to road nr 1 (road id 1 s 89.74 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model truck_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/truck_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 6 to road nr 2 (road id 2 s 10.00 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model bus_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./bus_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/bus_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 4 to road nr 2 (road id 2 s 17.00 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model truck_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/truck_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 2 (road id 2 s 24.30 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 4 to road nr 2 (road id 2 s 31.41 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model truck_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/truck_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 2 (road id 2 s 38.98 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 5 to road nr 2 (road id 2 s 45.84 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model van_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/van_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 2 (road id 2 s 53.51 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 2 (road id 2 s 82.87 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 5 to road nr 2 (road id 2 s 90.47 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model van_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./van_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/van_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 3 (road id 3 s 10.00 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 3 (road id 3 s 17.95 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 3 (road id 3 s 25.17 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 3 to road nr 3 (road id 3 s 32.01 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 4 to road nr 3 (road id 3 s 39.38 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model truck_yellow.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./truck_yellow.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/truck_yellow.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 0 to road nr 3 (road id 3 s 46.54 lane id -1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_white.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_white.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_white.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 1 to road nr 3 (road id 3 s 83.05 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_blue.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_blue.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_blue.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
+main.cpp / 125 / SetupCars(): Adding car of model 2 to road nr 3 (road id 3 s 90.97 lane id 1), 
+viewer.cpp / 1078 / viewer::Viewer::AddEntityModel(): Failed to load visual model car_red.osgb. Also tried the following paths:
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\bin/../resources/models/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     ..\..\pyoscx\esmini\resources\xodr/../models/car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//./car_red.osgb
+viewer.cpp / 1081 / viewer::Viewer::AddEntityModel():     .//../models/car_red.osgb
+viewer.cpp / 1083 / viewer::Viewer::AddEntityModel(): Creating a dummy model instead
+viewer.cpp / 588 / viewer::CarModel::CarModel(): No wheel nodes in model . No problem, wheels will just not appear to roll or steer
