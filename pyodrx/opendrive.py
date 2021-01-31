@@ -97,6 +97,8 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
+            signals (Signals): Contains a list of signal objects (optional)
+
         Methods
         -------
             get_element()

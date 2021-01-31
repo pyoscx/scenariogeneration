@@ -29,6 +29,9 @@ class Signals:
     def __init__(self):
         self.signalList = []
 
+    def add_signal(self, signal):
+        self.signalList.append(signal)
+
     def get_element(self):
         element = ET.Element('signals')
         for signal in self.signalList:
@@ -59,7 +62,21 @@ class Signal:
 
         Attributes
         ----------
-           
+            s (int): the s-coordinate of the signal.
+            t (double): the t-coordinate of the signal.
+            dynamic (bool): static/dynamic definition of the signal.
+            orientation (str): The orientation of the signal wrt the road. "+" means valid in positive s.
+            z-offset (double): offset between the road to the bottom edge of the signal.
+            country (str): country code used to read signal type and subtype
+            type (str): code for the signal (stop sign for example is 206 in Germany)
+            subtype (str): code for values in the signal
+            value (double):
+            unit (str):
+            width (int):
+            text (str)
+            h-offset (double):
+            pitch (double) :
+            roll (double):
 
         Methods
         -------
