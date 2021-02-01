@@ -343,7 +343,6 @@ class OpenDrive():
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             num_lane_offsets = main_road.lane_offset_pred
-            print(road_id,num_lane_offsets)
             x = -num_lane_offsets*3*np.sin(h) + x
             y = num_lane_offsets*3*np.cos(h) + y
 
@@ -358,7 +357,6 @@ class OpenDrive():
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             num_lane_offsets = main_road.lane_offset_suc
-            print(num_lane_offsets)
             x = num_lane_offsets*3*np.sin(h) + x
             y = -num_lane_offsets*3*np.cos(h) + y
             main_road.planview.set_start_point(x,y,h)
@@ -373,59 +371,80 @@ class OpenDrive():
 
         """
         
-        count_adjusted_roads = 0
+        count_total_adjusted_roads = 0
 
-        while count_adjusted_roads < len(self.roads):
+        # Adjust logically connected roads, i.e. move them so they connect geometrically. 
+        # Method:
+        # In the total list of remaining roads: Find first not yet adjusted road. 
+        #    This will be either a single unconnected road OR the first road in a group of connected roads. Below referred to as pivot-road.
+        #    Next, in the set of remaining unconnected roads, find and adjust any roads connecting to group starting with the pivot-road.
+        # Loop until all roads have been adjusted
+        while count_total_adjusted_roads < len(self.roads):
 
-            for k in self.roads: 
+            pivot_road = None
 
-                if self.roads[k].planview.fixed or count_adjusted_roads == 0: 
-                    self.roads[k].planview.adjust_geometries()
-                    #print('1 adjusted road ', self.roads[k].id)
-                    count_adjusted_roads += 1
-                    continue
-
-                if self.roads[k].planview.adjusted is True: 
-                    continue                
-
-                # check if it has a normal predecessor 
-                if self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is True and self.roads[k].predecessor.element_type is not ElementType.junction: 
-
-                    self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
-                                                   self.roads[k].predecessor.contact_point, 'predecessor')
-                    count_adjusted_roads +=1
-
-                    if self.roads[k].road_type != -1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
-                        
-                        succ_id = self.roads[k].successor.element_id
-                        if self.roads[k].successor.contact_point == ContactPoint.start:
-                            self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
-                        else:
-                            self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'successor')
-                        count_adjusted_roads +=1
-
-                    continue 
-
-                # check if geometry has a normal successor 
-                elif self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is True and self.roads[k].successor.element_type is not ElementType.junction: 
-
-                    self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
-                                                   self.roads[k].successor.contact_point, 'successor')
-                    count_adjusted_roads +=1
-
-                    if self.roads[k].road_type != -1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
-                        
-                        pred_id = self.roads[k].predecessor.element_id
-                        if self.roads[k].predecessor.contact_point == ContactPoint.start:
-                            self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'predecessor')
-                        else:
-                            self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'successor')
-                        count_adjusted_roads +=1
-
-                    continue
+            while True:  # Repeat until no more road connectinos found for the pivot-road
                 
-                print('Disconnected roads must have an explicit start point')
-                return
+                count_adjusted_roads = 0
+
+                for k in self.roads: # Check all 
+
+                    if self.roads[k].planview.adjusted is False: 
+                        
+                        # First road that is not adjusted will be selected as pivot-road
+                        if pivot_road == None: 
+                            self.roads[k].planview.adjust_geometries()
+                            print('Selecting and adjusting pivot-road {}'.format(self.roads[k].id))
+                            pivot_road = k
+                            count_adjusted_roads += 1
+
+                        # check if it has a normal (road) predecessor 
+                        elif self.roads[k].predecessor is not None and \
+                            self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is True and \
+                            self.roads[k].predecessor.element_type is not ElementType.junction: 
+
+                            print('  Adjusting {}road {} to predecessor {}'.\
+                                format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))
+                            self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
+                                                        self.roads[k].predecessor.contact_point, 'predecessor')
+                            count_adjusted_roads +=1
+
+                            if self.roads[k].road_type != -1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
+                                succ_id = self.roads[k].successor.element_id
+                                print('    Adjusting successor connecting road {} in junction {} to road {} '.\
+                                    format(succ_id, self.roads[k].road_type, self.roads[k].id))
+                                if self.roads[k].successor.contact_point == ContactPoint.start:
+                                    self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
+                                else:
+                                    self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'successor')
+                                count_adjusted_roads +=1
+
+                        # check if geometry has a normal (road) successor 
+                        elif self.roads[k].successor is not None and \
+                            self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is True and \
+                            self.roads[k].successor.element_type is not ElementType.junction: 
+
+                            print('  Adjusting {}successor {} to road {}'.\
+                                format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))
+                            self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
+                                                        self.roads[k].successor.contact_point, 'successor')
+                            count_adjusted_roads +=1
+
+                            if self.roads[k].road_type != -1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:
+                                pred_id = self.roads[k].predecessor.element_id
+                                print('    Adjusting predecessor connecting road {} in junction {} to road {} '.\
+                                    format(pred_id, self.roads[k].road_type, self.roads[k].id))
+                                if self.roads[k].predecessor.contact_point == ContactPoint.start:
+                                    self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'predecessor')
+                                else:
+                                    self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'successor')
+                                count_adjusted_roads +=1
+
+                if count_adjusted_roads == 0:
+                    # No more connecting roads found, move to next pivot-road
+                    break
+
+                count_total_adjusted_roads += count_adjusted_roads
 
     
     def add_junction(self,junction):
