@@ -82,6 +82,8 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
+            signals (Signals): Contains a list of signal objects (optional)
+
         Attributes
         ----------
             id (int): identifier of the road
@@ -97,6 +99,8 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
+            signals (Signals): Contains a list of signal objects (optional)
+
         Methods
         -------
             get_element()
@@ -109,7 +113,7 @@ class Road():
                 write a open scenario xml
                 
     """
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, signals=None):
         """ initalize the Road
 
             Parameters
@@ -127,7 +131,10 @@ class Road():
 
                 rule (TrafficRule): traffic rule (optional)
 
+                signals(Signals): Signal information for the road (optional)
+
         """
+        self.signals = signals
         self.id = road_id
         self.planview = planview
         self.lanes = lanes
@@ -229,7 +236,8 @@ class Road():
         element.append(self.links.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
-        
+        if self.signals:
+            element.append(self.signals.get_element())
         return element
 
 class OpenDrive():
