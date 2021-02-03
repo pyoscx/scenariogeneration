@@ -99,7 +99,9 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
-            signals (Signals): Contains a list of signal objects (optional)
+            signals (Signal): Contains a list of Signal objects (optional)
+            
+            objects (Object): Contains a list of Object objects (optional)
 
         Methods
         -------
@@ -113,7 +115,7 @@ class Road():
                 write a open scenario xml
                 
     """
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, signals=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         """ initalize the Road
 
             Parameters
@@ -131,10 +133,7 @@ class Road():
 
                 rule (TrafficRule): traffic rule (optional)
 
-                signals(Signals): Signal information for the road (optional)
-
         """
-        self.signals = signals
         self.id = road_id
         self.planview = planview
         self.lanes = lanes
@@ -149,6 +148,8 @@ class Road():
         self.lane_offset_pred = 0
         self.adjusted = False
         self.objects = []
+        self.signals = []
+
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
         
@@ -209,8 +210,20 @@ class Road():
         
         
         """
-        self.objects.append(road_object)
+        if isinstance(road_object,list):
+            self.objects=self.objects+road_object
+        else:
+            self.objects.append(road_object)
 
+    def add_signal(self,signal):
+        """ add_signal adds a signal to a road
+        
+        
+        """
+        if isinstance(signal,list):
+            self.signals=self.signals+signal
+        else:
+            self.signals.append(signal)
         
         
     def get_end_point(self):
@@ -246,8 +259,10 @@ class Road():
         element.append(self.links.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
-        if self.signals:
-            element.append(self.signals.get_element())
+        if len(self.signals) > 0:
+            signalselement = ET.SubElement(element,'signals')
+            for signal in self.signals:
+                signalselement.append(signal.get_element())
         if len(self.objects) > 0:
             objectselement = ET.SubElement(element,'objects')
             for road_object in self.objects:
