@@ -2,20 +2,22 @@
 import numpy as np
 import os
 import pyodrx
-import pyoscx
+#import pyoscx
 
 roads = []
 incoming_roads = 4
 angles = []
 for i in range(incoming_roads):
-    signal1 = pyodrx.Signal(s=10.0, t=2, dynamic="no", orientation="+", zOffset=0.00, country="US", Type="R1",
-                            subtype="1", value=0.00)
-    signals = pyodrx.Signals()
-    signals.add_signal(signal1)
-    roads.append(pyodrx.create_straight_road(i, signals=signals))
+    roads.append(pyodrx.create_straight_road(i))
     # use this instead to change the number of lanes in the crossing
     # roads.append(pyodrx.generators.create_straight_road(i, length=100, junction=-1, n_lanes=2, lane_offset=3))
     angles.append(i * 2 * np.pi / incoming_roads)
+    if angles[-1] == 0:
+        roads[-1].add_signal(pyodrx.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1"))
+    else:
+        roads[-1].add_signal(pyodrx.Signal(s=2.0, t=4, country="USA", Type="R1", subtype="1", orientation=pyodrx.Orientation.negative))
+
+        
 
 # use this for a T-crossing instead
 # angles = [0,np.pi/2, 3*np.pi/2]
@@ -32,6 +34,6 @@ for j in junc:
     odr.add_road(j)
 
 odr.adjust_roads_and_lanes()
-pyodrx.run_road(odr, os.path.join("..", "pyoscx", "esmini"))
+#pyodrx.run_road(odr, os.path.join("..", "pyoscx", "esmini"))
 
-
+odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
