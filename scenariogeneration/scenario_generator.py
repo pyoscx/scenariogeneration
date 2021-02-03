@@ -93,7 +93,7 @@ class ScenarioGenerator():
             print('Using parameters as a list of cases')
             self.all_permutations = self.parameters
 
-    def generate(self,generation_folder,override_parameters = None):
+    def generate(self,generation_folder,override_parameters = None, write_relative_road_path = False):
         """ generate uses the pyoscx.Scenario defined in the method scenario and the pyodrx.OpenDrive (optional) in the road method
             together with the parameters attribute to generate scenarios and roads for all permutations defined and save those files
             in the generation_folder.
@@ -103,8 +103,12 @@ class ScenarioGenerator():
                 generation_folder (str): the path to a folder where the files should be generated
                 
                 override_parameters (list of dicts, or dict of lists): overrides the self.parameters attribute
+
+                write_relative_road_path (bool): will create a relative path in the xosc file for the xodr file.
+                    Default: False
         """
         scenario_files = []
+        road_files = []
         self._create_folder_structure(generation_folder)
         if override_parameters:
             print('Overriding inputs via input')
@@ -132,13 +136,17 @@ class ScenarioGenerator():
             
             if road:
                 self.road_file = os.path.abspath(os.path.join(generation_folder,'xodr',scenario_name+'.xodr'))
+                road_files.append(self.road_file)
                 road.write_xml(self.road_file)
-
+                if write_relative_road_path:
+                    print(generation_folder)
+                    print(self.road_file)
+                    self.road_file = self.road_file.replace(os.path.abspath(generation_folder),os.path.pardir)
             sce = self.scenario(**p)
-
-            scenario_file = os.path.join(generation_folder,'xosc',scenario_name+'.xosc')
-            scenario_files.append(scenario_file)
-            sce.write_xml(scenario_file)
+            if sce:
+                scenario_file = os.path.join(generation_folder,'xosc',scenario_name+'.xosc')
+                scenario_files.append(scenario_file)
+                sce.write_xml(scenario_file)
 
         return scenario_files
     def _create_permutations(self):
