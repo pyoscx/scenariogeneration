@@ -109,13 +109,13 @@ class PlanView():
         Parameters
         ----------
             x_start (float): start x coordinate of the first geometry
-                Default: 0
+                Default: None
 
             y_start (float): start y coordinate of the first geometry
-                Default: 0
+                Default: None
 
             h_start (float): starting heading of the first geometry
-                Default: 0
+                Default: None
 
         Attributes
         ----------
@@ -145,7 +145,7 @@ class PlanView():
                 based on the start point, it will adjust all geometries in the planview
 
     """
-    def __init__(self,x_start=0,y_start=0,h_start=0):
+    def __init__(self,x_start=None,y_start=None,h_start=None):
         """ initalizes the PlanView
             Note: if multiple roads are used, the start values can be recalculated.
 
@@ -155,12 +155,16 @@ class PlanView():
         self.present_y = 0
         self.present_h = 0
         self.present_s = 0
+        self.fixed = False
+        if all([x_start != None, y_start!=None,h_start!=None]):
+            self.set_start_point(x_start, y_start, h_start)
+            self.fixed = True
+        elif any([x_start != None, y_start!=None,h_start!=None]):
+            raise NotEnoughInputArguments('If a start position is wanted for the PlanView, all inputs must be used.')
 
-        self.set_start_point(x_start, y_start, h_start)
-            
         self.x_start = None
         self.y_start = None
-        self.h_start = None 
+        self.h_start = None
 
         self.x_end = None
         self.y_end = None
