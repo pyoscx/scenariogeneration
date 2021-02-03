@@ -128,12 +128,14 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_
 
     return road
 
-def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offset=3):
+def create_straight_road(road_id, signals=None, length=100,junction = -1, n_lanes=1, lane_offset=3):
     """ creates a standard straight road with two lanes
 
         Parameters
         ----------
             road_id (int): id of the road to create
+
+            signals (Signals): signals to be added to current road element
 
             length (float): length of the road
                 default: 100
@@ -162,7 +164,7 @@ def create_straight_road(road_id,length=100,junction = -1, n_lanes=1, lane_offse
     lanes1.add_lanesection(lanesec1)
 
     # finally create the roads 
-    return Road(road_id,planview1,lanes1,road_type=junction)
+    return Road(road_id,planview1,lanes1,road_type=junction, signals=signals)
 
 
 def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH, n_lanes=1, lane_offset=3):
@@ -243,7 +245,7 @@ def get_lanes_offset(road1, road2, contactpoint):
         n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes) 
         lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].a     
     else:
-        raise NotSameAmountOfLanesError('Incoming oad ',road1.id, ' and outcoming road ', road2.id, 'do not have the same number of left lanes.')
+        raise NotSameAmountOfLanesError('Incoming road ',road1.id, ' and outcoming road ', road2.id, 'do not have the same number of left lanes.')
         
     return n_lanes, lane_offset 
 
