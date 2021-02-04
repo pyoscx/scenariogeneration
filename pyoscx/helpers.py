@@ -28,7 +28,7 @@ def esminiRunner(scenario, esminipath='esmini', args='--window 60 60 800 400'):
                                'bin',
                                'esmini.exe') + ' --osc ' + esminipath + '/resources/xosc/pythonscenario2.xosc ' + args)
 
-def esminiRunViewer(scenario,esminipath='esmini',args=' --window 100 100 1000 800'):
+def esminiRunViewer(scenario,esminipath='esmini',args=' --window 100 100 1000 600'):
     """ writes and runs esmini in headless mode then launch the replayer for analysis of the scenario
         Parameters
         ----------
