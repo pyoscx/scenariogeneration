@@ -89,7 +89,7 @@ class Signal:
     """
 
     def __init__(self, s, t, dynamic="no", orientation="+", zOffset=0.00, country="US", Type="R1", subtype="1",
-                 value=0.00):
+                 value=0.00, name=""):
         self.s = s
         self.t = t
         self.dynamic = dynamic
@@ -99,11 +99,12 @@ class Signal:
         self.type = Type
         self.subtype = subtype
         self.value = value
+        self.name = name
 
     def get_attributes(self):
         retdict = {"s": str(self.s), "t": str(self.t), "dynamic": self.dynamic, "orientation": self.orientation,
                    "zOffset": str(self.zOffset), "country": str(self.country), "type": str(self.type),
-                   "subtype": str(self.subtype), "value": str(self.value)}
+                   "subtype": str(self.subtype), "value": str(self.value), "name": self.name}
         return retdict
 
     def get_element(self):
