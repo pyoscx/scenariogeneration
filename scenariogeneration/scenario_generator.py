@@ -124,7 +124,7 @@ class ScenarioGenerator():
                 it += 1
             elif self.naming == 'parameter':
                 for  key, value in p.items():
-                    name_prefix += '_' + key + '-' + str(value)
+                    name_prefix += '_' + key.replace('\\','-').replace('/','-') + '-' + str(value).replace('\\','-').replace('/','-')
             else:
                 raise NameError('Attribute naming, can only be "numerical" or "parameter", not ' + self.naming)
 
