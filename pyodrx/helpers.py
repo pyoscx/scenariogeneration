@@ -5,7 +5,7 @@ import xml.dom.minidom as mini
 import os
 
 
-def run_road(opendrive,esminipath = 'esmini'):
+def run_road(opendrive,esminipath = 'esmini',density=15):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
         Parameters
         ----------
@@ -20,9 +20,9 @@ def run_road(opendrive,esminipath = 'esmini'):
     opendrive.write_xml(os.path.join(_scenariopath,'pythonroad.xodr'),True)
     
     if os.name == 'posix':
-        os.system(os.path.join('.', esminipath, 'bin','odrviewer') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 60 60 800 400 --density 15' )
+        os.system(os.path.join('.', esminipath, 'bin','odrviewer') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 60 60 800 400 --density ' + str(density) )
     elif os.name == 'nt':
-        os.system(os.path.join(esminipath,'bin','odrviewer.exe') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 60 60 800 400 --density 15' )
+        os.system(os.path.join(esminipath,'bin','odrviewer.exe') + ' --odr ' + os.path.join(esminipath,'resources','xodr','pythonroad.xodr') + ' --osi_features on --clear-color 0.2,0.2,0.2 --window 60 60 800 400 --density '  + str(density) )
 
 
 def enum2str(enum):
