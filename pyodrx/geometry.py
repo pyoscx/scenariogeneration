@@ -188,7 +188,7 @@ class PlanView():
 
         """
 
-        if heading:
+        if heading is not None:
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
 
@@ -811,12 +811,9 @@ class ParamPoly3():
         """ integral function to calulate length of polynomial,
             #TODO: This is not tested or verified...
         """
-        return np.sqrt( \
-            (self.bu**2 + self.bv**2) + \
-            4*(self.bu*self.cu + self.bv*self.cv)*p + \
-            2*(3*self.bu*self.du + 2*self.cu**2 +3*self.bv*self.dv + 2*self.cv**2 )*p**2 + \
-            12*(self.cu*self.du + self.cv*self.dv)*p**3 +\
-            9*(self.du**2 + self.dv**2)*p**4 )
+        return np.sqrt(
+            (abs(3*self.du*p**2 + 2*self.cu*p + self.bu))**2 + 
+            (abs(3*self.dv*p**2 + 2*self.cv*p + self.bv))**2)
 
     def get_start_data(self,x,y,h):
         """ Returns the start point of the geometry
@@ -846,8 +843,8 @@ class ParamPoly3():
         newu = self.au + self.bu*p + self.cu*p**2 + self.du*p**3
         newv = self.av + self.bv*p + self.cv*p**2 + self.dv*p**3
 
-        new_x = x - newu*np.cos(h)-np.sin(h)*newv
-        new_y = y - newu*np.sin(h)+np.cos(h)*newv
+        new_x = x - (newu*np.cos(h)-np.sin(h)*newv)
+        new_y = y - (newu*np.sin(h)+np.cos(h)*newv)
         new_h = h - np.arctan2(self.bv + 2*self.cv*p + 3*self.dv*p**2,self.bu + 2*self.cu*p + 3*self.du*p**2)
 
         return new_x, new_y, new_h, self.length
