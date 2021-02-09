@@ -109,13 +109,13 @@ class PlanView():
         Parameters
         ----------
             x_start (float): start x coordinate of the first geometry
-                Default: 0
+                Default: None
 
             y_start (float): start y coordinate of the first geometry
-                Default: 0
+                Default: None
 
             h_start (float): starting heading of the first geometry
-                Default: 0
+                Default: None
 
         Attributes
         ----------
@@ -145,7 +145,7 @@ class PlanView():
                 based on the start point, it will adjust all geometries in the planview
 
     """
-    def __init__(self,x_start=0,y_start=0,h_start=0):
+    def __init__(self,x_start=None,y_start=None,h_start=None):
         """ initalizes the PlanView
             Note: if multiple roads are used, the start values can be recalculated.
 
@@ -155,10 +155,16 @@ class PlanView():
         self.present_y = 0
         self.present_h = 0
         self.present_s = 0
+        self.fixed = False
+        if all([x_start != None, y_start!=None,h_start!=None]):
+            self.set_start_point(x_start, y_start, h_start)
+            self.fixed = True
+        elif any([x_start != None, y_start!=None,h_start!=None]):
+            raise NotEnoughInputArguments('If a start position is wanted for the PlanView, all inputs must be used.')
 
         self.x_start = None
         self.y_start = None
-        self.h_start = None 
+        self.h_start = None
 
         self.x_end = None
         self.y_end = None
@@ -182,7 +188,7 @@ class PlanView():
 
         """
 
-        if heading:
+        if heading is not None:
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
 
@@ -200,7 +206,7 @@ class PlanView():
             h_start (float): starting heading of the first geometry
                 Default: 0
         """
-
+    
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
@@ -805,12 +811,9 @@ class ParamPoly3():
         """ integral function to calulate length of polynomial,
             #TODO: This is not tested or verified...
         """
-        return np.sqrt( \
-            (self.bu**2 + self.bv**2) + \
-            4*(self.bu*self.cu + self.bv*self.cv)*p + \
-            2*(3*self.bu*self.du + 2*self.cu**2 +3*self.bv*self.dv + 2*self.cv**2 )*p**2 + \
-            12*(self.cu*self.du + self.cv*self.dv)*p**3 +\
-            9*(self.du**2 + self.dv**2)*p**4 )
+        return np.sqrt(
+            (abs(3*self.du*p**2 + 2*self.cu*p + self.bu))**2 + 
+            (abs(3*self.dv*p**2 + 2*self.cv*p + self.bv))**2)
 
     def get_start_data(self,x,y,h):
         """ Returns the start point of the geometry
@@ -840,8 +843,8 @@ class ParamPoly3():
         newu = self.au + self.bu*p + self.cu*p**2 + self.du*p**3
         newv = self.av + self.bv*p + self.cv*p**2 + self.dv*p**3
 
-        new_x = x - newu*np.cos(h)-np.sin(h)*newv
-        new_y = y - newu*np.sin(h)+np.cos(h)*newv
+        new_x = x - (newu*np.cos(h)-np.sin(h)*newv)
+        new_y = y - (newu*np.sin(h)+np.cos(h)*newv)
         new_h = h - np.arctan2(self.bv + 2*self.cv*p + 3*self.dv*p**2,self.bu + 2*self.cu*p + 3*self.du*p**2)
 
         return new_x, new_y, new_h, self.length
