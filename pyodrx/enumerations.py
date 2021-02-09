@@ -151,3 +151,10 @@ class Dynamic(Enum):
     """
     yes = auto()
     no = auto()
+    
+class RoadSide(Enum):
+    """ Enum for RoadSide
+    """
+    both = auto()
+    left = auto()
+    right = auto()

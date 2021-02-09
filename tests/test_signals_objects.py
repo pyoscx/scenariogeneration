@@ -18,11 +18,27 @@ def test_signal():
 
 
 def test_object():
-    object1 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, id="1", height="1.0", Type=pyodrx.ObjectType.pole)
+    object1 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, id="1", height=1.0, Type=pyodrx.ObjectType.pole)
     
     #same chosen ID should cause warning and be resolved automatically
-    object2 = pyodrx.Object(s=20.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height="10", id="1", Type=pyodrx.ObjectType.streetLamp) 
+    object2 = pyodrx.Object(s=20.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=10, id="1", Type=pyodrx.ObjectType.streetLamp) 
     
     road = pyodrx.create_straight_road(0)
     road.add_object([object1, object2])
     pyodrx.prettyprint(road.get_element())
+    
+def test_repeated_object():
+    object1 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=1.0, Type=pyodrx.ObjectType.pole)
+    object1.repeat(100,50)
+    road = pyodrx.create_straight_road(0)
+    road.add_object(object1)
+    pyodrx.prettyprint(road.get_element())
+    
+def test_object_roadside():
+    road = pyodrx.create_straight_road(0)
+    odr = pyodrx.OpenDrive('myroad')
+    odr.add_road(road)
+    odr.adjust_roads_and_lanes()
+    object1 = pyodrx.Object(s=0, t=0, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=1.0, Type=pyodrx.ObjectType.pole)
+    road.add_object_roadside(object1,50,tOffset=0.85)
+    pyodrx.prettyprint(road.get_element())  

@@ -93,25 +93,25 @@ class _SignalObjectBase():
         self.pitch = pitch
         self.roll = roll
         self.width = width
+        self.id = id
         
+    def _update_id(self):
+    
         #ensure unique IDs
         try:
-            if id in self._usedIDs[self.__class__.__name__]:
-                print ("Warning: id",id,"has already been used for another",self.__class__.__name__,"...auto-generating unique id.")
+            if self.id in self._usedIDs[self.__class__.__name__]:
+                print ("Warning: id",self.id,"has already been used for another",self.__class__.__name__,"...auto-generating unique id.")
                 
         except KeyError:
             self._usedIDs[self.__class__.__name__]=[]
             self._IDCounter[self.__class__.__name__]=0
             
         
-        if id == None or (id in self._usedIDs[self.__class__.__name__]):
+        if self.id == None or (self.id in self._usedIDs[self.__class__.__name__]):
             while (str(self._IDCounter[self.__class__.__name__]) in self._usedIDs[self.__class__.__name__]):
                 self._IDCounter[self.__class__.__name__]+=1
-            self.id = self._IDCounter[self.__class__.__name__]
-        else:
-            self.id = id
-        
-
+            self.id = self._IDCounter[self.__class__.__name__]             
+    
         self._usedIDs[self.__class__.__name__].append(str(self.id))
         
 
@@ -431,7 +431,8 @@ class Object(_SignalObjectBase):
         self._repeats[-1]['distance']=str(repeatDistance)
         
         def infoFallback(id, attributeName):
-            print ("Info: Using data of parent object with id",id,"as attribute",attributeName,"was not specified for repeat entry.")
+            pass
+            #print ("Info: Using data of parent object with id",id,"as attribute",attributeName,"was not specified for repeat entry.")
                   
         #ensuring that all attributes that are required according to OpenDRIVE 1.6 are filled - for convenience the ones of the parent object are used
         #if not provided specifically          

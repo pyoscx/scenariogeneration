@@ -13,18 +13,10 @@ from .enumerations import RoadMarkType, MarkRule, ContactPoint, ElementType, Obj
 from .geometry import Line, Arc, Spiral, EulerSpiral, PlanView
 from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
-from .signals_objects import Object, Signal
-
 
 
 STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2)
 STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken,0.2)
-STD_POLE_HEIGHT = 1
-STD_POLE_T_BORDER = 0.85
-STD_POLE_REPEAT = 50
-STD_GUARDRAIL_T_BORDER = 0.8
-STD_GUARDRAIL_HEIGHT = 0.3
-STD_GUARDRAIL_ZOFFSET = 0.4
 STD_START_CLOTH = 1/1000000000
 def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     """ standard_lane creates a simple lane with an offset an a roadmark
@@ -46,7 +38,7 @@ def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     return lc
 
 
-def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID,lane_width=3, polesRight=False, polesLeft=False, guardrailRight=False, guardrailLeft=False):
+def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID, lane_width=3):
     """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken, 
         except the outer lane, that will be solid. 
 
@@ -106,26 +98,6 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_
     
     road = Road(id,pv,lanes,road_type=road_type)
     
-    if polesRight:
-        polesRight = Object(0.5*STD_POLE_REPEAT,-1*(right_lanes*lane_width + STD_POLE_T_BORDER),height=STD_POLE_HEIGHT,radius=0.05,Type=ObjectType.pole,name="delineator")
-        polesRight.repeat(raw_length-0.5*STD_POLE_REPEAT, STD_POLE_REPEAT)
-        road.add_object(polesRight)
-
-    if polesLeft:
-        polesLeft = Object(0.5*STD_POLE_REPEAT,(left_lanes*lane_width + STD_POLE_T_BORDER),height=STD_POLE_HEIGHT,radius=0.05,Type=ObjectType.pole,name="delineator",hdg=3.14)
-        polesLeft.repeat(raw_length-0.5*STD_POLE_REPEAT, STD_POLE_REPEAT)            
-        road.add_object(polesLeft)
-
-    if guardrailRight:
-        guardrailRight = Object(0,-1*(right_lanes*lane_width + STD_GUARDRAIL_T_BORDER),height=STD_GUARDRAIL_HEIGHT,zOffset=STD_GUARDRAIL_ZOFFSET,Type=ObjectType.barrier,name="guardRail")
-        guardrailRight.repeat(raw_length, 0)
-        road.add_object(guardrailRight)
-
-    if guardrailLeft:
-        guardrailLeft = Object(0,(left_lanes*lane_width + STD_GUARDRAIL_T_BORDER),height=STD_GUARDRAIL_HEIGHT,zOffset=STD_GUARDRAIL_ZOFFSET,Type=ObjectType.barrier,name="guardRail",hdg=3.14)
-        guardrailLeft.repeat(raw_length, 0)            
-        road.add_object(guardrailLeft)
-
     return road
 
 def create_straight_road(road_id, length=100,junction = -1, n_lanes=1, lane_offset=3):
