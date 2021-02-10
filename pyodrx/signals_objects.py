@@ -44,6 +44,10 @@ class _SignalObjectBase():
         -------
             get_common_attributes()
                 Returns a dictionary of all attributes of FileHeader
+                
+            _update_id()
+                Ensures that an ID is assigned if none was provided and that provided IDs are unique
+                Should be called when adding an Object or signal to the road
         """
         
     _usedIDs = {}
@@ -96,10 +100,9 @@ class _SignalObjectBase():
         self.id = id
         
     def _update_id(self):
-    
         #ensure unique IDs
         try:
-            if self.id in self._usedIDs[self.__class__.__name__]:
+            if str(self.id) in self._usedIDs[self.__class__.__name__]:
                 print ("Warning: id",self.id,"has already been used for another",self.__class__.__name__,"...auto-generating unique id.")
                 
         except KeyError:
@@ -107,14 +110,14 @@ class _SignalObjectBase():
             self._IDCounter[self.__class__.__name__]=0
             
         
-        if self.id == None or (self.id in self._usedIDs[self.__class__.__name__]):
+        if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
             while (str(self._IDCounter[self.__class__.__name__]) in self._usedIDs[self.__class__.__name__]):
                 self._IDCounter[self.__class__.__name__]+=1
-            self.id = self._IDCounter[self.__class__.__name__]             
+            self.id = str(self._IDCounter[self.__class__.__name__])             
     
         self._usedIDs[self.__class__.__name__].append(str(self.id))
         
-
+        
         
     def get_common_attributes(self):
             """ returns common attributes of Signal and Object as a dict
