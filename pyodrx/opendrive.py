@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from .helpers import printToFile
 from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide
-from .exceptions import UndefinedRoadNetwork
+from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
 
 import datetime as dt
 import warnings
@@ -208,8 +208,11 @@ class Road():
         self.links.add_link(suc)
         self._neighbor_added += 1
     def add_object(self,road_object):
-        """ add_object adds an object to a road
+        """ add_object adds an object to a road and calls a function that ensures unique IDs
         
+        Parameters
+        ----------
+            road_object (Object/list(Object)): object(s) to be added to road 
         
         """
         if isinstance(road_object,list):
@@ -221,7 +224,8 @@ class Road():
             self.objects.append(road_object)
             
     def add_object_roadside(self, road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both):
-        """ add_object_roadside is a convenience function to add a repeating object on side of the road
+        """ add_object_roadside is a convenience function to add a repeating object on side of the road,
+            which can only be used after adjust_roads_and_lanes() has been performed
         
         Parameters
         ----------
@@ -240,7 +244,7 @@ class Road():
         
         """
         if not self.planview.adjusted:
-            print ("Warning: could not add roadside object because roads and lanes need to be adjusted first.")
+            raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
             return
         
         hdg_factors = []
