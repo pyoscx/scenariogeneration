@@ -27,7 +27,7 @@ def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
                 default: 3
 
             rm (RoadMark): road mark used for the standard lane
-                default:  RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
+                default:  RoadMark(STD_ROADMARK_BROKEN)
         Returns
         -------
             lane (Lane): the lane
