@@ -113,5 +113,9 @@ for r in roads:
     odr.add_road(r)
 odr.adjust_roads_and_lanes()
 odr.add_junction(junction)
-pyodrx.run_road(odr,os.path.join('..','..','esmini'))
 
+# write the OpenDRIVE file as xodr using current script name
+odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
+
+# uncomment the following line to display the road using esmini
+# pyodrx.run_road(odr,os.path.join('..','..','esmini'))
