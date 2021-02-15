@@ -2,13 +2,14 @@ import xml.etree.ElementTree as ET
 
 from .helpers import printToFile
 from .links import _Link, _Links, create_lane_links
-from .enumerations import ElementType, ContactPoint
-from .exceptions import UndefinedRoadNetwork
+from .enumerations import ElementType, ContactPoint, RoadSide
+from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
 
 import datetime as dt
 import warnings
 from itertools import combinations
 import numpy as np
+import copy as cpy
 
 class _Header():
     """ Header creates the header of the OpenDrive file
@@ -100,7 +101,9 @@ class Road():
 
             rule (TrafficRule): traffic rule (optional)
 
-            signals (Signals): Contains a list of signal objects (optional)
+            signals (Signal): Contains a list of Signal objects (optional)
+            
+            objects (Object): Contains a list of Object objects (optional)
 
         Methods
         -------
@@ -114,7 +117,7 @@ class Road():
                 write a open scenario xml
                 
     """
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None, signals=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         """ initalize the Road
 
             Parameters
@@ -132,10 +135,7 @@ class Road():
 
                 rule (TrafficRule): traffic rule (optional)
 
-                signals(Signals): Signal information for the road (optional)
-
         """
-        self.signals = signals
         self.id = road_id
         self.planview = planview
         self.lanes = lanes
@@ -149,6 +149,9 @@ class Road():
         self.lane_offset_suc = 0
         self.lane_offset_pred = 0
         self.adjusted = False
+        self.objects = []
+        self.signals = []
+
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
         
@@ -204,6 +207,90 @@ class Road():
     
         self.links.add_link(suc)
         self._neighbor_added += 1
+    def add_object(self,road_object):
+        """ add_object adds an object to a road and calls a function that ensures unique IDs
+        
+        Parameters
+        ----------
+            road_object (Object/list(Object)): object(s) to be added to road 
+        
+        """
+        if isinstance(road_object,list):
+            for single_object in road_object:
+                single_object._update_id()
+            self.objects=self.objects+road_object
+        else:
+            road_object._update_id()
+            self.objects.append(road_object)
+            
+    def add_object_roadside(self, road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both):
+        """ add_object_roadside is a convenience function to add a repeating object on side of the road,
+            which can only be used after adjust_roads_and_lanes() has been performed
+        
+        Parameters
+        ----------
+            road_object_prototype (Object): object that will be used as a basis for generation
+
+            repeatDistance (float): distance between repeated Objects, 0 for continuous
+
+            sOffset (float): start s-coordinate of repeating Objects
+            default: 0
+            
+            tOffset (float): t-offset additional to lane width, sign will be added automatically (i.e. positive if further from roadside)
+            default: 0
+            
+            side (RoadSide): add Objects on both, left or right side 
+            default: both
+        
+        """
+        if not self.planview.adjusted:
+            raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
+            return
+        
+        hdg_factors = []
+        total_widths = []
+        road_objects = []
+        s_lanesections = []
+        #TODO: handle width parameters apart from a
+        for lanesection in self.lanes.lanesections:
+            if side != RoadSide.right:
+                s_lanesections.append(lanesection.s)
+                hdg_factors.append(1)
+                total_widths.append(0)
+                road_objects.append(cpy.deepcopy(road_object_prototype))
+                for lane in lanesection.leftlanes:
+                    total_widths[-1] = total_widths[-1] + lane.a
+            if side != RoadSide.left:
+                s_lanesections.append(lanesection.s)
+                hdg_factors.append(-1)
+                total_widths.append(0)
+                road_objects.append(cpy.deepcopy(road_object_prototype))
+                for lane in lanesection.rightlanes:
+                    total_widths[-1] = total_widths[-1] + lane.a
+        
+        for idx, road_object in enumerate(road_objects):
+            road_object.t = (total_widths[idx] + tOffset) * hdg_factors[idx]
+            road_object.s = sOffset + s_lanesections[idx]
+            road_object.hdg = np.pi * (1 + hdg_factors[idx]) / 2
+            road_object.repeat(self.planview.get_total_length() - sOffset - s_lanesections[idx], repeatDistance)
+        print (repeatDistance)        
+        self.add_object(road_objects)
+
+    def add_signal(self,signal):
+        """ add_signal adds a signal to a road
+        
+        
+        """
+        if isinstance(signal,list):
+            for single_signal in signal:
+                single_signal._update_id()
+            self.signals=self.signals+signal
+        else:
+            signal._update_id()
+            self.signals.append(signal)
+
+        
+        
     def get_end_point(self):
         """ get the x, y, and heading, of the end of the road
 
@@ -237,8 +324,15 @@ class Road():
         element.append(self.links.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
-        if self.signals:
-            element.append(self.signals.get_element())
+        if len(self.signals) > 0:
+            signalselement = ET.SubElement(element,'signals')
+            for signal in self.signals:
+                signalselement.append(signal.get_element())
+        if len(self.objects) > 0:
+            objectselement = ET.SubElement(element,'objects')
+            for road_object in self.objects:
+                objectselement.append(road_object.get_element())        
+            
         return element
 
 class OpenDrive():

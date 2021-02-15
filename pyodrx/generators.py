@@ -8,15 +8,15 @@
 import numpy as np
 
 from .lane import Lane, RoadMark, LaneSection, Lanes
-from .enumerations import RoadMarkType, MarkRule, ContactPoint, ElementType
+from .enumerations import RoadMarkType, MarkRule, ContactPoint, ElementType, ObjectType
 
 from .geometry import Line, Arc, Spiral, EulerSpiral, PlanView
 from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection
 
 
-STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2,rule=MarkRule.no_passing)
-STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken,0.2,rule=MarkRule.no_passing)
+STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2)
+STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken,0.2)
 STD_START_CLOTH = 1/1000000000
 def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     """ standard_lane creates a simple lane with an offset an a roadmark
@@ -38,7 +38,7 @@ def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     return lc
 
 
-def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID,lane_width=3):
+def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID, lane_width=3):
     """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken, 
         except the outer lane, that will be solid. 
 
@@ -65,12 +65,15 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_
             road (Road): a straight road
     """
     pv = PlanView()
+    raw_length = 0
     if isinstance(geometry,list):
         for g in geometry:
             pv.add_geometry(g)
+            raw_length += g.length
     else:
         pv.add_geometry(geometry)
-
+        raw_length += geometry.length
+    
     # create centerlane
     lc = Lane(a=0)
     lc.add_roadmark(center_road_mark)
@@ -92,17 +95,17 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_
         lsec.add_right_lane(rightlane)
     lanes = Lanes()
     lanes.add_lanesection(lsec)
+    
+    road = Road(id,pv,lanes,road_type=road_type)
+    
+    return road
 
-    return Road(id,pv,lanes,road_type=road_type)
-
-def create_straight_road(road_id, signals=None, length=100,junction = -1, n_lanes=1, lane_offset=3):
+def create_straight_road(road_id, length=100,junction = -1, n_lanes=1, lane_offset=3):
     """ creates a standard straight road with two lanes
 
         Parameters
         ----------
             road_id (int): id of the road to create
-
-            signals (Signals): signals to be added to current road element
 
             length (float): length of the road
                 default: 100
@@ -131,7 +134,7 @@ def create_straight_road(road_id, signals=None, length=100,junction = -1, n_lane
     lanes1.add_lanesection(lanesec1)
 
     # finally create the roads 
-    return Road(road_id,planview1,lanes1,road_type=junction, signals=signals)
+    return Road(road_id,planview1,lanes1,road_type=junction)
 
 
 def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH, n_lanes=1, lane_offset=3):

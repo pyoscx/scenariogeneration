@@ -118,3 +118,43 @@ class Direction(Enum):
     """
     same = auto()
     opposite = auto()
+    
+class Orientation(Enum):
+    """ Enum for Orientation
+    """
+    positive = auto()
+    negative = auto()
+    none = auto()
+
+class ObjectType(Enum):
+    """ Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated types
+    """
+    none = auto()
+    obstacle = auto()
+    pole = auto()
+    tree = auto()
+    vegetation = auto()
+    barrier = auto()
+    building = auto()
+    parkingSpace = auto()
+    patch = auto()
+    railing = auto()
+    trafficIsland = auto()
+    crosswalk = auto()
+    streetLamp = auto()
+    gantry = auto()
+    soundBarrier = auto()
+    roadMark = auto()
+    
+class Dynamic(Enum):
+    """ Enum for Dynamic
+    """
+    yes = auto()
+    no = auto()
+    
+class RoadSide(Enum):
+    """ Enum for RoadSide
+    """
+    both = auto()
+    left = auto()
+    right = auto()

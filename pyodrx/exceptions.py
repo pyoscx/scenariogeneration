@@ -20,3 +20,8 @@ class UndefinedRoadNetwork(Exception):
     """ Raised when the user haven't connected the roads in a correct way
     """
     pass
+
+class RoadsAndLanesNotAdjusted(Exception):
+    """ Raised when the user tries to perform an action on non-adjusted lanes and roads that requires adjusted lanes and roads
+    """
+    pass
