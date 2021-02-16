@@ -22,7 +22,7 @@ planview.add_geometry(line3)
 
 
 ##3. Create a solid roadmark
-rm = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
+rm = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2)
 
 ##4. Create centerlane 
 centerlane = pyodrx.Lane(a=2)

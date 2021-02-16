@@ -9,8 +9,8 @@ planview.add_geometry(pyodrx.Line(500))
 
 
 # create two different roadmarkings
-rm_solid = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
-rm_dashed = pyodrx.RoadMark(pyodrx.RoadMarkType.broken,0.2,rule=pyodrx.MarkRule.no_passing)
+rm_solid = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2)
+rm_dashed = pyodrx.RoadMark(pyodrx.RoadMarkType.broken,0.2)
 
 # create a centerlane (same centerlane can be used since no linking is needed for this)
 centerlane = pyodrx.Lane(a=2)

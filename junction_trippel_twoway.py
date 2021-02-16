@@ -4,7 +4,7 @@ import os
 
 
 
-rm = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2,rule=pyodrx.MarkRule.no_passing)
+rm = pyodrx.RoadMark(pyodrx.RoadMarkType.solid,0.2)
 
 # create geometries
 
