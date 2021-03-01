@@ -1,23 +1,24 @@
 import pytest
 from scenariogeneration import xodr as pyodrx
+from scenariogeneration import prettyprint
 import numpy as np
 
 def test_link():
     link = pyodrx.links._Link('successor','1')
     
-    pyodrx.prettyprint(link.get_element())
+    prettyprint(link.get_element())
 
     link = pyodrx.links._Link('successor','1',element_type=pyodrx.ElementType.road,contact_point=pyodrx.ContactPoint.start)
     
-    pyodrx.prettyprint(link.get_element())
+    prettyprint(link.get_element())
 
 def test_links():
 
     links = pyodrx.links._Links()
-    pyodrx.prettyprint(links.get_element())
+    prettyprint(links.get_element())
     link = pyodrx.links._Link('successor','1')
     links.add_link(link)    
-    pyodrx.prettyprint(links.get_element())
+    prettyprint(links.get_element())
 
 def test_lanelinker():
 
@@ -25,7 +26,7 @@ def test_lanelinker():
     lane._set_lane_id(1)
     lane.add_link('successor','2')
 
-    pyodrx.prettyprint(lane.get_element())
+    prettyprint(lane.get_element())
 
 def test_connection():
     con = pyodrx.Connection(1,2,pyodrx.ContactPoint.start,5)
@@ -33,7 +34,7 @@ def test_connection():
     con.add_lanelink(1,-1)
     con.add_lanelink(2,-2)
 
-    pyodrx.prettyprint(con.get_element())
+    prettyprint(con.get_element())
 
 def test_junction():
     con1 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start)
@@ -52,7 +53,7 @@ def test_junction():
     junciton.add_connection(con1)
     junciton.add_connection(con2)
 
-    pyodrx.prettyprint(junciton.get_element())
+    prettyprint(junciton.get_element())
 
 
 # road - road - road // -> - -> - -> 

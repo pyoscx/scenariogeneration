@@ -3,12 +3,12 @@ import pytest
 import numpy as np
 
 from scenariogeneration import xodr as pyodrx
-
+from scenariogeneration import prettyprint
 def test_line():
     line = pyodrx.Line(1)
     
     p = line.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
 
 @pytest.mark.parametrize("data, expdata",[\
@@ -33,7 +33,7 @@ def test_spiral():
     spiral = pyodrx.Spiral(0,1, 10)
     
     p = spiral.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
 def test_spiral_inputs():
     cloth = pyodrx.Spiral(0.0,0.05,10.0)
@@ -124,12 +124,12 @@ def test_arc():
     arc = pyodrx.Arc(1,length = 1)
     
     p = arc.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
     arc = pyodrx.Arc(1,angle = 1)
     
     p = arc.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
 @pytest.mark.parametrize("data, expdata",[\
 ([np.pi, 0,0,0,1], [0,2,np.pi]),
@@ -177,7 +177,7 @@ def test_polyparam():
     poly = pyodrx.ParamPoly3(1,2,3,4,5,6,7,8)
     
     p = poly.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
 @pytest.mark.parametrize("data, expdata",[\
 ([1, 0,0,0], [1,1,np.pi/4]),
@@ -196,7 +196,7 @@ def test_arc_calc(data,expdata):
 def test_geometry():
     geom = pyodrx.geometry._Geometry(1,2,3,4,pyodrx.Line(1))
     p = geom.get_element()
-    pyodrx.prettyprint(p)
+    prettyprint(p)
 
 @pytest.mark.parametrize("data",[\
 ([100, 0,0,0]),

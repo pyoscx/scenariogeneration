@@ -2,7 +2,7 @@ import pytest
 
 
 from scenariogeneration import xosc as OSC
-
+from scenariogeneration import prettyprint
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 speedaction = OSC.AbsoluteSpeedAction(50,TD)
@@ -24,7 +24,7 @@ def test_maneuver():
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
     man.add_event(event)
-    OSC.prettyprint(man.get_element())
+    prettyprint(man.get_element())
 
 
 def test_maneuvergroup():
@@ -33,12 +33,12 @@ def test_maneuvergroup():
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
     man.add_event(event)
-    OSC.prettyprint(man.get_element())
+    prettyprint(man.get_element())
 
     mangr = OSC.ManeuverGroup('mangroup')
     mangr.add_actor('Ego')
     mangr.add_maneuver(man)
-    OSC.prettyprint(mangr.get_element())
+    prettyprint(mangr.get_element())
 
 
 def test_actandstory():
@@ -47,20 +47,20 @@ def test_actandstory():
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
     man.add_event(event)
-    OSC.prettyprint(man.get_element())
+    prettyprint(man.get_element())
 
     mangr = OSC.ManeuverGroup('mangroup')
     mangr.add_actor('Ego')
     mangr.add_maneuver(man)
-    OSC.prettyprint(mangr.get_element())
+    prettyprint(mangr.get_element())
 
     act = OSC.Act('my act',trigger)
     act.add_maneuver_group(mangr)
-    OSC.prettyprint(act.get_element())
+    prettyprint(act.get_element())
 
     story = OSC.Story('mystory')
     story.add_act(act)
-    OSC.prettyprint(story.get_element())
+    prettyprint(story.get_element())
 
 def test_init():
 
@@ -77,7 +77,7 @@ def test_init():
     init.add_init_action('Target_1',OSC.TeleportAction(OSC.WorldPosition(1,5,3,0,0,0)))
     init.add_init_action('Target_2',egospeed)
     init.add_init_action('Target_2',OSC.TeleportAction(OSC.WorldPosition(10,2,3,0,0,0)))
-    OSC.prettyprint(init.get_element())
+    prettyprint(init.get_element())
 
 def test_storyboard_story_input():
     init = OSC.Init()
@@ -90,7 +90,7 @@ def test_storyboard_story_input():
     init.add_init_action('Target_1',OSC.TeleportAction(OSC.WorldPosition(1,5,3,0,0,0)))
     init.add_init_action('Target_2',egospeed)
     init.add_init_action('Target_2',OSC.TeleportAction(OSC.WorldPosition(10,2,3,0,0,0)))
-    OSC.prettyprint(init.get_element())
+    prettyprint(init.get_element())
 
 
 
@@ -101,25 +101,25 @@ def test_storyboard_story_input():
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
     man.add_event(event)
-    OSC.prettyprint(man.get_element())
+    prettyprint(man.get_element())
 
     mangr = OSC.ManeuverGroup('mangroup')
     mangr.add_actor('Ego')
     mangr.add_maneuver(man)
-    OSC.prettyprint(mangr.get_element())
+    prettyprint(mangr.get_element())
 
 
     act = OSC.Act('my act',trigger)
     act.add_maneuver_group(mangr)
-    OSC.prettyprint(act.get_element())
+    prettyprint(act.get_element())
 
     story = OSC.Story('mystory')
     story.add_act(act)
-    OSC.prettyprint(story.get_element())
+    prettyprint(story.get_element())
 
     sb = OSC.StoryBoard(init)
     sb.add_story(story)
-    OSC.prettyprint(sb.get_element())
+    prettyprint(sb.get_element())
 
 def test_storyboard_act_input():
     
@@ -172,7 +172,7 @@ def test_storyboard_act_input():
     sb.add_act(act)
 
 
-    OSC.prettyprint(sb.get_element())
+    prettyprint(sb.get_element())
 
 
 def test_storyboard_mangr_input():
@@ -224,7 +224,7 @@ def test_storyboard_mangr_input():
     sb.add_maneuver_group(mangr)
 
 
-    OSC.prettyprint(sb.get_element())
+    prettyprint(sb.get_element())
 
 
 def test_storyboard_man_input():
@@ -270,7 +270,7 @@ def test_storyboard_man_input():
     sb.add_maneuver(man,targetname)
 
 
-    OSC.prettyprint(sb.get_element())
+    prettyprint(sb.get_element())
 
 
 def test_empty_storyboard():
@@ -280,4 +280,4 @@ def test_empty_storyboard():
    
 
 
-    OSC.prettyprint(sb.get_element())
+    prettyprint(sb.get_element())

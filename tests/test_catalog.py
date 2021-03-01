@@ -1,7 +1,7 @@
 import pytest
 
 from scenariogeneration import xosc as OSC
-
+from scenariogeneration import prettyprint
 import xml.etree.ElementTree as ET
 
 
@@ -21,5 +21,5 @@ def test_creating_new_catalog():
     white_veh.add_property('control','internal')
     white_veh.add_property('model_id','0')
     cf.add_to_catalog(white_veh)
-    OSC.prettyprint(cf.catalog_element)
+    prettyprint(cf.catalog_element)
     # cf.dump()

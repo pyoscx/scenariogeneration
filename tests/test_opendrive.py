@@ -1,6 +1,6 @@
 import pytest
 from scenariogeneration import xodr as pyodrx
-
+from scenariogeneration import prettyprint
 
 def test_simple_road():
     line1 = pyodrx.Line(100)
@@ -19,7 +19,7 @@ def test_simple_road():
 
     road = pyodrx.Road(1,planview,lanes)
 
-    pyodrx.prettyprint(road.get_element())
+    prettyprint(road.get_element())
 
 
     
@@ -40,7 +40,7 @@ def test_link_road():
 
     road = pyodrx.Road(1,planview,lanes)
     road.add_predecessor(pyodrx.ElementType.road,'1',pyodrx.ContactPoint.start)
-    pyodrx.prettyprint(road.get_element())
+    prettyprint(road.get_element())
 
 
 @pytest.mark.parametrize("data",[\

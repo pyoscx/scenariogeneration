@@ -3,14 +3,14 @@ import pytest
 
 
 from scenariogeneration import xosc as OSC
-
+from scenariogeneration import prettyprint
 
 
 
 def test_road():
     roadfile = 'Databases/SampleDatabase.xodr'
     road = OSC.RoadNetwork(roadfile)
-    OSC.prettyprint(road.get_element())
+    prettyprint(road.get_element())
 
 
 def test_catalog():
@@ -18,7 +18,7 @@ def test_catalog():
     catalog = OSC.Catalog()
     catalog.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
     catalog.add_catalog('ControllerCatalog','Catalogs/ControllerCatalogs')
-    OSC.prettyprint(catalog.get_element())
+    prettyprint(catalog.get_element())
 
 
 def test_scenario():
@@ -39,7 +39,7 @@ def test_scenario():
     TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 
     lanechangeaction = OSC.AbsoluteLaneChangeAction(1,TD)
-    OSC.prettyprint(lanechangeaction.get_element())
+    prettyprint(lanechangeaction.get_element())
 
     speedaction = OSC.AbsoluteSpeedAction(50,TD)
     event.add_action('newspeed',speedaction)
@@ -79,4 +79,4 @@ def test_scenario():
     sb.add_story(story)
 
     sce = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
-    OSC.prettyprint(sce.get_element())
+    prettyprint(sce.get_element())
