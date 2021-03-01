@@ -1,7 +1,7 @@
 import pytest
 
 
-import pyodrx 
+from scenariogeneration import xodr as pyodrx
 
 def test_roadline():
     line = pyodrx.RoadLine()

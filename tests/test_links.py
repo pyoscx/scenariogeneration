@@ -1,5 +1,5 @@
 import pytest
-import pyodrx
+from scenariogeneration import xodr as pyodrx
 import numpy as np
 
 def test_link():

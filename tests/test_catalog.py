@@ -1,6 +1,6 @@
 import pytest
 
-import pyoscx as OSC
+from scenariogeneration import xosc as OSC
 
 import xml.etree.ElementTree as ET
 

@@ -1,7 +1,7 @@
 
 import pytest
 
-import pyoscx as OSC
+from scenariogeneration import xosc as OSC
 
 def test_worldposition_noinput():
     pos = OSC.WorldPosition()

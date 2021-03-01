@@ -1,7 +1,7 @@
 import pytest
 
 
-import pyoscx as OSC
+from scenariogeneration import xosc as OSC
 
 
 @pytest.mark.parametrize("teststring",[OSC.DynamicsDimension.distance,OSC.DynamicsDimension.rate,OSC.DynamicsDimension.time])

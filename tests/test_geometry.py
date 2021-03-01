@@ -2,7 +2,7 @@ import pytest
 
 import numpy as np
 
-import pyodrx 
+from scenariogeneration import xodr as pyodrx
 
 def test_line():
     line = pyodrx.Line(1)

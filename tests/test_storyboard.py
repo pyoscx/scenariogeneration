@@ -1,7 +1,7 @@
 import pytest
 
 
-import pyoscx as OSC
+from scenariogeneration import xosc as OSC
 
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)

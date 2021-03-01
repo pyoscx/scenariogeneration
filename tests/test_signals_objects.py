@@ -1,7 +1,7 @@
 """
 Test script to create a straight road with a signal at an arbitrary s-coordinate.
 """
-import pyodrx
+from scenariogeneration import xodr as pyodrx
 
 
 def test_signal():
