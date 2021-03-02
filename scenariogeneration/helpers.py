@@ -128,9 +128,11 @@ def prettyprint(element):
 
         Parameters
         ----------
-            element (Element): element to print
+            element (Element, or any generation class of scenariogeneration): element to print
 
     """
+    if not isinstance(element,ET.Element):
+        element = element.get_element()
     rough = ET.tostring(element, 'utf-8')
     reparsed = mini.parseString(rough)
     print(reparsed.toprettyxml(indent="\t"))
