@@ -7,62 +7,66 @@
         RelativeLaneChangeAction
         AbsoluteSpeedAction
 """
-
-import pyoscx
+import os
+from scenariogeneration import xosc, prettyprint
 
 ### create catalogs
-catalog = pyoscx.Catalog()
+catalog = xosc.Catalog()
 catalog.add_catalog('VehicleCatalog','../xosc/Catalogs/Vehicles')
 
 ### create road
-road = pyoscx.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e6mini.osgb')
+road = xosc.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e6mini.osgb')
 
 ### create parameters
-paramdec = pyoscx.ParameterDeclarations()
+paramdec = xosc.ParameterDeclarations()
 
 ## create entities
 
 egoname = 'Ego'
 egoref = 'Egofake'
 targetname = 'Target'
-entities = pyoscx.Entities()
-entities.add_scenario_object(egoname,pyoscx.CatalogReference('VehicleCatalog','car_white'))
-entities.add_scenario_object(targetname,pyoscx.CatalogReference('VehicleCatalog','car_yellow'))
+entities = xosc.Entities()
+entities.add_scenario_object(egoname,xosc.CatalogReference('VehicleCatalog','car_white'))
+entities.add_scenario_object(targetname,xosc.CatalogReference('VehicleCatalog','car_yellow'))
 
 ### create init
 
-init = pyoscx.Init()
+init = xosc.Init()
 
-init.add_init_action(egoname,pyoscx.TeleportAction(pyoscx.LanePosition(10,0,-4,0)))
-init.add_init_action(egoname,pyoscx.AbsoluteSpeedAction(20,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)))
+init.add_init_action(egoname,xosc.TeleportAction(xosc.LanePosition(10,0,-4,0)))
+init.add_init_action(egoname,xosc.AbsoluteSpeedAction(20,xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)))
 
-init.add_init_action(targetname,pyoscx.TeleportAction(pyoscx.LanePosition(50,0,-2,0)))
-init.add_init_action(targetname,pyoscx.AbsoluteSpeedAction(10,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)))
+init.add_init_action(targetname,xosc.TeleportAction(xosc.LanePosition(50,0,-2,0)))
+init.add_init_action(targetname,xosc.AbsoluteSpeedAction(10,xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)))
 
 ## do lanechange
-lc_cond = pyoscx.ReachPositionCondition(pyoscx.LanePosition(40,0,-4,0),1)
-lc_event = pyoscx.Event('lanechange',pyoscx.Priority.parallel)
-lc_event.add_action('lanechangeaction',pyoscx.RelativeLaneChangeAction(-1,targetname,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.sinusoidal,pyoscx.DynamicsDimension.time,3)))
-lc_event.add_trigger(pyoscx.EntityTrigger('lanechangetrigger',0,pyoscx.ConditionEdge.none,lc_cond,egoname))
+lc_cond = xosc.ReachPositionCondition(xosc.LanePosition(40,0,-4,0),1)
+lc_event = xosc.Event('lanechange',xosc.Priority.parallel)
+lc_event.add_action('lanechangeaction',xosc.RelativeLaneChangeAction(-1,targetname,xosc.TransitionDynamics(xosc.DynamicsShapes.sinusoidal,xosc.DynamicsDimension.time,3)))
+lc_event.add_trigger(xosc.EntityTrigger('lanechangetrigger',0,xosc.ConditionEdge.none,lc_cond,egoname))
 
-event = pyoscx.Event('speedchange',pyoscx.Priority.parallel)
-event.add_action('speedaction',pyoscx.AbsoluteSpeedAction(10,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,3)))
-trig_cond = pyoscx.RelativeDistanceCondition(5,pyoscx.Rule.lessThan,pyoscx.RelativeDistanceType.lateral,targetname)
-event.add_trigger(pyoscx.EntityTrigger('trigger',0,pyoscx.ConditionEdge.none,trig_cond,egoname))
+event = xosc.Event('speedchange',xosc.Priority.parallel)
+event.add_action('speedaction',xosc.AbsoluteSpeedAction(10,xosc.TransitionDynamics(xosc.DynamicsShapes.linear,xosc.DynamicsDimension.time,3)))
+trig_cond = xosc.RelativeDistanceCondition(5,xosc.Rule.lessThan,xosc.RelativeDistanceType.lateral,targetname)
+event.add_trigger(xosc.EntityTrigger('trigger',0,xosc.ConditionEdge.none,trig_cond,egoname))
 
-man = pyoscx.Maneuver('mymaneuver')
+man = xosc.Maneuver('mymaneuver')
 man.add_event(lc_event)
 man.add_event(event)
 
 ## create the storyboard
-sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(20,pyoscx.Rule.greaterThan),'stop'))
+sb = xosc.StoryBoard(init,xosc.ValueTrigger('stop_simulation',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(20,xosc.Rule.greaterThan),'stop'))
 
 sb.add_maneuver(man,egoname)
 ## create the scenario
-sce = pyoscx.Scenario('adaptspeed_example','User',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+sce = xosc.Scenario('adaptspeed_example','User',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
 
-# display the scenario
-pyoscx.prettyprint(sce.get_element())
+# Print the resulting xml
+prettyprint(sce.get_element())
 
+# write the OpenSCENARIO file as xosc using current script name
+sce.write_xml(os.path.basename(__file__).replace('.py','.xosc'))
 
-# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
+# uncomment the following lines to display the scenario using esmini
+# from scenariogeneration import esmini
+# esmini(sce,os.path.join('esmini'))

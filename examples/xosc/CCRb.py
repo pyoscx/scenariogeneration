@@ -1,6 +1,6 @@
-import pyoscx
+from scenariogeneration import xosc, prettyprint
 import numpy as np
-
+import os
 ## example of parametrized EUNCAP2020 CCRb case
 
 
@@ -9,13 +9,13 @@ acceleration_time = 5
 def CCRb(distance,decelleration):
 
     # create empty catalog
-    catalog = pyoscx.Catalog()
+    catalog = xosc.Catalog()
 
     # add straight road
-    road = pyoscx.RoadNetwork(roadfile='../xodr/straight_500m.xodr',scenegraph='../models/straight_500m.osgb')
+    road = xosc.RoadNetwork(roadfile='../xodr/straight_500m.xodr',scenegraph='../models/straight_500m.osgb')
 
     # create empty paramdeclaration
-    paramdec = pyoscx.ParameterDeclarations()
+    paramdec = xosc.ParameterDeclarations()
 
     egoname = 'Ego'
     targetname = 'Target1'
@@ -24,40 +24,40 @@ def CCRb(distance,decelleration):
     ego_width = 2
     target_width = 1.8
 
-    bb = pyoscx.BoundingBox(ego_width,5,1.8,2.0,0,0.9)
-    fa = pyoscx.Axle(0.523598775598,0.8,1.68,2.98,0.4)
-    ba = pyoscx.Axle(0.523598775598,0.8,1.68,0,0.4)
-    white_veh = pyoscx.Vehicle('car_white',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
+    bb = xosc.BoundingBox(ego_width,5,1.8,2.0,0,0.9)
+    fa = xosc.Axle(0.523598775598,0.8,1.68,2.98,0.4)
+    ba = xosc.Axle(0.523598775598,0.8,1.68,0,0.4)
+    white_veh = xosc.Vehicle('car_white',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
 
     white_veh.add_property_file('../models/car_white.osgb')
     white_veh.add_property('model_id','0')
 
-    bb = pyoscx.BoundingBox(target_width,4.5,1.5,1.3,0,0.8)
-    fa = pyoscx.Axle(0.523598775598,0.8,1.68,2.98,0.4)
-    ba = pyoscx.Axle(0.523598775598,0.8,1.68,0,0.4)
-    red_veh = pyoscx.Vehicle('car_red',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
+    bb = xosc.BoundingBox(target_width,4.5,1.5,1.3,0,0.8)
+    fa = xosc.Axle(0.523598775598,0.8,1.68,2.98,0.4)
+    ba = xosc.Axle(0.523598775598,0.8,1.68,0,0.4)
+    red_veh = xosc.Vehicle('car_red',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
 
     red_veh.add_property_file('../models/car_red.osgb')
     red_veh.add_property('model_id','2')
 
     ## create entities
-    entities = pyoscx.Entities()
+    entities = xosc.Entities()
     entities.add_scenario_object(egoname,white_veh)
     entities.add_scenario_object(targetname,red_veh)
 
 
     # create init (0 starting speed)
-    init = pyoscx.Init()
-    step_time = pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)
+    init = xosc.Init()
+    step_time = xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)
     
     # caluclate correct offset based on target vehicle width
     cal_offset = 0
 
-    egospeed = pyoscx.AbsoluteSpeedAction(0,step_time)
-    egostart = pyoscx.TeleportAction(pyoscx.LanePosition(25,cal_offset,-1,1))
+    egospeed = xosc.AbsoluteSpeedAction(0,step_time)
+    egostart = xosc.TeleportAction(xosc.LanePosition(25,cal_offset,-1,1))
 
-    targetspeed = pyoscx.AbsoluteSpeedAction(0,step_time)
-    targetstart = pyoscx.TeleportAction(pyoscx.LanePosition(25+distance,0,-1,1))
+    targetspeed = xosc.AbsoluteSpeedAction(0,step_time)
+    targetstart = xosc.TeleportAction(xosc.LanePosition(25+distance,0,-1,1))
 
     init.add_init_action(egoname,egospeed)
     init.add_init_action(egoname,egostart)
@@ -65,65 +65,74 @@ def CCRb(distance,decelleration):
     init.add_init_action(targetname,targetstart)
 
     # create start trigger
-    trigger = pyoscx.ValueTrigger('starttrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(1,pyoscx.Rule.greaterThan))
+    trigger = xosc.ValueTrigger('starttrigger',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(1,xosc.Rule.greaterThan))
 
     # accelerate cars to wanted velocity
-    eventego = pyoscx.Event('egospeedchange',pyoscx.Priority.overwrite)
+    eventego = xosc.Event('egospeedchange',xosc.Priority.overwrite)
     eventego.add_trigger(trigger)
 
-    ego_action = pyoscx.AbsoluteSpeedAction(50/3.6,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.time,acceleration_time))
+    ego_action = xosc.AbsoluteSpeedAction(50/3.6,xosc.TransitionDynamics(xosc.DynamicsShapes.linear,xosc.DynamicsDimension.time,acceleration_time))
     eventego.add_action('newspeed',ego_action)
 
-    event_tar = pyoscx.Event('targetspeedchange',pyoscx.Priority.overwrite)
+    event_tar = xosc.Event('targetspeedchange',xosc.Priority.overwrite)
     event_tar.add_trigger(trigger)
 
-    target_action = pyoscx.LongitudinalDistanceAction(-distance,egoname)
+    target_action = xosc.LongitudinalDistanceAction(-distance,egoname)
     event_tar.add_action('targetspeed',target_action)
 
     # trigger here could be changed to speed but tested for esmini at the point where speed condition was not implemented
-    target_slowingdown_trigger = pyoscx.ValueTrigger('slowingdowntrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(6,pyoscx.Rule.greaterThan))
-    target_slowingdown_action = pyoscx.AbsoluteSpeedAction(0,pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.linear,pyoscx.DynamicsDimension.rate,abs(decelleration)))
-    event_tar_slowdown = pyoscx.Event('target slowing down',pyoscx.Priority.overwrite)
+    target_slowingdown_trigger = xosc.ValueTrigger('slowingdowntrigger',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(6,xosc.Rule.greaterThan))
+    target_slowingdown_action = xosc.AbsoluteSpeedAction(0,xosc.TransitionDynamics(xosc.DynamicsShapes.linear,xosc.DynamicsDimension.rate,abs(decelleration)))
+    event_tar_slowdown = xosc.Event('target slowing down',xosc.Priority.overwrite)
     event_tar_slowdown.add_trigger(target_slowingdown_trigger)
     event_tar_slowdown.add_action('slowdownaction',target_slowingdown_action)
 
     # create maneuvers/maneuvergroups
-    ego_man = pyoscx.Maneuver('ego man')
+    ego_man = xosc.Maneuver('ego man')
     ego_man.add_event(eventego)
 
-    tar_man = pyoscx.Maneuver('target man')
+    tar_man = xosc.Maneuver('target man')
     tar_man.add_event(event_tar)
     tar_man.add_event(event_tar_slowdown)
     
 
-    egomangr = pyoscx.ManeuverGroup('egomangr')
+    egomangr = xosc.ManeuverGroup('egomangr')
     egomangr.add_actor(egoname)
     egomangr.add_maneuver(ego_man)
 
-    tarmangr = pyoscx.ManeuverGroup('tarmangr')
+    tarmangr = xosc.ManeuverGroup('tarmangr')
     tarmangr.add_actor(targetname)
     tarmangr.add_maneuver(tar_man)
 
     # create act 
-    act = pyoscx.Act('ccrm act',pyoscx.ValueTrigger('starttrigger',0,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(0,pyoscx.Rule.greaterThan)))
+    act = xosc.Act('ccrm act',xosc.ValueTrigger('starttrigger',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(0,xosc.Rule.greaterThan)))
 
     act.add_maneuver_group(egomangr)
     act.add_maneuver_group(tarmangr)
 
     # create story
-    story = pyoscx.Story('mystory')
+    story = xosc.Story('mystory')
     story.add_act(act)
 
     ## create the storyboard
-    sb = pyoscx.StoryBoard(init,pyoscx.ValueTrigger('stop_simulation',2,pyoscx.ConditionEdge.rising,pyoscx.SimulationTimeCondition(acceleration_time + np.ceil(np.sqrt(2*distance/abs(decelleration))) + distance/50 ,pyoscx.Rule.greaterThan),'stop'))
+    sb = xosc.StoryBoard(init,xosc.ValueTrigger('stop_simulation',2,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(acceleration_time + np.ceil(np.sqrt(2*distance/abs(decelleration))) + distance/50 ,xosc.Rule.greaterThan),'stop'))
     sb.add_story(story)
 
     ## create and return the scenario
-    sce = pyoscx.Scenario('CCRb, distance: ' +str(distance) + ', decelleration: ' + str(decelleration),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+    sce = xosc.Scenario('CCRb, distance: ' +str(distance) + ', decelleration: ' + str(decelleration),'Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     return sce
 
 if __name__ == '__main__':
     distance = [12, 40]
     decel = [-2,-6]
     sce = CCRb(distance[0],decel[0])
-    # pyoscx.esminiRunner(sce)
+
+    # Print the resulting xml
+    prettyprint(sce.get_element())
+
+    # write the OpenSCENARIO file as xosc using current script name
+    sce.write_xml(os.path.basename(__file__).replace('.py','.xosc'))
+
+    # uncomment the following lines to display the scenario using esmini
+    # from scenariogeneration import esmini
+    # esmini(sce,os.path.join('esmini'))

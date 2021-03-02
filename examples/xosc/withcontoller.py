@@ -8,40 +8,40 @@
 
 """
 
-
-import pyoscx   
+import os
+from scenariogeneration import xosc, prettyprint 
 
 ### create catalogs
-catalog = pyoscx.Catalog()
+catalog = xosc.Catalog()
 catalog.add_catalog('VehicleCatalog','../xosc/Catalogs/Vehicles')
 
 
 
 ### create road
-road = pyoscx.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e6mini.osgb')
+road = xosc.RoadNetwork(roadfile='../xodr/e6mini.xodr',scenegraph='../models/e6mini.osgb')
 
 
 ### create parameters
-paramdec = pyoscx.ParameterDeclarations()
+paramdec = xosc.ParameterDeclarations()
 
-paramdec.add_parameter(pyoscx.Parameter('$HostVehicle',pyoscx.ParameterType.string,'car_white'))
-paramdec.add_parameter(pyoscx.Parameter('$TargetVehicle',pyoscx.ParameterType.string,'car_red'))
+paramdec.add_parameter(xosc.Parameter('$HostVehicle',xosc.ParameterType.string,'car_white'))
+paramdec.add_parameter(xosc.Parameter('$TargetVehicle',xosc.ParameterType.string,'car_red'))
 
 ### create vehicles
 
-bb = pyoscx.BoundingBox(2,5,1.8,2.0,0,0.9)
-fa = pyoscx.Axle(0.523598775598,0.8,1.68,2.98,0.4)
-ba = pyoscx.Axle(0.523598775598,0.8,1.68,0,0.4)
-white_veh = pyoscx.Vehicle('car_white',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
+bb = xosc.BoundingBox(2,5,1.8,2.0,0,0.9)
+fa = xosc.Axle(0.523598775598,0.8,1.68,2.98,0.4)
+ba = xosc.Axle(0.523598775598,0.8,1.68,0,0.4)
+white_veh = xosc.Vehicle('car_white',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
 
 white_veh.add_property_file('../models/car_white.osgb')
 white_veh.add_property('model_id','0')
 
 
-bb = pyoscx.BoundingBox(1.8,4.5,1.5,1.3,0,0.8)
-fa = pyoscx.Axle(0.523598775598,0.8,1.68,2.98,0.4)
-ba = pyoscx.Axle(0.523598775598,0.8,1.68,0,0.4)
-red_veh = pyoscx.Vehicle('car_red',pyoscx.VehicleCategory.car,bb,fa,ba,69,10,10)
+bb = xosc.BoundingBox(1.8,4.5,1.5,1.3,0,0.8)
+fa = xosc.Axle(0.523598775598,0.8,1.68,2.98,0.4)
+ba = xosc.Axle(0.523598775598,0.8,1.68,0,0.4)
+red_veh = xosc.Vehicle('car_red',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
 
 red_veh.add_property_file('../models/car_red.osgb')
 red_veh.add_property('model_id','2')
@@ -51,25 +51,25 @@ red_veh.add_property('model_id','2')
 
 egoname = 'Ego'
 targetname = 'Target'
-prop = pyoscx.Properties()
+prop = xosc.Properties()
 prop.add_property(name="esminiController", value="SumoController")
 prop.add_file("../sumo_inputs/e6mini.sumocfg")
-cont = pyoscx.Controller('mycontroler',prop)
+cont = xosc.Controller('mycontroler',prop)
 cont.dump_to_catalog('Controller.xosx','Controller','controllers','Mandolin')
-# pyoscx.prettyprint(cont.get_element())
-pyoscx.prettyprint(cont.get_element())
-entities = pyoscx.Entities()
+
+
+entities = xosc.Entities()
 entities.add_scenario_object(egoname,white_veh)
 entities.add_scenario_object(targetname,red_veh,cont)
 
 
 ### create init
 
-init = pyoscx.Init()
-step_time = pyoscx.TransitionDynamics(pyoscx.DynamicsShapes.step,pyoscx.DynamicsDimension.time,1)
+init = xosc.Init()
+step_time = xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)
 
-egospeed = pyoscx.AbsoluteSpeedAction(10,step_time)
-egostart = pyoscx.TeleportAction(pyoscx.LanePosition(25,0,-3,0))
+egospeed = xosc.AbsoluteSpeedAction(10,step_time)
+egostart = xosc.TeleportAction(xosc.LanePosition(25,0,-3,0))
 
 
 init.add_init_action(egoname,egospeed)
@@ -78,22 +78,23 @@ init.add_init_action(egoname,egostart)
 
 
 ## create the story
-storyparam = pyoscx.ParameterDeclarations()
-storyparam.add_parameter(pyoscx.Parameter('$owner',pyoscx.ParameterType.string,targetname))
-story = pyoscx.Story('mystory',storyparam)
+storyparam = xosc.ParameterDeclarations()
+storyparam.add_parameter(xosc.Parameter('$owner',xosc.ParameterType.string,targetname))
+story = xosc.Story('mystory',storyparam)
 
 
 ## create the storyboard
-sb = pyoscx.StoryBoard(init)
+sb = xosc.StoryBoard(init)
 
 ## create the scenario
-sce = pyoscx.Scenario('adapt_speed_example','Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
-# display the scenario
-pyoscx.prettyprint(sce.get_element())
+sce = xosc.Scenario('adapt_speed_example','Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
 
-# if you want to save it
-# sce.write_xml('exampel_with_controller.xml',True)
+# Print the resulting xml
+prettyprint(sce.get_element())
 
-# if you have esmini downloaded and want to see the scenario (add path to esmini as second argument)
-# pyoscx.esminiRunner(sce)
-# pyoscx.esminiRunner(sce,esminipath='/home/mander76/local/scenario_creation/esmini')
+# write the OpenSCENARIO file as xosc using current script name
+sce.write_xml(os.path.basename(__file__).replace('.py','.xosc'))
+
+# uncomment the following lines to display the scenario using esmini
+# from scenariogeneration import esmini
+# esmini(sce,os.path.join('esmini'))
