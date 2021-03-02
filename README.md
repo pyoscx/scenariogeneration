@@ -20,7 +20,7 @@ For more details se coverage.txt
 
 ## Getting Started
 
-pip install scenario-generation
+pip install .
 
 ### Prerequisites
 
@@ -30,7 +30,7 @@ Been tested with Python >3.6.9
 ### Installing
 
 ```
-pip3 install scenario-generation
+pip3 install .
 ```
 
 
