@@ -258,6 +258,8 @@ class Lane():
         self.c = c
         self.d = d
         self.soffset = soffset
+        #TODO: enable multiple widths records per lane (only then soffset really makes sense! ASAM requires one width record to have sOffset=0)
+        self.heights = [] #height entries to elevate the lane independent from the road elevation 
         self.roadmark = None
         self.links = _Links()
 
@@ -289,6 +291,31 @@ class Lane():
 
         """
         self.roadmark = roadmark
+    
+    def add_height(self, inner, outer=None, soffset=0):
+        """ add_height adds a height entry to the lane to elevate it independent from the road elevation
+        
+        Parameters
+        ----------
+            inner (float): inner height
+            
+            outer (float): outer height (if not provided, inner height is used)
+                Default: None
+                
+            s_offset (float): s offset of the height record
+                Default: 0                
+
+        """
+        heightdict = {}
+        heightdict['inner'] = str(inner)
+        if outer is not None:
+            heightdict['outer'] = str(outer)
+        else:
+            heightdict['outer'] = str(inner)
+        heightdict['sOffset'] = str(soffset)
+        
+        self.heights.append(heightdict)
+      
         
 
     def get_attributes(self):
@@ -320,6 +347,10 @@ class Lane():
         ET.SubElement(element,'width',attrib=widthdict)
         if self.roadmark:
             element.append(self.roadmark.get_element())
+            
+        for height in self.heights:
+            ET.SubElement(element,'height',attrib=height)
+            
         return element
 
 

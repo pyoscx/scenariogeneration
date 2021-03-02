@@ -18,12 +18,17 @@ def test_roadmark():
     prettyprint(mark.get_element())
 
 def test_lane():
-
     lane = pyodrx.Lane()
     lane._set_lane_id(1)
     prettyprint(lane.get_element())
     lane = pyodrx.Lane(pyodrx.LaneType.driving,1,1,1,1,2)
     lane._set_lane_id(1)
+    prettyprint(lane.get_element())
+    
+def test_lane_with_height():
+    lane = pyodrx.Lane(pyodrx.LaneType.sidewalk,1,1,1,1,2)
+    lane._set_lane_id(1)
+    lane.add_height(0.15)
     prettyprint(lane.get_element())
 
 def test_lanesection():

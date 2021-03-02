@@ -653,7 +653,7 @@ class Arc():
             length (float): length of the element
 
         """
-        print('inside the geometry we have ', end_x, end_y, end_h)
+        #print('inside the geometry we have ', end_x, end_y, end_h)
         x = end_x
         y = end_y 
         h = end_h
@@ -678,13 +678,13 @@ class Arc():
 
             
         
-        print('self andgle is ', self.angle )
-        print('h is ', h)
+        #print('angle is ', self.angle )
+        #print('h is ', h)
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
         new_y = np.sin(new_ang)*radius + y_0
 
-        print('out of the geometry we get ', new_x, new_y, new_h)
+        #print('out of the geometry we get ', new_x, new_y, new_h)
 
         return new_x, new_y, new_h, self.length
 
