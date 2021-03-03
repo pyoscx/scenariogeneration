@@ -777,8 +777,7 @@ class TimeReference():
         elif sum(nones) == 0:
             self._only_nones = False
         else:
-            print('reference_domain={}, scale={}, offset={}'.format(reference_domain, scale, offset))
-            raise ValueError('missing inputs for time reference')
+            raise ValueError('missing inputs for time reference: \n 'reference_domain={}, scale={}, offset={}'.format(reference_domain, scale, offset)')
         if reference_domain is not None and reference_domain not in ReferenceContext:
             raise TypeError('input reference_domain is not of type ReferenceContext')
         
@@ -1739,7 +1738,6 @@ class CatalogReference():
         """
         element = ET.Element('CatalogReference',attrib=self.get_attributes())
         if self.parameterassignments:
-            print('hej')
             parameterassigns = ET.SubElement(element,'ParameterAssignments')
         for parass in self.parameterassignments:
             parameterassigns.append(parass.get_element())

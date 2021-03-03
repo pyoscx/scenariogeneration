@@ -45,7 +45,6 @@ class Lanes():
                 for link in lanelink.links:
                     # check if link already added 
                     if not link.used:
-                        print(link)
                         link.predecessor.add_link('successor',link.successor.lane_id)
                         link.successor.add_link('predecessor',link.predecessor.lane_id)
                         link.used = True

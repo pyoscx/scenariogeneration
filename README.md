@@ -1,5 +1,5 @@
-# scenario-generation
-"scenario-generation" is a Python wrapper for generating OpenSCENARIO and OpenDRIVE xml files.
+# scenariogeneration
+scenariogeneration is a Python wrapper for generating OpenSCENARIO and OpenDRIVE xml files.
 
 This combined package (which includes the old pyoscx, pyodrx) can be used to separately generate OpenSCENARIO or OpenDRIVE files, or in a combined setup to generate roads and scenarios on the fly, with parametrization. 
 
@@ -20,7 +20,9 @@ For more details se coverage.txt
 
 ## Getting Started
 
-pip install .
+pip install scenariogeneration
+
+then run any of the examples provided
 
 ### Prerequisites
 
@@ -30,7 +32,7 @@ Been tested with Python >3.6.9
 ### Installing
 
 ```
-pip3 install .
+pip install scenariogeneration
 ```
 
 
@@ -73,10 +75,10 @@ Finally the *generate* method can be used to generate all permutations of the de
 
 
 ```
-from sce_gen import xosc
-from sce_gen import xodr
+from scenariogeneration import xosc
+from scenariogeneration import xodr
 
-from sce_gen import ScenarioGenerator
+from scenariogeneration import ScenarioGenerator
 
 
 class Scenario(ScenarioGenerator):
@@ -133,7 +135,7 @@ Esmini can be used to visualize the generated scenarios. Visit https://github.co
 Your scenarios can be visualized directly by making use of *esminiRunner* in the following way:
 
 ```
-from sce_gen import esminiRunner
+from scenariogeneration import esmini
 
 def Scenario(ScenarioGenerator): ...
 
@@ -142,9 +144,9 @@ s = Scenario()
 if __name__ == "__main__":
     s = Scenario()
     
-    esminiRunner(s,esminipath ='path to esmini', scenario_number = 'first')
+    esmini(s,esminipath ='path to esmini', index_to_run = 'first')
 ```
-where *scenario_number* can be 'first', 'random', 'middle' or an integer, and esmini will run that scenario/road for you.
+where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmini will run that scenario/road for you.
 ## Related work
 
 

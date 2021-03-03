@@ -1,7 +1,6 @@
 import itertools
 import os
 import numpy as np
-import shutil
 import sys
 
 
@@ -90,10 +89,8 @@ class ScenarioGenerator():
 
         if isinstance(self.parameters,dict):
             self._create_permutations()
-            print('Generated ' + str(len(self.all_permutations)) + ' scenarios, using all permutations of parameters input...')
 
         elif isinstance(self.parameters,list):
-            print('Using parameters as a list of cases')
             self.all_permutations = self.parameters
 
   
@@ -156,7 +153,6 @@ class ScenarioGenerator():
         self.write_relative_road_path = write_relative_road_path
         self._create_folder_structure(generation_folder)
         if override_parameters:
-            print('Overriding inputs via input')
             self.parameters = override_parameters
         self._handle_input_parameters()
 
@@ -189,7 +185,6 @@ class ScenarioGenerator():
         road_files = []
         self._create_folder_structure(generation_folder)
         if override_parameters:
-            print('Overriding inputs via input')
             self.parameters = override_parameters
         self._handle_input_parameters()
     

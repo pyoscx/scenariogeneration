@@ -157,7 +157,6 @@ class ScenarioObject():
         """
         element = ET.Element('ScenarioObject',attrib=self.get_attributes())
         
-        # print(self.entityobject.get_element())
         element.append(self.entityobject.get_element())
         if self.controller:
             objcont = ET.SubElement(element,'ObjectController')
@@ -478,7 +477,6 @@ class MiscObject():
         self.name = name
         self.mass = mass
         if category not in MiscObjectCategory:
-            print(category)
             raise TypeError(str(category) + ' is not a valid MiscObject type')    
         self.category = category
         if not isinstance(boundingbox,BoundingBox):
@@ -661,8 +659,7 @@ class Vehicle():
         """
         self.name = name
         if vehicle_type not in VehicleCategory:
-            print('wtf' , vehicle_type)
-            raise TypeError('not a valid vehicle type')  
+            raise TypeError(vehicle_type + ' is not a valid vehicle type.')  
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
         

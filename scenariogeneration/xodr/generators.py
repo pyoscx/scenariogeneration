@@ -293,8 +293,6 @@ def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part 
             # create road, either straight or curved
             n_lanes, lanes_offset = get_lanes_offset(roads[i], roads[j], cp )
             if an == 0:
-                print('n_lanes is ', n_lanes)
-                print('lane offset is ', lanes_offset )
                 tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
             else: 
                 tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lanes_offset )
