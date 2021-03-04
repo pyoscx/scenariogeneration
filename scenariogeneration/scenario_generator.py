@@ -114,9 +114,10 @@ class ScenarioGenerator():
         road = self.road(**permutation)
         if road:
             self.road_file = os.path.abspath(os.path.join(self._generation_folder,'xodr',scenario_name+'.xodr'))
+            road.write_xml(self.road_file)
             if self.write_relative_road_path:
                 self.road_file = self.road_file.replace(os.path.abspath(self._generation_folder),os.path.pardir)
-            road.write_xml(self.road_file)
+
 
         sce = self.scenario(**permutation)
         if sce:
