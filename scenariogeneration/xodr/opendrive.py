@@ -405,6 +405,7 @@ class OpenDrive():
         results = list(combinations(self.roads, 2))
 
         for r in range(len(results)):
+            # print('Analyzing roads', results[r][0], 'and', results[r][1] )
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
@@ -478,6 +479,7 @@ class OpenDrive():
         for k in self.roads:
             if self.roads[k].planview.fixed:
                 self.roads[k].planview.adjust_geometries()
+                # print('Fixing Road: ' + k)
                 count_total_adjusted_roads += 1
                 fixed_road = True
 
@@ -485,6 +487,7 @@ class OpenDrive():
         # If no roads are fixed, select the first road is selected as the pivot-road
         if fixed_road is False: 
             self.roads[list(self.roads.keys())[0]].planview.adjust_geometries()
+            # print('Selecting and adjusting the first road {}'.format(self.roads[list(self.roads.keys())[0] ].id))
             count_total_adjusted_roads += 1
             
         
@@ -503,12 +506,14 @@ class OpenDrive():
 
                         # print('  Adjusting {}road {} to predecessor {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))
-                        # self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
-                        #                             self.roads[k].predecessor.contact_point, 'predecessor')
+                        self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
+                                                    self.roads[k].predecessor.contact_point, 'predecessor')
                         count_adjusted_roads +=1
 
                         if self.roads[k].road_type != -1 and self.roads[k].successor is not None and self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is False:
                             succ_id = self.roads[k].successor.element_id
+                            # print('    Adjusting successor connecting road {} in junction {} to road {} '.\
+                            #     format(succ_id, self.roads[k].road_type, self.roads[k].id))
                             if self.roads[k].successor.contact_point == ContactPoint.start:
                                 self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
                             else:
@@ -522,8 +527,8 @@ class OpenDrive():
 
                         # print('  Adjusting {}successor {} to road {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))
-                        # self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
-                        #                             self.roads[k].successor.contact_point, 'successor')
+                        self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
+                                                    self.roads[k].successor.contact_point, 'successor')
                         count_adjusted_roads +=1
 
                         if self.roads[k].road_type != -1 and self.roads[k].predecessor is not None and self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is False:

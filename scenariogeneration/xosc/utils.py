@@ -777,7 +777,7 @@ class TimeReference():
         elif sum(nones) == 0:
             self._only_nones = False
         else:
-            raise ValueError('missing inputs for time reference: \n 'reference_domain={}, scale={}, offset={}'.format(reference_domain, scale, offset)')
+            raise ValueError('missing inputs for time reference')
         if reference_domain is not None and reference_domain not in ReferenceContext:
             raise TypeError('input reference_domain is not of type ReferenceContext')
         
