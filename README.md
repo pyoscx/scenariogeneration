@@ -1,13 +1,12 @@
 # scenariogeneration
-scenariogeneration is a Python wrapper for generating OpenSCENARIO and OpenDRIVE xml files.
 
-This combined package (which includes the old pyoscx, pyodrx) can be used to separately generate OpenSCENARIO or OpenDRIVE files, or in a combined setup to generate roads and scenarios on the fly, with parametrization. 
+The Python scenariogeneration package is a collection of libraries for generating OpenSCENARIO (.xosc) and OpenDRIVE (.xodr) XML files.
 
-The package consists of two main modules, xosc (OpenSCENARIO), and xodr (OpenDRIVE), together with some support functionality for auto generation with parametrization as well as easy viewing with [esmini](https://github.com/esmini/esmini).
+This combined package (which includes the former pyoscx, pyodrx) can be used to jointly generate OpenSCENARIO based scenarios with interlinked OpenDRIVE based road network maps. Nevertheless, it is still possible to separately generate OpenSCENARIO or OpenDRIVE files by using only a subset of the provided functionality.
+
+The package consists of the __scenario_generator__ module and two  Python subpackages, __xosc__ (OpenSCENARIO) and __xodr__ (OpenDRIVE), together with some support functionality for auto generation with parametrization as well as easy viewing with [esmini](https://github.com/esmini/esmini).
 
 Please note that this is not an official implementation of either OpenSCENARIO or OpenDRIVE. 
-
-
 
 ## Coverage
 
@@ -16,7 +15,6 @@ As of V1.0.0, the coverage of the package varies:
 - The xodr module has coverage of basic roads and junctions. 
 
 For more details se coverage.txt
-
 
 ## Getting Started
 
@@ -28,20 +26,20 @@ then run any of the examples provided
 
 Been tested with Python >3.6.9
 
-
 ### Installing
 
 ```
 pip install scenariogeneration
 ```
 
-
 ## Usage
 
 ### xosc
+
 The xosc module handles the part related to OpenSCENARIO, and covers all of OpenSCENARIO V1.0.0. The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). 
 
 ### xodr
+
 The xodr module handles the part realted to OpenDrive, and does not (as of now) have a full coverage of the standard, please see coverage.txt for more information. 
 
 The xodr module is also a xml generater, similar to the xosc module. It includes a number of automation algorithms which allow the user to easily generate the OpenDRIVE hierarchy. As a matter of fact the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, therefore a collection of automations (geometrical calculations and index linking), and road generators (to generate simple roads with different geometries and lanes) are included in the module.
@@ -58,7 +56,6 @@ The xodr module also includes road generators which allow the user to create som
 - *create_junction* creates the junction element of OpenDRIVE, based on a list of "roads in the junction" and a list of "roads going into the junction" (see highway_example)
 - *create_junction_roads* generates all roads in a simple 3 or 4 way (90 deg, and 120 deg in 3 way) junction (see full_junction)
 
-
 ### The ScenarioGenerator
 
 The ScenarioGenerator class can be used as a glue to parametrize and generate connected OpenSCENARIO and OpenDRIVE xmls, for large scale, parametrized simulations. 
@@ -72,7 +69,6 @@ Then overwrite the road and/or the scenario methods where the road should return
 To connect the two, create the RoadNetwork object as: xosc.RoadNetwork(self.road_file). 
 
 Finally the *generate* method can be used to generate all permutations of the defined parameters. See example below. 
-
 
 ```
 from scenariogeneration import xosc
@@ -130,7 +126,9 @@ if __name__ == "__main__":
     
     s.generate('my_scenarios')
 ```
+
 ### Running with esmini
+
 Esmini can be used to visualize the generated scenarios. Visit https://github.com/esmini/esmini and follow the "Binaries and demos" section.
 Your scenarios can be visualized directly by making use of *esminiRunner* in the following way:
 
@@ -147,10 +145,11 @@ if __name__ == "__main__":
     esmini(s,esminipath ='path to esmini', index_to_run = 'first')
 ```
 where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmini will run that scenario/road for you.
+
 ## Related work
 
-
 ### esmini
+
 [esmini](https://github.com/esmini/esmini) is a basic OpenSCENARIO player
 
 ## Authors
@@ -160,6 +159,7 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 * **Irene Natale** - *Inital work* - [inatale93](https://github.com/inatale93) (xodr)
 
 ## Data formats
+
 The wrappers is based on the OpenSCENARIO and OpenDRIVE standards.
 
 [OpenDRIVE](https://www.asam.net/standards/detail/opendrive/)
@@ -169,6 +169,3 @@ describes the static content of a scenario, like the road, lanes, signs and so o
 [OpenSCENARIO](https://www.asam.net/standards/detail/openscenario/)
 
 describes the dynamic content on top of a road network, e.g. traffic maneuvers, weather conditions, and so on.
-
-
-
