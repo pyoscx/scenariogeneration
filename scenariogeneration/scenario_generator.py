@@ -134,6 +134,10 @@ class ScenarioGenerator():
     def _get_scenario_name(self,permutation):
         """ _get_scenario_name generates the name of the wanted file, based on the permutation
 
+            Parameters
+            ----------
+                permutation (dict): a permutation to create name from (used for the parameter naming option)
+
             Returns
             -------
                 scenario_name (str)
