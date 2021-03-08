@@ -56,12 +56,18 @@ class ScenarioGenerator():
                 generation_folder (str): the path to a folder where the files should be generated
 
         """
-        
+        xosc_folder = os.path.join(generation_folder,'xosc')
+        xodr_folder = os.path.join(generation_folder,'xodr')
+
         if not os.path.exists(generation_folder):
             os.mkdir(generation_folder)
-            os.mkdir(os.path.join(generation_folder,'xosc'))
-            os.mkdir(os.path.join(generation_folder,'xodr'))
+        if not os.path.exists(xosc_folder):
+            os.mkdir(xosc_folder)
+        if not os.path.exists(xodr_folder):
+            os.mkdir(xodr_folder)
+
         self._generation_folder = generation_folder
+
     def print_permutations(self,override_parameters = None):
         """print_permutations will create a printout to view all permutations created
 
