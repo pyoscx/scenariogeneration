@@ -76,11 +76,26 @@ def test_dict_paramss(dict_of_params):
     sg._handle_input_parameters()
     assert len(sg.all_permutations) == 6
 
-def test_numerical_naming(dict_of_params):
+def test_numerical_naming(list_of_params):
     sg = ScenarioGenerator()
-    sg.parameters = dict_of_params
+    sg.parameters = list_of_params
     sg.naming = 'numerical'
-    _get_scenario_name
+    name = sg._get_scenario_name(sg.parameters[0])
+    
+    assert name == "scenario_generator0"
+    name = sg._get_scenario_name(sg.parameters[1])
+    assert name == "scenario_generator1"
+
+def test_parameter_naming(list_of_params):
+    sg = ScenarioGenerator()
+    sg.parameters = list_of_params
+    sg.naming = 'parameter'
+    name = sg._get_scenario_name(sg.parameters[0])
+    
+    assert name == "scenario_generator_road_curvature-0.001_speed-10"
+    name = sg._get_scenario_name(sg.parameters[1])
+    assert name == "scenario_generator_road_curvature-0.002_speed-20"
+
 
 def test_folder_creation(tmpdir):
     sg = ScenarioGenerator()
