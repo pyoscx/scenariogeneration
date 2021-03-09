@@ -10,11 +10,11 @@ Please note that this is not an official implementation of either OpenSCENARIO o
 
 ## Coverage
 
-As of V1.0.0, the coverage of the package varies:
-- The xosc module has full coverage of OpenSCENARIO 1.0, if something is missing please raise an issue.
-- The xodr module has coverage of basic roads and junctions. 
+As of V0.2.0, the coverage of the modules varies:
+- The xosc module has full coverage of OpenSCENARIO (V 1.0.0), if something is missing please raise an issue.
+- The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.5.0). 
 
-For more details se coverage.txt
+For more details se xodr_coverage.txt
 
 ## Getting Started
 
@@ -36,7 +36,7 @@ pip install scenariogeneration
 
 ### xosc
 
-The xosc module handles the part related to OpenSCENARIO, and covers all of OpenSCENARIO V1.0.0. The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). 
+The xosc module handles the part related to OpenSCENARIO, and covers all of OpenSCENARIO (V 1.0.0). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). 
 
 ### xodr
 
@@ -152,6 +152,10 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 
 [esmini](https://github.com/esmini/esmini) is a basic OpenSCENARIO player
 
+### spirals
+
+[pyeulerspiral](https://github.com/stefan-urban/pyeulerspiral), used this lib for calculating euler spirals
+
 ## Authors
 
 * **Mikael Andersson** - *Initial work* - [MandolinMicke](https://github.com/MandolinMicke) (xosc & xodr)
@@ -169,3 +173,4 @@ describes the static content of a scenario, like the road, lanes, signs and so o
 [OpenSCENARIO](https://www.asam.net/standards/detail/openscenario/)
 
 describes the dynamic content on top of a road network, e.g. traffic maneuvers, weather conditions, and so on.
+
