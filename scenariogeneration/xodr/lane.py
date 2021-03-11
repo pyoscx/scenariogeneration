@@ -238,16 +238,16 @@ class Lane():
             lane_type (LaneType): type of lane
                 Default: LaneType.driving
 
-            a (float): a coefficient
+            a (float): a polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            b (float): b coefficient
+            b (float): b polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            c (float): c coefficient
+            c (float): c polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            d (float): d coefficient
+            d (float): d polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
             soffset (float): soffset of lane
@@ -339,17 +339,22 @@ class Lane():
         """
         element = ET.Element('lane',attrib=self.get_attributes())
                 
+        #polynomial dict either for width (left/right lanes) or laneOffset (center lane)
+        polynomialdict = {}
+        polynomialdict['a'] = str(self.a)
+        polynomialdict['b'] = str(self.b)
+        polynomialdict['c'] = str(self.c)
+        polynomialdict['d'] = str(self.d)
+        polynomialdict['sOffset'] = str(self.soffset) 
+        
         #according to standard if lane is centerlane it should 
-        #not have a width record and omit the link record
+        #not have a width record and omit the link record        
         if self.lane_id != 0: 
             element.append(self.links.get_element())
-            widthdict = {}
-            widthdict['a'] = str(self.a)
-            widthdict['b'] = str(self.b)
-            widthdict['c'] = str(self.c)
-            widthdict['d'] = str(self.d)
-            widthdict['sOffset'] = str(self.soffset) 
-            ET.SubElement(element,'width',attrib=widthdict)
+            ET.SubElement(element,'width',attrib=polynomialdict)        
+        #use polynomial dict for laneOffset in case of center lane (only if values provided)
+        elif any([self.a,self.b,self.c,self.d]):            
+            ET.SubElement(element,'laneOffset',attrib=polynomialdict)                         
             
         if self.roadmark:
             element.append(self.roadmark.get_element())
