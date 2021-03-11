@@ -1,5 +1,7 @@
 # __init__.py
+""" the xosc module contains the classes used to generate OpenDRIVE (xml) files. 
 
+"""
 from .geometry import *
 from .helpers import *
 from .opendrive import *

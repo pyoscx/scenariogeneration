@@ -1,3 +1,6 @@
+""" the position module contains the positions defined by OpenSCENARIO
+
+"""
 import xml.etree.ElementTree as ET
 
 from .utils import Orientation, CatalogReference, Route, _PositionType

@@ -1,3 +1,6 @@
+""" the enumerations module contains the enumerations of OpenDRIVE
+
+"""
 from enum import Enum, auto
 
 

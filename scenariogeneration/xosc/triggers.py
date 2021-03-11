@@ -1,3 +1,6 @@
+""" the trigger module contains the classes related to the triggers and conditions of OpenSCENARIO.
+
+"""
 import xml.etree.ElementTree as ET
 
 from .utils import EntityRef, convert_bool, _PositionType, _ValueTriggerType, _EntityTriggerType, _TriggerType

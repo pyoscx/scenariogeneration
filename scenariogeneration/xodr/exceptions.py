@@ -1,4 +1,6 @@
+""" Some custom exceptions
 
+"""
 
 
 class NotSameAmountOfLanesError(Exception):

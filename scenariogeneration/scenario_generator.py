@@ -1,3 +1,6 @@
+""" scenario_generator contains the ScenarioGenerator class that can be used to combine the xosc and xodr modules to generate related roads and scenarios.
+
+"""
 import itertools
 import os
 import numpy as np
@@ -181,7 +184,7 @@ class ScenarioGenerator():
 
 
     def generate(self,generation_folder,override_parameters = None, write_relative_road_path = False):
-        """ generate uses the pyoscx.Scenario defined in the method scenario and the pyodrx.OpenDrive (optional) in the road method
+        """ generate uses the xosc.Scenario defined in the method scenario and the xodr.OpenDrive (optional) in the road method
             together with the parameters attribute to generate scenarios and roads for all permutations defined and save those files
             in the generation_folder.
         

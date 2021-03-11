@@ -1,3 +1,6 @@
+""" the links module contains the basic classes and helpers for lane linking and junctions
+
+"""
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
 from .enumerations import ElementType
@@ -213,6 +216,7 @@ class _Link():
 
 class LaneLinker():
     """ LaneLinker stored information for linking lane sections 
+        NOTE: Not part of OpenDRIVE, but a helper to link lanes for the user.
         
         Parameters
         ----------
@@ -435,6 +439,17 @@ class Junction():
 from .enumerations import ContactPoint
 
 def are_roads_consecutive(road1, road2): 
+    """ checks if road2 follows road1
+
+        Parameters
+        ----------
+            road1 (Road): the first road
+
+            road1 (Road): the second road
+        Returns
+        -------
+            bool
+    """
 
     if road1.successor is not None and road2.predecessor is not None: 
         if road1.successor.element_type == ElementType.road and road2.predecessor.element_type == ElementType.road:

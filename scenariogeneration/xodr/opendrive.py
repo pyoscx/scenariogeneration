@@ -1,3 +1,6 @@
+""" thte opendrive module contains the top level opendrive class aswell as the road class
+
+"""
 import xml.etree.ElementTree as ET
 
 from .helpers import printToFile

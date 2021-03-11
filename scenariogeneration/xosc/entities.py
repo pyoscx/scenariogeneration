@@ -1,3 +1,6 @@
+""" the entities module contains the classes related to the Entities entries of OpenSCENARIO.
+
+"""
 import xml.etree.ElementTree as ET
 from .utils import Controller, Dimensions, Center, BoundingBox, Properties, Parameter
 from .utils import EntityRef

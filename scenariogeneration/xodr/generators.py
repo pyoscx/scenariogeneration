@@ -1,9 +1,10 @@
 """ This is a collection of ready to use functions, to generate standard road snipets, like:
     - Simple straight road
     - Spiral-Arc-Spiral type of turns
-    - Simple junctions, including the connecting roads 
+    - Simple roads with different geometries and lanes
+    - Simple junction roads
         limited to 3/4-way crossings with 90degree turns (3-way can be 120 deg aswell)
-    - 
+    - Creation of the junction based on the connecting roads and incomming/outgoing roads
 """
 import numpy as np
 

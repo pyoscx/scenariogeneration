@@ -1,3 +1,6 @@
+""" helpers contains a launcher of esmini and a simple print function for the xmls
+
+"""
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 import os

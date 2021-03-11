@@ -1,3 +1,6 @@
+""" Collection of the enumerations defined in OpenSCENARIO, and used in the xosc module
+
+"""
 XMLNS = 'http://www.w3.org/2001/XMLSchema-instance'
 XSI = 'OpenSccenario.xsd'
 

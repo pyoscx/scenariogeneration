@@ -1,3 +1,6 @@
+""" the signals_objects module contains the base classes relating signals (traffic signs and signals) and objects
+
+"""
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
 from .enumerations import ObjectType, Orientation, Dynamic 

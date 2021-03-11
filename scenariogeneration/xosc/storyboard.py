@@ -1,3 +1,6 @@
+""" the storyboard module contains the classes related to the building blocks of the StoryBoard of OpenSCENARIO
+
+"""
 import xml.etree.ElementTree as ET
 
 from .actions import _Action, _ActionType, _PrivateActionType

@@ -1,3 +1,7 @@
+""" the scenario module contains the main class for generating OpenSCENARIO files aswell as the roadnetwork 
+
+"""
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 

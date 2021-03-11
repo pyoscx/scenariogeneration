@@ -1,3 +1,6 @@
+""" The utils module contains the rest of the classes, such as Parameters, Environment, Routes and so on.
+
+"""
 import os
 import xml.etree.ElementTree as ET
 from .helpers import printToFile

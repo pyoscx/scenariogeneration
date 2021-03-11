@@ -1,3 +1,7 @@
+""" The lane module contains the basic classes for Lanes and roadmarks
+
+"""
+
 import xml.etree.ElementTree as ET
 from .helpers import enum2str
 from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType, MarkRule 

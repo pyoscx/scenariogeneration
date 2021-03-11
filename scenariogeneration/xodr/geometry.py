@@ -1,3 +1,7 @@
+""" The geometry module contains the basic geometries of OpenDRIVE
+
+"""
+
 import xml.etree.ElementTree as ET
 
 import numpy as np

@@ -1,3 +1,6 @@
+""" the actions module contains the actions defined OpenSCENARIO
+
+"""
 import xml.etree.ElementTree as ET
 
 from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, Route, Trajectory, TrafficDefinition, Environment
