@@ -338,16 +338,19 @@ class Lane():
 
         """
         element = ET.Element('lane',attrib=self.get_attributes())
-        element.append(self.links.get_element())
-
-        widthdict = {}
-        widthdict['a'] = str(self.a)
-        widthdict['b'] = str(self.b)
-        widthdict['c'] = str(self.c)
-        widthdict['d'] = str(self.d)
-        widthdict['sOffset'] = str(self.soffset)
-
-        ET.SubElement(element,'width',attrib=widthdict)
+                
+        #according to standard if lane is centerlane it should 
+        #not have a width record and omit the link record
+        if self.lane_id != 0: 
+            element.append(self.links.get_element())
+            widthdict = {}
+            widthdict['a'] = str(self.a)
+            widthdict['b'] = str(self.b)
+            widthdict['c'] = str(self.c)
+            widthdict['d'] = str(self.d)
+            widthdict['sOffset'] = str(self.soffset) 
+            ET.SubElement(element,'width',attrib=widthdict)
+            
         if self.roadmark:
             element.append(self.roadmark.get_element())
             
