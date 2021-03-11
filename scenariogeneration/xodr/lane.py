@@ -280,10 +280,12 @@ class Lane():
         self.links.add_link(_Link(link_type,str(id)))
 
     def _set_lane_id(self,lane_id):
-        """ set the lane id of the lane
+        """ set the lane id of the lane and set lane type to 'none' in case of centerlane
 
         """
         self.lane_id = lane_id
+        if self.lane_id == 0:
+            self.lane_type = LaneType.none
 
     def add_roadmark(self,roadmark):
         """ add_roadmark adds a roadmark to the lane
