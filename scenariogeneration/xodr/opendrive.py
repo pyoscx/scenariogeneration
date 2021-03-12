@@ -20,10 +20,18 @@ class _Header():
         Parameters
         ----------
             name (str): name of the road 
+            
+            revMajor (str): major revision of OpenDRIVE
+                    
+            revMinor (str): minor revision of OpenDRIVE
 
         Attributes
         ----------
             name (str): name of the scenario 
+            
+            revMajor (str): major revision of OpenDRIVE
+                    
+            revMinor (str): minor revision of OpenDRIVE
 
         Methods
         -------
@@ -34,14 +42,21 @@ class _Header():
                 Returns a dictionary of all attributes of FileHeader
 
     """
-    def __init__(self,name):
+    def __init__(self, name, revMajor, revMinor):
         """ Initalize the Header
 
          Parameters
         ----------
             name (str): name of the road 
+            
+            revMajor (str): major revision of OpenDRIVE
+                    
+            revMinor (str): minor revision of OpenDRIVE
+                    
         """
         self.name = name
+        self.revMajor = revMajor
+        self.revMinor = revMinor
 
         
 
@@ -51,8 +66,8 @@ class _Header():
         """
         retdict = {}
         retdict['name'] = self.name
-        retdict['revMajor'] ='1'
-        retdict['revMinor'] ='5'
+        retdict['revMajor'] = str(self.revMajor)
+        retdict['revMinor'] = str(self.revMinor)
         retdict['date'] = str(dt.datetime.now())
         retdict['north'] = '0.0'
         retdict['south'] = '0.0'
@@ -344,10 +359,22 @@ class OpenDrive():
         Parameters
         ----------
             name (str): name of the road
+            
+            revMajor (str): major revision of OpenDRIVE written to header
+                Default: '1'
+                    
+            revMinor (str): minor revision of OpenDRIVE written to header
+                Default: '5'
 
         Attributes
         ----------
             name (str): name of the road
+            
+            revMajor (str): major revision of OpenDRIVE written to header
+                Default: '1'
+                    
+            revMinor (str): minor revision of OpenDRIVE written to header
+                Default: '5'
 
             roads (list of Road): all roads 
 
@@ -368,7 +395,7 @@ class OpenDrive():
                 write a open scenario xml
                 
     """
-    def __init__(self,name):
+    def __init__(self, name, revMajor='1', revMinor='5'):
         """ Initalize the Header
 
             Parameters
@@ -377,7 +404,9 @@ class OpenDrive():
 
         """
         self.name = name
-        self._header = _Header(self.name)
+        self.revMajor = revMajor
+        self.revMinor = revMinor
+        self._header = _Header(self.name, self.revMajor, self.revMinor)
         self.roads = {}
         self.junctions = []
         #self.road_ids = []
