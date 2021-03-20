@@ -138,7 +138,7 @@ def prettyprint(element):
         element = element.get_element()
     rough = ET.tostring(element, 'utf-8')
     reparsed = mini.parseString(rough)
-    print(reparsed.toprettyxml(indent="\t"))
+    print(reparsed.toprettyxml(indent="    "))
 
 
 
