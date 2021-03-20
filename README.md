@@ -42,7 +42,7 @@ The xosc module handles the part related to OpenSCENARIO, and covers all of Open
 
 ### xodr
 
-The xodr module handles the part realted to OpenDrive, and does not (as of now) have a full coverage of the standard, please see coverage.txt for more information. 
+The xodr module handles the part related to OpenDrive, and does not (as of now) have a full coverage of the standard, please see coverage.txt for more information. 
 
 The xodr module is also a xml generater, similar to the xosc module. It includes a number of automation algorithms which allow the user to easily generate the OpenDRIVE hierarchy. As a matter of fact the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, therefore a collection of automations (geometrical calculations and index linking), and road generators (to generate simple roads with different geometries and lanes) are included in the module.
 
