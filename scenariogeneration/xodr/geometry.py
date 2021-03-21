@@ -162,7 +162,6 @@ class PlanView():
         self.fixed = False
         if all([x_start != None, y_start!=None,h_start!=None]):
             self.set_start_point(x_start, y_start, h_start)
-            self.fixed = True
         elif any([x_start != None, y_start!=None,h_start!=None]):
             raise NotEnoughInputArguments('If a start position is wanted for the PlanView, all inputs must be used.')
 
@@ -214,6 +213,7 @@ class PlanView():
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
+        self.fixed = True
 
     def get_start_point(self):
         """ returns the start point of the planview
