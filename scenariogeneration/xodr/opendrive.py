@@ -515,13 +515,12 @@ class OpenDrive():
                 count_total_adjusted_roads += 1
                 fixed_road = True
 
-
         # If no roads are fixed, select the first road is selected as the pivot-road
-        if fixed_road is False: 
-            self.roads[list(self.roads.keys())[0]].planview.adjust_geometries()
-            # print('Selecting and adjusting the first road {}'.format(self.roads[list(self.roads.keys())[0] ].id))
-            count_total_adjusted_roads += 1
-            
+        if len(self.roads) > 0:
+            if fixed_road is False: 
+                self.roads[list(self.roads.keys())[0]].planview.adjust_geometries()
+                # print('Selecting and adjusting the first road {}'.format(self.roads[list(self.roads.keys())[0] ].id))
+                count_total_adjusted_roads += 1
         
         while count_total_adjusted_roads < len(self.roads):
             
