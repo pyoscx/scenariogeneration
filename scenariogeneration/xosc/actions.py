@@ -1570,7 +1570,7 @@ class VisibilityAction(_PrivateActionType):
         """ returns the attributes of the VisibilityAction as a dict
 
         """
-        return {'graphics':convert_bool(self.graphics),'active':convert_bool(self.traffic),'sensors':convert_bool(self.sensors)}
+        return {'graphics':convert_bool(self.graphics),'traffic':convert_bool(self.traffic),'sensors':convert_bool(self.sensors)}
 
     def get_element(self):
         """ returns the elementTree of the VisibilityAction
