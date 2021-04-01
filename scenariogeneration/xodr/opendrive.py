@@ -123,7 +123,7 @@ class Road():
             
             objects (Object): Contains a list of Object objects
 
-            road_types (list of _RoadType): contans a list or _RoadType objects (optional)
+            types (list of _Type): contans a list or _Type objects (optional)
         Methods
         -------
             get_element()
@@ -187,7 +187,7 @@ class Road():
         self.adjusted = False
         self.objects = []
         self.signals = []
-        self.road_types = []
+        self.types = []
 
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
@@ -326,8 +326,8 @@ class Road():
             signal._update_id()
             self.signals.append(signal)
 
-    def add_road_type(self,road_type,s = 0,country=None):
-        """ adds a road type to the road (not to mix with junction or not as the init)
+    def add_type(self,road_type,s = 0,country=None,speed=None,speed_unit='m/s'):
+        """ adds a type to the road (not to mix with junction or not as the init)
 
             Parameters
             ----------
@@ -337,8 +337,12 @@ class Road():
                     Default: 0
 
                 country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+
+                speed (float/str): the maximum speed allowed
+
+                sped_unit (str): unit of the speed, can be 'm/s','mph,'kph'
         """
-        self.road_types.append(_RoadType(road_type,s,country))
+        self.types.append(_Type(road_type,s,country,speed,speed_unit))
 
         
     def get_end_point(self):
@@ -372,8 +376,8 @@ class Road():
         """
         element = ET.Element('road',attrib=self.get_attributes())
         element.append(self.links.get_element())
-        if self.road_types:
-            for r in self.road_types:
+        if self.types:
+            for r in self.types:
                 element.append(r.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
@@ -657,8 +661,8 @@ class OpenDrive():
             filename = self.name + '.xodr'
         printToFile(self.get_element(),filename,prettyprint)
         
-class _RoadType():
-    """ class to generate the road_type element of a road, not the Enumeration it self.
+class _Type():
+    """ class to generate the type element of a road, (not the Enumeration it self).
 
         Parameters
         ----------
@@ -668,6 +672,10 @@ class _RoadType():
                 Default: 0
 
             country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+
+            speed (float/str): the maximum speed allowed
+
+            speed_unit (str): unit of the speed, can be 'm/s','mph,'kph'
 
         Attributes
         ----------
@@ -676,9 +684,13 @@ class _RoadType():
             s (float): the distance where it starts
 
             country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+
+            speed (float/str): can either be a float or the following strings: "no limit" or "undefined"
+
+            speed_unit (str): unit of the speed
     """
-    def __init__(self,road_type,s=0,country=None):
-        """ initalize the _RoadType
+    def __init__(self,road_type,s=0,country=None,speed=None,speed_unit='m/s'):
+        """ initalize the _Type
 
         Parameters
         ----------
@@ -688,15 +700,29 @@ class _RoadType():
                 Default: 0
 
             country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+
+            speed (float/str): the maximum speed allowed
+
+            speed_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+
+
         """
         self.road_type = road_type
         self.s = s
         self.country = country
-
+        if isinstance(speed,float) or isinstance(speed,int) or speed in ['no limit', 'undefined'] or speed == None:
+            self.speed = speed
+        else:
+            if isinstance(speed,str):
+                raise ValueError('speed can only be numerical or "no limit" and "undefined", not: ' + str(speed_unit))
+            
+        if speed_unit not in ['m/s','mph','kph']:
+            raise ValueError('speed_unit can only be m/s, mph, or kph, not: ' + speed_unit)
+        self.speed_unit = speed_unit
 
 
     def get_attributes(self):
-        """ returns the attributes as a dict of the _RoadType
+        """ returns the attributes as a dict of the _Type
 
         """
         retdict = {}
@@ -708,8 +734,11 @@ class _RoadType():
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the _RoadType
+        """ returns the elementTree of the _Type
 
         """
+
         element = ET.Element('type',attrib=self.get_attributes())
+        if self.speed:
+            ET.SubElement(element,'speed',attrib={'max':str(self.speed),'unit':self.speed_unit})
         return element

@@ -73,10 +73,13 @@ def test_create_straight_road(data):
     
 
 def test_road_type():
-    rt = pyodrx.opendrive._RoadType(pyodrx.RoadType.motorway,0,'SE')
+    rt = pyodrx.opendrive._Type(pyodrx.RoadType.motorway,0,'SE')
+    prettyprint(rt.get_element())
+
+    rt = pyodrx.opendrive._Type(pyodrx.RoadType.motorway,0,'SE',speed='no limit')
     prettyprint(rt.get_element())
 
 def test_road_with_road_types():
     road = pyodrx.create_straight_road(0)
-    road.add_road_type(pyodrx.RoadType.motorway,0)
+    road.add_type(pyodrx.RoadType.motorway,0)
     prettyprint(road.get_element())
