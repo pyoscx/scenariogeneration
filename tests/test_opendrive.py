@@ -71,3 +71,12 @@ def test_create_straight_road(data):
     assert road.lanes.lanesections[0].leftlanes[0].c == 0
     assert road.lanes.lanesections[0].leftlanes[0].d == 0
     
+
+def test_road_type():
+    rt = pyodrx.opendrive._RoadType(pyodrx.RoadType.motorway,0,'SE')
+    prettyprint(rt.get_element())
+
+def test_road_with_road_types():
+    road = pyodrx.create_straight_road(0)
+    road.add_road_type(pyodrx.RoadType.motorway,0)
+    prettyprint(road.get_element())

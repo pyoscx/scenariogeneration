@@ -3,7 +3,7 @@
 """
 import xml.etree.ElementTree as ET
 
-from .helpers import printToFile
+from .helpers import printToFile,enum2str
 from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide
 from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
@@ -115,14 +115,15 @@ class Road():
             road_type (int): type of road (junction)
                 Default: -1
 
-            name (str): name of the road (optional)
+            name (str): name of the road
 
-            rule (TrafficRule): traffic rule (optional)
-
-            signals (Signal): Contains a list of Signal objects (optional)
+            rule (TrafficRule): traffic rule 
             
-            objects (Object): Contains a list of Object objects (optional)
+            signals (Signal): Contains a list of Signal objects 
+            
+            objects (Object): Contains a list of Object objects
 
+            road_types (list of _RoadType): contans a list or _RoadType objects (optional)
         Methods
         -------
             get_element()
@@ -131,9 +132,26 @@ class Road():
             get_attributes()
                 Returns a dictionary of all attributes of the class
 
-            write_xml(filename)
-                write a open scenario xml
-                
+            add_successor (element_type,element_id,contact_point,lane_offset)
+                adds a successor for the road
+
+            add_predecessor (element_type,element_id,contact_point,lane_offset)
+                adds a predecessor for the road          
+
+            add_neighbor (element_type,element_id,direction)
+                adds a neighbor for the road   
+
+            add_object (road_object)
+                adds an object to the road
+
+            add_object_roadside (road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both)
+                adds an repeated object to the road
+
+            add_signal (signal)
+                adds a signal to the road
+
+            get_end_point ()
+                returns the x, y and heading at the end of the road
     """
     def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
         """ initalize the Road
@@ -169,6 +187,7 @@ class Road():
         self.adjusted = False
         self.objects = []
         self.signals = []
+        self.road_types = []
 
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
@@ -307,7 +326,20 @@ class Road():
             signal._update_id()
             self.signals.append(signal)
 
-        
+    def add_road_type(self,road_type,s = 0,country=None):
+        """ adds a road type to the road (not to mix with junction or not as the init)
+
+            Parameters
+            ----------
+                road_type (RoadType): the type of road
+
+                s (float): the distance where it starts
+                    Default: 0
+
+                country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+        """
+        self.road_types.append(_RoadType(road_type,s,country))
+
         
     def get_end_point(self):
         """ get the x, y, and heading, of the end of the road
@@ -340,6 +372,9 @@ class Road():
         """
         element = ET.Element('road',attrib=self.get_attributes())
         element.append(self.links.get_element())
+        if self.road_types:
+            for r in self.road_types:
+                element.append(r.get_element())
         element.append(self.planview.get_element())
         element.append(self.lanes.get_element())
         if len(self.signals) > 0:
@@ -622,3 +657,59 @@ class OpenDrive():
             filename = self.name + '.xodr'
         printToFile(self.get_element(),filename,prettyprint)
         
+class _RoadType():
+    """ class to generate the road_type element of a road, not the Enumeration it self.
+
+        Parameters
+        ----------
+            road_type (RoadType): the type of road
+
+            s (float): the distance where it starts
+                Default: 0
+
+            country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+
+        Attributes
+        ----------
+            road_type (RoadType): the type of road
+
+            s (float): the distance where it starts
+
+            country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+    """
+    def __init__(self,road_type,s=0,country=None):
+        """ initalize the _RoadType
+
+        Parameters
+        ----------
+            road_type (RoadType): the type of road
+
+            s (float): the distance where it starts
+                Default: 0
+
+            country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
+        """
+        self.road_type = road_type
+        self.s = s
+        self.country = country
+
+
+
+    def get_attributes(self):
+        """ returns the attributes as a dict of the _RoadType
+
+        """
+        retdict = {}
+
+        retdict['s'] = str(self.s)
+        retdict['type'] = enum2str(self.road_type)
+        if self.country:
+            retdict['country'] = self.country
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the _RoadType
+
+        """
+        element = ET.Element('type',attrib=self.get_attributes())
+        return element

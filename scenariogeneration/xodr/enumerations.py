@@ -78,7 +78,7 @@ class RoadMarkType(Enum):
     custom = auto()
     edge = auto()
 
-class RoadType():
+class RoadType(Enum):
     """ Enum for RoadType
     """
     unknown = auto()
