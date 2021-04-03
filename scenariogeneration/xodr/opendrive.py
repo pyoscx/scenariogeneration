@@ -353,7 +353,7 @@ class Road():
         """
         if not self.planview.adjusted:
             raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
-            return
+
         
         hdg_factors = []
         total_widths = []

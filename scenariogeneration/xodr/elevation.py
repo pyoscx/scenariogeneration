@@ -83,7 +83,7 @@ class _Poly3Profile():
     
         retdict = {}
         retdict['s'] = str(self.s)
-        if self.t:
+        if self.t != None:
             retdict['t'] = str(self.t)
         retdict['a'] = str(self.a)
         retdict['b'] = str(self.b)
