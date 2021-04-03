@@ -10,8 +10,8 @@ OpenDRIVE                           YES
 | | |-predecessor                   YES    
 | | |-successor                     YES
 | | |-neighbor                      YES
-| |-type                            NO
-| | |-speed                         NO
+| |-type                            YES
+| | |-speed                         YES
 | |-planView                        YES
 | | |-geometry                      YES
 | | | |-line                        YES
@@ -19,12 +19,12 @@ OpenDRIVE                           YES
 | | | |-arc                         YES
 | | | |-poly3                       YES
 | | | |-paramPoly3                  YES
-| |-elevationProfile                NO
-| | |-elevation                     NO
-| |-lateralProfile                  NO        
-| | |-superelevation                NO
+| |-elevationProfile                YES
+| | |-elevation                     YES
+| |-lateralProfile                  YES       
+| | |-superelevation                YES
 | | |-crossfall                     NO
-| | |-shape                         NO
+| | |-shape                         YES
 | |-lanes                           YES
 | | |-laneOffset                    YES
 | | |-laneSection                   YES

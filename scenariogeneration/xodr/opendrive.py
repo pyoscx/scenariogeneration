@@ -7,6 +7,8 @@ from .helpers import printToFile,enum2str
 from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide
 from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
+from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
+
 
 import datetime as dt
 import warnings
@@ -124,6 +126,10 @@ class Road():
             objects (Object): Contains a list of Object objects
 
             types (list of _Type): contans a list or _Type objects (optional)
+
+            elevationprofile (ElevationProfile): the elevation profile of the road
+
+            lateralprofile (LateralProfile): the lateral profile of the road
         Methods
         -------
             get_element()
@@ -144,6 +150,15 @@ class Road():
             add_object (road_object)
                 adds an object to the road
 
+            add_elevation(s,a,b,c,d)
+                adds an elevation profile to the road
+
+            add_superelevation(s,a,b,c,d) 
+                adds a superelevation to the road
+
+            add_shape(s,t,a,b,c,d,e)
+                adds a lateral shape to the road
+            
             add_object_roadside (road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both)
                 adds an repeated object to the road
 
@@ -188,6 +203,8 @@ class Road():
         self.objects = []
         self.signals = []
         self.types = []
+        self.elevationprofile = ElevationProfile()
+        self.lateralprofile = LateralProfile()
 
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
@@ -244,6 +261,60 @@ class Road():
     
         self.links.add_link(suc)
         self._neighbor_added += 1
+
+    def add_elevation(self,s,a,b,c,d):
+        """ ads an elevation profile to the road (3-degree polynomial)
+
+            Parameters
+            ----------
+                s (float): s start coordinate of the elevation
+
+                a (float): a coefficient of the polynomial
+
+                b (float): b coefficient of the polynomial
+
+                c (float): c coefficient of the polynomial
+
+                d (float): d coefficient of the polynomial
+        """
+        self.elevationprofile.add_elevation(_Poly3Profile(s,a,b,c,d))
+
+    def add_superelevation(self,s,a,b,c,d):
+        """ ads a superelevation profile to the road (3-degree polynomial)
+
+            Parameters
+            ----------
+                s (float): s start coordinate of the superelevation
+
+                a (float): a coefficient of the polynomial
+
+                b (float): b coefficient of the polynomial
+
+                c (float): c coefficient of the polynomial
+
+                d (float): d coefficient of the polynomial
+        """
+        self.lateralprofile.add_superelevation(_Poly3Profile(s,a,b,c,d))
+    
+    def add_shape(self,s,t,a,b,c,d):
+        """ ads a superelevation profile to the road (3-degree polynomial)
+
+            Parameters
+            ----------
+                s (float): s start coordinate of the superelevation
+
+                t (flaot): the t start coordinate of the lateral profile
+
+                a (float): a coefficient of the polynomial
+
+                b (float): b coefficient of the polynomial
+
+                c (float): c coefficient of the polynomial
+
+                d (float): d coefficient of the polynomial
+        """
+        self.lateralprofile.add_shape(_Poly3Profile(s,a,b,c,d,t))
+    
     def add_object(self,road_object):
         """ add_object adds an object to a road and calls a function that ensures unique IDs
         
@@ -389,7 +460,8 @@ class Road():
             objectselement = ET.SubElement(element,'objects')
             for road_object in self.objects:
                 objectselement.append(road_object.get_element())        
-            
+        element.append(self.elevationprofile.get_element())
+        element.append(self.lateralprofile.get_element())
         return element
 
 class OpenDrive():
