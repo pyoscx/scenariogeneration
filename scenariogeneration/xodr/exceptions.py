@@ -27,3 +27,8 @@ class RoadsAndLanesNotAdjusted(Exception):
     """ Raised when the user tries to perform an action on non-adjusted lanes and roads that requires adjusted lanes and roads
     """
     pass
+
+class MixOfGeometryAddition(Exception):
+    """ Raise when the wrong way of adding geometires are used for the planview
+    """
+    pass

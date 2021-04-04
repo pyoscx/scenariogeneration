@@ -5,7 +5,7 @@
 import xml.etree.ElementTree as ET
 
 import numpy as np
-from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments
+from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments, MixOfGeometryAddition
 from scipy.integrate import quad
 from scipy.special import fresnel
 
@@ -178,9 +178,16 @@ class PlanView():
         self._overridden_headings = []
 
         self.adjusted = False
+        # variable to track what mode of adding geometries are used
+
+        self._addition_mode = None
 
     def add_geometry(self,geom,heading = None):
-        """ add_geometry adds a geometry to the planview and calculates
+        """ add_geometry adds a geometry to the planview and will stich together all geometries (in order the order added)
+            
+            Should be used together with "adjust_roads_and_lanes" in the OpenDrive class. 
+
+            NOTE: DO NOT MIX WITH with add_fixed_geometry
         
         Parameters
         ----------
@@ -190,10 +197,57 @@ class PlanView():
                 if used, use for ALL geometries
 
         """
+        if self._addition_mode == 'add_fixed_geometry':
+            raise MixOfGeometryAddition("A fixed geometry has already been added, please use either add_geometry or add_fixed_geometry")
 
         if heading is not None:
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
+        self._addition_mode = 'add_geometry'
+    
+    def add_fixed_geometry(self, geom, x_start, y_start, h_start,s=None):
+        """ add_fixed_geometry adds a geometry to a certain point to the planview 
+
+            if s is used, the values will be coded and is up to the user to make correct, not for a correct opendrive file please add the geometires in order
+            if s is not used, the geometries are supposed to be added in order (and s will be calculated)
+        
+            NOTE: DO NOT MIX WITH the method add_geometry
+
+        Parameters
+        ----------
+            geom (Line, Spiral, ParamPoly3, or Arc): the geometry to add
+
+            x_start (float): start x position of the geometry
+
+            y_start (float): start y position of the geometry
+
+            h_start (float): start heading of the geometry
+
+            s (float): start s value of the geometry (optional)
+                Default: None
+
+        """
+        if self._addition_mode == 'add_geometry':
+            raise MixOfGeometryAddition("A geometry has already been added with add_geometry, please use either add_geometry, or add_fixed_geometry not both")
+        
+        if s != None:
+            pres_s = s
+        else:
+            pres_s = self.present_s
+        
+        if not self.fixed:
+            self.x_start = x_start
+            self.y_start = y_start
+            self.h_start = h_start
+            self.fixed = True
+        
+        newgeom = _Geometry(pres_s,x_start,y_start,h_start,geom)
+        self._adjusted_geometries.append(newgeom)
+        self.x_end, self.y_end, self.h_end, length = newgeom.get_end_data()
+        self.present_s += length
+        self.adjusted = True
+        self._addition_mode == 'add_fixed_geometry'
+
 
     def set_start_point(self,x_start=0,y_start=0,h_start=0):
         """ sets the start point of the planview

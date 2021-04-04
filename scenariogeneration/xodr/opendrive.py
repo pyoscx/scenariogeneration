@@ -580,6 +580,9 @@ class OpenDrive():
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError('Unknown ContactPoint')
+
             num_lane_offsets = main_road.lane_offset_pred
             x = -num_lane_offsets*3*np.sin(h) + x
             y = num_lane_offsets*3*np.cos(h) + y
@@ -594,6 +597,8 @@ class OpenDrive():
                 h = h + np.pi #we are attached to the predecessor's start, so road[k] will start in its opposite direction 
             elif contact_point == ContactPoint.end:
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError('Unknown ContactPoint')
             num_lane_offsets = main_road.lane_offset_suc
             x = num_lane_offsets*3*np.sin(h) + x
             y = -num_lane_offsets*3*np.cos(h) + y
@@ -620,11 +625,14 @@ class OpenDrive():
         count_total_adjusted_roads = 0
         fixed_road = False
         for k in self.roads:
-            if self.roads[k].planview.fixed:
+            if self.roads[k].planview.fixed and not self.roads[k].planview.adjusted:
                 self.roads[k].planview.adjust_geometries()
                 # print('Fixing Road: ' + k)
                 count_total_adjusted_roads += 1
                 fixed_road = True
+            elif self.roads[k].planview.adjusted:
+                fixed_road = True
+                count_total_adjusted_roads += 1
 
         # If no roads are fixed, select the first road is selected as the pivot-road
         if len(self.roads) > 0:

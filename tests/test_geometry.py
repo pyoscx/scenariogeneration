@@ -211,11 +211,11 @@ def test_geometry():
 def test_inverted_Line(data):
     line = pyodrx.Line(data[0])
 
-    end_x,end_y,end_h,end_l = line.get_end_data(data[1],data[2],data[3])
+    end_x,end_y,end_h,_ = line.get_end_data(data[1],data[2],data[3])
 
     end_h += np.pi 
 
-    start_x,start_y,start_h,start_l = line.get_start_data(end_x,end_y,end_h)
+    start_x,start_y,start_h,_ = line.get_start_data(end_x,end_y,end_h)
 
     start_h -= np.pi
 
@@ -245,11 +245,11 @@ def test_inverted_Arc(data):
     
     arc = pyodrx.Arc(data[0],angle=data[1])
 
-    end_x,end_y,end_h,end_l = arc.get_end_data(data[2],data[3],data[4])
+    end_x,end_y,end_h,_ = arc.get_end_data(data[2],data[3],data[4])
 
     end_h += np.pi 
 
-    start_x,start_y,start_h,start_l = arc.get_start_data(end_x,end_y,end_h)
+    start_x,start_y,start_h,_ = arc.get_start_data(end_x,end_y,end_h)
 
     start_h -= np.pi
 
@@ -281,14 +281,37 @@ def test_inverted_Arc(data):
 def test_inverted_Spiral(data):
     cloth = pyodrx.Spiral(data[0], data[1], data[2])
 
-    end_x,end_y,end_h,end_l = cloth.get_end_data(data[3],data[4],data[5])
+    end_x,end_y,end_h,_ = cloth.get_end_data(data[3],data[4],data[5])
 
     end_h += np.pi 
 
-    start_x,start_y,start_h,start_l = cloth.get_start_data(end_x,end_y,end_h)
+    start_x,start_y,start_h,_ = cloth.get_start_data(end_x,end_y,end_h)
 
     start_h -= np.pi
 
     assert pytest.approx(start_x, 0.000001) == data[3]
     assert pytest.approx(start_y, 0.000001) == data[4]
     assert pytest.approx(start_h, 0.000001) == data[5] 
+
+
+@pytest.mark.parametrize("data, expdata",[\
+([100,0,0,0], [100,0,0]),\
+([100,10,10,0], [110,10,0]),\
+([100,10,10,np.pi/2], [10,110,np.pi/2]),\
+])
+
+# data: length, xstart,ystart,headingstart
+# expdata: end x, end y, end h
+def test_manual_geometry(data,expdata):
+    planview = pyodrx.PlanView()
+    planview.add_fixed_geometry(pyodrx.Line(data[0]),data[1],data[2],data[3])
+
+    x,y,h = planview.get_end_point()
+    assert pytest.approx(x, 0.000001) == expdata[0]
+    assert pytest.approx(y, 0.000001) == expdata[1]
+    assert pytest.approx(h, 0.000001) == expdata[2]
+    x,y,h = planview.get_start_point()
+    assert pytest.approx(x, 0.000001) == data[1]
+    assert pytest.approx(y, 0.000001) == data[2]
+    assert pytest.approx(h, 0.000001) == data[3]
+    
