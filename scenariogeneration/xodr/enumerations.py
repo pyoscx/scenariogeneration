@@ -161,3 +161,9 @@ class RoadSide(Enum):
     both = auto()
     left = auto()
     right = auto()
+
+class JunctionGroupType(Enum):
+    """ Enum for JunctionGroup
+    """
+    roundabout = auto()
+    unknown = auto()

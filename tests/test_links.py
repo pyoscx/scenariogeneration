@@ -423,3 +423,10 @@ def test_create_lane_links_junction4():
 
 
 
+def test_junction_group():
+    jg = pyodrx.JunctionGroup('my roundabout',0)
+    jg.add_junction(1)
+    jg.add_junction(2)
+    jg.add_junction(3)
+    prettyprint(jg.get_element())
+
