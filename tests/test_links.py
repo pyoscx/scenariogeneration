@@ -48,12 +48,12 @@ def test_junction():
     con2.add_lanelink(2,-2)
     con2.add_lanelink(3,-3)
 
-    junciton = pyodrx.Junction('',1)
+    junction = pyodrx.Junction('',1)
 
-    junciton.add_connection(con1)
-    junciton.add_connection(con2)
+    junction.add_connection(con1)
+    junction.add_connection(con2)
 
-    prettyprint(junciton.get_element())
+    prettyprint(junction.get_element())
 
 
 # road - road - road // -> - -> - -> 
