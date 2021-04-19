@@ -223,7 +223,7 @@ def get_lanes_offset(road1, road2, contactpoint):
 
 
 
-def create_raw_junction_roads(angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100,n_lanes=1,lane_width=3):
+def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100,n_lanes=1,lane_width=3):
     """ creates all needed roads for some simple junctions 
         - 3way crossings (either a T junction, or 120 deg junction)
         - 4way crossing (all 90 degree turns)
