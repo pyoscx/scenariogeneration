@@ -223,6 +223,79 @@ def get_lanes_offset(road1, road2, contactpoint):
 
 
 
+def create_raw_junction_roads(angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100,n_lanes=1,lane_width=3):
+    """ creates all needed roads for some simple junctions 
+        - 3way crossings (either a T junction, or 120 deg junction)
+        - 4way crossing (all 90 degree turns)
+        NOTE: this will not generate any links or add any successor/predecessors to the roads, and has to be added manually,
+        if you have the connecting roads please use create_junction_roads
+
+        Parameters
+        ----------
+       
+            angles (list of float): the angles which the roads should be going out (see description for what is supported), 
+                                    should be defined mathimatically positive (incoming road 0)
+
+            r (float): the radius of the arcs in the junction (will determine the size of the junction)
+            
+            junction (int): the id of the junction
+                default: 1
+
+            spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
+                default: (1/3)
+
+            arc_part (float): the part of the curve that should be an arc:  spiral_part*2 + arcpart = angle of the turn
+                default: (1/3)
+
+            startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
+            
+            n_lanes (int): the number of lanes in the junction
+
+            lane_width (double): the lane width of the lanes in the junction
+        Returns
+        -------
+            junction_roads (list of Road): a list of all roads in a junction without connections added
+
+    """
+    angle = np.pi/2
+    angle_cloth = angle*spiral_part 
+    spiral_length = 2*abs(angle_cloth*r)
+
+    spiral = EulerSpiral.createFromLengthAndCurvature(spiral_length, STD_START_CLOTH, 1/r)
+    (X, Y, _) = spiral.calc(spiral_length, 0, 0, STD_START_CLOTH, 0)
+
+    X0 = X-r*np.sin(angle_cloth)
+    Y0 = Y-r*(1-np.cos(angle_cloth))
+    linelength = 2*(X0 + r + Y0)
+
+    junction_roads = []
+    
+    for i in range(len(angles)-1):
+        
+        for j in range(1+i,len(angles)):
+            # check angle needed for junction
+            an = np.sign(angles[j]-angles[i]-np.pi)
+            an1 = angles[j]-angles[i] -np.pi
+            angle_arc = an1*arc_part
+
+            angle_cloth = an1*spiral_part
+
+            #adjust angle if multiple of pi
+            if an1 > np.pi: 
+                an1 = -(2*np.pi - an1)
+
+            # create road, either straight or curved
+            if an == 0:
+                tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lane_width)
+            else: 
+                tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lane_width )
+
+            # add predecessor and successor
+            startnum += 1
+            junction_roads.append(tmp_junc)
+
+    return junction_roads
+    
 def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100):
     """ creates all needed roads for some simple junctions
         - 3way crossings (either a T junction, or 120 deg junction)
