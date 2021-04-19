@@ -1021,6 +1021,8 @@ class FollowTrajectoryAction(_PrivateActionType):
                 Default: None
             offset (double): offset for time values (must be combined with reference_domain and scale)
                 Default: None
+            initialDistanceOffset (double): start at this offset into the trajectory (v1.1)
+                Default: None
 
         Attributes
         ----------
@@ -1030,13 +1032,15 @@ class FollowTrajectoryAction(_PrivateActionType):
 
             timeref (TimeReference): the time reference of the trajectory
 
+            initialDistanceOffset (double): start at this offset into the trajectory (v1.1)
+
         Methods
         -------
             get_element()
                 Returns the full ElementTree of the class
 
     """
-    def __init__(self,trajectory,following_mode,reference_domain=None,scale=None,offset=None):
+    def __init__(self,trajectory,following_mode,reference_domain=None,scale=None,offset=None,initialDistanceOffset=None):
         """ initalize the FollowTrajectoryAction 
 
             Parameters
@@ -1051,6 +1055,9 @@ class FollowTrajectoryAction(_PrivateActionType):
                     Default: None
                 offset (double): offset for time values (must be combined with reference_domain and scale)
                     Default: None
+                initialDistanceOffset (double): start at this offset into the trajectory (v1.1)
+                    Default: None
+                    
         """
         # if following_mode not in FollowMode:
         #     ValueError(str(following_mode) + ' is not a valied following mode.')
@@ -1060,6 +1067,17 @@ class FollowTrajectoryAction(_PrivateActionType):
         self.following_mode = following_mode
         # TODO: check reference_domain
         self.timeref = TimeReference(reference_domain,scale,offset)
+        self.initialDistanceOffset = initialDistanceOffset
+
+    def get_attributes(self):
+        """ returns the attributes of the ActivateControllerAction as a dict
+
+        """
+        if self.initialDistanceOffset:
+            return {'initialDistanceOffset':str(self.initialDistanceOffset)}
+        else:
+            # If initialDistanceOffset is not set, return empty to stay backward compatible with v1.0
+            return {}
 
     def get_element(self):
         """ returns the elementTree of the AssignRouteAction
@@ -1067,7 +1085,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         """
         element = ET.Element('PrivateAction')
         routeaction = ET.SubElement(element,'RoutingAction')
-        trajaction = ET.SubElement(routeaction,'FollowTrajectoryAction')
+        trajaction = ET.SubElement(routeaction,'FollowTrajectoryAction',attrib=self.get_attributes())
         trajaction.append(self.trajectory.get_element())
         trajaction.append(self.timeref.get_element())
         ET.SubElement(trajaction,'TrajectoryFollowingMode',attrib={'followingMode':self.following_mode.name})
