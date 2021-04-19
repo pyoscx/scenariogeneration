@@ -268,7 +268,7 @@ class Connection():
         
         Parameters
         ----------
-            incoming_road (int): the id of the incoming road to the junciton
+            incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (type junction)
             
@@ -278,7 +278,7 @@ class Connection():
 
         Attributes
         ----------
-            incoming_road (int): the id of the incoming road to the junciton
+            incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (type junction)
             
@@ -305,7 +305,7 @@ class Connection():
 
         Parameters
         ----------
-            incoming_road (int): the id of the incoming road to the junciton
+            incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (type junction)
             
