@@ -18,6 +18,7 @@ def esmini(generator,esminipath='esmini',
     args = '',
     index_to_run= 'first',
     run_with_replayer = False,
+    timestep = 0.01,
     car_density = 15):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
      
@@ -49,6 +50,8 @@ def esmini(generator,esminipath='esmini',
             run_with_replayer (bool): bool to run esmini in headless mode and then run the viewer afterwards (only used for scenarios not for roads)
                 Default: False
 
+            timestep (double): fixed timestep to use in combination with replayer
+
             car_density (int): density of fictious cars (used only for pure OpenDRIVE cases)
 
     """
@@ -66,9 +69,12 @@ def esmini(generator,esminipath='esmini',
         executable = 'esmini'
         filetype = ' --osc '
         if run_with_replayer:
-            additional_args += ' --headless'
+            additional_args += ' --headless' + ' --fixed_timestep ' +  str(timestep)
             if not record:
                 record = 'python_record'
+        else:
+                additional_args += ' --window '+ window_size
+
         filename = os.path.join(resource_path,'xosc','python_scenario.xosc')
         generator.write_xml(filename)
 
@@ -85,9 +91,12 @@ def esmini(generator,esminipath='esmini',
             executable = 'esmini'
             filetype = ' --osc '
             if run_with_replayer:
-                additional_args += ' --headless'
+                additional_args += ' --headless' + ' --fixed_timestep ' +  str(timestep)
                 if not record:
                     record = 'python_record'
+            else:
+                additional_args += ' --window '+ window_size
+            
             filename = scenario_file
     else:
         raise TypeError('generator is not of type OpenDrive, Scenario, or ScenarioGenerator')
@@ -95,7 +104,6 @@ def esmini(generator,esminipath='esmini',
 
     
     # create the additional_args for the esmini execusion
-    additional_args += ' --window '+ window_size
     if save_osi:
         additional_args += ' --osi_file on'
     
