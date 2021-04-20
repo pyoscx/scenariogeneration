@@ -297,7 +297,8 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
     return junction_roads
     
 def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100):
-    """ creates all needed roads for some simple junctions
+    """ creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
+        Supported junctions:
         - 3way crossings (either a T junction, or 120 deg junction)
         - 4way crossing (all 90 degree turns)
 
