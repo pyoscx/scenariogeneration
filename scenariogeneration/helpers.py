@@ -126,7 +126,9 @@ def esmini(generator,esminipath='esmini',
 
 
     # run esmini
-    os.system(executable_path + filetype + filename + additional_args )
+    if os.system(executable_path + filetype + filename + additional_args) != 0:
+        print('An error occurred while trying to execute the scenario')
+        return
 
     # run viewer if wanted
     if run_with_replayer:
