@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, Route, Trajectory, TrafficDefinition, Environment
 from .utils import Controller
 from .enumerations import DynamicsShapes, SpeedTargetValueType, FollowMode, ReferenceContext
-
+from .exceptions import NoActionsDefinedError
 from .position import _PositionType
 
 class _ActionType():
@@ -1192,21 +1192,41 @@ class AssignControllerAction(_PrivateActionType):
 
         return element
 
-
-class OverrideThrottleAction(_PrivateActionType):
-    """ OverrideThrottleAction creates a ControllerAction of type OverrideControllerValueAction and OverrideThrottleAction 
-        
-        Parameters
-        ----------
-            value (double): 0...1 throttle pedal
-
-            active (boolean): overide (True) or stop override (False)
+class OverrideControllerValueAction(_PrivateActionType):
+    """ OverrideControllerValueAction creates a OverrideControllerValueAction action of openscenario which can include, throttle, brake, clutch, steeringwheel, gear, parkingbrake
+        NOTE: this implementation is compatible with osc v.1.1 where all attributes don't have to be set. 
 
         Attributes
         ----------
-            value (double): 0...1 throttle pedal
+            throttle_active (bool): if the throttle is active
+                Default: None (will not be written)
 
-            active (boolean): overide (True) or stop override (False)
+            throttle_value (double): value of the throttle
+
+            brake_active (bool): if the brake is active
+                Default: None (will not be written)
+
+            brake_value (double): value of the brake
+
+            clutch_active (bool): if the clutch is active
+                Default: None (will not be written)
+
+            clutch_value (double): value of the clutch
+
+            steeringwheel_active (bool): if the steeringwheel is active
+                Default: None (will not be written)
+
+            steeringwheel_value (double): value of the steeringwheel
+
+            gear_active (bool): if the gear is active
+                Default: None (will not be written)
+
+            gear_value (double): value of the gear
+
+            parkingbrake_active (bool): if the parkingbrake is active
+                Default: None (will not be written)
+
+            parkingbrake_value (double): value of the parkingbrake
 
         Methods
         -------
@@ -1215,324 +1235,146 @@ class OverrideThrottleAction(_PrivateActionType):
 
             get_attributes()
                 Returns the the attributes of the class
+            
+            set_throttle(active,value)
+                sets the throttle value
+
+            set_brake(active,value)
+                sets the brake value
+
+            set_steeringwheel(active,value)
+                sets the steeringwheel value
+
+            set_clutch(active,value)
+                sets the clutch value
+
+            set_gear(active,value)
+                sets the gear value
+
+            set_parkingbrake(active,value)
+                sets the parkingbrake value
 
     """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideThrottleAction
+
+    def __init__(self):
+        self.throttle_active = None
+        self.throttle_value = 0
+        self.brake_active = None
+        self.brake_value = 0
+        self.clutch_active = None
+        self.clutch_value = 0
+        self.steeringwheel_active = None
+        self.steeringwheel_value = 0
+        self.gear_active = None
+        self.gear_value = 0
+        self.parkingbrake_active = None
+        self.parkingbrake_value = 0
+
+    def set_clutch(self,active,value=0):
+        """ Sets the clutch value
 
             Parameters
             ----------
-                value (double): 0...1 throttle pedal
+                active (bool): if the clutch should be overridden
 
-                active (boolean): overide (True) or stop override (False)
+                value (double): value of the clutch 
+                    Default: 0
+        """
+        self.clutch_active = active
+        self.clutch_value = value
+    
+    def set_brake(self,active,value=0):
+        """ Sets the brake value
+
+            Parameters
+            ----------
+                active (bool): if the brake should be overridden
+
+                value (double): value of the brake 
+                    Default: 0
+        """
+        self.brake_active = active
+        self.brake_value = value
+
+    def set_throttle(self,active,value=0):
+        """ Sets the throttle value
+
+            Parameters
+            ----------
+                active (bool): if the throttle should be overridden
+
+                value (double): value of the throttle 
+                    Default: 0
+        """
+        self.throttle_active = active
+        self.throttle_value = value
+
+    def set_steeringwheel(self,active,value=0):
+        """ Sets the steeringwheel value
+
+            Parameters
+            ----------
+                active (bool): if the steeringwheel should be overridden
+
+                value (double): value of the steeringwheel 
+                    Default: 0
 
         """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
+        self.steeringwheel_active = active
+        self.steeringwheel_value = value
 
-    def get_attributes(self):
-        """ returns the attributes of the OverrideThrottleAction as a dict
+    def set_parkingbrake(self,active,value=0):
+        """ Sets the parkingbrake value
+
+            Parameters
+            ----------
+                active (bool): if the parkingbrake should be overridden
+
+                value (double): value of the parkingbrake 
+                    Default: 0
 
         """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
+        self.parkingbrake_active = active
+        self.parkingbrake_value = value
+
+    def set_gear(self,active,value=0):
+        """ Sets the gear value
+
+            Parameters
+            ----------
+                active (bool): if the gear should be overridden
+
+                value (double): value of the gear 
+                    Default: 0
+        """
+        self.gear_active = active
+        self.gear_value = value
 
     def get_element(self):
-        """ returns the elementTree of the OverrideThrottleAction
+        """ returns the elementTree of the OverrideControllerValueAction
 
         """
         element = ET.Element('PrivateAction')
         controlleraction = ET.SubElement(element,'ControllerAction')
         overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideThrottleAction',self.get_attributes())
-        return element
-
-
-class OverrideBrakeAction(_PrivateActionType):
-    """ OverrideBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideBrakeAction 
         
-        Parameters
-        ----------
-            value (double): 0...1 throttle pedal
 
-            active (boolean): overide (True) or stop override (False)
+        if self.throttle_active == None and self.brake_active == None and self.clutch_active == None and self.parkingbrake_active == None and self.steeringwheel_active == None and self.gear_active == None:
+            raise NoActionsDefinedError('No actions were added to the OverrideControllerValueAction')
+        if self.throttle_active != None:
+            ET.SubElement(overrideaction,'Throttle',{'active':convert_bool(self.throttle_active),'value':str(self.throttle_value)})
+        if self.brake_active != None:
+            ET.SubElement(overrideaction,'Brake',{'active':convert_bool(self.brake_active),'value':str(self.brake_value)})
+        if self.clutch_active != None:
+            ET.SubElement(overrideaction,'Clutch',{'active':convert_bool(self.clutch_active),'value':str(self.clutch_value)})
+        if self.parkingbrake_active != None:
+            ET.SubElement(overrideaction,'ParkingBrake',{'active':convert_bool(self.parkingbrake_active),'value':str(self.parkingbrake_value)})
+        if self.steeringwheel_active != None:
+            ET.SubElement(overrideaction,'SteeringWheel',{'active':convert_bool(self.steeringwheel_active),'value':str(self.steeringwheel_value)})
+        if self.gear_active != None:
+            ET.SubElement(overrideaction,'Gear',{'active':convert_bool(self.gear_active),'value':str(self.gear_value)})
 
-        Attributes
-        ----------
-            value (double): 0...1 brake pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the the attributes of the class
-
-    """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideBrakeAction
-
-            Parameters
-            ----------
-                value (double): 0...1 throttle pedal
-
-                active (boolean): overide (True) or stop override (False)
-
-        """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
-
-    def get_attributes(self):
-        """ returns the attributes of the OverrideBrakeAction as a dict
-
-        """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
-
-    def get_element(self):
-        """ returns the elementTree of the OverrideBrakeAction
-
-        """
-        element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerAction')
-        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideBrakeAction',self.get_attributes())
         return element
-
-
-class OverrideClutchAction(_PrivateActionType):
-    """ OverrideClutchAction creates a ControllerAction of type OverrideControllerValueAction and OverrideClutchAction
-        
-        Parameters
-        ----------
-            value (double): 0...1 clutch pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Attributes
-        ----------
-            value (double): 0...1 brake pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the the attributes of the class
-
-    """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideClutchAction
-
-            Parameters
-            ----------
-                value (double): 0...1 throttle pedal
-
-                active (boolean): overide (True) or stop override (False)
-
-        """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
-
-    def get_attributes(self):
-        """ returns the attributes of the OverrideClutchAction as a dict
-
-        """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
-
-    def get_element(self):
-        """ returns the elementTree of the OverrideClutchAction
-
-        """
-        element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerAction')
-        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideClutchAction',self.get_attributes())
-        return element
-
-
-
-class OverrideParkingBrakeAction(_PrivateActionType):
-    """ OverrideParkingBrakeAction creates a ControllerAction of type OverrideControllerValueAction and OverrideParkingBrakeAction 
-        
-        Parameters
-        ----------
-            value (double): 0...1 clutch pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Attributes
-        ----------
-            value (double): 0...1 brake pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the the attributes of the class
-
-    """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideParkingBrakeAction
-
-            Parameters
-            ----------
-                value (double): 0...1 throttle pedal
-
-                active (boolean): overide (True) or stop override (False)
-
-        """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
-
-    def get_attributes(self):
-        """ returns the attributes of the OverrideParkingBrakeAction as a dict
-
-        """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
-
-    def get_element(self):
-        """ returns the elementTree of the OverrideParkingBrakeAction
-
-        """
-        element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerAction')
-        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideParkingBrakeAction',self.get_attributes())
-        return element
-
-
-
-
-class OverrideSteeringWheelAction(_PrivateActionType):
-    """ OverrideSteeringWheelAction creates a ControllerAction of type OverrideControllerValueAction and OverrideSteeringWheelAction 
-        
-        Parameters
-        ----------
-            value (double): 0...1 clutch pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Attributes
-        ----------
-            value (double): 0...1 brake pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the the attributes of the class
-
-    """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideSteeringWheelAction
-
-            Parameters
-            ----------
-                value (double): 0...1 throttle pedal
-
-                active (boolean): overide (True) or stop override (False)
-
-        """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
-
-    def get_attributes(self):
-        """ returns the attributes of the OverrideSteeringWheelAction as a dict
-
-        """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
-
-    def get_element(self):
-        """ returns the elementTree of the OverrideSteeringWheelAction
-
-        """
-        element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerAction')
-        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideSteeringWheelAction',self.get_attributes())
-        return element
-
-
-
-class OverrideGearAction(_PrivateActionType):
-    """ OverrideGearAction creates a ControllerAction of type OverrideControllerValueAction and OverrideGearAction 
-        
-        Parameters
-        ----------
-            value (double): 0...1 clutch pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Attributes
-        ----------
-            value (double): 0...1 brake pedal value
-
-            active (boolean): overide (True) or stop override (False)
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the the attributes of the class
-
-    """
-    def __init__(self,value, activate):
-        """ initalizes the OverrideGearAction
-
-            Parameters
-            ----------
-                value (double): 0...1 throttle pedal
-
-                active (boolean): overide (True) or stop override (False)
-
-        """
-        self.value = value
-        if not isinstance(activate,bool):
-            raise TypeError('activate input is not of type bool')
-        self.activate = activate
-
-    def get_attributes(self):
-        """ returns the attributes of the OverrideGearAction as a dict
-
-        """
-        return {'value':str(self.value),'active':convert_bool(self.activate)}
-
-    def get_element(self):
-        """ returns the elementTree of the OverrideGearAction
-
-        """
-        element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerAction')
-        overrideaction = ET.SubElement(controlleraction,'OverrideControllerValueAction')
-        ET.SubElement(overrideaction,'OverrideGearAction',self.get_attributes())
-        return element
-
-
 
 class VisibilityAction(_PrivateActionType):
     """ creates a VisibilityAction

@@ -3,6 +3,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
 
@@ -78,30 +79,22 @@ def test_assign_controller_action():
     aca = OSC.AssignControllerAction(cnt)
     prettyprint(aca.get_element())
 
-def test_overide_brake():
-    oa = OSC.OverrideBrakeAction(0.4,True)
-    prettyprint(oa.get_element())
-
-def test_overide_clutch():
-    oa = OSC.OverrideClutchAction(0.4,True)
-    prettyprint(oa.get_element())
-
-def test_overide_parking():
-    oa = OSC.OverrideParkingBrakeAction(0.4,True)
-    prettyprint(oa.get_element())
-
-def test_overide_gear():
-    oa = OSC.OverrideGearAction(0.4,True)
-    prettyprint(oa.get_element())
-
-def test_overide_steering():
-    oa = OSC.OverrideSteeringWheelAction(0.4,True)
-    prettyprint(oa.get_element())
-
-def test_overide_throttle():
-    oa = OSC.OverrideThrottleAction(0.4,True)
-    prettyprint(oa.get_element())
-
+def test_override_controller():
+    ocva = OSC.OverrideControllerValueAction()
+    with pytest.raises(NoActionsDefinedError):
+        ocva.get_element()
+    ocva.set_brake(True,2)
+    prettyprint(ocva.get_element())
+    ocva.set_throttle(False,0)
+    prettyprint(ocva.get_element())
+    ocva.set_clutch(True,1)
+    prettyprint(ocva.get_element())
+    ocva.set_parkingbrake(False,1)
+    prettyprint(ocva.get_element())
+    ocva.set_steeringwheel(True,1)
+    prettyprint(ocva.get_element())
+    ocva.set_gear(False,0)
+    prettyprint(ocva.get_element())
 def test_visual_action():
     va = OSC.VisibilityAction(True,False,True)
     prettyprint(va.get_element())
