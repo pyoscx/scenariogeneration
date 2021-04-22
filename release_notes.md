@@ -1,12 +1,17 @@
 ## scenariogeneration release notes
 
 
+### 2021-04-22 Version 0.3.2
+- Restructuring
+    - All override controller actions (OverrideThrottleAction, OverrideBrakeAction, ...) are merged into one class, and the old ones are removed.
+        
+
 ### 2021-04-20 Version 0.3.1
 - New Features
     - type (road) support added
     - elevationprofile and lateral profile support added
     - junction group support added (no automation)
-- Feture updates
+- Feature updates
     - initialDistanceOffset in FollowTrajectory added (OSC V1.1)
     - Geometires can now be added with x,y,h directly to a planview (not to mix with old functionality)
     - some small updates to the generators
