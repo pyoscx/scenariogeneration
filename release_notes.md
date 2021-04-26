@@ -1,6 +1,13 @@
 ## scenariogeneration release notes
 
 
+
+### 2021-04-22 Version 0.3.3
+- Bugfixes for esmini runction
+- New Features
+    - Added support for laneOffset for Lanes
+
+
 ### 2021-04-22 Version 0.3.2
 - Restructuring
     - All override controller actions (OverrideThrottleAction, OverrideBrakeAction, ...) are merged into one class, and the old ones are removed.
