@@ -62,9 +62,11 @@ def esmini(generator,esminipath='esmini',
         executable = 'odrviewer'
         filetype = ' --odr '
         additional_args += ' --density ' + str(car_density)
+        additional_args += ' --window '+ window_size
         run_with_replayer = False
         filename = os.path.join(resource_path,'xodr','python_road.xodr')
         generator.write_xml(filename,True)
+
     elif isinstance(generator,Scenario):
         executable = 'esmini'
         filetype = ' --osc '
@@ -73,7 +75,7 @@ def esmini(generator,esminipath='esmini',
             if not record:
                 record = 'python_record'
         else:
-                additional_args += ' --window '+ window_size
+            additional_args += ' --window '+ window_size
 
         filename = os.path.join(resource_path,'xosc','python_scenario.xosc')
         generator.write_xml(filename)
@@ -86,6 +88,7 @@ def esmini(generator,esminipath='esmini',
             executable = 'odrviewer'
             filetype = ' --odr '
             additional_args += ' --density ' + str(car_density)
+            additional_args += ' --window '+ window_size
             filename = road_file
         else:
             executable = 'esmini'
@@ -102,7 +105,6 @@ def esmini(generator,esminipath='esmini',
         raise TypeError('generator is not of type OpenDrive, Scenario, or ScenarioGenerator')
 
 
-    
     # create the additional_args for the esmini execusion
     if save_osi:
         additional_args += ' --osi_file on'

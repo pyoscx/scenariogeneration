@@ -23,12 +23,17 @@ class Lanes():
 
             add_lanesection(lanesection)
                 adds a lane section to Lanes
+
+            add_laneoffset(laneoffset) 
+                adds a lane offset to Lanes
     """
     def __init__(self):
         """ initalize Lanes
 
         """
         self.lanesections = []
+        self.laneoffsets = []
+
     def add_lanesection(self,lanesection, lanelinks=None):
         """ creates the Lanes element of opendrive
     
@@ -55,12 +60,25 @@ class Lanes():
           
         self.lanesections.append(lanesection)
 
+    def add_laneoffset(self, laneoffset):
+        """ adds a lane offset to Lanes
+
+        Parameters
+        ----------
+            laneoffset (LaneOffset): a LaneOffset to add
+        """
+        if not isinstance(laneoffset, LaneOffset):
+            raise TypeError('add_laneoffset requires a LaneOffset as input, not ' + str(type(laneoffset)))
+        self.laneoffsets.append(laneoffset)
+
     def get_element(self):
         """ returns the elementTree of Lanes
 
         """
         element = ET.Element('lanes')
         for l in self.lanesections:
+            element.append(l.get_element())
+        for l in self.laneoffsets:
             element.append(l.get_element())
         return element
 
@@ -168,6 +186,82 @@ class LaneSection():
 
         return element
         
+class LaneOffset():
+    """ the LaneOffset class defines an overall lateral offset along the road, described as a third degree polynomial
+
+        Parameters
+        ----------
+            s (float): s start coordinate of the elevation
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        Attributes
+        ----------
+            s (float): s start coordinate of the elevation
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        Methods
+        -------
+            get_element(elementname)
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the attributes of the class
+
+    """
+    def __init__(self, s=0, a=0, b=0, c=0, d=0):
+        """ initalize the LaneOffset class
+
+        Parameters
+        ----------
+            s (float): s start coordinate of the LaneOffset
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        """
+        self.s = s
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+
+    def get_attributes(self):
+        """ returns the attributes of the LaneOffset
+        """
+    
+        retdict = {}
+        retdict['s'] = str(self.s)
+        retdict['a'] = str(self.a)
+        retdict['b'] = str(self.b)
+        retdict['c'] = str(self.c)
+        retdict['d'] = str(self.d)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the LaneOffset
+        """
+        element = ET.Element('laneOffset',attrib=self.get_attributes())
+        
+        return element
 
 class Lane():
     """ creates a Lane of opendrive

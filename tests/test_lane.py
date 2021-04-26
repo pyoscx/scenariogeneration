@@ -42,9 +42,17 @@ def test_lanesection():
     ls.add_left_lane(left_lane)
     prettyprint(ls.get_element())
 
+def test_laneoffset():
+    laneoffset1 = pyodrx.LaneOffset(0,1,2,3,4)
+    prettyprint(laneoffset1.get_element())
+    laneoffset2 = pyodrx.LaneOffset(5,6,7,8,9)
+    prettyprint(laneoffset2.get_element())
+
 def test_lanes():
     centerlane = pyodrx.Lane()
     ls = pyodrx.LaneSection(0,centerlane)
     lanes = pyodrx.Lanes()
     lanes.add_lanesection(ls)
+    lo = pyodrx.LaneOffset(0,1,2,3,4)
+    lanes.add_laneoffset(lo)
     prettyprint(lanes.get_element())
