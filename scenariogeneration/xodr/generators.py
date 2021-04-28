@@ -233,8 +233,8 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
         Parameters
         ----------
        
-            angles (list of float): the angles which the roads should be going out (see description for what is supported), 
-                                    should be defined mathimatically positive (incoming road 0)
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+                                    to be defined in mathimatically positive order, beginning with the first incoming road
 
             r (float): the radius of the arcs in the junction (will determine the size of the junction)
             
@@ -306,8 +306,8 @@ def create_junction_roads(roads,angles,r,junction=1,spiral_part = 1/3, arc_part 
         ----------
             roads (list of Road): all roads that should go into the junction
 
-            angles (list of float): the angles which the roads should be going out (see description for what is supported), 
-                                    should be defined mathimatically positive (incoming road 0)
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+                                    to be defined in mathimatically positive order, beginning with the first incoming road
 
             r (float): the radius of the arcs in the junction (will determine the size of the junction)
             
