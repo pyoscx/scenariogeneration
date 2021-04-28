@@ -123,8 +123,8 @@ def esmini(generator,esminipath='esmini',
         executable_path = os.path.join('.', esminipath, 'bin',executable) 
         replay_executable = os.path.join('.', esminipath, 'bin','replayer') 
     elif os.name == 'nt':
-        executable_path = os.path.join(esminipath,'bin',executable + '.exe') 
-        replay_executable = os.path.join('.', esminipath, 'bin','replayer.exe')
+        executable_path = os.path.join(os.path.realpath(esminipath),'bin',executable + '.exe') 
+        replay_executable = os.path.join('.',os.path.realpath(esminipath),'bin','replayer.exe')
 
 
     # run esmini
