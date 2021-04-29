@@ -1,9 +1,14 @@
 ## scenariogeneration release notes
 
+### 2021-04-22 Version 0.3.4
+- some documentation updates
+- esmini path simplifications
+- New Features
+    - CatalogReader - new function in the xosc module, which can read a catalog and translate to a xosc object (works for Vehicle and Pedestrian in the first implementation)
 
 
 ### 2021-04-22 Version 0.3.3
-- Bugfixes for esmini runction
+- Bugfixes for esmini function
 - New Features
     - Added support for laneOffset for Lanes
 
