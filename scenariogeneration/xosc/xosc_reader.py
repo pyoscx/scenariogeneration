@@ -1,7 +1,7 @@
 import xml.etree.ElementTree as ET
 import os
 
-from scenariogeneration.xosc import BoundingBox, Vehicle, Axle, VehicleCategory, Parameter, ParameterType, Pedestrian, PedestrianCategory
+from scenariogeneration.xosc import BoundingBox, Vehicle, Axle, VehicleCategory, Parameter, ParameterType, Pedestrian, PedestrianCategory, ParameterDeclarations
 
 
 def CatalogReader(catalog_reference,catalog_path):
@@ -9,7 +9,7 @@ def CatalogReader(catalog_reference,catalog_path):
 
         Main use case for this is to be able to parametrize and write scenarios based on a catalog based entry
         
-        NOTE: only Vehicle, and Pedestrian is implemented 
+        NOTE: only Vehicle, and Pedestrian is implemented
         
         Parameters
         ----------
@@ -126,3 +126,30 @@ def _parseVehicleCatalog(vehicle):
             return_vehicle.add_parameter(Parameter(param.attrib['name'],ParameterType[param.attrib['parameterType']],param.attrib['value']))
     
     return return_vehicle
+
+def ParameterDeclarationReader(file_path):
+    """ ParameterDeclarationReader reads the parameter declaration of a xosc file and creates a ParameterDeclaration object from it
+
+        Parameters
+        ----------
+            file_path (str): path to the xosc file wanted to be parsed
+
+    """
+    param_decl = ParameterDeclarations()
+    with open(file_path,'r') as f:
+        loaded_xosc = ET.parse(f)
+        paramdec = loaded_xosc.find('ParameterDeclarations')
+        for param in paramdec:
+            param_type = ParameterType[param.attrib['parameterType']]
+            if param_type == ParameterType.double:
+                value = float(param.attrib['value'])
+            elif param_type == ParameterType.integer or param_type == ParameterType.unsighedInt or param_type == ParameterType.unsighedShort:
+                value = int(param.attrib['value'])
+            elif param_type == ParameterType.boolean:
+                value = bool(param.attrib['value'])
+            else:
+                value = param.attrib['value']
+            
+            param_decl.add_parameter(Parameter(param.attrib['name'],param_type,value))
+            
+    return param_decl

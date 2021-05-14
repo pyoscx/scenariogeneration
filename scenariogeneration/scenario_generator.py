@@ -159,10 +159,25 @@ class ScenarioGenerator():
         return os.path.basename(sys.modules[self.__class__.__module__].__file__).split('.')[0]+name_prefix
 
 
-    def generate_single(self,generation_folder, order = 'first',override_parameters = None, write_relative_road_path = False):
+    def generate_single(self,generation_folder, order = 'first',override_parameters = None, write_relative_road_path = True):
         """ generate_single will generate only one scenario
 
+            Parameters
+            ----------
+                generation_folder (str): the path to a folder where the files should be generated
 
+                order (str, or int): if multiple permutations are defined, this enables the picking of different permutations
+                                     int - the number of that permutation
+                                     str - first: first permutation
+                                           middle: the permutation in the middle
+                                           random: a random permutation
+                    Default: 'first'
+
+                override_parameters (list of dicts, or dict of lists): overrides the self.parameters attribute (optional)
+
+                write_relative_road_path (bool): if the generator will write the path to a generated xodr file relative to the xosc (true), 
+                                                 or the absolute path to the xodr (false)
+                    Default: True
         """
         self.write_relative_road_path = write_relative_road_path
         self._create_folder_structure(generation_folder)
@@ -183,7 +198,7 @@ class ScenarioGenerator():
         return self._generate_road_and_scenario(self.all_permutations[it])
 
 
-    def generate(self,generation_folder,override_parameters = None, write_relative_road_path = False):
+    def generate(self,generation_folder,override_parameters = None, write_relative_road_path = True):
         """ generate uses the xosc.Scenario defined in the method scenario and the xodr.OpenDrive (optional) in the road method
             together with the parameters attribute to generate scenarios and roads for all permutations defined and save those files
             in the generation_folder.
@@ -192,7 +207,10 @@ class ScenarioGenerator():
             ----------
                 generation_folder (str): the path to a folder where the files should be generated
                 
-                override_parameters (list of dicts, or dict of lists): overrides the self.parameters attribute
+                override_parameters (list of dicts, or dict of lists): overrides the self.parameters attribute (optional)
+
+                write_relative_road_path (bool): if the generator will write the path to a generated xodr file relative to the xosc (true), or the absolute path to the xodr (false)
+                    Default: True
         """
         self.write_relative_road_path = write_relative_road_path
         scenario_files = []
