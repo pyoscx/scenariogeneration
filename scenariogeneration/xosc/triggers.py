@@ -41,6 +41,11 @@ class EmptyTrigger(_TriggerType):
         else:
             self._triggerpoint = 'StopTrigger'
 
+    def __eq__(self,other):
+        if isinstance(other,EmptyTrigger):
+            if self._triggerpoint == other._triggerpoint:
+                return True
+        return False
     def get_element(self):
         """ returns the elementTree of the Trigger
 
@@ -87,6 +92,13 @@ class Trigger(_TriggerType):
         else:
             self._triggerpoint = 'StopTrigger'
         self.conditiongroups = []
+
+    def __eq__(self,other):
+        if isinstance(other,Trigger):
+            if set(self.conditiongroups) == set(other.conditiongroups) and \
+            self._triggerpoint == other._triggerpoint:
+                return True
+        return False
 
     def add_conditiongroup(self,conditiongroup):
         """ Adds a conditiongroup to the trigger
@@ -150,6 +162,13 @@ class ConditionGroup(_TriggerType):
         else:
             self._triggerpoint = 'StopTrigger'
         self.conditions = []
+
+    def __eq__(self,other):
+        if isinstance(other,ConditionGroup):
+            if set(self.conditions) == set(other.conditions) and \
+            self._triggerpoint == other._triggerpoint:
+                return True
+        return False
 
     def add_condition(self,condition):
         """ Adds a condition (EntityTrigger or ValueTrigger) to the ConditionGroup
@@ -274,6 +293,15 @@ class EntityTrigger(_TriggerType):
         
         self._used_by_parent = False
 
+    def __eq__(self,other):
+        if isinstance(other,EntityTrigger):
+            if self.get_attributes() == other.get_attributes() and \
+            self.triggerentity == other.triggerentity and \
+            self.entitycondition == other.entitycondition and \
+            self._triggerpoint == other._triggerpoint:
+                return True
+        return False
+
     def _set_used_by_parent(self):
         """ _set_used_by_parent is used internaly if the condition is added to a ConditionGroup
 
@@ -395,6 +423,15 @@ class ValueTrigger(_TriggerType):
         self.valuecondition = valuecondition
         self._used_by_parent = False
 
+    def __eq__(self,other):
+        if isinstance(other,ValueTrigger):
+            if self.get_attributes() == other.get_attributes() and \
+            self.triggerentity == other.triggerentity and \
+            self.valuecondition == other.valuecondition and \
+            self._triggerpoint == other._triggerpoint:
+                return True
+        return False
+        
     def _set_used_by_parent(self):
         """ _set_used_by_parent is used internaly if the condition is added to a ConditionGroup
 
@@ -464,6 +501,13 @@ class TriggeringEntities():
         self.entity = [] 
         self.triggeringrule = triggeringrule
 
+    def __eq__(self,other):
+        if isinstance(other,TriggeringEntities):
+            if self.get_attributes() == other.get_attributes() and \
+            set(self.triggerentity) == set(other.entity) :
+                return True
+        return False
+
     def add_entity(self,entity):
         """ add_entity adds an entity to the TriggeringEntities
 
@@ -525,7 +569,13 @@ class EndOfRoadCondition(_EntityTriggerType):
 
         """
         self.duration = duration
-    
+
+    def __eq__(self,other):
+        if isinstance(other,EndOfRoadCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the EndOfRoadCondition as a dict
 
@@ -571,6 +621,12 @@ class CollisionCondition(_EntityTriggerType):
         
         self.entity = entity
 
+    def __eq__(self,other):
+        if isinstance(other,CollisionCondition):
+            if self.entity == other.entity():
+                return True
+        return False
+
     def get_element(self):
         """ returns the elementTree of the CollisionCondition
 
@@ -612,6 +668,12 @@ class OffroadCondition(_EntityTriggerType):
 
         """
         self.duration = duration
+
+    def __eq__(self,other):
+        if isinstance(other,OffroadCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the OffroadCondition as a dict
@@ -694,6 +756,12 @@ class TimeHeadwayCondition(_EntityTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
+
+    def __eq__(self,other):
+        if isinstance(other,TimeHeadwayCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the TimeHeadwayCondition as a dict
@@ -806,6 +874,14 @@ class TimeToCollisionCondition(_EntityTriggerType):
             self.position = position
             self.use_entity = False
 
+    def __eq__(self,other):
+        if isinstance(other,TimeToCollisionCondition):
+            if self.get_attributes() == other.get_attributes() and \
+            self.position == other.position and \
+            self.entity == other.entity:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the TimeToCollisionCondition as a dict
 
@@ -876,7 +952,13 @@ class AccelerationCondition(_EntityTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
-        
+
+    def __eq__(self,other):
+        if isinstance(other,AccelerationCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the AccelerationCondition as a dict
 
@@ -919,6 +1001,12 @@ class StandStillCondition(_EntityTriggerType):
             duration (float): time of standstill
         """
         self.duration = duration
+
+    def __eq__(self,other):
+        if isinstance(other,StandStillCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the StandStillCondition as a dict
@@ -971,7 +1059,13 @@ class SpeedCondition(_EntityTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
-        
+
+    def __eq__(self,other):
+        if isinstance(other,SpeedCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the SpeedCondition as a dict
 
@@ -1036,6 +1130,12 @@ class RelativeSpeedCondition(_EntityTriggerType):
         self.rule = rule
         self.entity = entity
 
+    def __eq__(self,other):
+        if isinstance(other,RelativeSpeedCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the RelativeSpeedCondition as a dict
 
@@ -1084,6 +1184,12 @@ class TraveledDistanceCondition(_EntityTriggerType):
         
         """
         self.value = value
+
+    def __eq__(self,other):
+        if isinstance(other,TraveledDistanceCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the TraveledDistanceCondition as a dict
@@ -1138,6 +1244,13 @@ class ReachPositionCondition(_EntityTriggerType):
         self.position = position
         self.tolerance = tolerance
 
+    def __eq__(self,other):
+        if isinstance(other,ReachPositionCondition):
+            if self.get_attributes() == other.get_attributes() and \
+            self.position == other.position:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the ReachPositionCondition as a dict
 
@@ -1175,7 +1288,7 @@ class DistanceCondition(_EntityTriggerType):
         ----------
             value (float): distance to position
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             position (*Position): any position to reach
 
@@ -1202,6 +1315,13 @@ class DistanceCondition(_EntityTriggerType):
         if not (isinstance(position,_PositionType)):
             raise TypeError('position input is not a valid Position')
         self.position = position
+
+    def __eq__(self,other):
+        if isinstance(other,DistanceCondition):
+            if self.get_attributes() == other.get_attributes() and \
+            self.position == other.position:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the DistanceCondition as a dict
@@ -1290,6 +1410,12 @@ class RelativeDistanceCondition(_EntityTriggerType):
         self.rule = rule
         self.entity = entity
 
+    def __eq__(self,other):
+        if isinstance(other,RelativeDistanceCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the RelativeDistanceCondition as a dict
 
@@ -1362,7 +1488,13 @@ class ParameterCondition(_ValueTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
-        
+
+    def __eq__(self,other):
+        if isinstance(other,ParameterCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the ParameterCondition as a dict
 
@@ -1414,6 +1546,12 @@ class TimeOfDayCondition(_ValueTriggerType):
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
         self.datetime = datetime
+
+    def __eq__(self,other):
+        if isinstance(other,TimeOfDayCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
     
     def get_attributes(self):
         """ returns the attributes of the TimeOfDayCondition as a dict
@@ -1468,7 +1606,13 @@ class SimulationTimeCondition(_ValueTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
-    
+
+    def __eq__(self,other):
+        if isinstance(other,SimulationTimeCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the SimulationTimeCondition as a dict
 
@@ -1529,7 +1673,13 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         self.element = element
         self.reference = reference
         self.state = state
-    
+
+    def __eq__(self,other):
+        if isinstance(other,StoryboardElementStateCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the StoryboardElementStateCondition as a dict
 
@@ -1586,7 +1736,13 @@ class UserDefinedValueCondition(_ValueTriggerType):
         if rule not in Rule:
             raise ValueError(rule + '; is not a valid rule.')
         self.rule = rule
-    
+
+    def __eq__(self,other):
+        if isinstance(other,UserDefinedValueCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the UserDefinedValueCondition as a dict
 
@@ -1637,6 +1793,12 @@ class TrafficSignalCondition(_ValueTriggerType):
         self.name = name
         self.state = state
     
+    def __eq__(self,other):
+        if isinstance(other,TrafficSignalCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalCondition as a dict
 
@@ -1686,7 +1848,13 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
         """
         self.trafficsignalref = trafficsignalref
         self.phase = phase
-    
+
+    def __eq__(self,other):
+        if isinstance(other,TrafficSignalControllerCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalControllerCondition as a dict
 

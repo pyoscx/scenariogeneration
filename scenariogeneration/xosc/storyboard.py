@@ -43,6 +43,14 @@ class Init():
         self.global_actions = []
         self.user_defined_actions = []
 
+    def __eq__(self,other):
+        if isinstance(other,Init):
+            if self.initactions == other.initactions and \
+            set(self.global_actions) == set(other.global_actions) and \
+            set(self.user_defined_actions) == set(other.user_defined_actions):
+                return True
+        return False
+
     def add_init_action(self,entityname,action):
         """ add_init_action adds an Private Action to the init.
 
@@ -163,6 +171,16 @@ class StoryBoard():
         self.init = init
         self.stoptrigger = stoptrigger
         self.stories = []
+
+    def __eq__(self,other):
+        if isinstance(other,StoryBoard):
+            if self.init == other.init and \
+            self.stoptrigger == other.stoptrigger and \
+            set(self.stories) == set(other.stories):
+                 
+
+                return True
+        return False
 
     def add_story(self,story):
         """ adds a story to the storyboard
@@ -325,6 +343,14 @@ class Story():
 
         self.parameter = parameters
 
+    def __eq__(self,other):
+        if isinstance(other,Story):
+            if self.get_attributes() == other.get_attributes() and \
+            self.parameters == other.parameters and \
+            set(self.acts) == set(other.acts):
+                return True
+        return False
+
     def add_act(self,act):
         """ adds an act to the story
 
@@ -421,6 +447,14 @@ class Act():
 
         self.maneuvergroup = []
 
+    def __eq__(self,other):
+        if isinstance(other,Act):
+            if self.starttrigger == other.starttrigger and \
+            self.stoptrigger == other.stoptrigger and \
+            set(self.maneuvergroup) == set(other.maneuvergroup):
+                return True
+        return False
+
     def add_maneuver_group(self,maneuvergroup):
         """ adds a maneuvuergroup to the act
 
@@ -507,7 +541,15 @@ class ManeuverGroup():
         self.maxexecution = maxexecution
         self.actors = _Actors(selecttriggeringentities)
         self.maneuvers = []
-     
+
+    def __eq__(self,other):
+        if isinstance(other,ManeuverGroup):
+            if self.get_attributes() == other.get_attributes() and \
+            self.actors == other.actors and \
+            set(self.maneuvers) == set(other.maneuvers):
+                return True
+        return False
+
     def add_maneuver(self,maneuver):
         """ adds a maneuver to the ManeuverGroup
             
@@ -586,7 +628,12 @@ class _Actors():
         self.actors = []
         self.select = selectTriggeringEntities
 
-    
+    def __eq__(self,other):
+        if isinstance(other,_Actors):
+            if self.get_attributes() == other.get_attributes() and \
+            set(self.actors) == set(other.actors):
+                return True
+        return False
 
     def add_actor(self,entity):
         """ adds an actor to the list of actors
@@ -667,6 +714,14 @@ class Maneuver():
         self.parameters = parameters
         self.name = name
         self.events = []
+
+    def __eq__(self,other):
+        if isinstance(other,Maneuver):
+            if self.get_attributes() == other.get_attributes() and \
+            self.parameters == other.parameters and \
+            set(self.events) == set(other.events):
+                return True
+        return False
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
@@ -780,6 +835,15 @@ class Event():
         self.action = []
         self.trigger = None
         self.maxexecution = maxexecution
+
+    def __eq__(self,other):
+        if isinstance(other,Event):
+            if self.get_attributes() == other.get_attributes() and \
+            self.parameters == other.parameters and \
+            self.trigger == other.trigger and \
+            set(self.action) == set(other.action):
+                return True
+        return False
 
     def add_trigger(self,trigger):
         """ adds a starging trigger to the event

@@ -76,6 +76,17 @@ class Scenario():
         self.parameters = parameters
         self.header = FileHeader(name,author)
 
+    def __eq__(self,other):
+        if isinstance(other,Event):
+            if self.entities == other.entities and \
+            self.storyboard == other.storyboard and \
+            self.roadnetwork == other.roadnetwork and \
+            self.catalog == other.catalog and \
+            self.header == other.header and \
+            self.parameters == other.parameters:
+                return True
+        return False
+
     def get_element(self):
         """ returns the elementTree of the Scenario
 
@@ -144,6 +155,14 @@ class RoadNetwork():
         self.road_file = roadfile
         self.scene = scenegraph
         self.traffic_signals = []
+
+    def __eq__(self,other):
+        if isinstance(other,Event):
+            if self.road_file == other.road_file and \
+            self.scene == other.storyboard and \
+            set(self.traffic_signals) == set(other.traffic_signals):
+                return True
+        return False
 
     def add_traffic_signal_controller(self,traffic_signal_controller):
         """ adds a TrafficSignalController to the RoadNetwork

@@ -69,6 +69,11 @@ class WorldPosition(_PositionType):
         self.p = p
         self.r = r
 
+    def __eq__(self,other):
+        if isinstance(other,WorldPosition):
+            if self.get_attributes() == other.get_attributes():
+               return True
+        return False
     def get_attributes(self):
         """ returns the attributes of the WorldPostion as a dict
 
@@ -157,6 +162,12 @@ class RelativeWorldPosition(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
+    
+    def __eq__(self,other):
+        if isinstance(other,RelativeWorldPosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the RelativeWorldPosition as a dict
@@ -249,6 +260,14 @@ class RelativeObjectPosition(_PositionType):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
 
+
+    def __eq__(self,other):
+        if isinstance(other,RelativeObjectPosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
+
+
     def get_attributes(self):
         """ returns the attributes of the RelativeObjectPosition as a dict
 
@@ -333,7 +352,13 @@ class RoadPosition(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
-    
+
+    def __eq__(self,other):
+        if isinstance(other,RoadPosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the RoadPosition as a dict
 
@@ -395,7 +420,7 @@ class RelativeRoadPosition(_PositionType):
 
     """
     def __init__(self,ds,dt,entity,orientation=Orientation()):
-        """ initalize the RoadPosition
+        """ initalize the RelativeRoadPosition
         
             Parameters
             ----------
@@ -416,6 +441,12 @@ class RelativeRoadPosition(_PositionType):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
+    def __eq__(self,other):
+        if isinstance(other,RelativeRoadPosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the RelativeRoadPosition as a dict
 
@@ -504,6 +535,12 @@ class LanePosition(_PositionType):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
+    def __eq__(self,other):
+        if isinstance(other,LanePosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the LanePosition as a dict
 
@@ -571,7 +608,7 @@ class RelativeLanePosition(_PositionType):
 
     """
     def __init__(self,s,offset,lane_id,entity,orientation=Orientation()):
-        """ initalizes the LanePosition
+        """ initalizes the RelativeLanePosition
         
         Parameters
         ----------
@@ -595,8 +632,14 @@ class RelativeLanePosition(_PositionType):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
     
+    def __eq__(self,other):
+        if isinstance(other,RelativeLanePosition):
+            if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
+                return True
+        return False
+
     def get_attributes(self):
-        """ returns the attributes of the LanePosition as a dict
+        """ returns the attributes of the RelativeLanePosition as a dict
 
         """
         retdict = {}
@@ -667,16 +710,23 @@ class RoutePositionOfCurrentEntity(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
-    
-    def get_element(self):
+
+    def __eq__(self,other):
+        if isinstance(other,RoutePositionOfCurrentEntity):
+            if self.entity == other.entity and self.orientation == other.orientation and self.route_ref == other.route_ref:
+                return True
+        return False
+ 
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RoutePositionOfCurrentEntity
 
         """
-        element = ET.Element('RoutePosition')
-        routeref = ET.SubElement(element,'RouteRef')
+        element = ET.Element(elementname)
+        relement = ET.SubElement(element,'RoutePosition')
+        routeref = ET.SubElement(relement,'RouteRef')
         routeref.append(self.route_ref.get_element())
-        element.append(self.orientation.get_element())
-        inroute = ET.SubElement(element,'InRoutePosition')
+        relement.append(self.orientation.get_element())
+        inroute = ET.SubElement(relement,'InRoutePosition')
         ET.SubElement(inroute,'PositionOfCurrentEntity',attrib={'entityRef':self.entity})
         return element
 
@@ -734,16 +784,23 @@ class RoutePositionInRoadCoordinates(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
-    
-    def get_element(self):
+
+    def __eq__(self,other):
+        if isinstance(other,RoutePositionInRoadCoordinates):
+            if self.s == other.s and self.t == other.t and self.orientation == other.orientation and self.route_ref == other.route_ref:
+                return True
+        return False
+
+    def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RoutePositionInRoadCoordinates
 
         """
-        element = ET.Element('RoutePosition')
-        routeref = ET.SubElement(element,'RouteRef')
+        element = ET.Element(elementname)
+        relement = ET.SubElement(element,'RoutePosition')
+        routeref = ET.SubElement(relement,'RouteRef')
         routeref.append(self.route_ref.get_element())
-        element.append(self.orientation.get_element())
-        inroute = ET.SubElement(element,'InRoutePosition')
+        relement.append(self.orientation.get_element())
+        inroute = ET.SubElement(relement,'InRoutePosition')
         ET.SubElement(inroute,'PositionInRoadCoordinates',attrib={'pathS':str(self.s),'t':str(self.t)})
         return element
 
@@ -785,7 +842,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
 
     """
     def __init__(self, route_ref, s, laneid, offset, orientation = Orientation()):
-        """ Initalize the RoutePositionInRoadCoordinates class
+        """ Initalize the RoutePositionInLaneCoordinates class
         
             Parameters
             ----------
@@ -810,15 +867,23 @@ class RoutePositionInLaneCoordinates(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orientation = orientation
-    
-    def get_element(self):
-        """ returns the elementTree of the RoutePositionInRoadCoordinates
+
+    def __eq__(self,other):
+        if isinstance(other,RoutePositionInLaneCoordinates):
+            if self.s == other.s and self.laneid == other.laneid and self.offset == other.offset and\
+            self.orientation == other.orientation and self.route_ref == other.route_ref:
+                return True
+        return False
+
+    def get_element(self,elementname = 'Position'):
+        """ returns the elementTree of the RoutePositionInLaneCoordinates
 
         """
-        element = ET.Element('RoutePosition')
-        routeref = ET.SubElement(element,'RouteRef')
+        element = ET.Element(elementname)
+        relement = ET.SubElement(element,'RoutePosition')
+        routeref = ET.SubElement(relement,'RouteRef')
         routeref.append(self.route_ref.get_element())
-        element.append(self.orientation.get_element())
-        inroute = ET.SubElement(element,'InRoutePosition')
+        relement.append(self.orientation.get_element())
+        inroute = ET.SubElement(relement,'InRoutePosition')
         ET.SubElement(inroute,'PositionInLaneCoordinates',attrib={'pathS':str(self.s),'laneId':self.laneid,'laneOffset':str(self.offset)})
         return element

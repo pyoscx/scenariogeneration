@@ -42,6 +42,11 @@ class Entities():
         self.scenario_objects = []
         self.entities = []
 
+    def __eq__(self,other):
+        if isinstance(other,Entities):
+            if set(self.scenario_objects) == set(other.scenario_objects) and set(self.entities) == set(self.entities):
+                return True
+        return False
 
     def add_scenario_object(self, name, entityobject, controller=None):
         """ adds a ScenarioObject to the scenario
@@ -148,6 +153,14 @@ class ScenarioObject():
         self.entityobject = entityobject
         self.controller = controller
 
+    def __eq__(self,other):
+        if isinstance(other,ScenarioObject):
+            if self.get_attributes() == other.get_attributes() and \
+            self.controller == other.controller and \
+            self.entity_type == other.entityobject:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the Entity as a dict
 
@@ -223,7 +236,15 @@ class Entity():
                 ValueError('object_type input not a valid ObjectType')
             self.object_type = object_type
             self.entity = None
-        
+
+    def __eq__(self,other):
+        if isinstance(other,Entity):
+            if self.get_attributes() == other.get_attributes() and \
+            self.object_type == other.object_type and \
+            self.entity == other.entity:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the Entity as a dict
 
@@ -327,7 +348,14 @@ class Pedestrian():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
-        
+    def __eq__(self,other):
+        if isinstance(other,Pedestrian):
+            if self.get_attributes() == other.get_attributes() and \
+            self.boundingbox == other.boundingbox and \
+            self.properties == other.properties and \
+            self.parameters == other.parameters:
+                return True
+        return False
     
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Pedestrian to it
@@ -488,7 +516,14 @@ class MiscObject():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
-       
+    def __eq__(self,other):
+        if isinstance(other,MiscObject):
+            if self.get_attributes() == other.get_attributes() and \
+            self.boundingbox == other.boundingbox and \
+            self.properties == other.properties and \
+            self.parameters == other.parameters:
+                return True
+        return False
     
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the MiscObject to it
@@ -674,7 +709,17 @@ class Vehicle():
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
 
-    
+    def __eq__(self,other):
+        if isinstance(other,Vehicle):
+            if self.get_attributes() == other.get_attributes() and \
+            self.boundingbox == other.boundingbox and \
+            self.properties == other.properties and \
+            self.axles == other.axles and \
+            self.dynamics == other.dynamics and \
+            self.parameters == other.parameters:
+                return True
+        return False
+
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the vehicle to it
             
@@ -833,6 +878,12 @@ class Axle():
         self.xpos = xpos
         self.zpos = zpos
 
+    def __eq__(self,other):
+        if isinstance(other,Axle):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the Axle as a dict
 
@@ -891,6 +942,15 @@ class Axles():
         self.rearaxle = rearaxle
         self.additionals = []
 
+    def __eq__(self,other):
+        if isinstance(other,Axles):
+            if self.frontaxle == other.frontaxle and \
+            self.rearaxle == other.rearaxle and \
+            set(self.additionals) == set(other.additionals):
+                return True
+        return False
+        
+    
     def add_axle(self,axle):
         """ adds an additional axle to the Axles
 

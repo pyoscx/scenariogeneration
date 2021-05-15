@@ -50,6 +50,12 @@ class ParameterDeclarations():
         """
         self.parameters = []
 
+    def __eq__(self,other):
+        if isinstance(other,ParameterDeclarations):
+            if set(self.parameters) == set(other.parameters):
+                return True
+        return False
+                
     def add_parameter(self,parameter):
         """ add_parameter adds a Parameter to the ParameterDeclarations
 
@@ -101,6 +107,12 @@ class EntityRef():
                 
         """
         self.entity = entity
+
+    def __eq__(self,other):
+        if isinstance(other,EntityRef):
+            if self.entity == other.entity:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the EntityRef as a dict
@@ -162,6 +174,12 @@ class Parameter():
             raise ValueError('parameter_type not a valid type.')
         self.parameter_type = parameter_type
         self.value = value
+
+    def __eq__(self,other):
+        if isinstance(other,Parameter):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the Parameter as a dict
@@ -231,6 +249,12 @@ class Orientation():
             raise TypeError('reference input is not of type ReferenceContext')
         self.ref = reference
 
+    def __eq__(self,other):
+        if isinstance(other,Orientation):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+        
     def is_filled(self):
         """ is_filled check is any orientations are  set
 
@@ -243,7 +267,7 @@ class Orientation():
             return False
     
     def get_attributes(self):
-        """ returns the attributes of the DynamicsConstrains as a dict
+        """ returns the attributes of the Orientation as a dict
 
         """
         retdict = {}
@@ -262,7 +286,7 @@ class Orientation():
         return retdict
     
     def get_element(self):
-        """ returns the elementTree of the DynamicsConstrains
+        """ returns the elementTree of the Orientation
 
         """
         return ET.Element('Orientation',attrib=self.get_attributes())
@@ -316,14 +340,20 @@ class TransitionDynamics():
         self.dimension = dimension
         self.value = value
 
+    def __eq__(self,other):
+        if isinstance(other,TransitionDynamics):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+        
     def get_attributes(self):
-        """ returns the attributes of the DynamicsConstrains as a dict
+        """ returns the attributes of the TransitionDynamics as a dict
 
         """
         return {'dynamicsShape':self.shape.name,'value':str(self.value),'dynamicsDimension':self.dimension.name}
 
     def get_element(self,name='TransitionDynamics'):
-        """ returns the elementTree of the DynamicsConstrains
+        """ returns the elementTree of the TransitionDynamics
 
         """
         return ET.Element(name,self.get_attributes())
@@ -369,6 +399,12 @@ class DynamicsConstrains():
         self.max_deceleration = max_deceleration
         self.max_speed = max_speed
 
+    def __eq__(self,other):
+        if isinstance(other,DynamicsConstrains):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+        
     def is_filled(self):
         """ is_filled check is any constraints are set
 
@@ -461,6 +497,14 @@ class Route():
         self.waypoints = []
         self.parameters = ParameterDeclarations()
 
+    def __eq__(self,other):
+        if isinstance(other,Route):
+            if self.get_attributes() == other.get_attributes() and \
+            self.parameters == other.parameters and \
+            set(self.waypoints) == set(other.waypoints):
+                return True
+        return False
+        
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
             
@@ -581,6 +625,11 @@ class Waypoint():
             ValueError('not a valid RouteStrategy')
         self.routestrategy = routestrategy
 
+    def __eq__(self,other):
+        if isinstance(other,Waypoint):
+            if self.get_attributes() == other.get_attributes() and self.position == other.position:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the Waypoint as a dict
@@ -655,6 +704,15 @@ class Trajectory():
         self.closed = closed
         self.parameters = ParameterDeclarations()
         self.shapes = []
+
+    def __eq__(self,other):
+        if isinstance(other,Trajectory):
+            if self.get_attributes() == other.get_attributes() and \
+            self.parameters == other.parameters and \
+            set(self.shapes) == set(other.shapes):
+                return True
+        return False
+
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
             
@@ -787,6 +845,12 @@ class TimeReference():
         self.reference_domain = reference_domain
         self.scale = scale
         self.offset = offset
+    
+    def __eq__(self,other):
+        if isinstance(other,TimeReference):
+            if self._only_nones == other._only_nones and self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the TimeReference as a dict
@@ -854,6 +918,12 @@ class Polyline():
                 raise TypeError('position input is not a valid position')
         self.positions = positions
         self.time = time
+
+    def __eq__(self,other):
+        if isinstance(other,TimeReference):
+            if set(self.time) == set(other.time) and set(self.positions) == set(other.positions):
+                return True
+        return False
 
     def get_element(self):
         """ returns the elementTree of the Polyline
@@ -937,7 +1007,13 @@ class Clothoid():
         self.stoptime = stoptime
         if (self.starttime == None and self.stoptime != None) or (self.starttime != None and self.stoptime == None):
             raise ValueError('Both start and stoptime has to be set, or none of them')
-    
+
+    def __eq__(self,other):
+        if isinstance(other,TimeReference):
+            if self.get_attributes() == other.get_attributes() and self.startposition == other.startposition:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes as a dict of the Clothoid
 
@@ -1011,7 +1087,13 @@ class ControlPoint():
         self.position = position
         self.time = time
         self.weight = weight
-    
+
+    def __eq__(self,other):
+        if isinstance(other,ControlPoint):
+            if self.get_attributes() == other.get_attributes() and self.position == other.position:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes as a dict of the ControlPoint
 
@@ -1076,6 +1158,14 @@ class Nurbs():
         self.controlpoints = []
         self.knots = []
     
+    def __eq__(self,other):
+        if isinstance(other,Nurbs):
+            if self.get_attributes() == other.get_attributes() and \
+            set(self.controlpoints) == set(other.controlpoints) and \
+            set(self.knots) == set(other.knots):
+                return True
+        return False
+
     def add_knots(self,knots):
         """ adds a list of knots to the Nurbs
 
@@ -1148,13 +1238,24 @@ class FileHeader():
     def __init__(self,name,author):
         self.name = name
         self.author = author
+        self._revMajor = 1
+        self._revMinor = 0
         
+    def __eq__(self,other):
+        if isinstance(other,FileHeader):
+            if self.name == other.name and \
+            self.author == other.author and \
+            self._revMajor == other._revMajor and \
+            self._revMinor == other._revMinor:
+            # will not compare date, since this will never be the same
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes as a dict of the FileHeader
 
         """
-        return {'description':self.name,'author':self.author,'revMajor':'1','revMinor':'0','date':dt.datetime.now().isoformat()}
+        return {'description':self.name,'author':self.author,'revMajor':str(self._revMajor),'revMinor':str(self._revMinor),'date':dt.datetime.now().isoformat()}
 
     def get_element(self):
         """ returns the elementTree of the FileHeader
@@ -1205,6 +1306,12 @@ class _TrafficSignalState():
         
         self.signal_id = signal_id
         self.state = state
+
+    def __eq__(self,other):
+        if isinstance(other,_TrafficSignalState):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the _TrafficSignalState
@@ -1267,6 +1374,11 @@ class Phase():
         self.duration = duration
         self.signalstates = []
 
+    def __eq__(self,other):
+        if isinstance(other,Phase):
+            if self.get_attributes() == other.get_attributes() and set(self.signalstates) == set(other.signalstates):
+                return True
+        return False
 
     def add_signal_state(self,signal_id,state):
         """ Adds a phase of the traffic signal
@@ -1353,6 +1465,11 @@ class TrafficSignalController():
         self.reference = reference
         self.phases = []
 
+    def __eq__(self,other):
+        if isinstance(other,TrafficSignalController):
+            if self.get_attributes() == other.get_attributes() and set(self.phases) == set(other.phases):
+                return True
+        return False
 
     def add_phase(self,phase):
         """ Adds a phase of the traffic signal
@@ -1442,7 +1559,15 @@ class TrafficDefinition():
         self.controllers = []
         
 
-
+    def __eq__(self,other):
+        if isinstance(other,TrafficDefinition):
+            if self.get_attributes() == other.get_attributes() and \
+            set(self.vehicleweights) == set(other.vehicleweights) and \
+            set(self.vehiclecategories) == set(other.vehiclecategories) and \
+            set(self.controllerweights) == set(other.controllerweights) and \
+            set(self.controllers) == set(other.controllers):
+                return True
+        return False
 
     def add_vehicle(self,vehiclecategory,weight):
         """ Adds a vehicle to the traffic distribution
@@ -1645,6 +1770,12 @@ class Catalog():
         """
         self.catalogs = {}
 
+    def __eq__(self,other):
+        if isinstance(other,Catalog):
+            if self.catalogs == other.catalogs:
+                return True
+        return False
+
     def add_catalog(self,catalogname,path):
         """ add new catalog to be used
 
@@ -1718,6 +1849,13 @@ class CatalogReference():
         self.entryname = entryname
         self.parameterassignments = []
 
+    def __eq__(self,other):
+        if isinstance(other,CatalogReference):
+            if self.get_attributes() == other.get_attributes() and \
+            set(self.parameterassignments) == set (other.parameterassignments):
+                return True
+        return False
+
     def add_parameter_assignment(self,parameterref,value):
         """ add_parameter_assignment adds a parameter and value to the catalog reference
 
@@ -1786,6 +1924,12 @@ class ParameterAssignment():
         """
         self.parameterref = parameterref
         self.value = value
+
+    def __eq__(self,other):
+        if isinstance(other,ParameterAssignment):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the ParameterAssignment as a dict
@@ -1874,6 +2018,12 @@ class TimeOfDay():
         self.hour = hour
         self.minute = minute
         self.second = second
+
+    def __eq__(self,other):
+        if isinstance(other,TimeOfDay):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the TimeOfDay as a dict
@@ -1980,6 +2130,19 @@ class Weather():
         self.visual_fog_range = visual_fog_range
         self.fog_bounding_box = fog_bounding_box
 
+    def __eq__(self,other):
+        if isinstance(other,Weather):
+            if self.get_attributes() == other.get_attributes() and \
+            self.sun_intensity == other.sun_intensity and \
+            self.sun_azimuth == other.sun_azimuth and \
+            self.sun_elevation == other.sun_elevation and \
+            self.precipitation == other.precipitation and \
+            self.precipitation_intensity == other.precipitation_intensity and \
+            self.visual_fog_range == other.visual_fog_range and \
+            self.fog_bounding_box == other.fog_bounding_box:                
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the Weather as a dict
 
@@ -2040,6 +2203,11 @@ class RoadCondition():
             raise TypeError('properties input is not of type Properties')
         self.properties = properties
 
+    def __eq__(self,other):
+        if isinstance(other,RoadCondition):
+            if self.get_attributes() == other.get_attributes() and self.properties == other.properties:
+                return True
+        return False
     def get_attributes(self):
         """ returns the attributes of the RoadCondition as a dict
 
@@ -2123,9 +2291,16 @@ class Environment():
         self.roadcondition = roadcondition
         self.parameters = parameters
 
-
+    def __eq__(self,other):
+        if isinstance(other,Environment):
+            if self.timeofday == other.timeofday and \
+            self.weather == other.weather and \
+            self.roadcondition == other.roadcondition and \
+            self.parameters == other.parameters:
+                return True
+        return False
     def dump_to_catalog(self,filename,catalogtype,description,author):
-        """ dump_to_catalog creates a new catalog and adds the vehicle to it
+        """ dump_to_catalog creates a new catalog and adds the environment to it
             
             Parameters
             ----------
@@ -2144,7 +2319,7 @@ class Environment():
         cf.dump()
         
     def append_to_catalog(self,filename):
-        """ adds the vehicle to an existing catalog
+        """ adds the environment to an existing catalog
 
             Parameters
             ----------
@@ -2166,8 +2341,6 @@ class Environment():
         if self.parameters:
             element.append(self.parameters.get_element())
         return element
-
-
 
 class Controller():
     """ the Controller class creates a controller of openScenario
@@ -2218,6 +2391,13 @@ class Controller():
         if not isinstance(properties,Properties):
             raise TypeError('properties input is not of type Properties')
         self.properties = properties
+
+    def __eq__(self,other):
+        if isinstance(other,Controller):
+            if self.properties == other.properties and \
+            self.parameters == other.parameters:
+                return True
+        return False
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
@@ -2331,6 +2511,13 @@ class BoundingBox():
         self.boundingbox = Dimensions(width,length,height)
         self.center = Center(x_center,y_center,z_center)
 
+    def __eq__(self,other):
+        if isinstance(other,BoundingBox):
+            if self.boundingbox == other.boundingbox and \
+            self.center == other.center:
+                return True
+        return False
+
     def get_element(self):
         """ returns the elementTree of the Dimensions
 
@@ -2384,6 +2571,13 @@ class Center():
         self.x = x
         self.y = y
         self.z = z
+
+    def __eq__(self,other):
+        if isinstance(other,Center):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes as a dict of the Center
 
@@ -2441,6 +2635,13 @@ class Dimensions():
         self.width = width
         self.length = length
         self.height = height
+
+    def __eq__(self,other):
+        if isinstance(other,Dimensions):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes as a dict of the Dimensions
 
@@ -2482,6 +2683,13 @@ class Properties():
         """
         self.files = []
         self.properties = []
+
+    def __eq__(self,other):
+        if isinstance(other,Properties):
+            if set(self.files) == set(other.files) and \
+            set(self.properties) == set(other.properties):
+                return True
+        return False
 
     def add_file(self,filename):
         """ adds a property file
