@@ -52,7 +52,7 @@ class ParameterDeclarations():
 
     def __eq__(self,other):
         if isinstance(other,ParameterDeclarations):
-            if set(self.parameters) == set(other.parameters):
+            if self.parameters == other.parameters:
                 return True
         return False
                 
@@ -501,7 +501,7 @@ class Route():
         if isinstance(other,Route):
             if self.get_attributes() == other.get_attributes() and \
             self.parameters == other.parameters and \
-            set(self.waypoints) == set(other.waypoints):
+            self.waypoints == other.waypoints:
                 return True
         return False
         
@@ -709,7 +709,7 @@ class Trajectory():
         if isinstance(other,Trajectory):
             if self.get_attributes() == other.get_attributes() and \
             self.parameters == other.parameters and \
-            set(self.shapes) == set(other.shapes):
+            self.shapes == other.shapes:
                 return True
         return False
 
@@ -848,7 +848,10 @@ class TimeReference():
     
     def __eq__(self,other):
         if isinstance(other,TimeReference):
-            if self._only_nones == other._only_nones and self.get_attributes() == other.get_attributes():
+            if not self._only_nones and not other._only_nones:
+                if self.get_attributes() == other.get_attributes():
+                    return True
+            elif (self._only_nones == other._only_nones):
                 return True
         return False
 
@@ -921,7 +924,7 @@ class Polyline():
 
     def __eq__(self,other):
         if isinstance(other,TimeReference):
-            if set(self.time) == set(other.time) and set(self.positions) == set(other.positions):
+            if self.time == other.time and self.positions == other.positions:
                 return True
         return False
 
@@ -1161,8 +1164,8 @@ class Nurbs():
     def __eq__(self,other):
         if isinstance(other,Nurbs):
             if self.get_attributes() == other.get_attributes() and \
-            set(self.controlpoints) == set(other.controlpoints) and \
-            set(self.knots) == set(other.knots):
+            self.controlpoints == other.controlpoints and \
+            self.knots == other.knots:
                 return True
         return False
 
@@ -1376,7 +1379,7 @@ class Phase():
 
     def __eq__(self,other):
         if isinstance(other,Phase):
-            if self.get_attributes() == other.get_attributes() and set(self.signalstates) == set(other.signalstates):
+            if self.get_attributes() == other.get_attributes() and self.signalstates == other.signalstates:
                 return True
         return False
 
@@ -1467,7 +1470,7 @@ class TrafficSignalController():
 
     def __eq__(self,other):
         if isinstance(other,TrafficSignalController):
-            if self.get_attributes() == other.get_attributes() and set(self.phases) == set(other.phases):
+            if self.get_attributes() == other.get_attributes() and self.phases == other.phases:
                 return True
         return False
 
@@ -1562,10 +1565,10 @@ class TrafficDefinition():
     def __eq__(self,other):
         if isinstance(other,TrafficDefinition):
             if self.get_attributes() == other.get_attributes() and \
-            set(self.vehicleweights) == set(other.vehicleweights) and \
-            set(self.vehiclecategories) == set(other.vehiclecategories) and \
-            set(self.controllerweights) == set(other.controllerweights) and \
-            set(self.controllers) == set(other.controllers):
+            self.vehicleweights == other.vehicleweights and \
+            self.vehiclecategories == other.vehiclecategories and \
+            self.controllerweights == other.controllerweights and \
+            self.controllers == other.controllers:
                 return True
         return False
 
@@ -1852,7 +1855,7 @@ class CatalogReference():
     def __eq__(self,other):
         if isinstance(other,CatalogReference):
             if self.get_attributes() == other.get_attributes() and \
-            set(self.parameterassignments) == set (other.parameterassignments):
+            self.parameterassignments == other.parameterassignments:
                 return True
         return False
 
@@ -2686,8 +2689,8 @@ class Properties():
 
     def __eq__(self,other):
         if isinstance(other,Properties):
-            if set(self.files) == set(other.files) and \
-            set(self.properties) == set(other.properties):
+            if self.files == other.files and \
+            self.properties == other.properties:
                 return True
         return False
 

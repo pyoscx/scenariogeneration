@@ -1075,7 +1075,7 @@ class AcquirePositionAction(_PrivateActionType):
 
     def __eq__(self,other):
         if isinstance(other,AcquirePositionAction):
-            if self.route == other.route:
+            if self.position == other.position:
                 return True
         return False
 
@@ -1388,8 +1388,8 @@ class OverrideControllerValueAction(_PrivateActionType):
             self.steeringwheel_active == other.steeringwheel_active and \
             self.steeringwheel_value == other.steeringwheel_value and \
             self.gear_active == other.gear_active and \
-            self.gear_value == othergear_value and \
-            self.parkingbrake_active == other.parkingbrake_value and \
+            self.gear_value == other.gear_value and \
+            self.parkingbrake_active == other.parkingbrake_active and \
             self.parkingbrake_value == other.parkingbrake_value:
                 return True
         return False
@@ -1551,7 +1551,7 @@ class VisibilityAction(_PrivateActionType):
         self.sensors = sensors
 
     def __eq__(self,other):
-        if isinstance(other,AssignControllerAction):
+        if isinstance(other,VisibilityAction):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -2084,7 +2084,7 @@ class AddEntityAction(_ActionType):
         self.position = position
 
     def __eq__(self,other):
-        if isinstance(other,TrafficSignalStateAction):
+        if isinstance(other,AddEntityAction):
             if self.get_attributes() == other.get_attributes() and self.position == other.position:
                 return True
         return False
@@ -2506,7 +2506,7 @@ class TrafficSwarmAction(_ActionType):
     def __eq__(self,other):
         if isinstance(other,TrafficSwarmAction):
             if self.get_attributes() == other.get_attributes() and \
-            self.posicentralobjecttion == other.centralobject and \
+            self.centralobject == other.centralobject and \
             self.trafficdefinition == other.trafficdefinition:
                 return True
         return False
