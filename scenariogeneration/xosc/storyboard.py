@@ -46,8 +46,8 @@ class Init():
     def __eq__(self,other):
         if isinstance(other,Init):
             if self.initactions == other.initactions and \
-            set(self.global_actions) == set(other.global_actions) and \
-            set(self.user_defined_actions) == set(other.user_defined_actions):
+            self.global_actions == other.global_actions and \
+            self.user_defined_actions == other.user_defined_actions:
                 return True
         return False
 
@@ -176,7 +176,7 @@ class StoryBoard():
         if isinstance(other,StoryBoard):
             if self.init == other.init and \
             self.stoptrigger == other.stoptrigger and \
-            set(self.stories) == set(other.stories):
+            self.stories == other.stories:
                  
 
                 return True
@@ -346,8 +346,8 @@ class Story():
     def __eq__(self,other):
         if isinstance(other,Story):
             if self.get_attributes() == other.get_attributes() and \
-            self.parameters == other.parameters and \
-            set(self.acts) == set(other.acts):
+            self.parameter == other.parameter and \
+            self.acts == other.acts:
                 return True
         return False
 
@@ -451,7 +451,7 @@ class Act():
         if isinstance(other,Act):
             if self.starttrigger == other.starttrigger and \
             self.stoptrigger == other.stoptrigger and \
-            set(self.maneuvergroup) == set(other.maneuvergroup):
+            self.maneuvergroup == other.maneuvergroup:
                 return True
         return False
 
@@ -546,7 +546,7 @@ class ManeuverGroup():
         if isinstance(other,ManeuverGroup):
             if self.get_attributes() == other.get_attributes() and \
             self.actors == other.actors and \
-            set(self.maneuvers) == set(other.maneuvers):
+            self.maneuvers == other.maneuvers:
                 return True
         return False
 
@@ -631,7 +631,7 @@ class _Actors():
     def __eq__(self,other):
         if isinstance(other,_Actors):
             if self.get_attributes() == other.get_attributes() and \
-            set(self.actors) == set(other.actors):
+            self.actors == other.actors:
                 return True
         return False
 
@@ -719,7 +719,7 @@ class Maneuver():
         if isinstance(other,Maneuver):
             if self.get_attributes() == other.get_attributes() and \
             self.parameters == other.parameters and \
-            set(self.events) == set(other.events):
+            self.events == other.events:
                 return True
         return False
 
@@ -839,9 +839,8 @@ class Event():
     def __eq__(self,other):
         if isinstance(other,Event):
             if self.get_attributes() == other.get_attributes() and \
-            self.parameters == other.parameters and \
             self.trigger == other.trigger and \
-            set(self.action) == set(other.action):
+            self.action == other.action:
                 return True
         return False
 

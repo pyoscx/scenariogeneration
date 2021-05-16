@@ -923,7 +923,7 @@ class Polyline():
         self.time = time
 
     def __eq__(self,other):
-        if isinstance(other,TimeReference):
+        if isinstance(other,Polyline):
             if self.time == other.time and self.positions == other.positions:
                 return True
         return False
@@ -1012,7 +1012,7 @@ class Clothoid():
             raise ValueError('Both start and stoptime has to be set, or none of them')
 
     def __eq__(self,other):
-        if isinstance(other,TimeReference):
+        if isinstance(other,Clothoid):
             if self.get_attributes() == other.get_attributes() and self.startposition == other.startposition:
                 return True
         return False
@@ -2398,7 +2398,8 @@ class Controller():
     def __eq__(self,other):
         if isinstance(other,Controller):
             if self.properties == other.properties and \
-            self.parameters == other.parameters:
+            self.parameters == other.parameters and \
+            self.name == other.name:
                 return True
         return False
 

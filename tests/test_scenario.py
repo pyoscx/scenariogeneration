@@ -11,7 +11,10 @@ def test_road():
     roadfile = 'Databases/SampleDatabase.xodr'
     road = OSC.RoadNetwork(roadfile)
     prettyprint(road.get_element())
-
+    road2 = OSC.RoadNetwork(roadfile)
+    road3 = OSC.RoadNetwork(roadfile,'a')
+    assert road == road2
+    assert road != road3
 
 def test_catalog():
 
@@ -20,6 +23,16 @@ def test_catalog():
     catalog.add_catalog('ControllerCatalog','Catalogs/ControllerCatalogs')
     prettyprint(catalog.get_element())
 
+    catalog2 = OSC.Catalog()
+    catalog2.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
+    catalog2.add_catalog('ControllerCatalog','Catalogs/ControllerCatalogs')
+
+    catalog3 = OSC.Catalog()
+    catalog3.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
+    
+
+    assert catalog == catalog2
+    assert catalog != catalog3
 
 def test_scenario():
     catalog = OSC.Catalog()
@@ -80,3 +93,8 @@ def test_scenario():
 
     sce = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     prettyprint(sce.get_element())
+    sce2 = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+    sce3 = OSC.Scenario('2myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+
+    assert sce == sce2
+    assert sce != sce3

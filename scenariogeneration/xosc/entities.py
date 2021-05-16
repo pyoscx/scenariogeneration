@@ -44,7 +44,7 @@ class Entities():
 
     def __eq__(self,other):
         if isinstance(other,Entities):
-            if set(self.scenario_objects) == set(other.scenario_objects) and set(self.entities) == set(self.entities):
+            if self.scenario_objects == other.scenario_objects and self.entities == other.entities:
                 return True
         return False
 
@@ -157,7 +157,7 @@ class ScenarioObject():
         if isinstance(other,ScenarioObject):
             if self.get_attributes() == other.get_attributes() and \
             self.controller == other.controller and \
-            self.entity_type == other.entityobject:
+            self.entityobject == other.entityobject:
                 return True
         return False
 
@@ -946,7 +946,7 @@ class Axles():
         if isinstance(other,Axles):
             if self.frontaxle == other.frontaxle and \
             self.rearaxle == other.rearaxle and \
-            set(self.additionals) == set(other.additionals):
+            self.additionals == other.additionals:
                 return True
         return False
         

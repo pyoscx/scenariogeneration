@@ -95,7 +95,7 @@ class Trigger(_TriggerType):
 
     def __eq__(self,other):
         if isinstance(other,Trigger):
-            if set(self.conditiongroups) == set(other.conditiongroups) and \
+            if self.conditiongroups == other.conditiongroups and \
             self._triggerpoint == other._triggerpoint:
                 return True
         return False
@@ -165,7 +165,7 @@ class ConditionGroup(_TriggerType):
 
     def __eq__(self,other):
         if isinstance(other,ConditionGroup):
-            if set(self.conditions) == set(other.conditions) and \
+            if self.conditions == other.conditions and \
             self._triggerpoint == other._triggerpoint:
                 return True
         return False
@@ -426,7 +426,6 @@ class ValueTrigger(_TriggerType):
     def __eq__(self,other):
         if isinstance(other,ValueTrigger):
             if self.get_attributes() == other.get_attributes() and \
-            self.triggerentity == other.triggerentity and \
             self.valuecondition == other.valuecondition and \
             self._triggerpoint == other._triggerpoint:
                 return True
@@ -504,7 +503,7 @@ class TriggeringEntities():
     def __eq__(self,other):
         if isinstance(other,TriggeringEntities):
             if self.get_attributes() == other.get_attributes() and \
-            set(self.triggerentity) == set(other.entity) :
+            self.entity == other.entity:
                 return True
         return False
 
@@ -623,7 +622,7 @@ class CollisionCondition(_EntityTriggerType):
 
     def __eq__(self,other):
         if isinstance(other,CollisionCondition):
-            if self.entity == other.entity():
+            if self.entity == other.entity:
                 return True
         return False
 
@@ -876,10 +875,10 @@ class TimeToCollisionCondition(_EntityTriggerType):
 
     def __eq__(self,other):
         if isinstance(other,TimeToCollisionCondition):
-            if self.get_attributes() == other.get_attributes() and \
-            self.position == other.position and \
-            self.entity == other.entity:
-                return True
+            if self.get_attributes() == other.get_attributes():
+                if (self.use_entity and other.use_entity and self.entity and other.entity) or \
+                (not self.use_entity and not other.use_entity and self.position and other.position):
+                    return True
         return False
 
     def get_attributes(self):

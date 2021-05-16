@@ -77,7 +77,7 @@ class Scenario():
         self.header = FileHeader(name,author)
 
     def __eq__(self,other):
-        if isinstance(other,Event):
+        if isinstance(other,Scenario):
             if self.entities == other.entities and \
             self.storyboard == other.storyboard and \
             self.roadnetwork == other.roadnetwork and \
@@ -157,9 +157,9 @@ class RoadNetwork():
         self.traffic_signals = []
 
     def __eq__(self,other):
-        if isinstance(other,Event):
+        if isinstance(other,RoadNetwork):
             if self.road_file == other.road_file and \
-            self.scene == other.storyboard and \
+            self.scene == other.scene and \
             set(self.traffic_signals) == set(other.traffic_signals):
                 return True
         return False

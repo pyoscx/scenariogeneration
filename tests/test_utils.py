@@ -8,17 +8,24 @@ from scenariogeneration import prettyprint
 def test_transition_dynamics(teststring):
     td = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,1)
     assert len(td.get_attributes()) == 3
-    
+
     prettyprint(td.get_element())
 
-# def test_transition_dynamics_faults():
-#     with pytest.raises(ValueError):
-#         OSC.TransitionDynamics('step','hej',1)
+    td2 = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,1)
+    td3 = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,2)
+    
+    assert td == td2
+    assert td != td3
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],0),([1,None,None],1),([1,None,2],2),([1,2,4],3) ] )
 def test_dynamics_constraints(testinp,results):
     dyncon = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
     assert len(dyncon.get_attributes()) == results
+    prettyprint(dyncon)
+    dyncon2 = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
+    dyncon3 = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=50)
+    assert dyncon == dyncon2
+    assert dyncon != dyncon3
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],False),([1,None,None],True),([1,None,2],True),([1,2,4],True) ] )
 def test_dynamics_constraints_filled(testinp,results):
@@ -29,9 +36,13 @@ def test_dynamics_constraints_filled(testinp,results):
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None,None],0),([1,None,None,None],1),([1,None,None,OSC.ReferenceContext.relative],2),([1,2,4,None],3),([1,2,4,OSC.ReferenceContext.absolute],4) ] )
 def test_orientation(testinp,results):
-    dyncon = OSC.Orientation(h=testinp[0],p=testinp[1],r=testinp[2],reference=testinp[3])
-    print(dyncon.get_attributes())
-    assert len(dyncon.get_attributes()) == results
+    orientation = OSC.Orientation(h=testinp[0],p=testinp[1],r=testinp[2],reference=testinp[3])
+    prettyprint(orientation)
+    assert len(orientation.get_attributes()) == results
+    orientation2 = OSC.Orientation(h=testinp[0],p=testinp[1],r=testinp[2],reference=testinp[3])
+    orientation3 = OSC.Orientation(h=10,p=testinp[1],r=testinp[2],reference=testinp[3])
+    assert orientation == orientation2
+    assert orientation != orientation3
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None,None],False),([1,None,None,None],True),([1,None,None,OSC.ReferenceContext.relative],True),([1,2,4,None],True),([1,2,4,OSC.ReferenceContext.absolute],True) ] )
 def test_orientation_filled(testinp,results):
@@ -46,6 +57,10 @@ def test_orientation_filled(testinp,results):
 def test_parameter():
     param = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
     prettyprint(param.get_element())
+    param2 = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
+    param3 = OSC.Parameter('stuffs',OSC.ParameterType.integer,'2')
+    assert param == param2
+    assert param != param3
 
 def test_catalogreference():
     catref = OSC.CatalogReference('VehicleCatalog','S60')
@@ -53,19 +68,41 @@ def test_catalogreference():
     catref.add_parameter_assignment('stuffs',1)
     prettyprint(catref.get_element())
     
+    catref2 = OSC.CatalogReference('VehicleCatalog','S60')
+    catref2.add_parameter_assignment('stuffs',1)
+    
+    catref3 = OSC.CatalogReference('VehicleCatalog','S60')
+    catref3.add_parameter_assignment('stuffs',2)
+
+    assert catref == catref2
+    assert catref != catref3
 
 def test_waypoint():
     wp = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
     prettyprint(wp.get_element())
+    wp2 = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
+    wp3 = OSC.Waypoint(OSC.WorldPosition(1),OSC.RouteStrategy.shortest)
+    assert wp == wp2
+    assert wp != wp3
+
 
 def test_route():
     route = OSC.Route('myroute')
-
     route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
 
     prettyprint(route.get_element())
 
+    route2 = OSC.Route('myroute')
+    route2.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
+    route2.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+
+    route3 = OSC.Route('myroute')
+    route3.add_waypoint(OSC.WorldPosition(0,1,0,0,0,0),OSC.RouteStrategy.shortest)
+    route3.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+
+    assert route == route2
+    assert route != route3
 
 def test_paramdeclaration():
     
@@ -77,6 +114,26 @@ def test_paramdeclaration():
 def test_parameterassignment():
     parass = OSC.ParameterAssignment('param1',1)
     prettyprint(parass.get_element())
+    parass2 = OSC.ParameterAssignment('param1',1)
+    parass3 = OSC.ParameterAssignment('param1',2)
+    assert parass == parass2
+    assert parass != parass3
+
+def test_properties():
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+    prettyprint(prop)
+    prop2 = OSC.Properties()
+    prop2.add_property('mything','2')
+    prop2.add_property('theotherthing','true')
+    
+    prop3 = OSC.Properties()
+    prop3.add_property('mything','2')
+    prop3.add_property('theotherthin','true')
+    assert prop == prop2
+    assert prop != prop3
+    
 
 def test_controller():
     prop = OSC.Properties()
@@ -85,11 +142,18 @@ def test_controller():
 
     cnt = OSC.Controller('mycontroler',prop)
     prettyprint(cnt.get_element())
+    cnt2 = OSC.Controller('mycontroler',prop)
+    cnt3 = OSC.Controller('mycontroler3',prop)
+    assert cnt == cnt2
+    assert cnt != cnt3
 
 def test_fileheader():
     fh = OSC.FileHeader('my_scenario','Mandolin')
     prettyprint(fh.get_element())
-
+    fh2 = OSC.FileHeader('my_scenario','Mandolin')
+    fh3 = OSC.FileHeader('my_scenario','Mandolin2')
+    assert fh == fh2
+    assert fh != fh3
 def test_polyline():
     positionlist = []
     positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
@@ -99,27 +163,46 @@ def test_polyline():
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
     prettyprint(polyline.get_element())
+    polyline2 = OSC.Polyline([0,0.5,1,1.5],positionlist)
+    polyline3 = OSC.Polyline([0,0.5,1,1.3],positionlist)
+    assert polyline == polyline2
+    assert polyline != polyline3
 
 
 def test_clothoid():
     clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
     prettyprint(clot.get_element())
-    clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition())
-    prettyprint(clot.get_element())
-    
+    clot2 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
+    clot3 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition())
+    prettyprint(clot3.get_element())
+    assert clot == clot2
+    assert clot != clot3
+
 def test_trajectory():
     positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+    # positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
+    # positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+
+    positionlist.append(OSC.WorldPosition())
+    positionlist.append(OSC.WorldPosition(1))
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0,0.5],positionlist)
     traj = OSC.Trajectory('my_trajectory',False)
     traj.add_shape(polyline)
     prettyprint(traj.get_element())
+    traj2 = OSC.Trajectory('my_trajectory',False)
+    traj2.add_shape(polyline)
+    traj3 = OSC.Trajectory('my_trajectory2',False)
+    assert traj == traj2
+    assert traj != traj3
 
 def test_timeref():
     timeref = OSC.TimeReference(OSC.ReferenceContext.absolute,1,2)
     prettyprint(timeref.get_element())
+    timeref2 = OSC.TimeReference(OSC.ReferenceContext.absolute,1,2)
+    timeref3 = OSC.TimeReference(OSC.ReferenceContext.absolute,1,3)
+    assert timeref == timeref2
+    assert timeref != timeref3
 
 def test_phase():
     p1 = OSC.Phase('myphase',1)
@@ -127,6 +210,15 @@ def test_phase():
     p1.add_signal_state('myid','red')
     p1.add_signal_state('myid','green')
     prettyprint(p1.get_element())
+    p2 = OSC.Phase('myphase',1)
+    p2.add_signal_state('myid','red')
+    p2.add_signal_state('myid','green')
+    
+    p3 = OSC.Phase('myphase',1)
+    p3.add_signal_state('myid','red')
+    
+    assert p1 == p2
+    assert p1 != p3
 
 def test_TrafficSignalController():
     p1 = OSC.Phase('myphase',1)
@@ -143,7 +235,15 @@ def test_TrafficSignalController():
     tsc.add_phase(p1)
     tsc.add_phase(p2)
     prettyprint(tsc.get_element())
+    tsc2 = OSC.TrafficSignalController('my trafficlights')
+    tsc2.add_phase(p1)
+    tsc2.add_phase(p2)
 
+    tsc3 = OSC.TrafficSignalController('my trafficlights3')
+    tsc3.add_phase(p1)
+    tsc3.add_phase(p2)
+    assert tsc == tsc2
+    assert tsc != tsc3
 
 def test_trafficdefinition():
     prop = OSC.Properties()
@@ -160,17 +260,42 @@ def test_trafficdefinition():
 
     prettyprint(traffic.get_element())
 
+    traffic2 = OSC.TrafficDefinition('my traffic')
+    traffic2.add_controller(controller,0.5)
+    traffic2.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+    traffic2.add_vehicle(OSC.VehicleCategory.car,0.9)
+    traffic2.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+
+    traffic3 = OSC.TrafficDefinition('my traffic')
+    traffic3.add_controller(controller,0.5)
+    traffic3.add_vehicle(OSC.VehicleCategory.car,0.9)
+    assert traffic == traffic2
+    assert traffic != traffic3
+
+
 def test_weather():
     weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
     prettyprint(weather.get_element())
+    weather2 = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    weather3 = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,2)
+    assert weather == weather2
+    assert weather != weather3
 
 def test_tod():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
     prettyprint(tod.get_element())
+    tod2 = OSC.TimeOfDay(True,2020,10,1,18,30,30)
+    tod3 = OSC.TimeOfDay(True,2020,10,1,18,30,31)
+    assert tod == tod2
+    assert tod != tod3
 
 def test_roadcondition():
     rc = OSC.RoadCondition(1)
     prettyprint(rc.get_element())
+    rc2 = OSC.RoadCondition(1)
+    rc3 = OSC.RoadCondition(2)
+    assert rc == rc2
+    assert rc != rc3
 
 def test_environment():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
@@ -179,6 +304,18 @@ def test_environment():
 
     env = OSC.Environment(tod,weather,rc)
     prettyprint(env.get_element())
+    env2 = OSC.Environment(tod,weather,rc)
+    env3 = OSC.Environment(tod,weather,OSC.RoadCondition(3))
+    assert env == env2
+    assert env != env3
+
+def test_controlpoint():
+    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    prettyprint(cp1)
+    cp2 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    cp3 = OSC.ControlPoint(OSC.WorldPosition(),1,0.2)
+    assert cp1 == cp2
+    assert cp1 != cp3
 
 def test_nurbs():
     cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
@@ -193,3 +330,15 @@ def test_nurbs():
     nurb.add_knots([5,4,3,2,1])
 
     prettyprint(nurb.get_element())
+
+    nurb2 = OSC.Nurbs(2)
+    nurb2.add_control_point(cp1)
+    nurb2.add_control_point(cp2)
+    nurb2.add_control_point(cp3)
+    nurb2.add_knots([5,4,3,2,1])
+
+    nurb3 = OSC.Nurbs(2)
+    nurb3.add_control_point(cp1)
+    nurb3.add_control_point(cp2)
+    nurb3.add_control_point(cp3)
+    nurb3.add_knots([5,4,3,2,0.5])
