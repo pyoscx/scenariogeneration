@@ -459,7 +459,7 @@ def are_roads_consecutive(road1, road2):
     return False
 
 def create_lane_links(road1,road2):
-    """ create_lane_links takes to roads and if they are connected, match their lanes 
+    """ create_lane_links takes two roads and if they are connected, match their lanes 
         and creates lane links. 
         NOTE: now only works for roads/connecting roads with the same amount of lanes
 
@@ -526,7 +526,7 @@ def _create_links_connecting_road(connecting,road):
 
 
 def _get_related_lanesection(road,connected_road):
-    """ _get_related_lanesection takes to roads, and gives the correct lane section to use
+    """ _get_related_lanesection takes two roads, and gives the correct lane section to use
         the type of link and if the sign of lanes should be switched
 
         Parameters
