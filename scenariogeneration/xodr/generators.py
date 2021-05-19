@@ -179,7 +179,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
         lanes.add_lanesection(ls,lanelinker)
     return lanes
 
-def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_road_mark = STD_ROADMARK_SOLID, lane_width=3):
+def create_road(geometry, id, left_lanes=1, right_lanes=1, road_type=-1, center_road_mark=STD_ROADMARK_SOLID, lane_width=3):
     """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken, 
         except the outer lane, that will be solid. 
 
@@ -221,7 +221,7 @@ def create_road(geometry,id,left_lanes = 1, right_lanes = 1,road_type=-1,center_
     
     return road
 
-def create_straight_road(road_id, length=100,junction = -1, n_lanes=1, lane_offset=3):
+def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
     """ creates a standard straight road with two lanes
 
         Parameters
@@ -233,6 +233,13 @@ def create_straight_road(road_id, length=100,junction = -1, n_lanes=1, lane_offs
 
             junction (int): if the road belongs to a junction or not
                 default: -1
+
+            n_lanes (int): number of lanes
+                default: 1
+
+            lane_offset (int): width of the road
+                default: 3
+
         Returns
         -------
             road (Road): a straight road
@@ -258,7 +265,7 @@ def create_straight_road(road_id, length=100,junction = -1, n_lanes=1, lane_offs
     return Road(road_id,planview1,lanes1,road_type=junction)
 
 
-def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,cloth_start = STD_START_CLOTH, n_lanes=1, lane_offset=3):
+def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, cloth_start=STD_START_CLOTH, n_lanes=1, lane_offset=3):
     """ creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
 
         Parameters
@@ -275,6 +282,12 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction = 1,
                 default: 1
 
             cloth_start (float): staring curvature of clothoids
+
+            n_lanes (int): number of lanes
+                default: 1
+
+            lane_offset (int): width of the road
+                default: 3
 
         Returns
         -------
