@@ -20,7 +20,9 @@ class ScenarioGenerator():
 
             parameters (dict of lists, or list of dicts): parameter sets to be used
 
-            naming (str): two options
+            naming (str): two options "numerical" or "parameter"
+
+            generate_all_roads (bool): will only generate unique roads 
     """
     def __init__(self):
         self.road_file = ''
@@ -28,7 +30,9 @@ class ScenarioGenerator():
         self.naming = 'numerical' # can be 'numerical', 'parameter'
         self._it = 0
         self._generation_folder = ''
-        self._write_relative_road_path = False
+        self.write_relative_road_path = False
+        self.generate_all_roads = True
+        self._created_roads = {}
     def road(self,**kwargs):
         """ Dummy method for generating an OpenDRIVE road
 
@@ -122,11 +126,22 @@ class ScenarioGenerator():
 
         road = self.road(**permutation)
         if road:
-            self.road_file = os.path.abspath(os.path.join(self._generation_folder,'xodr',scenario_name+'.xodr'))
-            road.write_xml(self.road_file)
-            if self.write_relative_road_path:
-                self.road_file = self.road_file.replace(os.path.abspath(self._generation_folder),os.path.pardir)
+            if not self.generate_all_roads:
+                new_unique_road = True
+                for previous_road in self._created_roads:
 
+                    if self._created_roads[previous_road] == road:
+                        self.road_file = previous_road
+                        new_unique_road = False
+            
+                
+            if new_unique_road:
+                self.road_file = os.path.abspath(os.path.join(self._generation_folder,'xodr',scenario_name+'.xodr'))
+                road.write_xml(self.road_file)
+                if self.write_relative_road_path:
+                    self.road_file = self.road_file.replace(os.path.abspath(self._generation_folder),os.path.pardir)
+
+                self._created_roads[self.road_file] = road
 
         sce = self.scenario(**permutation)
         if sce:

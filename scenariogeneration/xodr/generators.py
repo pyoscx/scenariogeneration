@@ -612,7 +612,6 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
             road (Lanes): the lanes of a road
     """
     
-    print(center_road_mark)
     lanesections = []
     # expand the lane list
     right_lane, left_lane = _create_lane_lists(right_lane_def,left_lane_def,road_length)

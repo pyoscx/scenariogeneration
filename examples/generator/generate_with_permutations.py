@@ -1,8 +1,9 @@
 """ example of creating OpenSCENARIO and OpenDRIVE files with parameter sweep type of input
 
     Example usage: When a parameter sweep is wanted with minimal input
+    Using the generate_all_roads feature which will only generate unique roads
 
-    Will generate 12 different scenarios and roads.
+    Will generate 12 different scenarios and 4 different roads.
 """
 
 from scenariogeneration import xodr
@@ -16,6 +17,9 @@ class Scenario(ScenarioGenerator):
         self.parameters['road_curvature'] = [0.001, 0.002, 0.003, 0.004]
         self.parameters['speed'] = [10, 20, 30]
         self.naming = 'numerical'
+        
+        # set so no duplicate roads are created
+        self.generate_all_roads = False
 
 
     def road(self,**kwargs):
@@ -55,6 +59,6 @@ class Scenario(ScenarioGenerator):
 
 if __name__ == "__main__":
     s = Scenario()
-    s.print_permutations()
+    # s.print_permutations()
     files = s.generate('my_scenarios')
-    print(files)
+    # print(files)
