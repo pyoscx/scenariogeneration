@@ -34,9 +34,15 @@ class Lanes():
         self.lanesections = []
         self.laneoffsets = []
 
+    def __eq__(self, other):
+        if isinstance(other,Lanes):
+            if self.laneoffsets == other.laneoffsets and \
+            self.lanesections == other.lanesections:
+                return True
+        return False
+
     def add_lanesection(self,lanesection, lanelinks=None):
-        """ creates the Lanes element of opendrive
-    
+        """ creates the Lanes element of opendrive    
 
         Parameters
         ----------
@@ -133,6 +139,14 @@ class LaneSection():
         self._left_id = 1
         self._right_id = -1
 
+    def __eq__(self, other):
+        if isinstance(other,LaneSection):
+            if self.get_attributes() == other.get_attributes() and \
+            self.centerlane == other.centerlane and \
+            self.leftlanes == other.leftlanes and \
+            self.rightlanes == other.rightlanes:
+                return True
+        return False
 
     def add_left_lane(self,lane):
         """ adds a lane to the left of the center, add from center outwards
@@ -243,6 +257,12 @@ class LaneOffset():
         self.b = b
         self.c = c
         self.d = d
+
+    def __eq__(self, other):
+        if isinstance(other,LaneOffset):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffset
@@ -360,6 +380,19 @@ class Lane():
         self.roadmark = None
         self.links = _Links()
 
+    def __eq__(self, other):
+        if isinstance(other,Lane):
+            if self.links == other.links and \
+            self.get_attributes() == other.get_attributes() and \
+            self.a == other.a and \
+            self.b == other.b and \
+            self.c == other.c and \
+            self.d == other.d and \
+            self.soffset == other.soffset and \
+            self.heights == other.heights and \
+            self.roadmark == other.roadmark:
+                return True
+        return False
         
         #TODO: add more features to add for lane
     def add_link(self,link_type,id):
@@ -449,9 +482,10 @@ class Lane():
             element.append(self.links.get_element())
             ET.SubElement(element,'width',attrib=polynomialdict)        
         #use polynomial dict for laneOffset in case of center lane (only if values provided)
-        elif any([self.a,self.b,self.c,self.d]):
-            polynomialdict['s'] = polynomialdict.pop('sOffset')            
-            ET.SubElement(element,'laneOffset',attrib=polynomialdict)                         
+        # removed, should not be here..
+        # elif any([self.a,self.b,self.c,self.d]):
+        #     polynomialdict['s'] = polynomialdict.pop('sOffset')            
+        #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)                         
             
         if self.roadmark:
             element.append(self.roadmark.get_element())
@@ -539,7 +573,11 @@ class RoadLine():
         self.color = color
 
 
-
+    def __eq__(self, other):
+        if isinstance(other,RoadLine):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
         
 
     def get_attributes(self):
@@ -684,8 +722,16 @@ class RoadMark():
             self.rule = rule or MarkRule.none
             self._line = RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color)          
 
+    def __eq__(self, other):
+        if isinstance(other,RoadMark):
+            if self._line == other._line and \
+            self.get_attributes() == other.get_attributes() and \
+            self.marking_type == other.marking_type:
+                return True
+        return False
+
     def get_attributes(self):
-        """ returns the attributes of the Lane as a dict
+        """ returns the attributes of the RoadMark as a dict
 
         """
         retdict = {}
@@ -701,7 +747,7 @@ class RoadMark():
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the WorldPostion
+        """ returns the elementTree of the RoadMark
 
         """
         element = ET.Element('roadMark',attrib=self.get_attributes())

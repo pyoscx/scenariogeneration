@@ -70,6 +70,13 @@ class _Geometry():
         self.geom_type = geom_type
         _,_,_,self.length = self.geom_type.get_end_data(self.x,self.y,self.heading)
 
+    def __eq__(self, other):
+        if isinstance(other,_Geometry):
+            if self.get_attributes() == other.get_attributes() and \
+               self.geom_type == other.geom_type:         
+                return True
+        return False
+
     def get_end_data(self):
         return self.geom_type.get_end_data(self.x,self.y,self.heading)
         
@@ -181,6 +188,17 @@ class PlanView():
         # variable to track what mode of adding geometries are used
 
         self._addition_mode = None
+
+    def __eq__(self, other):
+        if isinstance(other,PlanView):
+            if self.adjusted and other.adjusted:
+                if self._adjusted_geometries == other._adjusted_geometries:         
+                    return True
+            elif not self.adjusted and not other.adjusted:
+                    Warning('Comparing non adjusted geometries, default value will always be False')
+                    return False
+                    
+        return False
 
     def add_geometry(self,geom,heading = None):
         """ add_geometry adds a geometry to the planview and will stich together all geometries (in order the order added)
@@ -394,6 +412,9 @@ class Line():
     def __init__(self,length):
         self.length = length
 
+    def __eq__(self, other):
+        return True
+    
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
         
@@ -501,6 +522,12 @@ class Spiral():
             curvstart (float): starting curvature of the Spiral
  
             curvend (float): final curvature of the Spiral
+
+            length (float): length of the spiral (optional, or use, angle, or cdot)
+
+            angle (float): the angle of the spiral (optional, or use length, or cdot)
+
+            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
         """ 
         self.curvstart = curvstart
         self.curvend = curvend
@@ -515,7 +542,13 @@ class Spiral():
             self.length =  (self.curvend - self.curvstart) / cdot
         else:
             self.length = length
- 
+
+    def __eq__(self, other):
+        if isinstance(other,Spiral):
+            if self.get_attributes() == other.get_attributes():         
+                return True
+        return False
+
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
         
@@ -638,6 +671,12 @@ class Arc():
         if curvature == 0:
             raise ValueError('You are creating a straight line, please use Line instead')
         self.curvature = curvature
+
+    def __eq__(self, other):
+        if isinstance(other,Arc):
+            if self.get_attributes() == other.get_attributes():         
+                return True
+        return False
 
     def get_end_data(self,x,y,h):
         """ Returns information about the end point of the geometry
@@ -858,6 +897,12 @@ class ParamPoly3():
             raise ValueError('No length was provided for Arc with arcLength option')
         self.length = length
 
+    def __eq__(self, other):
+        if isinstance(other,ParamPoly3):
+            if self.get_attributes() == other.get_attributes():               
+                return True
+        return False
+        
     def _integrand(self,p):
         """ integral function to calulate length of polynomial,
             #TODO: This is not tested or verified...

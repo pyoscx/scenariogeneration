@@ -76,6 +76,12 @@ class _Poly3Profile():
         self.d = d
         self.t = t
 
+    def __eq__(self, other):
+        if isinstance(other,_Poly3Profile):
+            if self.get_attributes() == other.get_attributes():         
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the Elevetion
 
@@ -129,6 +135,12 @@ class ElevationProfile():
         """
         self.elevations = []
 
+    def __eq__(self, other):
+        if isinstance(other,ElevationProfile):
+            if self.elevations == other.elevations:         
+                return True
+        return False
+
     def add_elevation(self,elevation):
         """ adds an elevation to the ElevationProfile
 
@@ -181,6 +193,12 @@ class LateralProfile():
         """
         self.superelevations = []
         self.shapes = []
+
+    def __eq__(self, other):
+        if isinstance(other,LateralProfile):
+            if self.superelevations == other.superelevations and self.shapes == other.shapes:         
+                return True
+        return False
 
     def add_superelevation(self,superelevation):
         """ adds an elevation to the LateralProfile

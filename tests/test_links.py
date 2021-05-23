@@ -11,6 +11,10 @@ def test_link():
     link = pyodrx.links._Link('successor','1',element_type=pyodrx.ElementType.road,contact_point=pyodrx.ContactPoint.start)
     
     prettyprint(link.get_element())
+    link2 = pyodrx.links._Link('successor','1',element_type=pyodrx.ElementType.road,contact_point=pyodrx.ContactPoint.start)
+    link3 = pyodrx.links._Link('successor','2',element_type=pyodrx.ElementType.road,contact_point=pyodrx.ContactPoint.start)
+    assert link == link2
+    assert link != link3
 
 def test_links():
 
@@ -20,6 +24,13 @@ def test_links():
     links.add_link(link)    
     prettyprint(links.get_element())
 
+    links2 = pyodrx.links._Links()
+    links3 = pyodrx.links._Links()
+    links2.add_link(pyodrx.links._Link('successor','1'))       
+    links3.add_link(pyodrx.links._Link('successor','1'))    
+    links3.add_link(pyodrx.links._Link('predecessor','2'))    
+    assert links == links2
+    assert links != links3
 def test_lanelinker():
 
     lane = pyodrx.Lane(a=3)
@@ -33,8 +44,20 @@ def test_connection():
 
     con.add_lanelink(1,-1)
     con.add_lanelink(2,-2)
-
     prettyprint(con.get_element())
+
+    con2 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start,5)
+
+    con2.add_lanelink(1,-1)
+    con2.add_lanelink(2,-2)
+
+    con3 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start,5)
+
+    con3.add_lanelink(1,-1)
+    con3.add_lanelink(1,-2)
+    
+    assert con == con2
+    assert con != con3
 
 def test_junction():
     con1 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start)
@@ -55,6 +78,17 @@ def test_junction():
 
     prettyprint(junction.get_element())
 
+    junction2 = pyodrx.Junction('',1)
+
+    junction2.add_connection(con1)
+    junction2.add_connection(con2)
+
+    junction3 = pyodrx.Junction('a',1)
+
+    junction3.add_connection(con1)
+    junction3.add_connection(con2)
+    assert junction == junction2
+    assert junction != junction3
 
 # road - road - road // -> - -> - -> 
 def test_create_lane_links_normalroad1(): 
@@ -429,4 +463,15 @@ def test_junction_group():
     jg.add_junction(2)
     jg.add_junction(3)
     prettyprint(jg.get_element())
+    jg2 = pyodrx.JunctionGroup('my roundabout',0)
+    jg2.add_junction(1)
+    jg2.add_junction(2)
+    jg2.add_junction(3)
 
+    jg3 = pyodrx.JunctionGroup('my roundabout',0)
+    jg3.add_junction(1)
+    jg3.add_junction(2)
+
+    assert jg == jg2
+    assert jg != jg3
+    

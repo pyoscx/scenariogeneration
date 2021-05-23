@@ -1,3 +1,4 @@
+from scenariogeneration.xodr.geometry import Line, PlanView
 import pytest
 
 import numpy as np
@@ -34,6 +35,10 @@ def test_spiral():
     
     p = spiral.get_element()
     prettyprint(p)
+    spiral2 = pyodrx.Spiral(0,1, 10)
+    spiral3 = pyodrx.Spiral(0,1.1, 10)
+    assert spiral == spiral2
+    assert spiral != spiral3
 
 def test_spiral_inputs():
     cloth = pyodrx.Spiral(0.0,0.05,10.0)
@@ -125,11 +130,14 @@ def test_arc():
     
     p = arc.get_element()
     prettyprint(p)
-
-    arc = pyodrx.Arc(1,angle = 1)
+    arc2 = pyodrx.Arc(1,length = 1)
+    arc3 = pyodrx.Arc(2,angle = 1)
     
-    p = arc.get_element()
+    p2 = arc3.get_element()
     prettyprint(p)
+    assert arc == arc2
+
+    assert arc != arc3
 
 @pytest.mark.parametrize("data, expdata",[\
 ([np.pi, 0,0,0,1], [0,2,np.pi]),
@@ -175,9 +183,15 @@ def test_arc_calc_angle(data,expdata):
     # assert False
 def test_polyparam():
     poly = pyodrx.ParamPoly3(1,2,3,4,5,6,7,8)
+
     
     p = poly.get_element()
     prettyprint(p)
+
+    poly2 = pyodrx.ParamPoly3(1,2,3,4,5,6,7,8)
+    poly3 = pyodrx.ParamPoly3(1,2,3,4,5,6,7,9)
+    assert poly == poly2
+    assert poly != poly3
 
 @pytest.mark.parametrize("data, expdata",[\
 ([1, 0,0,0], [1,1,np.pi/4]),
@@ -197,6 +211,10 @@ def test_geometry():
     geom = pyodrx.geometry._Geometry(1,2,3,4,pyodrx.Line(1))
     p = geom.get_element()
     prettyprint(p)
+    geom2 = pyodrx.geometry._Geometry(1,2,3,4,pyodrx.Line(1))
+    geom3 = pyodrx.geometry._Geometry(1,2,3,4,pyodrx.Line(2))
+    assert geom == geom2
+    assert geom != geom3
 
 @pytest.mark.parametrize("data",[\
 ([100, 0,0,0]),
@@ -293,6 +311,45 @@ def test_inverted_Spiral(data):
     assert pytest.approx(start_y, 0.000001) == data[4]
     assert pytest.approx(start_h, 0.000001) == data[5] 
 
+
+def test_planview():
+    planview = pyodrx.PlanView()
+    planview.add_geometry(Line(100))
+    planview.add_geometry(Line(100))
+    planview.adjust_geometries()
+    x,y,z = planview.get_end_point() 
+    assert x == 200
+    assert y == 0
+    assert z == 0
+
+    planview2 = pyodrx.PlanView()
+    planview2.add_geometry(Line(100))
+    planview2.add_geometry(Line(100))
+    planview2.adjust_geometries()
+
+    planview3 = pyodrx.PlanView()
+    planview3.add_geometry(Line(100))
+    planview3.add_geometry(Line(10))
+    planview3.adjust_geometries()
+
+    assert planview == planview2
+    assert planview != planview3
+    # test eq without adjusting
+    planview = pyodrx.PlanView()
+    planview.add_geometry(Line(100))
+    planview.add_geometry(Line(100))
+    
+
+    planview2 = pyodrx.PlanView()
+    planview2.add_geometry(Line(100))
+    planview2.add_geometry(Line(100))
+    
+    planview3 = pyodrx.PlanView()
+    planview3.add_geometry(Line(100))
+    planview3.add_geometry(Line(10))
+    
+    assert planview != planview2
+    assert planview != planview3
 
 @pytest.mark.parametrize("data, expdata",[\
 ([100,0,0,0], [100,0,0]),\

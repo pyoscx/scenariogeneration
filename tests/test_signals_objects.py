@@ -15,7 +15,12 @@ def test_signal():
     road.add_signal(signal1)
     road.add_signal(signal2)
     prettyprint(road.get_element())
-
+    signal3 = pyodrx.Signal(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, country="US", Type="R1",
+                            subtype="1")
+    # unique fixer
+    signal3.id = signal1.id
+    assert signal1 == signal3
+    assert signal1 != signal2
 
 def test_object():
     object1 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, id="1", height=1.0, Type=pyodrx.ObjectType.pole)
@@ -26,6 +31,10 @@ def test_object():
     road = pyodrx.create_straight_road(0)
     road.add_object([object1, object2])
     prettyprint(road.get_element())
+    object3 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, id="1", height=1.0, Type=pyodrx.ObjectType.pole)
+    object3.id = object1.id
+    assert object1 == object3
+    assert object2 != object1
     
 def test_repeated_object():
     object1 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=1.0, Type=pyodrx.ObjectType.pole)
@@ -34,6 +43,16 @@ def test_repeated_object():
     road.add_object(object1)
     prettyprint(road.get_element())
     
+    object2 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=1.0, Type=pyodrx.ObjectType.pole)
+    object2.repeat(100,50)
+
+    object3 = pyodrx.Object(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, height=1.0, Type=pyodrx.ObjectType.pole)
+    object3.repeat(100,50)
+
+    object3.id = object1.id
+    assert object1 == object3
+    assert object2 != object1
+
 def test_object_roadside():
     road = pyodrx.create_straight_road(0)
     odr = pyodrx.OpenDrive('myroad')

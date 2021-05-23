@@ -33,6 +33,12 @@ class _Links():
 
         self.links = []
 
+    def __eq__(self, other):
+        if isinstance(other,_Links):
+            if self.links == other.links:
+                return True
+        return False
+
     def add_link(self,link):
         """ Adds a _Link 
 
@@ -190,6 +196,12 @@ class _Link():
         self.contact_point = contact_point
         self.direction = direction
 
+    def __eq__(self, other):
+        if isinstance(other,_Link):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes as a dict of the _Link
 
@@ -320,6 +332,13 @@ class Connection():
         self.id = id
         self.links = []
 
+    def __eq__(self, other):
+        if isinstance(other,Connection):
+            if self.get_attributes() == other.get_attributes() and \
+            self.links == other.links:
+                return True
+        return False
+
     def _set_id(self,id):
         """ id is set
 
@@ -404,6 +423,13 @@ class Junction():
         self.id = id
         self.connections = []
         self._id_counter = 0
+
+    def __eq__(self, other):
+        if isinstance(other,Junction):
+            if self.get_attributes() == other.get_attributes() and \
+            self.connections == other.connections:
+                return True
+        return False
 
     def add_connection(self,connection):
         """ Adds a new link to the Junction
@@ -659,8 +685,15 @@ class JunctionGroup():
         self.junctions = []
         self.junction_type = junction_type
 
+    def __eq__(self, other):
+        if isinstance(other,JunctionGroup):
+            if self.get_attributes() == other.get_attributes() and \
+            self.junctions == other.junctions:
+                return True
+        return False
+
     def add_junction(self,junction_id):
-        """ Adds a new link to the Junction
+        """ Adds a new link to the JunctionGroup
 
             Parameters
             ----------
@@ -670,7 +703,7 @@ class JunctionGroup():
         self.junctions.append(junction_id)
 
     def get_attributes(self):
-        """ returns the attributes as a dict of the Junction
+        """ returns the attributes as a dict of the JunctionGroup
 
         """
         retdict = {}

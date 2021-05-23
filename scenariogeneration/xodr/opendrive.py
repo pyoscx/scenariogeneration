@@ -60,7 +60,12 @@ class _Header():
         self.revMajor = revMajor
         self.revMinor = revMinor
 
-        
+
+    def __eq__(self, other):
+        if isinstance(other,_Header):
+            if self.name == other.name and self.revMajor == other.revMajor and self.revMinor == other.revMinor:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes as a dict of the FileHeader
@@ -205,6 +210,25 @@ class Road():
         self.types = []
         self.elevationprofile = ElevationProfile()
         self.lateralprofile = LateralProfile()
+
+
+    def __eq__(self, other):
+        if isinstance(other,Road):
+            if self.get_attributes() == other.get_attributes() and \
+            self.objects == other.objects and \
+            self.signals == other.signals and \
+            self.types == other.types and \
+            self.links == other.links and \
+            self.planview == other.planview and \
+            self.lanes == other.lanes and \
+            self.elevationprofile == other.elevationprofile and \
+            self.lateralprofile == other.lateralprofile and \
+            self.predecessor == other.predecessor and \
+            self.successor == other.successor and \
+            self.lane_offset_suc == other.lane_offset_suc and \
+            self.lane_offset_pred == other.lane_offset_pred:
+                return True
+        return False
 
     def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0):
         """ add_successor adds a successor link to the road
@@ -522,6 +546,14 @@ class OpenDrive():
         self.junctions = []
         #self.road_ids = []
 
+    def __eq__(self, other):
+        if isinstance(other,OpenDrive):
+            if self.roads == other.roads and \
+            self.junctions == other.junctions and \
+            self._header == other._header:
+                return True
+        return False
+
     def add_road(self,road):
         """ Adds a new road to the opendrive
 
@@ -800,6 +832,13 @@ class _Type():
             raise ValueError('speed_unit can only be m/s, mph, or kph, not: ' + speed_unit)
         self.speed_unit = speed_unit
 
+    def __eq__(self, other):
+        if isinstance(other,_Type):
+            if self.get_attributes() == other.get_attributes() and \
+            self.speed == other.speed and \
+            self.speed_unit == other.speed_unit:
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes as a dict of the _Type

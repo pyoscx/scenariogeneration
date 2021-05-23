@@ -102,6 +102,13 @@ class _SignalObjectBase():
         self.width = width
         self.id = id
         
+    
+    def __eq__(self, other):
+        if isinstance(other,_SignalObjectBase):
+            if self.get_common_attributes() == other.get_common_attributes():
+                return True
+        return False
+
     def _update_id(self):
         #ensure unique IDs
         try:
@@ -248,6 +255,11 @@ class Signal(_SignalObjectBase):
         self.hOffset = hOffset
         
         
+    def __eq__(self, other):
+        if isinstance(other,Signal):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         retdict = super().get_common_attributes()
@@ -292,6 +304,12 @@ class Dependency:
     def __init__(self, id, type):
         self.id = id
         self.type = type
+
+    def __eq__(self, other):
+        if isinstance(other,Dependency):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         retdict = {"id": str(self.id), "type": str(self.type)}
@@ -428,7 +446,14 @@ class Object(_SignalObjectBase):
             self.width = 0
         else:
             pass
-        
+
+    def __eq__(self, other):
+        if isinstance(other,Object):
+            if self.get_attributes() == other.get_attributes() and \
+            self._repeats == other._repeats:
+                return True
+        return False
+
     def repeat(self,repeatLength,repeatDistance,sStart=None,tStart=None,tEnd=None,heightStart=None,heightEnd=None,zOffsetStart=None,zOffsetEnd=None,widthStart=None,widthEnd=None,lengthStart=None,lengthEnd=None,radiusStart=None,radiusEnd=None):
         
         self._repeats.append({})
