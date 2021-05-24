@@ -105,9 +105,6 @@ class ScenarioGenerator():
 
         elif isinstance(self.parameters,list):
             self.all_permutations = self.parameters
-
-  
-        
     
     def _generate_road_and_scenario(self,permutation):
         """ _generate_road_and_scenario takes a permutation and generates the road/scenario (if specified)
@@ -126,10 +123,9 @@ class ScenarioGenerator():
 
         road = self.road(**permutation)
         if road:
+            new_unique_road = True
             if not self.generate_all_roads:
-                new_unique_road = True
                 for previous_road in self._created_roads:
-
                     if self._created_roads[previous_road] == road:
                         self.road_file = previous_road
                         new_unique_road = False
