@@ -1,5 +1,15 @@
 ## scenariogeneration release notes
 
+### 2021-05-25 Version 0.3.5
+- some documentation updates
+- some minor bug fixes
+- New Features
+    - ParameterReader (similar to catalog reader but for parameterdeclaration of the scenario)
+    - Easy creation of lane merge/splits with generators. See "highway_example_with_merge_and_split.py"
+    - added __eq__ to all classes, (some limitations in the xodr module where the ids are generated)
+    - scenario_generator got a new attribute (generate_all_roads), that if false will only generate unique roads (thanks to the __eq__   integration). See "generate_with_permutations.py"
+    
+
 ### 2021-04-22 Version 0.3.4
 - some documentation updates
 - esmini path simplifications
