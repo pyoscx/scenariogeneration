@@ -672,11 +672,19 @@ class Arc():
             raise ValueError('You are creating a straight line, please use Line instead')
         self.curvature = curvature
 
+        if self.length:
+            self.angle = self.length * self.curvature
+
+        
+        if self.angle:         
+            self.length = np.abs(1/np.abs(self.curvature)*self.angle)
+
     def __eq__(self, other):
         if isinstance(other,Arc):
             if self.get_attributes() == other.get_attributes():         
                 return True
         return False
+
 
     def get_end_data(self,x,y,h):
         """ Returns information about the end point of the geometry
@@ -712,15 +720,10 @@ class Arc():
             x_0 = x - np.cos(phi_0)*radius
             y_0 = y - np.sin(phi_0)*radius
 
-        if self.length:
-            self.angle = self.length * self.curvature
 
-        new_ang = self.angle + phi_0
-        if self.angle:         
-            self.length = np.abs(radius*self.angle)
 
             
-
+        new_ang = self.angle + phi_0
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
         new_y = np.sin(new_ang)*radius + y_0
