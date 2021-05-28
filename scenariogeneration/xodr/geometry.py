@@ -677,7 +677,7 @@ class Arc():
 
         
         if self.angle:         
-            self.length = np.abs(1/np.abs(self.curvature)*self.angle)
+            _,_,_,self.length = self.get_end_data(0,0,0)
 
     def __eq__(self, other):
         if isinstance(other,Arc):
@@ -720,7 +720,12 @@ class Arc():
             x_0 = x - np.cos(phi_0)*radius
             y_0 = y - np.sin(phi_0)*radius
 
+        if self.length:
+            self.angle = self.length * self.curvature
 
+        new_ang = self.angle + phi_0
+        if self.angle:         
+            self.length = np.abs(radius*self.angle)
 
             
         new_ang = self.angle + phi_0
