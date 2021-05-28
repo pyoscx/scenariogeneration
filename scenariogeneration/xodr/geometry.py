@@ -898,7 +898,10 @@ class ParamPoly3():
         self.prange = prange
         if prange == 'arcLength' and length == None:
             raise ValueError('No length was provided for Arc with arcLength option')
-        self.length = length
+        if length:
+            self.length = length
+        else:
+            _,_,_,self.length = self.get_end_data(0,0,0)
 
     def __eq__(self, other):
         if isinstance(other,ParamPoly3):
