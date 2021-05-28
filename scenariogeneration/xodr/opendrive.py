@@ -475,17 +475,17 @@ class Road():
             for r in self.types:
                 element.append(r.get_element())
         element.append(self.planview.get_element())
+        element.append(self.elevationprofile.get_element())
+        element.append(self.lateralprofile.get_element())
         element.append(self.lanes.get_element())
-        if len(self.signals) > 0:
-            signalselement = ET.SubElement(element,'signals')
-            for signal in self.signals:
-                signalselement.append(signal.get_element())
         if len(self.objects) > 0:
             objectselement = ET.SubElement(element,'objects')
             for road_object in self.objects:
                 objectselement.append(road_object.get_element())        
-        element.append(self.elevationprofile.get_element())
-        element.append(self.lateralprofile.get_element())
+        if len(self.signals) > 0:
+            signalselement = ET.SubElement(element,'signals')
+            for signal in self.signals:
+                signalselement.append(signal.get_element())
         return element
 
 class OpenDrive():
