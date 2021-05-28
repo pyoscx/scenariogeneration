@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+
+### 2021-05-28 Version 0.3.6
+- update of order of elements in Road to fulfill xsd
+
 ### 2021-05-25 Version 0.3.5
 - some documentation updates
 - some minor bug fixes
