@@ -4,12 +4,13 @@ import os
 
 from scenariogeneration import xodr
 
-
-
+# all the roads in a junction are formed by clothoid-arc-clothoid geotrietries 
+# in this example we can create a junction given the radius of the inner arc geometry 
+# OR create the junction given the the distance R of every road from the center of the junction 
 
     
 roads = []
-numintersections = 3 # 3 or 4 for jenction generation with r / arbitrary number for junction generation with R
+numintersections = 3 # 3 or 4 
 angles = []
 for i in range(numintersections):
     roads.append(xodr.create_straight_road(i))
@@ -21,8 +22,10 @@ for i in range(numintersections):
 #angles = [0,np.pi/2, 3*np.pi/2]
 
 print(roads)
+# option 1. creation of junction given the radius of the inner arc geometry 
 junc = xodr.create_junction_roads(roads,angles,r = 8)
-#junc = xodr.create_junction_roads(roads,angles,R = 50)
+#option 2. uncomment this if you want to create the junction from the distance R of every road from the center of the junction 
+#junc = xodr.create_junction_roads(roads,angles,R = 30)
 
 odr = xodr.OpenDrive('myroad')
 junction = xodr.create_junction(junc,1,roads)
