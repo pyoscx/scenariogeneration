@@ -9,19 +9,20 @@ from scenariogeneration import xodr
 
     
 roads = []
-numintersections = 4 # 3 or 4
+numintersections = 3 # 3 or 4 for jenction generation with r / arbitrary number for junction generation with R
 angles = []
 for i in range(numintersections):
     roads.append(xodr.create_straight_road(i))
     # use this instead to change the number of lanes in the crossing 
-    #roads.append(xodr.generators.create_straight_road(i, length=100, junction=-1, n_lanes=2, lane_offset=3))
+    #roads.append(xodr.generators.create_straight_road(i, length=100, junction=-1, n_lanes=5, lane_offset=3))
     angles.append(i * 2*np.pi/numintersections)
 
 # use this for a T-crossing instead
-# angles = [0,np.pi/2, 3*np.pi/2]
+#angles = [0,np.pi/2, 3*np.pi/2]
 
 print(roads)
-junc = xodr.create_junction_roads(roads,angles,8)
+junc = xodr.create_junction_roads(roads,angles,r = 8)
+#junc = xodr.create_junction_roads(roads,angles,R = 50)
 
 odr = xodr.OpenDrive('myroad')
 junction = xodr.create_junction(junc,1,roads)
