@@ -5,8 +5,9 @@ import os
 from scenariogeneration import xodr
 
 # all the roads in a junction are formed by clothoid-arc-clothoid geotrietries 
-# in this example we can create a junction given the radius of the inner arc geometry 
-# OR create the junction given the the distance R of every road from the center of the junction 
+# in this example we can create a junction given 
+# option1. the radius of the inner arc geometry 
+# option2. the distance R of every road from the center of the junction 
 
     
 roads = []
