@@ -44,7 +44,7 @@ The xosc module handles the part related to OpenSCENARIO, and covers all of Open
 
 The xodr module handles the part related to OpenDrive, and does not (as of now) have a full coverage of the standard, please see coverage.txt for more information. 
 
-The xodr module is also a xml generater, similar to the xosc module. It includes a number of automation algorithms which allow the user to easily generate the OpenDRIVE hierarchy. As a matter of fact the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, therefore a collection of automations (geometrical calculations and index linking), and road generators (to generate simple roads with different geometries and lanes) are included in the module.
+The xodr module is also a xml generator, similar to the xosc module. It includes a number of automation algorithms which allow the user to easily generate the OpenDRIVE hierarchy. As a matter of fact the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, therefore a collection of automations (geometrical calculations and index linking), and road generators (to generate simple roads with different geometries and lanes) are included in the module.
 
 The most important automation functionality is the *adjust_roads_and_lanes* method of the *OpenDRIVE* class, which does two main things:
     
@@ -56,7 +56,8 @@ The xodr module also includes road generators which allow the user to create som
 - *create_road* generates simple roads with different geometries and different number of lanes on each side. (see highway_example)
 - *create_cloth_arc_cloth* creates road with a smooth curve based on a clothoid + arc + clothoid. 
 - *create_junction* creates the junction element of OpenDRIVE, based on a list of "roads in the junction" and a list of "roads going into the junction" (see highway_example)
-- *create_junction_roads* generates all roads in a simple 3 or 4 way (90 deg, and 120 deg in 3 way) junction (see full_junction)
+- *create_junction_roads* generates all the roads in a junction. All the roads that are adjacent to the junction have the same distance to the center of the junction, and are spanned around it based on the input angles (see full_junction)
+- *create_junction_roads_form_arc* generates all roads in a simple 3 or 4 way (90 deg, and 120 deg in 3 way) junction (see full_junction)
 
 ### The ScenarioGenerator
 

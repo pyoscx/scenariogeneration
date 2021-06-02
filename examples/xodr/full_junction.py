@@ -6,12 +6,14 @@ from scenariogeneration import xodr
 
 # all the roads in a junction are formed by clothoid-arc-clothoid geotrietries 
 # in this example we can create a junction given 
-# option1. the radius of the inner arc geometry 
-# option2. the distance R of every road from the center of the junction 
+# option1. the distance R of every road from the center of the junction 
+# option2. the radius of the inner arc geometry - for this case you can only use 
+# 													numintersections = 3 or 4 
+# 													angles = [0,np.pi/2, 3*np.pi/2] or [0, np.pi/2, np.pi, 3*np.pi/2]
 
     
 roads = []
-numintersections = 3 # 3 or 4 
+numintersections = 3 
 angles = []
 for i in range(numintersections):
     roads.append(xodr.create_straight_road(i))
@@ -23,10 +25,10 @@ for i in range(numintersections):
 #angles = [0,np.pi/2, 3*np.pi/2]
 
 print(roads)
-# option 1. creation of junction given the radius of the inner arc geometry 
-junc = xodr.create_junction_roads(roads,angles,r = 8)
-#option 2. uncomment this if you want to create the junction from the distance R of every road from the center of the junction 
-#junc = xodr.create_junction_roads(roads,angles,R = 30)
+#option 1. uncomment this if you want to create the junction from the distance R of every road from the center of the junction 
+junc = xodr.create_junction_roads(roads,angles,8)
+# option 2. creation of junction given the radius of the inner arc geometry 
+#junc = xodr.create_junction_roads_from_arc(roads,angles,8)
 
 odr = xodr.OpenDrive('myroad')
 junction = xodr.create_junction(junc,1,roads)
@@ -43,5 +45,5 @@ odr.adjust_roads_and_lanes()
 odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
 
 # uncomment the following lines to display the road using esmini
-#from scenariogeneration import esmini
-#esmini(odr,os.path.join('esmini'))
+from scenariogeneration import esmini
+esmini(odr,os.path.join('..','..','..','esmini'))
