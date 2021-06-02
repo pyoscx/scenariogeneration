@@ -1,5 +1,7 @@
 ## scenariogeneration release notes
 
+### 2021-05-28 Version 0.3.7
+- bug fix for Arcs
 
 ### 2021-05-28 Version 0.3.6
 - update of order of elements in Road to fulfill xsd
