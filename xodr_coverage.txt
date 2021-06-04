@@ -101,7 +101,7 @@ OpenDRIVE                           YES
 | | | |-validity                    NO
 | |-signals                         YES
 | | |-signal                        YES
-| | | |-validity                    NO
+| | | |-validity                    YES
 | | | |-dependency                  NO
 | | | |-reference                   NO
 | | | |-positionRoad                NO
