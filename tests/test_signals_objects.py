@@ -4,6 +4,14 @@ Test script to create a straight road with a signal at an arbitrary s-coordinate
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
 
+def test_signal_validity():
+
+    signal = pyodrx.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+    signal.add_validity(1, 1)
+    road = pyodrx.create_straight_road(0)
+    road.add_signal(signal)
+    prettyprint(road.get_element())
+
 def test_signal():
     signal1 = pyodrx.Signal(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, country="US", Type="R1",
                             subtype="1")
