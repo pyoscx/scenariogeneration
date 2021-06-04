@@ -85,7 +85,7 @@ OpenDRIVE                           YES
 | | | | | |-cornerRoad              NO    
 | | | | | |-cornerLocal             NO
 | | | |-material                    NO
-| | | |-validity                    NO
+| | | |-validity                    YES
 | | | |-parkingSpace                NO
 | | | |-markings                    NO
 | | | | |-marking                   NO
