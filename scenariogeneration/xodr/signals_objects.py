@@ -169,22 +169,40 @@ class Signal(_SignalObjectBase):
         Attributes
         ----------
             s (float): s-coordinate of Signal (init in base class)
+
             t (float): t-coordinate of Signal (init in base class)
+
             country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)        
+            
             Type (SignalType or str): type of Signal (str) (init in base class)
+            
             subtype (string): subtype for further specification of Signal (init in base class)
+            
             id (string): id of Signal (init in base class)
+            
             name (string): name for identification of Signal (init in base class)
+            
             dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
+            
             value (double): value for further specification of the signal
+            
             unit (str): unit, needs to be provided when value is given
+            
             zOffset (float): vertical offset of Signal with respect to centerline (init in base class)
+            
             orientation (Orientation): orientation of Signal with respect to road (init in base class)
+            
             hOffset (float): heading offset of the signal relative to orientation
+            
             pitch (float): pitch angle (rad) of Signal relative to the inertial system (xy-plane) (init in base class)
+            
             roll (float): roll angle (rad) of Signal after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
+            
             width (float): width of the Signal (init in base class)
+            
             height (float): height of Signal (init in base class)
+            
+            validity (Validity): explicit validity information for a signal (optional)
 
         Methods
         -------
@@ -235,7 +253,7 @@ class Signal(_SignalObjectBase):
             width (float): width of the Signal (init in base class)
                 Default: None     
             height (float): height of Signal (init in base class)
-                Default: None                                        
+                Default: None                                       
 
         """        
         
@@ -428,6 +446,8 @@ class Object(_SignalObjectBase):
             validLength (float): validLength
             
             _repeats ([dict]): list of dictionary containing attributes for optional subelement for repeating Objects to be filled by repeat method
+
+            validity (Validity): explicit validity information for a signal (optional)
             
         Methods
         -------
@@ -494,6 +514,8 @@ class Object(_SignalObjectBase):
         
         #list for repeat entries
         self._repeats = []
+
+        self.validity = None
     
         #check if width/length combination or radius was provided and ensure working defaults 
         if radius is not None and (width is not None or length is not None):
@@ -578,7 +600,12 @@ class Object(_SignalObjectBase):
         if radiusStart is not None:
              self._repeats[-1]['radiusStart']=str(radiusStart)
         if radiusEnd is not None:
-             self._repeats[-1]['radiusEnd']=str(radiusEnd)           
+             self._repeats[-1]['radiusEnd']=str(radiusEnd)   
+
+    def add_validity(self, fromLane, toLane): 
+        if self.validity: 
+            raise ValueError('only one validity is allowed')
+        self.validity = Validity(fromLane, toLane)        
             
     def get_attributes(self):
         """ returns the attributes of the Object as a dict
@@ -604,6 +631,8 @@ class Object(_SignalObjectBase):
         element = ET.Element('object',attrib=self.get_attributes())
         for _repeat in self._repeats:
             ET.SubElement(element,'repeat', attrib=_repeat)
+        if self.validity: 
+            element.append(self.validity.get_element())
 
         return element
     

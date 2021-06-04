@@ -12,6 +12,14 @@ def test_signal_validity():
     road.add_signal(signal)
     prettyprint(road.get_element())
 
+def test_object_validity():
+
+    guardrail = pyodrx.Object(0,0,height=0.3,zOffset=0.4,Type=pyodrx.ObjectType.barrier,name="guardRail")
+    guardrail.add_validity(1, 1)
+    road = pyodrx.create_straight_road(0)
+    road.add_object(guardrail)
+    prettyprint(road.get_element())
+
 def test_signal():
     signal1 = pyodrx.Signal(s=10.0, t=-2, dynamic=pyodrx.Dynamic.no, orientation=pyodrx.Orientation.positive, zOffset=0.00, country="US", Type="R1",
                             subtype="1")
