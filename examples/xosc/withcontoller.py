@@ -55,7 +55,7 @@ prop = xosc.Properties()
 prop.add_property(name="esminiController", value="SumoController")
 prop.add_file("../sumo_inputs/e6mini.sumocfg")
 cont = xosc.Controller('mycontroler',prop)
-cont.dump_to_catalog('Controller.xosx','Controller','controllers','Mandolin')
+cont.dump_to_catalog('Controller.xosc','Controller','controllers','Mandolin')
 
 
 entities = xosc.Entities()
