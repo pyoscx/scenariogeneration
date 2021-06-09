@@ -88,6 +88,89 @@ class Lanes():
             element.append(l.get_element())
         return element
 
+class LaneOffset():
+    """ the LaneOffset class defines an overall lateral offset along the road, described as a third degree polynomial
+
+        Parameters
+        ----------
+            s (float): s start coordinate of the elevation
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        Attributes
+        ----------
+            s (float): s start coordinate of the elevation
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        Methods
+        -------
+            get_element(elementname)
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the attributes of the class
+
+    """
+    def __init__(self, s=0, a=0, b=0, c=0, d=0):
+        """ initalize the LaneOffset class
+
+        Parameters
+        ----------
+            s (float): s start coordinate of the LaneOffset
+
+            a (float): a coefficient of the polynomial
+
+            b (float): b coefficient of the polynomial
+
+            c (float): c coefficient of the polynomial
+
+            d (float): d coefficient of the polynomial
+
+        """
+        self.s = s
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+
+    def __eq__(self, other):
+        if isinstance(other,LaneOffset):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """ returns the attributes of the LaneOffset
+        """
+    
+        retdict = {}
+        retdict['s'] = str(self.s)
+        retdict['a'] = str(self.a)
+        retdict['b'] = str(self.b)
+        retdict['c'] = str(self.c)
+        retdict['d'] = str(self.d)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the LaneOffset
+        """
+        element = ET.Element('laneOffset',attrib=self.get_attributes())
+        
+        return element
+
 class LaneSection():
     """ Creates the LaneSection element of opendrive
 
@@ -198,89 +281,6 @@ class LaneSection():
             for l in self.rightlanes:
                 right.append(l.get_element())
 
-        return element
-        
-class LaneOffset():
-    """ the LaneOffset class defines an overall lateral offset along the road, described as a third degree polynomial
-
-        Parameters
-        ----------
-            s (float): s start coordinate of the elevation
-
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
-
-        Attributes
-        ----------
-            s (float): s start coordinate of the elevation
-
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
-
-        Methods
-        -------
-            get_element(elementname)
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns the attributes of the class
-
-    """
-    def __init__(self, s=0, a=0, b=0, c=0, d=0):
-        """ initalize the LaneOffset class
-
-        Parameters
-        ----------
-            s (float): s start coordinate of the LaneOffset
-
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
-
-        """
-        self.s = s
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-
-    def __eq__(self, other):
-        if isinstance(other,LaneOffset):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    def get_attributes(self):
-        """ returns the attributes of the LaneOffset
-        """
-    
-        retdict = {}
-        retdict['s'] = str(self.s)
-        retdict['a'] = str(self.a)
-        retdict['b'] = str(self.b)
-        retdict['c'] = str(self.c)
-        retdict['d'] = str(self.d)
-        return retdict
-
-    def get_element(self):
-        """ returns the elementTree of the LaneOffset
-        """
-        element = ET.Element('laneOffset',attrib=self.get_attributes())
-        
         return element
 
 class Lane():
@@ -495,115 +495,6 @@ class Lane():
             
         return element
 
-
-
-
-class RoadLine():
-    """ creates a Line type of to be used in roadmark
-
-        Parameters
-        ----------
-            width (float): with of the line
-                Default: 0
-            length (float): length of the line
-                Default: 0
-            space (float): length of space between (broken) lines
-                Default: 0
-            toffset (float): offset in t
-                Default: 0
-            soffset (float): offset in s
-                Default: 0
-            rule (MarkRule): mark rule (optional)
-
-            color (RoadMarkColor): color of line (optional)
-
-        Attributes
-        ----------
-            length (float): length of the line
-
-            space (float): length of space between (broken) lines
-
-            toffset (float): offset in t
-
-            soffset (float): offset in s
-
-            rule (MarkRule): mark rule
-
-            width (float): with of the line
-
-            color (RoadMarkColor): color of line
-
-        Methods
-        -------
-            get_element(elementname)
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns a dictionary of all attributes of FileHeader
-
-    """
-    # TODO: check this for 1.5
-    def __init__(self,width = 0,length=0,space=0,toffset=0,soffset=0,rule=None,color=None):
-        """ initalizes the RoadLine
-
-        Parameters
-        ----------
-            width (float): with of the line
-                Default: 0
-            length (float): length of the line
-                Default: 0
-            space (float): length of space between (broken) lines
-                Default: 0
-            toffset (float): offset in t
-                Default: 0
-            soffset (float): offset in s
-                Default: 0
-            rule (MarkRule): mark rule (optional)
-
-            color (RoadMarkColor): color of line (optional)
-
-
-        """ 
-        self.length = length
-        self.space = space
-        self.toffset = toffset
-        self.rule = rule
-        self.soffset = soffset
-        self.width = width
-        self.color = color
-
-
-    def __eq__(self, other):
-        if isinstance(other,RoadLine):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-        
-
-    def get_attributes(self):
-        """ returns the attributes of the Lane as a dict
-
-        """
-        retdict = {}
-        retdict['length'] = str(self.length)
-        retdict['space'] = str(self.space)
-        retdict['tOffset'] = str(self.toffset)
-        retdict['width'] = str(self.width)
-        retdict['sOffset'] = str(self.soffset)
-        # if self.color:
-            # retdict['color'] = enum2str(self.color)
-        if self.rule:
-            retdict['rule'] = enum2str(self.rule)
-        return retdict
-
-    def get_element(self):
-        """ returns the elementTree of the WorldPostion
-
-        """
-        element = ET.Element('line',attrib=self.get_attributes())
-        return element
-
-
 class RoadMark():
     """ creates a RoadMark of opendrive
 
@@ -755,5 +646,111 @@ class RoadMark():
             typeelement = ET.SubElement(element,'type', attrib={'name':enum2str(self.marking_type),'width':str(self.width)})
             typeelement.append(self._line.get_element())
         return element
+        
+class RoadLine():
+    """ creates a Line type of to be used in roadmark
+
+        Parameters
+        ----------
+            width (float): with of the line
+                Default: 0
+            length (float): length of the line
+                Default: 0
+            space (float): length of space between (broken) lines
+                Default: 0
+            toffset (float): offset in t
+                Default: 0
+            soffset (float): offset in s
+                Default: 0
+            rule (MarkRule): mark rule (optional)
+
+            color (RoadMarkColor): color of line (optional)
+
+        Attributes
+        ----------
+            length (float): length of the line
+
+            space (float): length of space between (broken) lines
+
+            toffset (float): offset in t
+
+            soffset (float): offset in s
+
+            rule (MarkRule): mark rule
+
+            width (float): with of the line
+
+            color (RoadMarkColor): color of line
+
+        Methods
+        -------
+            get_element(elementname)
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of FileHeader
+
+    """
+    # TODO: check this for 1.5
+    def __init__(self,width = 0,length=0,space=0,toffset=0,soffset=0,rule=None,color=None):
+        """ initalizes the RoadLine
+
+        Parameters
+        ----------
+            width (float): with of the line
+                Default: 0
+            length (float): length of the line
+                Default: 0
+            space (float): length of space between (broken) lines
+                Default: 0
+            toffset (float): offset in t
+                Default: 0
+            soffset (float): offset in s
+                Default: 0
+            rule (MarkRule): mark rule (optional)
+
+            color (RoadMarkColor): color of line (optional)
+
+
+        """ 
+        self.length = length
+        self.space = space
+        self.toffset = toffset
+        self.rule = rule
+        self.soffset = soffset
+        self.width = width
+        self.color = color
+
+
+    def __eq__(self, other):
+        if isinstance(other,RoadLine):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+        
+
+    def get_attributes(self):
+        """ returns the attributes of the Lane as a dict
+
+        """
+        retdict = {}
+        retdict['length'] = str(self.length)
+        retdict['space'] = str(self.space)
+        retdict['tOffset'] = str(self.toffset)
+        retdict['width'] = str(self.width)
+        retdict['sOffset'] = str(self.soffset)
+        # if self.color:
+            # retdict['color'] = enum2str(self.color)
+        if self.rule:
+            retdict['rule'] = enum2str(self.rule)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the WorldPostion
+
+        """
+        element = ET.Element('line',attrib=self.get_attributes())
+        return element
+
 
 

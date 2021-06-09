@@ -2,6 +2,126 @@ import xml.etree.ElementTree as ET
 
 
 
+class ElevationProfile():
+    """ the ElevationProfile creates the elevationProfile element of the road in opendrive,
+
+
+        Attributes
+        ----------
+            elevations (list of _Poly3Profile):
+
+        Methods
+        -------
+            get_element(elementname)
+                Returns the full ElementTree of the class
+
+            add_elevation(elevation)
+                adds an elevation profile to the road
+    """
+    def __init__(self):
+        """ initalize the ElevationProfile class
+
+        """
+        self.elevations = []
+
+    def __eq__(self, other):
+        if isinstance(other,ElevationProfile):
+            if self.elevations == other.elevations:         
+                return True
+        return False
+
+    def add_elevation(self,elevation):
+        """ adds an elevation to the ElevationProfile
+
+            Parameters
+            ----------
+                elevation (_Poly3Profile): the elevation profile to add to the ElevationProfile
+
+        """
+        if not isinstance(elevation,_Poly3Profile):
+            raise TypeError('add_elevation requires an _Poly3Profile as input, not ' + str(type(elevation)))
+        self.elevations.append(elevation)
+
+    def get_element(self):
+        """ returns the elementTree of the ElevationProfile
+
+        """
+        
+        element = ET.Element('elevationProfile')
+        for i in self.elevations:
+            element.append(i.get_element('elevation'))
+        
+        return element
+
+class LateralProfile():
+    """ the LateralProfile creates the elevationProfile element of the road in opendrive,
+
+
+        Attributes
+        ----------
+            superelevation (list of _Poly3Profile): list of superelevations of the road
+
+            shape (list of _Poly3Profile): list of shapes for the road 
+
+        Methods
+        -------
+            get_element(elementname)
+                Returns the full ElementTree of the class
+
+            add_superelevation(superelevation)
+                adds an superelevation profile to the road
+
+            add_shape(shape)
+                adds a shape to the lateral profile
+    """
+    def __init__(self):
+        """ initalize the LateralProfile class
+
+        """
+        self.superelevations = []
+        self.shapes = []
+
+    def __eq__(self, other):
+        if isinstance(other,LateralProfile):
+            if self.superelevations == other.superelevations and self.shapes == other.shapes:         
+                return True
+        return False
+
+    def add_superelevation(self,superelevation):
+        """ adds an elevation to the LateralProfile
+
+            Parameters
+            ----------
+                superelevation (_Poly3Profile): the elevation profile to add to the LateralProfile
+
+        """
+        if not isinstance(superelevation,_Poly3Profile):
+            raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(superelevation)))
+        self.superelevations.append(superelevation)
+
+    def add_shape(self,shape):
+        """ adds an elevation to the LateralProfile
+
+            Parameters
+            ----------
+                shape (_Poly3Profile): the elevation profile to add to the LateralProfile
+
+        """
+        if not isinstance(shape,_Poly3Profile):
+            raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(shape)))
+        self.shapes.append(shape)
+
+    def get_element(self):
+        """ returns the elementTree of the LateralProfile
+
+        """
+        
+        element = ET.Element('lateralProfile')
+        for i in self.superelevations:
+            element.append(i.get_element('superelevation'))
+        for i in self.shapes:
+            element.append(i.get_element('shape'))
+        return element
 
 class _Poly3Profile():
     """ the _Poly3Profile class describes a poly3  along s of a road, the elevation is described as a third degree polynomial
@@ -113,127 +233,5 @@ class _Poly3Profile():
         
         return element
 
-class ElevationProfile():
-    """ the ElevationProfile creates the elevationProfile element of the road in opendrive,
-
-
-        Attributes
-        ----------
-            elevations (list of _Poly3Profile):
-
-        Methods
-        -------
-            get_element(elementname)
-                Returns the full ElementTree of the class
-
-            add_elevation(elevation)
-                adds an elevation profile to the road
-    """
-    def __init__(self):
-        """ initalize the ElevationProfile class
-
-        """
-        self.elevations = []
-
-    def __eq__(self, other):
-        if isinstance(other,ElevationProfile):
-            if self.elevations == other.elevations:         
-                return True
-        return False
-
-    def add_elevation(self,elevation):
-        """ adds an elevation to the ElevationProfile
-
-            Parameters
-            ----------
-                elevation (_Poly3Profile): the elevation profile to add to the ElevationProfile
-
-        """
-        if not isinstance(elevation,_Poly3Profile):
-            raise TypeError('add_elevation requires an _Poly3Profile as input, not ' + str(type(elevation)))
-        self.elevations.append(elevation)
-
-    def get_element(self):
-        """ returns the elementTree of the ElevationProfile
-
-        """
-        
-        element = ET.Element('elevationProfile')
-        for i in self.elevations:
-            element.append(i.get_element('elevation'))
-        
-        return element
-
-
-
-class LateralProfile():
-    """ the LateralProfile creates the elevationProfile element of the road in opendrive,
-
-
-        Attributes
-        ----------
-            superelevation (list of _Poly3Profile): list of superelevations of the road
-
-            shape (list of _Poly3Profile): list of shapes for the road 
-
-        Methods
-        -------
-            get_element(elementname)
-                Returns the full ElementTree of the class
-
-            add_superelevation(superelevation)
-                adds an superelevation profile to the road
-
-            add_shape(shape)
-                adds a shape to the lateral profile
-    """
-    def __init__(self):
-        """ initalize the LateralProfile class
-
-        """
-        self.superelevations = []
-        self.shapes = []
-
-    def __eq__(self, other):
-        if isinstance(other,LateralProfile):
-            if self.superelevations == other.superelevations and self.shapes == other.shapes:         
-                return True
-        return False
-
-    def add_superelevation(self,superelevation):
-        """ adds an elevation to the LateralProfile
-
-            Parameters
-            ----------
-                superelevation (_Poly3Profile): the elevation profile to add to the LateralProfile
-
-        """
-        if not isinstance(superelevation,_Poly3Profile):
-            raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(superelevation)))
-        self.superelevations.append(superelevation)
-
-    def add_shape(self,shape):
-        """ adds an elevation to the LateralProfile
-
-            Parameters
-            ----------
-                shape (_Poly3Profile): the elevation profile to add to the LateralProfile
-
-        """
-        if not isinstance(shape,_Poly3Profile):
-            raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(shape)))
-        self.shapes.append(shape)
-
-    def get_element(self):
-        """ returns the elementTree of the LateralProfile
-
-        """
-        
-        element = ET.Element('lateralProfile')
-        for i in self.superelevations:
-            element.append(i.get_element('superelevation'))
-        for i in self.shapes:
-            element.append(i.get_element('shape'))
-        return element
 
 
