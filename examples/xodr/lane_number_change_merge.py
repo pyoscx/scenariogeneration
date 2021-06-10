@@ -1,3 +1,24 @@
+""" examle how to create a road with a lanemerge.
+
+    Simple cases can automated with create_road and LaneDef, but for complex cases this example shows how to do it from scratch.
+    This example makes use of the LaneLinker class that is not part of OpenDRIVE but a helper class for the xodr module
+
+    Some features used:
+
+    - PlanView
+
+    - RoadMark
+
+    - Lane
+
+    - LaneSection
+
+    - Lanes 
+    
+    - LaneLinker
+"""
+
+
 from scenariogeneration import xodr
 import os
 
@@ -72,5 +93,5 @@ odr.adjust_roads_and_lanes()
 odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
 
 # uncomment the following lines to display the road using esmini
-#from scenariogeneration import esmini
-#esmini(odr,os.path.join('esmini'))
+# from scenariogeneration import esmini
+# esmini(odr,os.path.join('esmini'))

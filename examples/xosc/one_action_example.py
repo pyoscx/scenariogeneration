@@ -2,8 +2,9 @@
     Simple example showing how one vehicle triggers based on distance from another, then keeps distance to that car
 
     Some features used:
-        LongitudinalDistanceAction
-        TimeHeadwayCondition
+    - LongitudinalDistanceAction
+    
+    - TimeHeadwayCondition
         
 """
 import os

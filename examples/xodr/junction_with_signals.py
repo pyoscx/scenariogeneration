@@ -1,3 +1,9 @@
+""" 
+    Example of how to create a junction but adding signals to the junction
+
+    
+"""
+
 # Same approach to creating a junction as "full_junction.py" but with signals for each incoming road.
 import numpy as np
 import os

@@ -1,11 +1,15 @@
-""" Notes:
-
+""" 
     Example showing how to create "repeating traffic" if a car goes to the end of the road
+    
     Some features used:
-        multiple execusions 
-        End of road
-        Teleport
-        LanePosition
+        
+        - multiple execusions 
+        
+        - EndOfRoadCondition
+        
+        - Teleport
+        
+        - LanePosition
         
 """
 import os

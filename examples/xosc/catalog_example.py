@@ -1,8 +1,16 @@
 
-""" Notes: 
+""" 
+    Example of how to create a vehicle catalog
+    The properties are added in order to work with esmini 1.5-1.7
 
-    example of how to create a vehicle catalog
-    the properties are added in order to work with esmini 1.5-1.7
+    
+    Some features used:
+
+    - Vehicle
+
+    - BoundingBox
+
+    - Axle
 
 """
 import os

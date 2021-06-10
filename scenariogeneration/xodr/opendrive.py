@@ -526,6 +526,12 @@ class OpenDrive():
             add_junction(junction)
                 Adds a junction to the opendrive
 
+            adjust_roads_and_lanes()
+                Adjust starting position of all geometries of all roads and try to link lanes in neighbouring roads
+
+            adjust_startpoints()
+                Adjust starting position of all geometries of all roads 
+            
             write_xml(filename)
                 write a open scenario xml
                 
@@ -568,7 +574,7 @@ class OpenDrive():
         self.roads[str(road.id)] = road        
 
     def adjust_roads_and_lanes(self): 
-        """ Adjust starting position of all geometries of all roads and try to link lanes in neighbouring roads
+        """ Adjust starting position of all geometries of all roads and try to link all lanes in neighbouring roads
 
             Parameters
             ----------
@@ -584,7 +590,7 @@ class OpenDrive():
             create_lane_links(self.roads[results[r][0]],self.roads[results[r][1]])  
 
 
-    def adjust_road_wrt_neighbour(self, road_id, neighbour_id, contact_point, neighbour_type):
+    def _adjust_road_wrt_neighbour(self, road_id, neighbour_id, contact_point, neighbour_type):
         """ Adjust geometries of road[road_id] taking as a successor/predecessor the neighbouring road with id neighbour_id.
             NB Passing the type of contact_point is necessary because we call this function also on roads connecting to 
             to a junction road (which means that the road itself do not know the contact point of the junction road it connects to)
@@ -688,7 +694,7 @@ class OpenDrive():
 
                         # print('  Adjusting {}road {} to predecessor {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))
-                        self.adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
+                        self._adjust_road_wrt_neighbour(k, self.roads[k].predecessor.element_id,
                                                     self.roads[k].predecessor.contact_point, 'predecessor')
                         count_adjusted_roads +=1
 
@@ -697,9 +703,9 @@ class OpenDrive():
                             # print('    Adjusting successor connecting road {} in junction {} to road {} '.\
                             #     format(succ_id, self.roads[k].road_type, self.roads[k].id))
                             if self.roads[k].successor.contact_point == ContactPoint.start:
-                                self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
+                                self._adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'predecessor')
                             else:
-                                self.adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'successor')
+                                self._adjust_road_wrt_neighbour(succ_id, k, ContactPoint.end, 'successor')
                             count_adjusted_roads +=1
 
                     # check if geometry has a normal (road) successor 
@@ -709,7 +715,7 @@ class OpenDrive():
 
                         # print('  Adjusting {}successor {} to road {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))
-                        self.adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
+                        self._adjust_road_wrt_neighbour(k, self.roads[k].successor.element_id,
                                                     self.roads[k].successor.contact_point, 'successor')
                         count_adjusted_roads +=1
 
@@ -718,9 +724,9 @@ class OpenDrive():
                             # print('    Adjusting predecessor connecting road {} in junction {} to road {} '.\
                             #     format(pred_id, self.roads[k].road_type, self.roads[k].id))
                             if self.roads[k].predecessor.contact_point == ContactPoint.start:
-                                self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'predecessor')
+                                self._adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'predecessor')
                             else:
-                                self.adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'successor')
+                                self._adjust_road_wrt_neighbour(pred_id, k, ContactPoint.start, 'successor')
                             count_adjusted_roads +=1
             
             count_total_adjusted_roads += count_adjusted_roads

@@ -1,3 +1,16 @@
+""" 
+    An example, using the generators, showing how to create a simple highway with exits and entries
+
+    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option 
+
+    Some features used:
+    
+    - create_road
+
+    - add_successor/add_predecessor with and without the lane_offset option
+
+    - create_junction
+"""
 from scenariogeneration import xodr
 import os
 

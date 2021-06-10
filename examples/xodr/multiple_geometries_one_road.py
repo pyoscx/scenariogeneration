@@ -1,8 +1,28 @@
+""" Fundamental example how to build up a road from scratch.
+    
+    This example should be seen as a developer example how roads are built up from the very basic classes in OpenDRIVE
+    create_road will take care of this and much more, so a user is recommended to use that generator instead.
+
+    Some features used:
+
+    - PlanView
+
+    - Lane
+
+    - Lanes
+
+    - LaneSection
+
+    - RoadMark
+
+    - Road
+
+"""
 from scenariogeneration import xodr, prettyprint
 import numpy as np
 import os
 
-## EXAMPLE 1 
+
 ## Multiple geometries in one only road. 
 
 ##1. Create the planview 

@@ -1,10 +1,13 @@
-""" Notes:
+""" 
     Simple example showing how one vehicle triggers based on the speed of another vehcile, then changes it speed
 
     Some features used:
-        SpeedCondition
-        AbsoluteSpeedAction
-        RoadPosition
+    
+    - SpeedCondition
+    
+    - AbsoluteSpeedAction
+    
+    - RoadPosition
         
 """
 import os

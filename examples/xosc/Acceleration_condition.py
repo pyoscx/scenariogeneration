@@ -1,12 +1,18 @@
-""" Notes:
-    Simple example showing how one vehicle triggers based on the speed of another vehcile, then changes it speed
+""" 
+    Example showing how one vehicle triggers based on the acceleration of another vehcile, then changes it speed.
+    
 
     Some features used:
-        AccelerationCondition
-        StandStillCondition
-        RelativeRoadPosition
-        AbsoluteSpeedAction
+
+    - AccelerationCondition
+
+    - StandStillCondition
+
+    - RelativeRoadPosition
+
+    - AbsoluteSpeedAction
         
+    
 """
 import os
 from scenariogeneration import xosc, prettyprint  
@@ -124,15 +130,11 @@ act = xosc.Act('my_act',starttrigger)
 act.add_maneuver_group(mangr)
 act.add_maneuver_group(ego_mangr)
 
-## create the story
-storyparam = xosc.ParameterDeclarations()
-storyparam.add_parameter(xosc.Parameter('$owner',xosc.ParameterType.string,targetname))
-story = xosc.Story('mystory',storyparam)
-story.add_act(act)
+
 
 ## create the storyboard
 sb = xosc.StoryBoard(init,xosc.ValueTrigger('stop_simulation',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(15,xosc.Rule.greaterThan),'stop'))
-sb.add_story(story)
+sb.add_act(act)
 
 ## create the scenario
 sce = xosc.Scenario('adapt_speed_example','Mandolin',paramdec,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)

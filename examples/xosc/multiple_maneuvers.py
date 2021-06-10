@@ -1,9 +1,11 @@
-""" Notes:
+""" 
     An example setting up multiple vehicles triggering on eachother and running in parallel
 
     Some features used:
-        AbsoluteLaneChangeAction
-        TimeHeadwayCondition
+    
+    - AbsoluteLaneChangeAction
+    
+    - TimeHeadwayCondition
         
 """
 import os

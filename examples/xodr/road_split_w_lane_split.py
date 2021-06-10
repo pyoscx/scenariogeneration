@@ -1,3 +1,23 @@
+""" Fundamental example how to build up a road split with lane split afterwards.
+    
+    This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
+
+    This example should be seen as a way to create your own complex split case that the LaneDef + create_road cannot handle
+
+    Some features used:
+
+    - create_road
+
+    - lane_offset
+
+    - LaneSection
+
+    - Lanes
+
+    - LaneLinker
+
+"""
+
 from scenariogeneration import xodr 
 import os
 

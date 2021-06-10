@@ -1,3 +1,11 @@
+""" Example showing how to create two separate roads (that are not linked), hence adjust_roads_and_lanes will not be able to set the geometries without a similar approach.
+
+    Some features used:
+
+    - PlanView
+    
+
+"""
 from scenariogeneration import xodr, prettyprint
 import numpy as np
 import os

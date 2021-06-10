@@ -1,15 +1,20 @@
-""" Notes:
+""" 
     An example showing how to setup a choise for one vehicle depending on what is happening around it, using multi conditions with different rules
 
     for different behaviour change speed_of_outer_car
 
     Some features used:
-        ConditionGroup 
-        TimeToCollisionCondition
-        TimeHeadwayCondition
-        AbsoluteSpeedAction
-        AbsoluteLaneChangeAction
-        Rule
+    - ConditionGroup 
+    
+    - TimeToCollisionCondition
+
+    - TimeHeadwayCondition
+    
+    - AbsoluteSpeedAction
+    
+    - AbsoluteLaneChangeAction
+    
+    - Rule
         
 """
 #change this to have different Ego behaviors (use 20 or 30)

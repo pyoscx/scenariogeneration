@@ -1,3 +1,24 @@
+""" example how to add geometries with a fixed position, please note that *adjust_roads_and_lanes* will only take care of the lane linking in this case not any geometrical adjustmensts
+
+    This is how a road can be built up if all exact postions of the geometries are already known
+
+    Some features used:
+
+    - PlanView
+
+    - (PlanView).add_fixed_geometry
+
+    - RoadMark
+
+    - Lane
+
+    - LaneSection
+
+    - Lanes 
+    
+    - LaneLinker
+"""
+
 import os
 from scenariogeneration import xodr, xosc, esmini, prettyprint, ScenarioGenerator
 

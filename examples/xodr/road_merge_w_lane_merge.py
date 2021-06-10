@@ -1,5 +1,22 @@
-from scenariogeneration import xodr 
+""" Fundamental example how to build up a road merge with lane merge afterwards.
+    
+    This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
 
+    This example should be seen as a way to create your own complex merge case that the LaneDef + create_road cannot handle
+
+    Some features used:
+
+    - create_road
+
+    - lane_offset
+
+    - LaneSection
+
+    - Lanes
+
+"""
+
+from scenariogeneration import xodr 
 import os
 
 # create some roads 

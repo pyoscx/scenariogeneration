@@ -1,8 +1,10 @@
-""" Notes:
+""" 
     Example of a synchronizing two vehicles at one point
 
     Some features used:
-        AbsoluteSynchronizeAction
+    
+    
+    - AbsoluteSynchronizeAction
 
         
 """

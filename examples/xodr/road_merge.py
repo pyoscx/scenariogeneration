@@ -1,3 +1,14 @@
+""" Example how to create a simple road merge through a junction
+
+    Some features used
+
+    - create_road
+
+    - add_successor/add_predecessor with lane_offset
+
+    - create_junction
+
+"""
 from scenariogeneration import xodr
 
 import os

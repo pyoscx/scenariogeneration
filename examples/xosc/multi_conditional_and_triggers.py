@@ -3,10 +3,14 @@
 
 
     Some features used:
-        ConditionGroup 
-        TimeToCollisionCondition
-        TimeHeadwayCondition
-        AbsoluteSpeedAction
+        
+    - ConditionGroup 
+
+    - TimeToCollisionCondition
+
+    - TimeHeadwayCondition
+    
+    - AbsoluteSpeedAction
         
 """
 import os
