@@ -6,6 +6,7 @@ from .helpers import enum2str
 from .enumerations import ElementType, JunctionGroupType
 
 from .exceptions import NotSameAmountOfLanesError
+import warnings
 
 class _Links():
     """ Link creates a Link element used for roadlinking in OpenDrive
@@ -47,7 +48,17 @@ class _Links():
                 link (_Link): a link to be added to the Links
 
         """
-        self.links.append(link)
+        if link in self.links:
+            warnings.warn('Multiple identical links is detected, this might cause problems. Using the first one created. ',UserWarning)
+        elif any([link.link_type == x.link_type for x in self.links]):
+            warnings.warn('Multiple links of the same link_type: ' + link.link_type + ' is detected, this might cause problems, overwriting the old one. ',UserWarning)
+            for l in self.links:
+                if l == link.link_type:
+                    self.links.remove(l)
+            self.links.append(link)
+        else:
+            self.links.append(link)
+
     def get_predecessor_contact_point(self):
         """ returns the predecessor contact_point of the link (if exists)
 
@@ -198,7 +209,7 @@ class _Link():
 
     def __eq__(self, other):
         if isinstance(other,_Link):
-            if self.get_attributes() == other.get_attributes():
+            if self.get_attributes() == other.get_attributes() and self.link_type == other.link_type:
                 return True
         return False
 
@@ -637,7 +648,6 @@ def _create_links_roads(pre_road,suc_road,same_type=''):
             same_type (str): used if the roads are connecting to the same type, predecessor or successor
 
     """
-    print(same_type)
     if same_type != '':
         if same_type == 'successor':
             lane_sec_pos = -1
