@@ -1,5 +1,15 @@
 ## scenariogeneration release notes
 
+
+### 2021-06-10 Version 0.4.0
+- update of generators
+   - create_junction_roads now uses R (distance from the center of the junction to the roads), instead of r (the radius of the arc that made the connecting road)
+   - create_junction_roads can now handle any angles and any amount of roads going in to the junction, will assume a circle (radius R) to fit the roads into. 
+- big documentation update, new page, including examples in online documentation.
+- road-road linking generalized so roads can be added as successor/successor or predecessor/predecessor pairs.
+- bug fix
+   - it was possible to add multiple lane links, this is fixed, now only one successor/predecessor is alowed. 
+
 ### 2021-05-28 Version 0.3.7
 - bug fix for Arcs
 
