@@ -26,7 +26,8 @@ then run any of the examples provided
 
 ### Prerequisites
 
-Been tested with Python >3.6.9
+Been tested with Python >3.6.9.
+With Python versions <3.7 the order of certain xml-elements might not be the same between generations.
 
 ### Installing
 
