@@ -8,7 +8,7 @@ from .actions import _Action, _ActionType, _PrivateActionType
 from .triggers import EmptyTrigger, ValueTrigger, SimulationTimeCondition
 from .utils import EntityRef, _TriggerType, _EntityTriggerType, _ValueTriggerType
 from .utils import ParameterDeclarations, CatalogFile, convert_bool
-from .enumerations import Priority, Rule, ConditionEdge
+from .enumerations import Priority, Rule, ConditionEdge, VersionBase
 
 
 
@@ -788,7 +788,7 @@ class Maneuver():
 
         return element
 
-class Event():
+class Event(VersionBase):
     """ the Event class creates the event of OpenScenario
         
         Parameters
@@ -829,7 +829,7 @@ class Event():
     """
     def __init__(self,name,priority,maxexecution=1):
         self.name = name
-        if priority not in Priority:
+        if not hasattr(Priority,str(priority)):
             ValueError('Not a valid priority')
         self.priority = priority
         self.action = []
@@ -876,7 +876,7 @@ class Event():
         """ returns the attributes as a dict of the Event
 
         """
-        return {'name':self.name,'priority':self.priority.name,'maximumExecutionCount':str(self.maxexecution)}
+        return {'name':self.name,'priority':self.priority.get_name(),'maximumExecutionCount':str(self.maxexecution)}
 
     def get_element(self):
         """ returns the elementTree of the Event
@@ -884,12 +884,12 @@ class Event():
         """
         if not self.action:
             raise ValueError('no action(s) set')
-        if not self.trigger:
+        if self.isVersion(minor=0) and not self.trigger:
             raise ValueError('no trigger set')
 
         element = ET.Element('Event',attrib=self.get_attributes())
         for action in self.action:
             element.append(action.get_element())
-
-        element.append(self.trigger.get_element())
+        if self.trigger:
+            element.append(self.trigger.get_element())
         return element

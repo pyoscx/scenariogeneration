@@ -15,7 +15,11 @@ def test_road():
     road3 = OSC.RoadNetwork(roadfile,'a')
     assert road == road2
     assert road != road3
-
+    road.add_used_area_position(OSC.WorldPosition())
+    with pytest.raises(OSC.NotEnoughInputArguments):
+        road.get_element()
+    road.add_used_area_position(OSC.WorldPosition(1,1,1))
+    prettyprint(road.get_element())
 def test_catalog():
 
     catalog = OSC.Catalog()

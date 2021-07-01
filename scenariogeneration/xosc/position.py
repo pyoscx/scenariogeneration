@@ -3,7 +3,9 @@
 """
 import xml.etree.ElementTree as ET
 
-from .utils import Orientation, CatalogReference, Route, _PositionType
+from .utils import Orientation, CatalogReference, Route, Trajectory, _PositionType
+from .exceptions import OpenSCENARIOVersionError, ToManyOptionalArguments, NotEnoughInputArguments
+
 
 class WorldPosition(_PositionType):
     """ the WorldPostion creates a worldposition of openScenario
@@ -574,20 +576,27 @@ class RelativeLanePosition(_PositionType):
         
         Parameters
         ----------
-            s (float): length along road
-
-            offset (float): offset from center of lane
-
             lane_id (str): lane of the road
 
-            entity (str): id of the entity    
+            entity (str): id of the entity  
+
+            offset (float): offset from center of lane             
+                Default: 0
+
+            ds (float): length along road (use this or dsLane)
+                Default: None
+
+            dsLane (double): relative offset along the lane (valid from V1.1) (use this or ds)
+                Default: None
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()    
 
         Attributes
         ----------
-            s (float): length along road
+            ds (float): length along road
+
+            dsLane (double): relative offset along the lane (valid from V1.1)
 
             offset (float): offset from center of lane
 
@@ -607,27 +616,38 @@ class RelativeLanePosition(_PositionType):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,s,offset,lane_id,entity,orientation=Orientation()):
+    def __init__(self,lane_id,entity,offset=0,ds=None,dsLane=None,orientation=Orientation()):
         """ initalizes the RelativeLanePosition
         
         Parameters
         ----------
-            s (float): length along road
-
-            offset (float): offset from center of lane
-
             lane_id (str): lane of the road
 
-            entity (str): id of the entity           
+            entity (str): id of the entity  
+
+            offset (float): offset from center of lane             
+                Default: 0
+
+            ds (float): length along road (use this or dsLane)
+                Default: None
+
+            dsLane (double): relative offset along the lane (valid from V1.1) (use this or ds)
+                Default: None
 
             orientation (Orientation): the angular orientation of the entity
-                Default: Orientation()  
+                Default: Orientation()    
         
         """ 
-        self.s = s
+        if ds and dsLane:
+            raise ToManyOptionalArguments('Not both of ds and dsLane can be used.')
+        if not ds and not dsLane:
+            raise NotEnoughInputArguments('Either ds or dsLane is needed as input.')
+        self.ds = ds
+        self.dsLane = dsLane
         self.lane_id = lane_id
         self.offset = offset
         self.entity = entity
+        
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
@@ -644,7 +664,12 @@ class RelativeLanePosition(_PositionType):
         """
         retdict = {}
         retdict['entityRef'] = self.entity
-        retdict['ds'] = str(self.s)
+        if self.ds:
+            retdict['ds'] = str(self.ds)
+        if self.dsLane and not self.isVersion(minor=0):
+            retdict['dsLane'] = str(self.dsLane)
+        elif self.dsLane and self.isVersion(minor=0):
+            OpenSCENARIOVersionError('dsLane was introduced in OpenSCENARIO V1.1, not in 1.0')
         retdict['offset'] = str(self.offset)
         retdict['dLane'] = str(self.lane_id)
         return retdict
@@ -886,4 +911,179 @@ class RoutePositionInLaneCoordinates(_PositionType):
         relement.append(self.orientation.get_element())
         inroute = ET.SubElement(relement,'InRoutePosition')
         ET.SubElement(inroute,'PositionInLaneCoordinates',attrib={'pathS':str(self.s),'laneId':self.laneid,'laneOffset':str(self.offset)})
+        return element
+
+
+class TrajectoryPosition(_PositionType):
+    """ TrajectoryPosition creates a TrajectoryPosition of OpenSCENARIO
+        
+        Parameters
+        ----------
+            trajectory (Trajector, or CatalogRef): t coordinate of the road
+
+            s (double): s coordinate of the trajector
+
+            t (double): s coordinate of the road (optional)
+                Default: None
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Attributes
+        ----------
+            trajectory (Trajector, or CatalogRef): t coordinate of the road
+
+            s (double): s coordinate of the trajector
+
+            t (double): s coordinate of the road (optional)
+                Default: None
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self, trajectory, s, t = None, orientation = Orientation()):
+        """ Initalize the TrajectoryPosition class
+        
+            Parameters
+            ----------
+                trajectory (Trajector, or CatalogRef): t coordinate of the road
+
+                s (double): s coordinate of the trajector
+
+                t (double): s coordinate of the road (optional)
+                    Default: None
+                orientation (Orientation): Oritation of the entity
+                    Default: Orientation()
+        """
+        if not ( isinstance(trajectory,Trajectory) or isinstance(trajectory,CatalogReference)):
+            raise TypeError('trajectory input not of type Trajectory or CatalogReference') 
+        self.trajectory = trajectory
+        self.s = s
+        self.t = t
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
+        self.orientation = orientation
+
+    def __eq__(self,other):
+        if isinstance(other,TrajectoryPosition):
+            if self.get_attributes() == other.get_attributes() and\
+            self.orientation == other.orientation and self.trajectory == other.trajectory:
+                return True
+        return False
+    
+    def get_attributes(self):
+        """ returns the attributes of the TrajectoryPosition as a dict
+
+        """
+        retdict = {}
+        retdict['s'] = str(self.s)
+        if self.t:
+            retdict['t'] = str(self.t)
+        return retdict
+
+    def get_element(self,elementname = 'Position'):
+        """ returns the elementTree of the TrajectoryPosition
+
+        """
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError('TrajectoryPosition was introduced in OpenSCENARIO V1.1')
+
+        element = ET.Element(elementname)
+        traj_element = ET.SubElement(element,'TrajectoryPosition',attrib=self.get_attributes())
+        trajref_element = ET.SubElement(traj_element,'TrajectoryRef')
+        trajref_element.append(self.trajectory.get_element())
+        traj_element.append(self.orientation.get_element())
+        
+        return element
+
+
+class GeoPosition(_PositionType):
+    """ GeoPosition creates a GeoPosition of OpenSCENARIO 
+        
+        Parameters
+        ----------
+            latitue (double): latitude point on earth
+
+            longitude (double): longitude point on earth
+
+            height (double): height above surcae
+                Default: None
+
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Attributes
+        ----------
+            latitue (double): latitude point on earth
+
+            longitude (double): longitude point on earth
+
+            height (double): height above surcae
+                Default: None
+
+            orientation (Orientation): Oritation of the entity
+                Default: Orientation()
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self, latitude, longitude, height = None, orientation = Orientation()):
+        """ Initalize the GeoPosition class
+        
+            Parameters
+            ----------
+                latitue (double): latitude point on earth
+
+                longitude (double): longitude point on earth
+
+                height (double): height above surcae
+                    Default: None
+
+                orientation (Orientation): Oritation of the entity
+                    Default: Orientation()
+        """
+
+        self.longitude = longitude
+        self.latitude = latitude
+        self.height = height
+        if not isinstance(orientation,Orientation):
+            raise TypeError('input orientation is not of type Orientation')
+        self.orientation = orientation
+
+    def __eq__(self,other):
+        if isinstance(other,GeoPosition):
+            if self.get_attributes() == other.get_attributes() and\
+            self.orientation == other.orientation:
+                return True
+        return False
+    
+    def get_attributes(self):
+        """ returns the attributes of the GeoPosition as a dict
+
+        """
+        retdict = {}
+        retdict['longitude'] = str(self.longitude)
+        retdict['latitude'] = str(self.latitude)
+        if self.height:
+            retdict['height'] = str(self.height)
+        return retdict
+
+    def get_element(self,elementname = 'Position'):
+        """ returns the elementTree of the GeoPosition
+
+        """
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError('GeoPosition was introduced in OpenSCENARIO V1.1')
+
+        element = ET.Element(elementname)
+        traj_element = ET.SubElement(element,'GeoPosition',self.get_attributes())
+        traj_element.append(self.orientation.get_element())
+        
         return element

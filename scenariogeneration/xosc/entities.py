@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from .utils import Controller, Dimensions, Center, BoundingBox, Properties, Parameter
 from .utils import EntityRef
 from .scenario import ParameterDeclarations
-from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory, ObjectType
+from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory, ObjectType, VersionBase
 from .utils import DynamicsConstrains, CatalogFile, CatalogReference
 
 
@@ -55,7 +55,7 @@ class Entities():
             ----------
                 name (str): name of the scenario object
 
-                entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
+                entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference (V1.1)): object description
 
                 controller (CatalogReference, or Controller): controller for the object
                     Default (None)
@@ -104,14 +104,14 @@ class Entities():
         return element
 
 
-class ScenarioObject():
+class ScenarioObject(VersionBase):
     """ The ScenarioObject creates a scenario object of OpenScenario
         
         Parameters
         ----------
             name (str): name of the object
 
-            entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
+            entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
             controller (CatalogReference, or Controller): controller for the object
 
@@ -119,7 +119,7 @@ class ScenarioObject():
         ----------
             name (str): name of the object
 
-            entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
+            entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
             controller (CatalogReference, or Controller): controller for the object
 
@@ -138,15 +138,15 @@ class ScenarioObject():
             ----------
                 name (str): name of the object
 
-                entityobject (CatalogReference, Vehicle, Pedestrian, or MiscObject): object description
+                entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
                 controller (CatalogReference, or Controller): controller for the object
                     Default: None
 
         """
         self.name = name
-        if not (isinstance(entityobject,CatalogReference) or isinstance(entityobject,Vehicle) or isinstance(entityobject,Pedestrian) or isinstance(entityobject,MiscObject)):
-            raise TypeError('entityobject is not of type CatalogReference, Vehicle, Pedestrian, nor MiscObject')
+        if not (isinstance(entityobject,CatalogReference) or isinstance(entityobject,Vehicle) or isinstance(entityobject,Pedestrian) or isinstance(entityobject,MiscObject) or (not self.isVersion(minor=0) and isinstance(entityobject,ExternalObjectReference))):
+            raise TypeError('entityobject is not of type CatalogReference, Vehicle, Pedestrian, MiscObject, nor ExternalObjectReference (or to old version of openscenario)')
         
         if controller is not None and not (isinstance(controller,CatalogReference) or isinstance(controller,Controller)):
             raise TypeError('controller input is not of type CatalogReference or Controller')
@@ -232,7 +232,7 @@ class Entity():
             self.entity = EntityRef(entityref)
             self.object_type = None
         else:
-            if object_type not in ObjectType:
+            if not hasattr(ObjectType,str(object_type)):
                 ValueError('object_type input not a valid ObjectType')
             self.object_type = object_type
             self.entity = None
@@ -260,10 +260,10 @@ class Entity():
         if self.entity:
             members.append(self.entity.get_element())
         if self.object_type:
-            ET.SubElement(members,'ByType',attrib={'value':self.object_type.name})
+            ET.SubElement(members,'ByType',attrib={'value':self.object_type.get_name()})
         return element
 
-class Pedestrian():
+class Pedestrian(VersionBase):
     """ the Pedestrian class creates a pedestrian type entity of openscenario
 
         Parameters
@@ -338,7 +338,7 @@ class Pedestrian():
         self.name = name
         self.model = model
         self.mass = mass
-        if category not in PedestrianCategory:
+        if not hasattr(PedestrianCategory,str(category)):
             ValueError(str(category) + ' is not a valid pedestrian type')    
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
@@ -427,7 +427,15 @@ class Pedestrian():
         """ returns the attributes as a dict of the pedestrian
 
         """
-        return {'name':str(self.name),'pedestrianCategory':self.category.name,'model':self.model,'mass':str(self.mass)}
+        retdict = {}
+        retdict['name'] = str(self.name)
+        retdict['pedestrianCategory'] = self.category.get_name()
+        if self.isVersion(minor=0):
+            retdict['model'] = self.model
+        else:
+            retdict['model3d'] = self.model
+        retdict['mass'] = str(self.mass)
+        return retdict
 
     def get_element(self):
         """ returns the elementTree of the pedestrian
@@ -440,7 +448,7 @@ class Pedestrian():
         
         return element
 
-class MiscObject():
+class MiscObject(VersionBase):
     """ the MiscObject Class creates a MiscObject for openscenario
 
         Parameters
@@ -451,7 +459,10 @@ class MiscObject():
 
             category (MiscObjectCategory): the category of the misc object
 
-            boundingbox (BoundingBox): the bounding box of the MiscObject               
+            boundingbox (BoundingBox): the bounding box of the MiscObject   
+
+            model3d (str): path to model file (valid from V1.1) 
+                Default: None           
 
         Attributes
         ----------
@@ -466,6 +477,9 @@ class MiscObject():
             parameters (ParameterDeclaration): Parameter declarations of the MiscObject
 
             properties (Properties): additional properties of the MiscObject
+
+            model3d (str): path to model file (valid from V1.1)
+                Default: None
 
         Methods
         -------
@@ -491,7 +505,7 @@ class MiscObject():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name, mass, category, boundingbox):
+    def __init__(self,name, mass, category, boundingbox, model3d = None):
         """ initalzie the MiscObject Class
 
         Parameters
@@ -504,10 +518,12 @@ class MiscObject():
 
             boundingbox (BoundingBox): the bounding box of the MiscObject       
         
+            model3d (str): path to model file (valid from V1.1)
+                Default: None
         """
         self.name = name
         self.mass = mass
-        if category not in MiscObjectCategory:
+        if not hasattr(MiscObjectCategory,str(category)):
             raise TypeError(str(category) + ' is not a valid MiscObject type')    
         self.category = category
         if not isinstance(boundingbox,BoundingBox):
@@ -515,6 +531,7 @@ class MiscObject():
         self.boundingbox = boundingbox
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
+        self.model3d = model3d
 
     def __eq__(self,other):
         if isinstance(other,MiscObject):
@@ -595,7 +612,13 @@ class MiscObject():
         """ returns the attributes as a dict of the MiscObject
 
         """
-        return {'name':str(self.name),'MiscObjectCategory':str(self.category),'mass':str(self.mass)}
+        retdict = {}
+        retdict['name'] = str(self.name)
+        retdict['MiscObjectCategory'] = self.category.get_name()
+        retdict['mass'] = str(self.mass)
+        if not self.isVersion(minor=0) and self.model3d:
+            retdict['model3d'] = self.model3d
+        return retdict
 
     def get_element(self):
         """ returns the elementTree of the MiscObject
@@ -608,7 +631,7 @@ class MiscObject():
         
         return element
 
-class Vehicle():
+class Vehicle(VersionBase):
     """ the Vehicle Class creates a Vehicle for openscenario
 
         Parameters
@@ -628,7 +651,9 @@ class Vehicle():
             max_acceleration (float): the maximum acceleration of the vehicle
 
             max_deceleration (float): the maximum deceleration of the vehicle
-                
+            
+            mass (float): the mass of the vehicle (valid from OpenSCENARIO V1.1)
+                Default: None
 
         Attributes
         ----------
@@ -645,6 +670,8 @@ class Vehicle():
             parameters (ParameterDeclaration): Parameter declarations of the vehicle
 
             properties (Properties): additional properties of the vehicle
+
+            mass (float): the mass of the vehicle
 
         Methods
         -------
@@ -673,7 +700,7 @@ class Vehicle():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name, vehicle_type, boundingbox, frontaxle, rearaxle, max_speed, max_acceleration, max_deceleration):
+    def __init__(self,name, vehicle_type, boundingbox, frontaxle, rearaxle, max_speed, max_acceleration, max_deceleration, mass=None):
         """ initalzie the Vehicle Class
 
             Parameters
@@ -693,10 +720,12 @@ class Vehicle():
                 max_acceleration (float): the maximum acceleration of the vehicle
 
                 max_deceleration (float): the maximum deceleration of the vehicle
-        
+
+                mass (float): the mass of the vehicle (valid from OpenSCENARIO V1.1)
+                    Default: None
         """
         self.name = name
-        if vehicle_type not in VehicleCategory:
+        if not hasattr(VehicleCategory,str(vehicle_type)):
             raise TypeError(vehicle_type + ' is not a valid vehicle type.')  
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
@@ -708,6 +737,7 @@ class Vehicle():
         self.dynamics = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
+        self.mass = mass
 
     def __eq__(self,other):
         if isinstance(other,Vehicle):
@@ -716,7 +746,8 @@ class Vehicle():
             self.properties == other.properties and \
             self.axles == other.axles and \
             self.dynamics == other.dynamics and \
-            self.parameters == other.parameters:
+            self.parameters == other.parameters and \
+            self.mass == other.mass:
                 return True
         return False
 
@@ -802,7 +833,12 @@ class Vehicle():
         """ returns the attributes as a dict of the Center
 
         """
-        return {'name':str(self.name),'vehicleCategory':str(self.vehicle_type.name)}
+        retdict = {}
+        retdict['name'] = str(self.name)
+        retdict['vehicleCategory'] = self.vehicle_type.get_name()
+        if self.mass and not self.isVersion(0):
+            retdict['mass'] = str(self.mass)
+        return retdict
 
     def get_element(self):
         """ returns the elementTree of the Center
@@ -974,3 +1010,54 @@ class Axles():
             element.append(ax.get_element())
 
         return element
+
+
+
+class ExternalObjectReference():
+    """ the ExternalObjectReference describes the EntityObject ExternalObjectReference (valid from V1.1)
+
+        Parameters
+        ----------
+            name (str): identifier of the external object
+
+        Attributes
+        ----------
+            name (str): identifier of the external object
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns the attributes of the class
+
+            
+    """
+    def __init__(self,name):
+        """ initalzie the ExternalObjectReference
+
+            Parameters
+            ----------
+                name (str): identifier of the external object
+        """
+        self.name = name
+
+    def __eq__(self,other):
+        if isinstance(other,ExternalObjectReference):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """ returns the attributes of the Axle as a dict
+
+        """
+        return {'name':self.name}
+
+    def get_element(self):
+        """ returns the elementTree of the Axle
+
+        """
+        return ET.Element('ExternalObjectReference', attrib=self.get_attributes())
+        

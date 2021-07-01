@@ -209,3 +209,10 @@ def test_controller_in_Entities():
     assert entities == entities2
     assert entities != entities3
 
+def test_external_object():
+    ext_obj = OSC.ExternalObjectReference('my object')
+    ext_obj2 = OSC.ExternalObjectReference('my object')
+    ext_obj3 = OSC.ExternalObjectReference('my object 2')
+
+    assert ext_obj == ext_obj2
+    assert ext_obj != ext_obj3

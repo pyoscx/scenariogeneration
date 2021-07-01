@@ -1,4 +1,5 @@
 
+
 import pytest
 
 from scenariogeneration import xosc as OSC
@@ -71,10 +72,10 @@ def test_laneposition():
 
 def test_relativelaneposition():
 
-    pos = OSC.RelativeLanePosition(1,2,lane_id=1,entity='Ego')
+    pos = OSC.RelativeLanePosition(ds=1,lane_id=1,entity='Ego')
     prettyprint(pos.get_element())
-    pos2 = OSC.RelativeLanePosition(1,2,lane_id=1,entity='Ego')
-    pos3 = OSC.RelativeLanePosition(1,2,lane_id=2,entity='Ego')
+    pos2 = OSC.RelativeLanePosition(ds=1,lane_id=1,entity='Ego')
+    pos3 = OSC.RelativeLanePosition(ds=1,lane_id=2,entity='Ego')
 
     assert pos == pos2
     assert pos != pos3
@@ -106,3 +107,22 @@ def test_route_position():
     prettyprint(routepos.get_element())
     assert routepos == routepos2
     assert routepos != routepos3
+
+def test_trajectory_position():
+    traj = OSC.Trajectory('my traj',False)
+    traj.add_shape(OSC.Clothoid(0.001,0.001,100,OSC.WorldPosition()))
+    pos = OSC.TrajectoryPosition(traj,0)
+
+    prettyprint(pos)
+    pos2 = OSC.TrajectoryPosition(traj,0)
+    pos3 = OSC.TrajectoryPosition(traj,0,3)
+    assert pos2 == pos
+    assert pos3 != pos
+
+def test_geo_position():
+    pos = OSC.GeoPosition(1,1)
+    pos2 = OSC.GeoPosition(1,1)
+    pos3 = OSC.GeoPosition(1,1,1)
+    prettyprint(pos)
+    assert pos == pos2
+    assert pos != pos3

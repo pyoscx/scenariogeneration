@@ -195,7 +195,8 @@ def test_abs_sync_action():
     asa3 = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(1,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20)
     assert asa == asa2
     assert asa != asa3
-
+    asa4 = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,steady_state=OSC.TargetTimeSteadyState(3))
+    prettyprint(asa4)
 def test_rel_sync_action():
     
     asa = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta')
@@ -204,14 +205,16 @@ def test_rel_sync_action():
     asa3 = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),21,'delta')
     assert asa == asa2
     assert asa != asa3
+    asa4 = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta',steady_state=OSC.TargetDistanceSteadyState(3))
+    prettyprint(asa4)
 
 def test_follow_traj_action_polyline():
 
     positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,-1,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,0,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+    positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+    positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+    positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
 
@@ -354,7 +357,7 @@ def test_trafficswarmaction():
 
 def test_environmentaction():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
-    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    weather = OSC.Weather(OSC.CloudState.free,100)
     rc = OSC.RoadCondition(1)
 
     env = OSC.Environment(tod,weather,rc)
@@ -364,3 +367,12 @@ def test_environmentaction():
     ea3 = OSC.EnvironmentAction('myaction2',env)
     assert ea == ea2
     assert ea != ea3
+
+def test_trafficstopaction():
+    tsa = OSC.TrafficStopAction('hej')
+    tsa2 = OSC.TrafficStopAction('hej')
+    tsa3 = OSC.TrafficStopAction('hey')
+    assert tsa == tsa2
+    assert tsa != tsa3
+    prettyprint(tsa)
+

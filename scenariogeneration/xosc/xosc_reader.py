@@ -62,7 +62,12 @@ def _parsePedestrianCatalog(pedestrian):
     ped_bb = BoundingBox(float(dim['width']),float(dim['length']),float(dim['height']),float(center['x']),float(center['y']),float(center['z']))
 
     # create the vehicle
-    return_pedestrian = Pedestrian(pedestrian.attrib['name'],pedestrian.attrib['model'],float(pedestrian.attrib['mass']),PedestrianCategory[pedestrian.attrib['pedestrianCategory']],ped_bb)
+    if pedestrian.find('model'):
+        model = pedestrian.attrib['model']
+    else:
+        model = pedestrian.attrib['model3d']
+    
+    return_pedestrian = Pedestrian(pedestrian.attrib['name'],model,float(pedestrian.attrib['mass']),getattr(PedestrianCategory,pedestrian.attrib['pedestrianCategory']),ped_bb)
 
 
     if pedestrian.find('Properties'):
@@ -113,7 +118,7 @@ def _parseVehicleCatalog(vehicle):
 
     
     # create the vehicle
-    return_vehicle = Vehicle(vehicle.attrib['name'],VehicleCategory[vehicle.attrib['vehicleCategory']],veh_bb,veh_front_axle,veh_rear_axle,maxspeed,maxacc,maxdec)
+    return_vehicle = Vehicle(vehicle.attrib['name'],getattr(VehicleCategory,vehicle.attrib['vehicleCategory']),veh_bb,veh_front_axle,veh_rear_axle,maxspeed,maxacc,maxdec)
 
     if vehicle.find('Properties'):
         for prop in vehicle.find('Properties'):
@@ -140,7 +145,8 @@ def ParameterDeclarationReader(file_path):
         loaded_xosc = ET.parse(f)
         paramdec = loaded_xosc.find('ParameterDeclarations')
         for param in paramdec:
-            param_type = ParameterType[param.attrib['parameterType']]
+            print(param.attrib['parameterType'])
+            param_type = getattr(ParameterType,param.attrib['parameterType'])
             if param_type == ParameterType.double:
                 value = float(param.attrib['value'])
             elif param_type == ParameterType.integer or param_type == ParameterType.unsighedInt or param_type == ParameterType.unsighedShort:

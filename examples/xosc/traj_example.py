@@ -89,10 +89,10 @@ event = xosc.Event('myfirstevent',xosc.Priority.overwrite)
 event.add_trigger(trigger)
 
 positionlist = []
-positionlist.append(xosc.RelativeLanePosition(0,0,0,targetname))
-positionlist.append(xosc.RelativeLanePosition(20,0.5,0,targetname))
-positionlist.append(xosc.RelativeLanePosition(40,-0.5,0,targetname))
-positionlist.append(xosc.RelativeLanePosition(60,-1,0,targetname))
+positionlist.append(xosc.RelativeLanePosition(0,targetname,0,ds=0))
+positionlist.append(xosc.RelativeLanePosition(0,targetname,0.5,ds=20))
+positionlist.append(xosc.RelativeLanePosition(0,targetname,-0.5,ds=40))
+positionlist.append(xosc.RelativeLanePosition(0,targetname,-1,ds=60))
 
 polyline = xosc.Polyline([0,0.5,1,1.5],positionlist)
 

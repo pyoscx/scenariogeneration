@@ -2,33 +2,36 @@
 
 """
 import os
+from .exceptions import OpenSCENARIOVersionError
 import xml.etree.ElementTree as ET
 from .helpers import printToFile
 
-from .enumerations import ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy,XSI,XMLNS, VehicleCategory,PrecipitationType,CloudState
+from .enumerations import ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy,XSI,XMLNS, VehicleCategory,PrecipitationType,CloudState, VersionBase
 import datetime as dt
 
-class _PositionType():
+
+
+class _PositionType(VersionBase):
     """ helper class for typesetting
     """
     pass
 
-class _TriggerType():
+class _TriggerType(VersionBase):
     """ helper class for typesetting
     """
     pass
 
-class _ValueTriggerType():
+class _ValueTriggerType(VersionBase):
     """ helper class for typesetting
     """
     pass
 
-class _EntityTriggerType():
+class _EntityTriggerType(VersionBase):
     """ helper class for typesetting
     """
     pass
 
-class ParameterDeclarations():
+class ParameterDeclarations(VersionBase):
     """ The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
                     
         Attributes
@@ -78,7 +81,7 @@ class ParameterDeclarations():
             element.append(p.get_element())
         return element
 
-class EntityRef():
+class EntityRef(VersionBase):
     """ EntityRef creates an EntityRef element of openscenario
         
         Parameters
@@ -126,7 +129,7 @@ class EntityRef():
         """
         return ET.Element('EntityRef',attrib=self.get_attributes())
 
-class Parameter():
+class Parameter(VersionBase):
     """ Parameter is a declaration of a ParameterDeclaration for declarations
         
         Parameters
@@ -170,7 +173,7 @@ class Parameter():
 
         """
         self.name = name
-        if parameter_type not in ParameterType:
+        if not hasattr(ParameterType,str(parameter_type)):
             raise ValueError('parameter_type not a valid type.')
         self.parameter_type = parameter_type
         self.value = value
@@ -185,7 +188,7 @@ class Parameter():
         """ returns the attributes of the Parameter as a dict
 
         """
-        return {'name':self.name,'parameterType':self.parameter_type.name,'value':str(self.value)}
+        return {'name':self.name,'parameterType':self.parameter_type.get_name(),'value':str(self.value)}
 
     def get_element(self):
         """ returns the elementTree of the Parameter
@@ -194,7 +197,7 @@ class Parameter():
         element = ET.Element('ParameterDeclaration',attrib=self.get_attributes())
         return element
 
-class Orientation():
+class Orientation(VersionBase):
     """ Orientation describes the angular orientation of an entity
         
         Parameters
@@ -245,7 +248,7 @@ class Orientation():
         self.h = h
         self.p = p
         self.r = r
-        if reference is not None and reference not in ReferenceContext:
+        if reference is not None and not hasattr(ReferenceContext,str(reference)):
             raise TypeError('reference input is not of type ReferenceContext')
         self.ref = reference
 
@@ -281,7 +284,7 @@ class Orientation():
             retdict['r'] = str(self.r)
 
         if self.ref:
-            retdict['type'] = self.ref.name
+            retdict['type'] = self.ref.get_name()
         
         return retdict
     
@@ -291,7 +294,7 @@ class Orientation():
         """
         return ET.Element('Orientation',attrib=self.get_attributes())
 
-class TransitionDynamics():
+class TransitionDynamics(VersionBase):
     """ TransitionDynamics is used to define how the dynamics of a change
         
         Parameters
@@ -331,11 +334,11 @@ class TransitionDynamics():
                 value (float): the value of the dynamics (time rate or distance)
 
         """
-        if shape not in DynamicsShapes:
+        if not hasattr(DynamicsShapes,str(shape)):
             raise TypeError(shape + '; is not a valid shape.')
         
         self.shape = shape
-        if dimension not in DynamicsDimension:
+        if not hasattr(DynamicsDimension,str(dimension)):
             raise ValueError(dimension + ' is not a valid dynamics dimension')
         self.dimension = dimension
         self.value = value
@@ -350,7 +353,7 @@ class TransitionDynamics():
         """ returns the attributes of the TransitionDynamics as a dict
 
         """
-        return {'dynamicsShape':self.shape.name,'value':str(self.value),'dynamicsDimension':self.dimension.name}
+        return {'dynamicsShape':self.shape.get_name(),'value':str(self.value),'dynamicsDimension':self.dimension.get_name()}
 
     def get_element(self,name='TransitionDynamics'):
         """ returns the elementTree of the TransitionDynamics
@@ -358,7 +361,7 @@ class TransitionDynamics():
         """
         return ET.Element(name,self.get_attributes())
 
-class DynamicsConstrains():
+class DynamicsConstrains(VersionBase):
     """ DynamicsConstrains is used by triggers
         
         Parameters
@@ -437,7 +440,7 @@ class DynamicsConstrains():
         return ET.Element(name,attrib=self.get_attributes())
 
 
-class Route():
+class Route(VersionBase):
     """ the Route class creates a route, needs atleast two waypoints to be valid
         
         Parameters
@@ -583,7 +586,7 @@ class Route():
             element.append(w.get_element())
         return element
 
-class Waypoint():
+class Waypoint(VersionBase):
     """ the Route class creates a route, needs atleast two waypoints to be valid
         
         Parameters
@@ -621,7 +624,7 @@ class Waypoint():
         if not isinstance(position,_PositionType):
             raise TypeError('position input not a valid Position')
         self.position = position
-        if routestrategy not in RouteStrategy:
+        if not hasattr(RouteStrategy,str(routestrategy)):
             ValueError('not a valid RouteStrategy')
         self.routestrategy = routestrategy
 
@@ -635,7 +638,7 @@ class Waypoint():
         """ returns the attributes of the Waypoint as a dict
 
         """
-        return {'routeStrategy':self.routestrategy.name}
+        return {'routeStrategy':self.routestrategy.get_name()}
 
     def get_element(self):
         """ returns the elementTree of the Waypoint
@@ -646,7 +649,7 @@ class Waypoint():
         return element
 
 
-class Trajectory():
+class Trajectory(VersionBase):
     """ the Trajectory class creates a Trajectory, 
         
         Parameters
@@ -790,7 +793,7 @@ class Trajectory():
         return element
 
 
-class TimeReference():
+class TimeReference(VersionBase):
     """ the TimeReference class creates a TimeReference, 
         
         Parameters
@@ -839,7 +842,7 @@ class TimeReference():
             self._only_nones = False
         else:
             raise ValueError('missing inputs for time reference')
-        if reference_domain is not None and reference_domain not in ReferenceContext:
+        if reference_domain is not None and not hasattr(ReferenceContext,str(reference_domain)):
             raise TypeError('input reference_domain is not of type ReferenceContext')
         
         self.reference_domain = reference_domain
@@ -860,7 +863,7 @@ class TimeReference():
 
         """
         retdict = {}
-        retdict['domainAbsoluteRelative'] = self.reference_domain.name
+        retdict['domainAbsoluteRelative'] = self.reference_domain.get_name()
         retdict['scale'] = str(self.scale)
         retdict['offset'] = str(self.offset)
         return retdict
@@ -878,7 +881,7 @@ class TimeReference():
         
         return element
 
-class Polyline():
+class Polyline(VersionBase):
     """ the Polyline class creates a polyline of (minimum 2) positions
         
         Parameters
@@ -905,7 +908,7 @@ class Polyline():
 
             Parameters
             ----------
-                time (list of double): a list of timings for the positions
+                time (list of double): a list of timings for the positions (as of OpenSCENARIO V1.1 this can be empty)
 
                 positions (list of positions): list of positions to create the polyline
 
@@ -933,12 +936,15 @@ class Polyline():
 
         """
         element = ET.Element('Polyline')
-        for i in range(len(self.time)):
-            vert = ET.SubElement(element,'Vertex',attrib={'time':str(self.time[i])})
+        for i in range(len(self.positions)):
+            time_dict = {}
+            if self.time:
+                time_dict = {'time':str(self.time[i])}
+            vert = ET.SubElement(element,'Vertex',attrib=time_dict)
             vert.append(self.positions[i].get_element())
         return element
 
-class Clothoid():
+class Clothoid(VersionBase):
     """ the Clothoid class creates a Clothoid shape
         
         Parameters
@@ -1023,7 +1029,10 @@ class Clothoid():
         """
         retdict = {}
         retdict['curvature'] = str(self.curvature)
-        retdict['curvatureDot'] = str(self.curvature_change)
+        if self.isVersion(minor=0):
+            retdict['curvatureDot'] = str(self.curvature_change)
+        else:
+            retdict['curvaturePrime'] = str(self.curvature_change)
         retdict['length'] = str(self.length)
         if self.starttime != None:
             retdict['startTime'] = str(self.starttime)
@@ -1039,7 +1048,7 @@ class Clothoid():
 
         return element
 
-class ControlPoint():
+class ControlPoint(VersionBase):
     """ the ControlPoint class is used by Nurbs to define points 
         
         Parameters
@@ -1116,7 +1125,7 @@ class ControlPoint():
         element.append(self.position.get_element())
         return element
 
-class Nurbs():
+class Nurbs(VersionBase):
     """ the Nurbs class creates a Nurbs shape
         
         Parameters
@@ -1212,9 +1221,84 @@ class Nurbs():
         return element
 
 
+class License(VersionBase):
+    """ License creates the License used by FileHeader in the OpenScenario file 
+        (valid from OpenSCENARIO V1.1)
+        
+        Parameters
+        ----------
+            name (str): name of the License
 
+            resource (str): link to URL
+                Default: None
 
-class FileHeader():
+            spdxId (str): license identifier
+                Default: None
+
+        Attributes
+        ----------
+            name (str): name of the License
+
+            resource (str): link to URL
+                
+            spdxId (str): license identifier
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of FileHeader
+
+            get_attributes()
+                Returns a dictionary of all attributes of FileHeader
+
+    """
+    def __init__(self,name,resource=None,spdxId=None):
+        """ init the License
+        
+        Parameters
+        ----------
+            name (str): name of the License
+
+            resource (str): link to URL
+                Default: None
+
+            spdxId (str): license identifier
+                Default: None
+        """
+        self.name = name
+        self.resource = resource
+        self._revMajor = 1
+        self.spdxId = spdxId
+        
+    def __eq__(self,other):
+        if isinstance(other,License):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """ returns the attributes as a dict of the License
+
+        """
+        retdict = {}
+        retdict['name'] = self.name
+        if self.resource:
+            retdict['resource'] = self.resource
+        if self.spdxId:
+            retdict['spdxId'] = self.spdxId
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the License
+
+        """
+        if self.isVersion(0):
+            raise OpenSCENARIOVersionError('License was introduced in OpenSCENARIO V1.1')
+        element = ET.Element('License',attrib=self.get_attributes())
+
+        return element
+
+class FileHeader(VersionBase):
     """ FileHeader creates the header of the OpenScenario file
         
         Parameters
@@ -1222,6 +1306,12 @@ class FileHeader():
             name (str): name of the scenario 
 
             author (str): the author of the scenario
+
+            revMinor (int): the minor revision of the standard
+                Default: 1
+
+            license (License): license (valid from OpenSCENARIO V1.1)
+                Default: None
 
         Attributes
         ----------
@@ -1238,12 +1328,15 @@ class FileHeader():
                 Returns a dictionary of all attributes of FileHeader
 
     """
-    def __init__(self,name,author):
+    def __init__(self,name,author,revMinor=1,license=None):
         self.name = name
         self.author = author
         self._revMajor = 1
-        self._revMinor = 0
-        
+        self._revMinor = revMinor
+        self.version_minor = revMinor
+        if license and not isinstance(license,License):
+            raise TypeError('license is not of type License')
+        self.license = license
     def __eq__(self,other):
         if isinstance(other,FileHeader):
             if self.name == other.name and \
@@ -1265,12 +1358,13 @@ class FileHeader():
 
         """
         element = ET.Element('FileHeader',attrib=self.get_attributes())
-
+        if self.license:
+            element.append(self.license.get_element())
         return element
 
 
 
-class _TrafficSignalState():
+class _TrafficSignalState(VersionBase):
     """ crates a _TrafficSignalState used by Phase
         
         Parameters
@@ -1333,7 +1427,7 @@ class _TrafficSignalState():
         
 
     
-class Phase():
+class Phase(VersionBase):
     """ crates a Traffic light phase
         
         Parameters
@@ -1414,7 +1508,7 @@ class Phase():
         return element
 
 
-class TrafficSignalController():
+class TrafficSignalController(VersionBase):
     """ the TrafficSignalController class creates a polyline of (minimum 2) positions
         
         Parameters
@@ -1509,7 +1603,7 @@ class TrafficSignalController():
 
 
 
-class TrafficDefinition():
+class TrafficDefinition(VersionBase):
     """ the TrafficDefinition class creates a TrafficDefinition used by the different TrafficActions
         
         Parameters
@@ -1582,7 +1676,7 @@ class TrafficDefinition():
                 weight (float): the corresponding weight for the distribution of the vehicle category
 
         """
-        if vehiclecategory not in VehicleCategory:
+        if not hasattr(VehicleCategory,str(vehiclecategory)):
             raise TypeError('vehcilecategory input is not of type VehcileCategory')
         self.vehiclecategories.append(vehiclecategory)
         self.vehicleweights.append(weight)
@@ -1623,7 +1717,7 @@ class TrafficDefinition():
         
         veh_element = ET.SubElement(element,'VehicleCategoryDistribution')
         for i in range(len(self.vehiclecategories)):
-            ET.SubElement(veh_element,'VehicleCategoryDistributionEntry',attrib={'category': self.vehiclecategories[i].name,'weight': str(self.vehicleweights[i])})
+            ET.SubElement(veh_element,'VehicleCategoryDistributionEntry',attrib={'category': self.vehiclecategories[i].get_name(),'weight': str(self.vehicleweights[i])})
 
         cnt_element = ET.SubElement(element,'ControllerDistribution')
         for i in range(len(self.controllers)):
@@ -1635,7 +1729,7 @@ class TrafficDefinition():
 
 
 
-class CatalogFile():
+class CatalogFile(VersionBase):
     """ The CatalogFile class handles any catalogs in open scenario, such as writing, and updating them
         
         Parameters
@@ -1740,7 +1834,7 @@ class CatalogFile():
         """
         printToFile(self.catalog_element,self.filename,self.prettyprint)
 
-class Catalog():
+class Catalog(VersionBase):
     """ The Catalog class creates the CatalogLocation of the OpenScenario input
         
         Parameters
@@ -1809,7 +1903,7 @@ class Catalog():
             ET.SubElement(tmpel,'Directory',{'path': self.catalogs[i]})
         return catloc
 
-class CatalogReference():
+class CatalogReference(VersionBase):
     """ CatalogReference creates an CatalogReference element of openscenario
         
         Parameters
@@ -1889,7 +1983,7 @@ class CatalogReference():
         
     
 
-class ParameterAssignment():
+class ParameterAssignment(VersionBase):
     """ ParameterAssignment creates an ParameterAssignment element of openscenario
         
         Parameters
@@ -1949,7 +2043,7 @@ class ParameterAssignment():
         """
         return ET.Element('ParameterAssignment',attrib=self.get_attributes())
 
-class TimeOfDay():
+class TimeOfDay(VersionBase):
     """ TimeOfDay creates an TimeOfDay element of openscenario
         
         Parameters
@@ -2043,46 +2137,47 @@ class TimeOfDay():
 
 
 
-class Weather():
+class Weather(VersionBase):
     """ Weather creates an Weather element of openscenario
         
         Parameters
         ----------
             cloudstate (CloudState): cloudstate of the weather
+                Default: None
 
-            sun_intensity (int): intensity of the sun (in lux)
+            atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
+                Default: None
 
-            sun_azimuth (int): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+            temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
+                Default: None
 
-            sun_elevation (int): sun elevation angle 0 x/y plane, pi/2 zenith
+            sun (Sun): the sun position
+                Default: None
 
-            precipitation (precipitationType): dry, rain or snow
+            fog (Fog): fot state
+                Default: None
 
-            precipitation_intensity (double): intensity of precipitation (0...1)
+            precipitation (Precipitation): the precipitation state
+                Default: None
 
-            visual_fog_range (int): visual range of fog
-                Default: 100000
-
-            fog_bounding_box (BoundingBox): bounding box of fog
+            wind (Wind): the wind (valid from OpenSCENARIO V1.1)
                 Default: None
 
         Attributes
         ----------
             cloudstate (CloudState): cloudstate of the weather
 
-            sun_intensity (int): intensity of the sun (in lux)
+            atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
 
-            sun_azimuth (int): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+            temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
 
-            sun_elevation (int): sun elevation angle 0 x/y plane, pi/2 zenith
+            sun (Sun): the sun position
 
-            precipitation (precipitationType): dry, rain or snow
+            fog (Fog): fot state
 
-            precipitation_intensity (double): intensity of precipitation (0...1)
+            precipitation (Precipitation): the precipitation state
 
-            visual_fog_range (int): visual range of fog
-
-            fog_bounding_box (BoundingBox): bounding box of fog
+            wind (Wind): the wind (valid from OpenSCENARIO V1.1)
 
         Methods
         -------
@@ -2094,55 +2189,60 @@ class Weather():
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,cloudstate,sun_intensity,sun_azimuth,sun_elevation,precipitation,precipitation_intensity,visual_fog_range = 100000,fog_bounding_box = None):
+    def __init__(self,cloudstate=None,atmosphericPressure=None,temperature=None,sun=None,fog=None,precipitation=None,wind=None):
         """ initalize the Weather
 
             Parameters
             ----------
                 cloudstate (CloudState): cloudstate of the weather
+                    Default: None
 
-                sun_intensity (double): intensity of the sun (in lux)
+                atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
+                    Default: None
 
-                sun_azimuth (double): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+                temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
+                    Default: None
 
-                sun_elevation (double): sun elevation angle 0 x/y plane, pi/2 zenith
+                sun (Sun): the sun position
+                    Default: None
 
-                precipitation (PrecipitationType): dry, rain or snow
+                fog (Fog): fot state
+                    Default: None
 
-                precipitation_intensity (double): intensity of precipitation (0...1)
+                precipitation (Precipitation): the precipitation state
+                    Default: None
 
-                visual_fog_range (double): visual range of fog
-                    Default: 100000
-
-                fog_bounding_box (BoundingBox): bounding box of fog
-                    Default: None  
+                wind (Wind): the wind (valid from OpenSCENARIO V1.1)
+                    Default: None
                 
         """
-        if cloudstate not in CloudState:
+        if cloudstate and not hasattr(CloudState,str(cloudstate)):
             raise TypeError('cloudstate input is not of type CloudState')
-        if precipitation not in PrecipitationType:
-            raise TypeError('precipitation input is not of type PrecipitationType')
-        if fog_bounding_box != None and not isinstance(fog_bounding_box, BoundingBox):
-            raise TypeError('fog_bounding_box input is not of type BoundingBox')
-        self.cloudstate = cloudstate 
-        self.sun_intensity = sun_intensity
-        self.sun_azimuth = sun_azimuth
-        self.sun_elevation = sun_elevation
+        if precipitation and not isinstance(precipitation,Precipitation):
+            raise TypeError('precipitation input is not of type Precipitation')
+        if fog and not isinstance(fog,Fog):
+            raise TypeError('fog input is not of type Fog')
+        if wind and not isinstance(wind,Wind):
+            raise TypeError('wind input is not of type Wind')
+        if sun and not isinstance(sun,Sun):
+            raise TypeError('sun input is not of type Sun')
+
+        self.cloudstate = cloudstate
+        self.atmosphericPressure = atmosphericPressure
+        self.temperature = temperature
+        self.fog = fog
+        self.sun = sun
+        self.wind = wind
         self.precipitation = precipitation
-        self.precipitation_intensity = precipitation_intensity
-        self.visual_fog_range = visual_fog_range
-        self.fog_bounding_box = fog_bounding_box
+        
 
     def __eq__(self,other):
         if isinstance(other,Weather):
             if self.get_attributes() == other.get_attributes() and \
-            self.sun_intensity == other.sun_intensity and \
-            self.sun_azimuth == other.sun_azimuth and \
-            self.sun_elevation == other.sun_elevation and \
-            self.precipitation == other.precipitation and \
-            self.precipitation_intensity == other.precipitation_intensity and \
-            self.visual_fog_range == other.visual_fog_range and \
-            self.fog_bounding_box == other.fog_bounding_box:                
+            self.fog == other.fog and \
+            self.wind == other.wind and \
+            self.sun == other.sun and \
+            self.precipitation == other.precipitation:                
                 return True
         return False
 
@@ -2150,22 +2250,292 @@ class Weather():
         """ returns the attributes of the Weather as a dict
 
         """
-        return {'cloudState':self.cloudstate.name}
+        retdict = {}
+        if self.cloudstate:
+            retdict['cloudState'] = self.cloudstate.get_name()
+        if self.temperature and not self.isVersion(0):
+            retdict['temperature'] = str(self.temperature)
+        elif self.temperature and self.isVersion(0):
+            raise OpenSCENARIOVersionError('temperature was introduced in OpenSCENARIO V1.1')
+        if self.atmosphericPressure and not self.isVersion(0):
+            retdict['atmosphericPressure'] = str(self.atmosphericPressure)
+        elif self.atmosphericPressure and self.isVersion(0):
+            raise OpenSCENARIOVersionError('atmosphericPressure was introduced in OpenSCENARIO V1.1')
+        return retdict
 
     def get_element(self):
         """ returns the elementTree of the Weather
 
         """
         element = ET.Element('Weather',attrib=self.get_attributes())
-        ET.SubElement(element,'Sun',attrib={'intensity':str(self.sun_intensity),'azimuth':str(self.sun_azimuth),'elevation':str(self.sun_elevation)})
-        fog = ET.SubElement(element,'Fog',attrib={'visualRange':str(self.visual_fog_range)})
-        if self.fog_bounding_box:
-            fog.append(self.fog_bounding_box.get_element())
-        ET.SubElement(element,'Precipitation',attrib={'precipitationType':self.precipitation.name,'intensity':str(self.precipitation_intensity)})
+        if self.sun:
+            print(self.sun)
+            element.append(self.sun.get_element())
+        if self.fog:
+            element.append(self.fog.get_element())
+        if self.precipitation:
+            element.append(self.precipitation.get_element())
+        if self.wind and not self.isVersion(0):
+            element.append(self.wind.get_element())
+        if self.wind and self.isVersion(0):
+            raise OpenSCENARIOVersionError('Wind was introduced in OpenSCENARIO V1.1')
+        return element
+
+class Fog(VersionBase):
+    """ Fog creates an Fog element used by the Weather element of openscenario
+        
+        Parameters
+        ----------
+            visual_range (int): visual range of fog
+
+            bounding_box (BoundingBox): bounding box of fog
+
+        Attributes
+        ----------
+            visual_range (int): visual range of fog
+
+            bounding_box (BoundingBox): bounding box of fog
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,visual_range,bounding_box):
+        """ initalize the Fog
+
+            Parameters
+            ----------
+            visual_range (int): visual range of fog
+
+            bounding_box (BoundingBox): bounding box of fog
+                
+        """
+
+        self.visual_range = visual_range 
+        self.bounding_box = bounding_box
+
+
+    def __eq__(self,other):
+        if isinstance(other,Fog):
+            if self.get_attributes() == other.get_attributes() and \
+               self.bounding_box == other.bounding_box:
+                return True
+        return False
+    def get_attributes(self):
+        """ returns the attributes of the Precipitation as a dict
+
+        """
+        retdict = {}
+        retdict['visualRange'] = str(self.visual_range)
+
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Fog
+
+        """
+        element = ET.Element('Fog',attrib=self.get_attributes())
+        element.append(self.bounding_box.get_element())
+
         return element
 
 
-class RoadCondition():
+class Sun(VersionBase):
+    """ Sun creates an Sun element used by the Weather element of openscenario
+        
+        Parameters
+        ----------
+            intensity (double): intensity of the sun (in lux)
+
+            azimuth (double): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+            elevation (double): sun elevation angle 0 x/y plane, pi/2 zenith
+
+        Attributes
+        ----------
+            intensity (double): intensity of the sun (in lux)
+
+            azimuth (double): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+            elevation (double): sun elevation angle 0 x/y plane, pi/2 zenith
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,intensity,azimuth,elevation):
+        """ initalize the Sun
+
+            Parameters
+            ----------
+                intensity (double): intensity of the sun (in lux)
+
+                azimuth (double): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
+
+                elevation (double): sun elevation angle 0 x/y plane, pi/2 zenith
+                
+        """
+
+        self.azimuth = azimuth 
+        self.intensity = intensity
+        self.elevation = elevation
+
+    def __eq__(self,other):
+        if isinstance(other,Sun):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+    def get_attributes(self):
+        """ returns the attributes of the Precipitation as a dict
+
+        """
+        retdict = {}
+        retdict['azimuth'] = str(self.azimuth)
+        retdict['intensity'] = str(self.intensity)
+        retdict['elevation'] = str(self.elevation)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Sun
+
+        """
+        element = ET.Element('Sun',attrib=self.get_attributes())
+
+        return element
+
+
+class Precipitation(VersionBase):
+    """ Precipitation creates an Precipitation element used by the Weather element of openscenario
+        
+        Parameters
+        ----------
+            precipitation (PrecipitationType): dry, rain or snow
+
+            intensity (double): intensity of precipitation (0...1)
+
+        Attributes
+        ----------
+            precipitation (PrecipitationType): dry, rain or snow
+
+            intensity (double): intensity of precipitation (0...1)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,precipitation,intensity):
+        """ initalize the Precipitation
+
+            Parameters
+            ----------
+                precipitation (PrecipitationType): dry, rain or snow
+
+                intensity (double): intensity of precipitation (0...1)
+                
+        """
+        if not hasattr(PrecipitationType,str(precipitation)):
+            raise TypeError('precipitation input is not of type PrecipitationType')
+        self.precipitation = precipitation 
+        self.intensity = intensity
+
+    def __eq__(self,other):
+        if isinstance(other,Precipitation):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+    def get_attributes(self):
+        """ returns the attributes of the Precipitation as a dict
+
+        """
+        retdict = {}
+        retdict['precipitationType'] = self.precipitation.get_name()
+        if self.isVersion(0):
+            retdict['intensity'] = str(self.intensity)
+        else:
+            retdict['precipitationIntensity'] = str(self.intensity)
+        return retdict
+
+    def get_element(self):
+        """ returns the elementTree of the Precipitation
+
+        """
+        element = ET.Element('Precipitation',attrib=self.get_attributes())
+
+        return element
+
+
+class Wind(VersionBase):
+    """ Wind creates an Wind element used by the Weather element of openscenario
+        
+        Parameters
+        ----------
+            direction (float): wind direction (radians)
+
+            speed (float): wind speed (m/s)
+
+        Attributes
+        ----------
+            direction (float): wind direction (radians)
+
+            speed (float): wind speed (m/s)
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+
+    """
+    def __init__(self,direction,speed):
+        """ initalize the Wind
+
+            Parameters
+            ----------
+                direction (float): wind direction (radians)
+
+                speed (float): wind speed (m/s)
+                
+        """
+        self.direction = direction 
+        self.speed = speed
+
+    def __eq__(self,other):
+        if isinstance(other,Wind):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+    def get_attributes(self):
+        """ returns the attributes of the Wind as a dict
+
+        """
+        return {'direction':str(self.direction),'speed':str(self.speed)}
+
+    def get_element(self):
+        """ returns the elementTree of the Wind
+
+        """
+        element = ET.Element('Wind',attrib=self.get_attributes())
+
+        return element
+
+class RoadCondition(VersionBase):
     """ Weather creates an Weather element of openscenario
         
         Parameters
@@ -2229,7 +2599,7 @@ class RoadCondition():
 
 
 
-class Environment():
+class Environment(VersionBase):
     """ The Environment class creates a environment used by Environment
         
         Parameters
@@ -2345,7 +2715,7 @@ class Environment():
             element.append(self.parameters.get_element())
         return element
 
-class Controller():
+class Controller(VersionBase):
     """ the Controller class creates a controller of openScenario
 
         Parameters
@@ -2464,7 +2834,7 @@ class Controller():
         return element
 
 
-class BoundingBox():
+class BoundingBox(VersionBase):
     """ the Dimensions describes the size of an entity
 
         Parameters
@@ -2531,7 +2901,7 @@ class BoundingBox():
         element.append(self.boundingbox.get_element())
         return element
 
-class Center():
+class Center(VersionBase):
     """ the Center Class creates a centerpoint for a bounding box, reference point of a vehicle is the back axel
 
         Parameters
@@ -2595,7 +2965,7 @@ class Center():
         element = ET.Element('Center',attrib=self.get_attributes())
         return element
 
-class Dimensions():
+class Dimensions(VersionBase):
     """ the Dimensions describes the size of an entity
 
         Parameters
@@ -2659,7 +3029,7 @@ class Dimensions():
         element = ET.Element('Dimensions',attrib=self.get_attributes())
         return element
 
-class Properties():
+class Properties(VersionBase):
     """ the Properties contains are for user defined properties of an object               
 
         Attributes
@@ -2732,6 +3102,105 @@ class Properties():
         return element
 
 
+class TargetDistanceSteadyState(VersionBase):
+    """ the TargetDistanceSteadyState describes a SteadyState of type TargetDistanceSteadyState
+
+        Parameters
+        ----------
+            distance (double): distance to target for the steady state
+
+        Attributes
+        ----------
+            distance (double): distance to target for the steady state
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,distance):
+        """ initalzie the TargetDistanceSteadyState
+
+        Parameters
+        ----------
+            distance (double): distance to target for the steady state
+        
+        """
+        self.distance = distance
+        
+
+    def __eq__(self,other):
+        if isinstance(other,TargetDistanceSteadyState):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """ returns the attributes of the TargetDistanceSteadyState
+        
+        """
+        return {'distance':str(self.distance)}
+
+    def get_element(self):
+        """ returns the elementTree of the TargetDistanceSteadyState
+
+        """
+        if self.isVersion(0):
+            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
+        element = ET.Element('SteadyState')
+        ET.SubElement(element,'TargetDistanceSteadyState',attrib=self.get_attributes())
+        return element
+
+class TargetTimeSteadyState(VersionBase):
+    """ the TargetTimeSteadyState describes a SteadyState of type TargetTimeSteadyState
+
+        Parameters
+        ----------
+            time_gap (double): time_gap to target for the steady state
+
+        Attributes
+        ----------
+            time_gap (double): time_gap to target for the steady state
+
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+
+    """
+    def __init__(self,time_gap):
+        """ initalzie the TargetTimeSteadyState
+
+        Parameters
+        ----------
+            time_gap (double): time_gap to target for the steady state
+        
+        """
+        self.time_gap = time_gap
+        
+
+    def __eq__(self,other):
+        if isinstance(other,TargetTimeSteadyState):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """ returns the attributes of the TargetTimeSteadyState
+        
+        """
+        return {'time':str(self.time_gap)}
+
+    def get_element(self):
+        """ returns the elementTree of the TargetTimeSteadyState
+
+        """
+        if self.isVersion(0):
+            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
+        element = ET.Element('SteadyState')
+        ET.SubElement(element,'TargetTimeSteadyState',attrib=self.get_attributes())
+        return element
 
 def merge_dicts(*dict_args):
     """ Funciton to merge dicts 

@@ -2,13 +2,15 @@
 
 """
 
+from .exceptions import OpenSCENARIOVersionError, NotEnoughInputArguments
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
 
 from .helpers import printToFile
 from .utils import FileHeader, ParameterDeclarations, Catalog, TrafficSignalController
-from .enumerations import XMLNS, XSI
+from .enumerations import VersionBase, XMLNS, XSI
 from .entities import Entities
 from .storyboard import StoryBoard
 
@@ -28,6 +30,9 @@ class Scenario():
             roadnetwork (RoadNetwork): the roadnetwork of the scenario
 
             catalog (Catalog): the catalogs used in the scenario
+
+            osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
+                Default: 1
         Methods
         -------
             get_element()
@@ -39,7 +44,7 @@ class Scenario():
     """
     _XMLNS = XMLNS
     _XSI = XSI
-    def __init__(self,name,author,parameters,entities,storyboard,roadnetwork,catalog):
+    def __init__(self,name,author,parameters,entities,storyboard,roadnetwork,catalog,osc_minor_version=1):
         """ Initalizes the Scenario class, and creates the header.
 
         Parameters
@@ -57,6 +62,9 @@ class Scenario():
             roadnetwork (RoadNetwork): the roadnetwork of the scenario
 
             catalog (Catalog): the catalogs used in the scenario
+
+            osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
+                Default: 1
         """
         if not isinstance(entities,Entities):
             raise TypeError('entities input is not of type Entities')
@@ -74,7 +82,7 @@ class Scenario():
         self.roadnetwork = roadnetwork
         self.catalog = catalog 
         self.parameters = parameters
-        self.header = FileHeader(name,author)
+        self.header = FileHeader(name,author,revMinor=osc_minor_version)
 
     def __eq__(self,other):
         if isinstance(other,Scenario):
@@ -117,7 +125,7 @@ class Scenario():
 
 
 
-class RoadNetwork():
+class RoadNetwork(VersionBase):
     """ The RoadNetwork class creates the RoadNetwork of the openScenario
         
         Parameters
@@ -133,6 +141,8 @@ class RoadNetwork():
             scene (str): path to the opensceengraph file 
 
             traffic_signals (list of TrafficSignalController): all traffic signals in the roadnetwork
+
+            used_area_positions (list of Positions): the positions that determines the used area of the roadnetwork
             
         Methods
         -------
@@ -155,6 +165,7 @@ class RoadNetwork():
         self.road_file = roadfile
         self.scene = scenegraph
         self.traffic_signals = []
+        self.used_area_positions = []
 
     def __eq__(self,other):
         if isinstance(other,RoadNetwork):
@@ -175,6 +186,17 @@ class RoadNetwork():
         if not isinstance(traffic_signal_controller,TrafficSignalController):
             raise TypeError('traffic_signal_controller input is not of type TrafficSignalController')
         self.traffic_signals.append(traffic_signal_controller)
+    
+    def add_used_area_position(self,position):
+        """ adds a position to determine the usedArea of the roadnetwork used, this feature was added in OpenSCENARIO V1.1.
+            Atleast 2 positions are required.
+
+            Parameters
+            ----------
+                position (*Position): any position to determine the used area
+        
+        """
+        self.used_area_positions.append(position)
 
     def get_element(self):
         """ returns the elementTree of the RoadNetwork
@@ -188,5 +210,14 @@ class RoadNetwork():
             trafsign_element = ET.SubElement(roadnetwork,'TrafficSignals')
             for ts in self.traffic_signals:
                 trafsign_element.append(ts.get_element())
+        if len(self.used_area_positions) == 1:
+            raise NotEnoughInputArguments('To use "usedArea" more than 1 used_area_position is needed.')
+        elif len(self.used_area_positions) > 1 and self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError('UsedArea is not supported in OpenSCENARIO V1.0, was introduced in OpenSCENARIO V1.1')
+        elif len(self.used_area_positions) > 1 and not self.isVersion(minor=0):
+            usedarea = ET.SubElement(roadnetwork,'UsedArea')
+            for p in self.used_area_positions:
+                usedarea.append(p.get_element())
+
         return roadnetwork
     

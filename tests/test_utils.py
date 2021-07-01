@@ -156,10 +156,10 @@ def test_fileheader():
     assert fh != fh3
 def test_polyline():
     positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,-1,-3,'Ego'))
-    positionlist.append(OSC.RelativeLanePosition(10,0,-3,'Ego'))
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(dsLane=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
     prettyprint(polyline.get_element())
@@ -274,12 +274,14 @@ def test_trafficdefinition():
 
 
 def test_weather():
-    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    weather = OSC.Weather(OSC.CloudState.free,100,0)
     prettyprint(weather.get_element())
-    weather2 = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
-    weather3 = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,2)
+    weather2 = OSC.Weather(OSC.CloudState.free,100,0)
+    weather3 = OSC.Weather(OSC.CloudState.free,100,1)
     assert weather == weather2
     assert weather != weather3
+    weather = OSC.Weather(sun = OSC.Sun(1,1,1))
+    prettyprint(weather.get_element())
 
 def test_tod():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
@@ -299,7 +301,8 @@ def test_roadcondition():
 
 def test_environment():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
-    weather = OSC.Weather(OSC.CloudState.free,100,0,1,OSC.PrecipitationType.dry,1)
+    weather = OSC.Weather(OSC.CloudState.free,100)
+
     rc = OSC.RoadCondition(1)
 
     env = OSC.Environment(tod,weather,rc)
@@ -342,3 +345,71 @@ def test_nurbs():
     nurb3.add_control_point(cp2)
     nurb3.add_control_point(cp3)
     nurb3.add_knots([5,4,3,2,0.5])
+
+def test_oscenum():
+    enum1 = OSC.enumerations._OscEnum('classname','testname')
+    assert enum1.get_name()=='testname'
+    enum2 = OSC.enumerations._OscEnum('classname','testname',min_minor_version=2)
+    with pytest.raises(OSC.OpenSCENARIOVersionError):
+        enum2.get_name()
+    enum3 = OSC.enumerations._OscEnum('classname','testname',max_minor_version=0)
+    with pytest.raises(OSC.OpenSCENARIOVersionError):
+        enum3.get_name()
+
+def test_distancesteadystate():
+    tdss = OSC.TargetDistanceSteadyState(1)
+    tdss2 = OSC.TargetDistanceSteadyState(1)
+    tdss3 = OSC.TargetDistanceSteadyState(12)
+    assert tdss == tdss2
+    assert tdss != tdss3
+    prettyprint(tdss)
+
+def test_timesteadystate():
+    ttss = OSC.TargetTimeSteadyState(1)
+    ttss2 = OSC.TargetTimeSteadyState(1)
+    ttss3 = OSC.TargetTimeSteadyState(12)
+    assert ttss == ttss2
+    assert ttss != ttss3
+    prettyprint(ttss)
+
+def test_wind():
+    w = OSC.Wind(0,1)
+    w2 = OSC.Wind(0,1)
+    w3 = OSC.Wind(1,1)
+    assert w == w2
+    assert w != w3
+    prettyprint(w)
+
+def test_precipitation():
+    p = OSC.Precipitation(OSC.PrecipitationType.rain,1)
+    p2 = OSC.Precipitation(OSC.PrecipitationType.rain,1)
+    p3 = OSC.Precipitation(OSC.PrecipitationType.rain,2)
+    assert p == p2
+    assert p != p3
+    prettyprint(p)
+
+def test_sun():
+    s = OSC.Sun(1,1,1)
+    s2 = OSC.Sun(1,1,1)
+    s3 = OSC.Sun(1,2,1)
+
+    assert s == s2
+    assert s != s3
+    prettyprint(s)
+
+def test_sun():
+    s = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
+    s2 = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
+    s3 = OSC.Fog(2,OSC.BoundingBox(1,1,1,1,1,1))
+
+    assert s == s2
+    assert s != s3
+    prettyprint(s)
+
+def test_license():
+    l = OSC.License('MPL-2')
+    l2 = OSC.License('MPL-2')
+    l3 = OSC.License('MIT')
+    assert l == l2
+    assert l != l3
+    prettyprint(l)
