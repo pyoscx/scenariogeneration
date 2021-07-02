@@ -1,0 +1,39 @@
+Missing features for OpenSCENARIO V1.1.0: 
+
+
+Deterministic (Created)
+DeterministicMultiParameterDistribution (Created)
+DeterministicMultiParameterDistributionType (Created)
+DeterministicParameterDistribution (Created)
+DeterministicSingleParameterDistribution (Created)
+DeterministicSingleParameterDistributionType (Created)
+
+DistributionDefinition (Created)
+DistributionRange (Created)
+DistributionSet (Created)
+DistributionSetElement (Created)
+
+
+Histogram (Created)
+HistogramBin (Created)
+NormalDistribution (Created)
+OpenScenarioCategory (Changed)
+
+ParameterDeclaration (Changed)
+ParameterValueDistribution (Created)
+ParameterValueDistributionDefinition (Created)
+ParameterValueSet (Created)
+PoissonDistribution (Created)
+ProbabilityDistributionSet (Created)
+ProbabilityDistributionSetElement (Created)
+Range (Created)
+Stochastic (Created)
+StochasticDistribution (Created)
+StochasticDistributionType (Created)    
+UniformDistribution (Created)
+UserDefinedDistribution (Created)
+
+
+ValueConstraint (Created)
+ValueConstraintGroup (Created)
+ValueSetDistribution (Created)
