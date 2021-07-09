@@ -8,21 +8,24 @@ Please note that this is not an official implementation of either OpenSCENARIO o
 
 # Introduction
 
-The package consists of the two main modules, __xosc__ (OpenSCENARIO), and __xodr__ (OpenDRIVE), together with some support functionality for 
-auto generation with parametrization (ScenarioGenerator) as well as easy viewing with [esmini](https://github.com/esmini/esmini).
+The package consists of the two main modules, __xosc__ (OpenSCENARIO), and __xodr__ (OpenDRIVE), together with some support functionality for auto generation with parametrization (ScenarioGenerator) as well as easy viewing with [esmini](https://github.com/esmini/esmini).
 
 For detailed information about the packages please see the [documentation](scenariogeneration/index.html) page, where the submodules are described. 
 
 For more indepth exampels, please see the [exampels](examples/index.html) page. The exampels can also be found on the [github](https://github.com/pyoscx/scenariogeneration/tree/main/examples) page.
+
+For more detailed view of the new updates, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
 
 # The modules
 
 
 ## xosc
 
-The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO (V 1.0.0). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.  
+The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO V 1.0.0 and most of OpenSCENARIO V 1.1.0 (except the parts related to ParameterValueDistributionDefinition). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.  
 
 The idea with this module is to create easy access to the elements of OpenSCENARIO without having to expose the user to all the xml levels that does not carry any vital information for the user. Hence, some of the xml-elements that build up OpenSCENARIO are never seen in the class structure but compressed to a level where the user can set the required data. 
+
+The module can generate xmls of both V1.0.0 and V1.1.0 of OpenSCENARIO.
 
 In general the __xosc__ module does not contain many "smart" functionality (except some default values), but the user can build up the scenario based on the classes available. 
 
@@ -35,6 +38,17 @@ For simple scenarios the multiple top level layers (like Story, Act or ManeuverG
 
 __NOTE:__ Do not use more than one of these calls (except add_story), because each call will create a new story, and this in most cases are not what a user would like.
 
+### Generate different versions of OpenSCENARIO
+As of scenariogeneration V0.5.0, it is possible to generate different versions of the resulting OpenSCENARIO xml.
+This feature is enabled by one simple input to the Scenario class as:
+```
+sce = Scenario(... , osc_minor_version=0)
+```
+The default is 1 (V1.1.0), but with this V1.0.0 OpenSCENARIO xmls can be generated. 
+
+The V1.1.0 will remove the depricated attributes, and have a pure V1.1.0 xml. If version specific elements are used together with the wrong version, a __OpenSCENARIOVersionError__ will be raised. 
+
+NOTE: as of V0.5.0 some interfaces had to be changed in order to fulfill the V1.1.0 standard, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md) for more info.
 
 ## xodr
 
