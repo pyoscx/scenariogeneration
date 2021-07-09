@@ -638,9 +638,9 @@ class RelativeLanePosition(_PositionType):
                 Default: Orientation()    
         
         """ 
-        if ds and dsLane:
+        if ds != None and dsLane != None:
             raise ToManyOptionalArguments('Not both of ds and dsLane can be used.')
-        if not ds and not dsLane:
+        if ds == None and dsLane == None:
             raise NotEnoughInputArguments('Either ds or dsLane is needed as input.')
         self.ds = ds
         self.dsLane = dsLane

@@ -53,6 +53,7 @@ def test_catalog_reader_vehicle(tmpdir):
     white_veh.add_property_file('../models/car_white.osgb')
     white_veh.add_property('control','internal')
     white_veh.add_property('model_id','0')
+    white_veh.add_parameter(xosc.Parameter('asdf',xosc.ParameterType.string,'hej'))
     cf.add_to_catalog(white_veh)
     cf.dump()
     veh = xosc.CatalogReader(xosc.CatalogReference('my_catalog','car_white'),tmpdir)

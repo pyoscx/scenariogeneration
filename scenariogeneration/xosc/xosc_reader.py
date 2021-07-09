@@ -128,7 +128,7 @@ def _parseVehicleCatalog(vehicle):
                 return_vehicle.add_property(prop.attrib['name'],prop.attrib['value'])
     if vehicle.find('ParameterDeclarations'):
         for param in vehicle.find('ParameterDeclarations'):
-            return_vehicle.add_parameter(Parameter(param.attrib['name'],ParameterType[param.attrib['parameterType']],param.attrib['value']))
+            return_vehicle.add_parameter(Parameter(param.attrib['name'],getattr(ParameterType, param.attrib['parameterType']),param.attrib['value']))
     
     return return_vehicle
 
