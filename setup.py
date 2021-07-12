@@ -19,6 +19,7 @@ setuptools.setup(
     install_requires=[
         'numpy',
         'scipy',
+        'pyclothoids'
     ],
     classifiers=[
         'Programming Language :: Python :: 3',

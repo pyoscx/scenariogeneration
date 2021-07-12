@@ -5,6 +5,7 @@
 import xml.etree.ElementTree as ET
 
 import numpy as np
+import pyclothoids as pcloth
 from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments, MixOfGeometryAddition
 from scipy.integrate import quad
 from scipy.special import fresnel
@@ -218,7 +219,6 @@ class PlanView():
             from_end ([optional]bool): states if (self.present_x, self.present_y, self.present_h) are being interpreted as starting point or ending point of the geometry
 
         """
-        
         if from_end== False:
             self.x_start = self.present_x
             self.y_start = self.present_y
@@ -229,7 +229,6 @@ class PlanView():
                     self.present_h = self._overridden_headings[i]
 
                 newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
-
                 self.present_x, self.present_y, self.present_h, length = newgeom.get_end_data()
                 self.present_s += length
 
@@ -476,143 +475,6 @@ class Line():
         element = ET.Element('line')
         
         return element
-
-
-
-class Spiral():
-    """ the Spiral (Clothoid) creates a spiral type of geometry
-        
-        Parameters
-        ----------
-            curvstart (float): starting curvature of the Spiral
- 
-            curvend (float): final curvature of the Spiral
- 
-            length (float): length of the spiral (optional, or use, angle, or cdot)
-
-            angle (float): the angle of the spiral (optional, or use length, or cdot)
-
-            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
-
-        Attributes
-        ----------
-            curvstart (float): starting curvature of the Spiral
- 
-            curvend (float): final curvature of the Spiral
- 
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
- 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
- 
-            get_end_data(x,y,h)
-                Returns the end point of the geometry        
-    """
-    def __init__(self,curvstart,curvend,length=None,angle=None,cdot=None):
-        """ initalizes the Spline
- 
-        Parameters
-        ----------
-            curvstart (float): starting curvature of the Spiral
- 
-            curvend (float): final curvature of the Spiral
-
-            length (float): length of the spiral (optional, or use, angle, or cdot)
-
-            angle (float): the angle of the spiral (optional, or use length, or cdot)
-
-            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
-        """ 
-        self.curvstart = curvstart
-        self.curvend = curvend
-        if length == None and angle == None and cdot == None:
-            raise NotEnoughInputArguments('Spiral is underdefined')
-        if sum([x!=None for x in [length,angle,cdot]]) > 1:
-            raise ToManyOptionalArguments('Spiral is overdefined, please use only one of the optional inputs')
-        if angle:
-            self.length = 2*abs(angle)/np.maximum(abs(curvend),abs(curvstart))
-
-        elif cdot:
-            self.length =  (self.curvend - self.curvstart) / cdot
-        else:
-            self.length = length
-
-    def __eq__(self, other):
-        if isinstance(other,Spiral):
-            if self.get_attributes() == other.get_attributes():         
-                return True
-        return False
-
-    def get_end_data(self,x,y,h):
-        """ Returns the end point of the geometry
-        
-        Parameters
-        ----------
-            x (float): x start point of the geometry
- 
-            y (float): y start point of the geometry
- 
-            h (float): start heading of the geometry
- 
-        Returns
-        ---------
- 
-            x (float): the final x point
-            y (float): the final y point
-            h (float): the final heading
-            l (float): length of the spiral
-        """
-        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, self.curvstart, self.curvend)
-        (deltax, deltay, t) = spiral.calc(self.length, x, y, self.curvstart, h)
-
- 
-        return deltax, deltay, t, self.length
-
-    def get_start_data(self, end_x, end_y, end_h):
-        """ Returns the end point of the geometry
-        
-        Parameters
-        ----------
-            end_x (float): x end point of the geometry
- 
-            end_y (float): y end point of the geometry
- 
-            end_h (float): end heading of the geometry
-
-        Returns
-        ---------
- 
-            x (float): the start x point
-            y (float): the start y point
-            h (float): the start heading of the inverse geometry 
-            l (float): length of the spiral
-
-        """
-
-        spiral = EulerSpiral.createFromLengthAndCurvature(self.length, -self.curvend, -self.curvstart)
-        (deltax, deltay, t) = spiral.calc(self.length, end_x, end_y, -self.curvend, end_h)
-
- 
-        return deltax, deltay, t, self.length
-
- 
-    def get_attributes(self):
-        """ returns the attributes of the Line as a dict
- 
-        """
-        return {'curvStart': str(self.curvstart), 'curvEnd': str(self.curvend)}
- 
-    def get_element(self):
-        """ returns the elementTree of the Line
- 
-        """
-        element = ET.Element('spiral',attrib=self.get_attributes())
-        
-        return element
-        
 
 class Arc():
     """ the Arc creates a arc type of geometry
@@ -1012,41 +874,132 @@ class ParamPoly3():
         
         return element
 
+class Spiral():
+    """ the Spiral (Clothoid) creates a spiral type of geometry
+        
+        Parameters
+        ----------
+            curvstart (float): starting curvature of the Spiral
+ 
+            curvend (float): final curvature of the Spiral
+ 
+            length (float): length of the spiral (optional, or use, angle, or cdot)
 
-class EulerSpiral(object):
+            angle (float): the angle of the spiral (optional, or use length, or cdot)
 
-    def __init__(self, gamma):
-        self._gamma = gamma
+            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
 
-    @staticmethod
-    def createFromLengthAndCurvature(length, curvStart, curvEnd):
-        return EulerSpiral(1 * (curvEnd - curvStart) / length)
+        Attributes
+        ----------
+            curvstart (float): starting curvature of the Spiral
+ 
+            curvend (float): final curvature of the Spiral
+ 
+        Methods
+        -------
+            get_element()
+                Returns the full ElementTree of the class
+ 
+            get_attributes()
+                Returns a dictionary of all attributes of the class
+ 
+            get_end_data(x,y,h)
+                Returns the end point of the geometry        
+    """
+    def __init__(self,curvstart,curvend,length=None,angle=None,cdot=None):
+        """ initalizes the Spline
+ 
+        Parameters
+        ----------
+            curvstart (float): starting curvature of the Spiral
+ 
+            curvend (float): final curvature of the Spiral
 
-    def calc(self, s, x0=0, y0=0, kappa0=0, theta0=0):
+            length (float): length of the spiral (optional, or use, angle, or cdot)
 
-        # Start
-        C0 = x0 + 1j * y0
+            angle (float): the angle of the spiral (optional, or use length, or cdot)
 
-        if self._gamma == 0 and kappa0 == 0:
-            # Straight line
-            Cs = C0 + s * np.exp(1j * theta0 )
+            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
+        """ 
+        self.curvstart = curvstart
+        self.curvend = curvend
+        if length == None and angle == None and cdot == None:
+            raise NotEnoughInputArguments('Spiral is underdefined')
+        if sum([x!=None for x in [length,angle,cdot]]) > 1:
+            raise ToManyOptionalArguments('Spiral is overdefined, please use only one of the optional inputs')
+        if angle:
+            self.length = 2*abs(angle)/np.maximum(abs(curvend),abs(curvstart))
 
-        elif self._gamma == 0 and kappa0 != 0:
-            # Arc
-            Cs = C0 + np.exp(1j * theta0) / kappa0 * (np.sin(kappa0 * s) + 1j * (1 - np.cos(kappa0 * s)))
-
+        elif cdot:
+            self.length =  (self.curvend - self.curvstart) / cdot
         else:
-            # Fresnel integrals
-            Sa, Ca = fresnel((kappa0 + self._gamma * s) / np.sqrt(np.pi * np.abs(self._gamma)))
-            Sb, Cb = fresnel(kappa0 / np.sqrt(np.pi * np.abs(self._gamma)))
+            self.length = length
 
-            # Euler Spiral
-            Cs1 = np.sqrt(np.pi / np.abs(self._gamma)) * np.exp(1j * (theta0 - kappa0**2 / 2 / self._gamma))
-            Cs2 = np.sign(self._gamma) * (Ca - Cb) + 1j * Sa - 1j * Sb
+    def __eq__(self, other):
+        if isinstance(other,Spiral):
+            if self.get_attributes() == other.get_attributes():         
+                return True
+        return False
 
-            Cs = C0 + Cs1 * Cs2
+    def get_end_data(self,x,y,h):
+        """ Returns the end point of the geometry
+        
+        Parameters
+        ----------
+            x (float): x start point of the geometry
+ 
+            y (float): y start point of the geometry
+ 
+            h (float): start heading of the geometry
+ 
+        Returns
+        ---------
+ 
+            x (float): the final x point
+            y (float): the final y point
+            h (float): the final heading
+            l (float): length of the spiral
+        """
 
-        # Tangent at each point
-        theta = self._gamma * s**2 / 2 + kappa0 * s + theta0
+        cloth = pcloth.Clothoid.StandardParams(x, y, h, self.curvstart, (self.curvend - self.curvstart) / self.length, self.length)
 
-        return (Cs.real, Cs.imag, theta)
+        return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
+
+    def get_start_data(self, end_x, end_y, end_h):
+        """ Returns the end point of the geometry
+        
+        Parameters
+        ----------
+            end_x (float): x end point of the geometry
+ 
+            end_y (float): y end point of the geometry
+ 
+            end_h (float): end heading of the geometry
+
+        Returns
+        ---------
+ 
+            x (float): the start x point
+            y (float): the start y point
+            h (float): the start heading of the inverse geometry 
+            l (float): length of the spiral
+
+        """
+        cloth = pcloth.Clothoid.StandardParams(x, y, h, -self.curvend, (self.curvstart - self.curvend) / self.length, self.length)
+ 
+        return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
+
+ 
+    def get_attributes(self):
+        """ returns the attributes of the Line as a dict
+ 
+        """
+        return {'curvStart': str(self.curvstart), 'curvEnd': str(self.curvend)}
+ 
+    def get_element(self):
+        """ returns the elementTree of the Line
+ 
+        """
+        element = ET.Element('spiral',attrib=self.get_attributes())
+        
+        return element

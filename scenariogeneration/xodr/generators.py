@@ -7,11 +7,12 @@
     - Creation of the junction based on the connecting roads and incomming/outgoing roads
 """
 import numpy as np
+import pyclothoids as pcloth
 
 from .lane import Lane, RoadMark, LaneSection, Lanes
 from .enumerations import RoadMarkType, MarkRule, ContactPoint, ElementType, ObjectType
 
-from .geometry import Line, Arc, Spiral, EulerSpiral, PlanView
+from .geometry import Line, Arc, Spiral, PlanView
 from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection, LaneLinker
 
@@ -264,7 +265,6 @@ def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offse
     # finally create the roads 
     return Road(road_id,planview1,lanes1,road_type=junction)
 
-
 def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, cloth_start=STD_START_CLOTH, n_lanes=1, lane_offset=3):
     """ creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
 
@@ -305,12 +305,75 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, c
     
     # create geometries
     spiral1 = Spiral(cloth_start, arc_curv, angle=cloth_angle)
-    arc = Arc(arc_curv, angle=arc_angle )
+    arc = Arc(arc_curv, angle=arc_angle)
     spiral2 = Spiral(arc_curv, cloth_start, angle=cloth_angle)
 
     pv.add_geometry(spiral1)
     pv.add_geometry(arc)
     pv.add_geometry(spiral2)
+
+    # create lanes
+    lsec = LaneSection(0,standard_lane())
+    for i in range(1, n_lanes+1, 1):
+        lsec.add_right_lane(standard_lane(lane_offset))
+        lsec.add_left_lane(standard_lane(lane_offset))
+    lanes = Lanes()
+    lanes.add_lanesection(lsec)
+
+    # create road
+    return Road(r_id,pv,lanes,road_type=junction)
+
+def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2_end, cloth2_length, cloth3_start, cloth3_end, cloth3_length, r_id, junction=1, n_lanes=1, lane_offset=3):
+    """ creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
+
+        Parameters
+        ----------
+            cloth1_start (float): initial curvature of spiral 1 
+
+            cloth1_end (float): ending curvature of spiral 1 
+
+            cloth1_length (float): total length of spiral 1 
+
+            cloth2_start (float): initial curvature of spiral 2
+
+            cloth2_end (float): ending curvature of spiral 2 
+
+            cloth2_length (float): total length of spiral 2
+
+            cloth3_start (float): initial curvature of spiral 3 
+
+            cloth3_end (float): ending curvature of spiral 3 
+
+            cloth3_length (float): total length of spiral 3
+
+            r_id (int): the id of the road
+
+            junction (int): if the Road belongs to a junction
+                default: 1
+
+            cloth_start (float): staring curvature of clothoids
+
+            n_lanes (int): number of lanes
+                default: 1
+
+            lane_offset (int): width of the road
+                default: 3
+
+        Returns
+        -------
+            road (Road): a road built up of a Spiral-Spiral-Spiral
+    """
+    
+    pv = PlanView()
+    
+    # create geometries
+    spiral1 = Spiral(cloth1_start, cloth1_end, length=cloth1_length)
+    spiral2 = Spiral(cloth2_start, cloth2_end, length=cloth2_length)
+    spiral3 = Spiral(cloth3_start, cloth3_end, length=cloth3_length)
+
+    pv.add_geometry(spiral1)
+    pv.add_geometry(spiral2)
+    pv.add_geometry(spiral3)
 
     # create lanes
     lsec = LaneSection(0,standard_lane())
@@ -352,133 +415,6 @@ def get_lanes_offset(road1, road2, contactpoint):
         raise NotSameAmountOfLanesError('Incoming road ',road1.id, ' and outcoming road ', road2.id, 'do not have the same number of left lanes.')
         
     return n_lanes, lane_offset 
-
-
-def _calc_radius(angle, R, spiral_part): 
-    """ returns the radius of the inner arc of a cloth-arc-cloth road 
-
-
-        Parameters
-        ----------
-            angle (float): difference between angle of the first road and angle of the second road [-pi, +pi]
-
-            R (float): radius of the whole junction (= distance between all roads around the junction and the center of the junction)
-
-            spiral_part (float): fraction describing the angle spanned by each cloth of the junction road e.g. spiral_part = 1/3
-
-        Returns
-        -------
-            r (float): the radius of the inner arc of a cloth-arc-cloth road
-    """
-    # some approximated trigonometry
-    angle_cloth = angle*spiral_part
-    denom = 2*abs(angle_cloth) - abs(angle_cloth)*(np.sin(angle_cloth/3)**2) - np.sin(angle_cloth) + np.tan(angle/2) * (2*abs(angle_cloth) * np.sin(angle_cloth/3) + np.cos(angle_cloth))
-    # since R = r*denom 
-    r = R / denom
-    return r
-
-
-def _distance(angle, R, r, spiral_part=1/3): 
-    """ returns the distance between the computed end point of the cloth-arc-cloth road,computed with r as arc radius, and its "right" position,
-    which gets computed considering that all roads are equally distant R from the center of the junction.
-
-
-        Parameters
-        ----------
-            angle (float): difference between angle of the first road and angle of the second road [-pi, +pi]
-
-            R (float): radius of the whole junction (= distance between all roads around the junction and the center of the junction)
-
-            r (float): arc radius of the cloth-arc-cloth junction road
-
-            spiral_part (float): fraction describing the angle spanned by each cloth of the junction road e.g. spiral_part = 1/3
-
-        Returns
-        -------
-            dist (float): the radius of the inner arc of a cloth-arc-cloth road
-
-            x_temp (float)
-
-            y_temp (float)
-    """
-
-    #1. compute "right" point from angle and R
-    p1_x = R * np.cos(angle) 
-    p1_y = R * np.sin(angle)    
-
-    Sign = np.sign(angle)
-
-    arc_part = 1 - 2*spiral_part
-    angle_arc = abs(angle * arc_part)
-    angle_cloth = abs(angle * spiral_part)
-    
-    #compute the cloth-arc-cloth road and get the end point 
-    tmp_junc = create_cloth_arc_cloth(  Sign * 1/r , angle_arc , angle_cloth , 100 , junction=1, n_lanes=1, lane_offset=3 )
-    tmp_junc.planview.set_start_point(-R,0,0)
-    tmp_junc.planview.adjust_geometries()
-    x_temp, y_temp, _ = tmp_junc.planview.get_end_point()
-
-    return ((((x_temp - p1_x )**2) + ((y_temp-p1_y)**2) )**0.5), x_temp, y_temp
-
-
-def _gradient(angle, R, r, spiral_part): 
-    """ returns the descrete derivative of the function outputing the distance between the computed end point and the "right" point of the cloth-arc-cloth road
-
-
-        Parameters
-        ----------
-            angle (float): difference between angle of the first road and angle of the second road [-pi, +pi]
-
-            R (float): radius of the whole junction (= distance between all roads around the junction and the center of the junction)
-
-            r (float): arc radius of the cloth-arc-cloth junction road
-
-            spiral_part (float): fraction describing the angle spanned by each cloth of the junction road e.g. spiral_part = 1/3
-
-        Returns
-        -------
-            d (float): descrete derivative of the function outputing the distance between the computed end point and the "right" point of the cloth-arc-cloth road
-    """
-
-    epsilon = 0.00001
-    d1, x1, y1 = _distance(angle, R, r+epsilon, spiral_part) 
-    d2, x2, y2 = _distance(angle, R, r-epsilon, spiral_part) 
-
-    return (d1 - d2) / epsilon 
-
-
-def _gradient_descent(start, angle, R, spiral_part, learn_rate=0.0005, n_iter=500, tolerance=1e-06):
-    """ implementation of the gradient descent method
-
-        Parameters
-        ----------
-            start (float): first guess of the arc radius
-
-            angle (float): difference between angle of the first road and angle of the second road [-pi, +pi]
-
-            R (float): radius of the whole junction (= distance between all roads around the junction and the center of the junction)
-
-            spiral_part (float): fraction describing the angle spanned by each cloth of the junction road e.g. spiral_part = 1/3
-
-            learn_rate (float): earning rate that controls the magnitude of the vector update
-
-            n_iter (float): number of iterations of the gradient descent method
-
-            tolerance (float): the minimal allowed movement in each iteration
-
-        Returns
-        -------
-            vector (float): output value of the gradient descent method 
-    """
-    vector = start
-    
-    for _ in range(n_iter):
-        diff = -learn_rate * _gradient(angle, R, vector, spiral_part)
-        d = _gradient(angle, R, vector, spiral_part)
-        if np.all(np.abs(diff) <= tolerance):
-            break
-        vector += diff
-    return vector
 
 
 def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100,n_lanes=1,lane_width=3):
@@ -713,6 +649,85 @@ def create_junction_roads(roads,angles,R=0,junction=1, arc_part = 1/3,startnum=1
                 final_r = _gradient_descent(r_first_guess, an1, R, spiral_part)
                 # create the cloth-arc-cloth road given the radius fo the arc
                 tmp_junc = create_cloth_arc_cloth(  sig*1/final_r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lanes_offset )
+
+            # add predecessor and successor
+            tmp_junc.add_predecessor(ElementType.road,roads[i].id,cp)
+            tmp_junc.add_successor(ElementType.road,roads[j].id,ContactPoint.start)
+            startnum += 1
+            junction_roads.append(tmp_junc)
+
+    # add junction to the last road aswell since it's not part of the loop
+    roads[-1].add_predecessor(ElementType.junction,junction)
+
+    return junction_roads
+
+
+def create_junction_roads_2(roads , angles, R, junction=1, arc_part = 1/3,startnum=100):
+    """ creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
+        R is value to the the radius of the whole junction (meaning R = distance between the center of the junction and any external road attached to the junction)
+        Supportes all angles and number of roads.
+
+        Parameters
+        ----------
+            roads (list of Road): all roads that should go into the junction
+
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+                                    to be defined in mathimatically positive order, beginning with the first incoming road [0, +2pi]
+
+            R (float): the radius of the whole junction, meaning that all roads are equally distant of distance R from the center of the junction. 
+            
+            junction (int): the id of the junction
+                default: 1
+
+            spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
+                default: (1/3)
+
+            arc_part (float): the part of the curve that should be an arc:  spiral_part*2 + arcpart = angle of the turn
+                default: (1/3)
+
+            startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
+
+        Returns
+        -------
+            junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
+    """
+
+    #arc_part = 1 - 2*spiral_part
+    spiral_part = (1 - arc_part)/2
+
+    linelength = 2*R
+    junction_roads = []
+
+    # loop over the roads to get all possible combinations of connecting roads
+    for i in range(len(roads)-1):
+        # for now the first road is place as base, 
+        if i == 0:
+            cp = ContactPoint.end
+            roads[i].add_successor(ElementType.junction,junction)
+        else:
+            cp = ContactPoint.start
+            roads[i].add_predecessor(ElementType.junction,junction)
+        
+        for j in range(1+i,len(roads)):
+            # check angle needed for junction [-pi, +pi]
+            an1 = angles[j]-angles[i] -np.pi
+            #adjust angle if multiple of pi
+            if an1 > np.pi: 
+                an1 = -(2*np.pi - an1)
+
+            angle_arc = an1*arc_part
+            angle_cloth = an1*spiral_part
+
+            sig = np.sign(an1)
+
+            # create road, either straight or curved
+            n_lanes, lanes_offset = get_lanes_offset(roads[i], roads[j], cp )
+            if sig == 0:
+                # create straight road 
+                tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
+            else: 
+                clothoids = pcloth.SolveG2(-R, 0, 0, STD_START_CLOTH, R*np.cos(an1), R*np.sin(an1), an1, STD_START_CLOTH)
+                tmp_junc = create_3cloths(clothoids[0].KappaStart, clothoids[0].KappaEnd, clothoids[0].length, clothoids[1].KappaStart, clothoids[1].KappaEnd, clothoids[1].length, clothoids[2].KappaStart, clothoids[2].KappaEnd, clothoids[2].length, startnum, junction, n_lanes=n_lanes, lane_offset=lanes_offset)
 
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road,roads[i].id,cp)
