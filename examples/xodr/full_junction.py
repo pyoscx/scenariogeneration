@@ -5,7 +5,7 @@
     All the roads in a junction are formed by clothoid-arc-clothoid geotrietries 
     In this example we can create a junction given 
         
-        option1. the distance R of every road from the center of the junction 
+        option1. the distance R of every road from the center of the junction - R can change for each road 
         
         option2. the radius of the inner arc geometry - for this case you can only use 
                                                         numintersections = 3 or 4 
@@ -39,7 +39,7 @@ angles = [0,np.pi/2, 3*np.pi/2]
 angles = [0,1.3*np.pi/2, 3.2*np.pi/2]
 
 #option 1. uncomment this if you want to create the junction from the distance R of every road from the center of the junction 
-junction_roads = xodr.create_junction_roads(roads,angles,8)
+junction_roads = xodr.create_junction_roads(roads,angles,[8])
 # option 2. creation of junction given the radius of the inner arc geometry 
 #junction_roads = xodr.create_junction_roads_from_arc(roads,angles,8)
 

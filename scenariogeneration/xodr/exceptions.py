@@ -32,3 +32,8 @@ class MixOfGeometryAddition(Exception):
     """ Raise when the wrong way of adding geometires are used for the planview
     """
     pass
+
+class GeneralIssueInputArguments(Exception):
+    """ Raise when there is something wrong in the input arguments 
+    """
+    pass
