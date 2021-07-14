@@ -64,9 +64,9 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 
 [esmini](https://github.com/esmini/esmini) is a basic OpenSCENARIO player
 
-### spirals
+### clothoids
 
-[pyeulerspiral](https://github.com/stefan-urban/pyeulerspiral), used this lib for calculating euler spirals
+[pyclothoids](https://github.com/phillipd94/pyclothoids), used for construction and optimization of clothoids gemetries
 
 ## Authors
 
