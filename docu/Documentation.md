@@ -76,11 +76,14 @@ Some example usage of this can be seen in:
 #### create_cloth_arc_cloth
 The  *create_cloth_arc_cloth* function creates road with a smooth curve based on a clothoid + arc + clothoid. This is often used since the curvature of the road will change continiously (and resulting in nice steering wheel changes for a driver).
 
+#### create_3cloths
+Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries. 
+
 #### create_junction_roads
-- The *create_junction_roads* generates all the roads for a simple intersection. *create_junction_roads* assumes a circle with the outgoing roads at different angles. The resulting roads are of the "clothoid + arc + clothoid" type. 
+- The *create_junction_roads* generates all the roads for a simple intersection. The position of roads around a junction is defined by *R*, the distance of each road form the center of the junction, and by *angles*, defining how the roads around the junction are spanned. With these inputs, *create_junction_roads* generates all the roads in the junction, which are connecting the surrounding roads. 
 
 #### create_junction
-The *create_junction* function creates the junction element of OpenDRIVE, based on a list of "roads in the junction" (that can be generated from *create_junction_roads*) and a list of "roads going into the junction" 
+The *create_junction* function creates the "junction" element of OpenDRIVE, based on a list of "roads in the junction" (that can be generated from *create_junction_roads*) and a list of "roads going into the junction" 
 
 #### LaneDef
 LaneDef is a helper class that enables simple lane merge/split roads to be created, this definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html)).
