@@ -21,6 +21,7 @@ class LaneType(Enum):
     shoulder = auto()
     biking = auto()
     sidewalk = auto()
+    curb = auto()
     border = auto()
     restricted = auto()
     parking = auto()
