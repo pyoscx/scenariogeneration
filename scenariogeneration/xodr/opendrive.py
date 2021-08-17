@@ -689,8 +689,8 @@ class OpenDrive():
 
                     # check if it has a normal (road) predecessor 
                     if self.roads[k].predecessor is not None and \
-                        self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is True and \
-                        self.roads[k].predecessor.element_type is not ElementType.junction: 
+                        self.roads[k].predecessor.element_type is not ElementType.junction and \
+                        self.roads[str(self.roads[k].predecessor.element_id)].planview.adjusted is True:
 
                         # print('  Adjusting {}road {} to predecessor {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))

@@ -30,7 +30,7 @@ class ScenarioGenerator():
         self.naming = 'numerical' # can be 'numerical', 'parameter'
         self._it = 0
         self._generation_folder = ''
-        self.write_relative_road_path = False
+        
         self.generate_all_roads = True
         self._created_roads = {}
     def road(self,**kwargs):

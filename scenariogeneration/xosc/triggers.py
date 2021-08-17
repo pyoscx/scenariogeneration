@@ -57,6 +57,7 @@ class EmptyTrigger(_TriggerType):
 
 class Trigger(_TriggerType):
     """ The Trigger class creates a Trigger that can be used if multiple ConditionGroups are wanted
+        The Trigger acts like an "OR" logic for all added ConditionGroups
         
         Parameters
         ----------
@@ -127,6 +128,7 @@ class Trigger(_TriggerType):
 
 class ConditionGroup(_TriggerType):
     """ The ConditionGroup class creates a Trigger that can be used if multiple Conditions are wanted
+        The ConditionGroups acts like an "AND" logic for all added conditions
         
         Parameters
         ----------
@@ -1746,7 +1748,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
                 reference (str): reference of the parameter
 
-                state (StoryboardElementType): state to trigger on
+                state (StoryBoardElementState): state to trigger on
         """
         if not hasattr(StoryboardElementType,str(element)):
             raise TypeError('element input is not of type StoryBoardElementType')
