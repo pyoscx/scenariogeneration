@@ -2,7 +2,7 @@ import xml.etree.ElementTree as ET
 import os
 
 from scenariogeneration.xosc import BoundingBox, Vehicle, Axle, VehicleCategory, Parameter, ParameterType, Pedestrian, PedestrianCategory, ParameterDeclarations
-
+from .exceptions import NoCatalogFoundError
 
 def CatalogReader(catalog_reference,catalog_path):
     """ CatalogReader is a function that will read a openscenario catalog and return the corresponding scenariogeneration.xosc object
@@ -64,8 +64,10 @@ def _parsePedestrianCatalog(pedestrian):
     # create the vehicle
     if pedestrian.find('model'):
         model = pedestrian.attrib['model']
-    else:
+    elif pedestrian.find('model3d'):
         model = pedestrian.attrib['model3d']
+    else:
+        model = ''
     
     return_pedestrian = Pedestrian(pedestrian.attrib['name'],model,float(pedestrian.attrib['mass']),getattr(PedestrianCategory,pedestrian.attrib['pedestrianCategory']),ped_bb)
 

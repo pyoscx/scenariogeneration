@@ -985,7 +985,7 @@ class Spiral():
             l (float): length of the spiral
 
         """
-        cloth = pcloth.Clothoid.StandardParams(x, y, h, -self.curvend, (self.curvstart - self.curvend) / self.length, self.length)
+        cloth = pcloth.Clothoid.StandardParams(end_x, end_y, end_h, -self.curvend, -(self.curvstart - self.curvend) / self.length, self.length)
  
         return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
 

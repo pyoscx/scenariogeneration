@@ -83,6 +83,7 @@ def test_catalog_reader_pedestrian(tmpdir):
     assert ped.boundingbox.center.x == peddler.boundingbox.center.x
     assert ped.mass == peddler.mass
     assert ped.name == peddler.name
+    assert ped.model == ped.model
 
 def test_parameter_reader(tmpdir,osc_fixture):
     tmpfile = os.path.join(tmpdir,'myscenario.xosc')
