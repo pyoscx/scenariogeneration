@@ -2,7 +2,7 @@
 
 """
 XMLNS = 'http://www.w3.org/2001/XMLSchema-instance'
-XSI = 'OpenSccenario.xsd'
+XSI = 'OpenScenario.xsd'
 
 from enum import Enum, auto
 from .exceptions import OpenSCENARIOVersionError

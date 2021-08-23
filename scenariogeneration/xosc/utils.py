@@ -913,11 +913,11 @@ class Polyline(VersionBase):
                 positions (list of positions): list of positions to create the polyline
 
         """
-        if len(time) < 2:
+        if time and len(time) < 2:
             raise ValueError('not enough time inputs')
         if len(positions)<2:
             raise ValueError('not enough position inputs')
-        if len(time) != len(positions):
+        if time and (len(time) != len(positions)):
             raise ValueError('time and positions are not the same lenght')
         for p in positions:
             if not isinstance(p,_PositionType):

@@ -168,6 +168,9 @@ def test_polyline():
     assert polyline == polyline2
     assert polyline != polyline3
 
+    polyline4 = OSC.Polyline([],positionlist)
+    prettyprint(polyline4)
+
 
 def test_clothoid():
     clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
