@@ -1,5 +1,8 @@
 ## scenariogeneration release notes
 
+### 2021-07-02 Version 0.5.1
+- Bug fixes for V1.1.0 implmentation
+- Switch to pyclothoid for clothoid calculations
 
 ### 2021-07-02 Version 0.5.0
 - Most of OpenSCENARIO V1.1.0 is implemented!
