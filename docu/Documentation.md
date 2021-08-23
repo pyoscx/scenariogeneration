@@ -113,3 +113,26 @@ In the init of the Scenario, some of the attributes of the ScenarioGenerator can
     - 'numerical' - will give the scenarios a name with an increasing index for each generated permutation
 
     - 'parameter' - will give the parameters and their value in the filename (this will endup in very long names if alot of parameters are used)
+
+# Useful Links
+Useful links related to scenariogeneration
+
+- [API documentation](scenariogeneration/index.html)
+
+- [Exampels](examples/index.html)
+
+- [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
+
+- [github](https://github.com/pyoscx/scenariogeneration)
+
+- [pypi](https://pypi.org/project/scenariogeneration/)
+
+Useful links for related projects and other information
+
+- [ASAM](www.asam.net)
+
+- [esmini](https://github.com/esmini/esmini)
+
+- [pyclothoids](https://github.com/phillipd94/pyclothoids)
+
+- [blender scenariogenerator](https://github.com/johschmitz/blender-driving-scenario-creator)
