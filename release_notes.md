@@ -1,6 +1,10 @@
 ## scenariogeneration release notes
 
+<<<<<<< HEAD
 ### 2021-07-02 Version 0.5.1
+=======
+### 2021-08-23 Version 0.5.1
+>>>>>>> update of release notes
 - Bug fixes for V1.1.0 implmentation
 - Switch to pyclothoid for clothoid calculations
 
