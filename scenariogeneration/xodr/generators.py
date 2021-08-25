@@ -457,11 +457,10 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
     angle_cloth = angle*spiral_part 
     spiral_length = 2*abs(angle_cloth*r)
 
-    spiral = EulerSpiral.createFromLengthAndCurvature(spiral_length, STD_START_CLOTH, 1/r)
-    (X, Y, _) = spiral.calc(spiral_length, 0, 0, STD_START_CLOTH, 0)
+    cloth = pcloth.Clothoid.StandardParams(0, 0, 0, STD_START_CLOTH, (1/r - STD_START_CLOTH) / spiral_length, spiral_length)
 
-    X0 = X-r*np.sin(angle_cloth)
-    Y0 = Y-r*(1-np.cos(angle_cloth))
+    X0 = cloth.XEnd-r*np.sin(angle_cloth)
+    Y0 = cloth.YEnd-r*(1-np.cos(angle_cloth))
     linelength = 2*(X0 + r + Y0)
 
     junction_roads = []
@@ -529,12 +528,12 @@ def create_junction_roads_from_arc(roads,angles,r=0,junction=1,arc_part = 1/3,st
     angle = np.pi/2
     angle_cloth = angle*spiral_part 
     spiral_length = 2*abs(angle_cloth*r)
-
-    spiral = EulerSpiral.createFromLengthAndCurvature(spiral_length, STD_START_CLOTH, 1/r)
-    (X, Y, _) = spiral.calc(spiral_length, 0, 0, STD_START_CLOTH, 0)
     
-    X0 = X-r*np.sin(angle_cloth)
-    Y0 = Y-r*(1-np.cos(angle_cloth))
+    cloth = pcloth.Clothoid.StandardParams(0, 0, 0, STD_START_CLOTH, (1/r - STD_START_CLOTH) / spiral_length, spiral_length)
+
+    X0 = cloth.XEnd-r*np.sin(angle_cloth)
+    Y0 = cloth.YEnd-r*(1-np.cos(angle_cloth))
+    
     linelength = 2*(X0 + r + Y0)
 
     junction_roads = []
