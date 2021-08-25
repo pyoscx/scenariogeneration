@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 from .helpers import printToFile,enum2str
 from .links import _Link, _Links, create_lane_links
-from .enumerations import ElementType, ContactPoint, RoadSide
+from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule
 from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
 from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
 
@@ -173,7 +173,7 @@ class Road():
             get_end_point ()
                 returns the x, y and heading at the end of the road
     """
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=None):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=TrafficRule.RTH):
         """ initalize the Road
 
             Parameters
@@ -459,7 +459,7 @@ class Road():
         if self.name:
             retdict['name'] = self.name
         if self.rule:
-            retdict['rule'] = self.rule
+            retdict['rule'] = enum2str(self.rule)
         retdict['id'] = str(self.id)
         retdict['junction'] = str(self.road_type)
         retdict['length'] = str(self.planview.get_total_length())
@@ -710,8 +710,8 @@ class OpenDrive():
 
                     # check if geometry has a normal (road) successor 
                     elif self.roads[k].successor is not None and \
-                        self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is True and \
-                        self.roads[k].successor.element_type is not ElementType.junction: 
+                        self.roads[k].successor.element_type is not ElementType.junction and \
+                        self.roads[str(self.roads[k].successor.element_id)].planview.adjusted is True: 
 
                         # print('  Adjusting {}successor {} to road {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))

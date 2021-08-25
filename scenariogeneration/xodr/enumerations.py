@@ -4,6 +4,12 @@
 from enum import Enum, auto
 
 
+class TrafficRule(Enum):
+    """ Enum for MarkRule
+    """
+    RTH = auto()
+    LTH = auto()
+    none = auto()
 
 class MarkRule(Enum):
     """ Enum for MarkRule
