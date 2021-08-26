@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+### 2021-08-26 Version 0.5.2
+- added enum for RHT and LHT
+- Some residual old clothoid calculations removed
+
 ### 2021-08-23 Version 0.5.1
 - Bug fixes for V1.1.0 implmentation
 - Switch to pyclothoid for clothoid calculations
