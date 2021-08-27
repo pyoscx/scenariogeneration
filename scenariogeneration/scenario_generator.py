@@ -33,6 +33,7 @@ class ScenarioGenerator():
         
         self.generate_all_roads = True
         self._created_roads = {}
+        self._name_separator = '_'
     def road(self,**kwargs):
         """ Dummy method for generating an OpenDRIVE road
 
@@ -163,14 +164,14 @@ class ScenarioGenerator():
             self._it += 1
         elif self.naming == 'parameter':
             for  key, value in permutation.items():
-                name_prefix += '_' + key.replace('\\','-').replace('/','-') + '-' + str(value).replace('\\','-').replace('/','-')
+                name_prefix += self._name_separator + key.replace('\\','-').replace('/','-') + '-' + str(value).replace('\\','-').replace('/','-')
         else:
             raise NameError('Attribute naming, can only be "numerical" or "parameter", not ' + self.naming)
 
         return os.path.basename(sys.modules[self.__class__.__module__].__file__).split('.')[0]+name_prefix
 
 
-    def generate_single(self,generation_folder, order = 'first',override_parameters = None, write_relative_road_path = True):
+    def generate_single(self,generation_folder, order = 'first',override_parameters = None, write_relative_road_path = True, name_separator=None):
         """ generate_single will generate only one scenario
 
             Parameters
@@ -189,7 +190,12 @@ class ScenarioGenerator():
                 write_relative_road_path (bool): if the generator will write the path to a generated xodr file relative to the xosc (true), 
                                                  or the absolute path to the xodr (false)
                     Default: True
+
+                name_separator (str): for generation with multiple parameters, this will change the separator between the variables
+                    Default: '_'
         """
+        if name_separator:
+            self._name_separator = name_separator
         self.write_relative_road_path = write_relative_road_path
         self._create_folder_structure(generation_folder)
         if override_parameters:
@@ -209,7 +215,7 @@ class ScenarioGenerator():
         return self._generate_road_and_scenario(self.all_permutations[it])
 
 
-    def generate(self,generation_folder,override_parameters = None, write_relative_road_path = True):
+    def generate(self,generation_folder,override_parameters = None, write_relative_road_path = True, name_separator = None):
         """ generate uses the xosc.Scenario defined in the method scenario and the xodr.OpenDrive (optional) in the road method
             together with the parameters attribute to generate scenarios and roads for all permutations defined and save those files
             in the generation_folder.
@@ -222,7 +228,13 @@ class ScenarioGenerator():
 
                 write_relative_road_path (bool): if the generator will write the path to a generated xodr file relative to the xosc (true), or the absolute path to the xodr (false)
                     Default: True
+                
+                name_separator (str): for generation with multiple parameters, this will change the separator between the variables
+                    Default: '_'
         """
+        if name_separator:
+            self._name_separator = name_separator
+
         self.write_relative_road_path = write_relative_road_path
         scenario_files = []
         road_files = []
