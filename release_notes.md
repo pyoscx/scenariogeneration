@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+### 2021-09-01 Version 0.5.3
+- bug fix for enum for RHT and LHT
+- enable setting of delimiter in generation of names
+
 ### 2021-08-26 Version 0.5.2
 - added enum for RHT and LHT
 - Some residual old clothoid calculations removed
