@@ -7,8 +7,8 @@ from enum import Enum, auto
 class TrafficRule(Enum):
     """ Enum for MarkRule
     """
-    RTH = auto()
-    LTH = auto()
+    RHT = auto()
+    LHT = auto()
     none = auto()
 
 class MarkRule(Enum):

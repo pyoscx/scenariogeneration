@@ -173,7 +173,7 @@ class Road():
             get_end_point ()
                 returns the x, y and heading at the end of the road
     """
-    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=TrafficRule.RTH):
+    def __init__(self,road_id,planview,lanes, road_type = -1,name=None, rule=TrafficRule.RHT):
         """ initalize the Road
 
             Parameters
