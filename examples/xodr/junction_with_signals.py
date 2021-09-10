@@ -28,8 +28,8 @@ for i in range(incoming_roads):
 # use this for a T-crossing instead
 # angles = [0,np.pi/2, 3*np.pi/2]
 
-print(roads)
-junc = xodr.create_junction_roads(roads, angles, 8)
+# print(roads)
+junc = xodr.create_junction_roads(roads, angles, [8])
 odr = xodr.OpenDrive('myroad')
 junction = xodr.create_junction(junc, 1, roads)
 
