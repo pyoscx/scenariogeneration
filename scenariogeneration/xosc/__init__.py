@@ -12,3 +12,4 @@ from .storyboard import *
 from .entities import *
 from .enumerations import *
 from .xosc_reader import *
+from .parameters import *

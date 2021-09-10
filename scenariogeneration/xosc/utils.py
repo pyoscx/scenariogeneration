@@ -9,7 +9,10 @@ from .helpers import printToFile
 from .enumerations import ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy,XSI,XMLNS, VehicleCategory,PrecipitationType,CloudState, VersionBase
 import datetime as dt
 
-
+class _StochasticDistributionType(VersionBase):
+    """ helper class for typesetting
+    """
+    pass
 
 class _PositionType(VersionBase):
     """ helper class for typesetting
