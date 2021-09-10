@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2021-09-10 Version 0.5.4
+- New features
+    - Support for ParameterValueDistribution type of xosc file. 
+        - All distributions (except UserDefinedDistribution) added
+        - Example of how to write a parametrized scenario
+
 ### 2021-09-01 Version 0.5.3
 - bug fix for enum for RHT and LHT
 - enable setting of delimiter in generation of names
