@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 from numpy.lib.function_base import disp
 
-from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, Route, Trajectory, TrafficDefinition, Environment, TargetTimeSteadyState, TargetDistanceSteadyState
+from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, Route, Trajectory, TrafficDefinition, Environment, TargetTimeSteadyState, TargetDistanceSteadyState, FinalSpeed
 from .utils import Controller
 from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement
 from .exceptions import NoActionsDefinedError, OpenSCENARIOVersionError
@@ -1686,7 +1686,7 @@ class AbsoluteSynchronizeAction(_PrivateActionType):
 
             target_tolerance (optional) (double): tolerance offset of the target's position [m]. (Valid from OpenSCENARIO V1.1)
 
-            steady_state (TargetTimeSteadyState or TargetDistanceSteadyState): steady state for final phase (Valid from OpenSCENARIO V1.1)
+            final_speed (FinalSpeed): The speed that the synchronized entity should have at its target position. (Valid from OpenSCENARIO V1.1)
 
         Methods
         -------
@@ -1697,7 +1697,7 @@ class AbsoluteSynchronizeAction(_PrivateActionType):
                 Returns the the attributes of the class
 
     """
-    def __init__(self,entity,entity_PositionType,target_PositionType,speed,target_tolerance_master=None,target_tolerance=None,steady_state=None):
+    def __init__(self,entity,entity_PositionType,target_PositionType,target_tolerance_master=None,target_tolerance=None,final_speed=None):
         """ initalize the AbsoluteSynchronizeAction
 
             Parameters
@@ -1714,7 +1714,7 @@ class AbsoluteSynchronizeAction(_PrivateActionType):
 
                 target_tolerance (optional) (double): tolerance offset of the target's position [m]. (Valid from OpenSCENARIO V1.1)
 
-                steady_state (TargetTimeSteadyState or TargetDistanceSteadyState): steady state for final phase (Valid from OpenSCENARIO V1.1)
+                final_speed (FinalSpeed): The speed that the synchronized entity should have at its target position. (Valid from OpenSCENARIO V1.1)
                 Default: None
         """
 
@@ -1726,19 +1726,19 @@ class AbsoluteSynchronizeAction(_PrivateActionType):
             raise TypeError('target_PositionType input is not a valid Position')
         self.entity_PositionType = entity_PositionType
         self.target_PositionType = target_PositionType
-        self.speed = speed
         self.target_tolerance_master = target_tolerance_master
         self.target_tolerance = target_tolerance
-        if steady_state and not (isinstance(steady_state,TargetTimeSteadyState) or isinstance(steady_state,TargetDistanceSteadyState)):
-            raise TypeError('steady_state input is not TargetTimeSteadyState or TargetDistanceSteadyState')
-        self.steady_state = steady_state
+        if final_speed and not (isinstance(final_speed,FinalSpeed)):
+            raise TypeError('final_speed input is not FinalSpeed')
+        else:
+            self.final_speed = final_speed
+
     def __eq__(self,other):
         if isinstance(other,AbsoluteSynchronizeAction):
             if self.get_attributes() == other.get_attributes() and \
             self.entity_PositionType == other.entity_PositionType and \
             self.target_PositionType == other.target_PositionType and \
-            self.speed == other.speed and \
-            self.steady_state == other.steady_state:
+            self.final_speed == other.final_speed:
                 return True
         return False
 
@@ -1761,10 +1761,8 @@ class AbsoluteSynchronizeAction(_PrivateActionType):
         syncaction = ET.SubElement(element,'SynchronizeAction',self.get_attributes())
         syncaction.append(self.entity_PositionType.get_element('TargetPositionMaster'))
         syncaction.append(self.target_PositionType.get_element('TargetPosition'))
-        finalspeed = ET.SubElement(syncaction,'FinalSpeed')
-        ET.SubElement(finalspeed,'AbsoluteSpeed',attrib={'value':str(self.speed)})
-        if self.steady_state and not self.isVersion(0):
-            finalspeed.append(self.steady_state.get_element())
+        if self.final_speed:
+            syncaction.append(self.final_speed.get_element())
         return element
 
 
