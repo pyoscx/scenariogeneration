@@ -3201,7 +3201,7 @@ class AbsoluteSpeed(VersionBase):
             get_attributes()
                 Returns the attributes of the class
     """
-    def __init__(self, value, steadyState):
+    def __init__(self, value, steadyState=None):
         """initalzie the AbsoluteSpeed
 
         Parameters
@@ -3210,8 +3210,8 @@ class AbsoluteSpeed(VersionBase):
             steadyState (SteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
         """
         self.value = value
-        if not isinstance(steadyState, SteadyState):
-            raise TypeError('steadyState input is not a valid SteadyState')
+        if steadyState and not isinstance(steadyState, SteadyState):
+                raise TypeError('steadyState input is not a valid SteadyState')
         self.steadyState = steadyState
 
     def get_attributes(self):
@@ -3227,7 +3227,8 @@ class AbsoluteSpeed(VersionBase):
         if self.isVersion(0):
             raise OpenSCENARIOVersionError('AbsoluteSpeed was introduced in OpenSCENARIO V1.1')
         element = ET.Element('AbsoluteSpeed', attrib=self.get_attributes())
-        element.append(self.steadyState.get_element())
+        if self.steadyState:
+            element.append(self.steadyState.get_element())
         return element
 
 
@@ -3252,7 +3253,7 @@ class RelativeSpeedToMaster(VersionBase):
             get_attributes()
                 Returns the attributes of the class
     """
-    def __init__(self, value, speedTargetValueType, steadyState):
+    def __init__(self, value, speedTargetValueType, steadyState=None):
         """
 
         Parameters
@@ -3262,7 +3263,7 @@ class RelativeSpeedToMaster(VersionBase):
             steadyState (SteadyState): Optional final phase of constant (final) speed.
         """
         self.value = value
-        if not isinstance(steadyState, SteadyState):
+        if steadyState and not isinstance(steadyState, SteadyState):
             raise TypeError('steadyState input is not a valid SteadyState')
         self.steadyState = steadyState
         if not speedTargetValueType.classname == "SpeedTargetValueType":
@@ -3282,7 +3283,8 @@ class RelativeSpeedToMaster(VersionBase):
         if self.isVersion(0):
             raise OpenSCENARIOVersionError('RelativeSpeedToMaster was introduced in OpenSCENARIO V1.1')
         element = ET.Element('RelativeSpeedToMaster', attrib=self.get_attributes())
-        element.append(self.steadyState.get_element())
+        if self.steadyState:
+            element.append(self.steadyState.get_element())
         return element
 
 
