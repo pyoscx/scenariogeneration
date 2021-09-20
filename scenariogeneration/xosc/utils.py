@@ -19,6 +19,10 @@ class _PositionType(VersionBase):
     """
     pass
 
+    def get_element(self, param):
+        pass
+
+
 class _TriggerType(VersionBase):
     """ helper class for typesetting
     """
@@ -3110,89 +3114,17 @@ class Properties(VersionBase):
         return element
 
 
-class FinalSpeed(VersionBase):
-    """
-        Parameters
-        ----------
-            element (AbsoluteSpeed or RelativeSpeedToMaster): FinalSpeed input element
-
-        Attributes
-        ----------
-            element (AbsoluteSpeed or RelativeSpeedToMaster): FinalSpeed input element
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-    """
-    def __init__(self, element):
-        """ initialize the FinalSpeed
-
-        Parameters
-        ----------
-            element (AbsoluteSpeed or RelativeSpeedToMaster): FinalSpeed input element
-        """
-        if not (isinstance(element, AbsoluteSpeed) or isinstance(element, RelativeSpeedToMaster)):
-            raise TypeError('Final Speed element input is not a valid FinalSpeed choice')
-        self.element = element
-
-    def get_element(self):
-        """ returns the elementTree of the FinalSpeed
-
-        """
-        if self.isVersion(0):
-            raise OpenSCENARIOVersionError('FinalSpeed was introduced in OpenSCENARIO V1.1')
-        element = ET.Element('FinalSpeed')
-        element.append(self.element.get_element())
-        return element
-
-
-class SteadyState(VersionBase):
-    """Final phase of constant (final) speed, start of which defined by distance or time.
-
-        Parameters
-        ----------
-            element (TargetDistanceSteadyState or TargetTimeSteadyState): The target distance/time steady state
-
-        Attributes
-        ----------
-            element (TargetDistanceSteadyState or TargetTimeSteadyState): The target distance/time steady state
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-    """
-    def __init__(self, element):
-        """initialize of SteadyState
-
-        Parameters
-        ----------
-            element (TargetDistanceSteadyState or TargetTimeSteadyState): The target distance/time steady state
-        """
-        if not (isinstance(element, TargetDistanceSteadyState) or isinstance(element, TargetTimeSteadyState)):
-            raise TypeError('SteadyState input is not a valid SteadyState choice')
-        self.element = element
-
-    def get_element(self):
-        """ returns the elementTree of the SteadyState
-
-        """
-        if self.isVersion(0):
-            raise OpenSCENARIOVersionError('SteadyState was introduced in OpenSCENARIO V1.1')
-        return self.element.get_element()
-
-
 class AbsoluteSpeed(VersionBase):
     """
         Parameters
         ----------
             value (double): absolute speed [m/s]
-            steadyState (SteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
 
         Attributes
         ----------
             value (double): absolute speed [m/s]
-            steadyState (SteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
 
         Methods
         -------
@@ -3207,11 +3139,15 @@ class AbsoluteSpeed(VersionBase):
         Parameters
         ----------
             value (double): absolute speed [m/s]
-            steadyState (SteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState) Final phase of constant (final) speed, start of which defined by distance or time.
         """
         self.value = value
-        if steadyState and not isinstance(steadyState, SteadyState):
-                raise TypeError('steadyState input is not a valid SteadyState')
+        if steadyState:
+            if self.isVersion(1, 0):
+                raise OpenSCENARIOVersionError(
+                    'steadyState was introduced in OpenSCENARIO V1.1')
+            if not (isinstance(steadyState, TargetTimeSteadyState) or isinstance(steadyState, TargetDistanceSteadyState)):
+                raise TypeError('steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input')
         self.steadyState = steadyState
 
     def get_attributes(self):
@@ -3226,10 +3162,11 @@ class AbsoluteSpeed(VersionBase):
         """
         if self.isVersion(0):
             raise OpenSCENARIOVersionError('AbsoluteSpeed was introduced in OpenSCENARIO V1.1')
-        element = ET.Element('AbsoluteSpeed', attrib=self.get_attributes())
+        elementFinalSpeed = ET.Element('FinalSpeed')
+        elementAbsoluteSpeed = ET.SubElement(elementFinalSpeed, 'AbsoluteSpeed', attrib=self.get_attributes())
         if self.steadyState:
-            element.append(self.steadyState.get_element())
-        return element
+            ET.SubElement(elementAbsoluteSpeed, self.steadyState.__class__.__name__, attrib=self.steadyState.get_attributes())
+        return elementFinalSpeed
 
 
 class RelativeSpeedToMaster(VersionBase):
@@ -3238,13 +3175,13 @@ class RelativeSpeedToMaster(VersionBase):
         ----------
             value (double): Relative speed. Unit: m/s.
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            steadyState (SteadyState): Optional final phase of constant (final) speed.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
 
         Attributes
         ----------
             value (double): Relative speed. Unit: m/s.
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            steadyState (SteadyState): Optional final phase of constant (final) speed.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
 
         Methods
         -------
@@ -3260,11 +3197,16 @@ class RelativeSpeedToMaster(VersionBase):
         ----------
             value (double): Relative speed. Unit: m/s.
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            steadyState (SteadyState): Optional final phase of constant (final) speed.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
         """
         self.value = value
-        if steadyState and not isinstance(steadyState, SteadyState):
-            raise TypeError('steadyState input is not a valid SteadyState')
+        if steadyState:
+            if self.isVersion(1, 0):
+                raise OpenSCENARIOVersionError(
+                    'steadyState was introduced in OpenSCENARIO V1.1')
+            if not (isinstance(steadyState, TargetTimeSteadyState) or isinstance(steadyState,
+                                                                                 TargetDistanceSteadyState)):
+                raise TypeError('steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input')
         self.steadyState = steadyState
         if not speedTargetValueType.classname == "SpeedTargetValueType":
             raise TypeError('speedTargetValueType input is not a valid SpeedTargetValueType')
@@ -3282,10 +3224,12 @@ class RelativeSpeedToMaster(VersionBase):
         """
         if self.isVersion(0):
             raise OpenSCENARIOVersionError('RelativeSpeedToMaster was introduced in OpenSCENARIO V1.1')
-        element = ET.Element('RelativeSpeedToMaster', attrib=self.get_attributes())
+        elementFinalSpeed = ET.Element('FinalSpeed')
+        elementRelativeSpeed = ET.SubElement(elementFinalSpeed, 'RelativeSpeedToMaster', attrib=self.get_attributes())
         if self.steadyState:
-            element.append(self.steadyState.get_element())
-        return element
+            ET.SubElement(elementRelativeSpeed, self.steadyState.__class__.__name__,
+                          attrib=self.steadyState.get_attributes())
+        return elementFinalSpeed
 
 
 class TargetDistanceSteadyState(VersionBase):
@@ -3313,6 +3257,8 @@ class TargetDistanceSteadyState(VersionBase):
             distance (double): distance to target for the steady state
         
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
         self.distance = distance
         
 
@@ -3332,9 +3278,8 @@ class TargetDistanceSteadyState(VersionBase):
         """ returns the elementTree of the TargetDistanceSteadyState
 
         """
-        if self.isVersion(0):
-            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
         return ET.Element('TargetDistanceSteadyState',attrib=self.get_attributes())
+
 
 class TargetTimeSteadyState(VersionBase):
     """ the TargetTimeSteadyState describes a SteadyState of type TargetTimeSteadyState
@@ -3361,6 +3306,8 @@ class TargetTimeSteadyState(VersionBase):
             time_gap (double): time_gap to target for the steady state
         
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
         self.time_gap = time_gap
         
 
@@ -3380,9 +3327,8 @@ class TargetTimeSteadyState(VersionBase):
         """ returns the elementTree of the TargetTimeSteadyState
 
         """
-        if self.isVersion(0):
-            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
         return ET.Element('TargetTimeSteadyState',attrib=self.get_attributes())
+
 
 def merge_dicts(*dict_args):
     """ Funciton to merge dicts 
