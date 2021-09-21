@@ -1653,6 +1653,7 @@ class VisibilityAction(_PrivateActionType):
         ET.SubElement(element,'VisibilityAction',self.get_attributes())
         return element
 
+
 class SynchronizeAction(_PrivateActionType):
     """ Synchronizes an entity's arrival at a destination with a master entity. Both entities are provided with their own reference position which shall be reached at the same time. Final speed can be specified. Note that the reference positions can be different or identical.
         
@@ -1717,9 +1718,6 @@ class SynchronizeAction(_PrivateActionType):
                 final_speed (AbsoluteSpeed or RelativeSpeedToMaster): The speed that the synchronized entity should have at its target position. (Valid from OpenSCENARIO V1.1)
                 Default: None
         """
-        if self.isVersion(1, 0) and (target_tolerance or target_tolerance_master):
-            raise OpenSCENARIOVersionError('targetTolerance and targetToleranceMaster was introduced in OpenSCENARIO V1.1')
-
         self.entity = entity
         if not isinstance(entity_PositionType,_PositionType):
             raise TypeError('entity_PositionType input is not a valid Position')
@@ -1749,6 +1747,8 @@ class SynchronizeAction(_PrivateActionType):
 
         """
         attr = {'masterEntityRef':self.entity}
+        if self.isVersion(1, 0):
+            return attr
         if self.target_tolerance_master:
             attr.update({'targetToleranceMaster': str(self.target_tolerance_master)})
         if self.target_tolerance:

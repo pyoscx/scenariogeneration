@@ -3143,9 +3143,6 @@ class AbsoluteSpeed(VersionBase):
         """
         self.value = value
         if steadyState:
-            if self.isVersion(1, 0):
-                raise OpenSCENARIOVersionError(
-                    'steadyState was introduced in OpenSCENARIO V1.1')
             if not (isinstance(steadyState, TargetTimeSteadyState) or isinstance(steadyState, TargetDistanceSteadyState)):
                 raise TypeError('steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input')
         self.steadyState = steadyState
@@ -3165,6 +3162,8 @@ class AbsoluteSpeed(VersionBase):
         elementFinalSpeed = ET.Element('FinalSpeed')
         elementAbsoluteSpeed = ET.SubElement(elementFinalSpeed, 'AbsoluteSpeed', attrib=self.get_attributes())
         if self.steadyState:
+            if self.isVersion(1, 0):
+                raise OpenSCENARIOVersionError('steadyState was introduced in OpenSCENARIO V1.1')
             ET.SubElement(elementAbsoluteSpeed, self.steadyState.__class__.__name__, attrib=self.steadyState.get_attributes())
         return elementFinalSpeed
 
@@ -3201,9 +3200,6 @@ class RelativeSpeedToMaster(VersionBase):
         """
         self.value = value
         if steadyState:
-            if self.isVersion(1, 0):
-                raise OpenSCENARIOVersionError(
-                    'steadyState was introduced in OpenSCENARIO V1.1')
             if not (isinstance(steadyState, TargetTimeSteadyState) or isinstance(steadyState,
                                                                                  TargetDistanceSteadyState)):
                 raise TypeError('steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input')
@@ -3227,6 +3223,8 @@ class RelativeSpeedToMaster(VersionBase):
         elementFinalSpeed = ET.Element('FinalSpeed')
         elementRelativeSpeed = ET.SubElement(elementFinalSpeed, 'RelativeSpeedToMaster', attrib=self.get_attributes())
         if self.steadyState:
+            if self.isVersion(1, 0):
+                raise OpenSCENARIOVersionError('steadyState was introduced in OpenSCENARIO V1.1')
             ET.SubElement(elementRelativeSpeed, self.steadyState.__class__.__name__,
                           attrib=self.steadyState.get_attributes())
         return elementFinalSpeed
@@ -3257,10 +3255,7 @@ class TargetDistanceSteadyState(VersionBase):
             distance (double): distance to target for the steady state
         
         """
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
         self.distance = distance
-        
 
     def __eq__(self,other):
         if isinstance(other,TargetDistanceSteadyState):
@@ -3272,12 +3267,16 @@ class TargetDistanceSteadyState(VersionBase):
         """ returns the attributes of the TargetDistanceSteadyState
         
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
         return {'distance':str(self.distance)}
 
     def get_element(self):
         """ returns the elementTree of the TargetDistanceSteadyState
 
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
         return ET.Element('TargetDistanceSteadyState',attrib=self.get_attributes())
 
 
@@ -3306,10 +3305,7 @@ class TargetTimeSteadyState(VersionBase):
             time_gap (double): time_gap to target for the steady state
         
         """
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
         self.time_gap = time_gap
-        
 
     def __eq__(self,other):
         if isinstance(other,TargetTimeSteadyState):
@@ -3321,12 +3317,16 @@ class TargetTimeSteadyState(VersionBase):
         """ returns the attributes of the TargetTimeSteadyState
         
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
         return {'time':str(self.time_gap)}
 
     def get_element(self):
         """ returns the elementTree of the TargetTimeSteadyState
 
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
         return ET.Element('TargetTimeSteadyState',attrib=self.get_attributes())
 
 
