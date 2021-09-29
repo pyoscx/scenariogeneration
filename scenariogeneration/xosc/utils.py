@@ -3119,17 +3119,20 @@ class AbsoluteSpeed(VersionBase):
         Parameters
         ----------
             value (double): absolute speed [m/s]
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
+            
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
 
         Attributes
         ----------
             value (double): absolute speed [m/s]
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time.
+            
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
 
         Methods
         -------
             get_element()
                 Returns the full ElementTree of the class
+                
             get_attributes()
                 Returns the attributes of the class
     """
@@ -3139,7 +3142,7 @@ class AbsoluteSpeed(VersionBase):
         Parameters
         ----------
             value (double): absolute speed [m/s]
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState) Final phase of constant (final) speed, start of which defined by distance or time.
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState) Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
         """
         self.value = value
         if steadyState:
@@ -3173,14 +3176,18 @@ class RelativeSpeedToMaster(VersionBase):
         Parameters
         ----------
             value (double): Relative speed. Unit: m/s.
+            
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
+            
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
 
         Attributes
         ----------
             value (double): Relative speed. Unit: m/s.
+            
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
+            
+            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
 
         Methods
         -------
@@ -3195,7 +3202,9 @@ class RelativeSpeedToMaster(VersionBase):
         Parameters
         ----------
             value (double): Relative speed. Unit: m/s.
+            
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
+            
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
         """
         self.value = value
@@ -3232,7 +3241,8 @@ class RelativeSpeedToMaster(VersionBase):
 
 class TargetDistanceSteadyState(VersionBase):
     """ the TargetDistanceSteadyState describes a SteadyState of type TargetDistanceSteadyState
-
+        (Valid from OpenSCENARIO V1.1)
+        
         Parameters
         ----------
             distance (double): distance to target for the steady state
@@ -3282,7 +3292,8 @@ class TargetDistanceSteadyState(VersionBase):
 
 class TargetTimeSteadyState(VersionBase):
     """ the TargetTimeSteadyState describes a SteadyState of type TargetTimeSteadyState
-
+        (Valid from OpenSCENARIO V1.1)
+        
         Parameters
         ----------
             time_gap (double): time_gap to target for the steady state
