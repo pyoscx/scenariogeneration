@@ -187,26 +187,18 @@ def test_visual_action():
     assert va == va2
     assert va != va3
 
-def test_abs_sync_action():
+def test_sync_action():
     
-    asa = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20)
+    asa = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
     prettyprint(asa.get_element())
-    asa2 = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20)
-    asa3 = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(1,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20)
+    asa2 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
+    asa3 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(1,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
     assert asa == asa2
     assert asa != asa3
-    asa4 = OSC.AbsoluteSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,steady_state=OSC.TargetTimeSteadyState(3))
+    asa4 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
     prettyprint(asa4)
-def test_rel_sync_action():
-    
-    asa = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta')
-    prettyprint(asa.get_element())
-    asa2 = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta')
-    asa3 = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),21,'delta')
-    assert asa == asa2
-    assert asa != asa3
-    asa4 = OSC.RelativeSynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),20,'delta',steady_state=OSC.TargetDistanceSteadyState(3))
-    prettyprint(asa4)
+    asa5 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2, final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
+    prettyprint(asa5)
 
 def test_follow_traj_action_polyline():
 

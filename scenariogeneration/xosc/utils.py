@@ -65,7 +65,7 @@ class ParameterDeclarations(VersionBase):
             if self.parameters == other.parameters:
                 return True
         return False
-                
+
     def add_parameter(self,parameter):
         """ add_parameter adds a Parameter to the ParameterDeclarations
 
@@ -78,7 +78,7 @@ class ParameterDeclarations(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.append(parameter)
-    
+
     def get_element(self):
         """ returns the elementTree of the ParameterDeclarations
 
@@ -166,7 +166,7 @@ class Parameter(VersionBase):
                 Returns a dictionary of all attributes of the class
 
     """
-    
+
     def __init__(self,name,parameter_type,value):
         """ initalize the Parameter 
 
@@ -264,7 +264,7 @@ class Orientation(VersionBase):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-        
+
     def is_filled(self):
         """ is_filled check is any orientations are  set
 
@@ -275,7 +275,7 @@ class Orientation(VersionBase):
             return True
         else:
             return False
-    
+
     def get_attributes(self):
         """ returns the attributes of the Orientation as a dict
 
@@ -292,9 +292,9 @@ class Orientation(VersionBase):
 
         if self.ref:
             retdict['type'] = self.ref.get_name()
-        
+
         return retdict
-    
+
     def get_element(self):
         """ returns the elementTree of the Orientation
 
@@ -343,7 +343,7 @@ class TransitionDynamics(VersionBase):
         """
         if not hasattr(DynamicsShapes,str(shape)):
             raise TypeError(shape + '; is not a valid shape.')
-        
+
         self.shape = shape
         if not hasattr(DynamicsDimension,str(dimension)):
             raise ValueError(dimension + ' is not a valid dynamics dimension')
@@ -355,7 +355,7 @@ class TransitionDynamics(VersionBase):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-        
+
     def get_attributes(self):
         """ returns the attributes of the TransitionDynamics as a dict
 
@@ -414,7 +414,7 @@ class DynamicsConstrains(VersionBase):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-        
+
     def is_filled(self):
         """ is_filled check is any constraints are set
 
@@ -514,7 +514,7 @@ class Route(VersionBase):
             self.waypoints == other.waypoints:
                 return True
         return False
-        
+
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
             
@@ -533,7 +533,7 @@ class Route(VersionBase):
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the Controller to an existing catalog
 
@@ -741,7 +741,7 @@ class Trajectory(VersionBase):
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the Controller to an existing catalog
 
@@ -851,11 +851,11 @@ class TimeReference(VersionBase):
             raise ValueError('missing inputs for time reference')
         if reference_domain is not None and not hasattr(ReferenceContext,str(reference_domain)):
             raise TypeError('input reference_domain is not of type ReferenceContext')
-        
+
         self.reference_domain = reference_domain
         self.scale = scale
         self.offset = offset
-    
+
     def __eq__(self,other):
         if isinstance(other,TimeReference):
             if not self._only_nones and not other._only_nones:
@@ -885,7 +885,7 @@ class TimeReference(VersionBase):
             ET.SubElement(element,'None')
         else:
             ET.SubElement(element,'Timing',self.get_attributes())
-        
+
         return element
 
 class Polyline(VersionBase):
@@ -1011,14 +1011,14 @@ class Clothoid(VersionBase):
 
         """
 
-        
+
         self.curvature = curvature
         self.curvature_change = curvature_change
         self.length = length
         if not isinstance(startposition,_PositionType):
             raise TypeError('position input is not a valid position')
         self.startposition = startposition
-        
+
         self.starttime = starttime
         self.stoptime = stoptime
         if (self.starttime == None and self.stoptime != None) or (self.starttime != None and self.stoptime == None):
@@ -1172,11 +1172,11 @@ class Nurbs(VersionBase):
 
         """
 
-        
+
         self.order = order
         self.controlpoints = []
         self.knots = []
-    
+
     def __eq__(self,other):
         if isinstance(other,Nurbs):
             if self.get_attributes() == other.get_attributes() and \
@@ -1223,7 +1223,7 @@ class Nurbs(VersionBase):
             element.append(c.get_element())
         for k in self.knots:
             ET.SubElement(element,'Knot',attrib={'value':str(k)})
-        
+
 
         return element
 
@@ -1276,7 +1276,7 @@ class License(VersionBase):
         self.resource = resource
         self._revMajor = 1
         self.spdxId = spdxId
-        
+
     def __eq__(self,other):
         if isinstance(other,License):
             if self.get_attributes() == other.get_attributes():
@@ -1396,7 +1396,7 @@ class _TrafficSignalState(VersionBase):
 
     """
 
-    
+
     def __init__(self, signal_id, state):
         """ initalize the _TrafficSignalState 
         
@@ -1407,7 +1407,7 @@ class _TrafficSignalState(VersionBase):
             state (str): state of the signal
 
         """
-        
+
         self.signal_id = signal_id
         self.state = state
 
@@ -1431,9 +1431,9 @@ class _TrafficSignalState(VersionBase):
 
         """
         return ET.Element('TrafficSignalState',attrib=self.get_attributes())
-        
 
-    
+
+
 class Phase(VersionBase):
     """ crates a Traffic light phase
         
@@ -1473,7 +1473,7 @@ class Phase(VersionBase):
             duration (float): duration of the phase
 
         """
-        
+
         self.name = name
         self.duration = duration
         self.signalstates = []
@@ -1510,7 +1510,7 @@ class Phase(VersionBase):
 
         """
         element = ET.Element('Phase',attrib=self.get_attributes())
-        for s in self.signalstates: 
+        for s in self.signalstates:
             element.append(s.get_element())
         return element
 
@@ -1563,7 +1563,7 @@ class TrafficSignalController(VersionBase):
                 Default: None
 
         """
-        
+
         self.name = name
         self.delay = delay
         self.reference = reference
@@ -1604,7 +1604,7 @@ class TrafficSignalController(VersionBase):
 
         """
         element = ET.Element('TrafficSignalController',attrib=self.get_attributes())
-        for ph in self.phases: 
+        for ph in self.phases:
             element.append(ph.get_element())
         return element
 
@@ -1654,14 +1654,14 @@ class TrafficDefinition(VersionBase):
         ----------
             name (str): name of the traffic definition
 
-        """            
-        
+        """
+
         self.name = name
-        self.vehicleweights = [] 
-        self.vehiclecategories = [] 
+        self.vehicleweights = []
+        self.vehiclecategories = []
         self.controllerweights = []
         self.controllers = []
-        
+
 
     def __eq__(self,other):
         if isinstance(other,TrafficDefinition):
@@ -1702,7 +1702,7 @@ class TrafficDefinition(VersionBase):
             raise TypeError('controller input not of type Controller or CatalogReference')
         self.controllers.append(controller)
         self.controllerweights.append(weight)
-    
+
     def get_attributes(self):
         """ returns the attributes of the TrafficDefinition
         
@@ -1719,9 +1719,9 @@ class TrafficDefinition(VersionBase):
             ValueError('No controllers defined for the TrafficDefinition')
         if not self.vehiclecategories:
             ValueError('No Vehicles defined for the TrafficDefinition')
-                
+
         element = ET.Element('TrafficDefinition',attrib=self.get_attributes())
-        
+
         veh_element = ET.SubElement(element,'VehicleCategoryDistribution')
         for i in range(len(self.vehiclecategories)):
             ET.SubElement(veh_element,'VehicleCategoryDistributionEntry',attrib={'category': self.vehiclecategories[i].get_name(),'weight': str(self.vehicleweights[i])})
@@ -1900,7 +1900,7 @@ class Catalog(VersionBase):
 
         if catalogname not in self._CATALOGS:
             raise ValueError('Not a correct catalog, approved catalogs are:' ''.join(self._CATALOGS))
-        
+
         self.catalogs[catalogname] = path
 
 
@@ -1908,9 +1908,9 @@ class Catalog(VersionBase):
         """ returns the elementTree of the Catalog
 
         """
-        
+
         catloc = ET.Element('CatalogLocations')
-        
+
         for i in self.catalogs:
             tmpel = ET.SubElement(catloc,i)
             ET.SubElement(tmpel,'Directory',{'path': self.catalogs[i]})
@@ -1993,8 +1993,8 @@ class CatalogReference(VersionBase):
         for parass in self.parameterassignments:
             parameterassigns.append(parass.get_element())
         return element
-        
-    
+
+
 
 class ParameterAssignment(VersionBase):
     """ ParameterAssignment creates an ParameterAssignment element of openscenario
@@ -2049,7 +2049,7 @@ class ParameterAssignment(VersionBase):
         retdict['parameterRef'] = self.parameterref
         retdict['value'] = str(self.value)
         return retdict
-    
+
     def get_element(self):
         """ returns the elementTree of the ParameterAssignment
 
@@ -2121,7 +2121,7 @@ class TimeOfDay(VersionBase):
                 second (int): second   
                 
         """
-        self.animation = animation 
+        self.animation = animation
         self.year = year
         self.month = month
         self.day = day
@@ -2247,7 +2247,7 @@ class Weather(VersionBase):
         self.sun = sun
         self.wind = wind
         self.precipitation = precipitation
-        
+
 
     def __eq__(self,other):
         if isinstance(other,Weather):
@@ -2255,7 +2255,7 @@ class Weather(VersionBase):
             self.fog == other.fog and \
             self.wind == other.wind and \
             self.sun == other.sun and \
-            self.precipitation == other.precipitation:                
+            self.precipitation == other.precipitation:
                 return True
         return False
 
@@ -2329,7 +2329,7 @@ class Fog(VersionBase):
                 
         """
 
-        self.visual_range = visual_range 
+        self.visual_range = visual_range
         self.bounding_box = bounding_box
 
 
@@ -2399,7 +2399,7 @@ class Sun(VersionBase):
                 
         """
 
-        self.azimuth = azimuth 
+        self.azimuth = azimuth
         self.intensity = intensity
         self.elevation = elevation
 
@@ -2463,7 +2463,7 @@ class Precipitation(VersionBase):
         """
         if not hasattr(PrecipitationType,str(precipitation)):
             raise TypeError('precipitation input is not of type PrecipitationType')
-        self.precipitation = precipitation 
+        self.precipitation = precipitation
         self.intensity = intensity
 
     def __eq__(self,other):
@@ -2526,7 +2526,7 @@ class Wind(VersionBase):
                 speed (float): wind speed (m/s)
                 
         """
-        self.direction = direction 
+        self.direction = direction
         self.speed = speed
 
     def __eq__(self,other):
@@ -2584,7 +2584,7 @@ class RoadCondition(VersionBase):
                     Default: None
                 
         """
-        self.friction_scale_factor = friction_scale_factor 
+        self.friction_scale_factor = friction_scale_factor
         if properties is not None and not isinstance(properties,Properties):
             raise TypeError('properties input is not of type Properties')
         self.properties = properties
@@ -2671,7 +2671,7 @@ class Environment(VersionBase):
         if not isinstance(roadcondition,RoadCondition):
             raise TypeError('roadcondition input is not of type RoadCondition')
         if parameters is not None and not isinstance(parameters,ParameterDeclarations):
-            raise TypeError('parameters input is not of type ParameterDeclarations')    
+            raise TypeError('parameters input is not of type ParameterDeclarations')
         self.timeofday = timeofday
         self.weather = weather
         self.roadcondition = roadcondition
@@ -2703,7 +2703,7 @@ class Environment(VersionBase):
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the environment to an existing catalog
 
@@ -2772,7 +2772,7 @@ class Controller(VersionBase):
         
         """
         self.name = name
-        
+
         self.parameters = ParameterDeclarations()
         if not isinstance(properties,Properties):
             raise TypeError('properties input is not of type Properties')
@@ -2804,7 +2804,7 @@ class Controller(VersionBase):
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the Controller to an existing catalog
 
@@ -2843,7 +2843,7 @@ class Controller(VersionBase):
         element = ET.Element('Controller',attrib=self.get_attributes())
         element.append(self.parameters.get_element())
         element.append(self.properties.get_element())
-        
+
         return element
 
 
@@ -3150,6 +3150,13 @@ class AbsoluteSpeed(VersionBase):
                 raise TypeError('steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input')
         self.steadyState = steadyState
 
+    def __eq__(self,other):
+        if isinstance(other,AbsoluteSpeed):
+            if self.get_attributes() == other.get_attributes() and \
+               self.steadyState == other.steadyState:
+                return True
+        return False
+
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSpeed
 
@@ -3216,6 +3223,12 @@ class RelativeSpeedToMaster(VersionBase):
         if not speedTargetValueType.classname == "SpeedTargetValueType":
             raise TypeError('speedTargetValueType input is not a valid SpeedTargetValueType')
         self.speedTargetValueType = speedTargetValueType
+
+    def __eq__(self,other):
+        if isinstance(other,RelativeSpeedToMaster):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
 
     def get_attributes(self):
         """ returns the attributes of the RelativeSpeedToMaster

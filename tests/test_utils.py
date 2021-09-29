@@ -400,7 +400,7 @@ def test_sun():
     assert s != s3
     prettyprint(s)
 
-def test_sun():
+def test_fog():
     s = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
     s2 = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
     s3 = OSC.Fog(2,OSC.BoundingBox(1,1,1,1,1,1))
@@ -416,3 +416,43 @@ def test_license():
     assert l == l2
     assert l != l3
     prettyprint(l)
+
+def test_absoluteSpeed():
+    inst = OSC.AbsoluteSpeed(1)
+    inst2 = OSC.AbsoluteSpeed(1)
+    inst3 = OSC.AbsoluteSpeed(4)
+    assert inst == inst2
+    assert inst != inst3
+    inst4 = OSC.AbsoluteSpeed(1, steadyState=OSC.TargetTimeSteadyState(2))
+    prettyprint(inst4)
+    inst5 = OSC.AbsoluteSpeed(1, steadyState=OSC.TargetTimeSteadyState(2))
+    inst6 = OSC.AbsoluteSpeed(1, steadyState=OSC.TargetDistanceSteadyState(2))
+    assert inst4 == inst5
+    assert inst4 != inst6
+
+def test_relativeSpeedToMaster():
+    inst = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta)
+    inst2 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta)
+    inst3 = OSC.RelativeSpeedToMaster(2, OSC.SpeedTargetValueType.delta)
+    assert inst == inst2
+    assert inst != inst3
+    inst4 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetTimeSteadyState(2))
+    prettyprint(inst4)
+    inst5 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetDistanceSteadyState(1))
+    prettyprint(inst5)
+
+def test_targetDistanceSteadyState():
+    inst = OSC.TargetDistanceSteadyState(1)
+    inst2 = OSC.TargetDistanceSteadyState(1)
+    inst3 = OSC.TargetDistanceSteadyState(2)
+    assert inst == inst2
+    assert inst != inst3
+    prettyprint(inst)
+
+def test_targetTimeSteadyState():
+    inst = OSC.TargetTimeSteadyState(1)
+    inst2 = OSC.TargetTimeSteadyState(1)
+    inst3 = OSC.TargetTimeSteadyState(2)
+    assert inst == inst2
+    assert inst != inst3
+    prettyprint(inst)
