@@ -32,8 +32,8 @@ def esmini(generator,esminipath='esmini',
             window_size (str): sets the window size of the esmini viewer 
                 Default: 60 60 800 400
 
-            save_osi (bool): if an .osi file should be saved
-                Default: False
+            save_osi (str): name of the wanted osi file (None will not create a osi file)
+                Default: None
 
             record (str): name of a esmini .dat file should be saved
                 Default: '' (no recording)
@@ -107,7 +107,7 @@ def esmini(generator,esminipath='esmini',
 
     # create the additional_args for the esmini execusion
     if save_osi:
-        additional_args += ' --osi_file on'
+        additional_args += ' --osi_file ' + save_osi
     
     if record:
         additional_args += ' --record ' + record
