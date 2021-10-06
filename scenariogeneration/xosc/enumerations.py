@@ -17,7 +17,7 @@ class VersionBase():
     version_minor = _MINOR_VERSION
 
     def isVersion(self,major=1,minor=1):
-        return major == self.version_major and minor == self.version_minor
+        return major >= self.version_major and minor >= self.version_minor
 
 class _OscEnum(VersionBase):
     """ custom "enum" class to be able to handle different versions of the enums in OpenSCENARIO
