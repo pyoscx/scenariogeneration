@@ -281,16 +281,16 @@ class Orientation(VersionBase):
 
         """
         retdict = {}
-        if self.h:
+        if self.h is not None:
             retdict['h'] = str(self.h)
 
-        if self.p:
+        if self.p is not None:
             retdict['p'] = str(self.p)
 
-        if self.r:
+        if self.r is not None:
             retdict['r'] = str(self.r)
 
-        if self.ref:
+        if self.ref is not None:
             retdict['type'] = self.ref.get_name()
 
         return retdict
@@ -432,11 +432,11 @@ class DynamicsConstrains(VersionBase):
 
         """
         retdict = {}
-        if self.max_speed:
+        if self.max_speed is not None:
             retdict['maxSpeed'] = str(self.max_speed)
-        if self.max_deceleration:
+        if self.max_deceleration is not None:
             retdict['maxDeceleration'] = str(self.max_deceleration)
-        if self.max_acceleration:
+        if self.max_acceleration is not None:
             retdict['maxAcceleration'] = str(self.max_acceleration)
         return retdict
 
@@ -1118,9 +1118,9 @@ class ControlPoint(VersionBase):
 
         """
         retdict = {}
-        if self.time:
+        if self.time is not None:
             retdict['time'] = str(self.time)
-        if self.weight:
+        if self.weight is not None:
             retdict['weight'] = str(self.weight)
         return retdict
 
@@ -1299,7 +1299,7 @@ class License(VersionBase):
         """ returns the elementTree of the License
 
         """
-        if self.isVersion(0):
+        if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('License was introduced in OpenSCENARIO V1.1')
         element = ET.Element('License',attrib=self.get_attributes())
 
@@ -1340,7 +1340,7 @@ class FileHeader(VersionBase):
         self.author = author
         self._revMajor = 1
         self._revMinor = revMinor
-        self.version_minor = revMinor
+        self.setVersion(minor=revMinor)
         if license and not isinstance(license,License):
             raise TypeError('license is not of type License')
         self.license = license
@@ -1593,7 +1593,7 @@ class TrafficSignalController(VersionBase):
         """
         retdict = {}
         retdict['name'] = self.name
-        if self.delay:
+        if self.delay is not None:
             retdict['delay'] = str(self.delay)
         if self.reference:
             retdict['reference'] = self.reference
@@ -2266,13 +2266,13 @@ class Weather(VersionBase):
         retdict = {}
         if self.cloudstate:
             retdict['cloudState'] = self.cloudstate.get_name()
-        if self.temperature and not self.isVersion(0):
+        if self.temperature is not None and not self.isVersion(minor=0):
             retdict['temperature'] = str(self.temperature)
-        elif self.temperature and self.isVersion(0):
+        elif self.temperature is not None and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('temperature was introduced in OpenSCENARIO V1.1')
-        if self.atmosphericPressure and not self.isVersion(0):
+        if self.atmosphericPressure is not None and not self.isVersion(minor=0):
             retdict['atmosphericPressure'] = str(self.atmosphericPressure)
-        elif self.atmosphericPressure and self.isVersion(0):
+        elif self.atmosphericPressure is not None and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('atmosphericPressure was introduced in OpenSCENARIO V1.1')
         return retdict
 
@@ -2282,15 +2282,14 @@ class Weather(VersionBase):
         """
         element = ET.Element('Weather',attrib=self.get_attributes())
         if self.sun:
-            print(self.sun)
             element.append(self.sun.get_element())
         if self.fog:
             element.append(self.fog.get_element())
         if self.precipitation:
             element.append(self.precipitation.get_element())
-        if self.wind and not self.isVersion(0):
+        if self.wind and not self.isVersion(minor=0):
             element.append(self.wind.get_element())
-        if self.wind and self.isVersion(0):
+        if self.wind and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('Wind was introduced in OpenSCENARIO V1.1')
         return element
 
@@ -2477,7 +2476,7 @@ class Precipitation(VersionBase):
         """
         retdict = {}
         retdict['precipitationType'] = self.precipitation.get_name()
-        if self.isVersion(0):
+        if self.isVersion(minor=0):
             retdict['intensity'] = str(self.intensity)
         else:
             retdict['precipitationIntensity'] = str(self.intensity)
@@ -3167,7 +3166,7 @@ class AbsoluteSpeed(VersionBase):
         """ returns the elementTree of the AbsoluteSpeed
 
         """
-        if self.isVersion(0):
+        if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('AbsoluteSpeed was introduced in OpenSCENARIO V1.1')
         elementFinalSpeed = ET.Element('FinalSpeed')
         elementAbsoluteSpeed = ET.SubElement(elementFinalSpeed, 'AbsoluteSpeed', attrib=self.get_attributes())
@@ -3240,7 +3239,7 @@ class RelativeSpeedToMaster(VersionBase):
         """ returns the elementTree of the RelativeSpeedToMaster
 
         """
-        if self.isVersion(0):
+        if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('RelativeSpeedToMaster was introduced in OpenSCENARIO V1.1')
         elementFinalSpeed = ET.Element('FinalSpeed')
         elementRelativeSpeed = ET.SubElement(elementFinalSpeed, 'RelativeSpeedToMaster', attrib=self.get_attributes())

@@ -656,7 +656,7 @@ class RelativeLaneChangeAction(_PrivateActionType):
         element = ET.Element('PrivateAction')
         laneoffset = {}
         lataction = ET.SubElement(element,'LateralAction')
-        if self.target_lane_offset:
+        if self.target_lane_offset is not None:
             laneoffset = {'targetLaneOffset':str(self.target_lane_offset)}
         lanechangeaction = ET.SubElement(lataction,'LaneChangeAction',attrib=laneoffset)
         
@@ -1718,6 +1718,7 @@ class SynchronizeAction(_PrivateActionType):
                 final_speed (AbsoluteSpeed or RelativeSpeedToMaster): The speed that the synchronized entity should have at its target position. (Valid from OpenSCENARIO V1.1)
                 Default: None
         """
+        
         self.entity = entity
         if not isinstance(entity_PositionType,_PositionType):
             raise TypeError('entity_PositionType input is not a valid Position')
@@ -1749,9 +1750,9 @@ class SynchronizeAction(_PrivateActionType):
         attr = {'masterEntityRef':self.entity}
         if self.isVersion(1, 0):
             return attr
-        if self.target_tolerance_master:
+        if self.target_tolerance_master is not None:
             attr.update({'targetToleranceMaster': str(self.target_tolerance_master)})
-        if self.target_tolerance:
+        if self.target_tolerance is not None:
             attr.update({'targetTolerance': str(self.target_tolerance)})
         return attr
 
@@ -1763,7 +1764,7 @@ class SynchronizeAction(_PrivateActionType):
         syncaction = ET.SubElement(element,'SynchronizeAction',self.get_attributes())
         syncaction.append(self.entity_PositionType.get_element('TargetPositionMaster'))
         syncaction.append(self.target_PositionType.get_element('TargetPosition'))
-        if self.final_speed:
+        if self.final_speed is not None:
             syncaction.append(self.final_speed.get_element())
         return element
 
@@ -2299,7 +2300,7 @@ class TrafficSourceAction(_ActionType):
         retdict = {}
         retdict['rate'] = str(self.rate)
         retdict['radius'] = str(self.radius)
-        if self.velocity:
+        if self.velocity is not None:
             retdict['velocity'] = str(self.velocity)
         
 
@@ -2535,7 +2536,7 @@ class TrafficSwarmAction(_ActionType):
         retdict['innerRadius'] = str(self.innerradius)
         retdict['offset'] = str(self.offset)
         retdict['numberOfVehicles'] = str(self.numberofvehicles)
-        if self.velocity:
+        if self.velocity is not None:
             retdict['velocity'] = str(self.velocity)
         return retdict
 
@@ -2600,9 +2601,9 @@ class TrafficStopAction(_ActionType):
 
         """
         retdict = {}
-        if self.name and not self.isVersion(0):
+        if self.name and not self.isVersion(minor=0):
             retdict['trafficName'] = str(self.name)
-        elif self.isVersion(0):
+        elif self.isVersion(minor=0):
             raise OpenSCENARIOVersionError('TrafficStopAction was introduced in OpenSCENARIO V1.1')
 
         return retdict

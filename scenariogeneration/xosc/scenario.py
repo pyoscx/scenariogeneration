@@ -83,7 +83,6 @@ class Scenario():
         self.catalog = catalog 
         self.parameters = parameters
         self.header = FileHeader(name,author,revMinor=osc_minor_version)
-
     def __eq__(self,other):
         if isinstance(other,Scenario):
             if self.entities == other.entities and \

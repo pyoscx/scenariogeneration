@@ -81,13 +81,13 @@ class WorldPosition(_PositionType):
 
         """
         retdict = {'x':str(self.x),'y':str(self.y)}
-        if self.z:
+        if self.z is not None:
             retdict['z'] = str(self.z)
-        if self.h:
+        if self.h is not None:
             retdict['h'] = str(self.h)
-        if self.p:
+        if self.p is not None:
             retdict['p'] = str(self.p)
-        if self.r:
+        if self.r is not None:
             retdict['r'] = str(self.r)
         return retdict
     def get_element(self,elementname = 'Position'):
@@ -664,11 +664,11 @@ class RelativeLanePosition(_PositionType):
         """
         retdict = {}
         retdict['entityRef'] = self.entity
-        if self.ds:
+        if self.ds is not None:
             retdict['ds'] = str(self.ds)
-        if self.dsLane and not self.isVersion(minor=0):
+        if self.dsLane is not None and not self.isVersion(minor=0):
             retdict['dsLane'] = str(self.dsLane)
-        elif self.dsLane and self.isVersion(minor=0):
+        elif self.dsLane is not None and self.isVersion(minor=0):
             OpenSCENARIOVersionError('dsLane was introduced in OpenSCENARIO V1.1, not in 1.0')
         retdict['offset'] = str(self.offset)
         retdict['dLane'] = str(self.lane_id)
@@ -981,7 +981,7 @@ class TrajectoryPosition(_PositionType):
         """
         retdict = {}
         retdict['s'] = str(self.s)
-        if self.t:
+        if self.t is not None:
             retdict['t'] = str(self.t)
         return retdict
 
@@ -1071,7 +1071,7 @@ class GeoPosition(_PositionType):
         retdict = {}
         retdict['longitude'] = str(self.longitude)
         retdict['latitude'] = str(self.latitude)
-        if self.height:
+        if self.height is not None:
             retdict['height'] = str(self.height)
         return retdict
 

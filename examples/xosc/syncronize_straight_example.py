@@ -43,7 +43,7 @@ init.add_init_action(targetname,xosc.AbsoluteSpeedAction(20,xosc.TransitionDynam
 
 ## target action
 
-tar_action = xosc.SynchronizeAction(egoname,xosc.LanePosition(200,0,-1,0),xosc.LanePosition(200,0,-2,0),target_tolerance_master=1,target_tolerance=1, final_speed=xosc.AbsoluteSpeed(10))
+tar_action = xosc.SynchronizeAction(egoname,xosc.LanePosition(200,0,-1,0),xosc.LanePosition(200,0,-2,0),target_tolerance_master=1,target_tolerance=1, final_speed=xosc.RelativeSpeedToMaster(10,xosc.SpeedTargetValueType.delta,xosc.TargetTimeSteadyState(10)))
 
 tar_event = xosc.Event('target_event',xosc.Priority.overwrite)
 tar_event.add_trigger(xosc.ValueTrigger('ego_start',0,xosc.ConditionEdge.none,xosc.SimulationTimeCondition(3,xosc.Rule.greaterThan)))

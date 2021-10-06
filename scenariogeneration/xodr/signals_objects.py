@@ -140,9 +140,9 @@ class _SignalObjectBase():
             retdict['subtype'] = str(self.subtype)
             retdict['dynamic'] = enum2str(self.dynamic)
             retdict['zOffset'] = str(self.zOffset)
-            if self.pitch:
+            if self.pitch is not None:
                 retdict['pitch'] = str(self.pitch)
-            if self.roll:
+            if self.roll is not None:
                 retdict['roll'] = str(self.roll)
             if self.width is not None:
                 retdict['width'] = str(self.width)
@@ -285,7 +285,7 @@ class Signal(_SignalObjectBase):
         retdict["country"] = str(self.country).upper()
         retdict["type"] = str(self.type)
         retdict["subtype"] = str(self.subtype)
-        if self.hOffset:
+        if self.hOffset is not None:
             retdict["hOffset"] = str(self.hOffset)    
         #TODO check if value is supplied --> unit is mandatory in that case   
         if self.value is not None:

@@ -836,7 +836,7 @@ class Vehicle(VersionBase):
         retdict = {}
         retdict['name'] = str(self.name)
         retdict['vehicleCategory'] = self.vehicle_type.get_name()
-        if self.mass and not self.isVersion(0):
+        if self.mass and not self.isVersion(minor=0):
             retdict['mass'] = str(self.mass)
         return retdict
 

@@ -18,6 +18,10 @@ class VersionBase():
 
     def isVersion(self,major=1,minor=1):
         return major >= self.version_major and minor >= self.version_minor
+    
+    def setVersion(self,major=1,minor=0):
+        VersionBase.version_major = major
+        VersionBase.version_minor = minor
 
 class _OscEnum(VersionBase):
     """ custom "enum" class to be able to handle different versions of the enums in OpenSCENARIO
