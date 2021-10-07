@@ -271,7 +271,7 @@ class Orientation(VersionBase):
             Returns: boolean
 
         """
-        if self.h or self.p or self.r or self.ref:
+        if self.h is not None or self.p is not None or self.r is not None or self.ref is not None:
             return True
         else:
             return False
