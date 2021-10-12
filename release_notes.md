@@ -1,5 +1,21 @@
 ## scenariogeneration release notes
 
+### 2021-10-12 Version 0.6.0
+- New features
+    - the esmini helper now creates it's own folder and do not generate scenarios in the esmini folder
+      two additional inputs to set the generation folder aswell as a resource path for esmini
+    - esmini osi input was changed, so not bool anymore, but a string (the name of the file)
+- Bug fixes
+    - checks for non-mandatory fields can now handle 0 (didn't before)
+    
+- Changed Classes (IMPORTANT, Interface Changed!)
+    - AbosoluteSyncronizeAction and RelativeSyncronizeAction are removed and replaced with SyncronizeAction that handles both.
+        - New classes related to the SyncronizeActions
+            - AbsoluteSpeed
+            - RelativeSpeedToMaster
+            - TargetDistanceSteadyState
+            - TargetTimeSteadyState
+
 ### 2021-09-10 Version 0.5.4
 - New features
     - Support for ParameterValueDistribution type of xosc file. 
