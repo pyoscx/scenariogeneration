@@ -1,6 +1,7 @@
 """ helpers contains a launcher of esmini and a simple print function for the xmls
 
 """
+from genericpath import exists
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 import os
@@ -18,6 +19,8 @@ def esmini(generator,esminipath='esmini',
     args = '',
     index_to_run= 'first',
     run_with_replayer = False,
+    generation_path = 'generated',
+    resource_path = None,
     timestep = 0.01,
     car_density = 15):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
@@ -50,24 +53,44 @@ def esmini(generator,esminipath='esmini',
             run_with_replayer (bool): bool to run esmini in headless mode and then run the viewer afterwards (only used for scenarios not for roads)
                 Default: False
 
+            generation_path (str): path to where the files should be generated
+                Default: generated
+
+            resource_path (str): path to the catalogs/xodrs that you want to add (relative path in scenario should be relative to this one)
+                Default: esminipath/resources/xosc
+
             timestep (double): fixed timestep to use in combination with replayer
 
             car_density (int): density of fictious cars (used only for pure OpenDRIVE cases)
 
     """
     additional_args = ''
-    resource_path = os.path.join(esminipath,'resources')
+    # resource_path = os.path.join(esminipath,'resources')
+    if not resource_path:
+        resource_path = os.path.join(esminipath,'resources','xosc')
     # genereate file for running in esmini, and set some esmini replated parameters
     if isinstance(generator,OpenDrive):
+        if not os.path.exists(generation_path):
+            os.mkdir(generation_path)
+        if not os.path.exists(os.path.join(generation_path,'xosc')):
+            os.mkdir(os.path.join(generation_path,'xosc'))
+        if not os.path.exists(os.path.join(generation_path,'xodr')):
+            os.mkdir(os.path.join(generation_path,'xodr'))
         executable = 'odrviewer'
         filetype = ' --odr '
         additional_args += ' --density ' + str(car_density)
         additional_args += ' --window '+ window_size
         run_with_replayer = False
-        filename = os.path.join(resource_path,'xodr','python_road.xodr')
+        filename = os.path.join(generation_path,'xodr','python_road.xodr')
         generator.write_xml(filename,True)
 
     elif isinstance(generator,Scenario):
+        if not os.path.exists(generation_path):
+            os.mkdir(generation_path)
+        if not os.path.exists(os.path.join(generation_path,'xosc')):
+            os.mkdir(os.path.join(generation_path,'xosc'))
+        if not os.path.exists(os.path.join(generation_path,'xodr')):
+            os.mkdir(os.path.join(generation_path,'xodr'))
         executable = 'esmini'
         filetype = ' --osc '
         if run_with_replayer:
@@ -77,11 +100,11 @@ def esmini(generator,esminipath='esmini',
         else:
             additional_args += ' --window '+ window_size
 
-        filename = os.path.join(resource_path,'xosc','python_scenario.xosc')
+        filename = os.path.join(generation_path,'xosc','python_scenario.xosc')
         generator.write_xml(filename)
 
     elif isinstance(generator,ScenarioGenerator):
-        scenario_file, road_file = generator.generate_single(resource_path, order = index_to_run)
+        scenario_file, road_file = generator.generate_single(generation_path, order = index_to_run)
         
         if scenario_file == '':
             run_with_replayer = False
@@ -116,7 +139,7 @@ def esmini(generator,esminipath='esmini',
         additional_args += ' --disable_controllers'
     
 
-    additional_args += ' ' + args
+    additional_args += ' ' + args +  '--path '+resource_path
     
     # find executable based on OS
     if os.name == 'posix':
@@ -134,7 +157,7 @@ def esmini(generator,esminipath='esmini',
 
     # run viewer if wanted
     if run_with_replayer:
-        os.system(replay_executable + ' --file ' + record +' --res_path ' + os.path.join(esminipath,'resources') +  ' --window '+ window_size)
+        os.system(replay_executable + ' --file ' + record +' --res_path ' + os.path.join(resource_path,os.pardir) +  ' --window '+ window_size)
 
 
 
