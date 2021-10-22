@@ -76,6 +76,27 @@ class WorldPosition(_PositionType):
             if self.get_attributes() == other.get_attributes():
                return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        
+        wp = element.find('WorldPosition')
+        x = wp.attrib['x']
+        y = wp.attrib['y']
+        z = None
+        h = None
+        r = None
+        p = None
+        if 'z' in wp.attrib:
+            z = wp.attrib['z']
+        if 'h' in wp.attrib:
+            h = wp.attrib['h']
+        if 'p' in wp.attrib:
+            p = wp.attrib['p']
+        if 'r' in wp.attrib:
+            r = wp.attrib['r']
+        return WorldPosition(x,y,z,h,p,r)
+        
     def get_attributes(self):
         """ returns the attributes of the WorldPostion as a dict
 
@@ -170,6 +191,21 @@ class RelativeWorldPosition(_PositionType):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        
+        wp = element.find('RelativeWorldPosition')
+        dx = wp.attrib['dx']
+        dy = wp.attrib['dy']
+        dz = wp.attrib['dz']
+        entityref = wp.attrib['entityRef']
+        
+        if wp.find('Orientation') != None:
+            orientation = Orientation.parse(wp.find('Orientation'))
+        else:
+            orientation = Orientation()
+        return RelativeWorldPosition(entityref,dx,dy,dz,orientation)
 
     def get_attributes(self):
         """ returns the attributes of the RelativeWorldPosition as a dict

@@ -43,6 +43,8 @@ def test_orientation(testinp,results):
     orientation3 = OSC.Orientation(h=10,p=testinp[1],r=testinp[2],reference=testinp[3])
     assert orientation == orientation2
     assert orientation != orientation3
+    orientation4 = OSC.Orientation.parse(orientation.get_element())
+    assert orientation == orientation4
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None,None],False),([1,None,None,None],True),([1,None,None,OSC.ReferenceContext.relative],True),([1,2,4,None],True),([1,2,4,OSC.ReferenceContext.absolute],True) ] )
 def test_orientation_filled(testinp,results):

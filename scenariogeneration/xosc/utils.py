@@ -265,6 +265,25 @@ class Orientation(VersionBase):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        
+        h = None
+        p = None
+        r = None
+        reference = None
+        if 'h' in element.attrib:
+            h = element.attrib['h']
+        if 'p' in element.attrib:
+            p = element.attrib['p']
+        if 'r' in element.attrib:
+            r = element.attrib['r']
+        if 'type' in element.attrib:
+            reference_str = element.attrib['type']
+            reference = getattr(ReferenceContext,reference_str)
+
+        return Orientation(h ,p ,r ,reference)
+
     def is_filled(self):
         """ is_filled check is any orientations are  set
 

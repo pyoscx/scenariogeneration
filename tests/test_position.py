@@ -13,12 +13,16 @@ def test_worldposition_noinput():
     pos3 = OSC.WorldPosition(1)
     assert pos == pos2
     assert pos != pos3
+    pos4 = OSC.WorldPosition.parse(pos.get_element())
+    assert pos == pos4
     
 def test_worldposition_input():
     pos = OSC.WorldPosition(x=1,y=2,z=1.123)
     pos.get_attributes()
     p = pos.get_element()
     prettyprint(p)
+    pos2 = OSC.WorldPosition.parse(pos.get_element())
+    assert pos == pos2
 
 
 def test_relativeworldposition():
@@ -31,7 +35,11 @@ def test_relativeworldposition():
 
     assert pos == pos2
     assert pos != pos3
-    
+    pos4 = OSC.RelativeWorldPosition.parse(pos.get_element())
+    assert pos4 == pos
+    pos5 = OSC.RelativeWorldPosition.parse(pos3.get_element())
+    prettyprint(pos5.get_element())
+    assert pos5 == pos3
 def test_relativeobjectposition():
     
     pos = OSC.RelativeObjectPosition('Ego',1,2,0)
