@@ -4,6 +4,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.position import WorldPosition
 def test_worldposition_noinput():
     pos = OSC.WorldPosition()
     pos.get_attributes()
@@ -15,7 +16,7 @@ def test_worldposition_noinput():
     assert pos != pos3
     pos4 = OSC.WorldPosition.parse(pos.get_element())
     assert pos == pos4
-    
+
 def test_worldposition_input():
     pos = OSC.WorldPosition(x=1,y=2,z=1.123)
     pos.get_attributes()
@@ -134,3 +135,21 @@ def test_geo_position():
     prettyprint(pos)
     assert pos == pos2
     assert pos != pos3
+
+
+@pytest.mark.parametrize("position",[OSC.WorldPosition(),
+                                    OSC.RelativeWorldPosition('target',0,1,0),
+                                    OSC.RelativeObjectPosition('target',1,1),
+                                    OSC.RoadPosition(10,20,0,orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.absolute)),
+                                    OSC.RelativeRoadPosition(10,0,'ego',orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
+                                    OSC.LanePosition(10,1,-1,1,orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
+                                    OSC.RelativeLanePosition(-1,'target',0,None,0.1,orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
+                                    OSC.GeoPosition(10.11,12.001)
+                                    ])
+def test_position_factory(position):
+    
+    factoryoutput = OSC.position._PositionFactory.create_position(position.get_element())
+    prettyprint(position)
+    prettyprint(factoryoutput)
+    assert position == factoryoutput
+

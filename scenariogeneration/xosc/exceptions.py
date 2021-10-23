@@ -28,3 +28,8 @@ class NotEnoughInputArguments(Exception):
     """ Raised when one of the needed "optional" inputs are not used
     """
     pass
+
+class NotAValidElement(Exception):
+    """ Raised when one of the needed "optional" inputs are not used
+    """
+    pass
