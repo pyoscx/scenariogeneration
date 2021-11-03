@@ -72,10 +72,10 @@ def test_relativeroadposition():
     assert pos == pos2
     assert pos != pos3
 def test_laneposition():
-    pos = OSC.LanePosition(1,2,lane_id='lane1',road_id='road1')
+    pos = OSC.LanePosition(1,2,lane_id=1,road_id=2)
     prettyprint(pos.get_element())
-    pos2 = OSC.LanePosition(1,2,lane_id='lane1',road_id='road1')
-    pos3 = OSC.LanePosition(1,1,lane_id='lane1',road_id='road1')
+    pos2 = OSC.LanePosition(1,2,lane_id=1,road_id=2)
+    pos3 = OSC.LanePosition(1,1,lane_id=-1,road_id=2)
     assert pos == pos2
     assert pos != pos3
 
@@ -110,9 +110,9 @@ def test_route_position():
     assert routepos == routepos2
     assert routepos != routepos3
 
-    routepos = OSC.RoutePositionInLaneCoordinates(route,1,'a',2)
-    routepos2 = OSC.RoutePositionInLaneCoordinates(route,1,'a',2)
-    routepos3 = OSC.RoutePositionInLaneCoordinates(route,1,'b',2)
+    routepos = OSC.RoutePositionInLaneCoordinates(route,1,-1,2)
+    routepos2 = OSC.RoutePositionInLaneCoordinates(route,1,-1,2)
+    routepos3 = OSC.RoutePositionInLaneCoordinates(route,1,1,2)
     prettyprint(routepos.get_element())
     assert routepos == routepos2
     assert routepos != routepos3
@@ -148,8 +148,142 @@ def test_geo_position():
                                     ])
 def test_position_factory(position):
     
-    factoryoutput = OSC.position._PositionFactory.create_position(position.get_element())
+    factoryoutput = OSC.position._PositionFactory.parse_position(position.get_element())
     prettyprint(position)
     prettyprint(factoryoutput)
     assert position == factoryoutput
 
+
+
+def test_nurbs():
+    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    cp2 = OSC.ControlPoint(OSC.WorldPosition(),2,0.2)
+    cp3 = OSC.ControlPoint(OSC.WorldPosition(),3,0.3)
+
+
+    nurb = OSC.Nurbs(2)
+    nurb.add_control_point(cp1)
+    nurb.add_control_point(cp2)
+    nurb.add_control_point(cp3)
+    nurb.add_knots([5,4,3,2,1])
+
+    prettyprint(nurb.get_element())
+
+    nurb2 = OSC.Nurbs(2)
+    nurb2.add_control_point(cp1)
+    nurb2.add_control_point(cp2)
+    nurb2.add_control_point(cp3)
+    nurb2.add_knots([5,4,3,2,1])
+
+    nurb3 = OSC.Nurbs(2)
+    nurb3.add_control_point(cp1)
+    nurb3.add_control_point(cp2)
+    nurb3.add_control_point(cp3)
+    nurb3.add_knots([5,4,3,2,0.5])
+
+    assert nurb == nurb2
+    assert nurb != nurb3
+
+    nurb4 = OSC.Nurbs.parse(nurb.get_element())
+    assert nurb == nurb4
+    nurb5_factory = OSC.position._ShapeFactory.parse_shape(nurb.get_element())
+    assert nurb5_factory == nurb
+
+def test_waypoint():
+    wp = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
+    prettyprint(wp.get_element())
+    wp2 = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
+    wp3 = OSC.Waypoint(OSC.WorldPosition(1),OSC.RouteStrategy.shortest)
+    assert wp == wp2
+    assert wp != wp3
+
+    wp4 = OSC.Waypoint.parse(wp.get_element())
+    assert wp == wp4
+
+
+def test_route():
+    route = OSC.Route('myroute')
+    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
+    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+
+    prettyprint(route.get_element())
+
+    route2 = OSC.Route('myroute')
+    route2.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
+    route2.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+
+    route3 = OSC.Route('myroute')
+    route3.add_waypoint(OSC.WorldPosition(0,1,0,0,0,0),OSC.RouteStrategy.shortest)
+    route3.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+
+    assert route == route2
+    assert route != route3
+
+
+def test_polyline():
+    positionlist = []
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(dsLane=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
+    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
+    prettyprint(positionlist[0].get_element())
+    polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
+    prettyprint(polyline.get_element())
+    polyline2 = OSC.Polyline([0,0.5,1,1.5],positionlist)
+    polyline3 = OSC.Polyline([0,0.5,1,1.3],positionlist)
+    assert polyline == polyline2
+    assert polyline != polyline3
+
+    polyline4 = OSC.Polyline([],positionlist)
+    # prettyprint(polyline4)
+    polyline5 = OSC.Polyline.parse(polyline.get_element())
+    prettyprint(polyline5)
+    assert polyline == polyline5
+    polyline_factory = OSC.position._ShapeFactory.parse_shape(polyline.get_element())
+    assert polyline == polyline_factory
+
+def test_clothoid():
+    clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
+    prettyprint(clot.get_element())
+    clot2 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
+    clot3 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition())
+    prettyprint(clot3.get_element())
+    assert clot == clot2
+    assert clot != clot3
+    clot4 = OSC.Clothoid.parse(clot.get_element())
+    assert clot4 == clot
+    clot5 = OSC.Clothoid.parse(clot3.get_element())
+    assert clot3 == clot5
+    clot_factory = OSC.position._ShapeFactory.parse_shape(clot.get_element())
+    assert clot == clot_factory
+
+def test_trajectory():
+    positionlist = []
+    # positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
+    # positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
+
+    positionlist.append(OSC.WorldPosition())
+    positionlist.append(OSC.WorldPosition(1))
+    prettyprint(positionlist[0].get_element())
+    polyline = OSC.Polyline([0,0.5],positionlist)
+    traj = OSC.Trajectory('my_trajectory',False)
+    traj.add_shape(polyline)
+    prettyprint(traj.get_element())
+    traj2 = OSC.Trajectory('my_trajectory',False)
+    traj2.add_shape(polyline)
+    traj3 = OSC.Trajectory('my_trajectory2',False)
+    assert traj == traj2
+    assert traj != traj3
+    traj4 = OSC.Trajectory.parse(traj.get_element())
+    prettyprint(traj4.get_element())
+    assert traj == traj4
+
+def test_controlpoint():
+    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    prettyprint(cp1)
+    cp2 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
+    cp3 = OSC.ControlPoint(OSC.WorldPosition(),1,0.2)
+    assert cp1 == cp2
+    assert cp1 != cp3
+    cp4 = OSC.ControlPoint.parse(cp1.get_element())
+    assert cp1 == cp4

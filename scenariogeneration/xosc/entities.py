@@ -861,27 +861,27 @@ class Axle():
 
         Parameters
         ----------
-            maxsteer (double): max steering angle
+            maxsteer (float): max steering angle
 
-            wheeldia (double): diameter of wheel
+            wheeldia (float): diameter of wheel
 
-            track_width (double): distance between wheelcenter
+            track_width (float): distance between wheelcenter
 
-            xpos (double): x position of axle relative to car reference
+            xpos (float): x position of axle relative to car reference
 
-            zpos (double): z position of axle relative to car reference
+            zpos (float): z position of axle relative to car reference
 
         Attributes
         ----------
-            maxsteer (double): max steering angle
+            maxsteer (float): max steering angle
 
-            wheeldia (double): diameter of wheel
+            wheeldia (float): diameter of wheel
 
-            track_width (double): distance between wheelcenter
+            track_width (float): distance between wheelcenter
 
-            xpos (double): x position of axle relative to car reference
+            xpos (float): x position of axle relative to car reference
 
-            zpos (double): z position of axle relative to car reference
+            zpos (float): z position of axle relative to car reference
 
         Methods
         -------
@@ -898,15 +898,15 @@ class Axle():
 
             Parameters
             ----------
-                maxsteer (double): max steering angle
+                maxsteer (float): max steering angle
 
-                wheeldia (double): diameter of wheel
+                wheeldia (float): diameter of wheel
 
-                track_width (double): distance between wheelcenter
+                track_width (float): distance between wheelcenter
 
-                xpos (double): x position of axle relative to car reference
+                xpos (float): x position of axle relative to car reference
 
-                zpos (double): z position of axle relative to car reference
+                zpos (float): z position of axle relative to car reference
         """
         self.maxsteer = maxsteer
         self.wheeldia = wheeldia

@@ -151,12 +151,12 @@ class RoadNetwork(VersionBase):
 
 
     """
-    def __init__(self,roadfile,scenegraph=None):
+    def __init__(self,roadfile=None,scenegraph=None):
         """ Initalizes the RoadNetwork
 
         Parameters
         ----------
-            roadfile (str): path to the opendrive file
+            roadfile (str): path to the opendrive file (optional)
 
             scenegraph (str): path to the opensceengraph file (optional)
 
@@ -202,7 +202,8 @@ class RoadNetwork(VersionBase):
 
         """
         roadnetwork = ET.Element('RoadNetwork')
-        ET.SubElement(roadnetwork,'LogicFile',{'filepath': self.road_file})
+        if self.road_file:
+            ET.SubElement(roadnetwork,'LogicFile',{'filepath': self.road_file})
         if self.scene:
             ET.SubElement(roadnetwork,'SceneGraphFile',{'filepath':self.scene})
         if self.traffic_signals:

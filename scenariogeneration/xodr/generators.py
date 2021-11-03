@@ -55,7 +55,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
 
             left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes. 
 
-            road_length (double): the full length of the road
+            road_length (float): the full length of the road
 
             center_road_mark (RoadMark): roadmark for the center line
 
@@ -447,7 +447,7 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
             
             n_lanes (int): the number of lanes in the junction
 
-            lane_width (double): the lane width of the lanes in the junction
+            lane_width (float): the lane width of the lanes in the junction
         Returns
         -------
             junction_roads (list of Road): a list of all roads in a junction without connections added
@@ -768,7 +768,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
 
             left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes. 
 
-            road_length (double): the full length of the road
+            road_length (float): the full length of the road
 
             center_road_mark (RoadMark): roadmark for the center line
 

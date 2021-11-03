@@ -690,14 +690,14 @@ class DistributionRange():
         
         Parameters
         ----------
-            step_width (double): step size of the distribution
+            step_width (float): step size of the distribution
 
             range (Range): the range of the parameter
 
         Attributes
         ----------
 
-            step_width (double): step size of the distribution
+            step_width (float): step size of the distribution
 
             range (Range): the range of the parameter
 
@@ -716,7 +716,7 @@ class DistributionRange():
 
             Parameters
             ----------
-                step_width (double): step size of the distribution
+                step_width (float): step size of the distribution
 
                 range (Range): the range of the parameter
 

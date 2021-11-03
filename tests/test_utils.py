@@ -6,16 +6,20 @@ from scenariogeneration import prettyprint
 
 @pytest.mark.parametrize("teststring",[OSC.DynamicsDimension.distance,OSC.DynamicsDimension.rate,OSC.DynamicsDimension.time])
 def test_transition_dynamics(teststring):
-    td = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,1)
+    td = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,1.0)
     assert len(td.get_attributes()) == 3
 
     prettyprint(td.get_element())
 
     td2 = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,1)
     td3 = OSC.TransitionDynamics(OSC.DynamicsShapes.step,teststring,2)
-    
+    prettyprint(td2.get_element())
+    prettyprint(td3.get_element())
     assert td == td2
     assert td != td3
+    
+    td4 = OSC.TransitionDynamics.parse(td.get_element())
+    td == td4
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],0),([1,None,None],1),([1,None,2],2),([1,2,4],3) ] )
 def test_dynamics_constraints(testinp,results):
@@ -79,32 +83,6 @@ def test_catalogreference():
     assert catref == catref2
     assert catref != catref3
 
-def test_waypoint():
-    wp = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
-    prettyprint(wp.get_element())
-    wp2 = OSC.Waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
-    wp3 = OSC.Waypoint(OSC.WorldPosition(1),OSC.RouteStrategy.shortest)
-    assert wp == wp2
-    assert wp != wp3
-
-
-def test_route():
-    route = OSC.Route('myroute')
-    route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
-    route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
-
-    prettyprint(route.get_element())
-
-    route2 = OSC.Route('myroute')
-    route2.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
-    route2.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
-
-    route3 = OSC.Route('myroute')
-    route3.add_waypoint(OSC.WorldPosition(0,1,0,0,0,0),OSC.RouteStrategy.shortest)
-    route3.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
-
-    assert route == route2
-    assert route != route3
 
 def test_paramdeclaration():
     
@@ -156,50 +134,7 @@ def test_fileheader():
     fh3 = OSC.FileHeader('my_scenario','Mandolin2')
     assert fh == fh2
     assert fh != fh3
-def test_polyline():
-    positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
-    positionlist.append(OSC.RelativeLanePosition(dsLane=10,lane_id=-3,entity='Ego'))
-    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
-    positionlist.append(OSC.RelativeLanePosition(ds=10,lane_id=-3,entity='Ego'))
-    prettyprint(positionlist[0].get_element())
-    polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
-    prettyprint(polyline.get_element())
-    polyline2 = OSC.Polyline([0,0.5,1,1.5],positionlist)
-    polyline3 = OSC.Polyline([0,0.5,1,1.3],positionlist)
-    assert polyline == polyline2
-    assert polyline != polyline3
-
-    polyline4 = OSC.Polyline([],positionlist)
-    prettyprint(polyline4)
-
-
-def test_clothoid():
-    clot = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
-    prettyprint(clot.get_element())
-    clot2 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition(),0,1)
-    clot3 = OSC.Clothoid(1,0.1,10,OSC.WorldPosition())
-    prettyprint(clot3.get_element())
-    assert clot == clot2
-    assert clot != clot3
-
-def test_trajectory():
-    positionlist = []
-    # positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
-    # positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
-
-    positionlist.append(OSC.WorldPosition())
-    positionlist.append(OSC.WorldPosition(1))
-    prettyprint(positionlist[0].get_element())
-    polyline = OSC.Polyline([0,0.5],positionlist)
-    traj = OSC.Trajectory('my_trajectory',False)
-    traj.add_shape(polyline)
-    prettyprint(traj.get_element())
-    traj2 = OSC.Trajectory('my_trajectory',False)
-    traj2.add_shape(polyline)
-    traj3 = OSC.Trajectory('my_trajectory2',False)
-    assert traj == traj2
-    assert traj != traj3
+    
 
 def test_timeref():
     timeref = OSC.TimeReference(OSC.ReferenceContext.absolute,1,2)
@@ -317,39 +252,8 @@ def test_environment():
     assert env == env2
     assert env != env3
 
-def test_controlpoint():
-    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
-    prettyprint(cp1)
-    cp2 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
-    cp3 = OSC.ControlPoint(OSC.WorldPosition(),1,0.2)
-    assert cp1 == cp2
-    assert cp1 != cp3
-
-def test_nurbs():
-    cp1 = OSC.ControlPoint(OSC.WorldPosition(),1,0.1)
-    cp2 = OSC.ControlPoint(OSC.WorldPosition(),2,0.2)
-    cp3 = OSC.ControlPoint(OSC.WorldPosition(),3,0.3)
 
 
-    nurb = OSC.Nurbs(2)
-    nurb.add_control_point(cp1)
-    nurb.add_control_point(cp2)
-    nurb.add_control_point(cp3)
-    nurb.add_knots([5,4,3,2,1])
-
-    prettyprint(nurb.get_element())
-
-    nurb2 = OSC.Nurbs(2)
-    nurb2.add_control_point(cp1)
-    nurb2.add_control_point(cp2)
-    nurb2.add_control_point(cp3)
-    nurb2.add_knots([5,4,3,2,1])
-
-    nurb3 = OSC.Nurbs(2)
-    nurb3.add_control_point(cp1)
-    nurb3.add_control_point(cp2)
-    nurb3.add_control_point(cp3)
-    nurb3.add_knots([5,4,3,2,0.5])
 
 def test_oscenum():
     enum1 = OSC.enumerations._OscEnum('classname','testname')

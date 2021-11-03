@@ -5,17 +5,21 @@ from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 
-TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
+TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1.0)
 
 
 def test_speedaction_abs():
-    speedaction = OSC.AbsoluteSpeedAction(50,TD)
+    speedaction = OSC.AbsoluteSpeedAction(50.0,TD)
     prettyprint(speedaction.get_element())
 
-    speedaction2 = OSC.AbsoluteSpeedAction(50,TD)
+    speedaction2 = OSC.AbsoluteSpeedAction(50.0,TD)
     speedaction3 = OSC.AbsoluteSpeedAction(51,TD)
     assert speedaction == speedaction2
     assert speedaction != speedaction3
+    action = OSC.AbsoluteSpeedAction.parse(speedaction.get_element())
+    prettyprint(action)
+    assert speedaction == action
+
 
 def test_speedaction_rel():
     speedaction = OSC.RelativeSpeedAction(1,'Ego',TD)
@@ -25,6 +29,9 @@ def test_speedaction_rel():
     speedaction3 = OSC.RelativeSpeedAction(1,'Ego1',TD)
     assert speedaction == speedaction2
     assert speedaction != speedaction3
+
+    speedaction4 = OSC.RelativeSpeedAction.parse(speedaction.get_element())
+    assert speedaction == speedaction4
 
 def test_longdistaction_dist():
     longdist = OSC.LongitudinalDistanceAction(1,'Ego')
@@ -98,6 +105,8 @@ def test_teleport():
     teleport3 = OSC.TeleportAction(OSC.WorldPosition(1))
     assert teleport == teleport2
     assert teleport != teleport3
+    teleport4 = OSC.TeleportAction.parse(teleport.get_element())
+    assert teleport == teleport4
 
 def test_assign_route():
     

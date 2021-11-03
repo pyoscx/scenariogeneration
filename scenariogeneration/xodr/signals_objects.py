@@ -184,7 +184,7 @@ class Signal(_SignalObjectBase):
             
             dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
             
-            value (double): value for further specification of the signal
+            value (float): value for further specification of the signal
             
             unit (str): unit, needs to be provided when value is given
             
@@ -236,7 +236,7 @@ class Signal(_SignalObjectBase):
                 Default: None 
             dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
                 Default: Dynamic.no 
-            value (double): value for further specification of the signal
+            value (float): value for further specification of the signal
                 Default: None
             unit (str): unit, needs to be provided when value is given
                 Default: None                                  

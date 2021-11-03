@@ -59,7 +59,7 @@ def esmini(generator,esminipath='esmini',
             resource_path (str): path to the catalogs/xodrs that you want to add (relative path in scenario should be relative to this one)
                 Default: esminipath/resources/xosc
 
-            timestep (double): fixed timestep to use in combination with replayer
+            timestep (float): fixed timestep to use in combination with replayer
 
             car_density (int): density of fictious cars (used only for pure OpenDRIVE cases)
 
