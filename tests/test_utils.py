@@ -66,10 +66,11 @@ def test_parameter():
     prettyprint(param.get_element())
     param2 = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
     param3 = OSC.Parameter('stuffs',OSC.ParameterType.integer,'2')
+    param4 =  OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
     assert param == param2
     assert param != param3
-    param4 = OSC.Parameter.parse(param.get_element())
-    assert param == param4
+    param5 = OSC.Parameter.parse(param.get_element())
+    assert param == param5
     vc = OSC.ValueConstraint(OSC.Rule.equalTo, 'equalTo')
     vc2 = OSC.ValueConstraint(OSC.Rule.notEqualTo, 'equalTo')
     vc3 = OSC.ValueConstraint(OSC.Rule.equalTo, 'notEqualTo')
@@ -80,11 +81,11 @@ def test_parameter():
     vcg.add_value_constraint(vc2)
     vcg2.add_value_constraint(vc2)
     vcg2.add_value_constraint(vc3)
-    param.add_value_constraint_group(vcg)
-    param.add_value_constraint_group(vcg2)
-    prettyprint(param.get_element())
-    param5 = OSC.Parameter.parse(param.get_element())
-    assert param == param5
+    param4.add_value_constraint_group(vcg)
+    param4.add_value_constraint_group(vcg2)
+    prettyprint(param4.get_element())
+    param6 = OSC.Parameter.parse(param4.get_element())
+    assert param4 == param6
 
 
 def test_catalogreference():
@@ -108,7 +109,17 @@ def test_paramdeclaration():
     pardec = OSC.ParameterDeclarations()
     pardec.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.integer,'1'))
     pardec.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.double,'0.01'))
+    pardec2 = OSC.ParameterDeclarations()
+    pardec2.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.integer,'1'))
+    pardec2.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.double,'0.01'))
+    pardec3 = OSC.ParameterDeclarations.parse(pardec.get_element())
     prettyprint(pardec.get_element())
+    assert pardec == pardec2
+    assert pardec == pardec3
+    pardec4 = OSC.ParameterDeclarations()
+    pardec4.add_parameter(OSC.Parameter('myparam2',OSC.ParameterType.integer,'1'))
+    pardec4.add_parameter(OSC.Parameter('myparam2',OSC.ParameterType.double,'0.01'))
+    assert pardec4 != pardec
 
 def test_parameterassignment():
     parass = OSC.ParameterAssignment('param1',1)

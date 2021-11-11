@@ -76,9 +76,15 @@ class ParameterDeclarations(VersionBase):
 
             Returns
             -------
-                paameterdeclaration (ParameterDeclaration): a parameter declaration object
+                parameterdeclaration (ParameterDeclaration): a ParameterDeclarationn object
                 
         """
+        parameter_declarations = ParameterDeclarations()
+        declarations = element.findall('ParameterDeclaration')
+        for declaration in declarations:
+            parameter_declaration = Parameter.parse(declaration)
+            parameter_declarations.add_parameter(parameter_declaration)
+        return parameter_declarations
 
     def __eq__(self,other):
         if isinstance(other,ParameterDeclarations):
@@ -216,7 +222,8 @@ class Parameter(VersionBase):
 
     def __eq__(self,other):
         if isinstance(other,Parameter):
-            if self.get_attributes() == other.get_attributes():
+            if self.get_attributes() == other.get_attributes() and\
+                self.constraint_groups == other.constraint_groups:
                 return True
         return False
 
@@ -236,8 +243,11 @@ class Parameter(VersionBase):
         name = element.attrib['name']
         value = element.attrib['value']
         parameter_type = getattr(ParameterType, element.attrib['parameterType'])
-        return Parameter(name, parameter_type, value)
-
+        parameter = Parameter(name, parameter_type, value)
+        constraint_groups = element.findall('ValueConstraintGroup')
+        for constraint_group in constraint_groups:
+            parameter.add_value_constraint_group(ValueConstraintGroup.parse(constraint_group))
+        return parameter
     
     def add_value_constraint_group(self,constraint_group):
         """ adds a value constraint to the value constraint group
@@ -2289,7 +2299,7 @@ class BoundingBox(VersionBase):
 
             x_center (float): x distance from back axel to center
 
-            y_center (float): y distance from back axel to center
+            y_center (float): y distance from back axel to clas
 
             z_center (float): z distance from back axel to center
                 
