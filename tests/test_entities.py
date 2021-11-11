@@ -22,51 +22,33 @@ def test_properties():
     assert prop == prop2
     assert prop != prop3
 
-def test_dimensions():
-    dim = OSC.Dimensions(2,3,1.5)
-    prettyprint(dim.get_element())
-    dim2 = OSC.Dimensions(2,3,1.5)
-    dim3 = OSC.Dimensions(2,3,1.3)
-    assert dim == dim2
-    assert dim != dim3
-
-def test_center():
-    cen = OSC.Center(1,0,0.3)
-    prettyprint(cen.get_element())
-    cen2 = OSC.Center(1,0,0.3)
-    cen3 = OSC.Center(1,0,0.2)
-    assert cen == cen2
-    assert cen != cen3
-
-def test_boundingbox():
-    bb = OSC.BoundingBox(2.3,5,2,1,0,0.2)
-    prettyprint(bb.get_element())
-    bb2 = OSC.BoundingBox(2.3,5,2,1,0,0.2)
-    bb3 = OSC.BoundingBox(2.3,5,2,1,0,0.1)
-    assert bb == bb2
-    assert bb != bb3
-
-def test_axel():
+def test_axle():
     ba = OSC.Axle(1,1,2,1,1)
     prettyprint(ba.get_element())
     ba2 = OSC.Axle(1,1,2,1,1)
     ba3 = OSC.Axle(1,1,2,1,12)
     assert ba == ba2
     assert ba != ba3
+    ba4 = OSC.Axle.parse(ba.get_element())
+    assert ba == ba4
 
-def test_axels():
+def test_axles():
     fa = OSC.Axle(2,2,2,1,1)
     ra = OSC.Axle(1,1,2,1,1)
     aa = OSC.Axle(1,1,2,1,1)
-    axels = OSC.Axles(fa,ra)
-    axels.add_axle(aa)
-    prettyprint(axels.get_element())
-    axels2 = OSC.Axles(fa,ra)
-    axels2.add_axle(aa)
-    axels3 = OSC.Axles(fa,ra)
-    assert axels == axels2
-    assert axels != axels3
-
+    aa2 = OSC.Axle(2,3,1,3,2)
+    axles = OSC.Axles(fa,ra)
+    axles.add_axle(aa)
+    axles.add_axle(aa2)
+    prettyprint(axles.get_element())
+    axles2 = OSC.Axles(fa,ra)
+    axles2.add_axle(aa)
+    axles2.add_axle(aa2)
+    axles3 = OSC.Axles(fa,ra)
+    assert axles == axles2
+    assert axles != axles3
+    axles4 = OSC.Axles.parse(axles.get_element())
+    assert axles == axles4
 
 def test_vehicle():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
@@ -132,7 +114,8 @@ def test_miscobj():
     veh2.add_parameter(param)
 
     veh3 = OSC.MiscObject('mycar',100,OSC.MiscObjectCategory.obstacle,bb)
-
+    veh4 = OSC.MiscObject.parse(veh3.get_element())
+    assert veh3 == veh4
     assert veh == veh2
     assert veh != veh3
 def test_entity():

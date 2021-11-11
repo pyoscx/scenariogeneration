@@ -41,6 +41,7 @@ def test_relativeworldposition():
     pos5 = OSC.RelativeWorldPosition.parse(pos3.get_element())
     prettyprint(pos5.get_element())
     assert pos5 == pos3
+    
 def test_relativeobjectposition():
     
     pos = OSC.RelativeObjectPosition('Ego',1,2,0)

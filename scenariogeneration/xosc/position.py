@@ -382,6 +382,7 @@ class RelativeObjectPosition(_PositionType):
                 return True
         return False
     
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RelativeObjectPosition
 
@@ -502,6 +503,7 @@ class RoadPosition(_PositionType):
                 return True
         return False
 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RoadPosition
 
@@ -616,7 +618,7 @@ class RelativeRoadPosition(_PositionType):
                 return True
         return False
 
-
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RelativeRoadPosition
 
@@ -738,6 +740,7 @@ class LanePosition(_PositionType):
                 return True
         return False
 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of LanePosition
 
@@ -880,6 +883,7 @@ class RelativeLanePosition(_PositionType):
                 return True
         return False
 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RelativeLanePosition
 
@@ -910,6 +914,7 @@ class RelativeLanePosition(_PositionType):
         else:
             orientation = Orientation()
         return RelativeLanePosition(dLane,entityref,offset,ds,dslane,orientation)
+
     def get_attributes(self):
         """ returns the attributes of the RelativeLanePosition as a dict
 
@@ -1305,7 +1310,7 @@ class GeoPosition(_PositionType):
                 height (float): height above surcae
                     Default: None
 
-                orientation (Orientation): Oritation of the entity
+                orientation (Orientation): Orietation of the entity
                     Default: Orientation()
         """
 

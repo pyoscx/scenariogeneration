@@ -4,7 +4,7 @@
 import xml.etree.ElementTree as ET
 
 from .enumerations import VersionBase, XMLNS, XSI
-from .utils import _StochasticDistributionType,  FileHeader, VersionBase, printToFile, ParameterAssignment
+from .utils import _StochasticDistributionType,  FileHeader, VersionBase, printToFile, ParameterAssignment, Rule
 from .exceptions import NotEnoughInputArguments, OpenSCENARIOVersionError
 
 
@@ -972,3 +972,4 @@ class ParameterValueDistribution(VersionBase):
 
         """
         printToFile(self.get_element(),filename,prettyprint)
+

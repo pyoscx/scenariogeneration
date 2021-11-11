@@ -3,6 +3,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.utils import ValueConstraintGroup
 
 @pytest.mark.parametrize("teststring",[OSC.DynamicsDimension.distance,OSC.DynamicsDimension.rate,OSC.DynamicsDimension.time])
 def test_transition_dynamics(teststring):
@@ -67,6 +68,24 @@ def test_parameter():
     param3 = OSC.Parameter('stuffs',OSC.ParameterType.integer,'2')
     assert param == param2
     assert param != param3
+    param4 = OSC.Parameter.parse(param.get_element())
+    assert param == param4
+    vc = OSC.ValueConstraint(OSC.Rule.equalTo, 'equalTo')
+    vc2 = OSC.ValueConstraint(OSC.Rule.notEqualTo, 'equalTo')
+    vc3 = OSC.ValueConstraint(OSC.Rule.equalTo, 'notEqualTo')
+
+    vcg = ValueConstraintGroup()
+    vcg2 = ValueConstraintGroup()
+    vcg.add_value_constraint(vc)
+    vcg.add_value_constraint(vc2)
+    vcg2.add_value_constraint(vc2)
+    vcg2.add_value_constraint(vc3)
+    param.add_value_constraint_group(vcg)
+    param.add_value_constraint_group(vcg2)
+    prettyprint(param.get_element())
+    param5 = OSC.Parameter.parse(param.get_element())
+    assert param == param5
+
 
 def test_catalogreference():
     catref = OSC.CatalogReference('VehicleCatalog','S60')
@@ -98,6 +117,36 @@ def test_parameterassignment():
     parass3 = OSC.ParameterAssignment('param1',2)
     assert parass == parass2
     assert parass != parass3
+
+def test_boundinbox():
+    bb = OSC.BoundingBox(1,2,1,2,3,2)
+    prettyprint(bb.get_element())
+    bb2 = OSC.BoundingBox(1,2,1,2,3,2)
+    bb3 = OSC.BoundingBox(1,3,2,3,3,2)
+    assert bb == bb2
+    assert bb != bb3
+    bb4 = OSC.BoundingBox.parse(bb.get_element())
+    assert bb4 == bb
+
+def test_center():
+    cen = OSC.Center(1,2,3)
+    prettyprint(cen.get_element())
+    cen2 = OSC.Center(1,2,3)
+    cen3 = OSC.Center(1,2,1)
+    assert cen == cen2
+    assert cen != cen3
+    cen4 = OSC.Center.parse(cen.get_element())
+    assert cen4 == cen
+
+def test_dimensions():
+    dim = OSC.Dimensions(1,2,3)
+    prettyprint(dim.get_element())
+    dim2 = OSC.Dimensions(1,2,3)
+    dim3 = OSC.Dimensions(1,2,1)
+    assert dim == dim2
+    assert dim != dim3
+    dim4 = OSC.Dimensions.parse(dim.get_element())
+    assert dim4 == dim
 
 def test_properties():
     prop = OSC.Properties()
@@ -362,3 +411,33 @@ def test_targetTimeSteadyState():
     assert inst == inst2
     assert inst != inst3
     prettyprint(inst)
+
+def test_value_constraint_group():
+    vc = OSC.ValueConstraint( OSC.Rule.equalTo, 'equalTo')
+    vc2 = OSC.ValueConstraint( OSC.Rule.notEqualTo, 'equalTo')
+    vc3 = OSC.ValueConstraint( OSC.Rule.equalTo, 'notEqualTo')
+    vcg = OSC.ValueConstraintGroup()
+    vcg2 = OSC.ValueConstraintGroup()
+    vcg3 = OSC.ValueConstraintGroup()
+    vcg.add_value_constraint(vc)
+    vcg.add_value_constraint(vc2)
+    vcg2.add_value_constraint(vc)
+    vcg2.add_value_constraint(vc2)
+    vcg3.add_value_constraint(vc)
+    vcg3.add_value_constraint(vc3)
+    prettyprint(vcg.get_element())
+    assert vcg == vcg2
+    assert vcg != vcg3
+    vcg4 = OSC.ValueConstraintGroup.parse(vcg.get_element())
+    assert vcg == vcg4
+   
+
+def test_value_constraint():
+    vc = OSC.ValueConstraint( OSC.Rule.equalTo, 'equalTo')
+    vc2 = OSC.ValueConstraint( OSC.Rule.equalTo, 'equalTo')
+    vc3 = OSC.ValueConstraint( OSC.Rule.notEqualTo, 'equalTo')
+    prettyprint(vc.get_element())
+    assert vc == vc2
+    assert vc != vc3
+    vc4 =OSC.ValueConstraint.parse(vc.get_element())
+    assert vc == vc4
