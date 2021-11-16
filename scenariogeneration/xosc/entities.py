@@ -6,7 +6,7 @@ from .utils import Controller, Dimensions, Center, BoundingBox, Properties, Para
 from .utils import EntityRef
 from .scenario import ParameterDeclarations
 from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory, ObjectType, VersionBase
-from .utils import DynamicsConstrains, CatalogFile, CatalogReference
+from .utils import DynamicsConstraints, CatalogFile, CatalogReference
 
 
 class Entities():
@@ -563,14 +563,18 @@ class MiscObject(VersionBase):
             model3d = element.attrib['model3d']
         mass = convert_float(element.attrib['mass'])
         name = element.attrib['name']
-        # properties = Properties.parse(element.find('Properties'))
+        properties = Properties.parse(element.find('Properties'))
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
         category = getattr(MiscObjectCategory, element.attrib['miscObjectCategory'])
-        if element.find('ParameterDeclaration') != None:
-            parameters = ParameterDeclarations.Parse(element.find('ParameterDeclaration'))   
+
+        if element.find('ParameterDeclarations') != None:
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
         else:
             parameters = ParameterDeclarations()
+
         object = MiscObject(name, mass, category, boundingbox, model3d)
+        object.parameters = parameters
+        object.properties = properties
         return object
 
     
@@ -605,7 +609,7 @@ class MiscObject(VersionBase):
         cf.open_catalog(filename)
         cf.add_to_catalog(self)
         cf.dump()
-
+    
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the MiscObject
 
@@ -766,7 +770,7 @@ class Vehicle(VersionBase):
         self.boundingbox = boundingbox
 
         self.axles = Axles(frontaxle,rearaxle)
-        self.dynamics = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamics = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
         self.mass = mass

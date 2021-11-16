@@ -3,7 +3,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
-from scenariogeneration.xosc.utils import ValueConstraintGroup
+from scenariogeneration.xosc.utils import _TrafficSignalState, ValueConstraintGroup
 
 @pytest.mark.parametrize("teststring",[OSC.DynamicsDimension.distance,OSC.DynamicsDimension.rate,OSC.DynamicsDimension.time])
 def test_transition_dynamics(teststring):
@@ -24,17 +24,17 @@ def test_transition_dynamics(teststring):
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],0),([1,None,None],1),([1,None,2],2),([1,2,4],3) ] )
 def test_dynamics_constraints(testinp,results):
-    dyncon = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
+    dyncon = OSC.DynamicsConstraints(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
     assert len(dyncon.get_attributes()) == results
     prettyprint(dyncon)
-    dyncon2 = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
-    dyncon3 = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=50)
+    dyncon2 = OSC.DynamicsConstraints(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
+    dyncon3 = OSC.DynamicsConstraints(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=50)
     assert dyncon == dyncon2
     assert dyncon != dyncon3
 
 @pytest.mark.parametrize("testinp,results",[([None,None,None],False),([1,None,None],True),([1,None,2],True),([1,2,4],True) ] )
 def test_dynamics_constraints_filled(testinp,results):
-    dyncon = OSC.DynamicsConstrains(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
+    dyncon = OSC.DynamicsConstraints(max_deceleration=testinp[0],max_acceleration=testinp[1],max_speed=testinp[2])
 
     assert dyncon.is_filled() == results
 
@@ -103,6 +103,12 @@ def test_catalogreference():
     assert catref == catref2
     assert catref != catref3
 
+    catref.add_parameter_assignment('stuffs2',5)
+    catref4 = OSC.CatalogReference.parse(catref.get_element())
+    prettyprint(catref.get_element())
+    prettyprint(catref4.get_element())
+    assert catref == catref4
+
 
 def test_paramdeclaration():
     
@@ -121,6 +127,19 @@ def test_paramdeclaration():
     pardec4.add_parameter(OSC.Parameter('myparam2',OSC.ParameterType.double,'0.01'))
     assert pardec4 != pardec
 
+def test_entityref():
+    entref = OSC.EntityRef('ref_str')
+    entref2 = OSC.EntityRef('ref_str')
+    entref3 = OSC.EntityRef('ref_str2')
+    prettyprint(entref.get_element())
+    assert entref == entref2
+    assert entref != entref3
+
+    entref4 = OSC.EntityRef.parse(entref.get_element())
+    assert entref == entref4 
+
+
+
 def test_parameterassignment():
     parass = OSC.ParameterAssignment('param1',1)
     prettyprint(parass.get_element())
@@ -128,6 +147,9 @@ def test_parameterassignment():
     parass3 = OSC.ParameterAssignment('param1',2)
     assert parass == parass2
     assert parass != parass3
+
+    parass4 = OSC.ParameterAssignment.parse(parass.get_element())
+    assert parass4 == parass
 
 def test_boundinbox():
     bb = OSC.BoundingBox(1,2,1,2,3,2)
@@ -163,16 +185,22 @@ def test_properties():
     prop = OSC.Properties()
     prop.add_property('mything','2')
     prop.add_property('theotherthing','true')
+    prop.add_file('propfile.xml')
     prettyprint(prop)
     prop2 = OSC.Properties()
     prop2.add_property('mything','2')
     prop2.add_property('theotherthing','true')
+    prop2.add_file('propfile.xml')
+
     
     prop3 = OSC.Properties()
     prop3.add_property('mything','2')
     prop3.add_property('theotherthin','true')
     assert prop == prop2
     assert prop != prop3
+
+    prop4 = OSC.Properties.parse(prop.get_element())
+    assert prop4 == prop
     
 
 def test_controller():
@@ -180,12 +208,20 @@ def test_controller():
     prop.add_property('mything','2')
     prop.add_property('theotherthing','true')
 
+    param = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
+    param2 =  OSC.Parameter('stuffs2',OSC.ParameterType.double,'5')
     cnt = OSC.Controller('mycontroler',prop)
     prettyprint(cnt.get_element())
     cnt2 = OSC.Controller('mycontroler',prop)
     cnt3 = OSC.Controller('mycontroler3',prop)
     assert cnt == cnt2
     assert cnt != cnt3
+
+    cnt.add_parameter(param)
+    cnt.add_parameter(param2)
+    prettyprint(cnt.get_element())
+    cnt4 = OSC.Controller.parse(cnt.get_element())
+    assert cnt4 ==cnt
 
 def test_fileheader():
     fh = OSC.FileHeader('my_scenario','Mandolin')
@@ -194,6 +230,9 @@ def test_fileheader():
     fh3 = OSC.FileHeader('my_scenario','Mandolin2')
     assert fh == fh2
     assert fh != fh3
+
+    fh4 = OSC.FileHeader.parse(fh.get_element())
+    assert fh4 == fh
     
 
 def test_timeref():
@@ -203,6 +242,9 @@ def test_timeref():
     timeref3 = OSC.TimeReference(OSC.ReferenceContext.absolute,1,3)
     assert timeref == timeref2
     assert timeref != timeref3
+
+    timeref4 = OSC.TimeReference.parse(timeref.get_element())
+    assert timeref4 == timeref
 
 def test_phase():
     p1 = OSC.Phase('myphase',1)
@@ -219,6 +261,21 @@ def test_phase():
     
     assert p1 == p2
     assert p1 != p3
+
+    p4 = OSC.Phase.parse(p1.get_element())
+    assert p4 == p1
+
+def test_TrafficSignalState():
+    tss = _TrafficSignalState('ID_1', 'Signal_State')
+    tss2 = _TrafficSignalState('ID_1', 'Signal_State')
+    tss3 = _TrafficSignalState('ID_2', 'Signal_State')
+    prettyprint(tss.get_element())
+    assert tss == tss2
+    assert tss != tss3
+
+    tss4 = _TrafficSignalState.parse(tss.get_element())
+    assert tss4 ==tss
+
 
 def test_TrafficSignalController():
     p1 = OSC.Phase('myphase',1)
@@ -244,6 +301,9 @@ def test_TrafficSignalController():
     tsc3.add_phase(p2)
     assert tsc == tsc2
     assert tsc != tsc3
+
+    tsc4 = OSC.TrafficSignalController.parse(tsc.get_element())
+    assert tsc4 == tsc
 
 def test_trafficdefinition():
     prop = OSC.Properties()
@@ -272,6 +332,8 @@ def test_trafficdefinition():
     assert traffic == traffic2
     assert traffic != traffic3
 
+    traffic4 = OSC.TrafficDefinition.parse(traffic.get_element())
+    assert traffic == traffic4
 
 def test_weather():
     weather = OSC.Weather(OSC.CloudState.free,100,0)
@@ -290,6 +352,10 @@ def test_tod():
     tod3 = OSC.TimeOfDay(True,2020,10,1,18,30,31)
     assert tod == tod2
     assert tod != tod3
+
+    tod4 = OSC.TimeOfDay.parse(tod.get_element())
+    prettyprint(tod4.get_element())
+    assert tod4 == tod
 
 def test_roadcondition():
     rc = OSC.RoadCondition(1)
@@ -311,9 +377,6 @@ def test_environment():
     env3 = OSC.Environment(tod,weather,OSC.RoadCondition(3))
     assert env == env2
     assert env != env3
-
-
-
 
 def test_oscenum():
     enum1 = OSC.enumerations._OscEnum('classname','testname')
@@ -375,13 +438,27 @@ def test_fog():
     assert s != s3
     prettyprint(s)
 
+def test_dynamicsConstraints():
+    dc = OSC.DynamicsConstraints(2,2,3)
+    dc2 = OSC.DynamicsConstraints(2,2,3)
+    dc3 = OSC.DynamicsConstraints(3,2,2)
+    prettyprint(dc.get_element())
+    assert dc == dc2
+    assert dc != dc3
+
+    dc4 = OSC.DynamicsConstraints.parse(dc.get_element())
+    assert dc == dc4
+
 def test_license():
     l = OSC.License('MPL-2')
     l2 = OSC.License('MPL-2')
     l3 = OSC.License('MIT')
     assert l == l2
     assert l != l3
-    prettyprint(l)
+    prettyprint(l.get_element())
+
+    l4 = OSC.License.parse(l.get_element())
+    assert l4 == l
 
 def test_absoluteSpeed():
     inst = OSC.AbsoluteSpeed(1)

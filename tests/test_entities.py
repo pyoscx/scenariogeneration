@@ -103,21 +103,30 @@ def test_miscobj():
     
     prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
+    veh.add_property_file('propfile2.xml')
     veh.add_property('myprop','12')
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
+    param2 = OSC.Parameter('myparam1',OSC.ParameterType.double,'0.01')
     veh.add_parameter(param)
+    veh.add_parameter(param2)
     prettyprint(veh.get_element())
 
     veh2 = OSC.MiscObject('mycar',100,OSC.MiscObjectCategory.obstacle,bb)
     veh2.add_property_file('propfile.xml')
+    veh2.add_property_file('propfile2.xml')
     veh2.add_property('myprop','12')
     veh2.add_parameter(param)
+    veh2.add_parameter(param2)
 
     veh3 = OSC.MiscObject('mycar',100,OSC.MiscObjectCategory.obstacle,bb)
     veh4 = OSC.MiscObject.parse(veh3.get_element())
     assert veh3 == veh4
     assert veh == veh2
     assert veh != veh3
+    veh5 = OSC.MiscObject.parse(veh.get_element())
+    prettyprint(veh5.get_element())
+    assert veh5 == veh
+
 def test_entity():
     ent = OSC.Entity('ego',object_type=OSC.ObjectType.vehicle)
     prettyprint(ent.get_element())

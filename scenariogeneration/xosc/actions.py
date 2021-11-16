@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 from numpy.lib.function_base import disp
 
-from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster
+from .utils import DynamicsConstraints, TimeReference, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster
 from .utils import Controller
 
 from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement
@@ -330,7 +330,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
             distance (float): the distance to the entity
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
             coordinate_system (CoordinateSystem): the coordinate system for the distance calculation
 
@@ -384,7 +384,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
         self.freespace = freespace
         self.continuous = continuous
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         self.distance = distance
         if not hasattr(CoordinateSystem,str(coordinate_system)):
             raise ValueError(coordinate_system + '; is not a valid CoordinateSystem.')
@@ -459,7 +459,7 @@ class LongitudinalTimegapAction(_PrivateActionType):
 
             timegap (float): timegap to the target
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
         Methods
         -------
@@ -507,7 +507,7 @@ class LongitudinalTimegapAction(_PrivateActionType):
         self.freespace = freespace
         self.continuous = continuous
         self.timegap = timegap
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         
     def __eq__(self,other):
         if isinstance(other,LongitudinalTimegapAction):
@@ -942,7 +942,7 @@ class LateralDistanceAction(_PrivateActionType):
 
             timegap (float): if timegap metric is used
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
             coordinate_system (CoordinateSystem): the coordinate system for the distance calculation
 
@@ -997,7 +997,7 @@ class LateralDistanceAction(_PrivateActionType):
         
         self.freespace = freespace
         self.continuous = continuous
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         if not hasattr(CoordinateSystem,str(coordinate_system)):
             raise ValueError(coordinate_system + '; is not a valid CoordinateSystem.')
         if not hasattr(LateralDisplacement,str(displacement)):
