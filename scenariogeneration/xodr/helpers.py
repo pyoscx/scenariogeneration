@@ -34,10 +34,10 @@ def printToFile(element,filename,prettyprint=True):
     if prettyprint:    
         rough = ET.tostring(element,'utf-8').replace(b'\n',b'').replace(b'\t',b'')
         reparsed = mini.parseString(rough)
-        towrite = reparsed.toprettyxml(indent="    ")
-        with open(filename,'w') as file_handle:
+        towrite = reparsed.toprettyxml(indent="    ", encoding='utf-8')
+        with open(filename,'wb') as file_handle:
             file_handle.write(towrite)
     else:
         tree = ET.ElementTree(element)
-        with open(filename,"wb") as file_handle:
-            tree.write(file_handle)
+        with open(filename,'wb') as file_handle:
+            tree.write(file_handle, encoding='utf-8')
