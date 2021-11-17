@@ -361,7 +361,7 @@ def test_environmentaction():
     weather = OSC.Weather(OSC.CloudState.free,100)
     rc = OSC.RoadCondition(1)
 
-    env = OSC.Environment(tod,weather,rc)
+    env = OSC.Environment('Env_name', tod,weather,rc)
     ea = OSC.EnvironmentAction('myaction',env)
     prettyprint(ea.get_element())
     ea2 = OSC.EnvironmentAction('myaction',env)

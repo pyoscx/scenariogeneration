@@ -358,12 +358,21 @@ def test_tod():
     assert tod4 == tod
 
 def test_roadcondition():
-    rc = OSC.RoadCondition(1)
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+    prop.add_file('propfile.xml')
+    rc = OSC.RoadCondition(1,prop)
     prettyprint(rc.get_element())
-    rc2 = OSC.RoadCondition(1)
+    rc2 = OSC.RoadCondition(1,prop)
     rc3 = OSC.RoadCondition(2)
     assert rc == rc2
     assert rc != rc3
+
+    rc4 = OSC.RoadCondition.parse(rc.get_element())
+    prettyprint(rc4.get_element())
+
+    assert rc == rc4
 
 def test_environment():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
@@ -371,12 +380,16 @@ def test_environment():
 
     rc = OSC.RoadCondition(1)
 
-    env = OSC.Environment(tod,weather,rc)
+    env = OSC.Environment('Env_name1',tod,weather,roadcondition=rc)
     prettyprint(env.get_element())
-    env2 = OSC.Environment(tod,weather,rc)
-    env3 = OSC.Environment(tod,weather,OSC.RoadCondition(3))
+    env2 = OSC.Environment('Env_name1',tod,weather ,roadcondition=rc)
+    env3 = OSC.Environment('Env_name2',tod,weather,OSC.RoadCondition(3))
     assert env == env2
     assert env != env3
+
+    env4 = OSC.Environment.parse(env.get_element())
+    prettyprint(env4.get_element())
+    assert env4 == env
 
 def test_oscenum():
     enum1 = OSC.enumerations._OscEnum('classname','testname')
@@ -396,6 +409,9 @@ def test_distancesteadystate():
     assert tdss != tdss3
     prettyprint(tdss)
 
+    tdss4 = OSC.TargetDistanceSteadyState.parse(tdss.get_element())
+    assert tdss4 == tdss 
+
 def test_timesteadystate():
     ttss = OSC.TargetTimeSteadyState(1)
     ttss2 = OSC.TargetTimeSteadyState(1)
@@ -403,6 +419,9 @@ def test_timesteadystate():
     assert ttss == ttss2
     assert ttss != ttss3
     prettyprint(ttss)
+
+    ttss4 = OSC.TargetTimeSteadyState.parse(ttss.get_element())
+    assert ttss4 ==ttss
 
 def test_wind():
     w = OSC.Wind(0,1)
@@ -412,6 +431,9 @@ def test_wind():
     assert w != w3
     prettyprint(w)
 
+    w4 = OSC.Wind.parse(w.get_element())
+    assert w == w4
+
 def test_precipitation():
     p = OSC.Precipitation(OSC.PrecipitationType.rain,1)
     p2 = OSC.Precipitation(OSC.PrecipitationType.rain,1)
@@ -419,6 +441,9 @@ def test_precipitation():
     assert p == p2
     assert p != p3
     prettyprint(p)
+
+    p4 = OSC.Precipitation.parse(p.get_element())
+    assert p4 == p
 
 def test_sun():
     s = OSC.Sun(1,1,1)
@@ -429,14 +454,20 @@ def test_sun():
     assert s != s3
     prettyprint(s)
 
-def test_fog():
-    s = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
-    s2 = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
-    s3 = OSC.Fog(2,OSC.BoundingBox(1,1,1,1,1,1))
+    s4 = OSC.Sun.parse(s.get_element())
+    assert s == s4
 
-    assert s == s2
-    assert s != s3
-    prettyprint(s)
+def test_fog():
+    f = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
+    f2 = OSC.Fog(1,OSC.BoundingBox(1,1,1,1,1,1))
+    f3 = OSC.Fog(2,OSC.BoundingBox(1,1,1,1,1,1))
+
+    assert f == f2
+    assert f != f3
+    prettyprint(f)
+
+    f4 = OSC.Fog.parse(f.get_element())
+    assert f == f4
 
 def test_dynamicsConstraints():
     dc = OSC.DynamicsConstraints(2,2,3)
@@ -473,6 +504,10 @@ def test_absoluteSpeed():
     assert inst4 == inst5
     assert inst4 != inst6
 
+    inst7 = OSC.AbsoluteSpeed.parse(inst4.get_element())
+    prettyprint(inst7.get_element())
+    assert inst4 == inst7
+
 def test_relativeSpeedToMaster():
     inst = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta)
     inst2 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta)
@@ -482,7 +517,9 @@ def test_relativeSpeedToMaster():
     inst4 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetTimeSteadyState(2))
     prettyprint(inst4)
     inst5 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetDistanceSteadyState(1))
-    prettyprint(inst5)
+ 
+    inst6 = OSC.RelativeSpeedToMaster.parse(inst4.get_element())
+    assert inst6 == inst4
 
 def test_targetDistanceSteadyState():
     inst = OSC.TargetDistanceSteadyState(1)
