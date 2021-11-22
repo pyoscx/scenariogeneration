@@ -3605,8 +3605,13 @@ def convert_bool(value):
     if isinstance(value,str):
         if value == 'true':
             return True
-        else:
+        elif value == 'false':
             return False
+        elif value[0] == '$':
+            return value
+        else:
+            raise ValueError(value + 'is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char..')
+
     if value:
         return 'true'
     else:
@@ -3623,6 +3628,14 @@ def convert_float(value):
         ------
             value (float/None)
     """
+    if isinstance(value,str):
+        if value[0] == '$':
+            return value
+        try:
+            float(value)
+        except ValueError:
+            raise ValueError(value + 'is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char..')
+
     if value is not None:
         return float(value)
     else:
@@ -3639,6 +3652,14 @@ def convert_int(value):
         ------
             value (int/None)
     """
+    if isinstance(value,str):
+        if value[0] == '$':
+            return value
+        try:
+            int(value)
+        except ValueError:
+            raise ValueError(value + 'is not a valid type of int input to openscenario, if a string is used as a int value (parameter or expression), it should have a $ as the first char.')
+
     if value is not None:
         return int(value)
     else:
