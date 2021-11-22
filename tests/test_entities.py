@@ -83,7 +83,7 @@ def test_vehicle():
     
 def test_pedestrian():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    ped = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped = OSC.Pedestrian('myped', 100, OSC.PedestrianCategory.pedestrian, bb,'ped')
     
     prettyprint(ped.get_element())
     ped.add_property_file('propfile.xml')
@@ -93,11 +93,11 @@ def test_pedestrian():
     
     prettyprint(ped.get_element())
 
-    ped2 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped2 = OSC.Pedestrian('myped', 100, OSC.PedestrianCategory.pedestrian, bb,'ped')
     ped2.add_property_file('propfile.xml')
     ped2.add_property('myprop','12')
     ped2.add_parameter(param)
-    ped3 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped3 = OSC.Pedestrian('myped', 100, OSC.PedestrianCategory.pedestrian, bb)
 
     assert ped == ped2
     assert ped != ped3

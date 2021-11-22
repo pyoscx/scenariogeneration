@@ -383,14 +383,14 @@ class Pedestrian(VersionBase):
         ----------
             name (str): name of the type (req for catalog)
 
-            model (str): definition model of the pedestrian
-
             mass (float): mass of the pedestrian
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
 
             category (PedestrianCategory): type of of pedestrian 
-                
+            
+            model (str): definition model of the pedestrian
+                Default: None
 
         Attributes
         ----------
@@ -435,14 +435,12 @@ class Pedestrian(VersionBase):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,name, model, mass, category, boundingbox):
+    def __init__(self,name, mass, category, boundingbox, model = None):
         """ initalzie the Pedestrian Class
 
         Parameters
         ----------
             name (str): name of the type (req for catalog)
-
-            model (str): definition model of the pedestrian
 
             mass (float): mass of the pedestrian
 
@@ -450,6 +448,8 @@ class Pedestrian(VersionBase):
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
         
+            model (str): definition model of the pedestrian
+                Default: None
         """
         self.name = name
         self.model = model
@@ -498,7 +498,7 @@ class Pedestrian(VersionBase):
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
         properties = Properties.parse(element.find('Properties'))
 
-        pedestrian = Pedestrian(name,model,mass,category,boundingbox)
+        pedestrian = Pedestrian(name,mass,category,boundingbox,model)
         pedestrian.parameters = parameters
         pedestrian.properties = properties
 
@@ -577,10 +577,11 @@ class Pedestrian(VersionBase):
         retdict = {}
         retdict['name'] = str(self.name)
         retdict['pedestrianCategory'] = self.category.get_name()
-        if self.isVersion(minor=0):
-            retdict['model'] = self.model
-        else:
-            retdict['model3d'] = self.model
+        if self.model is not None:
+            if self.isVersion(minor=0):
+                retdict['model'] = self.model
+            else:
+                retdict['model3d'] = self.model
         retdict['mass'] = str(self.mass)
         return retdict
 

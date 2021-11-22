@@ -67,9 +67,9 @@ def _parsePedestrianCatalog(pedestrian):
     elif pedestrian.find('model3d'):
         model = pedestrian.attrib['model3d']
     else:
-        model = ''
+        model = None
     
-    return_pedestrian = Pedestrian(pedestrian.attrib['name'],model,float(pedestrian.attrib['mass']),getattr(PedestrianCategory,pedestrian.attrib['pedestrianCategory']),ped_bb)
+    return_pedestrian = Pedestrian(pedestrian.attrib['name'],float(pedestrian.attrib['mass']),getattr(PedestrianCategory,pedestrian.attrib['pedestrianCategory']),ped_bb,model)
 
 
     if pedestrian.find('Properties'):
