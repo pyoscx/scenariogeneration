@@ -2,6 +2,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.utils import CatalogReference, EntityRef
 
 def test_properties():
     prop = OSC.Properties()
@@ -75,27 +76,34 @@ def test_vehicle():
     veh3 = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     assert veh == veh2
     assert veh != veh3
+
+    veh4 = OSC.Vehicle.parse(veh.get_element())
+    prettyprint(veh4.get_element())
+    assert veh4 == veh
     
 def test_pedestrian():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
-    veh = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
     
-    prettyprint(veh.get_element())
-    veh.add_property_file('propfile.xml')
-    veh.add_property('myprop','12')
+    prettyprint(ped.get_element())
+    ped.add_property_file('propfile.xml')
+    ped.add_property('myprop','12')
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
-    veh.add_parameter(param)
+    ped.add_parameter(param)
     
-    prettyprint(veh.get_element())
+    prettyprint(ped.get_element())
 
-    veh2 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
-    veh2.add_property_file('propfile.xml')
-    veh2.add_property('myprop','12')
-    veh2.add_parameter(param)
-    veh3 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped2 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped2.add_property_file('propfile.xml')
+    ped2.add_property('myprop','12')
+    ped2.add_parameter(param)
+    ped3 = OSC.Pedestrian('myped', 'ped', 100, OSC.PedestrianCategory.pedestrian, bb)
 
-    assert veh == veh2
-    assert veh != veh3
+    assert ped == ped2
+    assert ped != ped3
+
+    ped4 = OSC.Pedestrian.parse(ped.get_element()) 
+    assert ped4 == ped
 
 def test_miscobj():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
@@ -128,20 +136,56 @@ def test_miscobj():
     assert veh5 == veh
 
 def test_entity():
-    ent = OSC.Entity('ego',object_type=OSC.ObjectType.vehicle)
+    object_type_list = [OSC.ObjectType.vehicle, OSC.ObjectType.pedestrian]
+    ent = OSC.Entity('ego',object_type=object_type_list)
     prettyprint(ent.get_element())
-    ent3 = OSC.Entity('ego',entityref='Ego')
+    ent3 = OSC.Entity('ego',entityref=['Ego','Ego2','Ego3'])
     prettyprint(ent3.get_element())
     ent2 = OSC.Entity('ego',object_type=OSC.ObjectType.vehicle)
-    assert ent == ent2
-    assert ent != ent3
+    ent4 = OSC.Entity('ego',object_type=object_type_list)
+    assert ent != ent2
+    assert ent == ent4
+
+    ent5 = OSC.Entity.parse(ent.get_element())
+    assert ent5 == ent
+
+    ent6 = OSC.Entity.parse(ent3.get_element())
+    prettyprint(ent6.get_element())
+    assert ent6 == ent3
+
+def test_scenarioobject():
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+    cnt = OSC.Controller('mycontroler',prop)
+
+    bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
+    fa = OSC.Axle(2,2,2,1,1)
+    ba = OSC.Axle(1,1,2,1,1)
+    veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
+    veh.add_property_file('propfile.xml')
+    veh.add_property('myprop','12')
+    veh.add_axle(ba)
+    param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
+    veh.add_parameter(param)
+    
+    so = OSC.ScenarioObject('name', veh, cnt)
+    so2 = OSC.ScenarioObject('name', veh, cnt)
+    prettyprint(so.get_element())
+    assert so == so2
+
+    so4 = OSC.ScenarioObject.parse(so.get_element())
+    prettyprint(so4.get_element())
+    assert so4 == so
 
 def test_entities():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axle(2,2,2,1,1)
     ba = OSC.Axle(1,1,2,1,1)
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
-    
+    param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
+    veh.add_parameter(param)
+
     entities = OSC.Entities()
     entities.add_scenario_object('Ego',veh)
     entities.add_scenario_object('Target_1',veh)
@@ -162,6 +206,10 @@ def test_entities():
     
     assert entities == entities2
     assert entities != entities3
+
+    entities4 = OSC.Entities.parse(entities2.get_element())
+    prettyprint(entities4.get_element())
+    assert entities == entities4
 
 def test_controller():
     prop = OSC.Properties()
@@ -208,3 +256,6 @@ def test_external_object():
 
     assert ext_obj == ext_obj2
     assert ext_obj != ext_obj3
+
+    ext_obj4 = OSC.ExternalObjectReference.parse(ext_obj.get_element())
+    assert ext_obj == ext_obj4
