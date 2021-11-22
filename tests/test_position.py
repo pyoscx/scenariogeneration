@@ -53,15 +53,20 @@ def test_relativeobjectposition():
     assert pos == pos2
     assert pos != pos3
 
+    pos4 = OSC.RelativeObjectPosition.parse(pos3.get_element())
+    assert pos3 == pos4
+
 def test_roadposition():
     pos = OSC.RoadPosition(1,2,reference_id='1')
     prettyprint(pos.get_element())
     pos2 = OSC.RoadPosition(1,2,reference_id='1')
     pos3 = OSC.RoadPosition(1,2,reference_id='3')
 
-
     assert pos == pos2
     assert pos != pos3
+
+    pos4 = OSC.RoadPosition.parse(pos.get_element())
+    assert pos == pos4
 
 def test_relativeroadposition():
     pos = OSC.RelativeRoadPosition(1,2,'ego')
@@ -69,9 +74,12 @@ def test_relativeroadposition():
     pos2 = OSC.RelativeRoadPosition(1,2,'ego')
     pos3 = OSC.RelativeRoadPosition(1,2,'ego2')
 
-
     assert pos == pos2
     assert pos != pos3
+
+    pos4 = OSC.RelativeRoadPosition.parse(pos.get_element())
+    assert pos == pos4
+
 def test_laneposition():
     pos = OSC.LanePosition(1,2,lane_id=1,road_id=2)
     prettyprint(pos.get_element())
@@ -79,6 +87,9 @@ def test_laneposition():
     pos3 = OSC.LanePosition(1,1,lane_id=-1,road_id=2)
     assert pos == pos2
     assert pos != pos3
+
+    pos4 = OSC.LanePosition.parse(pos.get_element())
+    assert pos == pos4
 
 def test_relativelaneposition():
 
@@ -89,6 +100,9 @@ def test_relativelaneposition():
 
     assert pos == pos2
     assert pos != pos3
+
+    pos4 = OSC.RelativeLanePosition.parse(pos.get_element())
+    assert pos == pos4
 
 def test_route_position():
     route = OSC.Route('myroute')
@@ -104,6 +118,9 @@ def test_route_position():
     assert routepos == routepos2
     assert routepos != routepos3
 
+    routepos4 = OSC.RoutePositionOfCurrentEntity.parse(routepos.get_element())
+    assert routepos == routepos4
+
     routepos = OSC.RoutePositionInRoadCoordinates(route,1,3)
     prettyprint(routepos.get_element())
     routepos2 = OSC.RoutePositionInRoadCoordinates(route,1,3)
@@ -111,12 +128,19 @@ def test_route_position():
     assert routepos == routepos2
     assert routepos != routepos3
 
+    routepos4 = OSC.RoutePositionInRoadCoordinates.parse(routepos.get_element())
+    assert routepos == routepos4
+    
     routepos = OSC.RoutePositionInLaneCoordinates(route,1,-1,2)
     routepos2 = OSC.RoutePositionInLaneCoordinates(route,1,-1,2)
     routepos3 = OSC.RoutePositionInLaneCoordinates(route,1,1,2)
     prettyprint(routepos.get_element())
     assert routepos == routepos2
     assert routepos != routepos3
+
+    routepos4 = OSC.RoutePositionInLaneCoordinates.parse(routepos.get_element())
+    assert routepos == routepos4
+    
 
 def test_trajectory_position():
     traj = OSC.Trajectory('my traj',False)
@@ -129,6 +153,9 @@ def test_trajectory_position():
     assert pos2 == pos
     assert pos3 != pos
 
+    pos4 = OSC.TrajectoryPosition.parse(pos.get_element())
+    assert pos == pos4
+
 def test_geo_position():
     pos = OSC.GeoPosition(1,1)
     pos2 = OSC.GeoPosition(1,1)
@@ -137,6 +164,17 @@ def test_geo_position():
     assert pos == pos2
     assert pos != pos3
 
+    pos4 = OSC.GeoPosition.parse(pos.get_element())
+    assert pos == pos4
+
+
+# some fixtures for the factory test
+traj = OSC.Trajectory('my_traj',False)
+traj.add_shape(OSC.Clothoid(0.001,0.001,100,OSC.WorldPosition()))
+
+route = OSC.Route('myroute')
+route.add_waypoint(OSC.WorldPosition(),OSC.RouteStrategy.shortest)
+route.add_waypoint(OSC.WorldPosition(1,1,1),OSC.RouteStrategy.shortest)
 
 @pytest.mark.parametrize("position",[OSC.WorldPosition(),
                                     OSC.RelativeWorldPosition('target',0,1,0),
@@ -145,7 +183,11 @@ def test_geo_position():
                                     OSC.RelativeRoadPosition(10,0,'ego',orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
                                     OSC.LanePosition(10,1,-1,1,orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
                                     OSC.RelativeLanePosition(-1,'target',0,None,0.1,orientation=OSC.Orientation(1,1,1,OSC.ReferenceContext.relative)),
-                                    OSC.GeoPosition(10.11,12.001)
+                                    OSC.GeoPosition(10.11,12.001),
+                                    OSC.TrajectoryPosition(traj,10),
+                                    OSC.RoutePositionOfCurrentEntity(route,'Ego'),
+                                    OSC.RoutePositionInRoadCoordinates(route,1,3),
+                                    OSC.RoutePositionInLaneCoordinates(route,1,1,2)
                                     ])
 def test_position_factory(position):
     
