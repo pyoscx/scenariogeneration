@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
 
 
-from .helpers import printToFile
+from ..helpers import printToFile
 from .utils import FileHeader, ParameterDeclarations, Catalog, TrafficSignalController
 from .enumerations import VersionBase, XMLNS, XSI
 from .entities import Entities
@@ -108,8 +108,8 @@ class Scenario():
 
         return element
 
-    def write_xml(self,filename,prettyprint = True):
-        """ writeXml writes the open scenario xml file
+    def write_xml(self, filename, prettyprint = True, encoding = 'utf-8'):
+        """ write_xml writes the OpenSCENARIO xml file
 
         Parameters
         ----------
@@ -117,6 +117,9 @@ class Scenario():
 
             prettyprint (bool): pretty print or ugly print?
                 Default: True
+                
+            encoding (str): specifies the output encoding
+                Default: 'utf-8'
 
         """
         printToFile(self.get_element(),filename,prettyprint)

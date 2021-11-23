@@ -3,7 +3,7 @@
 """
 
 import xml.etree.ElementTree as ET
-from .helpers import enum2str
+from ..helpers import enum2str
 from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType, MarkRule 
 from .links import _Links,_Link
 

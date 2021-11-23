@@ -2,7 +2,7 @@
 
 """
 import xml.etree.ElementTree as ET
-from .helpers import enum2str
+from ..helpers import enum2str
 from .enumerations import ElementType, JunctionGroupType
 
 from .exceptions import NotSameAmountOfLanesError

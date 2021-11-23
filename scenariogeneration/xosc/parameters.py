@@ -4,9 +4,9 @@
 import xml.etree.ElementTree as ET
 
 from .enumerations import VersionBase, XMLNS, XSI
-from .utils import _StochasticDistributionType,  FileHeader, VersionBase, printToFile, ParameterAssignment, Rule
+from .utils import _StochasticDistributionType,  FileHeader, VersionBase, ParameterAssignment, Rule
 from .exceptions import NotEnoughInputArguments, OpenSCENARIOVersionError
-
+from ..helpers import printToFile
 
 class _HistogramBin():
     """ the _HistogramBin is used by Histogram to define the bins
