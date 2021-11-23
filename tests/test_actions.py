@@ -3,6 +3,7 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.actions import TrafficSignalControllerAction
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1.0)
@@ -243,6 +244,9 @@ def testParameterAddActions():
     assert pa == pa2
     assert pa != pa3
 
+    pa4 = OSC.ParameterAddAction.parse(pa.get_element())
+    assert pa == pa4
+
 def testParameterMultiplyActions():
     pa = OSC.ParameterMultiplyAction('Myparam',3)
     prettyprint(pa)
@@ -250,6 +254,9 @@ def testParameterMultiplyActions():
     pa3 = OSC.ParameterMultiplyAction('Myparam',2)
     assert pa == pa2
     assert pa != pa3
+
+    pa4 = OSC.ParameterMultiplyAction.parse(pa.get_element())
+    assert pa == pa4
 
 
 def testParameterSetActions():
@@ -260,6 +267,9 @@ def testParameterSetActions():
     assert pa == pa2
     assert pa != pa3
 
+    pa4 = OSC.ParameterSetAction.parse(pa.get_element())
+    assert pa == pa4
+
 def test_trafficsignalstateaction():
     tss = OSC.TrafficSignalStateAction('my signal','red')
     prettyprint(tss)
@@ -267,6 +277,10 @@ def test_trafficsignalstateaction():
     tss3 = OSC.TrafficSignalStateAction('my signal','green')
     assert tss == tss2
     assert tss != tss3
+
+    tss4 = OSC.TrafficSignalStateAction.parse(tss.get_element())
+    prettyprint(tss4.get_element())
+    assert tss4 == tss
 
 def test_addEntity():
     ent = OSC.AddEntityAction('my new thingy',OSC.WorldPosition())
@@ -276,6 +290,10 @@ def test_addEntity():
     assert ent == ent2
     assert ent != ent3
 
+    ent4 = OSC.AddEntityAction.parse(ent.get_element())
+    prettyprint(ent4.get_element())
+    assert ent4 == ent
+
 def test_deleteEntity():
     ent = OSC.DeleteEntityAction('my new thingy')
     prettyprint(ent)
@@ -283,6 +301,22 @@ def test_deleteEntity():
     ent3 = OSC.DeleteEntityAction('my new thingy2')
     assert ent == ent2
     assert ent != ent3
+
+    ent4 = OSC.DeleteEntityAction.parse(ent.get_element())
+    prettyprint(ent4)
+    assert ent4 == ent
+
+def test_trafficsignalcontrolleraction():
+    tsc_action = OSC.TrafficSignalControllerAction('Phase','TSCRef_Name')
+    tsc_action2 = OSC.TrafficSignalControllerAction('Phase','TSCRef_Name')
+    prettyprint(tsc_action.get_element())
+    tsc_action3 = OSC.TrafficSignalControllerAction('Phase2','TSCRef_Name')
+    assert tsc_action == tsc_action2
+    assert tsc_action != tsc_action3
+
+    tsc_action4 = OSC.TrafficSignalControllerAction.parse(tsc_action.get_element())
+    assert tsc_action == tsc_action4
+    
 
 def test_trafficsourceaction():
     
