@@ -72,7 +72,7 @@ def test_catalog_reader_pedestrian(tmpdir):
 
     bb = xosc.BoundingBox(2,5,1.8,2.0,0,0.9)
 
-    peddler = xosc.Pedestrian('dude','dude-model',80,xosc.PedestrianCategory.pedestrian,bb)
+    peddler = xosc.Pedestrian('dude',80,xosc.PedestrianCategory.pedestrian,bb,'dude-model')
 
     peddler.add_property_file('../models/car_white.osgb')
     cf.add_to_catalog(peddler)
