@@ -361,13 +361,17 @@ def test_environmentaction():
     weather = OSC.Weather(OSC.CloudState.free,100)
     rc = OSC.RoadCondition(1)
 
-    env = OSC.Environment(tod,weather,rc)
-    ea = OSC.EnvironmentAction('myaction',env)
+    env = OSC.Environment('Env_name', tod,weather,rc)
+    ea = OSC.EnvironmentAction(env)
     prettyprint(ea.get_element())
-    ea2 = OSC.EnvironmentAction('myaction',env)
-    ea3 = OSC.EnvironmentAction('myaction2',env)
+    ea2 = OSC.EnvironmentAction(env)
+    ea3 = OSC.EnvironmentAction(env)
     assert ea == ea2
-    assert ea != ea3
+    assert ea == ea3
+
+    ea4 = OSC.EnvironmentAction.parse(ea.get_element())
+    prettyprint(ea4.get_element())
+    assert ea == ea4
 
 def test_trafficstopaction():
     tsa = OSC.TrafficStopAction('hej')

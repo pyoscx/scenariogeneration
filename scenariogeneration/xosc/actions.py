@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 from numpy.lib.function_base import disp
 
-from .utils import DynamicsConstrains, TimeReference, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster
+from .utils import DynamicsConstraints, TimeReference, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster
 from .utils import Controller
 
 from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement
@@ -330,7 +330,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
             distance (float): the distance to the entity
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
             coordinate_system (CoordinateSystem): the coordinate system for the distance calculation
 
@@ -384,7 +384,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
         self.freespace = freespace
         self.continuous = continuous
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         self.distance = distance
         if not hasattr(CoordinateSystem,str(coordinate_system)):
             raise ValueError(coordinate_system + '; is not a valid CoordinateSystem.')
@@ -459,7 +459,7 @@ class LongitudinalTimegapAction(_PrivateActionType):
 
             timegap (float): timegap to the target
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
         Methods
         -------
@@ -507,7 +507,7 @@ class LongitudinalTimegapAction(_PrivateActionType):
         self.freespace = freespace
         self.continuous = continuous
         self.timegap = timegap
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         
     def __eq__(self,other):
         if isinstance(other,LongitudinalTimegapAction):
@@ -942,7 +942,7 @@ class LateralDistanceAction(_PrivateActionType):
 
             timegap (float): if timegap metric is used
 
-            dynamic_constraint (DynamicsConstrains): Dynamics constraints of the action
+            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
 
             coordinate_system (CoordinateSystem): the coordinate system for the distance calculation
 
@@ -997,7 +997,7 @@ class LateralDistanceAction(_PrivateActionType):
         
         self.freespace = freespace
         self.continuous = continuous
-        self.dynamic_constraint = DynamicsConstrains(max_acceleration,max_deceleration,max_speed)
+        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
         if not hasattr(CoordinateSystem,str(coordinate_system)):
             raise ValueError(coordinate_system + '; is not a valid CoordinateSystem.')
         if not hasattr(LateralDisplacement,str(displacement)):
@@ -2693,26 +2693,23 @@ class EnvironmentAction(_ActionType):
         
         Parameters
         ----------
-            name (str): name of the action
-
             environment (Environment or CatalogReference): the environment to change to
 
         Attributes
         ----------
 
-            name (str): name of the action
-
             environment (Environment or CatalogReference): the environment to change to
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class itself
+
             get_element()
                 Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
     """
-    def __init__(self, name, environment):
+    def __init__(self, environment):
         """ initalize the EnvironmentAction
 
             Parameters
@@ -2722,25 +2719,36 @@ class EnvironmentAction(_ActionType):
                 environment (Environment or CatalogReference): the environment to change to
 
         """
-        self.name = name
         if not ( isinstance(environment,Environment) or isinstance(environment,CatalogReference)):
-            raise TypeError('route input not of type Route or CatalogReference') 
+            raise TypeError('environment input not of type Environment or CatalogReference') 
         self.environment = environment
 
     def __eq__(self,other):
         if isinstance(other,EnvironmentAction):
-            if self.get_attributes() == other.get_attributes() and \
-            self.environment == other.environment:
+            if self.environment == other.environment:
                 return True
         return False
 
-    def get_attributes(self):
-        """ returns the attributes of the EnvironmentAction as a dict
+    @staticmethod
+    def parse(element):
+        """ Parses the xml element of BoundingBox
 
-        """
-        retdict = {}
-        retdict['name'] = self.name
-        return retdict
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A orientation element (same as generated by the class itself)
+
+            Returns
+            -------
+                boundingBox (BoundingBox): a BoundingBox object
+
+        """   
+        action_element = element.find('EnvironmentAction')
+        if action_element.find('Environment') != None:
+            environment = Environment.parse(action_element.find('Environment'))
+        elif action_element.find('CatalogReference') != None:
+            environment = CatalogReference.parse(action_element.find('CatalogReference'))
+        
+        return EnvironmentAction(environment)
 
     def get_element(self):
         """ returns the elementTree of the EnvironmentAction
