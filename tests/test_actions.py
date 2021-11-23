@@ -299,7 +299,7 @@ def test_trafficsourceaction():
 
     source_action = OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic,100)
 
-    prettyprint(source_action.get_element())
+    # prettyprint(source_action.get_element())
 
     source_action = OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic)
     prettyprint(source_action.get_element())
@@ -308,6 +308,10 @@ def test_trafficsourceaction():
     source_action3 = OSC.TrafficSourceAction(10,1,OSC.WorldPosition(),traffic)
     assert source_action == source_action2
     assert source_action != source_action3
+
+    source_action4 = OSC.TrafficSourceAction.parse(source_action.get_element())
+    prettyprint(source_action4.get_element())
+    assert source_action == source_action4
 
 
 def test_trafficsinkaction():
@@ -323,13 +327,17 @@ def test_trafficsinkaction():
     traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
     traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
 
-    sink_action = OSC.TrafficSinkAction(10,10,OSC.WorldPosition(),traffic)
+    sink_action = OSC.TrafficSinkAction(10,OSC.WorldPosition(),traffic,10)
     prettyprint(sink_action.get_element())
-    sink_action2 = OSC.TrafficSinkAction(10,10,OSC.WorldPosition(),traffic)
-    sink_action3 = OSC.TrafficSinkAction(9,10,OSC.WorldPosition(),traffic)
+    sink_action2 = OSC.TrafficSinkAction(10,OSC.WorldPosition(),traffic,10)
+    sink_action3 = OSC.TrafficSinkAction(9,OSC.WorldPosition(),traffic,10)
 
     assert sink_action == sink_action2
     assert sink_action != sink_action3
+
+    sink_action4 = OSC.TrafficSinkAction.parse(sink_action.get_element())
+    prettyprint(sink_action4.get_element())
+    assert sink_action == sink_action4
 
 
     
@@ -347,14 +355,18 @@ def test_trafficswarmaction():
     traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
 
     swarm_action = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic)
-    prettyprint(swarm_action.get_element())
+    # prettyprint(swarm_action.get_element())
 
     swarm_action2 = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic)
-    swarm_action3 = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic,10)
-    prettyprint(swarm_action.get_element())
+    swarm_action3 = OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic, 10, 'Traffic_name')
+    prettyprint(swarm_action3.get_element())
 
     assert swarm_action == swarm_action2
     assert swarm_action != swarm_action3
+
+    swarm_action4 = OSC.TrafficSwarmAction.parse(swarm_action3.get_element())
+    prettyprint(swarm_action4.get_element())
+    assert swarm_action3 == swarm_action4
 
 def test_environmentaction():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
@@ -377,7 +389,10 @@ def test_trafficstopaction():
     tsa = OSC.TrafficStopAction('hej')
     tsa2 = OSC.TrafficStopAction('hej')
     tsa3 = OSC.TrafficStopAction('hey')
+    prettyprint(tsa)
     assert tsa == tsa2
     assert tsa != tsa3
-    prettyprint(tsa)
 
+    tsa4 = OSC.TrafficStopAction.parse(tsa.get_element())
+    prettyprint(tsa4.get_element())
+    assert tsa == tsa4
