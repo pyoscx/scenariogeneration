@@ -3,7 +3,7 @@
 """
 import xml.etree.ElementTree as ET
 
-from .helpers import printToFile,enum2str
+from ..helpers import printToFile,enum2str
 from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule
 from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
@@ -763,8 +763,8 @@ class OpenDrive():
         return element
 
 
-    def write_xml(self,filename=None,prettyprint = True):
-        """ writeXml writes the open scenario xml file
+    def write_xml(self, filename = None, prettyprint = True, encoding = 'utf-8'):
+        """ write_xml writes the OpenDRIVE xml file
 
         Parameters
         ----------
@@ -773,11 +773,14 @@ class OpenDrive():
 
             prettyprint (bool): pretty print or ugly print?
                 Default: True
+                
+            encoding (str): specifies the output encoding
+                Default: 'utf-8'
 
         """
         if filename == None:
             filename = self.name + '.xodr'
-        printToFile(self.get_element(),filename,prettyprint)
+        printToFile(self.get_element(),filename,prettyprint,encoding)
         
 class _Type():
     """ class to generate the type element of a road, (not the Enumeration it self).

@@ -8,7 +8,7 @@ from attr import attrib
 from numpy.lib.arraysetops import isin
 from .exceptions import OpenSCENARIOVersionError
 import xml.etree.ElementTree as ET
-from .helpers import printToFile
+from ..helpers import printToFile
 
 from .enumerations import ParameterType, Rule, ReferenceContext, DynamicsShapes, DynamicsDimension, RouteStrategy,XSI,XMLNS, VehicleCategory,PrecipitationType,CloudState, VersionBase, SpeedTargetValueType
 import datetime as dt
