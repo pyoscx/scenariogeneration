@@ -4,8 +4,6 @@
 from operator import pos
 import xml.etree.ElementTree as ET
 
-from scenariogeneration.xosc.triggers import CollisionCondition
-
 from .utils import Orientation, CatalogReference,  _PositionType, convert_float, convert_int, VersionBase, ParameterDeclarations, convert_bool, ReferenceContext, CatalogFile, Parameter
 from .exceptions import OpenSCENARIOVersionError, ToManyOptionalArguments, NotEnoughInputArguments, NotAValidElement
 from .enumerations import RouteStrategy
