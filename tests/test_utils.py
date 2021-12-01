@@ -376,12 +376,13 @@ def test_roadcondition():
 
 def test_environment():
     tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
-    weather = OSC.Weather(OSC.CloudState.free,100)
+    fog = OSC.Fog(10,OSC.BoundingBox(1,2,3,4,5,6))
+    weather = OSC.Weather(OSC.CloudState.free,100,fog=fog)
 
     rc = OSC.RoadCondition(1)
 
     env = OSC.Environment('Env_name1',tod,weather,roadcondition=rc)
-    prettyprint(env.get_element())
+    prettyprint(env.get_element(),None)
     env2 = OSC.Environment('Env_name1',tod,weather ,roadcondition=rc)
     env3 = OSC.Environment('Env_name2',tod,weather,OSC.RoadCondition(3))
     assert env == env2
