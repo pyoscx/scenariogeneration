@@ -21,7 +21,7 @@ def prettify(element, encoding='utf-8'):
         element = element.get_element()
     rough = ET.tostring(element, 'utf-8').replace(b'\n', b'').replace(b'\t', b'').replace(b'    ', b'')
     reparsed = mini.parseString(rough)
-    return reparsed.toprettyxml(indent="    ", encoding=encoding)
+    return (reparsed.toprettyxml(indent="    ", encoding=encoding))
 
 def prettyprint(element, encoding='utf-8'):
     """ returns the element prettyfied for writing to file or printing to the commandline

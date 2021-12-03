@@ -4,7 +4,7 @@
 import xml.etree.ElementTree as ET
 from .utils import Controller, Dimensions, Center, BoundingBox, Properties, Parameter, convert_float
 from .utils import EntityRef
-from .scenario import ParameterDeclarations
+from .utils import ParameterDeclarations
 from .enumerations import VehicleCategory, PedestrianCategory, MiscObjectCategory, ObjectType, VersionBase
 from .utils import DynamicsConstraints, CatalogFile, CatalogReference
 

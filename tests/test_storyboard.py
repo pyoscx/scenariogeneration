@@ -221,7 +221,7 @@ def test_storyboard_act_input():
     event.add_trigger(trigger)
 
     # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(-4,egoname,max_deceleration=3,max_speed=50)
+    action = OSC.LongitudinalDistanceAction(egoname,max_deceleration=3,max_speed=50,distance = -4)
     event.add_action('newspeed',action)
 
 
@@ -285,7 +285,7 @@ def test_storyboard_mangr_input():
     event.add_trigger(trigger)
 
     # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(-4,egoname,max_deceleration=3,max_speed=50)
+    action = OSC.LongitudinalDistanceAction(egoname,max_deceleration=3,max_speed=50,distance = -4)
     event.add_action('newspeed',action)
 
 
@@ -345,7 +345,7 @@ def test_storyboard_man_input():
     event.add_trigger(trigger)
 
     # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(-4,egoname,max_deceleration=3,max_speed=50)
+    action = OSC.LongitudinalDistanceAction(egoname,max_deceleration=3,max_speed=50,distance = -4)
     event.add_action('newspeed',action)
 
 

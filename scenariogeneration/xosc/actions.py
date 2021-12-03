@@ -1,18 +1,92 @@
 """ the actions module contains the actions defined OpenSCENARIO
 
 """
+from os import get_terminal_size
 import xml.etree.ElementTree as ET
 
 from numpy.lib.function_base import disp
 
-from .utils import DynamicsConstraints, TimeReference, TrafficSignalController, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster, convert_float
+
+from .utils import DynamicsConstraints, TimeReference, TrafficSignalController, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster, convert_float, convert_int
 from .utils import Controller
 
-from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement
-from .exceptions import NoActionsDefinedError, OpenSCENARIOVersionError
+from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement, DynamicsShapes
+from .exceptions import NoActionsDefinedError, NotAValidElement, OpenSCENARIOVersionError,NotEnoughInputArguments, ToManyOptionalArguments
 from .position import _PositionType, _PositionFactory, Route, Trajectory
 
 
+class _GlobalActionFactory():
+    @staticmethod
+    def parse_globalaction(element):
+        if element.findall('EnvironmentAction'):
+            return EnvironmentAction.parse(element)
+        elif element.findall('EntityAction/AddEntityAction'):
+            return AddEntityAction.parse(element)
+        elif element.findall('EntityAction/DeleteEntityAction'):
+            return DeleteEntityAction.parse(element)
+        elif element.findall('ParameterAction/ModifyAction'):
+            return ParameterAddAction.parse(element)
+        elif element.findall('ParameterAction/SetAction'):
+            return ParameterSetAction.parse(element)
+        elif element.findall('InfrastructureAction/TrafficSignalAction/TrafficSignalStateAction'):
+            return TrafficSignalStateAction.parse(element)
+        elif element.findall('InfrastructureAction/TrafficSignalAction/TrafficSignalControllerAction'):
+            return TrafficSignalControllerAction.parse(element)
+        elif element.findall('TrafficAction/TrafficSourceAction'):
+            return TrafficSourceAction.parse(element)
+        elif element.findall('TrafficAction/TrafficSinkAction'):
+            return TrafficSinkAction.parse(element)
+        elif element.findall('TrafficAction/TrafficSwarmAction'):
+            return TrafficSwarmAction.parse(element)
+        elif element.findall('TrafficAction/TrafficStopAction'):
+            return TrafficStopAction.parse(element)
+        else:
+            raise NotAValidElement('element ',element, 'is not a valid GlobalAction')
+
+class _PrivateActionFactory():
+    @staticmethod
+    def parse_privateaction(element):
+        if element.findall('LongitudinalAction/SpeedAction/SpeedActionTarget/AbsoluteTargetSpeed'):
+            return AbsoluteSpeedAction.parse(element)
+        elif element.findall('LongitudinalAction/SpeedAction/SpeedActionTarget/RelativeTargetSpeed'):
+            return RelativeSpeedAction.parse(element)
+        elif element.findall('LongitudinalAction/LongitudinalDistanceAction'):
+            return LongitudinalDistanceAction.parse(element)
+        elif element.findall('LateralAction/LaneChangeAction/LaneChangeTarget/AbsoluteTargetLane'):
+            return AbsoluteLaneChangeAction.parse(element)
+        elif element.findall('LateralAction/LaneChangeAction/LaneChangeTarget/RelativeTargetLane'):
+            return RelativeLaneChangeAction.parse(element)
+        elif element.findall('LateralAction/LaneOffsetAction/LaneOffsetTarget/AbsoluteTargetLaneOffset'):
+            return AbsoluteLaneOffsetAction.parse(element)
+        elif element.findall('LateralAction/LaneOffsetAction/LaneOffsetTarget/RelativeTargetLaneOffset'):
+            return RelativeLaneOffsetAction.parse(element)
+        elif element.findall('LateralAction/LateralDistanceAction'):
+            return LateralDistanceAction.parse(element)
+        elif element.findall('VisibilityAction'):
+            return VisibilityAction.parse(element)
+        elif element.findall('SynchronizeAction'):
+            return SynchronizeAction.parse(element)
+        elif element.findall('ActivateControllerAction'):
+            return ActivateControllerAction.parse(element)
+        elif element.findall('ControllerAction/AssignControllerAction'):
+            return AssignControllerAction.parse(element)
+        elif element.findall('ControllerAction/OverrideControllerValueAction'):
+            return OverrideControllerValueAction.parse(element)
+        elif element.findall('ControllerAction/ActivateControllerAction'):
+            return ActivateControllerAction.parse(element)
+        elif element.findall('TeleportAction'):
+            return TeleportAction.parse(element)
+        elif element.findall('RoutingAction/AssignRouteAction'):
+            return AssignRouteAction.parse(element)
+        elif element.findall('RoutingAction/FollowTrajectoryAction'):
+            return FollowTrajectoryAction.parse(element)
+        elif element.findall('RoutingAction/AcquirePositionAction'):
+            return AcquirePositionAction.parse(element)
+        else:
+            raise NotAValidElement('element ', element, 'is not a valid PrivateAction')
+            
+     
+            
 
 class _ActionType(VersionBase):
     """ helper class for typesetting
@@ -205,6 +279,9 @@ class RelativeSpeedAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -291,7 +368,7 @@ class RelativeSpeedAction(_PrivateActionType):
         return element
             
 class LongitudinalDistanceAction(_PrivateActionType):
-    """ The LongitudinalDistanceAction creates a LongitudinalAction of type LongitudinalDistanceAction with a distance target
+    """ The LongitudinalAction creates a LongitudinalAction of type LongitudinalAction with a distance target
         
         Parameters
         ----------
@@ -338,6 +415,9 @@ class LongitudinalDistanceAction(_PrivateActionType):
                 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -345,12 +425,14 @@ class LongitudinalDistanceAction(_PrivateActionType):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,distance,entity,freespace=True,continuous=True,max_acceleration = None,max_deceleration = None,max_speed = None, coordinate_system=CoordinateSystem.entity, displacement=LongitudinalDisplacement.any):
+    def __init__(self,entity,freespace=True,continuous=True,max_acceleration = None,max_deceleration = None,max_speed = None, distance=None,timeGap=None,coordinate_system=CoordinateSystem.entity, displacement=LongitudinalDisplacement.any):
         """ initalize the LongitudinalDistanceAction
         
         Parameters
         ----------
             distance (float): distance to the entity
+
+            timegap (float): time to the target 
             
             entity (str): the target name
 
@@ -382,10 +464,17 @@ class LongitudinalDistanceAction(_PrivateActionType):
         if not isinstance(freespace,bool):
             raise TypeError('freespace input not of type bool')
 
-        self.freespace = freespace
-        self.continuous = continuous
+        self.freespace = convert_bool(freespace)
+        self.continuous = convert_bool(continuous)
         self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
-        self.distance = distance
+
+        if distance is not None and timeGap is not None:
+            raise ToManyOptionalArguments('Not both of distance and timeGap can be used.')
+        if distance is None and timeGap is None:
+            raise NotEnoughInputArguments('Either ds or dsLane is needed as input.')
+        self.distance = convert_float(distance)
+        self.timeGap = convert_float(timeGap)
+
         if not hasattr(CoordinateSystem,str(coordinate_system)):
             raise ValueError(coordinate_system + '; is not a valid CoordinateSystem.')
         if not hasattr(LongitudinalDisplacement,str(displacement)):
@@ -399,15 +488,60 @@ class LongitudinalDistanceAction(_PrivateActionType):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of LongitudinalAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A LongitudinalDistanceAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ld_action (LongitudinalDistanceAction): a LongitudinalDistanceAction object
+
+        """
+        lda_element = element.find('LongitudinalAction/LongitudinalDistanceAction')
+        entity = lda_element.attrib['entityRef']
+        freespace = convert_bool(lda_element.attrib['freespace'])
+        continuous = convert_bool(lda_element.attrib['continuous'])
+        distance = None
+        timeGap = None
+        if 'distance' in lda_element.attrib:
+            distance = convert_float(lda_element.attrib['distance'])
+        if 'timeGap' in lda_element.attrib:
+            timeGap = convert_float(lda_element.attrib['timeGap'])
+
+        coordinate_system = CoordinateSystem.entity
+        if 'coordinateSystem' in lda_element.attrib:
+            coordinate_system = getattr(CoordinateSystem, lda_element.attrib['coordinateSystem'])
+        displacement = LongitudinalDisplacement.any
+        if 'displacement' in lda_element.attrib:
+            displcement = getattr(LongitudinalDisplacement, lda_element.attrib['displacement'])
+        max_acceleration = None
+        max_deceleration = None
+        max_speed = None
+        constraints = None
+        if lda_element.find('DynamicConstraints') != None:
+            constraints = DynamicsConstraints.parse(lda_element.find('DynamicConstraints'))
+            max_acceleration = constraints.max_acceleration
+            max_deceleration = constraints.max_deceleration
+            max_speed = constraints.max_speed
+        
+        return LongitudinalDistanceAction(entity,freespace,continuous,max_acceleration,max_deceleration,max_speed,distance,timeGap,coordinate_system,displacement)
+        
     def get_attributes(self):
         """ returns the attributes of the LongitudinalDistanceAction as a dict
 
         """
         retdict = {}
         retdict['entityRef'] = self.target
-        retdict['freespace'] = convert_bool(self.freespace)
-        retdict['continuous'] = convert_bool(self.continuous)
-        retdict['distance'] = str(self.distance)
+        retdict['freespace'] = str(self.freespace)
+        retdict['continuous'] = str(self.continuous)
+        if self.distance != None:
+            retdict['distance'] = str(self.distance)
+        if self.timeGap != None:
+            retdict['timeGap'] = str(self.timeGap)
         if not self.isVersion(minor=0):
             retdict['coordinateSystem'] = self.coordinate_system.get_name()
             retdict['displacement'] = self.displacement.get_name()
@@ -424,121 +558,6 @@ class LongitudinalDistanceAction(_PrivateActionType):
         if self.dynamic_constraint.is_filled():
             longdistaction.append(self.dynamic_constraint.get_element())
         return element
-
-class LongitudinalTimegapAction(_PrivateActionType):
-    """ The LongitudinalTimegapAction creates a LongitudinalAction of type LongitudinalDistanceAction with the timegap option
-        
-        Parameters
-        ----------
-            timegap (float): time to the target 
-
-            entity (str): the target name
-
-            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
-                Default: True
-
-            continuous (bool): if the controller tries to keep the relative speed 
-                Default: True
-
-            max_acceleration (float): maximum acceleration allowed
-                Default: None
-
-            max_deceleration (float): maximum deceleration allowed
-                Default: None
-
-            max_speed (float): maximum speed allowed
-                Default: None
-
-        Attributes
-        ----------
-            entity (str): the target name
-
-            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
-
-            continuous (bool): if the controller tries to keep the relative speed 
-
-            timegap (float): timegap to the target
-
-            dynamic_constraint (DynamicsConstraints): Dynamics constraints of the action
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns a dictionary of all attributes of the class
-
-    """
-    def __init__(self,timegap,entity,freespace=True,continuous=True,max_acceleration = None,max_deceleration = None,max_speed = None):
-        """ initalize the LongitudinalTimegapAction
-        
-        Parameters
-        ----------
-            timegap (float): time to the target 
-
-            entity (str): the target name
-
-            freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
-                Default: True
-
-            continuous (bool): if the controller tries to keep the relative speed 
-                Default: True
-
-            max_acceleration (float): maximum acceleration allowed
-                Default: None
-
-            max_deceleration (float): maximum deceleration allowed
-                Default: None
-
-            max_speed (float): maximum speed allowed
-                Default: None
-
-        """
-        self.target = entity
-        if not isinstance(continuous,bool):
-            raise TypeError('continuous input not of type bool')
-
-
-        if not isinstance(freespace,bool):
-            raise TypeError('freespace input not of type bool')
-
-
-        self.freespace = freespace
-        self.continuous = continuous
-        self.timegap = timegap
-        self.dynamic_constraint = DynamicsConstraints(max_acceleration,max_deceleration,max_speed)
-        
-    def __eq__(self,other):
-        if isinstance(other,LongitudinalTimegapAction):
-            if self.get_attributes() == other.get_attributes() and self.dynamic_constraint == other.dynamic_constraint:
-                return True
-        return False
-
-    def get_attributes(self):
-        """ returns the attributes of the LongitudinalTimegapAction as a dict
-
-        """
-        retdict = {}
-        retdict['entityRef'] = self.target
-        retdict['freespace'] = convert_bool(self.freespace)
-        retdict['continuous'] = convert_bool(self.continuous)
-        retdict['timeGap'] = str(self.timegap)
-        return retdict
-
-    def get_element(self):
-        """ returns the elementTree of the LongitudinalTimegapAction
-
-        """
-        element = ET.Element('PrivateAction')
-        longact = ET.SubElement(element,'LongitudinalAction')
-
-        longdistaction = ET.SubElement(longact,'LongitudinalDistanceAction',attrib=self.get_attributes())
-        if self.dynamic_constraint.is_filled():
-            longdistaction.append(self.dynamic_constraint.get_element())
-        return element
-
-# lateral actions
 
 class AbsoluteLaneChangeAction(_PrivateActionType):
     """ the AbsoluteLaneChangeAction creates a LateralAction of type LaneChangeAction with an absolute target
@@ -562,6 +581,9 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -583,8 +605,8 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
 
         """
 
-        self.lane = lane
-        self.target_lane_offset = target_lane_offset       
+        self.lane = convert_int(lane)
+        self.target_lane_offset = convert_float(target_lane_offset)
         if not isinstance(transition_dynamics,TransitionDynamics):
             raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
@@ -596,6 +618,29 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
             self.target_lane_offset == other.target_lane_offset:
                 return True
         return False
+
+    @staticmethod
+    def parse(element):
+        """ Parses the xml element of AbsoluteLaneChangeAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AbsoluteLaneChangeAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                alc_action (AbsoluteLaneChangeAction): a AbsoluteLaneChangeAction object
+                
+        """
+        lca_element = element.find('LateralAction/LaneChangeAction')
+        target_lane_offset = None
+        if 'targetLaneOffset' in lca_element.attrib:
+            target_lane_offset = convert_float(lca_element.attrib['targetLaneOffset'])
+        dynamics = TransitionDynamics.parse(lca_element.find('LaneChangeActionDynamics'))
+        targetlane_element = lca_element.find('LaneChangeTarget/AbsoluteTargetLane')
+        lane = convert_int(targetlane_element.attrib['value'])
+
+        return AbsoluteLaneChangeAction(lane,dynamics,target_lane_offset)
 
     def get_attributes(self):
         """ returns the attributes of the AbsoluteLaneChangeAction as a dict
@@ -650,6 +695,9 @@ class RelativeLaneChangeAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -673,9 +721,9 @@ class RelativeLaneChangeAction(_PrivateActionType):
 
         """
 
-        self.lane = lane
+        self.lane = convert_int(lane)
         self.target = entity
-        self.target_lane_offset = target_lane_offset
+        self.target_lane_offset = convert_float(target_lane_offset)
         if not isinstance(transition_dynamics,TransitionDynamics):
             raise TypeError('transition_dynamics input not of type TransitionDynamics')
         self.transition_dynamics = transition_dynamics
@@ -687,6 +735,30 @@ class RelativeLaneChangeAction(_PrivateActionType):
             self.target_lane_offset == other.target_lane_offset:
                 return True
         return False
+
+    @staticmethod
+    def parse(element):
+        """ Parses the xml element of AbsoluteLaneChangeAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AbsoluteLaneChangeAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                alc_action (AbsoluteLaneChangeAction): a AbsoluteLaneChangeAction object
+                
+        """
+        lca_element = element.find('LateralAction/LaneChangeAction')
+        target_lane_offset = None
+        if 'targetLaneOffset' in lca_element.attrib:
+            target_lane_offset = convert_float(lca_element.attrib['targetLaneOffset'])
+        dynamics = TransitionDynamics.parse(lca_element.find('LaneChangeActionDynamics'))
+        targetlane_element = lca_element.find('LaneChangeTarget/RelativeTargetLane')
+        lane = convert_int(targetlane_element.attrib['value'])
+        target = targetlane_element.attrib['entityRef']
+
+        return RelativeLaneChangeAction(lane,target,dynamics,target_lane_offset)
 
     def get_attributes(self):
         """ returns the attributes of the RelativeLaneChangeAction as a dict
@@ -742,6 +814,9 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -749,7 +824,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,value,shape,maxlatacc,continuous = True):
+    def __init__(self,value,shape,maxlatacc=None,continuous = True):
         """ initalizes the AbsoluteLaneOffsetAction
             Parameters
             ----------
@@ -780,6 +855,31 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
             self.continuous == other.continuous:
                 return True
         return False
+
+    @staticmethod
+    def parse(element):
+        """ Parses the xml element of AbsoluteLaneOffsetAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AbsoluteLaneOffsetAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                alco_action (AbsoluteLaneOffsetAction): a AbsoluteLaneOffsetAction object
+                
+        """
+        loa_element = element.find('LateralAction/LaneOffsetAction')
+
+        contiuous = convert_bool(loa_element.attrib['continuous'])
+        load_element = loa_element.find('LaneOffsetActionDynamics')
+        maxacc = convert_float(load_element.attrib['maxLateralAcc'])
+        dynamics = getattr(DynamicsShapes, load_element.attrib['dynamicsShape'])
+
+        atlo_element = loa_element.find('LaneOffsetTarget/AbsoluteTargetLaneOffset')
+        value = atlo_element.attrib['value']
+
+        return AbsoluteLaneOffsetAction(value,dynamics,maxacc,contiuous)
 
     def get_attributes(self):
         """ returns the attributes of the AbsoluteLaneOffsetAction as a dict
@@ -832,6 +932,9 @@ class RelativeLaneOffsetAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -875,6 +978,32 @@ class RelativeLaneOffsetAction(_PrivateActionType):
             self.target == other.target:
                 return True
         return False
+
+    @staticmethod
+    def parse(element):
+        """ Parses the xml element of AbsoluteLaneOffsetAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AbsoluteLaneOffsetAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                alco_action (AbsoluteLaneOffsetAction): a AbsoluteLaneOffsetAction object
+                
+        """
+        loa_element = element.find('LateralAction/LaneOffsetAction')
+
+        contiuous = convert_bool(loa_element.attrib['continuous'])
+        load_element = loa_element.find('LaneOffsetActionDynamics')
+        maxacc = convert_float(load_element.attrib['maxLateralAcc'])
+        dynamics = getattr(DynamicsShapes, load_element.attrib['dynamicsShape'])
+
+        rtlo_element = loa_element.find('LaneOffsetTarget/RelativeTargetLaneOffset')
+        value = rtlo_element.attrib['value']
+        entity = rtlo_element.attrib['entityRef']
+
+        return RelativeLaneOffsetAction(value,entity,dynamics,maxacc,contiuous)
 
     def get_attributes(self):
         """ returns the attributes of the RelativeLaneOffsetAction as a dict
@@ -950,6 +1079,9 @@ class LateralDistanceAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1011,6 +1143,44 @@ class LateralDistanceAction(_PrivateActionType):
             self.dynamic_constraint == other.dynamic_constraint:
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of LateralDistanceAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A LateralDistanceAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ld_action (LateralDistanceAction): a LateralDistanceActionobject
+
+        """
+        lda_element = element.find('LateralAction/LateralDistanceAction')
+        continuous = convert_bool(lda_element.attrib['continuous'])
+        freespace = convert_bool(lda_element.attrib['freespace'])
+        entity = lda_element.attrib['entityRef']
+        distance = None
+        if 'distance' in lda_element.attrib:
+            distance = lda_element.attrib['distance']
+        coordinate = None
+        if 'coordinateSystem' in lda_element.attrib:
+            coordinate = getattr(CoordinateSystem, lda_element.attrib['coordinateSystem'])
+        displacement = None
+        if 'displacement' in lda_element.attrib:
+            displacement = getattr(LateralDisplacement, lda_element.attrib['displacement'])
+        constraints = None
+        max_acc = None
+        max_dec = None
+        max_speed = None
+        if lda_element.find('DynamicConstraints') != None:
+            constraints = DynamicsConstraints.parse(lda_element.find('DynamicConstraints'))
+            max_acc = constraints.max_acceleration
+            max_dec = constraints.max_deceleration
+            max_speed = constraints.max_speed
+
+        return LateralDistanceAction(entity,distance,freespace,continuous,max_acc,max_dec,max_speed,coordinate,displacement)
 
     def get_attributes(self):
         """ returns the attributes of the LateralDistanceAction as a dict
@@ -1127,6 +1297,9 @@ class AssignRouteAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1149,6 +1322,29 @@ class AssignRouteAction(_PrivateActionType):
             if self.route == other.route:
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of AssignRouteAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AssignRouteAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ar_action (AssignRouteAction): a AssignRouteAction object
+
+        """
+        ara_element = element.find('RoutingAction/AssignRouteAction')
+        route = None
+        if ara_element.find('Route') != None:
+            route = Route.parse(ara_element.find('Route'))
+        elif ara_element.find('CatalogReference') != None:
+            route = CatalogReference.parse(ara_element.find('CatalogReference'))
+
+        return AssignRouteAction(route)        
+        
 
     def get_element(self):
         """ returns the elementTree of the AssignRouteAction
@@ -1175,6 +1371,9 @@ class AcquirePositionAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1197,6 +1396,25 @@ class AcquirePositionAction(_PrivateActionType):
             if self.position == other.position:
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of AcquirePositionAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AcquirePositionAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ap_action (AcquirePositionAction): a AcquirePositionAction object
+
+        """
+        pos_element = element.find('RoutingAction/AcquirePositionAction/Position')
+
+        position = _PositionFactory.parse_position(pos_element)
+
+        return AcquirePositionAction(position)
 
     def get_element(self):
         """ returns the elementTree of the AcquirePositionAction
@@ -1241,6 +1459,9 @@ class FollowTrajectoryAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+                
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1272,7 +1493,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         self.following_mode = following_mode
         # TODO: check reference_domain
         self.timeref = TimeReference(reference_domain,scale,offset)
-        self.initialDistanceOffset = initialDistanceOffset
+        self.initialDistanceOffset = convert_float(initialDistanceOffset)
 
     def __eq__(self,other):
         if isinstance(other,FollowTrajectoryAction):
@@ -1283,6 +1504,43 @@ class FollowTrajectoryAction(_PrivateActionType):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of FollowTrajectoryAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A FollowTrajectoryAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ft_action (FollowTrajectoryAction): a FollowTrajectoryAction object
+
+        """
+        fta_element = element.find('RoutingAction/FollowTrajectoryAction')
+        initial_distance_offset = None
+        if 'initialDistanceOffset' in fta_element.attrib:
+            initial_distance_offset = convert_float(fta_element.attrib['initialDistanceOffset'])
+
+        timeref = TimeReference.parse(fta_element.find('TimeReference'))
+        reference_domain = timeref.reference_domain
+        offset = timeref.offset
+        scale = timeref.scale
+
+        tfm_element = fta_element.find('TrajectoryFollowingMode')
+        following_mode = getattr(FollowMode,tfm_element.attrib['followingMode'])
+
+        if fta_element.find('TrajectoryRef') != None:
+            fta_element = fta_element.find('TrajectoryRef')
+        trajectory = None
+        if fta_element.find('Trajectory') != None:
+            trajectory = Trajectory.parse(fta_element.find('Trajectory'))
+        if fta_element.find('CatalogReference') != None:
+            trajectory = CatalogReference.parse(fta_element.find('CatalogReference'))
+
+        return FollowTrajectoryAction(trajectory, following_mode,reference_domain,scale,offset,initial_distance_offset)
+
+        
     def get_attributes(self):
         """ returns the attributes of the FollowTrajectoryAction as a dict
 
@@ -1331,6 +1589,9 @@ class ActivateControllerAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+                
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1360,6 +1621,25 @@ class ActivateControllerAction(_PrivateActionType):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of ActivateControllerAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A ActivateControllerAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ac_action (ActivateControllerAction): a ActivateControllerAction object
+
+        """
+        aca_element = element.find('ControllerAction/ActivateControllerAction')
+        lateral = convert_bool(aca_element.attrib['lateral'])
+        longitudial = convert_bool(aca_element.attrib['longitudinal'])
+
+        return ActivateControllerAction(lateral, longitudial)
 
     def get_attributes(self):
         """ returns the attributes of the ActivateControllerAction as a dict
@@ -1402,6 +1682,9 @@ class AssignControllerAction(_PrivateActionType):
                 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1431,6 +1714,39 @@ class AssignControllerAction(_PrivateActionType):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of AssignControllerAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A AssignControllerAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ac_action (AssignControllerAction): a AssignControllerAction object
+
+        """
+        ca_element = element.find('ControllerAction')
+        aca_element = ca_element.find('AssignControllerAction')
+        activate_lateral = True
+        if 'activateLateral' in aca_element.attrib:
+            activate_lateral = convert_bool(aca_element.attrib['activateLateral'])
+        
+        activate_longitudinal = True
+        if 'activateLongitudinal' in aca_element.attrib:
+            activate_longitudinal = convert_bool(aca_element.attrib['activateLongitudinal'])
+        
+        controller = None
+        if aca_element.find('Controller') != None:
+            controller = Controller.parse(aca_element.find('Controller'))
+        elif aca_element.find('CatalogReference') != None:
+            controller = CatalogReference.parse(aca_element.find('CatalogReference'))
+        else:
+            raise NotAValidElement('No Controller found for AssignControllerAction')
+        
+        return AssignControllerAction(controller, activate_lateral,activate_longitudinal)
+
     def get_attributes(self):
         """ returns the attributes of the VisibilityAction as a dict
 
@@ -1446,8 +1762,9 @@ class AssignControllerAction(_PrivateActionType):
 
         """
         element = ET.Element('PrivateAction')
-        controlleraction = ET.SubElement(element,'ControllerActiton')
-        controlleraction.append(self.controller.get_element())
+        controlleraction = ET.SubElement(element,'ControllerAction')
+        assigncontrolleraction = ET.SubElement(controlleraction,'AssignControllerAction',self.get_attributes())
+        assigncontrolleraction.append(self.controller.get_element())
 
         return element
 
@@ -1489,6 +1806,9 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1517,17 +1837,17 @@ class OverrideControllerValueAction(_PrivateActionType):
 
     def __init__(self):
         self.throttle_active = None
-        self.throttle_value = 0
+        self.throttle_value = convert_float(0)
         self.brake_active = None
-        self.brake_value = 0
+        self.brake_value = convert_float(0)
         self.clutch_active = None
-        self.clutch_value = 0
+        self.clutch_value = convert_float(0)
         self.steeringwheel_active = None
-        self.steeringwheel_value = 0
+        self.steeringwheel_value = convert_float(0)
         self.gear_active = None
-        self.gear_value = 0
+        self.gear_value = convert_float(0)
         self.parkingbrake_active = None
-        self.parkingbrake_value = 0
+        self.parkingbrake_value = convert_float(0)
 
     def __eq__(self,other):
         if isinstance(other,OverrideControllerValueAction):
@@ -1546,6 +1866,66 @@ class OverrideControllerValueAction(_PrivateActionType):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of OverrideControllerValueAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A OverrideControllerValueAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                ocv_action (OverrideControllerValueAction): a OverrideControllerValueAction object
+
+        """
+        ocv_action = OverrideControllerValueAction()
+        ocva_element = element.find('ControllerAction/OverrideControllerValueAction')
+
+        ocv_action.throttle_active = None
+        ocv_action.throttle_value = convert_float(0)
+        if ocva_element.find('Throttle') != None:
+            throttle_element = ocva_element.find('Throttle')
+            ocv_action.throttle_active = convert_bool(throttle_element.attrib['active'])
+            ocv_action.throttle_value = convert_float(throttle_element.attrib['value'])
+
+        ocv_action.brake_active = None
+        ocv_action.brake_value = convert_float(0)
+        if ocva_element.find('Brake') != None:
+            brake_element = ocva_element.find('Brake')
+            ocv_action.brake_active = convert_bool(brake_element.attrib['active'])
+            ocv_action.brake_value = convert_float(brake_element.attrib['value'])
+
+        ocv_action.clutch_active = None
+        ocv_action.clutch_value = convert_float(0)
+        if ocva_element.find('Clutch') != None:
+            cluth_element = ocva_element.find('Clutch')
+            ocv_action.clutch_active = convert_bool(cluth_element.attrib['active'])
+            ocv_action.clutch_value = convert_float(cluth_element.attrib['value'])
+
+        ocv_action.parkingbrake_active = None
+        ocv_action.parkingbrake_value = convert_float(0)
+        if ocva_element.find('ParkingBrake') != None:
+            parkingbrake_element = ocva_element.find('ParkingBrake')
+            ocv_action.parkingbrake_active = convert_bool(parkingbrake_element.attrib['active'])
+            ocv_action.parkingbrake_value = convert_float(parkingbrake_element.attrib['value'])
+
+        ocv_action.steeringwheel_active = None
+        ocv_action.steeringwheel_value = convert_float(0)
+        if ocva_element.find('SteeringWheel') != None:
+            steeringwheel_element = ocva_element.find('SteeringWheel')
+            ocv_action.steeringwheel_active = convert_bool(steeringwheel_element.attrib['active'])
+            ocv_action.steeringwheel_value = convert_float(steeringwheel_element.attrib['value'])
+
+        ocv_action.gear_active = None
+        ocv_action.gear_value = convert_float(0)
+        if ocva_element.find('Gear') != None:
+            gear_element = ocva_element.find('Gear')
+            ocv_action.gear_active = convert_bool(gear_element.attrib['active'])
+            ocv_action.gear_value = convert_float(gear_element.attrib['value'])
+
+        return ocv_action
+
     def set_clutch(self,active,value=0):
         """ Sets the clutch value
 
@@ -1557,7 +1937,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     Default: 0
         """
         self.clutch_active = active
-        self.clutch_value = value
+        self.clutch_value = convert_float(value)
     
     def set_brake(self,active,value=0):
         """ Sets the brake value
@@ -1570,7 +1950,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     Default: 0
         """
         self.brake_active = active
-        self.brake_value = value
+        self.brake_value = convert_float(value)
 
     def set_throttle(self,active,value=0):
         """ Sets the throttle value
@@ -1583,7 +1963,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     Default: 0
         """
         self.throttle_active = active
-        self.throttle_value = value
+        self.throttle_value = convert_float(value)
 
     def set_steeringwheel(self,active,value=0):
         """ Sets the steeringwheel value
@@ -1597,7 +1977,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         """
         self.steeringwheel_active = active
-        self.steeringwheel_value = value
+        self.steeringwheel_value = convert_float(value)
 
     def set_parkingbrake(self,active,value=0):
         """ Sets the parkingbrake value
@@ -1611,7 +1991,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         """
         self.parkingbrake_active = active
-        self.parkingbrake_value = value
+        self.parkingbrake_value = convert_float(value)
 
     def set_gear(self,active,value=0):
         """ Sets the gear value
@@ -1624,7 +2004,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     Default: 0
         """
         self.gear_active = active
-        self.gear_value = value
+        self.gear_value = convert_float(value)
 
     def get_element(self):
         """ returns the elementTree of the OverrideControllerValueAction
@@ -1673,6 +2053,9 @@ class VisibilityAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1707,6 +2090,26 @@ class VisibilityAction(_PrivateActionType):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
+
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of VisibilityAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A VisibilityAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                v_action (VisibilityAction): a VisibilityAction object
+
+        """
+        va_element = element.find('VisibilityAction')
+        graphics = convert_bool(va_element.attrib['graphics'])
+        traffic = convert_bool(va_element.attrib['traffic'])
+        sensors = convert_bool(va_element.attrib['sensors'])
+
+        return VisibilityAction(graphics,traffic,sensors)
 
     def get_attributes(self):
         """ returns the attributes of the VisibilityAction as a dict
@@ -1760,6 +2163,9 @@ class SynchronizeAction(_PrivateActionType):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1796,8 +2202,8 @@ class SynchronizeAction(_PrivateActionType):
             raise TypeError('target_PositionType input is not a valid Position')
         self.entity_PositionType = entity_PositionType
         self.target_PositionType = target_PositionType
-        self.target_tolerance_master = target_tolerance_master
-        self.target_tolerance = target_tolerance
+        self.target_tolerance_master = convert_float(target_tolerance_master)
+        self.target_tolerance = convert_float(target_tolerance)
         if final_speed and not (isinstance(final_speed,AbsoluteSpeed) or isinstance(final_speed,RelativeSpeedToMaster)):
             raise TypeError('final_speed input is not AbsoluteSpeed or RelativeSpeedToMaster type')
         else:
@@ -1812,6 +2218,43 @@ class SynchronizeAction(_PrivateActionType):
                 return True
         return False
 
+    @staticmethod 
+    def parse(element):
+        """ Parses the xml element of SynchronizeAction
+
+            Parameters
+            ----------
+                element (xml.etree.ElementTree.Element): A SynchronizeAction element (same as generated by the class itself)
+
+            Returns
+            -------
+                sync_action (SynchronizeAction): a SynchronizeAction object
+
+        """
+        sa_element = element.find('SynchronizeAction')
+        entity = sa_element.attrib['masterEntityRef']
+        
+        target_tolerance = None
+        if 'targetTolerance' in sa_element.attrib:
+            target_tolerance = convert_float(sa_element.attrib['targetTolerance'])
+        
+        target_tolerance_master = None
+        if 'targetToleranceMaster' in sa_element.attrib:
+            target_tolerance_master = convert_float(sa_element.attrib['targetToleranceMaster'])
+        
+        targetPositionMaster = _PositionFactory.parse_position(sa_element.find('TargetPositionMaster'))
+        targetPosition = _PositionFactory.parse_position(sa_element.find('TargetPosition'))
+        
+        finalSpeed = None
+        if sa_element.find('FinalSpeed') != None:
+            sa_element = sa_element.find('FinalSpeed')
+            if sa_element.find('AbsoluteSpeed') != None:
+                finalSpeed = AbsoluteSpeed.parse(sa_element)
+            if sa_element.find('RelativeSpeedToMaster') != None:
+                finalSpeed = RelativeSpeedToMaster.parse(sa_element)
+
+        return SynchronizeAction(entity, targetPositionMaster,targetPosition,target_tolerance_master,target_tolerance,finalSpeed)
+        _       
     def get_attributes(self):
         """ returns the attributes of the AbsoluteSynchronizeAction as a dict
 

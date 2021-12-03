@@ -3,11 +3,90 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.helpers import prettify
 from scenariogeneration.xosc.actions import TrafficSignalControllerAction
+from scenariogeneration.xosc.enumerations import ReferenceContext
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1.0)
 
+tod = OSC.TimeOfDay(True,2020,10,1,18,30,30)
+weather = OSC.Weather(OSC.CloudState.free,100)
+rc = OSC.RoadCondition(1)
+prop = OSC.Properties()
+prop.add_file('mycontrollerfile.xml')
+controller = OSC.Controller('mycontroller',prop)
+traffic = OSC.TrafficDefinition('my traffic')
+traffic.add_controller(controller,0.5)
+traffic.add_controller(OSC.CatalogReference('ControllerCatalog','my controller'),0.5)
+traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
+traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
+env = OSC.Environment('Env_name', tod,weather,rc)
+
+@pytest.mark.parametrize("action", [OSC.EnvironmentAction(env), 
+                                    OSC.AddEntityAction('my new thingy',OSC.WorldPosition()),
+                                    OSC.DeleteEntityAction('my new thingy'),
+                                    OSC.ParameterAddAction('Myparam',3),
+                                    OSC.ParameterSetAction('Myparam',3),
+                                    OSC.TrafficSignalStateAction('my signal','red'),
+                                    OSC.TrafficSignalControllerAction('Phase','TSCRef_Name'),
+                                    OSC.TrafficSourceAction(10,10,OSC.WorldPosition(),traffic,100),
+                                    OSC.TrafficSinkAction(10,OSC.WorldPosition(),traffic,10),
+                                    OSC.TrafficSwarmAction(10,20,10,2,10,'Ego',traffic),
+                                    OSC.TrafficStopAction('Stop_Action')
+                                    ])
+
+def test_global_action_factory(action):
+
+    factoryoutput = OSC.actions._GlobalActionFactory.parse_globalaction(action.get_element())
+    prettyprint(action,None)
+    prettyprint(factoryoutput,None)
+    assert action == factoryoutput
+
+route = OSC.Route('myroute')
+route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
+route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
+prop2 = OSC.Properties()
+prop2.add_property('mything','2')
+prop2.add_property('theotherthing','true')
+cnt = OSC.Controller('mycontroller',prop2)
+positionlist = []
+positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
+polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
+traj = OSC.Trajectory('my_trajectory',False)
+traj.add_shape(polyline)
+
+ocv_action = OSC.OverrideControllerValueAction()
+ocv_action.set_brake(True,2)
+
+@pytest.mark.parametrize("action",[OSC.AbsoluteSpeedAction(50.0,TD),
+                                            OSC.RelativeSpeedAction(1,'Ego',TD),
+                                            OSC.LongitudinalDistanceAction('Ego',max_acceleration=3,max_deceleration=2,max_speed=4,distance = 1),
+                                            OSC.AbsoluteLaneChangeAction(1,TD),
+                                            OSC.RelativeLaneChangeAction(1,'Ego',TD,0.2),
+                                            OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,3,False),
+                                            OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,3,False),
+                                            OSC.LateralDistanceAction('Ego',3,max_speed=50),
+                                            OSC.VisibilityAction(True,False,True),
+                                            OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2),
+                                            OSC.AssignControllerAction(cnt),
+                                            ocv_action,
+                                            OSC.ActivateControllerAction(True,False),
+                                            OSC.TeleportAction(OSC.WorldPosition(1)),
+                                            OSC.AssignRouteAction(route),
+                                            OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position, reference_domain=ReferenceContext.absolute,offset=3, scale=4),
+                                            OSC.AcquirePositionAction(OSC.WorldPosition(1,1,0,0,0,0))
+                                            ])
+
+def test_private_action_factory(action):
+
+    factoryoutput = OSC.actions._PrivateActionFactory.parse_privateaction(action.get_element())
+    prettyprint(action,None)
+    prettyprint(factoryoutput,None)
+    assert action == factoryoutput
 
 def test_speedaction_abs():
     speedaction = OSC.AbsoluteSpeedAction(50.0,TD)
@@ -35,20 +114,29 @@ def test_speedaction_rel():
     assert speedaction == speedaction4
 
 def test_longdistaction_dist():
-    longdist = OSC.LongitudinalDistanceAction(1,'Ego')
+    longdist = OSC.LongitudinalDistanceAction('Ego',max_acceleration=3,max_deceleration=2,max_speed=4,distance = 1)
     prettyprint(longdist.get_element())
-    longdist2 = OSC.LongitudinalDistanceAction(1,'Ego')
-    longdist3 = OSC.LongitudinalDistanceAction(2,'Ego')
+    longdist2 = OSC.LongitudinalDistanceAction('Ego',max_acceleration=3,max_deceleration=2,max_speed=4,distance = 1)
+    longdist3 = OSC.LongitudinalDistanceAction('Ego',max_acceleration=3,max_deceleration=2,max_speed=4,distance = 2)
     assert longdist == longdist2
     assert longdist != longdist3
 
+    longdist4 = OSC.LongitudinalDistanceAction.parse(longdist.get_element())
+    prettyprint(longdist4.get_element())
+    assert longdist == longdist4
+
 def test_longdistaction_time():
-    longdist = OSC.LongitudinalTimegapAction(2,'Ego',max_acceleration=1)
+    longdist = OSC.LongitudinalDistanceAction('Ego',max_acceleration=1,timeGap=2)
     prettyprint(longdist.get_element())
-    longdist2 = OSC.LongitudinalTimegapAction(2,'Ego',max_acceleration=1)
-    longdist3 = OSC.LongitudinalTimegapAction(3,'Ego',max_acceleration=1)
+    longdist2 = OSC.LongitudinalDistanceAction('Ego',max_acceleration=1,timeGap=2)
+    longdist3 = OSC.LongitudinalDistanceAction('Ego',max_acceleration=1,timeGap=3)
     assert longdist == longdist2
     assert longdist != longdist3
+
+    longdist4 = OSC.LongitudinalDistanceAction.parse(longdist.get_element())
+    prettyprint(longdist4.get_element())
+    assert longdist == longdist4
+
 
 def test_lanechange_abs():
     lanechange = OSC.AbsoluteLaneChangeAction(1,TD)
@@ -58,6 +146,9 @@ def test_lanechange_abs():
     assert lanechange == lanechange2
     assert lanechange != lanechange3
 
+    lanechange4 = OSC.AbsoluteLaneChangeAction.parse(lanechange.get_element())
+    assert lanechange == lanechange4
+
 def test_lanechange_rel():
     lanechange = OSC.RelativeLaneChangeAction(1,'Ego',TD,0.2)
     prettyprint(lanechange.get_element())
@@ -65,39 +156,60 @@ def test_lanechange_rel():
     lanechange3 = OSC.RelativeLaneChangeAction(1,'Ego',TD,0.1)
     assert lanechange == lanechange2
     assert lanechange != lanechange3
+
+    lanechange4 = OSC.RelativeLaneChangeAction.parse(lanechange.get_element())
+    prettyprint(lanechange4.get_element(),None)
+    assert lanechange4 == lanechange
     
+
 def test_laneoffset_abs():
     laneoffset = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,3,False)
-    prettyprint(laneoffset.get_element())
+    prettyprint(laneoffset.get_element(),None)
     laneoffset2 = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,3,False)
     laneoffset3 = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,2,True)
 
     assert laneoffset == laneoffset2
     assert laneoffset != laneoffset3
 
+    laneoffset4 = OSC.AbsoluteLaneOffsetAction.parse(laneoffset.get_element())
+    prettyprint(laneoffset.get_element(),None)
+    assert laneoffset == laneoffset4
+
 def test_laneoffset_rel():
     laneoffset = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,3,False)
-    prettyprint(laneoffset.get_element())
+    prettyprint(laneoffset.get_element(),None)
     laneoffset2 = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.step,3,False)
     laneoffset3 = OSC.RelativeLaneOffsetAction(1,'Ego',OSC.DynamicsShapes.linear,3,False)
     assert laneoffset == laneoffset2
     assert laneoffset != laneoffset3
 
+    laneoffset4 = OSC.RelativeLaneOffsetAction.parse(laneoffset.get_element())
+    prettyprint(laneoffset4.get_element(),None)
+    assert laneoffset4 == laneoffset
+
 def test_lateraldistance_noconst():
     latdist = OSC.LateralDistanceAction('Ego')
-    prettyprint(latdist.get_element())
+    prettyprint(latdist.get_element(),None)
     latdist2 = OSC.LateralDistanceAction('Ego')
     latdist3 = OSC.LateralDistanceAction('Ego1')
     assert latdist == latdist2
     assert latdist != latdist3
 
+    latdist4 = OSC.LateralDistanceAction.parse(latdist.get_element())
+    prettyprint(latdist4.get_element(),None)
+    assert latdist4 == latdist
+
 def test_lateraldistance_const():
     latdist = OSC.LateralDistanceAction('Ego',3,max_speed=50)
-    prettyprint(latdist.get_element())
+    prettyprint(latdist.get_element(),None)
     latdist2 = OSC.LateralDistanceAction('Ego',3,max_speed=50)
     latdist3 = OSC.LateralDistanceAction('Ego',3,max_speed=40)
     assert latdist == latdist2
     assert latdist != latdist3
+
+    latdist4 = OSC.LateralDistanceAction.parse(latdist.get_element())
+    prettyprint(latdist4.get_element(),None)
+    assert latdist4 == latdist
 
 def test_teleport():
     teleport = OSC.TeleportAction(OSC.WorldPosition())
@@ -115,7 +227,7 @@ def test_assign_route():
     route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
     ara = OSC.AssignRouteAction(route)
-    prettyprint(ara)
+    prettyprint(ara.get_element(),None)
     ara2 = OSC.AssignRouteAction(route)
     route2 = OSC.Route('myroute2')
     route2.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
@@ -124,21 +236,33 @@ def test_assign_route():
     assert ara == ara2
     assert ara != ara3
 
+    ara4 = OSC.AssignRouteAction.parse(ara.get_element())
+    prettyprint(ara4.get_element(),None)
+    assert ara == ara4
+
 def test_aqcuire_position_route():
     ara = OSC.AcquirePositionAction(OSC.WorldPosition(1,1,0,0,0,0))
-    prettyprint(ara.get_element())
+    prettyprint(ara.get_element(),None)
     ara2 = OSC.AcquirePositionAction(OSC.WorldPosition(1,1,0,0,0,0))
     ara3 = OSC.AcquirePositionAction(OSC.WorldPosition(1,1,1,0,0,0))
     assert ara == ara2
     assert ara != ara3
 
+    ara4 = OSC.AcquirePositionAction.parse(ara.get_element())
+    prettyprint(ara4.get_element(),None)
+    assert ara4 == ara
+
 def test_activate_controller_action():
     aca = OSC.ActivateControllerAction(True,True)
-    prettyprint(aca.get_element())
+    prettyprint(aca.get_element(),None)
     aca2 = OSC.ActivateControllerAction(True,True)
     aca3 = OSC.ActivateControllerAction(True,False)
     assert aca == aca2
     assert aca != aca3
+
+    aca4 = OSC.ActivateControllerAction.parse(aca.get_element())
+    prettyprint(aca4.get_element(),None)
+    assert aca4 == aca
 
 def test_assign_controller_action():
     prop = OSC.Properties()
@@ -146,10 +270,9 @@ def test_assign_controller_action():
     prop.add_property('theotherthing','true')
 
     cnt = OSC.Controller('mycontroller',prop)
-    
-    
+
     aca = OSC.AssignControllerAction(cnt)
-    prettyprint(aca.get_element())
+    prettyprint(aca.get_element(),None)
 
     prop2 = OSC.Properties()
     prop2.add_property('mything','3')
@@ -163,22 +286,26 @@ def test_assign_controller_action():
     assert aca == aca2
     assert aca != aca3
 
+    aca4 = OSC.AssignControllerAction.parse(aca.get_element())
+    prettyprint(aca4.get_element(),None)
+    assert aca4 == aca
+
 def test_override_controller():
     ocva = OSC.OverrideControllerValueAction()
     with pytest.raises(NoActionsDefinedError):
         ocva.get_element()
     ocva.set_brake(True,2)
-    prettyprint(ocva.get_element())
+    # prettyprint(ocva.get_element())
     ocva.set_throttle(False,0)
-    prettyprint(ocva.get_element())
+    # prettyprint(ocva.get_element())
     ocva.set_clutch(True,1)
-    prettyprint(ocva.get_element())
+    # prettyprint(ocva.get_element())
     ocva.set_parkingbrake(False,1)
-    prettyprint(ocva.get_element())
+    # prettyprint(ocva.get_element())
     ocva.set_steeringwheel(True,1)
-    prettyprint(ocva.get_element())
+    # prettyprint(ocva.get_element(),None)
     ocva.set_gear(False,0)
-    prettyprint(ocva.get_element())
+    prettyprint(ocva.get_element(),None)
 
     ocva1 = OSC.OverrideControllerValueAction()
     ocva1.set_brake(True,2)
@@ -186,29 +313,41 @@ def test_override_controller():
     ocva2.set_brake(True,2)
     ocva3 = OSC.OverrideControllerValueAction()
     ocva3.set_brake(True,3)
+    
     assert ocva1 == ocva2
     assert ocva1 != ocva3
 
+    ocva4 = OSC.OverrideControllerValueAction.parse(ocva.get_element())
+    prettyprint(ocva4.get_element(),None)
+    assert ocva4 == ocva
+
 def test_visual_action():
     va = OSC.VisibilityAction(True,False,True)
-    prettyprint(va.get_element())
+    prettyprint(va.get_element(),None)
     va2 = OSC.VisibilityAction(True,False,True)
     va3 = OSC.VisibilityAction(True,False,False)
     assert va == va2
     assert va != va3
 
+    va4 = OSC.VisibilityAction.parse(va.get_element())
+    prettyprint(va4.get_element(),None)
+    assert va4 == va
+
 def test_sync_action():
     
     asa = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
-    prettyprint(asa.get_element())
+    prettyprint(asa.get_element(),None)
     asa2 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
     asa3 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(1,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
     assert asa == asa2
     assert asa != asa3
     asa4 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
-    prettyprint(asa4)
+    prettyprint(asa4,None)
     asa5 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2, final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
-    prettyprint(asa5)
+    
+    asa6 = OSC.SynchronizeAction.parse(asa4.get_element())
+    prettyprint(asa6.get_element(),None)
+    assert asa6 == asa4
 
 def test_follow_traj_action_polyline():
 
@@ -217,23 +356,27 @@ def test_follow_traj_action_polyline():
     positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
     positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
     positionlist.append(OSC.RelativeLanePosition(-3,'Ego',0,10))
-    prettyprint(positionlist[0].get_element())
+    prettyprint(positionlist[0].get_element(),None)
     polyline = OSC.Polyline([0,0.5,1,1.5],positionlist)
 
 
     traj = OSC.Trajectory('my_trajectory',False)
     traj.add_shape(polyline)
 
-    trajact = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position)
-    prettyprint(trajact.get_element())
+    trajact = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position, reference_domain=ReferenceContext.absolute,offset=3, scale=4)
+    prettyprint(trajact.get_element(),None)
 
-    trajact2 = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position)
+    trajact2 = OSC.FollowTrajectoryAction(traj,OSC.FollowMode.position, reference_domain=ReferenceContext.absolute,offset=3, scale=4)
     traj2 = OSC.Trajectory('my_trajectory',True)
     traj2.add_shape(polyline)
 
     trajact3 = OSC.FollowTrajectoryAction(traj2,OSC.FollowMode.position)
     assert trajact == trajact2
     assert trajact != trajact3
+
+    trajact4 = OSC.FollowTrajectoryAction.parse(trajact.get_element())
+    prettyprint(trajact4.get_element(),None)
+    assert trajact4 == trajact
     
 
 def testParameterAddActions():

@@ -882,8 +882,8 @@ class TimeReference(VersionBase):
             raise TypeError('input reference_domain is not of type ReferenceContext')
 
         self.reference_domain = reference_domain
-        self.scale = scale
-        self.offset = offset
+        self.scale = convert_float(scale)
+        self.offset = convert_float(offset)
 
     def __eq__(self,other):
         if isinstance(other,TimeReference):
@@ -907,6 +907,9 @@ class TimeReference(VersionBase):
                 timing (TimeReference): a TimeReference object
                 
         """
+        if element.find('None') != None:
+            return TimeReference()
+
         timing_element = element.find('Timing') 
         scale = None
         offset = None
