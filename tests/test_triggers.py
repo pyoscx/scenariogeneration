@@ -378,3 +378,36 @@ def test_position_factory(entitytrigger):
     prettyprint(entitytrigger,None)
     prettyprint(factoryoutput,None)
     assert entitytrigger == factoryoutput
+
+def test_equalities_trigger_vs_conditiongroup_vs_entity():
+    enttrigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,True,freespace=False,position=OSC.WorldPosition())
+    enttrigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,enttrigcond,'Target_1')
+
+    condgr = OSC.ConditionGroup()
+    condgr.add_condition(enttrigger)
+
+    trigger = OSC.Trigger()
+    trigger.add_conditiongroup(condgr)
+    assert condgr == trigger
+    assert trigger == condgr
+    assert condgr == enttrigger
+    assert enttrigger == condgr
+    assert trigger == enttrigger
+    assert enttrigger == trigger
+
+def test_equalities_trigger_vs_conditiongroup_vs_value():
+    trigcond = OSC.ParameterCondition('something',2,OSC.Rule.equalTo)
+    valtrigger = OSC.ValueTrigger('myvaluetrigger',0.2,OSC.ConditionEdge.rising,trigcond,triggeringpoint='start')
+    condgr = OSC.ConditionGroup()
+    condgr.add_condition(valtrigger)
+
+    trigger = OSC.Trigger()
+    trigger.add_conditiongroup(condgr)
+    assert condgr == trigger
+    assert trigger == condgr
+    assert condgr == valtrigger
+    assert valtrigger == condgr
+    assert trigger == valtrigger
+    assert valtrigger == trigger
+
+    

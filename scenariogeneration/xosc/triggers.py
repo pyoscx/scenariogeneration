@@ -8,7 +8,6 @@ from .utils import EntityRef, convert_bool, _PositionType, _ValueTriggerType, _E
 from .enumerations import CoordinateSystem, ObjectType, Rule, ConditionEdge, TriggeringEntitiesRule, RelativeDistanceType, StoryboardElementType, StoryboardElementState, VersionBase
 from .exceptions import ToManyOptionalArguments, NotAValidElement
 from .position import _PositionFactory
-from ..helpers import prettyprint
 
 
 class EmptyTrigger(_TriggerType):
@@ -46,6 +45,10 @@ class EmptyTrigger(_TriggerType):
         if isinstance(other,EmptyTrigger):
             if self._triggerpoint == other._triggerpoint:
                 return True
+        elif isinstance(other,Trigger):
+            if len(other.conditiongroups) == 0 and \
+                self._triggerpoint == other._triggerpoint:
+                return True
         return False
     def get_element(self):
         """ returns the elementTree of the Trigger
@@ -56,7 +59,6 @@ class EmptyTrigger(_TriggerType):
 class _EntityConditionFactory():
     @staticmethod
     def parse_entity_condition(element):
-        prettyprint(element,None)
         if element.find('EndOfRoadCondition') is not None:
             return EndOfRoadCondition.parse(element)
         elif element.find('CollisionCondition') is not None:
@@ -167,6 +169,20 @@ class Trigger(_TriggerType):
             if self.conditiongroups == other.conditiongroups and \
             self._triggerpoint == other._triggerpoint:
                 return True
+        elif isinstance(other,EntityTrigger) or isinstance(other,ValueTrigger):
+            if len(self.conditiongroups) == 1 and len(self.conditiongroups[0].conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    self.conditiongroups[0].conditions[0] == other:
+                    return True
+        elif isinstance(other,ConditionGroup):
+            if len(self.conditiongroups) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    self.conditiongroups[0] == other:
+                    return True
+        elif isinstance(other,EmptyTrigger):
+            if len(self.conditiongroups) == 0 and \
+                self._triggerpoint == other._triggerpoint:
+                return True
         return False
 
     @staticmethod
@@ -262,6 +278,17 @@ class ConditionGroup(_TriggerType):
             if self.conditions == other.conditions and \
             self._triggerpoint == other._triggerpoint:
                 return True
+        elif isinstance(other,Trigger):
+            if len(other.conditiongroups) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    other.conditiongroups[0] == self:
+                    return True
+        elif isinstance(other,EntityTrigger) or isinstance(other,ValueTrigger):
+            if  len(self.conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    self.conditions[0] == other:
+                    return True
+        
         return False
 
     @staticmethod
@@ -282,7 +309,6 @@ class ConditionGroup(_TriggerType):
         condgr = ConditionGroup()
         conditions = element.findall('Condition')
         for cond in conditions:
-            prettyprint(cond,None)
             condgr.add_condition(_ConditionFactory().parse_condition(cond))
 
         return condgr
@@ -418,6 +444,16 @@ class EntityTrigger(_TriggerType):
             self.entitycondition == other.entitycondition and \
             self._triggerpoint == other._triggerpoint:
                 return True
+        elif isinstance(other,Trigger):
+            if len(other.conditiongroups) == 1 and len(other.conditiongroups[0].conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    other.conditiongroups[0].conditions[0] == self:
+                    return True
+        elif isinstance(other,ConditionGroup):
+            if len(other.conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    other.conditions[0] == self:
+                    return True
         return False
 
     @staticmethod
@@ -575,6 +611,16 @@ class ValueTrigger(_TriggerType):
             self.valuecondition == other.valuecondition and \
             self._triggerpoint == other._triggerpoint:
                 return True
+        elif isinstance(other,Trigger):
+            if len(other.conditiongroups) == 1 and len(other.conditiongroups[0].conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    other.conditiongroups[0].conditions[0] == self:
+                    return True
+        elif isinstance(other,ConditionGroup):
+            if len(other.conditions) == 1:
+                if self._triggerpoint == other._triggerpoint and \
+                    other.conditions[0] == self:
+                    return True
         return False
 
     @staticmethod
@@ -2133,7 +2179,6 @@ class ParameterCondition(_ValueTriggerType):
                 condition (ParameterCondition): a ParameterCondition object
                 
         """
-        prettyprint(element,None)
         parameter = element.attrib['parameterRef']
         value = element.attrib['value']
         rule = getattr(Rule,element.attrib['rule'])

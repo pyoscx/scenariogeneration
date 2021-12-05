@@ -26,6 +26,16 @@ def test_event():
     event3.add_action('newspeed2',speedaction)
     assert event == event2
     assert event != event3
+    event5 = OSC.Event('myfirstevent',OSC.Priority.overwrite)
+    event5.add_trigger(trigger)
+    event5.add_action('newspeed',speedaction)
+    event5.add_action('newspeed2',speedaction)
+    assert event3 == event5
+    prettyprint(event3,None)
+
+    event4 = OSC.Event.parse(event3.get_element())
+    prettyprint(event4,None)
+    assert event3 == event4
 
 def test_maneuver():
     event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
@@ -41,6 +51,9 @@ def test_maneuver():
     man3.add_event(event)
     assert man == man2
     assert man != man3
+
+    man4 = OSC.Maneuver.parse(man3.get_element())
+    assert man4 == man3
 
 def test_maneuvergroup():
     event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
@@ -63,9 +76,12 @@ def test_maneuvergroup():
     mangr3 = OSC.ManeuverGroup('mangroup')
     mangr3.add_actor('2Ego')
     mangr3.add_maneuver(man)
-
+    mangr3.add_maneuver(man)
     assert mangr == mangr2
     assert mangr != mangr3
+
+    mangr4 = OSC.ManeuverGroup.parse(mangr3.get_element())
+    assert mangr4 == mangr3
 
 def test_actandstory():
     event = OSC.Event('myfirstevent',OSC.Priority.overwrite)
@@ -73,12 +89,12 @@ def test_actandstory():
     event.add_action('newspeed',speedaction)
     man = OSC.Maneuver('my maneuver')
     man.add_event(event)
-    prettyprint(man.get_element())
+    # prettyprint(man.get_element())
 
     mangr = OSC.ManeuverGroup('mangroup')
     mangr.add_actor('Ego')
     mangr.add_maneuver(man)
-    prettyprint(mangr.get_element())
+    # prettyprint(mangr.get_element())
 
     act = OSC.Act('my act',trigger)
     act.add_maneuver_group(mangr)
@@ -93,6 +109,10 @@ def test_actandstory():
     assert act == act2
     assert act != act3
 
+    act4 = OSC.Act.parse(act3.get_element())
+    
+    assert act4 == act3
+
     story = OSC.Story('mystory')
     story.add_act(act)
     prettyprint(story.get_element())
@@ -105,6 +125,9 @@ def test_actandstory():
 
     assert story == story2
     assert story != story3
+
+    story4 = OSC.Story.parse(story.get_element())
+    assert story == story4
 
 def test_init():
 
@@ -121,7 +144,7 @@ def test_init():
     init.add_init_action('Target_1',OSC.TeleportAction(OSC.WorldPosition(1,5,3,0,0,0)))
     init.add_init_action('Target_2',egospeed)
     init.add_init_action('Target_2',OSC.TeleportAction(OSC.WorldPosition(10,2,3,0,0,0)))
-    prettyprint(init.get_element())
+    # prettyprint(init.get_element())
 
     init2 = OSC.Init()
     init2.add_init_action('Ego',egospeed)
@@ -137,9 +160,15 @@ def test_init():
     init3.add_init_action('Target_1',OSC.TeleportAction(OSC.WorldPosition(1,5,3,0,0,0)))
     init3.add_init_action('Target_2',egospeed)
     init3.add_init_action('Target_2',OSC.TeleportAction(OSC.WorldPosition(10,2,3,0,0,0)))
-
+    init3.add_global_action(OSC.ParameterSetAction('my_param',2))
+    prettyprint(init3.get_element(),None)
+    
     assert init == init2
     assert init != init3
+    
+    init4 = OSC.Init.parse(init3.get_element())
+    prettyprint(init4.get_element(),None)
+    assert init3 == init4
 
 def test_storyboard_story_input():
     init = OSC.Init()
@@ -190,6 +219,9 @@ def test_storyboard_story_input():
 
     assert sb == sb2
     assert sb != sb3
+
+    sb4 = OSC.StoryBoard.parse(sb3.get_element())
+    assert sb3 == sb4
 
 def test_storyboard_act_input():
     
@@ -255,6 +287,9 @@ def test_storyboard_act_input():
     assert sb != sb3
 
 
+    sb4 = OSC.StoryBoard.parse(sb3.get_element())
+    assert sb3 == sb4
+
 def test_storyboard_mangr_input():
     
     egoname = "Ego"
@@ -314,6 +349,9 @@ def test_storyboard_mangr_input():
     assert sb == sb2
     assert sb != sb3
 
+    sb4 = OSC.StoryBoard.parse(sb3.get_element())
+    assert sb3 == sb4
+
 
 def test_storyboard_man_input():
     
@@ -370,6 +408,9 @@ def test_storyboard_man_input():
     assert sb == sb2
     assert sb != sb3
 
+    sb4 = OSC.StoryBoard.parse(sb3.get_element())
+    assert sb3 == sb4
+
 def test_empty_storyboard():
 
     ## create the storyboard
@@ -378,3 +419,23 @@ def test_empty_storyboard():
 
 
     prettyprint(sb.get_element())
+
+
+def test_actors():
+    actors = OSC.storyboard._Actors(False)
+    actors.add_actor('ego')
+    actors2 = OSC.storyboard._Actors(False)
+    actors2.add_actor('ego')
+    actors3 = OSC.storyboard._Actors(False)
+    actors3.add_actor('ego')
+    actors3.add_actor('target')
+
+    prettyprint(actors)
+    prettyprint(actors3,None)
+
+    assert actors == actors2
+    assert actors != actors3
+
+    actors4 = OSC.storyboard._Actors.parse(actors3.get_element())
+    prettyprint(actors4,None)
+    assert actors4 == actors3
