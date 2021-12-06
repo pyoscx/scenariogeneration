@@ -1,16 +1,19 @@
 
 import pytest
+from examples.generator.generate_from_main import Scenario
 
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration.xosc.utils import TrafficSignalController
 
 
 
 def test_road():
+    controller = OSC.TrafficSignalController('controllerName',11, 'ReferenceID')
     roadfile = 'Databases/SampleDatabase.xodr'
     road = OSC.RoadNetwork(roadfile)
-    prettyprint(road.get_element())
+    prettyprint(road.get_element(),None)
     road2 = OSC.RoadNetwork(roadfile)
     road3 = OSC.RoadNetwork(roadfile,'a')
     assert road == road2
@@ -19,7 +22,13 @@ def test_road():
     with pytest.raises(OSC.NotEnoughInputArguments):
         road.get_element()
     road.add_used_area_position(OSC.WorldPosition(1,1,1))
-    prettyprint(road.get_element())
+    road.add_traffic_signal_controller(controller)
+    prettyprint(road.get_element(),None)
+
+    road4 = OSC.RoadNetwork.parse(road.get_element())
+    prettyprint(road4.get_element(),None)
+    assert road4 == road
+
 def test_catalog():
 
     catalog = OSC.Catalog()
@@ -37,6 +46,10 @@ def test_catalog():
 
     assert catalog == catalog2
     assert catalog != catalog3
+
+    catalog4 = OSC.Catalog.parse(catalog.get_element())
+    prettyprint(catalog4.get_element(),None)
+    assert catalog == catalog4
 
 def test_scenario():
     catalog = OSC.Catalog()
@@ -96,9 +109,13 @@ def test_scenario():
     sb.add_story(story)
 
     sce = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
-    prettyprint(sce.get_element())
+    prettyprint(sce.get_element(),None)
     sce2 = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     sce3 = OSC.Scenario('2myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
 
     assert sce == sce2
     assert sce != sce3
+
+    sce4 = OSC.Scenario.parse(sce.get_element())
+    prettyprint(sce4.get_element(),None)
+    assert sce == sce4
