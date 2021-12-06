@@ -3517,10 +3517,59 @@ class EnvironmentAction(_ActionType):
         return element
 
 
-class CustomCommandAction(_ActionType):
-    """ The CustomCommandAction creates a simulator defined action, can add any number of xml.etree.ElementTree to an Action
+class UserDefinedAction(_ActionType):
+    """ The UserDefinedAction enables adding simulator-specific CustomCommandActions. 
+    
+    Parameters
+    ----------
+        
+    Attributes
+    ----------
 
-        NOTE: this is a very crude implementation, and the element has to be created by the user.
+    Methods
+    -------
+        add_custom_command_action(custom_command_action)
+            Adds a CustomCommandAction to the UserDefinedAction
+            
+        get_element()
+            Returns the full ElementTree of the class
+    """
+
+
+    def __init__(self):
+        """ initalize the UserDefinedAction
+
+        Parameters
+        ----------
+
+        """
+        self.custom_command_actions = []
+
+    
+    def add_custom_command_action(self, custom_command_action):
+        """ add a CustomCommandAction
+
+        Parameters
+        ----------
+            custom_command_action (CustomCommandAction): A CustomCommandAction element
+        
+        """
+        self.custom_command_actions.append(custom_command_action)
+
+
+    def get_element(self):
+        """ returns the elementTree of the UserDefinedAction
+
+        """
+        element = ET.Element('UserDefinedAction')
+        for custom_command_action in self.custom_command_actions:
+            element.append(custom_command_action.get_element())
+        return element
+
+
+class CustomCommandAction(_ActionType):
+    """ The CustomCommandAction creates a simulator defined action
+
         
         Parameters
         ----------
@@ -3528,41 +3577,29 @@ class CustomCommandAction(_ActionType):
         Attributes
         ----------
 
-            elements (list of xml.etree.ElementTree): elements to add to the action
+            type (str): type of the custom command
 
         Methods
         -------
-            add_element(element)
-                Adds an element to the action
             get_element()
                 Returns the full ElementTree of the class
 
     """
 
-    def __init__(self,semimajoraxis,semiminoraxis,innerradius,offset,numberofvehicles,centralobject,trafficdefinition,velocity = None):
+    def __init__(self, type):
         """ initalize the CustomCommandAction
 
-            Parameters
-            ----------
+        Parameters
+        ----------
+            type (str): type of the custom command
 
         """
-        self.elements = []
+        self.type = type
 
-    def add_element(self,element):
-        """ adds an element to the CustomCommandAction
-
-            Parameters
-            ----------
-                element (xml.etree.ElementTree): the element to add
-        """
-        self.elements.append(element)
 
     def get_element(self):
         """ returns the elementTree of the CustomCommandAction
 
         """
-        element = ET.Element('UserDefinedAction')
-        for e in self.elements:
-            element.append(e)
-
+        element = ET.Element('CustomCommandAction', attrib={'type': self.type})
         return element
