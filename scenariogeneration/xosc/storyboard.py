@@ -306,7 +306,7 @@ class StoryBoard():
         self.add_act(newact,parameters)
 
 
-    def add_maneuver(self,maneuver,actors,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
+    def add_maneuver(self,maneuver,actors=None,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
         """ add_maneuver is a quick way to add a single maneuver to one story, for multi maneuver type of scenarios, use ManeuverGroup instead.
     
             NOTE: if used multiple times multiple stories will be created
@@ -330,9 +330,10 @@ class StoryBoard():
         if not isinstance(maneuver,Maneuver):
             raise TypeError('maneuver input is not of type Maneuver')
         mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
-        if isinstance(actors,list):
-            for a in actors:
-                mangr.add_actor(a)
+        if actors is not None:
+            if isinstance(actors,list):
+                for a in actors:
+                    mangr.add_actor(a)
         else:
             mangr.add_actor(actors)
         mangr.add_maneuver(maneuver)
