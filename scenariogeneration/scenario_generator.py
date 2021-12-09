@@ -55,7 +55,11 @@ class ScenarioGenerator():
                 sce (pyoscx.Scenario): a scenario on pyoscx format
         """
         return []
+    def _reset_name_counter(self):
+        """ method to reset the counter if numerical naming is used. 
 
+        """
+        self._it = 0
     def _create_folder_structure(self,generation_folder):
         """ method to create a folder structure (if needed) to generate the scenarios and roads in
 
@@ -211,8 +215,9 @@ class ScenarioGenerator():
                 it = int(np.floor(np.random.rand()*len(self.all_permutations)))
         else:
             it = order
-
-        return self._generate_road_and_scenario(self.all_permutations[it])
+        osc, odr = self._generate_road_and_scenario(self.all_permutations[it])
+        self._reset_name_counter()
+        return osc, odr
 
 
     def generate(self,generation_folder,override_parameters = None, write_relative_road_path = True, name_separator = None):
@@ -248,7 +253,7 @@ class ScenarioGenerator():
             scenario_file,road_file = self._generate_road_and_scenario(p)
             scenario_files.append(scenario_file)
             road_files.append(road_file)
-
+        self._reset_name_counter()
         return scenario_files, road_files
 
     def _create_permutations(self):
