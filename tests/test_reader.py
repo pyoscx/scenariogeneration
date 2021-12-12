@@ -48,20 +48,17 @@ def test_catalog_reader_vehicle(tmpdir):
     bb = xosc.BoundingBox(2,5,1.8,2.0,0,0.9)
     fa = xosc.Axle(0.523598775598,0.8,1.68,2.98,0.4)
     ba = xosc.Axle(0.523598775598,0.8,1.68,0,0.4)
-    white_veh = xosc.Vehicle('car_white',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
+    orig = xosc.Vehicle('car_white',xosc.VehicleCategory.car,bb,fa,ba,69,10,10)
 
-    white_veh.add_property_file('../models/car_white.osgb')
-    white_veh.add_property('control','internal')
-    white_veh.add_property('model_id','0')
-    white_veh.add_parameter(xosc.Parameter('asdf',xosc.ParameterType.string,'hej'))
-    cf.add_to_catalog(white_veh)
+    orig.add_property_file('../models/car_white.osgb')
+    orig.add_property('control','internal')
+    orig.add_property('model_id','0')
+    orig.add_parameter(xosc.Parameter('asdf',xosc.ParameterType.string,'hej'))
+    cf.add_to_catalog(orig)
     cf.dump()
-    veh = xosc.CatalogReader(xosc.CatalogReference('my_catalog','car_white'),tmpdir)
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','car_white'),tmpdir)
 
-    assert veh.boundingbox.boundingbox.height == white_veh.boundingbox.boundingbox.height
-    assert veh.boundingbox.center.x == white_veh.boundingbox.center.x
-    assert veh.name == white_veh.name
-    
+    assert read == orig
 
 
 def test_catalog_reader_pedestrian(tmpdir):
@@ -72,25 +69,86 @@ def test_catalog_reader_pedestrian(tmpdir):
 
     bb = xosc.BoundingBox(2,5,1.8,2.0,0,0.9)
 
-    peddler = xosc.Pedestrian('dude',80,xosc.PedestrianCategory.pedestrian,bb,'dude-model')
+    orig = xosc.Pedestrian('dude',80,xosc.PedestrianCategory.pedestrian,bb,'dude-model')
 
-    peddler.add_property_file('../models/car_white.osgb')
-    cf.add_to_catalog(peddler)
+    orig.add_property_file('../models/car_white.osgb')
+    cf.add_to_catalog(orig)
     cf.dump()
-    ped = xosc.CatalogReader(xosc.CatalogReference('my_catalog','dude'),tmpdir)
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','dude'),tmpdir)
+    assert read == orig
 
-    assert ped.boundingbox.boundingbox.height == peddler.boundingbox.boundingbox.height
-    assert ped.boundingbox.center.x == peddler.boundingbox.center.x
-    assert ped.mass == peddler.mass
-    assert ped.name == peddler.name
-    assert ped.model == ped.model
+def test_misc_object_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'MiscObjectCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.MiscObject('pole',50,xosc.MiscObjectCategory.pole,xosc.BoundingBox(1,1,1,1,1,1))
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','pole'),tmpdir)
+    assert read == orig
+
+def test_maneuver_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'ManeuverCatalog','My first miscobject catalog','Mandolin')
+    event = xosc.Event('my_event',xosc.Priority.overwrite)
+    event.add_action('myaction',xosc.AbsoluteSpeedAction(19,xosc.TransitionDynamics(xosc.DynamicsShapes.linear,xosc.DynamicsDimension.rate,3)))
+    event.add_trigger(xosc.EntityTrigger('my_trigger',3,xosc.ConditionEdge.none,xosc.SpeedCondition(10,xosc.Rule.lessThan),'ego'))
+    orig = xosc.Maneuver('my_maneuver')
+    orig.add_event(event)
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_maneuver'),tmpdir)
+    assert read == orig
+    
+def test_route_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'RouteCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.Route('my_route')
+    orig.add_waypoint(xosc.WorldPosition(),xosc.RouteStrategy.shortest)
+    orig.add_waypoint(xosc.WorldPosition(1,1,1),xosc.RouteStrategy.fastest)
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_route'),tmpdir)
+    assert read == orig
+
+
+def test_environment_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'EnvironmentCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.Environment('snow',weather=xosc.Weather(precipitation=xosc.Precipitation(xosc.PrecipitationType.snow,10)))
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','snow'),tmpdir)
+    assert read == orig
+
+def test_trajectory_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'TrajectoryCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.Trajectory('my_trajectory',False)
+    orig.add_shape(xosc.Clothoid(0.1,0.01,100,xosc.WorldPosition()))
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_trajectory'),tmpdir)
+    assert read == orig
+
+def test_controller_reader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'TrajectoryCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.Controller('my_controller',xosc.Properties())
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_controller'),tmpdir)
+    assert read == orig
 
 def test_parameter_reader(tmpdir,osc_fixture):
     tmpfile = os.path.join(tmpdir,'myscenario.xosc')
     osc_fixture.write_xml(tmpfile)
     read_params = xosc.ParameterDeclarationReader(tmpfile)
-    for i in range(3):
-        assert osc_fixture.parameters.parameters[i].name == read_params.parameters[i].name
-        assert osc_fixture.parameters.parameters[i].parameter_type == read_params.parameters[i].parameter_type
-        assert osc_fixture.parameters.parameters[i].value == read_params.parameters[i].value
-    
+
+    assert osc_fixture.parameters == read_params
+       

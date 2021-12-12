@@ -453,7 +453,7 @@ class Pedestrian(VersionBase):
         """
         self.name = name
         self.model = model
-        self.mass = mass
+        self.mass = convert_float(mass)
         if not hasattr(PedestrianCategory,str(category)):
             ValueError(str(category) + ' is not a valid pedestrian type')    
         if not isinstance(boundingbox,BoundingBox):
@@ -487,7 +487,7 @@ class Pedestrian(VersionBase):
 
         """
         name = element.attrib['name']
-        mass = element.attrib['mass']
+        mass = convert_float(element.attrib['mass'])
         model = None
         if 'model' in element.attrib:
             model = element.attrib['model']

@@ -654,7 +654,7 @@ class ManeuverGroup():
         
         """
         self.name = name
-        self.maxexecution = maxexecution
+        self.maxexecution = convert_int(maxexecution)
         self.actors = _Actors(selecttriggeringentities)
         self.maneuvers = []
 
@@ -681,7 +681,7 @@ class ManeuverGroup():
         """
 
         name = element.attrib['name']
-        maxexec = element.attrib['maximumExecutionCount']
+        maxexec = convert_int(element.attrib['maximumExecutionCount'])
         actors = _Actors.parse(element.find('Actors'))
         maneuver_group = ManeuverGroup(name,maxexec)
         maneuver_group.actors = actors
