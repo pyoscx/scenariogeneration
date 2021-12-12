@@ -122,7 +122,7 @@ class Scenario(ScenarioGenerator):
         event_tar = xosc.Event('targetspeedchange',xosc.Priority.overwrite)
         event_tar.add_trigger(trigger)
 
-        target_action = xosc.LongitudinalDistanceAction(-kwargs['distance'],egoname,freespace=False)
+        target_action = xosc.LongitudinalDistanceAction(egoname, distance=-kwargs['distance'], freespace=False)
         event_tar.add_action('targetspeed',target_action)
 
         # trigger here could be changed to speed but tested for esmini at the point where speed condition was not implemented
