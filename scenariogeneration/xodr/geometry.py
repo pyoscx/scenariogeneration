@@ -161,7 +161,7 @@ class PlanView():
         self.x_end, self.y_end, self.h_end, length = newgeom.get_end_data()
         self.present_s += length
         self.adjusted = True
-        self._addition_mode == 'add_fixed_geometry'
+        self._addition_mode = 'add_fixed_geometry'
 
 
     def set_start_point(self,x_start=0,y_start=0,h_start=0):
