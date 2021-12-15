@@ -2288,6 +2288,9 @@ class Nurbs(VersionBase):
 
         Methods
         -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
+
             add_knots(knots)
                 Adds the knots to the nurbs
 
