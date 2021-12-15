@@ -23,7 +23,7 @@ def prettify(element, encoding='utf-8'):
     reparsed = mini.parseString(rough)
     return (reparsed.toprettyxml(indent="    ", encoding=encoding))
 
-def prettyprint(element, encoding='utf-8'):
+def prettyprint(element, encoding=None):
     """ returns the element prettyfied for writing to file or printing to the commandline
 
         Parameters
@@ -31,7 +31,7 @@ def prettyprint(element, encoding='utf-8'):
             element (Element, or any generation class of scenariogeneration): element to print
             
             encoding (str): specify the output encoding
-                Default: 'utf-8'
+                Default: None (works best for printing in terminal on ubuntu atleast)
 
     """
     print (prettify(element, encoding=encoding))
