@@ -1,11 +1,116 @@
 import xml.etree.ElementTree as ET
 import os
 
-from scenariogeneration.xosc import Vehicle, Pedestrian, ParameterDeclarations, Controller, MiscObject, Maneuver, Environment, Trajectory, Route
+
 from .parameters import ParameterValueDistribution
-from .scenario import Scenario
-from .scenario import Catalog
+from .scenario import Scenario, Catalog
 from .exceptions import NoCatalogFoundError, NotAValidElement
+from .entities import Vehicle, Pedestrian, MiscObject
+from .utils import ParameterDeclarations, Controller,  Environment, CatalogReference
+from .storyboard import  Maneuver
+from .position import Trajectory, Route
+
+
+class CatalogLoader():
+    """ CatalogLoader makes it possible to read certain elements from a catalog
+            
+
+            Attributes
+            ----------
+
+                all_catalogs (dict with all catalogs): all catalogs loaded
+
+            Methods
+            -------
+                load_catalog(catalog_reference,catalog_path)
+                    loads a catalog that can be parsed later on
+                
+                get_entry(catalog_reference)
+                    reads a loaded catalog and returns the object
+        """
+    def __init__(self):
+        """ CatalogLoader makes it possible to read certain elements from a catalog
+
+            Main use case for this is to be able to parametrize and write scenarios based on a catalog based entry
+
+        """
+        self.all_catalogs = {}
+
+    def load_catalog(self,catalog_reference,catalog_path):
+        """ CatalogLoader makes it possible to read certain elements from a catalog
+            
+            Parameters
+            ----------
+                catalog_reference (CatalogReference or str): name/reference to the catalog
+
+                catalog_path (str): path to the catalog
+        """
+        if isinstance(catalog_reference,CatalogReference):
+            fullpath = os.path.join(catalog_path,catalog_reference.catalogname + '.xosc')
+        else:
+            fullpath = os.path.join(catalog_path,catalog_reference + '.xosc')
+
+        with open(fullpath,'r') as f:
+            catalog_element = ET.parse(f).find('Catalog')
+            self.all_catalogs[catalog_reference] = catalog_element
+    
+    def parse(self,catalog_reference):
+        """ parse reads reads a specific entry from a loaded catalog
+
+            Parameters
+            ----------
+                catalog_reference (CatalogReference): reference to the catalog
+
+            Returns
+            -------
+                The catalog entry
+        
+        """
+        if not catalog_reference.catalogname in self.all_catalogs:
+            raise NoCatalogFoundError('Catalog ' + catalog_reference.catalogname + ' is not loaded yet.')
+        catalog = self.all_catalogs[catalog_reference.catalogname]
+        for entry in catalog:
+            if entry.tag == 'Vehicle':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Vehicle.parse(entry)
+            elif entry.tag == 'Pedestrian':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Pedestrian.parse(entry)
+            elif entry.tag == 'Controller':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Controller.parse(entry)
+            elif entry.tag == 'MiscObject':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return MiscObject.parse(entry)
+            elif entry.tag == 'Environment':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Environment.parse(entry)
+            elif entry.tag == 'Maneuver':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Maneuver.parse(entry)
+            elif entry.tag == 'Trajectory':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Trajectory.parse(entry)
+            elif entry.tag == 'Route':
+                if entry.attrib['name'] == catalog_reference.entryname:
+                    return Route.parse(entry)    
+            else:
+                raise NotImplementedError('This catalogtype is not supported yet.')
+    
+    def read_entry(self,catalog_reference,catalog_path):
+        """ read_entry loads and reads a catalog directly (both load_catalog, and parse)
+            
+            The catalog will still be loaded and can be used with parse after this.
+
+            Parameters
+            ----------
+                catalog_reference (CatalogReference): reference to the catalog
+
+                catalog_path (str): path to the catalog
+        """
+        self.load_catalog(catalog_reference,catalog_path)
+        return self.parse(catalog_reference)
+
 
 def CatalogReader(catalog_reference,catalog_path):
     """ CatalogReader is a function that will read a openscenario catalog and return the corresponding scenariogeneration.xosc object
@@ -22,7 +127,7 @@ def CatalogReader(catalog_reference,catalog_path):
 
         Returns
         -------
-            Vehcile, or Pedestrian
+            The catalog entry
     """
     
     # TODO: add a raised error if the catalog doesn't contain the correct data
@@ -76,7 +181,7 @@ def ParameterDeclarationReader(file_path):
         loaded_xosc = ET.parse(f)
         paramdec = loaded_xosc.find('ParameterDeclarations')
         param_decl = ParameterDeclarations.parse(paramdec)
-            
+
     return param_decl
 
 

@@ -207,10 +207,21 @@ def test_osc_reader_catalog(tmpdir):
     orig = xosc.Controller('my_controller',xosc.Properties())
     cf.add_to_catalog(orig)
     cf.dump()
+    loader = xosc.CatalogLoader()
+    loader.load_catalog('my_catalog',tmpdir)
+    read = loader.parse(xosc.CatalogReference('my_catalog','my_controller'))
+    assert read == orig
+
+def test_catalog_loader(tmpdir):
+    tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
+    cf = xosc.CatalogFile()
+    cf.create_catalog(tmpcatalog,'TrajectoryCatalog','My first miscobject catalog','Mandolin')
+    orig = xosc.Controller('my_controller',xosc.Properties())
+    cf.add_to_catalog(orig)
+    cf.dump()
     read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_controller'),tmpdir)
     assert read == orig
 
-    assert read == orig
        
 
 def test_osc_reader_parameter(tmpdir,parameter_fixture):
@@ -221,3 +232,5 @@ def test_osc_reader_parameter(tmpdir,parameter_fixture):
     prettyprint(scenario)
     assert parameter_fixture == scenario
        
+
+
