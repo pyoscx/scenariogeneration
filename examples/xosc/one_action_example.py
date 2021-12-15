@@ -82,7 +82,7 @@ event = xosc.Event('myfirstevent',xosc.Priority.overwrite)
 event.add_trigger(trigger)
 
 sin_time = xosc.TransitionDynamics(xosc.DynamicsShapes.linear,xosc.DynamicsDimension.time,3)
-action = xosc.LongitudinalDistanceAction(-4,egoname,max_deceleration=3,max_speed=50)
+action = xosc.LongitudinalDistanceAction(egoname,max_deceleration=3,max_speed=50,distance=-4)
 event.add_action('newspeed',action)
 
 
