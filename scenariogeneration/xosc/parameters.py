@@ -12,7 +12,6 @@ from ..helpers import prettyprint, printToFile
 class _StochasticFactory():
     @staticmethod
     def parse_distribution(element):
-        prettyprint(element, None)
         if element.find('NormalDistribution') is not None:
             return NormalDistribution.parse(element.find('NormalDistribution'))
         elif element.find('UniformDistribution') is not None:
@@ -1278,7 +1277,7 @@ class ParameterValueDistribution(VersionBase):
             osc_minor_version (int): the osi version wanted (Note: only available from OpenSCENARIO V1.1.0)
 
         """ 
-        self.header = FileHeader(description,author,revMinor=osc_minor_version)
+        self.header = FileHeader(author,description,revMinor=osc_minor_version)
         if not isinstance(parameter_distribution,Stochastic) and not isinstance(parameter_distribution,Deterministic):
             raise TypeError(type(parameter_distribution) + "is not of type Stochastic or Deterministic")
         self.scenario_file = scenario_file
@@ -1308,7 +1307,6 @@ class ParameterValueDistribution(VersionBase):
         
         
         pvd_element = element.find('ParameterValueDistribution')
-        prettyprint(pvd_element,None)
         if pvd_element.find('Stochastic') is not None:
             dist = Stochastic.parse(pvd_element.find('Stochastic'))
         elif pvd_element.find('Deterministic') is not None:

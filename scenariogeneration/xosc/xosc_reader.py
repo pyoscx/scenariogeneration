@@ -2,8 +2,10 @@ import xml.etree.ElementTree as ET
 import os
 
 from scenariogeneration.xosc import Vehicle, Pedestrian, ParameterDeclarations, Controller, MiscObject, Maneuver, Environment, Trajectory, Route
-
-from .exceptions import NoCatalogFoundError
+from .parameters import ParameterValueDistribution
+from .scenario import Scenario
+from .scenario import Catalog
+from .exceptions import NoCatalogFoundError, NotAValidElement
 
 def CatalogReader(catalog_reference,catalog_path):
     """ CatalogReader is a function that will read a openscenario catalog and return the corresponding scenariogeneration.xosc object
@@ -76,3 +78,26 @@ def ParameterDeclarationReader(file_path):
         param_decl = ParameterDeclarations.parse(paramdec)
             
     return param_decl
+
+
+def ParseOpenScenario(file_path):
+    """ ParseOpenScenario parses a openscenario file (of any type) and returns the python object
+
+        Parameters
+        ---------- 
+            file_path (str): full path to the .xosc file
+
+        Returns
+        -------
+            xosc_object (Scenario, Catalog, or ParameterValueDistribution)
+    """
+    with open(file_path,'r') as f:
+        loaded_xosc = ET.parse(f)
+        if loaded_xosc.find('ParameterValueDistribution') is not None:
+            return ParameterValueDistribution.parse(loaded_xosc)
+        elif loaded_xosc.find('Catalog') is not None:
+            return Catalog.parse(loaded_xosc)
+        elif loaded_xosc.find('Storyboard') is not None:
+            return Scenario.parse(loaded_xosc)
+        else:
+            raise NotAValidElement('The provided file is not on a OpenSCENARIO compatible format.')
