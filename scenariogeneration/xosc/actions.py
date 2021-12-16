@@ -8,11 +8,11 @@ from numpy.lib.function_base import disp
 
 
 from .utils import DynamicsConstraints, TimeReference, TrafficSignalController, convert_bool, TransitionDynamics, CatalogReference, TrafficDefinition, Environment, AbsoluteSpeed, RelativeSpeedToMaster, convert_float, convert_int
-from .utils import Controller
+from .utils import Controller, _PositionType
 
 from .enumerations import CoordinateSystem, DynamicsShapes, LateralDisplacement, SpeedTargetValueType, FollowMode, ReferenceContext, VersionBase, LongitudinalDisplacement, DynamicsShapes
 from .exceptions import NoActionsDefinedError, NotAValidElement, OpenSCENARIOVersionError,NotEnoughInputArguments, ToManyOptionalArguments
-from .position import _PositionType, _PositionFactory, Route, Trajectory
+from .position import _PositionFactory, Route, Trajectory
 
 
 class _GlobalActionFactory():

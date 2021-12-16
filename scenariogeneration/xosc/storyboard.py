@@ -3,8 +3,6 @@
 """
 import xml.etree.ElementTree as ET
 
-from scenariogeneration.xosc import parameters
-
 
 
 from .actions import _Action, _ActionType, _PrivateActionType

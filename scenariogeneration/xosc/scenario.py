@@ -2,7 +2,7 @@
 
 """
 
-from scenariogeneration.xosc.position import _PositionFactory
+from .position import _PositionFactory
 from .exceptions import OpenSCENARIOVersionError, NotEnoughInputArguments
 
 import xml.etree.ElementTree as ET
