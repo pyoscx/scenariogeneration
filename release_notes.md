@@ -1,5 +1,22 @@
 ## scenariogeneration release notes
 
+
+### 2021-12-16 Version 0.7.0
+- New features
+    - Parsing is here for OpenSCENARIO! Now a .xosc can be parsed and return the python object. 
+      This enables the user to modify an existing .xosc file easily in python.
+      Note: It might not have the exact structure as it was created, eg. for triggers which will have both the Tigger and ConditionGroup present (so will never return an ValueTrigger or EntityTrigger object)
+    - ValueConstraint and ValueConstraintGroup added, and can be added to Parameters
+    - New CatalogReader implemented, can now load a catalog and read multiple time from it without reloading the file.
+- Some properties changed (that were missing or should be optional)
+
+- Changed Classes (IMPORTANT, Interface Changed!)
+    - Some bugs were found in the implementation of OpenSCENARIO 1.1, hence some classes had to be changed.
+        - Environment (removed wrong input name)
+        - Pedestrian (made model optional)
+        - LongitudinalTimegapAction is merged into LongitutinalDistanceAction (hence init is changed)
+    - New CatalogReader implemented, can now load multiple catalogs and read multiple time from them without reloading the file. So it is not a function anymore but a class.
+
 ### 2021-10-12 Version 0.6.0
 - New features
     - the esmini helper now creates it's own folder and do not generate scenarios in the esmini folder

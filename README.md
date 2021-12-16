@@ -78,6 +78,8 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 
 * **Irene Natale** - *Inital work* - [inatale93](https://github.com/inatale93) (xodr)
 
+* **Andreas Tingberg** - *Maintainer* - [atingber](https://github.com/atingber)
+
 ## Data formats
 
 The wrappers is based on the OpenSCENARIO and OpenDRIVE standards.

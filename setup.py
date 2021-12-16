@@ -7,7 +7,7 @@ setuptools.setup(
     name='scenariogeneration', 
     version='0.6.0',
     license='MPL-2.0',
-    author='Mikael Andersson, Irene Natale',
+    author='Mikael Andersson, Irene Natale, Andreas Tingberg',
     author_email='andmika@gmail.com',
     description='Generation of OpenSCENARIO and OpenDRIVE xml files',
     long_description=long_description,

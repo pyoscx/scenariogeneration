@@ -21,7 +21,7 @@ For more detailed view of the new updates, please see the [release notes](https:
 
 ## xosc
 
-The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO V 1.0.0 and most of OpenSCENARIO V 1.1.0 (except the parts related to ParameterValueDistributionDefinition). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.  
+The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO V 1.0.0 and most of OpenSCENARIO V 1.1.0 (except the parts related to UserDefined things). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.  
 
 The idea with this module is to create easy access to the elements of OpenSCENARIO without having to expose the user to all the xml levels that does not carry any vital information for the user. Hence, some of the xml-elements that build up OpenSCENARIO are never seen in the class structure but compressed to a level where the user can set the required data. 
 
@@ -49,6 +49,18 @@ The default is 1 (V1.1.0), but with this V1.0.0 OpenSCENARIO xmls can be generat
 The V1.1.0 will remove the depricated attributes, and have a pure V1.1.0 xml. If version specific elements are used together with the wrong version, a __OpenSCENARIOVersionError__ will be raised. 
 
 NOTE: as of V0.5.0 some interfaces had to be changed in order to fulfill the V1.1.0 standard, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md) for more info.
+
+### Parsing an .xosc file and get the Python object back
+As of scenariogeneration V0.7.0, the __xosc__ module supports parsing an existing .xosc file.
+This enables modifying already exisisting xosc files, eg. from a Scenario editor.  
+
+```
+scenario = ParseOpenScenario('my_non_python_made_scenario.xosc')
+```
+
+__ParseOpenScenario__ can read all types of OpenSCENARIO files (Scenario, Catalog and ParameterValueDistribution), and will return the Object related to that file type. 
+
+NOTE: more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a Trigger, ConditionGroup will always be present. 
 
 ## xodr
 
