@@ -7,15 +7,15 @@
       This enables the user to modify an existing .xosc file easily in python.
       Note: It might not have the exact structure as it was created, eg. for triggers which will have both the Tigger and ConditionGroup present (so will never return an ValueTrigger or EntityTrigger object)
     - ValueConstraint and ValueConstraintGroup added, and can be added to Parameters
-    - New CatalogReader implemented, can now load a catalog and read multiple time from it without reloading the file.
+    - New CatalogLoader implemented, can now load a catalog and read multiple time from it without reloading the file. CatalogReader will still exist for a while but will be removed in future releases. 
 - Some properties changed (that were missing or should be optional)
-
+- utf-8 encoding is now default, but can be changed as a new input to write functions. 
 - Changed Classes (IMPORTANT, Interface Changed!)
     - Some bugs were found in the implementation of OpenSCENARIO 1.1, hence some classes had to be changed.
         - Environment (removed wrong input name)
         - Pedestrian (made model optional)
         - LongitudinalTimegapAction is merged into LongitutinalDistanceAction (hence init is changed)
-    - New CatalogReader implemented, can now load multiple catalogs and read multiple time from them without reloading the file. So it is not a function anymore but a class.
+
 
 ### 2021-10-12 Version 0.6.0
 - New features
