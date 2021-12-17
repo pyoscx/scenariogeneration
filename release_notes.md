@@ -1,5 +1,8 @@
 ## scenariogeneration release notes
 
+### 2021-12-17 Version 0.7.1
+- Bug fix
+    - Fixed bug when in CatalogLoader when loading with a CatalogReference
 
 ### 2021-12-16 Version 0.7.0
 - New features
