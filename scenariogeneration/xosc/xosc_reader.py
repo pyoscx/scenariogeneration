@@ -47,12 +47,14 @@ class CatalogLoader():
         """
         if isinstance(catalog_reference,CatalogReference):
             fullpath = os.path.join(catalog_path,catalog_reference.catalogname + '.xosc')
+            name_ref = catalog_reference.catalogname
         else:
             fullpath = os.path.join(catalog_path,catalog_reference + '.xosc')
+            name_ref = catalog_reference
 
         with open(fullpath,'r') as f:
             catalog_element = ET.parse(f).find('Catalog')
-            self.all_catalogs[catalog_reference] = catalog_element
+            self.all_catalogs[name_ref] = catalog_element
     
     def parse(self,catalog_reference):
         """ parse reads reads a specific entry from a loaded catalog

@@ -209,8 +209,15 @@ def test_osc_reader_catalog(tmpdir):
     cf.dump()
     loader = xosc.CatalogLoader()
     loader.load_catalog('my_catalog',tmpdir)
-    read = loader.parse(xosc.CatalogReference('my_catalog','my_controller'))
+    catref = xosc.CatalogReference('my_catalog','my_controller')
+    read = loader.parse(catref)
     assert read == orig
+
+    secondloader = xosc.CatalogLoader()
+    secondloader.load_catalog(catref,tmpdir)
+    read = secondloader.parse(catref)
+    assert read == orig
+    
 
 def test_catalog_loader(tmpdir):
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
