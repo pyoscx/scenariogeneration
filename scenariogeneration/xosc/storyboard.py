@@ -332,8 +332,8 @@ class StoryBoard():
             if isinstance(actors,list):
                 for a in actors:
                     mangr.add_actor(a)
-        else:
-            mangr.add_actor(actors)
+            else:
+                mangr.add_actor(actors)
         mangr.add_maneuver(maneuver)
         self.add_maneuver_group(mangr,starttrigger=starttrigger,stoptrigger=stoptrigger,parameters=parameters)
 
