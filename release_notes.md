@@ -1,5 +1,12 @@
 ## scenariogeneration release notes
 
+
+### 2021-12-21 Version 0.7.2
+- Bug fix
+    - add_maneuvergroup could not handle a single actor being added.
+    - typo fixes in precipitaton.
+    - boundingbox for fog is no longer needed.
+
 ### 2021-12-17 Version 0.7.1
 - Bug fix
     - Fixed bug when in CatalogLoader when loading with a CatalogReference
