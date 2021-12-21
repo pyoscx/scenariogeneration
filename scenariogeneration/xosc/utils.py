@@ -2182,6 +2182,7 @@ class Fog(VersionBase):
             visual_range (int): visual range of fog
 
             bounding_box (BoundingBox): bounding box of fog
+                Default: None
 
         Attributes
         ----------
@@ -2201,14 +2202,15 @@ class Fog(VersionBase):
                 Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,visual_range,bounding_box):
+    def __init__(self,visual_range,bounding_box=None):
         """ initalize the Fog
 
             Parameters
             ----------
-            visual_range (int): visual range of fog
+                visual_range (int): visual range of fog
 
-            bounding_box (BoundingBox): bounding box of fog
+                bounding_box (BoundingBox): bounding box of fog
+                    Default: None
                 
         """
 
@@ -2258,7 +2260,8 @@ class Fog(VersionBase):
 
         """
         element = ET.Element('Fog',attrib=self.get_attributes())
-        element.append(self.bounding_box.get_element())
+        if self.bounding_box is not None:
+            element.append(self.bounding_box.get_element())
 
         return element
 
