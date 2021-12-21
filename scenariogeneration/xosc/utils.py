@@ -2422,8 +2422,8 @@ class Precipitation(VersionBase):
         intesity = None
         if 'precipitationIntensity' in element.attrib:
             intesity = element.attrib['precipitationIntensity']
-        elif 'intesity' in element.attrib: 
-            intesity = element.attrib['intesity']
+        elif 'intensity' in element.attrib: 
+            intesity = element.attrib['intensity']
         precipitation = getattr(PrecipitationType, element.attrib['precipitationType'])
 
         return Precipitation(precipitation, intesity)
