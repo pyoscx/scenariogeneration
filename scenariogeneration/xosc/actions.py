@@ -3564,6 +3564,25 @@ class UserDefinedAction(_ActionType):
                     return True
         return False
 
+    @staticmethod
+    def parse(element):
+        """ Parsese the xml element of a UserDefinedAction
+        
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedAction element
+
+        Returns
+        -------
+            userDefinedAction (UserDefinedAction): a UserDefinedAction object
+
+        """
+        user_defined_action = UserDefinedAction()
+        for custom_command_element in element.findall('CustomCommandAction'):
+            custom_command_action = CustomCommandAction.parse(custom_command_element)
+            user_defined_action.add_custom_command_action(custom_command_action)
+        return user_defined_action
+
     def get_element(self):
         """ returns the elementTree of the UserDefinedAction
 
@@ -3609,6 +3628,26 @@ class CustomCommandAction(_ActionType):
             if other.type == self.type:
                 return True
         return False
+
+    @staticmethod
+    def parse(element):
+        """ Parsese the xml element of a CustomCommandAction
+        
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a CustomCommandAction element
+
+        Returns
+        -------
+            customCommandAction (CustomCommandAction): a CustomCommandAction object
+
+        """
+        if element.tag != 'CustomCommandAction':
+            raise NotAValidElement(f'Expected "CustomCommandAction" element, received "{element.tag}".')
+        action_type = element.attrib.get('type', None)
+        if action_type == None:
+            raise NotAValidElement('CustomCommandAction is missing required argument "type".')
+        return CustomCommandAction(action_type)
 
     def get_element(self):
         """ returns the elementTree of the CustomCommandAction
