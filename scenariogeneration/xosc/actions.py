@@ -84,7 +84,6 @@ class _PrivateActionFactory():
             return AcquirePositionAction.parse(element)
         else:
             raise NotAValidElement('element ', element, 'is not a valid PrivateAction')
-            
   
 class _ActionType(VersionBase):
     """ helper class for typesetting
@@ -162,7 +161,7 @@ class _Action(VersionBase):
         elif element.find('GlobalAction') is not None:
             action = _GlobalActionFactory.parse_globalaction(element.find('GlobalAction'))
         elif element.find('UserDefinedAction') is not None:
-            action = _UserDefinedActionFactory.parse_userdefinedaction(element.find('UserDefinedAction'))
+            action = UserDefinedAction.parse(element)
         else:
             raise NotAValidElement(element.tag, 'is not a valid action' )
         return _Action(name,action)
