@@ -3556,6 +3556,13 @@ class UserDefinedAction(_ActionType):
         """
         self.custom_command_actions.append(custom_command_action)
 
+    def __eq__(self, other):
+        if isinstance(other, UserDefinedAction):
+            if len(self.custom_command_actions) == len(other.custom_command_actions):
+                if all([self.custom_command_actions[i] == other.custom_command_actions[i] 
+                            for i in range(len(self.custom_command_actions))]):
+                    return True
+        return False
 
     def get_element(self):
         """ returns the elementTree of the UserDefinedAction
@@ -3565,15 +3572,7 @@ class UserDefinedAction(_ActionType):
         for custom_command_action in self.custom_command_actions:
             element.append(custom_command_action.get_element())
         return element
-
     
-    def __eq__(self, other):
-        if isinstance(other, UserDefinedAction):
-            if len(self.custom_command_actions) == len(other.custom_command_actions):
-                if all([self.custom_command_actions[i] == other.custom_command_actions[i] 
-                            for i in range(len(self.custom_command_actions))]):
-                    return True
-        return False
 
 
 class CustomCommandAction(_ActionType):
@@ -3605,6 +3604,11 @@ class CustomCommandAction(_ActionType):
         """
         self.type = type
 
+    def __eq__(self, other):
+        if isinstance(other, CustomCommandAction):
+            if other.type == self.type:
+                return True
+        return False
 
     def get_element(self):
         """ returns the elementTree of the CustomCommandAction
@@ -3614,8 +3618,4 @@ class CustomCommandAction(_ActionType):
         return element
 
 
-    def __eq__(self, other):
-        if isinstance(other, CustomCommandAction):
-            if other.type == self.type:
-                return True
-        return False
+    
