@@ -3566,6 +3566,15 @@ class UserDefinedAction(_ActionType):
             element.append(custom_command_action.get_element())
         return element
 
+    
+    def __eq__(self, other):
+        if isinstance(other, UserDefinedAction):
+            if len(self.custom_command_actions) == len(other.custom_command_actions):
+                if all([self.custom_command_actions[i] == other.custom_command_actions[i] 
+                            for i in range(len(self.custom_command_actions))]):
+                    return True
+        return False
+
 
 class CustomCommandAction(_ActionType):
     """ The CustomCommandAction creates a simulator defined action
@@ -3603,3 +3612,10 @@ class CustomCommandAction(_ActionType):
         """
         element = ET.Element('CustomCommandAction', attrib={'type': self.type})
         return element
+
+
+    def __eq__(self, other):
+        if isinstance(other, CustomCommandAction):
+            if other.type == self.type:
+                return True
+        return False
