@@ -573,3 +573,37 @@ def test_trafficstopaction():
     tsa4 = OSC.TrafficStopAction.parse(tsa.get_element())
     prettyprint(tsa4.get_element())
     assert tsa == tsa4
+
+def test_customcommandaction():
+    cca = OSC.CustomCommandAction('custom_command')
+    prettyprint(cca)
+    cca2 = OSC.CustomCommandAction('custom_command')
+    assert cca == cca2
+    cca3 = OSC.CustomCommandAction('another_custom_command')
+    assert cca != cca3
+    cca4 = OSC.CustomCommandAction.parse(cca.get_element())
+    prettyprint(cca4.get_element())
+    assert cca == cca4
+
+def test_userdefinedaction():
+    uda = OSC.UserDefinedAction()
+    prettyprint(uda)
+    uda2 = OSC.UserDefinedAction()
+    assert uda == uda2
+    cca = OSC.CustomCommandAction('custom_command')
+    uda.add_custom_command_action(cca)
+    prettyprint(uda)
+    assert uda != uda2
+    uda2.add_custom_command_action(cca)
+    assert uda == uda2
+    cca2 = OSC.CustomCommandAction('another_custom_command')
+    uda.add_custom_command_action(cca2)
+    assert uda != uda2
+    uda2.add_custom_command_action(cca2)
+    assert uda == uda2
+    uda3 = OSC.UserDefinedAction.parse(uda.get_element())
+    prettyprint(uda3)
+    assert uda3 == uda
+
+    
+

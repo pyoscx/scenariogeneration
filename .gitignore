@@ -7,3 +7,4 @@ build/
 *.pyo
 *.xodr
 *.xosc
+.vscode

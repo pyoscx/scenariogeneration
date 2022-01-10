@@ -84,9 +84,7 @@ class _PrivateActionFactory():
             return AcquirePositionAction.parse(element)
         else:
             raise NotAValidElement('element ', element, 'is not a valid PrivateAction')
-            
-     
-
+  
 class _ActionType(VersionBase):
     """ helper class for typesetting
     """
@@ -161,9 +159,9 @@ class _Action(VersionBase):
         if element.find('PrivateAction') is not None:
             action = _PrivateActionFactory.parse_privateaction(element.find('PrivateAction'))
         elif element.find('GlobalAction') is not None:
-            action = _GlobalActionFactory(element.find('GlobalAction'))
-        elif element.find('UserDefinedAction'):
-            raise NotAValidElement('Impossible to know how a UserDefinedAction looks like, sorry..')
+            action = _GlobalActionFactory.parse_globalaction(element.find('GlobalAction'))
+        elif element.find('UserDefinedAction') is not None:
+            action = UserDefinedAction.parse(element)
         else:
             raise NotAValidElement(element.tag, 'is not a valid action' )
         return _Action(name,action)
@@ -3517,10 +3515,86 @@ class EnvironmentAction(_ActionType):
         return element
 
 
-class CustomCommandAction(_ActionType):
-    """ The CustomCommandAction creates a simulator defined action, can add any number of xml.etree.ElementTree to an Action
+class UserDefinedAction(_ActionType):
+    """ The UserDefinedAction enables adding simulator-specific CustomCommandActions. 
+    
+    Parameters
+    ----------
+        
+    Attributes
+    ----------
 
-        NOTE: this is a very crude implementation, and the element has to be created by the user.
+    Methods
+    -------
+        add_custom_command_action(custom_command_action)
+            Adds a CustomCommandAction to the UserDefinedAction
+            
+        get_element()
+            Returns the full ElementTree of the class
+    """
+
+
+    def __init__(self):
+        """ initalize the UserDefinedAction
+
+        Parameters
+        ----------
+
+        """
+        self.custom_command_actions = []
+
+    
+    def add_custom_command_action(self, custom_command_action):
+        """ add a CustomCommandAction
+
+        Parameters
+        ----------
+            custom_command_action (CustomCommandAction): A CustomCommandAction element
+        
+        """
+        self.custom_command_actions.append(custom_command_action)
+
+    def __eq__(self, other):
+        if isinstance(other, UserDefinedAction):
+            if len(self.custom_command_actions) == len(other.custom_command_actions):
+                if all([self.custom_command_actions[i] == other.custom_command_actions[i] 
+                            for i in range(len(self.custom_command_actions))]):
+                    return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """ Parsese the xml element of a UserDefinedAction
+        
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedAction element
+
+        Returns
+        -------
+            userDefinedAction (UserDefinedAction): a UserDefinedAction object
+
+        """
+        user_defined_action = UserDefinedAction()
+        for custom_command_element in element.findall('CustomCommandAction'):
+            custom_command_action = CustomCommandAction.parse(custom_command_element)
+            user_defined_action.add_custom_command_action(custom_command_action)
+        return user_defined_action
+
+    def get_element(self):
+        """ returns the elementTree of the UserDefinedAction
+
+        """
+        element = ET.Element('UserDefinedAction')
+        for custom_command_action in self.custom_command_actions:
+            element.append(custom_command_action.get_element())
+        return element
+    
+
+
+class CustomCommandAction(_ActionType):
+    """ The CustomCommandAction creates a simulator defined action
+
         
         Parameters
         ----------
@@ -3528,41 +3602,57 @@ class CustomCommandAction(_ActionType):
         Attributes
         ----------
 
-            elements (list of xml.etree.ElementTree): elements to add to the action
+            type (str): type of the custom command
 
         Methods
         -------
-            add_element(element)
-                Adds an element to the action
             get_element()
                 Returns the full ElementTree of the class
 
     """
 
-    def __init__(self,semimajoraxis,semiminoraxis,innerradius,offset,numberofvehicles,centralobject,trafficdefinition,velocity = None):
+    def __init__(self, type):
         """ initalize the CustomCommandAction
 
-            Parameters
-            ----------
+        Parameters
+        ----------
+            type (str): type of the custom command
 
         """
-        self.elements = []
+        self.type = type
 
-    def add_element(self,element):
-        """ adds an element to the CustomCommandAction
+    def __eq__(self, other):
+        if isinstance(other, CustomCommandAction):
+            if other.type == self.type:
+                return True
+        return False
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree): the element to add
+    @staticmethod
+    def parse(element):
+        """ Parsese the xml element of a CustomCommandAction
+        
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a CustomCommandAction element
+
+        Returns
+        -------
+            customCommandAction (CustomCommandAction): a CustomCommandAction object
+
         """
-        self.elements.append(element)
+        if element.tag != 'CustomCommandAction':
+            raise NotAValidElement(f'Expected "CustomCommandAction" element, received "{element.tag}".')
+        action_type = element.attrib.get('type', None)
+        if action_type == None:
+            raise NotAValidElement('CustomCommandAction is missing required argument "type".')
+        return CustomCommandAction(action_type)
 
     def get_element(self):
         """ returns the elementTree of the CustomCommandAction
 
         """
-        element = ET.Element('UserDefinedAction')
-        for e in self.elements:
-            element.append(e)
-
+        element = ET.Element('CustomCommandAction', attrib={'type': self.type})
         return element
+
+
+    
