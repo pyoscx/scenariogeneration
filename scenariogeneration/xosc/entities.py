@@ -208,7 +208,7 @@ class ScenarioObject(VersionBase):
                 
         """
         name = element.attrib['name']
-        if element.find('CatalogReference'):
+        if element.find('CatalogReference') != None:
             entityobject = CatalogReference.parse(element.find('CatalogReference'))
         elif element.find('Vehicle') != None:
             entityobject = Vehicle.parse(element.find('Vehicle'))
