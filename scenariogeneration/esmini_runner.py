@@ -67,6 +67,11 @@ def esmini(generator,esminipath='esmini',
     # resource_path = os.path.join(esminipath,'resources')
     if not resource_path:
         resource_path = os.path.join(esminipath,'resources','xosc')
+    
+    if timestep == None:
+        ts = 0.01
+    else:
+        ts = timestep
     # genereate file for running in esmini, and set some esmini replated parameters
     if isinstance(generator,OpenDrive):
         if not os.path.exists(generation_path):
@@ -93,7 +98,7 @@ def esmini(generator,esminipath='esmini',
         executable = 'esmini'
         filetype = ' --osc '
         if run_with_replayer:
-            additional_args += ' --headless' + ' --fixed_timestep ' +  str(timestep)
+            additional_args += ' --headless' + ' --fixed_timestep ' +  str(ts)
             if not record:
                 record = 'python_record'
         else:
@@ -116,7 +121,7 @@ def esmini(generator,esminipath='esmini',
             executable = 'esmini'
             filetype = ' --osc '
             if run_with_replayer:
-                additional_args += ' --headless' + ' --fixed_timestep ' +  str(timestep)
+                additional_args += ' --headless' + ' --fixed_timestep ' +  str(ts)
                 if not record:
                     record = 'python_record'
             else:
@@ -136,7 +141,10 @@ def esmini(generator,esminipath='esmini',
 
     if disable_controllers:
         additional_args += ' --disable_controllers'
-    
+
+    if timestep != None:
+        additional_args += ' --fixed_timestep ' +  str(timestep)
+
 
     additional_args += ' ' + args +  '--path '+resource_path
     
