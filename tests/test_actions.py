@@ -61,6 +61,8 @@ traj.add_shape(polyline)
 
 ocv_action = OSC.OverrideControllerValueAction()
 ocv_action.set_brake(True,2)
+aca = OSC.ActivateControllerAction(True,True)
+ass = OSC.AssignControllerAction(cnt)
 
 @pytest.mark.parametrize("action",[OSC.AbsoluteSpeedAction(50.0,TD),
                                             OSC.RelativeSpeedAction(1,'Ego',TD),
@@ -72,6 +74,7 @@ ocv_action.set_brake(True,2)
                                             OSC.LateralDistanceAction('Ego',3,max_speed=50),
                                             OSC.VisibilityAction(True,False,True),
                                             OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2),
+                                            OSC.ControllerAction(ass,ocv_action, aca),
                                             OSC.AssignControllerAction(cnt),
                                             ocv_action,
                                             OSC.ActivateControllerAction(True,False),
@@ -86,7 +89,9 @@ def test_private_action_factory(action):
     factoryoutput = OSC.actions._PrivateActionFactory.parse_privateaction(action.get_element())
     prettyprint(action,None)
     prettyprint(factoryoutput,None)
+
     assert action == factoryoutput
+    assert factoryoutput == action
 
 def test_speedaction_abs():
     speedaction = OSC.AbsoluteSpeedAction(50.0,TD)
@@ -251,6 +256,23 @@ def test_aqcuire_position_route():
     ara4 = OSC.AcquirePositionAction.parse(ara.get_element())
     prettyprint(ara4.get_element(),None)
     assert ara4 == ara
+
+def test_controller_action():
+    aca = OSC.ActivateControllerAction(True,True)
+    prop = OSC.Properties()
+    prop.add_property('mything','2')
+    prop.add_property('theotherthing','true')
+    cnt = OSC.Controller('mycontroller',prop)
+
+    ass = OSC.AssignControllerAction(cnt)
+
+    ocva = OSC.OverrideControllerValueAction()
+    ocva.set_brake(True,2)
+    ca = OSC.ControllerAction(ass,ocva, aca)
+    ca2 = OSC.ControllerAction.parse(ca.get_element())
+    prettyprint(ca.get_element(),None)
+    prettyprint(ca2.get_element(),None)
+    assert ca == ca2
 
 def test_activate_controller_action():
     aca = OSC.ActivateControllerAction(True,True)
