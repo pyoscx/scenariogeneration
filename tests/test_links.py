@@ -44,7 +44,7 @@ def test_connection():
 
     con.add_lanelink(1,-1)
     con.add_lanelink(2,-2)
-    prettyprint(con.get_element())
+    prettyprint(con.get_element(pyodrx.JunctionType.direct))
 
     con2 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start,5)
 
@@ -58,7 +58,6 @@ def test_connection():
     
     assert con == con2
     assert con != con3
-
 def test_junction():
     con1 = pyodrx.Connection(1,2,pyodrx.ContactPoint.start)
 

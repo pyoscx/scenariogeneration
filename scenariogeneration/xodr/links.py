@@ -3,9 +3,9 @@
 """
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
-from .enumerations import ElementType, JunctionGroupType
+from .enumerations import ElementType, JunctionGroupType, JunctionType, Orientation
 
-from .exceptions import NotSameAmountOfLanesError
+from .exceptions import NotEnoughInputArguments, NotSameAmountOfLanesError
 import warnings
 
 class _Links():
@@ -330,7 +330,7 @@ class Connection():
         ----------
             incoming_road (int): the id of the incoming road to the junction
 
-            connecting_road (int): id of the connecting road (type junction)
+            connecting_road (int): id of the connecting road (for junctiontypes virutal and default), or the linkedRoad (for junctiontype direct)
             
             contact_point (ContactPoint): the contact point of the link
 
@@ -370,22 +370,34 @@ class Connection():
                 out_lane: land id of the outgoing road
         """
         self.links.append((in_lane,out_lane))
-    def get_attributes(self):
+    def get_attributes(self, junctiontype = JunctionType.default):
         """ returns the attributes as a dict of the Connection
+
+            Parameters
+            ----------
+                junctiontype (JunctionType): type of junction created (connections will be different)
 
         """
         retdict = {}
         retdict['incomingRoad'] = str(self.incoming_road)
         retdict['id'] = str(self.id)
         retdict['contactPoint'] = enum2str(self.contact_point)
-        retdict['connectingRoad'] = str(self.connecting_road)
+        if junctiontype == JunctionType.direct:
+            retdict['linkedRoad'] = str(self.connecting_road)
+        else:
+            retdict['connectingRoad'] = str(self.connecting_road)
         return retdict
 
-    def get_element(self):
+    def get_element(self,junctiontype = JunctionType.default):
         """ returns the elementTree of the Connection
+            
+            Parameters
+            ----------
+                junctiontype (JunctionType): type of junction created (connections will be different)
 
         """
-        element = ET.Element('connection',attrib=self.get_attributes())
+
+        element = ET.Element('connection',attrib=self.get_attributes(junctiontype))
         for l in self.links:
             ET.SubElement(element,'laneLink',attrib={'from':str(l[0]),'to':str(l[1])})
         return element
@@ -401,6 +413,21 @@ class Junction():
 
             id (int): id of the junction
 
+            junction_type (JunctionType): type of junction 
+                Default: JunctionType.default
+
+            orientation (Orientation): the orientation of the junction (only used for virtual junction)
+                Default: None
+
+            sstart (float): start of the virtual junction (only used for virtual junction)
+                Default: None
+
+            send (float): end of the virtual junction (only used for virtual junction)
+                Default: None
+
+            mainroad (int): main road for a virtual junction
+                Default: None
+
         Attributes
         ----------
             name (str): name of the junction
@@ -408,6 +435,18 @@ class Junction():
             id (int): id of the junction
 
             connections (list of Connection): all the connections in the junction
+
+            junction_type (JunctionType): type of junction 
+                Default: JunctionType.default
+
+            orientation (Orientation): the orientation of the junction (only used for virtual junction)
+
+            sstart (float): start of the virtual junction (only used for virtual junction)
+
+            send (float): end of the virtual junction (only used for virtual junction)
+
+            mainroad (int): main road for a virtual junction
+
 
         Methods
         -------
@@ -420,8 +459,7 @@ class Junction():
             add_connection(connection)
                 Adds a connection to the junction
     """
-    ##TODO: add type
-    def __init__(self,name,id):
+    def __init__(self,name,id,junction_type = JunctionType.default, orientation = None, sstart = None, send = None, mainroad=None):
         """ initalize the Junction
 
         Parameters
@@ -429,12 +467,34 @@ class Junction():
             name (str): name of the junction
 
             id (int): id of the junction
+
+            junction_type (JunctionType): type of junction 
+                Default: JunctionType.default
+
+            orientation (Orientation): the orientation of the junction (only used for virtual junction)
+
+            sstart (float): start of the virtual junction (only used for virtual junction)
+
+            send (float): end of the virtual junction (only used for virtual junction)
+
+            mainroad (int): main road for a virtual junction
+
         """
         self.name = name
         self.id = id
         self.connections = []
         self._id_counter = 0
+        if not isinstance(junction_type,JunctionType):
+            raise TypeError('Not a valid junction type')
 
+        self.junction_type = junction_type
+        if junction_type == JunctionType.virtual:
+            if not (sstart is not None and send is not None and mainroad is not None and orientation is not None):
+                raise NotEnoughInputArguments('For virtual junctions sstart, send, orientation, and mainroad has to be added')
+        self.sstart = sstart
+        self.send = send
+        self.mainroad = mainroad
+        self.orientation = orientation
     def __eq__(self, other):
         if isinstance(other,Junction):
             if self.get_attributes() == other.get_attributes() and \
@@ -461,6 +521,17 @@ class Junction():
         retdict = {}
         retdict['name'] = self.name
         retdict['id'] = str(self.id)
+        retdict['type'] = self.junction_type.name
+
+        # these are only used for virtual junctions
+        if self.junction_type == JunctionType.virtual:
+            if self.orientation == Orientation.positive:
+                retdict['orientation'] = '+'    
+            elif self.orientation == Orientation.negative:
+                retdict['orientation'] = '-' 
+            retdict['sEnd'] = str(self.send)
+            retdict['sStart'] = str(self.sstart)
+            retdict['mainRoad'] = str(self.mainroad)
         return retdict
 
     def get_element(self):
@@ -469,7 +540,7 @@ class Junction():
         """
         element = ET.Element('junction',attrib=self.get_attributes())
         for con in self.connections:
-            element.append(con.get_element())
+            element.append(con.get_element(self.junction_type))
         return element
 
 #from .exceptions import NotSameAmountOfLanesError

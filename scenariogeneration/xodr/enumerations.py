@@ -174,3 +174,11 @@ class JunctionGroupType(Enum):
     """
     roundabout = auto()
     unknown = auto()
+
+class JunctionType(Enum):
+    """ Enum for JunctionType
+
+    """
+    default = auto()
+    virtual = auto()
+    direct = auto()
