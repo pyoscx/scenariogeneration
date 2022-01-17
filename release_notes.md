@@ -1,5 +1,18 @@
 ## scenariogeneration release notes
 
+### 2021-01-17 Version 0.7.3
+- Bug fix
+    - removed some unnecessary printouts
+    - fixed bug in parsing catalog for entities
+    - the esmini runner can now set timestep without having to run headless
+- New Features
+    - Added better support for UserDefinedAction and CustonCommands
+    - Direct junctions is now supported!
+        - new funciton create_direct_junction (for the junction struct)
+        - new input to add_successor/add_predecessor direct_junction to enable automation
+        - examples for entry and exit added. 
+- New Classes
+    - ControllerAction, now controller actions can be added within one element (required for 1.0), while parsing any controller action, this will be the return type.
 
 ### 2021-12-21 Version 0.7.2
 - Bug fix
