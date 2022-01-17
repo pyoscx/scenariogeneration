@@ -330,7 +330,6 @@ class RelativeSpeedAction(_PrivateActionType):
         """
         self.speed = speed
         self.target = entity
-        print(str(valuetype))
         if not hasattr(SpeedTargetValueType,str(valuetype)):
             raise TypeError('valuetype input not of type SpeedTargetValueType')
         self.valuetype = valuetype
