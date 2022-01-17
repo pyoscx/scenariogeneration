@@ -66,7 +66,7 @@ prettyprint(sce.get_element())
 ### create the paramtrization
 
 ## create a stocastic distribution with 100 runs
-stoc = xosc.Stocastic(50,1.234)
+stoc = xosc.Stochastic(50,1.234)
 
 ## add a Normal distribution for the ego
 nd = xosc.NormalDistribution(25,1)
