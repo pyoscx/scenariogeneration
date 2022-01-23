@@ -6,7 +6,7 @@ This combined package (which includes the former pyoscx, pyodrx) can be used to 
 
 The package consists of the __scenario_generator__ module and two  Python subpackages, __xosc__ (OpenSCENARIO) and __xodr__ (OpenDRIVE), together with some support functionality for auto generation with parametrization as well as easy viewing with [esmini](https://github.com/esmini/esmini).
 
-The package documentation can be found here https://pyoscx.github.io/, and the change log can be found here [changelog](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
+The user documentation can be found [here](https://pyoscx.github.io/), the API documentation [here](https://pyoscx.github.io/scenariogeneration/index.html) and the change log in [release_notes.md](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
 
 Please note that this is not an official implementation of either OpenSCENARIO or OpenDRIVE. 
 
