@@ -34,7 +34,7 @@ STD_ROADMARK_SOLID_BROKEN = RoadMark(RoadMarkType.solid_broken)
 STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,0,0,0.2,0))
 STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,-0.2,0))
 
-STD_ROADMARK_BROKEN_SOLID = RoadMark(RoadMarkType.solid_broken)
+STD_ROADMARK_BROKEN_SOLID = RoadMark(RoadMarkType.broken_solid)
 STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,0,0,-0.2,0))
 STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,3,3,0.2,0))
 

@@ -24,6 +24,11 @@ def test_roadmark():
     assert mark == mark2
     assert mark != mark3
 
+    mark4 = pyodrx.RoadMark(pyodrx.RoadMarkType.solid_solid)
+    mark4.add_specific_road_line(pyodrx.RoadLine(0.2,0,0,0.2,0))
+    mark4.add_specific_road_line(pyodrx.RoadLine(0.2,0,0,0.2,0))
+    prettyprint(mark4.get_element())
+
 def test_lane():
     lane = pyodrx.Lane()
     lane._set_lane_id(1)

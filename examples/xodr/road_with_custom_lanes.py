@@ -1,3 +1,12 @@
+""" Example how to create roads with custom lanes to the left and right
+    
+    Some features used
+
+    - PlanView
+
+    - LaneSection
+
+"""
 import os
 from scenariogeneration import xodr
 
