@@ -551,9 +551,9 @@ class RoadMark():
 
             width (float): width of the marking / line
                 Default: None
-            length (float): length of the visible, marked part of the line
+            length (float): length of the visible, marked part of the line (used for broken lines)
                 Default: None
-            space (float): length of the invisible, unmarked part of the line
+            space (float): length of the invisible, unmarked part of the line (used for broken lines)
                 Default: None
             toffset (float): offset in t
                 Default: None
@@ -590,7 +590,7 @@ class RoadMark():
 
             
         #TODO: there may be more line child elements per roadmark, which is currently unsupported
-        self._line = None
+        self._line = []
         #check if arguments were passed that require line child element
         if any([length, space, toffset, rule]):
             #set defaults in case no values were provided
@@ -611,8 +611,17 @@ class RoadMark():
             self.width = width or 0.2
             self.toffset = toffset or 0
             self.rule = rule or MarkRule.none
-            self._line = RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color)          
+            self._line.append(RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color))
 
+    def add_specific_road_line(self,line):
+        """ function to add your own roadline to the RoadMark, to use for multi line type of roadmarks, 
+            
+            Parameters
+            ----------
+                line (RoadLine): the roadline to add
+
+        """
+        self._line.append(line)
     def __eq__(self, other):
         if isinstance(other,RoadMark):
             if self._line == other._line and \
@@ -642,9 +651,10 @@ class RoadMark():
 
         """
         element = ET.Element('roadMark',attrib=self.get_attributes())
-        if self._line != None:
+        if self._line:
             typeelement = ET.SubElement(element,'type', attrib={'name':enum2str(self.marking_type),'width':str(self.width)})
-            typeelement.append(self._line.get_element())
+            for l in self._line:
+                typeelement.append(l.get_element())
         return element
         
 class RoadLine():
