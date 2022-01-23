@@ -1,5 +1,13 @@
 ## scenariogeneration release notes
 
+
+### 2021-01-23 Version 0.7.4
+- New Features
+    - RoadMarks can now have multiple lines (for double road marks)
+    
+        - New standard roadmarks added for standard double roadmarks (solid-solid, solid-broken, broken-solid, and broken-broken)
+        - new example how to create custom roadmarks
+- Some updates to documentation 
 ### 2021-01-17 Version 0.7.3
 - Bug fix
     - removed some unnecessary printouts
