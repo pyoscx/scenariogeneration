@@ -23,20 +23,20 @@ STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2)
 STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken,0.2)
 
 STD_ROADMARK_BROKEN_BROKEN = RoadMark(RoadMarkType.broken_broken)
-STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,0.3,0))
-STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,-0.3,0))
+STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,0.2,0))
+STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,-0.2,0))
 
 STD_ROADMARK_SOLID_SOLID = RoadMark(RoadMarkType.solid_solid)
-STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2,0,0,0.3,0))
-STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2,0,0,-0.3,0))
+STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2,0,0,0.2,0))
+STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2,0,0,-0.2,0))
 
 STD_ROADMARK_SOLID_BROKEN = RoadMark(RoadMarkType.solid_broken)
-STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,0,0,0.3,0))
-STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,-0.3,0))
+STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,0,0,0.2,0))
+STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2,3,3,-0.2,0))
 
 STD_ROADMARK_BROKEN_SOLID = RoadMark(RoadMarkType.solid_broken)
-STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,0,0,-0.3,0))
-STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,3,3,0.3,0))
+STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,0,0,-0.2,0))
+STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2,3,3,0.2,0))
 
 STD_START_CLOTH = 1/1000000000
 
