@@ -11,7 +11,6 @@ from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
 
 
 import datetime as dt
-import warnings
 from itertools import combinations
 import numpy as np
 import copy as cpy

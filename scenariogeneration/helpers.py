@@ -1,10 +1,10 @@
 """ helpers contains a launcher of esmini and a simple print function for the xmls
 
 """
-from genericpath import exists
+
 import xml.etree.ElementTree as ET
 import xml.dom.minidom as mini
-import os
+
 
 def prettify(element, encoding='utf-8'):
     """ prints the element to the commandline

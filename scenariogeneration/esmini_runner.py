@@ -1,9 +1,6 @@
 """ helpers contains a launcher of esmini and a simple print function for the xmls
 
 """
-from genericpath import exists
-import xml.etree.ElementTree as ET
-import xml.dom.minidom as mini
 import os
 
 from .scenario_generator import ScenarioGenerator

@@ -8,7 +8,7 @@ import numpy as np
 import pyclothoids as pcloth
 from .exceptions import NotEnoughInputArguments, ToManyOptionalArguments, MixOfGeometryAddition
 from scipy.integrate import quad
-from scipy.special import fresnel
+
 
 
 class PlanView():

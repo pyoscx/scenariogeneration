@@ -3,7 +3,7 @@
 """
 from abc import abstractstaticmethod
 import os
-from attr import attrib
+
 
 from numpy.lib.arraysetops import isin
 from .exceptions import OpenSCENARIOVersionError

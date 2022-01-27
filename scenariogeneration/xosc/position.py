@@ -1,7 +1,6 @@
 """ the position module contains the positions defined by OpenSCENARIO
 
 """
-from operator import pos
 import xml.etree.ElementTree as ET
 
 from .utils import Orientation, CatalogReference,  _PositionType, convert_float, convert_int, VersionBase, ParameterDeclarations, convert_bool, ReferenceContext, CatalogFile, Parameter
