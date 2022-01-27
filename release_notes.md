@@ -1,5 +1,12 @@
 ## scenariogeneration release notes
 
+### 2021-01-27 Version 0.7.5
+- Cleaning up some dependencies
+    - removed some non-used libraries and dependencies
+    - cleaning up imports
+- New Features
+    - booleans can now be parsed from "0" and "1"
+
 
 ### 2021-01-23 Version 0.7.4
 - New Features
@@ -8,6 +15,7 @@
         - New standard roadmarks added for standard double roadmarks (solid-solid, solid-broken, broken-solid, and broken-broken)
         - new example how to create custom roadmarks
 - Some updates to documentation 
+
 ### 2021-01-17 Version 0.7.3
 - Bug fix
     - removed some unnecessary printouts
