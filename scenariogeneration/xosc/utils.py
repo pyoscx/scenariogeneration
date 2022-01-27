@@ -3651,9 +3651,9 @@ def convert_bool(value):
             boolean (str)
     """
     if isinstance(value,str):
-        if value == 'true':
+        if value == 'true' or value == '1':
             return True
-        elif value == 'false':
+        elif value == 'false' or value == '0':
             return False
         elif value[0] == '$':
             return value

@@ -578,14 +578,18 @@ def test_convert_float():
          
 def test_convert_int():
     assert OSC.convert_int(1) == 1
-    assert OSC.convert_float('1') == 1
-    assert OSC.convert_float('$asdf') == '$asdf'
+    assert OSC.convert_int('1') == 1
+    assert OSC.convert_int('$asdf') == '$asdf'
     with pytest.raises(ValueError):
         OSC.convert_float('asdf') 
 
 def test_convert_bool():
     assert OSC.convert_bool(1) == 'true'
-    assert OSC.convert_float(False) == False
-    assert OSC.convert_float('$asdf') == '$asdf'
+
+    assert OSC.convert_bool(False) == 'false'
+    assert OSC.convert_bool('$asdf') == '$asdf'
+    assert OSC.convert_bool('0') == False
+    assert OSC.convert_bool('1') == True
+
     with pytest.raises(ValueError):
         OSC.convert_float('asdf') 
