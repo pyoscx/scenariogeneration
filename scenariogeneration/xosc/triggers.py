@@ -1106,7 +1106,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
         value = condition.attrib['value']
         rule = getattr(Rule,condition.attrib['rule'])
         if 'alongRoute' in condition.attrib:
-            alongroute = condition.attrib['alongRoute']
+            alongroute = convert_bool(condition.attrib['alongRoute'])
         else:
             alongroute = True
 
@@ -1291,7 +1291,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         rule = getattr(Rule,condition.attrib['rule'])
         freespace = convert_bool(condition.attrib['freespace'])
         if 'alongRoute' in condition.attrib:
-            alongroute = condition.attrib['alongRoute']
+            alongroute = convert_bool(condition.attrib['alongRoute'])
         else:
             alongroute = True
 
@@ -1919,7 +1919,7 @@ class DistanceCondition(_EntityTriggerType):
         rule = getattr(Rule,condition.attrib['rule'])
         freespace = convert_bool(condition.attrib['freespace'])
         if 'alongRoute' in condition.attrib:
-            alongroute = condition.attrib['alongRoute']
+            alongroute = convert_bool(condition.attrib['alongRoute'])
         else:
             alongroute = True
 
@@ -2067,7 +2067,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         freespace = convert_bool(condition.attrib['freespace'])
         entity = condition.attrib['entityRef']
         if 'alongRoute' in condition.attrib:
-            alongroute = condition.attrib['alongRoute']
+            alongroute = convert_bool(condition.attrib['alongRoute'])
         else:
             alongroute = True
 
