@@ -60,13 +60,13 @@ scenario = ParseOpenScenario('my_non_python_made_scenario.xosc')
 
 __ParseOpenScenario__ can read all types of OpenSCENARIO files (Scenario, Catalog and ParameterValueDistribution), and will return the Object related to that file type. 
 
-NOTE: more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a Trigger, ConditionGroup will always be present. 
+NOTE: more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a __Trigger__ and __ConditionGroup__ will always be present. 
 
 ## xodr
 
 The xodr module handles the part related to OpenDrive, and does not (as of now) have a full coverage of the standard, please see [coverage](https://github.com/pyoscx/scenariogeneration/blob/main/xodr_coverage.txt) for more information. 
 
-The __xodr__ module is also a xml generator, similar to the __xosc__ module. However, since opendrive is more complicated to create a functional road-network, it includes a number of automation algorithms which allow the user to easily generate a correct OpenDRIVE hierarchy. As a matter of fact the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, that to create the xml directly is quite cumbersome. Hence, it is highly recommended to use the automations and "generators" included in the package. In the examples, both "generator" level ([full_junction](examples/xodr/full_junction.html), [highway_example](examples/xodr/highway_example.html), and [simple_road_with_objects](examples/xodr/simple_road_with_objects.html)) and low level examples (as [junction_trippel_twoway](examples/xodr/junction_trippel_twoway.html), [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) and [road_merge_w_lane_merge](exampels/xodr/road_merge_w_lane_merge.html) ) are presented. 
+The __xodr__ module is also a xml generator, similar to the __xosc__ module. However, since opendrive is more complicated to create a functional road-network, it includes a number of automation algorithms which allow the user to easily generate a correct OpenDRIVE hierarchy. As a matter of fact, the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, that to create the xml directly is quite cumbersome. Hence, it is highly recommended to use the automations and "generators" included in the package. In the examples, both "generator" level ([full_junction](examples/xodr/full_junction.html), [highway_example](examples/xodr/highway_example.html), and [simple_road_with_objects](examples/xodr/simple_road_with_objects.html)) and low level examples (as [junction_trippel_twoway](examples/xodr/junction_trippel_twoway.html), [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) and [road_merge_w_lane_merge](exampels/xodr/road_merge_w_lane_merge.html) ) are presented. 
 
 ### Automatic calculation of geometries and links
 
@@ -74,7 +74,9 @@ The most important automation functionality is the *adjust_roads_and_lanes* meth
 
 1. **Patch all Geometries and Roads Together** This is done on two levels: the "RoadNetwork" level and the "PlanView" level. At the RoadNetwork level all defined roads are patched consecutively, and this is possible only if the "predecessor/successor" attributes of the roads have been set. This is done either by: fixing the first road added to (0,0,0) and patch all other roads to that one, or localize if any PlanView(s) created has a manually added start point (e.g. if multiple roads are not connected via predecessor/successor). At the PlanView level instead all geometries are patched together creating one continuous road, based at its start point. See the [highway_example](examples/xodr/highway_example.html) for an example showing how to work on the RoadNetwork level and [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) for the PlanView level.
 
-2. **Create Lane Linking** At this step the algorithm tries to link the lanes between roads. Normally this requires the same number of lanes in the connecting roads, but if the roads have a different amount of lanes, (should only be done in a junction!), the algorithm handles this case by adding offsets when defining the predecessor/successor attributes (see example: highway_example)
+Note: *adjust_roads_and_lanes* will assume that the heading is continious between different geometries and roads.
+
+2. **Create Lane Linking** At this step the algorithm tries to link the lanes between roads. Normally this requires the same number of lanes in the connecting roads, but if the roads have a different amount of lanes, (should only be done in a junction!), the algorithm handles this case by adding offsets when defining the predecessor/successor attributes (see example: [highway_example](examples/xodr/highway_example.html), or [direct_junction_exit](examples/xodr/direct_junction_exit.html))
 
 __NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method, hence the resulting road might be very strange if the input is "wrong". 
 
@@ -83,19 +85,23 @@ For most simple roads, the generators that are provided in the __xodr__ module c
 
 #### create_road
 The *create_road* function is very useful to create rather simple roads with either fixed amount of lanes or simple lane-merge/splits. 
-Some example usage of this can be seen in: 
+Some example usage of this can be seen in [highway_example](examples/xodr/highway_example.html).
 
 #### create_cloth_arc_cloth
 The  *create_cloth_arc_cloth* function creates road with a smooth curve based on a clothoid + arc + clothoid. This is often used since the curvature of the road will change continiously (and resulting in nice steering wheel changes for a driver).
 
 #### create_3cloths
-Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries. 
+Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using pyclothoids)
 
 #### create_junction_roads
 - The *create_junction_roads* generates all the roads for a simple intersection. The position of roads around a junction is defined by *R*, the distance of each road form the center of the junction, and by *angles*, defining how the roads around the junction are spanned. With these inputs, *create_junction_roads* generates all the roads in the junction, which are connecting the surrounding roads. 
 
 #### create_junction
 The *create_junction* function creates the "junction" element of OpenDRIVE, based on a list of "roads in the junction" (that can be generated from *create_junction_roads*) and a list of "roads going into the junction" 
+
+#### create_direct_junction
+Similar to *create_junction*, create_direct_junction can be used to create the junction element for a direct junction. This is possible when using the direct_junction input in add_predecessor/add_successor, see [direct_junction_exit](examples/xodr/direct_junction_exit.html) or [direct_junction_entry](examples/xodr/direct_junction_entry.html)
+
 
 #### LaneDef
 LaneDef is a helper class that enables simple lane merge/split roads to be created, this definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html)).

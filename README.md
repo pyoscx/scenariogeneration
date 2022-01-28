@@ -12,9 +12,9 @@ Please note that this is not an official implementation of either OpenSCENARIO o
 
 ## Coverage
 
-As of V0.5.0, the coverage of the modules varies:
+As of V0.7.2, the coverage of the modules varies:
 - The xosc module has full coverage of OpenSCENARIO V1.0.0, and most of V1.1.0, if something is missing please raise an issue or make a pull request.
-- The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.5.0). 
+- The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.7.1). 
 
 For more details se xodr_coverage.txt and xosc_missing_features.txt
 
@@ -42,7 +42,7 @@ Please see the user guide for more information: https://pyoscx.github.io/
 ### Running with esmini
 
 Esmini can be used to visualize the generated scenarios. Visit https://github.com/esmini/esmini and follow the "Binaries and demos" section.
-Your scenarios can be visualized directly by making use of *esminiRunner* in the following way:
+Your scenarios can be visualized directly by making use of *esmini* in the following way:
 
 ```
 from scenariogeneration import esmini
