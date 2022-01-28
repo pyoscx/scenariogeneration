@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+
+### 2021-01-28 Version 0.7.6
+- Bug fix in parsing along route
+
 ### 2021-01-27 Version 0.7.5
 - Cleaning up some dependencies
     - removed some non-used libraries and dependencies
