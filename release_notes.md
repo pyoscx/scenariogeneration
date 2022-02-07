@@ -1,5 +1,8 @@
 ## scenariogeneration release notes
 
+### 2021-02-07 Version 0.7.7
+- Bug fix in OverrideGearAction
+- Documatation updates
 
 ### 2021-01-28 Version 0.7.6
 - Bug fix in parsing along route
