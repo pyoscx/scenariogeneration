@@ -2083,7 +2083,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         if ocva_element.find('Gear') != None:
             gear_element = ocva_element.find('Gear')
             ocv_action.gear_active = convert_bool(gear_element.attrib['active'])
-            ocv_action.gear_value = convert_float(gear_element.attrib['value'])
+            ocv_action.gear_value = convert_float(gear_element.attrib['number'])
 
         return ocv_action
 
