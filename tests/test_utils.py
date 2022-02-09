@@ -1,5 +1,5 @@
 import pytest
-
+import datetime as dt
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
@@ -224,7 +224,7 @@ def test_controller():
     assert cnt4 ==cnt
 
 def test_fileheader():
-    fh = OSC.FileHeader('my_scenario','Mandolin')
+    fh = OSC.FileHeader('my_scenario','Mandolin',creation_date=dt.datetime.now())
     prettyprint(fh.get_element())
     fh2 = OSC.FileHeader('my_scenario','Mandolin')
     fh3 = OSC.FileHeader('my_scenario','Mandolin2')

@@ -1,7 +1,7 @@
 
 import pytest
 from examples.generator.generate_from_main import Scenario
-
+import datetime as dt
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
@@ -110,7 +110,7 @@ def test_scenario():
 
     sce = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
     prettyprint(sce.get_element(),None)
-    sce2 = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
+    sce2 = OSC.Scenario('myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog,creation_date = dt.datetime.now())
     sce3 = OSC.Scenario('2myscenario','Mandolin',OSC.ParameterDeclarations(),entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
 
     assert sce == sce2

@@ -742,12 +742,19 @@ class FileHeader(VersionBase):
             license (License): license (valid from OpenSCENARIO V1.1)
                 Default: None
 
+            creation_date (datetime.datetime): optional hardcoded creation date
+                Default: datetime.datetime.now() (when actually generating the xml)
+
         Attributes
         ----------
             name (str): name of the scenario 
 
             author (str): the author of the scenario
 
+            license (License): license (valid from OpenSCENARIO V1.1)
+            
+            creation_date (datetime.datetime): optional hardcoded creation date
+            
         Methods
         -------
             parse(element)
@@ -760,11 +767,29 @@ class FileHeader(VersionBase):
                 Returns a dictionary of all attributes of FileHeader
 
     """
-    def __init__(self,author,description,revMinor=1,license=None):
+    def __init__(self,author,description,revMinor=1,license=None,creation_date=None):
+        """ FileHeader creates the header of the OpenScenario file1
+        
+            Parameters
+            ----------
+                name (str): name of the scenario 
+
+                author (str): the author of the scenario
+
+                revMinor (int): the minor revision of the standard
+                    Default: 1
+
+                license (License): license (valid from OpenSCENARIO V1.1)
+                    Default: None
+
+                creation_date (datetime.datetime): optional hardcoded creation date
+                    Default: datetime.datetime.now() (when actually generating the xml)
+        """
         self.description = description
         self.author = author
         self._revMajor = 1
         self._revMinor = revMinor
+        self.creation_date = creation_date
         self.setVersion(minor=revMinor)
         if license and not isinstance(license,License):
             raise TypeError('license is not of type License')
@@ -809,7 +834,12 @@ class FileHeader(VersionBase):
         """ returns the attributes as a dict of the FileHeader
 
         """
-        return {'description':self.description,'author':self.author,'revMajor':str(self._revMajor),'revMinor':str(self._revMinor),'date':dt.datetime.now().isoformat()}
+        retdict = {'description':self.description,'author':self.author,'revMajor':str(self._revMajor),'revMinor':str(self._revMinor)}
+        if self.creation_date != None:
+            retdict['date'] = self.creation_date.isoformat()
+        else:
+            retdict['date'] = dt.datetime.now().isoformat()
+        return retdict
 
     def get_element(self):
         """ returns the elementTree of the FileHeader
