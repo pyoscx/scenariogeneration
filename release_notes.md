@@ -1,8 +1,10 @@
 ## scenariogeneration release notes
 
-### 2021-02-07 Version 0.7.7
+### 2021-02-09 Version 0.7.8
 - Bug fix in OverrideGearAction
-- Documatation updates
+- New Feature
+    - license can now be added directly in the creation of Scenario
+    - creation_date is added to file header if a custom date is wanted. (also as optional input to scenario)
 
 ### 2021-01-28 Version 0.7.6
 - Bug fix in parsing along route
