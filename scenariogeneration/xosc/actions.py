@@ -2189,7 +2189,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         if self.steeringwheel_active != None:
             ET.SubElement(overrideaction,'SteeringWheel',{'active':convert_bool(self.steeringwheel_active),'value':str(self.steeringwheel_value)})
         if self.gear_active != None:
-            ET.SubElement(overrideaction,'Gear',{'active':convert_bool(self.gear_active),'value':str(self.gear_value)})
+            ET.SubElement(overrideaction,'Gear',{'active':convert_bool(self.gear_active),'number':str(self.gear_value)})
 
         return element
 
