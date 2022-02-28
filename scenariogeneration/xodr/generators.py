@@ -343,7 +343,7 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, c
     # create road
     return Road(r_id,pv,lanes,road_type=junction)
 
-def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2_end, cloth2_length, cloth3_start, cloth3_end, cloth3_length, r_id, junction=1, n_lanes=1, lane_offset=3):
+def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2_end, cloth2_length, cloth3_start, cloth3_end, cloth3_length, r_id, junction=1, n_lanes=1, lane_offset=3,road_marks = STD_ROADMARK_BROKEN):
     """ creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
 
         Parameters
@@ -396,10 +396,20 @@ def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2
     pv.add_geometry(spiral3)
 
     # create lanes
-    lsec = LaneSection(0,standard_lane())
+    center_lane = Lane()
+    if road_marks:
+        center_lane.add_roadmark(road_marks)
+    lsec = LaneSection(0,center_lane)
+    
+        
     for i in range(1, n_lanes+1, 1):
-        lsec.add_right_lane(standard_lane(lane_offset))
-        lsec.add_left_lane(standard_lane(lane_offset))
+        rl = Lane(a=lane_offset)
+        ll = Lane(a=lane_offset)
+        if road_marks:
+            rl.add_roadmark(road_marks)
+            ll.add_roadmark(road_marks)
+        lsec.add_right_lane(rl)
+        lsec.add_left_lane(ll)
     lanes = Lanes()
     lanes.add_lanesection(lsec)
 
@@ -599,7 +609,7 @@ def create_junction_roads_from_arc(roads,angles,r=0,junction=1,arc_part = 1/3,st
     return junction_roads
 
 
-def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3,startnum=100):
+def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnum=100, inner_road_marks = None, outer_road_marks = STD_ROADMARK_SOLID):
     """ creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
         R is value to the the radius of the whole junction (meaning R = distance between the center of the junction and any external road attached to the junction)
         Supportes all angles and number of roads.
@@ -619,11 +629,14 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3,startnum
             spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
                 default: (1/3)
 
-            arc_part (float): the part of the curve that should be an arc:  spiral_part*2 + arcpart = angle of the turn
-                default: (1/3)
-
             startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
+                default: 100
 
+            inner_road_marks (RoadMark): the RoadMark that all lanes inside the junction will have (outer will be solid)
+                Default: None
+
+            outer_road_marks (RoadMark): the roadmark that will be on the edge of the connecting roads (limit the junction)
+                Default: STD_ROADMARK_SOLID
         Returns
         -------
             junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
@@ -638,9 +651,6 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3,startnum
     elif len(R) > 1 and len(R) is not len(roads): 
         raise GeneralIssueInputArguments('roads and R do not have the same size.')
 
-
-    #arc_part = 1 - 2*spiral_part
-    spiral_part = (1 - arc_part)/2
 
     #linelength = 2*R
     junction_roads = []
@@ -662,8 +672,6 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3,startnum
             if an1 > np.pi: 
                 an1 = -(2*np.pi - an1)
 
-            angle_arc = an1*arc_part
-            angle_cloth = an1*spiral_part
             sig = np.sign(an1)
 
 
@@ -673,10 +681,30 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3,startnum
                 # create straight road 
                 linelength = R[i]+R[j]
                 tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
+                for l in tmp_junc.lanes.lanesections[0].leftlanes:
+                    l.roadmark = inner_road_marks
+                for r in tmp_junc.lanes.lanesections[0].rightlanes:
+                    r.roadmark = inner_road_marks
+                tmp_junc.lanes.lanesections[0].centerlane.roadmark = inner_road_marks
+                if len(roads) == 3:
+                    # not sure all will be needed since angles have to be in increasing order, but it "should work"
+                    k = [x for x in [0,1,2] if x != j and x != i][0]
+                    if (angles[i] > angles[j]) and ( (angles[k] > angles[j]) or (angles[k] < angles[i]) ):
+                        tmp_junc.lanes.lanesections[0].rightlanes[-1].roadmark = outer_road_marks
+                    elif (angles[i] < angles[j]) and ( (angles[k] > angles[j]) or (angles[k] < angles[i]) ):
+                        tmp_junc.lanes.lanesections[0].rightlanes[-1].roadmark = outer_road_marks
+                    elif (angles[i] < angles[j]) and ( (angles[k] < angles[j]) or (angles[k] > angles[i]) ):
+                        tmp_junc.lanes.lanesections[0].leftlanes[-1].roadmark = outer_road_marks
+                    else:
+                        tmp_junc.lanes.lanesections[0].rightlanes[-1].roadmark = outer_road_marks
             else: 
                 clothoids = pcloth.SolveG2(-R[i], 0, 0, STD_START_CLOTH, R[j]*np.cos(an1), R[j]*np.sin(an1), an1, STD_START_CLOTH)
-                tmp_junc = create_3cloths(clothoids[0].KappaStart, clothoids[0].KappaEnd, clothoids[0].length, clothoids[1].KappaStart, clothoids[1].KappaEnd, clothoids[1].length, clothoids[2].KappaStart, clothoids[2].KappaEnd, clothoids[2].length, startnum, junction, n_lanes=n_lanes, lane_offset=lanes_offset)
+                tmp_junc = create_3cloths(clothoids[0].KappaStart, clothoids[0].KappaEnd, clothoids[0].length, clothoids[1].KappaStart, clothoids[1].KappaEnd, clothoids[1].length, clothoids[2].KappaStart, clothoids[2].KappaEnd, clothoids[2].length, startnum, junction, n_lanes=n_lanes, lane_offset=lanes_offset,road_marks=inner_road_marks)
 
+                if tmp_junc.planview._raw_geometries[1].curvstart > 0:
+                    tmp_junc.lanes.lanesections[0].leftlanes[-1].roadmark = outer_road_marks
+                if tmp_junc.planview._raw_geometries[1].curvstart < 0:
+                    tmp_junc.lanes.lanesections[0].rightlanes[-1].roadmark = outer_road_marks
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road,roads[i].id,cp)
             tmp_junc.add_successor(ElementType.road,roads[j].id,ContactPoint.start)
