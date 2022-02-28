@@ -1,5 +1,10 @@
 ## scenariogeneration release notes
 
+### 2021-02-28 Version 0.7.9
+- New Feature
+    - create_junction_roads now have inputs to set the inner and outer (boarder) roadmarks 
+         - Default is changed: inside no roadmarks, boarder solid
+
 ### 2021-02-09 Version 0.7.8
 - Bug fix in OverrideGearAction
 - New Feature
