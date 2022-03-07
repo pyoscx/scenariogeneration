@@ -244,6 +244,8 @@ class Road():
 
             contact_point (ContactPoint): the contact point of the link
 
+            direct_juction (list of int): road id that are successors to this road in a direct junction
+
         """
         if self.successor:
             raise ValueError('only one successor is allowed')
@@ -264,6 +266,8 @@ class Road():
             element_id (str/int): name of the linked road
 
             contact_point (ContactPoint): the contact point of the link
+
+            direct_juction (list of int): road id that are predecessors to this road in a direct junction
 
         """
         if self.predecessor:
