@@ -142,10 +142,10 @@ class Road():
             get_attributes()
                 Returns a dictionary of all attributes of the class
 
-            add_successor (element_type,element_id,contact_point,lane_offset)
+            add_successor (element_type,element_id,contact_point,lane_offset,direct_junction)
                 adds a successor for the road
 
-            add_predecessor (element_type,element_id,contact_point,lane_offset)
+            add_predecessor (element_type,element_id,contact_point,lane_offset,direct_junction)
                 adds a predecessor for the road          
 
             add_neighbor (element_type,element_id,direction)
