@@ -17,7 +17,7 @@ from .exceptions import OpenSCENARIOVersionError
 from os import error
 import warnings
 
-_MINOR_VERSION = 1
+_MINOR_VERSION = 2
 
 
 class VersionBase:
@@ -26,10 +26,10 @@ class VersionBase:
     version_major = 1
     version_minor = _MINOR_VERSION
 
-    def isVersion(self, major=1, minor=1):
+    def isVersion(self, major=1, minor=_MINOR_VERSION):
         return major >= self.version_major and minor >= self.version_minor
 
-    def setVersion(self, major=1, minor=0):
+    def setVersion(self, major=1, minor=_MINOR_VERSION):
         VersionBase.version_major = major
         VersionBase.version_minor = minor
 
@@ -109,7 +109,6 @@ class _OscEnum(VersionBase):
         -------
         name (str)
         """
-
         if self.min_minor_version > self.version_minor:
             raise OpenSCENARIOVersionError(
                 self.classname

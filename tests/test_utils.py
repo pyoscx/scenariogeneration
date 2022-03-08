@@ -17,6 +17,11 @@ from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import _TrafficSignalState, ValueConstraintGroup
 
 
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion()
+
+
 @pytest.mark.parametrize(
     "teststring",
     [
@@ -696,3 +701,62 @@ def test_convert_bool():
 
     with pytest.raises(ValueError):
         OSC.convert_bool("asdf")
+
+
+def test_color():
+    c = OSC.Color(1, 2, 3)
+    c2 = OSC.Color(1, 2, 3)
+    c3 = OSC.Color(1, 2, 4)
+    prettyprint(c)
+    assert c == c2
+    assert c != c3
+    c4 = OSC.Color.parse(c.get_element())
+    assert c == c4
+
+
+def test_userdefinedlight():
+    udl = OSC.UserDefinedLight("superlight")
+    udl2 = OSC.UserDefinedLight("superlight")
+    udl3 = OSC.UserDefinedLight("less super light")
+    prettyprint(udl)
+    assert udl == udl2
+    assert udl != udl3
+    udl4 = OSC.UserDefinedLight.parse(udl.get_element())
+    assert udl4 == udl
+
+
+def test_lightstate():
+    ls = OSC.utils._LightState(
+        OSC.LightMode.on,
+        color=OSC.Color(1, 2, 3),
+        intensity=200,
+        flashing_off_duration=0.3,
+        flashing_on_duration=0.2,
+    )
+    ls2 = OSC.utils._LightState(
+        OSC.LightMode.on,
+        color=OSC.Color(1, 2, 3),
+        intensity=200,
+        flashing_off_duration=0.3,
+        flashing_on_duration=0.2,
+    )
+    ls3 = OSC.utils._LightState(OSC.LightMode.flashing)
+    prettyprint(ls)
+    print(ls3)
+    prettyprint(ls3)
+    assert ls == ls2
+    assert ls != ls3
+    ls4 = OSC.utils._LightState.parse(ls.get_element())
+    assert ls == ls4
+
+
+def test_fileheader():
+    fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
+    prettyprint(fh.get_element())
+    fh2 = OSC.FileHeader("my_scenario", "Mandolin")
+    fh3 = OSC.FileHeader("my_scenario", "Mandolin2")
+    assert fh == fh2
+    assert fh != fh3
+
+    fh4 = OSC.FileHeader.parse(fh.get_element())
+    assert fh4 == fh
