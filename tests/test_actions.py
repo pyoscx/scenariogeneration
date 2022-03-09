@@ -753,3 +753,32 @@ def test_userdefinedaction():
     uda3 = OSC.UserDefinedAction.parse(uda.get_element())
     prettyprint(uda3)
     assert uda3 == uda
+
+
+def test_lightstateaction():
+    lsa = OSC.LightStateAction(
+        OSC.VehicleLightType.brakeLights,
+        OSC.LightMode.on,
+        transition_time=0.1,
+        color=OSC.Color(255, 0, 0),
+    )
+    lsa2 = OSC.LightStateAction(
+        OSC.VehicleLightType.brakeLights,
+        OSC.LightMode.on,
+        transition_time=0.1,
+        color=OSC.Color(255, 0, 0),
+    )
+    lsa3 = OSC.LightStateAction(
+        OSC.UserDefinedLight("super light"),
+        OSC.LightMode.on,
+        transition_time=0.1,
+        color=OSC.Color(255, 0, 0),
+    )
+    prettyprint(lsa)
+    prettyprint(lsa3)
+    assert lsa == lsa2
+    assert lsa != lsa3
+    lsa4 = OSC.LightStateAction.parse(lsa.get_element())
+    assert lsa4 == lsa
+    lsa5 = OSC.LightStateAction.parse(lsa3.get_element())
+    assert lsa5 == lsa3
