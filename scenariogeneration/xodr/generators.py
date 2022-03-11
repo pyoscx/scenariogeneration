@@ -83,7 +83,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
         ------
             road (Lanes): the lanes of a road
     """
-    
+
     lanesections = []
     # expand the lane list
     right_lane, left_lane = _create_lane_lists(right_lane_def,left_lane_def,road_length)
@@ -95,7 +95,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
     
     # create the lanesections needed
     for ls in range(len(left_lane)):
-        lsec = LaneSection(left_lane[ls].s_start,lc)       
+        lsec = LaneSection(left_lane[ls].s_start,lc)   
         # do the right lanes
         for i in range(max(right_lane[ls].n_lanes_start,right_lane[ls].n_lanes_end)):
             
@@ -844,148 +844,6 @@ def get_road_by_id(roads,id):
         if r.id == id:
             return r
 
-
-
-def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_road_mark,lane_width):
-    """ create_lanes_merge_split is a generator that will create the Lanes of a road road that can contain one or more lane merges/splits
-        This is a simple implementation and has some constraints:
-         - left and right merges has to be at the same place (or one per lane), TODO: will be fixed with the singleSide attribute later on.
-         - the change will be a 3 degree polynomial with the derivative 0 on both start and end.
-        
-        Please note that the merges/splits are defined in the road direction, NOT the driving direction.
-
-        Parameters
-        ----------
-            right_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the right side of the road, if int constant number of lanes
-
-            left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes. 
-
-            road_length (float): the full length of the road
-
-            center_road_mark (RoadMark): roadmark for the center line
-
-            lane_width (float): the width of the lanes
-
-        Return
-        ------
-            road (Lanes): the lanes of a road
-    """
-    
-    lanesections = []
-    # expand the lane list
-    right_lane, left_lane = _create_lane_lists(right_lane_def,left_lane_def,road_length)
-
-    # create centerlane
-    lc = Lane(a=0)
-    lc.add_roadmark(center_road_mark)
-    
-    
-    # create the lanesections needed
-    for ls in range(len(left_lane)):
-        lsec = LaneSection(left_lane[ls].s_start,lc)       
-        # do the right lanes
-        for i in range(max(right_lane[ls].n_lanes_start,right_lane[ls].n_lanes_end)):
-            
-            # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
-            if i == max(right_lane[ls].n_lanes_start,right_lane[ls].n_lanes_end)-1:
-                rm = STD_ROADMARK_SOLID
-            else:
-                rm = STD_ROADMARK_BROKEN
-
-            # check if the number of lanes should change or not 
-            if right_lane[ls].n_lanes_start > right_lane[ls].n_lanes_end and i == -right_lane[ls].sub_lane-1:
-                # lane merge
-                coeff = get_coeffs_for_poly3(right_lane[ls].s_end-right_lane[ls].s_start,lane_width,False)
-                rightlane = Lane(a=coeff[0],b=coeff[1],c=coeff[2],d=coeff[3])
-                rightlane.add_roadmark(rm)
-            elif right_lane[ls].n_lanes_start < right_lane[ls].n_lanes_end and i == -right_lane[ls].sub_lane-1:
-                # lane split
-                coeff = get_coeffs_for_poly3(right_lane[ls].s_end-right_lane[ls].s_start,lane_width,True)
-                rightlane = Lane(a=coeff[0],b=coeff[1],c=coeff[2],d=coeff[3])
-                rightlane.add_roadmark(rm)
-            else:
-                rightlane = standard_lane(lane_width,rm)
-            
-            lsec.add_right_lane(rightlane)      
-
-        for i in range(max(left_lane[ls].n_lanes_start,left_lane[ls].n_lanes_end)):
-            # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
-            if i == max(left_lane[ls].n_lanes_start,left_lane[ls].n_lanes_end)-1:
-                rm = STD_ROADMARK_SOLID
-            else:
-                rm = STD_ROADMARK_BROKEN
-
-            # check if the number of lanes should change or not 
-            if left_lane[ls].n_lanes_start < left_lane[ls].n_lanes_end and i == left_lane[ls].sub_lane-1:
-                # lane split
-                coeff = get_coeffs_for_poly3(left_lane[ls].s_end-left_lane[ls].s_start,lane_width,True)
-                leftlane = Lane(a=coeff[0],b=coeff[1],c=coeff[2],d=coeff[3])
-                leftlane.add_roadmark(rm)
-            elif left_lane[ls].n_lanes_start > left_lane[ls].n_lanes_end and i == left_lane[ls].sub_lane-1:
-                # lane merge
-                coeff = get_coeffs_for_poly3(left_lane[ls].s_end-left_lane[ls].s_start,lane_width,False)
-                leftlane = Lane(a=coeff[0],b=coeff[1],c=coeff[2],d=coeff[3])
-                leftlane.add_roadmark(rm)
-            else:
-                leftlane = standard_lane(lane_width,rm)
-            
-            lsec.add_left_lane(leftlane)   
-        
-        lanesections.append(lsec)
-
-    # create the lane linker to link the lanes correctly
-    lanelinker = LaneLinker()
-    for i in range(1,len(right_lane)):
-        if right_lane[i].n_lanes_end > right_lane[i].n_lanes_start:
-            # lane split
-            for j in range(0,right_lane[i-1].n_lanes_end+1):
-                # adjust for the new lane
-                if right_lane[i].sub_lane < -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j])
-                elif right_lane[i].sub_lane > -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j-1],lanesections[i].rightlanes[j])
-        elif right_lane[i-1].n_lanes_end < right_lane[i-1].n_lanes_start:
-            # lane merge
-            for j in range(0,right_lane[i-1].n_lanes_end+1):
-                # adjust for the lost lane
-                if right_lane[i-1].sub_lane < -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j])    
-                elif right_lane[i-1].sub_lane > -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j-1])    
-
-        else:
-            # same number of lanes, just add the links
-            for j in range(right_lane[i-1].n_lanes_end):
-                lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j])
-
-    for i in range(1,len(left_lane)):
-        if left_lane[i].n_lanes_end > left_lane[i].n_lanes_start:
-            # lane split
-            for j in range(0,left_lane[i-1].n_lanes_end+1):
-                # adjust for the new lane
-                if left_lane[i].sub_lane < (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j-1],lanesections[i].leftlanes[j])
-                elif left_lane[i].sub_lane > (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j])
-        elif left_lane[i-1].n_lanes_end < left_lane[i-1].n_lanes_start:
-            # lane merge
-            for j in range(0,left_lane[i-1].n_lanes_end+1):
-                # adjust for the lost lane
-                if left_lane[i-1].sub_lane < (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j-1])    
-                elif left_lane[i-1].sub_lane > (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j])    
-
-        else:
-            # same number of lanes, just add the links
-            for j in range(left_lane[i-1].n_lanes_end):
-                lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j])
-
-    # Add the lanesections to the lanes struct together the lanelinker
-    lanes = Lanes()
-    for ls in lanesections:
-        lanes.add_lanesection(ls,lanelinker)
-    return lanes
 
 
 class LaneDef():
