@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from .enumerations import ElementType, JunctionGroupType, JunctionType, Orientation
 
-from .exceptions import NotEnoughInputArguments, NotSameAmountOfLanesError
+from .exceptions import NotEnoughInputArguments, NotSameAmountOfLanesError, GeneralIssueInputArguments
 import warnings
 
 class _Links():
@@ -587,6 +587,43 @@ def are_roads_connected(road1,road2):
             if road1.predecessor.element_id == road2.id and road2.predecessor.element_id == road1.id: 
                 return True, 'predecessor'
     return False, ''
+
+
+def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
+    """ Experimantal funciton to connect roads with hardcoded lane numbers
+        NOTE: only use this when you have don't have the same amount of lanes between the edge of two roads
+
+        Parameters
+        ----------
+            road1 (Road): the first road 
+
+            road2 (Road): the second road
+
+            road1_land_ids (list of int): list of the ids of road1
+
+            road2_land_ids (list of int): list of the ids of road2
+    
+    """
+    if len(road1_land_ids) != len(road2_land_ids):
+        raise GeneralIssueInputArguments('Length of the lane id lists is not the same.')
+    if road1.road_type == -1 and road2.road_type == -1:
+        
+        first_linktype, _, first_connecting_lanesec =  _get_related_lanesection(road1,road2)
+        second_linktype, _, second_connecting_lanesec =  _get_related_lanesection(road2,road1)
+        for i in range(len(road1_land_ids)):
+            if road1_land_ids[i] < 0:
+                road1.lanes.lanesections[first_connecting_lanesec].rightlanes[road1_land_ids[i]].add_link(first_linktype,road2_land_ids[i])
+            else:
+                road1.lanes.lanesections[first_connecting_lanesec].leftlanes[road1_land_ids[i]].add_link(first_linktype,road2_land_ids[i])
+
+            if road2_land_ids[i] < 0:
+                road2.lanes.lanesections[first_connecting_lanesec].rightlanes[road2_land_ids[i]].add_link(second_connecting_lanesec,road1_land_ids[i])
+            else:
+                road2.lanes.lanesections[first_connecting_lanesec].leftlanes[road2_land_ids[i]].add_link(second_connecting_lanesec,road1_land_ids[i])
+
+    else:
+        raise NotImplementedError('linking connecting roads like this is not implemented yet.')
+
 
 def create_lane_links(road1,road2):
     """ create_lane_links takes two roads and if they are connected, match their lanes 
