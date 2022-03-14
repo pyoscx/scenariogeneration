@@ -484,7 +484,7 @@ def test_environment():
 def test_oscenum():
     enum1 = OSC.enumerations._OscEnum("classname", "testname")
     assert enum1.get_name() == "testname"
-    enum2 = OSC.enumerations._OscEnum("classname", "testname", min_minor_version=2)
+    enum2 = OSC.enumerations._OscEnum("classname", "testname", min_minor_version=3)
     with pytest.raises(OSC.OpenSCENARIOVersionError):
         enum2.get_name()
     enum3 = OSC.enumerations._OscEnum("classname", "testname", max_minor_version=0)
@@ -567,14 +567,15 @@ def test_fog():
 
 
 def test_dynamicsConstraints():
-    dc = OSC.DynamicsConstraints(2, 2, 3)
-    dc2 = OSC.DynamicsConstraints(2, 2, 3)
-    dc3 = OSC.DynamicsConstraints(3, 2, 2)
+    dc = OSC.DynamicsConstraints(2,2,3,1,2)
+    dc2 = OSC.DynamicsConstraints(2,2,3,1,2)
+    dc3 = OSC.DynamicsConstraints(3,2,2)
     prettyprint(dc.get_element())
     assert dc == dc2
     assert dc != dc3
-
+    
     dc4 = OSC.DynamicsConstraints.parse(dc.get_element())
+    prettyprint(dc4.get_element())
     assert dc == dc4
 
 

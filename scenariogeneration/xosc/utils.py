@@ -564,7 +564,13 @@ class DynamicsConstraints(VersionBase):
 
         max_deceleration (float): maximum deceleration allowed
 
-        max_speed (float): maximum speed allowed
+            max_acceleration_rate (float): maximum acceleration rate allowed
+
+            max_deceleration_rate (float): maximum deceleration rate allowed
+
+        Attributes
+        ----------
+            max_acceleration (float): maximum acceleration allowed
 
     Attributes
     ----------
@@ -572,7 +578,14 @@ class DynamicsConstraints(VersionBase):
 
         max_deceleration (float): maximum deceleration allowed
 
-        max_speed (float): maximum speed allowed
+            max_acceleration_rate (float): maximum acceleration rate allowed
+
+            max_deceleration_rate (float): maximum deceleration rate allowed
+
+        Methods
+        -------
+            parse(element)
+                parses a ElementTree created by the class and returns an instance of the class
 
     Methods
     -------
@@ -590,12 +603,21 @@ class DynamicsConstraints(VersionBase):
 
     """
 
-    def __init__(self, max_acceleration=None, max_deceleration=None, max_speed=None):
+    def __init__(
+        self,
+        max_acceleration=None,
+        max_deceleration=None,
+        max_speed=None,
+        max_acceleration_rate=None,
+        max_deceleration_rate=None,
+    ):
         """initalize DynamicsConstrains"""
 
         self.max_acceleration = convert_float(max_acceleration)
         self.max_deceleration = convert_float(max_deceleration)
         self.max_speed = convert_float(max_speed)
+        self.max_acceleration_rate = convert_float(max_acceleration_rate)
+        self.max_deceleration_rate = convert_float(max_deceleration_rate)
 
     @staticmethod
     def parse(element):
@@ -613,6 +635,8 @@ class DynamicsConstraints(VersionBase):
         max_acceleration = None
         max_deceleration = None
         max_speed = None
+        max_acceleration_rate = None
+        max_deceleration_rate = None
 
         if "maxAcceleration" in element.attrib:
             max_acceleration = convert_float(element.attrib["maxAcceleration"])
@@ -620,8 +644,18 @@ class DynamicsConstraints(VersionBase):
             max_deceleration = convert_float(element.attrib["maxDeceleration"])
         if "maxSpeed" in element.attrib:
             max_speed = convert_float(element.attrib["maxSpeed"])
+        if "maxAccelerationRate" in element.attrib:
+            max_acceleration_rate = convert_float(element.attrib["maxAccelerationRate"])
+        if "maxDecelerationRate" in element.attrib:
+            max_deceleration_rate = convert_float(element.attrib["maxDecelerationRate"])
 
-        return DynamicsConstraints(max_acceleration, max_deceleration, max_speed)
+        return DynamicsConstraints(
+            max_acceleration,
+            max_deceleration,
+            max_speed,
+            max_acceleration_rate,
+            max_deceleration_rate,
+        )
 
     def __eq__(self, other):
         if isinstance(other, DynamicsConstraints):
@@ -650,6 +684,18 @@ class DynamicsConstraints(VersionBase):
             retdict["maxDeceleration"] = str(self.max_deceleration)
         if self.max_acceleration is not None:
             retdict["maxAcceleration"] = str(self.max_acceleration)
+        if self.max_acceleration_rate is not None:
+            if not self.isVersion(minor=2):
+                raise OpenSCENARIOVersionError(
+                    "maxAccelerationRate was introduced in OpenSCENARIO V1.2"
+                )
+            retdict["maxAccelerationRate"] = str(self.max_acceleration_rate)
+        if self.max_deceleration_rate is not None:
+            if not self.isVersion(minor=2):
+                raise OpenSCENARIOVersionError(
+                    "maxDecelerationRate was introduced in OpenSCENARIO V1.2"
+                )
+            retdict["maxDecelerationRate"] = str(self.max_deceleration_rate)
         return retdict
 
     def get_element(self, name="DynamicConstraints"):
