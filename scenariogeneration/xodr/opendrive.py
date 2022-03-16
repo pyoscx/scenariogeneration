@@ -387,16 +387,22 @@ class Road():
             default: both
 
             widthStart (float) : width of object at start-coordinate (None follows .osgb)
+            default : None
 
             widthEnd (float) : width of object at end-coordinate (if not equal to widthStart, automatic linear width adapted over the distance)
+            default : None
 
             lengthStart (float) : length of object at start-coordinate (None follows .osgb)
+            default : None
 
             lengthEnd (float) : length of object at end-coordinate (if not equal to lengthStart, automatic linear length adapted over distance)
+            default : None
 
             radiusStart (float) : radius of object at start-coordinate (None follows .osgb)
+            default : None
 
             radiusEnd (float) : radius of object at end-coordinate (if not equal to radiusStart, automatic linear radius adapted over distance)
+            default : None
         """
         if not self.planview.adjusted:
             raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
