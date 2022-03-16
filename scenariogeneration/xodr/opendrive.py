@@ -378,31 +378,31 @@ class Road():
             repeatDistance (float): distance between repeated Objects, 0 for continuous
 
             sOffset (float): start s-coordinate of repeating Objects
-            default: 0
+                Default: 0
             
             tOffset (float): t-offset additional to lane width, sign will be added automatically (i.e. positive if further from roadside)
-            default: 0
+                Default: 0
             
             side (RoadSide): add Objects on both, left or right side 
-            default: both
+                Default: both
 
             widthStart (float) : width of object at start-coordinate (None follows .osgb)
-            default : None
+                Default : None
 
             widthEnd (float) : width of object at end-coordinate (if not equal to widthStart, automatic linear width adapted over the distance)
-            default : None
+                Default : None
 
             lengthStart (float) : length of object at start-coordinate (None follows .osgb)
-            default : None
+                Default : None
 
             lengthEnd (float) : length of object at end-coordinate (if not equal to lengthStart, automatic linear length adapted over distance)
-            default : None
+                Default : None
 
             radiusStart (float) : radius of object at start-coordinate (None follows .osgb)
-            default : None
+                Default : None
 
             radiusEnd (float) : radius of object at end-coordinate (if not equal to radiusStart, automatic linear radius adapted over distance)
-            default : None
+                Default : None
         """
         if not self.planview.adjusted:
             raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
