@@ -367,7 +367,7 @@ class Road():
             road_object._update_id()
             self.objects.append(road_object)
             
-    def add_object_roadside(self, road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both):
+    def add_object_roadside(self, road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both, widthStart=None, widthEnd=None, lengthStart=None, lengthEnd=None, radiusStart=None, radiusEnd=None):
         """ add_object_roadside is a convenience function to add a repeating object on side of the road,
             which can only be used after adjust_roads_and_lanes() has been performed
         
@@ -416,8 +416,7 @@ class Road():
             road_object.t = (total_widths[idx] + tOffset) * hdg_factors[idx]
             road_object.s = sOffset + s_lanesections[idx]
             road_object.hdg = np.pi * (1 + hdg_factors[idx]) / 2
-            road_object.repeat(self.planview.get_total_length() - sOffset - s_lanesections[idx], repeatDistance)
-        print (repeatDistance)        
+            road_object.repeat(self.planview.get_total_length() - sOffset - s_lanesections[idx], repeatDistance, widthStart=widthStart, widthEnd=widthEnd, lengthStart=lengthStart, lengthEnd=lengthEnd, radiusStart=radiusStart, radiusEnd=radiusEnd)
         self.add_object(road_objects)
 
     def add_signal(self,signal):
