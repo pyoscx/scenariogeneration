@@ -144,6 +144,28 @@ def test_road_with_road_types():
     assert odr == odr2
     assert odr != odr3
 
+def test_road_with_repeating_objects():
+    r1 = pyodrx.create_straight_road(0)
+    r2 = pyodrx.create_straight_road(0)
+    r3 = pyodrx.create_straight_road(0)
+    guardrail = pyodrx.Object(0,0,height=2.0,zOffset=0,Type=pyodrx.ObjectType.barrier,name="railing")
+    odr = pyodrx.OpenDrive('')
+    odr2 = pyodrx.OpenDrive('')
+    odr3 = pyodrx.OpenDrive('')
+    odr.add_road(r1)
+    odr2.add_road(r2)
+    odr3.add_road(r3)
+    odr.adjust_roads_and_lanes()
+    odr2.adjust_roads_and_lanes()
+    odr3.adjust_roads_and_lanes()
+    r3.add_object_roadside(guardrail, 4, 0, 0, pyodrx.RoadSide.both, 1, 0.1, 4, 1, 4, 1)
+    prettyprint(odr3.get_element())
+
+    assert r1 == r2
+    assert r1 != r3
+    assert odr == odr2
+    assert odr != odr3
+
 def test_header():
     h1 = pyodrx.opendrive._Header('hej','1','4')
     h2 = pyodrx.opendrive._Header('hej','1','4')
