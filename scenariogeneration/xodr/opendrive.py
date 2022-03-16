@@ -385,7 +385,18 @@ class Road():
             
             side (RoadSide): add Objects on both, left or right side 
             default: both
-        
+
+            widthStart (float) : width of object at start-coordinate (None follows .osgb)
+
+            widthEnd (float) : width of object at end-coordinate (if not equal to widthStart, automatic linear width adapted over the distance)
+
+            lengthStart (float) : length of object at start-coordinate (None follows .osgb)
+
+            lengthEnd (float) : length of object at end-coordinate (if not equal to lengthStart, automatic linear length adapted over distance)
+
+            radiusStart (float) : radius of object at start-coordinate (None follows .osgb)
+
+            radiusEnd (float) : radius of object at end-coordinate (if not equal to radiusStart, automatic linear radius adapted over distance)
         """
         if not self.planview.adjusted:
             raise RoadsAndLanesNotAdjusted("Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'.")
