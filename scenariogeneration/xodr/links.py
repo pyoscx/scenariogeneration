@@ -672,9 +672,9 @@ def _create_links_connecting_road(connecting,road):
             for i in range(len(connecting.lanes.lanesections[road_lanesection_id].leftlanes)):
                 linkid = road.lanes.lanesections[road_lanesection_id].leftlanes[i].lane_id*sign
                 if linktype == 'predecessor':
-                    linkid += connecting.lane_offset_pred
+                    linkid += connecting.lane_offsets_pred
                 else:
-                    linkid += connecting.lane_offset_suc
+                    linkid += connecting.lane_offsets_suc
                 connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(linktype,linkid)
             
         if connecting.lanes.lanesections[connecting_lanesec].rightlanes:
@@ -682,9 +682,9 @@ def _create_links_connecting_road(connecting,road):
             for i in range(len(connecting.lanes.lanesections[connecting_lanesec].rightlanes)):
                 linkid = road.lanes.lanesections[road_lanesection_id].rightlanes[i].lane_id*sign
                 if linktype == 'predecessor':
-                    linkid += connecting.lane_offset_pred
+                    linkid += connecting.lane_offsets_pred
                 else:
-                    linkid += connecting.lane_offset_suc
+                    linkid += connecting.lane_offsets_suc
                 connecting.lanes.lanesections[connecting_lanesec].rightlanes[i].add_link(linktype,linkid)
 
 

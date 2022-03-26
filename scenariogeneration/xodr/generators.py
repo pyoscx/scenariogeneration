@@ -17,6 +17,7 @@ from .opendrive import Road, OpenDrive
 from .links import Junction, Connection, _get_related_lanesection, LaneLinker
 from .exceptions import GeneralIssueInputArguments, NotSameAmountOfLanesError
 
+import traceback
 
 STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid,0.2)
 
@@ -767,15 +768,15 @@ def create_junction(junction_roads, id, roads, name='my junction'):
         conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
         _, sign, _ =  _get_related_lanesection(jr,get_road_by_id(roads,jr.successor.element_id) ) 
 
-        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].rightlanes),-1,sign,to_offset=jr.lane_offset_suc)
-        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].leftlanes),1,sign,to_offset=jr.lane_offset_suc)
+        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].rightlanes),-1,sign,to_offset=jr.lane_offsets_suc)
+        _create_junction_links(conne1,len(jr.lanes.lanesections[-1].leftlanes),1,sign,to_offset=jr.lane_offsets_suc)
         junc.add_connection(conne1)
 
         # handle predecessor lanes
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
         _, sign, _ =  _get_related_lanesection( jr,get_road_by_id(roads,jr.predecessor.element_id)) 
-        _create_junction_links(conne2,len(jr.lanes.lanesections[0].rightlanes),-1,sign,from_offset=jr.lane_offset_pred)
-        _create_junction_links(conne2,len(jr.lanes.lanesections[0].leftlanes),1,sign,from_offset=jr.lane_offset_pred)
+        _create_junction_links(conne2,len(jr.lanes.lanesections[0].rightlanes),-1,sign,from_offset=jr.lane_offsets_pred)
+        _create_junction_links(conne2,len(jr.lanes.lanesections[0].leftlanes),1,sign,from_offset=jr.lane_offsets_pred)
         junc.add_connection(conne2)
     return junc
 
@@ -805,22 +806,22 @@ def create_direct_junction(roads, id, name='my direct junction'):
         if r.id not in used_road_indexes:
             used_road_indexes.append(r.id)
             if r.succ_direct_junction:
-                for dr in r.succ_direct_junction:
+                for dr_idx, dr in enumerate(r.succ_direct_junction):
                     used_road_indexes.append(dr)
                     conn = Connection(r.id,str(dr),ContactPoint.start)
                     outgoingroad = get_road_by_id(roads,dr)
                     # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) ) 
-                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=outgoingroad.lane_offset_pred)
-                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=outgoingroad.lane_offset_pred)
+                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=r.lane_offsets_suc[dr_idx])
+                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=r.lane_offsets_suc[dr_idx])
                     junc.add_connection(conn)
             elif r.pred_direct_junction:
-                for dr in r.pred_direct_junction:
+                for dr_idx, dr in enumerate(r.pred_direct_junction):
                     used_road_indexes.append(dr)
                     conn = Connection(r.id,str(dr),ContactPoint.end)
                     outgoingroad = get_road_by_id(roads,dr)
                     # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) ) 
-                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=outgoingroad.lane_offset_suc)
-                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=outgoingroad.lane_offset_suc)
+                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=r.lane_offsets_pred[dr_idx])
+                    _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=r.lane_offsets_pred[dr_idx])
                     junc.add_connection(conn)
             else:
                 raise ValueError('Road is not connected to a direct junction')

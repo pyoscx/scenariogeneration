@@ -201,8 +201,8 @@ class Road():
         self._neighbor_added = 0
         self.successor = None
         self.predecessor = None
-        self.lane_offset_suc = 0
-        self.lane_offset_pred = 0
+        self.lane_offsets_suc = [0]
+        self.lane_offsets_pred = [0]
         self.succ_direct_junction = []
         self.pred_direct_junction = []
         self.adjusted = False
@@ -226,14 +226,14 @@ class Road():
             self.lateralprofile == other.lateralprofile and \
             self.predecessor == other.predecessor and \
             self.successor == other.successor and \
-            self.lane_offset_suc == other.lane_offset_suc and \
-            self.lane_offset_pred == other.lane_offset_pred and \
+            self.lane_offsets_suc == other.lane_offsets_suc and \
+            self.lane_offsets_pred == other.lane_offsets_pred and \
             self.pred_direct_junction == other.pred_direct_junction and \
             self.succ_direct_junction == other.succ_direct_junction:
                 return True
         return False
 
-    def add_successor(self,element_type,element_id,contact_point=None,lane_offset=0,direct_junction=[]):
+    def add_successor(self,element_type,element_id,contact_point=None,lane_offsets=[0],direct_junction=[]):
         """ add_successor adds a successor link to the road
         
         Parameters
@@ -244,19 +244,30 @@ class Road():
 
             contact_point (ContactPoint): the contact point of the link
 
-            direct_juction (list of int): road id that are successors to this road in a direct junction
+            lane_offsets (list of int): lane offsets for lane linking, has to be
+                                        one value, except for direct junctions
+                                        where the number of links have to be the
+                                        same as the number of junction links
 
+            direct_juction (list of int): road id that are successors to this
+            road in a direct junction
         """
         if self.successor:
-            raise ValueError('only one successor is allowed')
+            raise ValueError('Only one successor is allowed.')
         self.successor = _Link('successor',element_id,element_type,contact_point)
         self.links.add_link(self.successor)
-        self.lane_offset_suc = lane_offset
+        if len(direct_junction) == 0 and len(lane_offsets) > 1:
+            raise ValueError('If no direct junction is used, the number of lane offsets has to '
+                'be exactly one.')
+        if len(direct_junction) > 0 and len(direct_junction) != len(lane_offsets):
+            raise ValueError('If direct junction is used, the number of lane offsets has to be '
+                'equal to the number of junction links.')
+        self.lane_offsets_suc = lane_offsets
         if element_type != ElementType.junction and len(direct_junction) > 0:
             raise ValueError('If direct junction is used, the element_type has to be junction')
         self.succ_direct_junction = direct_junction
 
-    def add_predecessor(self,element_type,element_id,contact_point=None,lane_offset=0,direct_junction=[]):
+    def add_predecessor(self,element_type,element_id,contact_point=None,lane_offsets=0,direct_junction=[]):
         """ add_successor adds a successor link to the road
         
         Parameters
@@ -266,19 +277,29 @@ class Road():
             element_id (str/int): name of the linked road
 
             contact_point (ContactPoint): the contact point of the link
+
+            lane_offsets (list of int): lane offsets for lane linking, has to be
+                                        one value, except for direct junctions
+                                        where the number of links have to be the
+                                        same as the number of junction links
 
             direct_juction (list of int): road id that are predecessors to this road in a direct junction
 
         """
         if self.predecessor:
-            raise ValueError('only one predecessor is allowed')
+            raise ValueError('Only one predecessor is allowed.')
         self.predecessor = _Link('predecessor',element_id,element_type,contact_point)
         self.links.add_link(self.predecessor)
-        self.lane_offset_pred = lane_offset
+        if len(direct_junction) > 0 and len(direct_junction) != len(lane_offsets):
+            raise ValueError('If direct junction is used, the number of lane offsets has to be ' \
+                'equal to the number of junction links.')
+        if len(direct_junction) == 0 and len(lane_offsets) > 1:
+            raise ValueError('If no direct junction is used, the number of lane offsets has to ' \
+                'be exactly one.')
+        self.lane_offsets_pred = lane_offsets
         if element_type != ElementType.junction and len(direct_junction) > 0:
-            raise ValueError('If direct junction is used, the element_type has to be junction')
+            raise ValueError('If direct junction is used, the element_type has to be junction.')
         self.pred_direct_junction = direct_junction
-        
 
     def add_neighbor(self,element_type,element_id,direction): 
         """ add_neighbor adds a neighbor to a road
@@ -649,7 +670,7 @@ class OpenDrive():
             else:
                 raise ValueError('Unknown ContactPoint')
 
-            num_lane_offsets = main_road.lane_offset_pred
+            num_lane_offsets = main_road.lane_offsets_pred[0]
             x = -num_lane_offsets*3*np.sin(h) + x
             y = num_lane_offsets*3*np.cos(h) + y
 
@@ -665,7 +686,7 @@ class OpenDrive():
                 x,y,h = self.roads[str(neighbour_id)].planview.get_end_point()
             else:
                 raise ValueError('Unknown ContactPoint')
-            num_lane_offsets = main_road.lane_offset_suc
+            num_lane_offsets = main_road.lane_offsets_suc[0]
             x = num_lane_offsets*3*np.sin(h) + x
             y = -num_lane_offsets*3*np.cos(h) + y
             main_road.planview.set_start_point(x,y,h)
