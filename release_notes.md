@@ -1,5 +1,14 @@
 ## scenariogeneration release notes
 
+
+### 2021-03-29 Version 0.7.10
+- Bug fixes
+    - ParameterDeclarations does not have to exist to parse a scenario.
+    - cleaning up some duplicate functions
+- New Feature
+    - The sizes of Repeated Objects can now be set
+- Documentation updates
+
 ### 2021-02-28 Version 0.7.9
 - New Feature
     - create_junction_roads now have inputs to set the inner and outer (boarder) roadmarks 
