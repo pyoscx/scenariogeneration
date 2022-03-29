@@ -1,5 +1,8 @@
 ## scenariogeneration release notes
 
+### 2021-03-29 Version 0.7.11
+- Bug fixes
+    - ParameterDeclarations had more bugs that were fixed.
 
 ### 2021-03-29 Version 0.7.10
 - Bug fixes
