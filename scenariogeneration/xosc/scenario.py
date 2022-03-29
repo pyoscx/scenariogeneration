@@ -144,7 +144,9 @@ class Scenario():
 
         """
         header = FileHeader.parse(element.find('FileHeader'))
-        parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
+        parameters = ParameterDeclarations()
+        if element.find('ParameterDeclarations') is not None:
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         catalog = Catalog.parse(element.find('CatalogLocations'))
         storyboard = StoryBoard.parse(element.find('Storyboard'))
         entities = Entities.parse(element.find('Entities'))
