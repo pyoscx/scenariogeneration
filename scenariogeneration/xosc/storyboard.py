@@ -429,7 +429,10 @@ class Story():
                 
         """
         name = element.attrib['name']
-        parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
+        if element.find('ParameterDeclarations') != None:
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+        else:
+            parameters = ParameterDeclarations()
         story = Story(name,parameters)
         for a in element.findall('Act'):
             story.add_act(Act.parse(a))
@@ -906,7 +909,7 @@ class Maneuver():
         """
         parameters = None
         if element.find('ParameterDeclarations') is not None:
-            paremeters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         name = element.attrib['name']
         man = Maneuver(name,parameters)
 

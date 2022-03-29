@@ -494,7 +494,10 @@ class Pedestrian(VersionBase):
         elif 'model3d' in element.attrib:
             model = element.attrib['model3d']     
         category = getattr(PedestrianCategory, element.attrib['pedestrianCategory'])
-        parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
+        if element.find('ParameterDeclarations') != None:
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+        else:
+            parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
         properties = Properties.parse(element.find('Properties'))
 
@@ -970,7 +973,10 @@ class Vehicle(VersionBase):
         if 'model3d' in element.attrib:
             model3d = element.attrib['model3d']
         # if element.find('ParameterDeclarations'):
-        parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
+        if element.find('ParameterDeclarations') != None:
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+        else:
+            parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
         properties = Properties.parse(element.find('Properties'))
         
