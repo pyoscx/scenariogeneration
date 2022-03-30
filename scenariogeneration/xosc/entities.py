@@ -489,10 +489,10 @@ class Pedestrian(VersionBase):
         name = element.attrib['name']
         mass = convert_float(element.attrib['mass'])
         model = None
-        if 'model' in element.attrib:
+        if 'model3d' in element.attrib:
+            model = element.attrib['model3d']
+        elif 'model' in element.attrib:
             model = element.attrib['model']
-        elif 'model3d' in element.attrib:
-            model = element.attrib['model3d']     
         category = getattr(PedestrianCategory, element.attrib['pedestrianCategory'])
         if element.find('ParameterDeclarations') != None:
             parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
