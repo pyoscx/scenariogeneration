@@ -1,5 +1,8 @@
 ## scenariogeneration release notes
 
+### 2021-03-30 Version 0.7.12
+- order when parsing model/model3d updated
+
 ### 2021-03-29 Version 0.7.11
 - Bug fixes
     - ParameterDeclarations had more bugs that were fixed.
