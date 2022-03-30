@@ -1,0 +1,194 @@
+""" 
+    An example, use road id to create junction
+"""
+from scenariogeneration import xodr
+import os
+import numpy as np
+import math
+from pyclothoids import Clothoid
+
+
+def create_lanes():
+    """
+    don't care, this function create to lanes for the road
+    """
+    lanes = xodr.Lanes()
+    road_mark = xodr.RoadMark(xodr.RoadMarkType.solid_solid)
+    lane_center = xodr.standard_lane(rm=road_mark)
+    lane_center.add_roadmark(road_mark)
+    lanesection = xodr.LaneSection(0, lane_center)
+    lane = xodr.Lane(lane_type=xodr.LaneType.driving, a=3.75)
+    road_mark = xodr.RoadMark(xodr.RoadMarkType.broken)
+    lane.add_roadmark(road_mark)
+    lanesection.add_left_lane(lane)
+    lane = xodr.Lane(lane_type=xodr.LaneType.driving, a=3.75)
+    road_mark = xodr.RoadMark(xodr.RoadMarkType.broken)
+    lane.add_roadmark(road_mark)
+    lanesection.add_right_lane(lane)
+    lanes.add_lanesection(lanesection)
+    return lanes
+
+
+def create_straight_road(road_obj):
+    """
+    create a straight road by start point and end point
+    """
+    planview = xodr.PlanView()
+    planview.set_start_point(road_obj['point_start'][0], road_obj['point_start'][1], road_obj['direction_start'])
+    geometry = xodr.Line(road_obj['length'])
+    planview.add_geometry(geometry)
+    lanes = create_lanes()
+    road = xodr.Road(road_obj['id'], planview, lanes)
+    odr.add_road(road)
+    roads.append(road)
+
+
+def get_point_distance(p1, p2):
+    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[1] - p2[1]) ** 2) ** 0.5
+
+
+def create_junction_by_roads(junction):
+    """
+    create a junction by some roads
+    """
+    incoming_roads = []
+    junction_id = junction["id"]
+    jun_road_data = []
+
+    #  get road list who around the junction
+    for r in roads_data:
+        if r["id"] in junction["road_ids"]:
+            jun_road_data.append(r)
+
+    #  according to the distance to get the connect point
+    for road_i in range(len(jun_road_data)):
+        road = jun_road_data[road_i]
+        cur_road = xodr.get_road_by_id(roads, road['id'])
+        p_start = road['point_start']
+        p_end = road['point_end']
+        dis_start = get_point_distance(p_start, junction["p_center"])
+        dis_end = get_point_distance(p_end, junction['p_center'])
+        if dis_start < dis_end:
+            cur_road.add_predecessor(xodr.ElementType.junction, junction_id)
+            road["connect_point"] = road['point_start']
+            road["connect_head"] = road['direction_start'] - math.pi
+        else:
+            cur_road.add_successor(xodr.ElementType.junction, junction_id)
+            road["connect_point"] = road['point_end']
+            road["connect_head"] = road['direction_end']
+        incoming_roads.append(cur_road)
+
+    #  create the connection road
+    junction_roads = []
+    for j in range(len(incoming_roads) - 1):
+        for k in range(j + 1, len(incoming_roads)):
+            cp_type_j = None
+            cp_type_k = None
+            junction_road = connect_roads(jun_road_data[j], jun_road_data[k], 1000 * junction_id + j * 100 + k * 10)
+            if incoming_roads[j].predecessor and incoming_roads[j].predecessor.element_id == junction_id:
+                cp_type_j = xodr.ContactPoint.start
+            if incoming_roads[j].successor and incoming_roads[j].successor.element_id == junction_id:
+                cp_type_j = xodr.ContactPoint.end
+            if incoming_roads[k].predecessor and incoming_roads[k].predecessor.element_id == junction_id:
+                cp_type_k = xodr.ContactPoint.start
+            if incoming_roads[k].successor and incoming_roads[k].successor.element_id == junction_id:
+                cp_type_k = xodr.ContactPoint.end
+            # Link incoming with connecting road
+            if cp_type_j:
+                junction_road.add_predecessor(
+                    xodr.ElementType.road, incoming_roads[j].id, cp_type_j)
+                xodr.create_lane_links(junction_road, incoming_roads[j])
+            if cp_type_k:
+                junction_road.add_successor(xodr.ElementType.road, incoming_roads[k].id, cp_type_k)
+                xodr.create_lane_links(junction_road, incoming_roads[k])
+            if not cp_type_k or not cp_type_j:
+                print('error: connection lost')
+            else:
+                junction_roads.append(junction_road)
+    # Finally create the junction
+    junction = xodr.create_junction(junction_roads, junction_id, incoming_roads, f'junction_{junction_id}')
+    odr.add_junction(junction)
+    for road in junction_roads:
+        odr.add_road(road)
+
+
+def connect_roads(road_1, road_2, road_id):
+    """
+    create a road between the road_1 and road_2
+    """
+    new_road_geometry = {
+        "point_start": road_1['connect_point'],
+        "point_end": road_2['connect_point'],
+        "direction_start": road_1['connect_head'],
+        "direction_end": road_2['connect_head'] - math.pi,
+    }
+
+    geometry_base = Clothoid.G1Hermite(new_road_geometry['point_start'][0],
+                                       new_road_geometry['point_start'][1],
+                                       new_road_geometry['direction_start'],
+                                       new_road_geometry['point_end'][0],
+                                       new_road_geometry['point_end'][1],
+                                       new_road_geometry['direction_end'])
+    plan_view = xodr.PlanView()
+    plan_view.set_start_point(new_road_geometry['point_start'][0], new_road_geometry['point_start'][1], new_road_geometry['direction_start'])
+    geometry = xodr.Spiral(geometry_base.KappaStart, geometry_base.KappaEnd, length=geometry_base.length)
+    plan_view.add_geometry(geometry)
+    lanes = create_lanes()
+    road = xodr.Road(road_id, plan_view, lanes)
+    return road
+
+
+if __name__ == '__main__':
+    roads = []
+    roads_data = [{
+        "id": 1,
+        "point_start": [-39.59922790527344, -27.935176849365234, 0.0],
+        "point_end": [-15.068862915039062, -13.157245635986328, 0.0],
+        "direction_start": 0.5422074198722839,
+        "direction_end": 0.5422074198722839,
+        "length": 28.637845950823976
+    }, {
+        "id": 2,
+        "point_start": [-41.16088104248047, 30.846466064453125, 0.0],
+        "point_end": [-15.023298263549805, 9.928224563598633, 0.0],
+        "direction_start": -0.6749316453933716,
+        "direction_end": -0.6749316453933716,
+        "length": 33.477542466695205
+    }, {
+        "id": 3,
+        "point_start": [9.173568725585938, -41.50508499145508, 0.0],
+        "point_end": [1.223130702972412, -20.973180770874023, 0.0],
+        "direction_start": 1.9402402639389038,
+        "direction_end": 1.9402402639389038,
+        "length": 22.0174581442721
+    }, {
+        "id": 4,
+        "point_start": [23.50946044921875, -2.250338554382324, 0.0],
+        "point_end": [6.987904071807861, -2.599595069885254, 0.0],
+        "direction_start": -3.1204564571380615,
+        "direction_end": -3.1204564571380615,
+        "length": 16.525247389056965
+    }, {
+        "id": 5,
+        "point_start": [13.707582473754883, 28.390304565429688, 0.0],
+        "point_end": [2.2341156005859375, 12.375370025634766, 0.0],
+        "direction_start": -2.1924595832824707,
+        "direction_end": -2.1924595832824707,
+        "length": 19.70072565436598
+    }]
+
+    junctions_data = [
+        {
+            "id": 1000,
+            "road_ids": [1, 2, 3, 4, 5],  # you can change this array to connect different road, such as [1, 2, 3]
+            "p_center": [-4.5352113246917725, -2.5632213592529296, 0.0]  # center of the junction
+        }
+    ]
+    odr = xodr.OpenDrive('myroad')
+    for r_data in roads_data:
+        create_straight_road(r_data)
+    for jun_data in junctions_data:
+        create_junction_by_roads(jun_data)
+    odr.adjust_roads_and_lanes()
+    # write the OpenDRIVE file as xodr using current script name
+    odr.write_xml(os.path.basename(__file__).replace('.py', '.xodr'))
