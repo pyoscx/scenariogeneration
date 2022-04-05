@@ -1,18 +1,18 @@
-""" 
-    Simple example showing how one vehicle triggers based on the speed of another vehcile, then changes it speed
+"""
+    Simple example showing how one vehicle triggers based on the speed of another vehicle, then changes its speed
 
     Some features used:
-    
+
     - SpeedCondition
-    
+
     - AbsoluteSpeedAction
-    
+
     - RoadPosition
-    
+
     - OffroadCondition
 """
 import os
-from scenariogeneration import xosc, prettyprint   
+from scenariogeneration import xosc, prettyprint
 
 ### create catalogs
 catalog = xosc.Catalog()
@@ -88,7 +88,7 @@ action = xosc.RelativeLaneChangeAction(-8,targetname,xosc.TransitionDynamics(xos
 event.add_action('newspeed',action)
 
 
-## create the maneuver 
+## create the maneuver
 man = xosc.Maneuver('my_maneuver')
 man.add_event(event)
 
