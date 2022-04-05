@@ -1,6 +1,6 @@
-""" 
-    Example showing how one vehicle triggers based on the acceleration of another vehcile, then changes it speed.
-    
+"""
+    Example showing how one vehicle triggers based on the acceleration of another vehicle, then changes its speed.
+
     Some features used:
 
     - ParameterValueDistribution
@@ -10,12 +10,12 @@
     - NormalDistribution
 
     - Histogram
-        
+
 """
 import os
-from scenariogeneration import xosc, prettyprint  
+from scenariogeneration import xosc, prettyprint
 
-# some names used in both scenario and 
+# some names used in both scenario and
 scenario_filename = 'base_scenario.xosc'
 ego_param_name = '$egospeed'
 target_param_name = '$targetspeed'
@@ -72,7 +72,7 @@ stoc = xosc.Stochastic(50,1.234)
 nd = xosc.NormalDistribution(25,1)
 stoc.add_distribution(ego_param_name,nd)
 
-## add a histogram for the target 
+## add a histogram for the target
 hg = xosc.Histogram()
 hg.add_bin(0.3,xosc.Range(15,25))
 hg.add_bin(0.7,xosc.Range(25,35))

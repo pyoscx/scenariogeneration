@@ -1,6 +1,6 @@
-""" 
-    Example showing how one vehicle triggers based on the acceleration of another vehcile, then changes it speed.
-    
+"""
+    Example showing how one vehicle triggers based on the acceleration of another vehicle, then changes its speed.
+
 
     Some features used:
 
@@ -11,11 +11,11 @@
     - RelativeRoadPosition
 
     - AbsoluteSpeedAction
-        
-    
+
+
 """
 import os
-from scenariogeneration import xosc, prettyprint  
+from scenariogeneration import xosc, prettyprint
 
 ### create catalogs
 catalog = xosc.Catalog()
