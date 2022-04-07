@@ -2,7 +2,7 @@
 
 
     Some features used:
-    
+
     - ScenarioGenerator
 
     - (ScenarioGenerator).naming
@@ -11,7 +11,7 @@
 
     - (ScenarioGenerator).parameters
 
-    
+
 """
 
 from scenariogeneration import xosc, prettyprint
@@ -93,7 +93,7 @@ class Scenario(ScenarioGenerator):
         # create init (0 starting speed)
         init = xosc.Init()
         step_time = xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)
-        
+
         # caluclate correct offset based on target vehicle width
         cal_offset = kwargs['offset']/100*target_width
 
@@ -129,7 +129,7 @@ class Scenario(ScenarioGenerator):
         egomangr.add_maneuver(ego_man)
 
 
-        # create act 
+        # create act
         act = xosc.Act('ccrm act',xosc.ValueTrigger('starttrigger',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(0,xosc.Rule.greaterThan)))
 
         act.add_maneuver_group(egomangr)

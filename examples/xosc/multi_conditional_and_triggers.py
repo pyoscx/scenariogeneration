@@ -3,15 +3,15 @@
 
 
     Some features used:
-        
-    - ConditionGroup 
+
+    - ConditionGroup
 
     - TimeToCollisionCondition
 
     - TimeHeadwayCondition
-    
+
     - AbsoluteSpeedAction
-        
+
 """
 import os
 from scenariogeneration import xosc, prettyprint

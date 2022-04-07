@@ -1,5 +1,5 @@
 """ Fundamental example how to build up a road merge with lane merge afterwards.
-    
+
     This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
 
     This example should be seen as a way to create your own complex merge case that the LaneDef + create_road cannot handle
@@ -16,10 +16,10 @@
 
 """
 
-from scenariogeneration import xodr 
+from scenariogeneration import xodr
 import os
 
-# create some roads 
+# create some roads
 roads= []
 
 # create two simple roads to merge
@@ -120,7 +120,7 @@ roads[4].add_predecessor(xodr.ElementType.road,1,xodr.ContactPoint.end)
 roads[4].add_successor(xodr.ElementType.road,2,xodr.ContactPoint.start,lane_offset=-2)
 
 
-  
+
 junction = xodr.create_junction(roads[3:],1,roads[0:3])
 
 

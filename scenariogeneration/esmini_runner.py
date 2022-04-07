@@ -20,15 +20,15 @@ def esmini(generator,esminipath='esmini',
     timestep = 0.01,
     car_density = 15):
     """ write a scenario and runs it in esminis OpenDriveViewer with some random traffic
-     
+
         Parameters
         ----------
             generator (OpenDrive, Scenario, or ScenarioGenerator): the xodr road to run
 
-            esminipath (str): the path to esmini 
+            esminipath (str): the path to esmini
                 Default: esmini
-            
-            window_size (str): sets the window size of the esmini viewer 
+
+            window_size (str): sets the window size of the esmini viewer
                 Default: 60 60 800 400
 
             save_osi (str): name of the wanted osi file (None will not create a osi file)
@@ -42,7 +42,7 @@ def esmini(generator,esminipath='esmini',
 
             args (str): additional options to esmini
 
-            index_to_run (str,int): if the a class inheriting ScenarioGenerator is used as input, and the scenario is parametrized 
+            index_to_run (str,int): if the a class inheriting ScenarioGenerator is used as input, and the scenario is parametrized
                                     this will make it possible to choose what scenario to view. can be: 'first','middle','random', or an int
                 Default: first
 
@@ -64,7 +64,7 @@ def esmini(generator,esminipath='esmini',
     # resource_path = os.path.join(esminipath,'resources')
     if not resource_path:
         resource_path = os.path.join(esminipath,'resources','xosc')
-    
+
     if timestep == None:
         ts = 0.01
     else:
@@ -106,7 +106,7 @@ def esmini(generator,esminipath='esmini',
 
     elif isinstance(generator,ScenarioGenerator):
         scenario_file, road_file = generator.generate_single(generation_path, order = index_to_run)
-        
+
         if scenario_file == '':
             run_with_replayer = False
             executable = 'odrviewer'
@@ -123,7 +123,7 @@ def esmini(generator,esminipath='esmini',
                     record = 'python_record'
             else:
                 additional_args += ' --window '+ window_size
-            
+
             filename = scenario_file
     else:
         raise TypeError('generator is not of type OpenDrive, Scenario, or ScenarioGenerator')
@@ -132,7 +132,7 @@ def esmini(generator,esminipath='esmini',
     # create the additional_args for the esmini execusion
     if save_osi:
         additional_args += ' --osi_file ' + save_osi
-    
+
     if record:
         additional_args += ' --record ' + record
 
@@ -144,13 +144,13 @@ def esmini(generator,esminipath='esmini',
 
 
     additional_args += ' ' + args +  '--path '+resource_path
-    
+
     # find executable based on OS
     if os.name == 'posix':
-        executable_path = os.path.join('.', esminipath, 'bin',executable) 
-        replay_executable = os.path.join('.', esminipath, 'bin','replayer') 
+        executable_path = os.path.join('.', esminipath, 'bin',executable)
+        replay_executable = os.path.join('.', esminipath, 'bin','replayer')
     elif os.name == 'nt':
-        executable_path = os.path.join(os.path.realpath(esminipath),'bin',executable + '.exe') 
+        executable_path = os.path.join(os.path.realpath(esminipath),'bin',executable + '.exe')
         replay_executable = os.path.join('.',os.path.realpath(esminipath),'bin','replayer.exe')
 
 

@@ -1,8 +1,8 @@
 """ This example shows how to make a very simple junction from "scratch" without using any generators.
-    
+
     NOTE: This is more of a reference example and should not be considered a "user example" more of a "developer example".
 
-    
+
 """
 from scenariogeneration import xodr
 import numpy as np
@@ -67,7 +67,7 @@ for l in lanesections:
     lanes.append(lanes1)
 
 
-# finally create the roads 
+# finally create the roads
 roads = []
 roadtypes = [-1,1,-1,1,-1,1,-1]
 for i in range(numberofroads):

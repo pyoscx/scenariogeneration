@@ -2,13 +2,13 @@
     Simple example showing how one vehicle triggers two different actions based on different distance related triggers
 
     Some features used:
-    
+
     - ReachPositionCondition
-    
+
     - RelativeDistanceCondition
-    
+
     - RelativeLaneChangeAction
-    
+
     - AbsoluteSpeedAction
 """
 import os

@@ -1,5 +1,5 @@
 # __init__.py
-""" the xosc module contains the classes used to generate OpenSCENARIO (xml) files. 
+""" the xosc module contains the classes used to generate OpenSCENARIO (xml) files.
 
 """
 from .utils import *

@@ -12,7 +12,7 @@ def prettify(element, encoding='utf-8'):
         Parameters
         ----------
             element (Element, or any generation class of scenariogeneration): element to print
-            
+
             encoding (str): specifies the output encoding
                 Default: 'utf-8'
 
@@ -29,7 +29,7 @@ def prettyprint(element, encoding=None):
         Parameters
         ----------
             element (Element, or any generation class of scenariogeneration): element to print
-            
+
             encoding (str): specify the output encoding
                 Default: None (works best for printing in terminal on ubuntu atleast)
 
@@ -51,13 +51,13 @@ def printToFile(element, filename, prettyprint=True, encoding='utf-8'):
             encoding (str): specify the output encoding
                 Default: 'utf-8'
     """
-    if prettyprint:    
+    if prettyprint:
         try:
             with open(filename,'wb') as file_handle:
                 file_handle.write(prettify(element, encoding=encoding))
         except LookupError:
             print ("%s is not a valid encoding option." % encoding)
-            
+
     else:
         tree = ET.ElementTree(element)
         try:

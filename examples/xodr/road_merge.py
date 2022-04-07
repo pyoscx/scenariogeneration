@@ -13,7 +13,7 @@ from scenariogeneration import xodr
 
 import os
 
-# create some roads 
+# create some roads
 roads= []
 roads.append(xodr.create_road(xodr.Line(100),id = 0, left_lanes=1,right_lanes=2))
 roads.append(xodr.create_road(xodr.Line(100),id =1,left_lanes=0,right_lanes=1))
@@ -35,7 +35,7 @@ roads[4].add_predecessor(xodr.ElementType.road,1,xodr.ContactPoint.end)
 roads[4].add_successor(xodr.ElementType.road,2,xodr.ContactPoint.start,lane_offset=-2)
 
 
-  
+
 junction = xodr.create_junction(roads[3:],1,roads[0:3])
 
 

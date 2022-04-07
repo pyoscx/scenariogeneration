@@ -4,7 +4,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name='scenariogeneration', 
+    name='scenariogeneration',
     version='0.7.12',
     license='MPL-2.0',
     author='Mikael Andersson, Irene Natale, Andreas Tingberg',

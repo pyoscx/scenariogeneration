@@ -12,8 +12,8 @@ from scipy.integrate import quad
 
 
 class PlanView():
-    """ the PlanView is the geometrical description of a road, 
-        
+    """ the PlanView is the geometrical description of a road,
+
         Parameters
         ----------
             x_start (float): start x coordinate of the first geometry
@@ -58,7 +58,7 @@ class PlanView():
             Note: if multiple roads are used, the start values can be recalculated.
 
 
-        """ 
+        """
         self.present_x = 0
         self.present_y = 0
         self.present_h = 0
@@ -89,21 +89,21 @@ class PlanView():
     def __eq__(self, other):
         if isinstance(other,PlanView):
             if self.adjusted and other.adjusted:
-                if self._adjusted_geometries == other._adjusted_geometries:         
+                if self._adjusted_geometries == other._adjusted_geometries:
                     return True
             elif not self.adjusted and not other.adjusted:
                     Warning('Comparing non adjusted geometries, default value will always be False')
                     return False
-                    
+
         return False
 
     def add_geometry(self,geom,heading = None):
         """ add_geometry adds a geometry to the planview and will stich together all geometries (in order the order added)
-            
-            Should be used together with "adjust_roads_and_lanes" in the OpenDrive class. 
+
+            Should be used together with "adjust_roads_and_lanes" in the OpenDrive class.
 
             NOTE: DO NOT MIX WITH with add_fixed_geometry
-        
+
         Parameters
         ----------
             geom (Line, Spiral, ParamPoly3, or Arc): the type of geometry
@@ -119,13 +119,13 @@ class PlanView():
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
         self._addition_mode = 'add_geometry'
-    
+
     def add_fixed_geometry(self, geom, x_start, y_start, h_start,s=None):
-        """ add_fixed_geometry adds a geometry to a certain point to the planview 
+        """ add_fixed_geometry adds a geometry to a certain point to the planview
 
             if s is used, the values will be coded and is up to the user to make correct, not for a correct opendrive file please add the geometires in order
             if s is not used, the geometries are supposed to be added in order (and s will be calculated)
-        
+
             NOTE: DO NOT MIX WITH the method add_geometry
 
         Parameters
@@ -144,18 +144,18 @@ class PlanView():
         """
         if self._addition_mode == 'add_geometry':
             raise MixOfGeometryAddition("A geometry has already been added with add_geometry, please use either add_geometry, or add_fixed_geometry not both")
-        
+
         if s != None:
             pres_s = s
         else:
             pres_s = self.present_s
-        
+
         if not self.fixed:
             self.x_start = x_start
             self.y_start = y_start
             self.h_start = h_start
             self.fixed = True
-        
+
         newgeom = _Geometry(pres_s,x_start,y_start,h_start,geom)
         self._adjusted_geometries.append(newgeom)
         self.x_end, self.y_end, self.h_end, length = newgeom.get_end_data()
@@ -178,7 +178,7 @@ class PlanView():
             h_start (float): starting heading of the first geometry
                 Default: 0
         """
-    
+
         self.present_x = x_start
         self.present_y = y_start
         self.present_h = h_start
@@ -191,7 +191,7 @@ class PlanView():
             ----------
         """
 
-        return self.x_start, self.y_start, self.h_start 
+        return self.x_start, self.y_start, self.h_start
         #return self._adjusted_geometries[-1].get_end_point
 
     def get_end_point(self):
@@ -209,7 +209,7 @@ class PlanView():
                 Default: 0
         """
 
-        return self.x_end, self.y_end, self.h_end 
+        return self.x_end, self.y_end, self.h_end
 
     def adjust_geometries(self, from_end=False):
         """ Adjusts all geometries to have the correct start point and heading
@@ -237,7 +237,7 @@ class PlanView():
             self.y_end = self.present_y
             self.h_end = self.present_h
 
-        else: 
+        else:
 
             self.x_end = self.present_x
             self.y_end = self.present_y
@@ -249,19 +249,19 @@ class PlanView():
                 newgeom = _Geometry(self.present_s,self.present_x,self.present_y,self.present_h,self._raw_geometries[i])
                 self.present_x,self.present_y,self.present_h, partial_length = newgeom.get_start_data()
                 lengths.append(partial_length)
-                self._adjusted_geometries.append(newgeom)                  
+                self._adjusted_geometries.append(newgeom)
 
             self.x_start = self.present_x
             self.y_start = self.present_y
             self.h_start = self.present_h + np.pi
 
-            length = sum(lengths)           
+            length = sum(lengths)
             self.present_s = 0
-             
+
             for i in range(len(self._raw_geometries)):
 
                 newgeom.set_s(self.present_s)
-                self.present_s += lengths[i]  
+                self.present_s += lengths[i]
 
         self.adjusted = True
 
@@ -284,15 +284,15 @@ class PlanView():
 
 class _Geometry():
     """ the _Geometry describes the geometry entry of open drive
-        
+
         Parameters
         ----------
             s (float): the start s value (along road) of the geometry
-               
+
             x (float): start x coordinate of the geometry
-                
+
             y (float):  start y coordinate of the geometry
-                
+
             heading (float): heading of the geometry
 
             geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
@@ -300,11 +300,11 @@ class _Geometry():
         Attributes
         ----------
             s (float): the start s value (along road) of the geometry
-               
+
             x (float): start x coordinate of the geometry
-                
+
             y (float):  start y coordinate of the geometry
-                
+
             heading (float): heading of the geometry
 
             geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
@@ -324,21 +324,21 @@ class _Geometry():
         Parameters
         ----------
             s (float): the start s value (along road) of the geometry
-               
+
             x (float): start x coordinate of the geometry
-                
+
             y (float):  start y coordinate of the geometry
-                
+
             heading (float): heading of the geometry
 
             geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
 
-        """ 
+        """
         self.s = s
         self.x = x
         self.y = y
-  
-        
+
+
         self.heading = heading
         self.geom_type = geom_type
         _,_,_,self.length = self.geom_type.get_end_data(self.x,self.y,self.heading)
@@ -346,13 +346,13 @@ class _Geometry():
     def __eq__(self, other):
         if isinstance(other,_Geometry):
             if self.get_attributes() == other.get_attributes() and \
-               self.geom_type == other.geom_type:         
+               self.geom_type == other.geom_type:
                 return True
         return False
 
     def get_end_data(self):
         return self.geom_type.get_end_data(self.x,self.y,self.heading)
-        
+
     def get_start_data(self):
         x,y,heading,self.length = self.geom_type.get_start_data(self.x,self.y,self.heading)
         self.x = x
@@ -410,10 +410,10 @@ class Line():
 
     def __eq__(self, other):
         return True
-    
+
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
-        
+
         Parameters
         ----------
             x (float): x start point of the geometry
@@ -442,7 +442,7 @@ class Line():
 
     def get_start_data(self, end_x, end_y, end_h):
         """ Returns the end point of the geometry
-        
+
         Parameters
         ----------
             end_x (float): x end point of the geometry
@@ -467,18 +467,18 @@ class Line():
         start_h = end_h
 
         return start_x, start_y, start_h, self.length
-    
+
     def get_element(self):
         """ returns the elementTree of the WorldPostion
 
         """
         element = ET.Element('line')
-        
+
         return element
 
 class Arc():
     """ the Arc creates a arc type of geometry
-        
+
         Parameters
         ----------
             curvature (float): curvature of the arc
@@ -491,7 +491,7 @@ class Arc():
         ----------
             curvature (float): curvature of the arc
 
-            length (float): length of the arc 
+            length (float): length of the arc
 
             angle (float): angle of the arc
 
@@ -521,7 +521,7 @@ class Arc():
 
         if length == None and angle == None:
             raise NotEnoughInputArguments('neither length nor angle defined, for arc')
-        
+
         if length != None and angle != None:
             raise ToManyOptionalArguments('both length and angle set, only one is requiered')
 
@@ -534,20 +534,20 @@ class Arc():
         if self.length:
             self.angle = self.length * self.curvature
 
-        
-        if self.angle:         
+
+        if self.angle:
             _,_,_,self.length = self.get_end_data(0,0,0)
 
     def __eq__(self, other):
         if isinstance(other,Arc):
-            if self.get_attributes() == other.get_attributes():         
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
 
     def get_end_data(self,x,y,h):
         """ Returns information about the end point of the geometry
-        
+
         Parameters
         ----------
             x (float): x start point of the geometry
@@ -558,7 +558,7 @@ class Arc():
 
         Returns
         ---------
-            
+
             x (float): the final x point
 
             y (float): the final y point
@@ -583,10 +583,10 @@ class Arc():
             self.angle = self.length * self.curvature
 
         new_ang = self.angle + phi_0
-        if self.angle:         
+        if self.angle:
             self.length = np.abs(radius*self.angle)
 
-            
+
         new_ang = self.angle + phi_0
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
@@ -596,7 +596,7 @@ class Arc():
 
     def get_start_data(self,end_x,end_y,end_h):
         """ Returns information about the end point of the geometry
-        
+
         Parameters
         ----------
             end_x (float): x final point of the geometry
@@ -607,20 +607,20 @@ class Arc():
 
         Returns
         ---------
-            
+
             x (float): the start x point
 
             y (float): the start y point
 
-            h (float): the start heading of the inverse geometry 
+            h (float): the start heading of the inverse geometry
 
             length (float): length of the element
 
         """
         x = end_x
-        y = end_y 
+        y = end_y
         h = end_h
-        inv_curv = - self.curvature 
+        inv_curv = - self.curvature
         radius = 1/np.abs(inv_curv)
         if inv_curv < 0:
             phi_0 = h + np.pi/2
@@ -636,9 +636,9 @@ class Arc():
             self.angle = self.length * inv_curv
 
         new_ang = self.angle + phi_0
-        if self.angle:         
+        if self.angle:
             self.length = np.abs(radius*self.angle)
-        
+
 
         new_h = h + self.angle
         new_x = np.cos(new_ang)*radius + x_0
@@ -656,21 +656,21 @@ class Arc():
 
         """
         element = ET.Element('arc',attrib=self.get_attributes())
-        
+
         return element
 
 
 
 class ParamPoly3():
     """ the ParamPoly3 class creates a parampoly3 type of geometry, in the coordinate systeme U (along road), V (normal to the road)
-        
+
         the polynomials are on the form
         uv(p) = a + b*p + c*p^2 + d*p^3
 
         Parameters
         ----------
             au (float): coefficient a of the u polynomial
-            
+
             bu (float): coefficient b of the u polynomial
 
             cu (float): coefficient c of the u polynomial
@@ -693,7 +693,7 @@ class ParamPoly3():
         Attributes
         ----------
             au (float): coefficient a of the u polynomial
-            
+
             bu (float): coefficient b of the u polynomial
 
             cu (float): coefficient c of the u polynomial
@@ -707,7 +707,7 @@ class ParamPoly3():
             cv (float): coefficient c of the v polynomial
 
             dv (float): coefficient d of the v polynomial
-           
+
             prange (str): "normalized" or "arcLength"
                 Default: "normalized"
 
@@ -730,7 +730,7 @@ class ParamPoly3():
         Parameters
         ----------
             au (float): coefficient a of the u polynomial
-            
+
             bu (float): coefficient b of the u polynomial
 
             cu (float): coefficient c of the u polynomial
@@ -744,13 +744,13 @@ class ParamPoly3():
             cv (float): coefficient c of the v polynomial
 
             dv (float): coefficient d of the v polynomial
-           
+
             prange (str): "normalized" or "arcLength"
                 Default: "normalized"
-                
+
             length (float): total length of arc, used if prange == arcLength
-        """ 
-        
+        """
+
         self.au = au
         self.bu = bu
         self.cu = cu
@@ -769,21 +769,21 @@ class ParamPoly3():
 
     def __eq__(self, other):
         if isinstance(other,ParamPoly3):
-            if self.get_attributes() == other.get_attributes():               
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
-        
+
     def _integrand(self,p):
         """ integral function to calulate length of polynomial,
             #TODO: This is not tested or verified...
         """
         return np.sqrt(
-            (abs(3*self.du*p**2 + 2*self.cu*p + self.bu))**2 + 
+            (abs(3*self.du*p**2 + 2*self.cu*p + self.bu))**2 +
             (abs(3*self.dv*p**2 + 2*self.cv*p + self.bv))**2)
 
     def get_start_data(self,x,y,h):
         """ Returns the start point of the geometry
-        
+
         Parameters
         ----------
             x (float): x end point of the geometry
@@ -816,7 +816,7 @@ class ParamPoly3():
         return new_x, new_y, new_h, self.length
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
-        
+
         Parameters
         ----------
             x (float): x final point of the geometry
@@ -829,7 +829,7 @@ class ParamPoly3():
         ---------
             x (float): the start x point
             y (float): the start y point
-            h (float): the start heading of the inverse geometry 
+            h (float): the start heading of the inverse geometry
             length (float): length of the polynomial
 
         """
@@ -864,25 +864,25 @@ class ParamPoly3():
         retdict['dV'] = str(self.dv)
         retdict['pRange'] = self.prange
         return retdict
-        
+
 
     def get_element(self):
         """ returns the elementTree of the ParamPoly3
 
         """
         element = ET.Element('paramPoly3',attrib=self.get_attributes())
-        
+
         return element
 
 class Spiral():
     """ the Spiral (Clothoid) creates a spiral type of geometry
-        
+
         Parameters
         ----------
             curvstart (float): starting curvature of the Spiral
- 
+
             curvend (float): final curvature of the Spiral
- 
+
             length (float): length of the spiral (optional, or use, angle, or cdot)
 
             angle (float): the angle of the spiral (optional, or use length, or cdot)
@@ -892,27 +892,27 @@ class Spiral():
         Attributes
         ----------
             curvstart (float): starting curvature of the Spiral
- 
+
             curvend (float): final curvature of the Spiral
- 
+
         Methods
         -------
             get_element()
                 Returns the full ElementTree of the class
- 
+
             get_attributes()
                 Returns a dictionary of all attributes of the class
- 
+
             get_end_data(x,y,h)
-                Returns the end point of the geometry        
+                Returns the end point of the geometry
     """
     def __init__(self,curvstart,curvend,length=None,angle=None,cdot=None):
         """ initalizes the Spline
- 
+
         Parameters
         ----------
             curvstart (float): starting curvature of the Spiral
- 
+
             curvend (float): final curvature of the Spiral
 
             length (float): length of the spiral (optional, or use, angle, or cdot)
@@ -920,7 +920,7 @@ class Spiral():
             angle (float): the angle of the spiral (optional, or use length, or cdot)
 
             cdot (float): the curvature change of the spiral (optional, or use length, or angle)
-        """ 
+        """
         self.curvstart = curvstart
         self.curvend = curvend
         if length == None and angle == None and cdot == None:
@@ -937,24 +937,24 @@ class Spiral():
 
     def __eq__(self, other):
         if isinstance(other,Spiral):
-            if self.get_attributes() == other.get_attributes():         
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     def get_end_data(self,x,y,h):
         """ Returns the end point of the geometry
-        
+
         Parameters
         ----------
             x (float): x start point of the geometry
- 
+
             y (float): y start point of the geometry
- 
+
             h (float): start heading of the geometry
- 
+
         Returns
         ---------
- 
+
             x (float): the final x point
             y (float): the final y point
             h (float): the final heading
@@ -967,39 +967,39 @@ class Spiral():
 
     def get_start_data(self, end_x, end_y, end_h):
         """ Returns the end point of the geometry
-        
+
         Parameters
         ----------
             end_x (float): x end point of the geometry
- 
+
             end_y (float): y end point of the geometry
- 
+
             end_h (float): end heading of the geometry
 
         Returns
         ---------
- 
+
             x (float): the start x point
             y (float): the start y point
-            h (float): the start heading of the inverse geometry 
+            h (float): the start heading of the inverse geometry
             l (float): length of the spiral
 
         """
         cloth = pcloth.Clothoid.StandardParams(end_x, end_y, end_h, -self.curvend, -(self.curvstart - self.curvend) / self.length, self.length)
- 
+
         return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
 
- 
+
     def get_attributes(self):
         """ returns the attributes of the Line as a dict
- 
+
         """
         return {'curvStart': str(self.curvstart), 'curvEnd': str(self.curvend)}
- 
+
     def get_element(self):
         """ returns the elementTree of the Line
- 
+
         """
         element = ET.Element('spiral',attrib=self.get_attributes())
-        
+
         return element

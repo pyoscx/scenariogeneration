@@ -18,7 +18,7 @@ def test_transition_dynamics(teststring):
     prettyprint(td3.get_element())
     assert td == td2
     assert td != td3
-    
+
     td4 = OSC.TransitionDynamics.parse(td.get_element())
     td == td4
 
@@ -54,13 +54,13 @@ def test_orientation(testinp,results):
 @pytest.mark.parametrize("testinp,results",[([None,None,None,None],False),([1,None,None,None],True),([1,None,None,OSC.ReferenceContext.relative],True),([1,2,4,None],True),([1,2,4,OSC.ReferenceContext.absolute],True) ] )
 def test_orientation_filled(testinp,results):
     dyncon = OSC.Orientation(h=testinp[0],p=testinp[1],r=testinp[2],reference=testinp[3])
-    
+
     assert dyncon.is_filled() == results
-    
+
 # def test_orientation_failed():
 #     with pytest.raises(ValueError):
 #         OSC.Orientation(reference='hej')
-   
+
 def test_parameter():
     param = OSC.Parameter('stuffs',OSC.ParameterType.integer,'1')
     prettyprint(param.get_element())
@@ -93,10 +93,10 @@ def test_catalogreference():
     prettyprint(catref.get_element())
     catref.add_parameter_assignment('stuffs',1)
     prettyprint(catref.get_element())
-    
+
     catref2 = OSC.CatalogReference('VehicleCatalog','S60')
     catref2.add_parameter_assignment('stuffs',1)
-    
+
     catref3 = OSC.CatalogReference('VehicleCatalog','S60')
     catref3.add_parameter_assignment('stuffs',2)
 
@@ -111,7 +111,7 @@ def test_catalogreference():
 
 
 def test_paramdeclaration():
-    
+
     pardec = OSC.ParameterDeclarations()
     pardec.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.integer,'1'))
     pardec.add_parameter(OSC.Parameter('myparam1',OSC.ParameterType.double,'0.01'))
@@ -136,7 +136,7 @@ def test_entityref():
     assert entref != entref3
 
     entref4 = OSC.EntityRef.parse(entref.get_element())
-    assert entref == entref4 
+    assert entref == entref4
 
 
 
@@ -192,7 +192,7 @@ def test_properties():
     prop2.add_property('theotherthing','true')
     prop2.add_file('propfile.xml')
 
-    
+
     prop3 = OSC.Properties()
     prop3.add_property('mything','2')
     prop3.add_property('theotherthin','true')
@@ -201,7 +201,7 @@ def test_properties():
 
     prop4 = OSC.Properties.parse(prop.get_element())
     assert prop4 == prop
-    
+
 
 def test_controller():
     prop = OSC.Properties()
@@ -233,7 +233,7 @@ def test_fileheader():
 
     fh4 = OSC.FileHeader.parse(fh.get_element())
     assert fh4 == fh
-    
+
 
 def test_timeref():
     timeref = OSC.TimeReference(OSC.ReferenceContext.absolute,1,2)
@@ -255,10 +255,10 @@ def test_phase():
     p2 = OSC.Phase('myphase',1)
     p2.add_signal_state('myid','red')
     p2.add_signal_state('myid','green')
-    
+
     p3 = OSC.Phase('myphase',1)
     p3.add_signal_state('myid','red')
-    
+
     assert p1 == p2
     assert p1 != p3
 
@@ -411,7 +411,7 @@ def test_distancesteadystate():
     prettyprint(tdss)
 
     tdss4 = OSC.TargetDistanceSteadyState.parse(tdss.get_element())
-    assert tdss4 == tdss 
+    assert tdss4 == tdss
 
 def test_timesteadystate():
     ttss = OSC.TargetTimeSteadyState(1)
@@ -518,7 +518,7 @@ def test_relativeSpeedToMaster():
     inst4 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetTimeSteadyState(2))
     prettyprint(inst4)
     inst5 = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetDistanceSteadyState(1))
- 
+
     inst6 = OSC.RelativeSpeedToMaster.parse(inst4.get_element())
     assert inst6 == inst4
 
@@ -556,7 +556,7 @@ def test_value_constraint_group():
     assert vcg != vcg3
     vcg4 = OSC.ValueConstraintGroup.parse(vcg.get_element())
     assert vcg == vcg4
-   
+
 
 def test_value_constraint():
     vc = OSC.ValueConstraint( OSC.Rule.equalTo, 'equalTo')
@@ -574,14 +574,14 @@ def test_convert_float():
     assert OSC.convert_float('1.1') == 1.1
     assert OSC.convert_float('$asdf') == '$asdf'
     with pytest.raises(ValueError):
-        OSC.convert_float('asdf') 
-         
+        OSC.convert_float('asdf')
+
 def test_convert_int():
     assert OSC.convert_int(1) == 1
     assert OSC.convert_int('1') == 1
     assert OSC.convert_int('$asdf') == '$asdf'
     with pytest.raises(ValueError):
-        OSC.convert_float('asdf') 
+        OSC.convert_float('asdf')
 
 def test_convert_bool():
     assert OSC.convert_bool(1) == 'true'
@@ -592,4 +592,4 @@ def test_convert_bool():
     assert OSC.convert_bool('1') == True
 
     with pytest.raises(ValueError):
-        OSC.convert_float('asdf') 
+        OSC.convert_float('asdf')

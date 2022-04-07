@@ -1,5 +1,5 @@
-""" Fundamental example how to build up a road from scratch, but also with objects. 
-    
+""" Fundamental example how to build up a road from scratch, but also with objects.
+
     This example should be seen as a developer example how roads are built up from the very basic classes in OpenDRIVE
     create_road will take care of this and much more, so a user is recommended to use that generator instead.
 
@@ -22,10 +22,10 @@ road = xodr.create_road([xodr.Line(1000)],0,2,2)
 ## Create the OpenDrive class (Master class)
 odr = xodr.OpenDrive('myroad')
 
-## Finally add roads to Opendrive 
+## Finally add roads to Opendrive
 odr.add_road(road)
 
-# Adjust initial positions of the roads looking at succ-pred logic 
+# Adjust initial positions of the roads looking at succ-pred logic
 odr.adjust_roads_and_lanes()
 
 # After adjustment, repeating objects on side of the road can be added automatically
