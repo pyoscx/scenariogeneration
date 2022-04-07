@@ -58,6 +58,7 @@ class _Links():
             self.links.append(link)
         else:
             self.links.append(link)
+        return self
 
     def get_predecessor_contact_point(self):
         """ returns the predecessor contact_point of the link (if exists)
@@ -274,6 +275,7 @@ class LaneLinker():
 
         """
         self.links.append(_lanelink(predlane,succlane,connecting_road))
+        return self
 
 class _lanelink():
     """ helper class for LaneLinker
@@ -370,6 +372,8 @@ class Connection():
                 out_lane: land id of the outgoing road
         """
         self.links.append((in_lane,out_lane))
+        return self
+
     def get_attributes(self, junctiontype = JunctionType.default):
         """ returns the attributes as a dict of the Connection
 
@@ -513,6 +517,7 @@ class Junction():
         connection._set_id(self._id_counter)
         self._id_counter += 1
         self.connections.append(connection)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Junction
@@ -863,6 +868,7 @@ class JunctionGroup():
 
         """
         self.junctions.append(junction_id)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the JunctionGroup

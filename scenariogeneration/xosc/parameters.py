@@ -371,6 +371,7 @@ class Stochastic():
         if not isinstance(distribution,_StochasticDistributionType):
             raise TypeError('distribution input is not a valid StochasticDistribution')
         self.distributions[parametername] = distribution
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Stochastic as a dict
@@ -704,7 +705,7 @@ class Histogram(_StochasticDistributionType):
 
         """
         self.bins.append(_HistogramBin(weight,range))
-
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Histogram
@@ -780,7 +781,7 @@ class ProbabilityDistributionSet(_StochasticDistributionType):
 
         """
         self.sets.append(_ProbabilityDistributionSetElement(value,weight))
-
+        return self
 
     def get_element(self):
         """ returns the elementTree of the ProbabilityDistributionSet
@@ -865,6 +866,7 @@ class ParameterValueSet():
         """
 
         self.sets.append(ParameterAssignment(parameterref,value))
+        return self
 
 
     def get_element(self):
@@ -946,6 +948,7 @@ class DeterministicMultiParameterDistribution():
         if not isinstance(parameter_value_set,ParameterValueSet):
             raise TypeError('distribution input is not of type ParameterValueSet')
         self.sets.append(parameter_value_set)
+        return self
 
 
     def get_element(self):
@@ -1106,6 +1109,7 @@ class DistributionSet():
                 value (str): the value to be added to the distribution
         """
         self.value_elements.append(value)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the DistributionSet
@@ -1196,6 +1200,7 @@ class Deterministic():
         if not isinstance(distribution,DeterministicMultiParameterDistribution):
             raise TypeError('distribution input is not of type DeterministicMultiParameterDistribution')
         self.multi_distributions.append(distribution)
+        return self
 
     def add_single_distribution(self,parametername,distribution):
         """ adds a parameter and a related distribution to it
@@ -1210,6 +1215,7 @@ class Deterministic():
         if not (isinstance(distribution,DistributionSet) or isinstance(distribution,DistributionRange)):
             raise TypeError('distribution input is not of type DeterministicMultiParameterDistribution')
         self.single_distributions[parametername] = distribution
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Deterministic

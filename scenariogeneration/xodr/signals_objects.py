@@ -297,6 +297,7 @@ class Signal(_SignalObjectBase):
         if self.validity:
             raise ValueError('only one validity is allowed')
         self.validity = Validity(fromLane, toLane)
+        return self
 
     def get_element(self):
         element = ET.Element('signal', attrib=self.get_attributes())
@@ -606,6 +607,7 @@ class Object(_SignalObjectBase):
         if self.validity:
             raise ValueError('only one validity is allowed')
         self.validity = Validity(fromLane, toLane)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Object as a dict

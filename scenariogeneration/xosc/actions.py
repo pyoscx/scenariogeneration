@@ -3691,6 +3691,7 @@ class UserDefinedAction(_ActionType):
 
         """
         self.custom_command_actions.append(custom_command_action)
+        return self
 
     def __eq__(self, other):
         if isinstance(other, UserDefinedAction):

@@ -118,6 +118,7 @@ class Init():
         if not isinstance(action,_ActionType):
             raise TypeError('action input is not a valid action')
         self.global_actions.append(action)
+        return self
 
     def add_user_defined_action(self,action):
         """ add_user_defined_action adds a userDefined action to the init
@@ -129,6 +130,7 @@ class Init():
         """
         # NOTE: since this is not really implemented no checkes are done here.
         self.user_defined_actions.append(action)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Init
@@ -252,6 +254,7 @@ class StoryBoard():
         if not isinstance(story,Story):
             raise TypeError('story input is not of type Story')
         self.stories.append(story)
+        return self
 
     def add_act(self,act,parameters=ParameterDeclarations()):
         """ add_act is a quick way to add a single act to one story, for multi act type of scenarios, use Story instead.
@@ -270,6 +273,7 @@ class StoryBoard():
         newstory = Story('story_' + act.name,parameters)
         newstory.add_act(act)
         self.stories.append(newstory)
+        return self
 
     def add_maneuver_group(self,maneuvergroup,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
         """ add_maneuver_group is a quick way to add a single maneuver_group to one story, for multi maneuver_group type of scenarios, use Act instead.
@@ -302,6 +306,7 @@ class StoryBoard():
         newact = Act('act_' + maneuvergroup.name,starttrigger,stoptrigger)
         newact.add_maneuver_group(maneuvergroup)
         self.add_act(newact,parameters)
+        return self
 
 
     def add_maneuver(self,maneuver,actors=None,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
@@ -336,6 +341,7 @@ class StoryBoard():
                 mangr.add_actor(actors)
         mangr.add_maneuver(maneuver)
         self.add_maneuver_group(mangr,starttrigger=starttrigger,stoptrigger=stoptrigger,parameters=parameters)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Storyboard
@@ -449,6 +455,7 @@ class Story():
         if not isinstance(act,Act):
             raise TypeError('act input is not of type Act')
         self.acts.append(act)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Story
@@ -580,6 +587,7 @@ class Act():
         if not isinstance(maneuvergroup,ManeuverGroup):
             raise TypeError('maneuvergroup is not of type ManeuverGroup')
         self.maneuvergroup.append(maneuvergroup)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Act
@@ -704,6 +712,7 @@ class ManeuverGroup():
         if not isinstance(maneuver,Maneuver):
             raise TypeError('maneuver input is not of type Maneuver')
         self.maneuvers.append(maneuver)
+        return self
 
     def add_actor(self,entity):
         """ adds an actor to the ManeuverGroup
@@ -714,6 +723,7 @@ class ManeuverGroup():
 
         """
         self.actors.add_actor(entity)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the ManeuverGroup
@@ -812,6 +822,7 @@ class _Actors():
 
         """
         self.actors.append(EntityRef(entity))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the _Actors as a dict
@@ -960,6 +971,7 @@ class Maneuver():
         if not isinstance(event,Event):
             raise TypeError('event input is not of type Event')
         self.events.append(event)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Maneuver
@@ -1084,6 +1096,7 @@ class Event(VersionBase):
                 raise TypeError('trigger input is a entity trigger condition, please add to a EntityTrigger.')
             raise TypeError('trigger input is not a valid trigger')
         self.trigger = trigger
+        return self
 
     def add_action(self,actionname,action):
         """ adds an action to the Event, multiple actions can be added and will be ordered as added.
@@ -1096,6 +1109,7 @@ class Event(VersionBase):
         if not isinstance(action,_ActionType):
             raise TypeError('action input is not a valid Action')
         self.action.append(_Action(actionname,action))
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Event

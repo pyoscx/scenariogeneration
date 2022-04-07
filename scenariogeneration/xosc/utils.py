@@ -105,6 +105,7 @@ class ParameterDeclarations(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.append(parameter)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the ParameterDeclarations
@@ -280,6 +281,7 @@ class Parameter(VersionBase):
         if not isinstance(constraint_group,ValueConstraintGroup):
             raise TypeError('value_conatraint input is not of type ValueConstraintGroup')
         self.constraint_groups.append(constraint_group)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Parameter as a dict
@@ -1151,6 +1153,7 @@ class Phase(VersionBase):
 
         """
         self.signalstates.append(_TrafficSignalState(signal_id,state))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalController
@@ -1277,6 +1280,7 @@ class TrafficSignalController(VersionBase):
         if not isinstance(phase,Phase):
             raise TypeError('phase input is not of type Phase')
         self.phases.append(phase)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalController
@@ -1417,6 +1421,7 @@ class TrafficDefinition(VersionBase):
             raise TypeError('vehcilecategory input is not of type VehcileCategory')
         self.vehiclecategories.append(vehiclecategory)
         self.vehicleweights.append(weight)
+        return self
 
     def add_controller(self,controller,weight):
         """ Adds a controller to the traffic distribution
@@ -1432,6 +1437,7 @@ class TrafficDefinition(VersionBase):
             raise TypeError('controller input not of type Controller or CatalogReference')
         self.controllers.append(controller)
         self.controllerweights.append(weight)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the TrafficDefinition
@@ -1521,6 +1527,7 @@ class CatalogFile(VersionBase):
             Warning('The Catalog and the added object does not have the same OpenSCENARIO version.')
         catalogs = self.catalog_element.find('Catalog')
         catalogs.append(obj.get_element())
+        return self
 
     def open_catalog(self,filename):
         """ open_catalog reads an existing catalog file
@@ -1693,7 +1700,7 @@ class Catalog(VersionBase):
             raise ValueError('Not a correct catalog, approved catalogs are:' ''.join(self._CATALOGS))
 
         self.catalogs[catalogname] = path
-
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Catalog
@@ -1799,6 +1806,7 @@ class CatalogReference(VersionBase):
                 value (str): assigned value of the parameter
         """
         self.parameterassignments.append(ParameterAssignment(parameterref,value))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the CatalogReference as a dict
@@ -2940,6 +2948,7 @@ class Controller(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Controller as a dict
@@ -3297,6 +3306,7 @@ class Properties(VersionBase):
         """
 
         self.files.append(filename)
+        return self
 
     def add_property(self,name,value):
         """ adds a property pair
@@ -3309,6 +3319,7 @@ class Properties(VersionBase):
 
         """
         self.properties.append((name,value))
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Properties
@@ -3787,6 +3798,7 @@ class ValueConstraintGroup(VersionBase):
         if not isinstance(value_constraint,ValueConstraint):
             raise TypeError('value_conatraint input is not of type ValueConstraint')
         self.value_constraints.append(value_constraint)
+        return self
 
     @staticmethod
     def parse(element):

@@ -220,6 +220,7 @@ class Trigger(_TriggerType):
             raise TypeError('conditiongroup input not of type ConditionGroup')
         conditiongroup._set_used_by_parent()
         self.conditiongroups.append(conditiongroup)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Trigger
@@ -327,6 +328,7 @@ class ConditionGroup(_TriggerType):
         condition._set_used_by_parent()
         self.conditions.append(condition)
         self._used_by_parent = False
+        return self
 
     def _set_used_by_parent(self):
         """ _set_used_by_parent is used internaly if the condition group is added to a Trigger
@@ -498,6 +500,8 @@ class EntityTrigger(_TriggerType):
             triggeringentity (str)
         """
         self.triggerentity.add_entity(triggerentity)
+        return self
+
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
 
@@ -753,6 +757,7 @@ class TriggeringEntities(VersionBase):
 
         """
         self.entity.append(EntityRef(entity))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict

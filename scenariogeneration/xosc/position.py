@@ -2062,6 +2062,7 @@ class Route(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def add_waypoint(self,position,routestrategy):
         """ adds a waypoint to the Route
@@ -2075,6 +2076,7 @@ class Route(VersionBase):
         """
         # note: the checks for types are done in Waypoint
         self.waypoints.append(Waypoint(position,routestrategy))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Route as a dict
@@ -2235,6 +2237,7 @@ class Trajectory(VersionBase):
         if not (isinstance(shape,Polyline) or isinstance(shape,Clothoid) or isinstance(shape,Nurbs)):
             raise TypeError('shape input neither of type Polyline, Clothoid, or Nurbs')
         self.shapes = shape
+        return self
 
     def add_parameter(self,parameter):
         """ adds a parameter to the Trajectory
@@ -2247,6 +2250,7 @@ class Trajectory(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('input parameter is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Trajectory as a dict
@@ -2365,6 +2369,8 @@ class Nurbs(VersionBase):
                 knots (list of double): knots of the nurbs (must be order + len(controlpoints)) in decending order
         """
         self.knots = knots
+        return self
+
     def add_control_point(self,controlpoint):
         """ adds a controlpoint to the Nurbs
 
@@ -2375,6 +2381,7 @@ class Nurbs(VersionBase):
         if not isinstance(controlpoint,ControlPoint):
             raise TypeError('controlpoint input is not of type ControlPoint')
         self.controlpoints.append(controlpoint)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Nurbs

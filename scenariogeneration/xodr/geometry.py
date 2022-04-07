@@ -119,6 +119,7 @@ class PlanView():
             self._overridden_headings.append(heading)
         self._raw_geometries.append(geom)
         self._addition_mode = 'add_geometry'
+        return self
 
     def add_fixed_geometry(self, geom, x_start, y_start, h_start,s=None):
         """ add_fixed_geometry adds a geometry to a certain point to the planview
@@ -162,7 +163,7 @@ class PlanView():
         self.present_s += length
         self.adjusted = True
         self._addition_mode = 'add_fixed_geometry'
-
+        return self
 
     def set_start_point(self,x_start=0,y_start=0,h_start=0):
         """ sets the start point of the planview
