@@ -215,7 +215,7 @@ def test_trafficsignalcondition():
     cond3 = OSC.TrafficSignalCondition('traflight','red')
     assert cond == cond2
     assert cond != cond3
-    
+
     cond4 = OSC.TrafficSignalCondition.parse(cond.get_element())
     assert cond == cond4
 
@@ -247,7 +247,7 @@ def test_triggeringentities():
     cond5 = OSC.TriggeringEntities.parse(cond3.get_element())
     assert cond5 == cond3
 
-    
+
 
 def test_entitytrigger():
     trigcond = OSC.TimeToCollisionCondition(10,OSC.Rule.equalTo,True,freespace=False,position=OSC.WorldPosition())
@@ -301,7 +301,7 @@ def test_conditiongroup():
     assert condgr4 == condgr2
 
 def test_trigger():
-    
+
     condgr = OSC.ConditionGroup()
 
     trig1 = OSC.EntityTrigger('firsttrigger',1,OSC.ConditionEdge.rising,OSC.RelativeDistanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.longitudinal,'Ego'),'Target')
@@ -323,7 +323,7 @@ def test_trigger():
     trig.add_conditiongroup(condgr)
     trig.add_conditiongroup(condgr2)
     prettyprint(trig.get_element())
-    
+
     trig2 = OSC.Trigger()
     trig3 = OSC.Trigger()
     trig2.add_conditiongroup(condgr)
@@ -370,7 +370,7 @@ def test_position_factory(valuetrigger):
     OSC.DistanceCondition(4,OSC.Rule.greaterOrEqual,OSC.WorldPosition()),
     OSC.RelativeDistanceCondition(2,OSC.Rule.greaterOrEqual,OSC.RelativeDistanceType.lateral,'target')
 ])
-                        
+
 def test_position_factory(entitytrigger):
     # element = ET.Element('ByEntityCondition')
     # element.append(entitytrigger.get_element())
@@ -410,4 +410,4 @@ def test_equalities_trigger_vs_conditiongroup_vs_value():
     assert trigger == valtrigger
     assert valtrigger == trigger
 
-    
+

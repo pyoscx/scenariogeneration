@@ -16,16 +16,16 @@ from .actions import _GlobalActionFactory, _PrivateActionFactory
 
 class Init():
     """ the Init class, creates the init part of the storyboard
-        
+
         Attributes
         ----------
-            initactions (dir: {entityname: Action}): a directory 
+            initactions (dir: {entityname: Action}): a directory
                 containing all init actions of the scenario
-                
+
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -55,7 +55,7 @@ class Init():
             self.user_defined_actions == other.user_defined_actions:
                 return True
         return False
-        
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of Init
@@ -68,7 +68,7 @@ class Init():
             Returns
             -------
                 init (Init): a Init object
-                
+
         """
         init = Init()
         action_element = element.find('Actions')
@@ -76,7 +76,7 @@ class Init():
         for ga in global_elements:
             globalaction = _GlobalActionFactory.parse_globalaction(ga)
             init.add_global_action(globalaction)
-            
+
         private_elements = action_element.findall('Private')
         for pe in private_elements:
             actor = pe.attrib['entityRef']
@@ -84,9 +84,9 @@ class Init():
             for pa in all_private_actions:
                 privateaction = _PrivateActionFactory.parse_privateaction(pa)
                 init.add_init_action(actor,privateaction)
-            
+
         return init
-        
+
     def add_init_action(self,entityname,action):
         """ add_init_action adds an Private Action to the init.
 
@@ -94,7 +94,7 @@ class Init():
         ----------
             entityname (str): name of the entity to add the action to
             action (*Action): Any private action to be added (like TeleportAction)
-            
+
         """
         if not isinstance(action,_PrivateActionType):
             if isinstance(action,_ActionType):
@@ -118,7 +118,7 @@ class Init():
         if not isinstance(action,_ActionType):
             raise TypeError('action input is not a valid action')
         self.global_actions.append(action)
-    
+
     def add_user_defined_action(self,action):
         """ add_user_defined_action adds a userDefined action to the init
 
@@ -136,7 +136,7 @@ class Init():
         """
         element = ET.Element('Init')
         actions = ET.SubElement(element,'Actions')
-        
+
         # add global actions
         for i in self.global_actions:
             actions.append(i.get_element())
@@ -155,20 +155,20 @@ class Init():
 
 class StoryBoard():
     """ The StoryBoard class creates the storyboard of OpenScenario
-        
+
         Parameters
         ----------
             init (Init): the init part of the storyboard
 
-            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
+            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger):
                 the stoptrigger of the storyboard (optional)
-                Default (EmptyTrigger) 
+                Default (EmptyTrigger)
 
         Attributes
         ----------
             init (Init): the init of the storyboard
 
-            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger): 
+            stoptrigger (Valuetrigger, Entitytrigger or EmptyTrigger):
                 the stoptrigger
 
             stories (list of Story): all stories of the scenario
@@ -176,7 +176,7 @@ class StoryBoard():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_story (story)
                 adds a story to the storyboard
@@ -194,9 +194,9 @@ class StoryBoard():
             init (Init): the init part of the storyboard
                 Default: Init()
 
-            stoptrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger): 
+            stoptrigger (Valuetrigger, Entitytrigger, Trigger, ConditionGroup or EmptyTrigger):
                 the stoptrigger of the storyboard (optional)
-                Default: (EmptyTrigger) 
+                Default: (EmptyTrigger)
 
         """
         if not isinstance(init,Init):
@@ -215,7 +215,7 @@ class StoryBoard():
             if self.init == other.init and \
             self.stoptrigger == other.stoptrigger and \
             self.stories == other.stories:
-                 
+
 
                 return True
         return False
@@ -231,7 +231,7 @@ class StoryBoard():
             Returns
             -------
                 storyboard (StoryBoard): a StoryBoard object
-                
+
         """
         init = Init.parse(element.find('Init'))
         stoptrigger = Trigger.parse(element.find('StopTrigger'))
@@ -246,7 +246,7 @@ class StoryBoard():
 
         Parameters
         ----------
-            story (Story): the story to be added 
+            story (Story): the story to be added
 
         """
         if not isinstance(story,Story):
@@ -255,7 +255,7 @@ class StoryBoard():
 
     def add_act(self,act,parameters=ParameterDeclarations()):
         """ add_act is a quick way to add a single act to one story, for multi act type of scenarios, use Story instead.
-    
+
             NOTE: if used multiple times multiple stories will be created
 
             Parameters
@@ -273,7 +273,7 @@ class StoryBoard():
 
     def add_maneuver_group(self,maneuvergroup,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
         """ add_maneuver_group is a quick way to add a single maneuver_group to one story, for multi maneuver_group type of scenarios, use Act instead.
-    
+
             NOTE: if used multiple times multiple stories will be created
 
             Parameters
@@ -306,7 +306,7 @@ class StoryBoard():
 
     def add_maneuver(self,maneuver,actors=None,starttrigger=None,stoptrigger=EmptyTrigger('stop'),parameters=ParameterDeclarations()):
         """ add_maneuver is a quick way to add a single maneuver to one story, for multi maneuver type of scenarios, use ManeuverGroup instead.
-    
+
             NOTE: if used multiple times multiple stories will be created
 
             Parameters
@@ -346,27 +346,27 @@ class StoryBoard():
 
         # if not self.stories:
         #     raise ValueError('no stories available for storyboard')
-        
+
         if not self.stories:
             self.add_maneuver_group(ManeuverGroup('empty'),EmptyTrigger())
         for story in self.stories:
             element.append(story.get_element())
-                
+
         element.append(self.stoptrigger.get_element())
 
         return element
-    
+
 
 class Story():
     """ The Story class creates a story of the OpenScenario
-        
+
         Parameters
-        ---------- 
+        ----------
             name (str): name of the story
 
             parameters (ParameterDeclarations): the parameters of the Story
                 Default: ParameterDeclarations()
-            
+
         Attributes
         ----------
             name (str): name of the story
@@ -378,7 +378,7 @@ class Story():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_act(act)
                 adds an act to the story
@@ -394,7 +394,7 @@ class Story():
         """ initalizes the Story class
 
         Parameters
-        ---------- 
+        ----------
             name (str): name of the story
 
             parameters (ParameterDeclarations): the parameters of the Story
@@ -426,11 +426,11 @@ class Story():
             Returns
             -------
                 story (Story): a Story object
-                
+
         """
         name = element.attrib['name']
         if element.find('ParameterDeclarations') != None:
-            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         else:
             parameters = ParameterDeclarations()
         story = Story(name,parameters)
@@ -442,7 +442,7 @@ class Story():
         """ adds an act to the story
 
         Parameters
-        ---------- 
+        ----------
             act (Act): act to add to the story
 
         """
@@ -455,7 +455,7 @@ class Story():
 
         """
         return {'name':self.name}
-    
+
     def get_element(self):
         """ returns the elementTree of the Story
 
@@ -470,7 +470,7 @@ class Story():
 
 class Act():
     """ the Act class creates the Act of the OpenScenario
-        
+
         Parameters
         ----------
             name (str): name of the act
@@ -479,7 +479,7 @@ class Act():
                 Default: ValueTrigger('act_start',0,ConditionEdge.none,SimulationTimeCondition(0,Rule.greaterThan))
 
             stoptrigger (*Trigger): stoptrigger of the act (optional)
-            
+
         Attributes
         ----------
             name (str): name of the act
@@ -493,7 +493,7 @@ class Act():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_maneuver_group(maneuvergroup)
                 adds a maneuvuergroup to the act
@@ -556,7 +556,7 @@ class Act():
             Returns
             -------
                 act (Act): a Act object
-                
+
         """
         name = element.attrib['name']
         stoptrigger = None
@@ -603,7 +603,7 @@ class Act():
 
 class ManeuverGroup():
     """ the ManeuverGroup creates the ManeuverGroup of the OpenScenario
-        
+
         Parameters
         ----------
             name (str): name of the ManeuverGroup
@@ -627,7 +627,7 @@ class ManeuverGroup():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_maneuver(Maneuver)
                 adds a maneuver to the ManeuverGroup
@@ -652,7 +652,7 @@ class ManeuverGroup():
                 maxexecution (int): maximum number of iterations
 
                 selecttriggeringentities (bool): Have no idea what this does ??? TODO: check
-        
+
         """
         self.name = name
         self.maxexecution = convert_int(maxexecution)
@@ -678,7 +678,7 @@ class ManeuverGroup():
             Returns
             -------
                 maneuver_group (ManeuverGroup): a ManeuverGroup object
-                
+
         """
 
         name = element.attrib['name']
@@ -695,7 +695,7 @@ class ManeuverGroup():
 
     def add_maneuver(self,maneuver):
         """ adds a maneuver to the ManeuverGroup
-            
+
         Parameters
         ----------
             maneuver (Maneuver, or CatalogReference): maneuver to add
@@ -707,7 +707,7 @@ class ManeuverGroup():
 
     def add_actor(self,entity):
         """ adds an actor to the ManeuverGroup
-            
+
         Parameters
         ----------
             entity (str): name of the entity to add as an actor
@@ -735,7 +735,7 @@ class ManeuverGroup():
 
 class _Actors():
     """ _Actors is used to create the actors of a ManeuverGroup
-        
+
         Parameters
         ----------
             selectTriggeringEntities (bool): ???
@@ -750,10 +750,10 @@ class _Actors():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_actor(actor)
-                adds an actor 
+                adds an actor
 
             get_element()
                 Returns the full ElementTree of the class
@@ -792,7 +792,7 @@ class _Actors():
             Returns
             -------
                 actors (_Actors): a _Actors object
-                
+
         """
         trigent = convert_bool(element.attrib['selectTriggeringEntities'])
         actors = _Actors(trigent)
@@ -805,7 +805,7 @@ class _Actors():
 
     def add_actor(self,entity):
         """ adds an actor to the list of actors
-            
+
             Parameters
             ----------
                 entity (str): name of the entity
@@ -836,7 +836,7 @@ class _Actors():
 
 class Maneuver():
     """ The Maneuver class creates the Maneuver of OpenScenario
-        
+
         Parameters
         ----------
             name (str): name of the Maneuver
@@ -855,7 +855,7 @@ class Maneuver():
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_event (event)
                 adds an event to the Maneuver
@@ -905,7 +905,7 @@ class Maneuver():
             Returns
             -------
                 maneuver (Maneuver): a Maneuver object
-                
+
         """
         parameters = None
         if element.find('ParameterDeclarations') is not None:
@@ -919,7 +919,7 @@ class Maneuver():
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -929,13 +929,13 @@ class Maneuver():
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the Controller to an existing catalog
 
@@ -984,12 +984,12 @@ class Maneuver():
 
 class Event(VersionBase):
     """ the Event class creates the event of OpenScenario
-        
+
         Parameters
         ----------
             name (str): name of the event
 
-            priority (Priority): what priority the event has 
+            priority (Priority): what priority the event has
 
             maxexecution (int): the maximum allowed executions of the event
                 Default: 1
@@ -1001,7 +1001,7 @@ class Event(VersionBase):
             priority (Priority): what priority the event has TODO: add definition
 
             maxexecution (int): the maximum allowed executions of the event
-                
+
             action (list of actions): all actions belonging to the event
 
             trigger (*Trigger): a start trigger to the event
@@ -1009,7 +1009,7 @@ class Event(VersionBase):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             add_trigger()
                 adds an trigger to the event
@@ -1035,7 +1035,7 @@ class Event(VersionBase):
 
     def __eq__(self,other):
         if isinstance(other,Event):
-            
+
             if self.get_attributes() == other.get_attributes() and \
             self.trigger == other.trigger and \
             self.action == other.action:
@@ -1053,7 +1053,7 @@ class Event(VersionBase):
             Returns
             -------
                 event (Event): a Event object
-                
+
         """
         name = element.attrib['name']
         maxexec = convert_int(element.attrib['maximumExecutionCount'])
@@ -1062,7 +1062,7 @@ class Event(VersionBase):
         event = Event(name,prio,maxexec)
 
         event.add_trigger(Trigger.parse(element.find('StartTrigger')))
-        
+
         all_actions = []
         for a in element.findall('Action'):
             event.action.append(_Action.parse(a))

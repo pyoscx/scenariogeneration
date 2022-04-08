@@ -3,9 +3,9 @@
 
     Some features used:
     - LongitudinalDistanceAction
-    
+
     - TimeHeadwayCondition
-        
+
 """
 import os
 from scenariogeneration import xosc, prettyprint
@@ -86,7 +86,7 @@ action = xosc.LongitudinalDistanceAction(egoname,max_deceleration=3,max_speed=50
 event.add_action('newspeed',action)
 
 
-## create the act, 
+## create the act,
 man = xosc.Maneuver('my_maneuver')
 man.add_event(event)
 

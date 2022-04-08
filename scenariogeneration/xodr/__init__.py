@@ -1,5 +1,5 @@
 # __init__.py
-""" the xodr module contains the classes used to generate OpenDRIVE (xml) files. 
+""" the xodr module contains the classes used to generate OpenDRIVE (xml) files.
 
 """
 from .geometry import *

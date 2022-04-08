@@ -1,4 +1,4 @@
-""" the scenario module contains the main class for generating OpenSCENARIO files aswell as the roadnetwork 
+""" the scenario module contains the main class for generating OpenSCENARIO files aswell as the roadnetwork
 
 """
 
@@ -17,7 +17,7 @@ from .storyboard import StoryBoard
 
 class Scenario():
     """ The Scenario class collects all parts of OpenScenario and creates a .xml file
-        
+
         Parameters
         ----------
             header (FileHeader): the header of the scenario file
@@ -93,7 +93,7 @@ class Scenario():
 
             osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
                 Default: 1
-            
+
             licence (License): optional license to the file header
                 Default: None
 
@@ -115,7 +115,7 @@ class Scenario():
         self.entities = entities
         self.storyboard = storyboard
         self.roadnetwork = roadnetwork
-        self.catalog = catalog 
+        self.catalog = catalog
         self.parameters = parameters
         self.header = FileHeader(author,name,revMinor=osc_minor_version,license=license,creation_date=creation_date)
 
@@ -130,7 +130,7 @@ class Scenario():
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Scenario
 
@@ -153,7 +153,7 @@ class Scenario():
         roadnetwork = RoadNetwork.parse(element.find('RoadNetwork'))
 
         return Scenario(header.description, header.author, parameters,entities,storyboard,roadnetwork,catalog,header._revMinor)
-        
+
 
 
     def get_element(self):
@@ -179,19 +179,19 @@ class Scenario():
 
             prettyprint (bool): pretty print or ugly print?
                 Default: True
-                
+
             encoding (str): specifies the output encoding
                 Default: 'utf-8'
 
         """
         printToFile(self.get_element(),filename,prettyprint)
-        
+
 
 
 
 class RoadNetwork(VersionBase):
     """ The RoadNetwork class creates the RoadNetwork of the openScenario
-        
+
         Parameters
         ----------
             roadfile (str): path to the opendrive file
@@ -202,12 +202,12 @@ class RoadNetwork(VersionBase):
         ----------
             road_file (str): path to the opendrive file
 
-            scene (str): path to the opensceengraph file 
+            scene (str): path to the opensceengraph file
 
             traffic_signals (list of TrafficSignalController): all traffic signals in the roadnetwork
 
             used_area_positions (list of Positions): the positions that determines the used area of the roadnetwork
-            
+
         Methods
         -------
             parse(element)
@@ -243,7 +243,7 @@ class RoadNetwork(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RoadNetwork
 
@@ -259,7 +259,7 @@ class RoadNetwork(VersionBase):
         logicFile = None
         if element.find('LogicFile') is not None:
             logicFile = element.find('LogicFile').attrib['filepath']
-        
+
         sceneGraphFile = None
         if element.find('SceneGraphFile') is not None:
             sceneGraphFile = element.find('SceneGraphFile').attrib['filepath']
@@ -276,7 +276,7 @@ class RoadNetwork(VersionBase):
             for tsc_element in tsc_elements:
                 controller = TrafficSignalController.parse(tsc_element)
                 roadnetwork.add_traffic_signal_controller(controller)
-        
+
         return roadnetwork
 
 
@@ -291,7 +291,7 @@ class RoadNetwork(VersionBase):
         if not isinstance(traffic_signal_controller,TrafficSignalController):
             raise TypeError('traffic_signal_controller input is not of type TrafficSignalController')
         self.traffic_signals.append(traffic_signal_controller)
-    
+
     def add_used_area_position(self,position):
         """ adds a position to determine the usedArea of the roadnetwork used, this feature was added in OpenSCENARIO V1.1.
             Atleast 2 positions are required.
@@ -299,7 +299,7 @@ class RoadNetwork(VersionBase):
             Parameters
             ----------
                 position (*Position): any position to determine the used area
-        
+
         """
         self.used_area_positions.append(position)
 
@@ -326,4 +326,4 @@ class RoadNetwork(VersionBase):
                 usedarea.append(p.get_element())
 
         return roadnetwork
-    
+

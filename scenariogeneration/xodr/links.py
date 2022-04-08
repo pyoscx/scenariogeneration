@@ -10,7 +10,7 @@ import warnings
 
 class _Links():
     """ Link creates a Link element used for roadlinking in OpenDrive
-        
+
         Parameters
         ----------
 
@@ -41,7 +41,7 @@ class _Links():
         return False
 
     def add_link(self,link):
-        """ Adds a _Link 
+        """ Adds a _Link
 
             Parameters
             ----------
@@ -130,7 +130,7 @@ class _Links():
         """ returns the elementTree of the _Link
 
         """
-        
+
         element = ET.Element('link')
         for l in self.links:
             element.append(l.get_element())
@@ -139,13 +139,13 @@ class _Links():
 
 class _Link():
     """ Link creates a predecessor/successor/neghbor element used for Links in OpenDrive
-        
+
         Parameters
         ----------
             link_type (str): the type of link (successor, predecessor, or neighbor)
 
             element_id (str): name of the linked road
-            
+
             element_type (ElementType): type of element the linked road
                 Default: None
 
@@ -185,7 +185,7 @@ class _Link():
             link_type (str): the type of link (successor, predecessor, or neighbor)
 
             element_id (str): name of the linked road
-            
+
             element_type (ElementType): type of element the linked road
                 Default: None
 
@@ -223,7 +223,7 @@ class _Link():
         else:
             retdict['elementType'] = enum2str(self.element_type)
             retdict['elementId'] = str(self.element_id)
-        
+
         if self.contact_point:
             retdict['contactPoint'] = enum2str(self.contact_point)
         elif self.link_type == 'neighbor':
@@ -238,9 +238,9 @@ class _Link():
         return element
 
 class LaneLinker():
-    """ LaneLinker stored information for linking lane sections 
+    """ LaneLinker stored information for linking lane sections
         NOTE: Not part of OpenDRIVE, but a helper to link lanes for the user.
-        
+
         Parameters
         ----------
 
@@ -251,7 +251,7 @@ class LaneLinker():
         Methods
         -------
             add_link(predlane, succlane)
-                adds a lane link 
+                adds a lane link
 
     """
     def __init__(self):
@@ -262,7 +262,7 @@ class LaneLinker():
         self.links = []
 
     def add_link(self,predlane, succlane,connecting_road=None):
-        """ Adds a _Link 
+        """ Adds a _Link
 
             Parameters
             ----------
@@ -282,19 +282,19 @@ class _lanelink():
     def __init__(self,predecessor,successor,connecting_road):
         self.predecessor = predecessor
         self.successor = successor
-        self.connecting_road = connecting_road 
+        self.connecting_road = connecting_road
         self.used = False
 
 
 class Connection():
     """ Connection creates a connection as a base of junction
-        
+
         Parameters
         ----------
             incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (type junction)
-            
+
             contact_point (ContactPoint): the contact point of the link
 
             id (int): id of the junction (automated?)
@@ -304,7 +304,7 @@ class Connection():
             incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (type junction)
-            
+
             contact_point (ContactPoint): the contact point of the link
 
             id (int): id of the connection (automated?)
@@ -331,7 +331,7 @@ class Connection():
             incoming_road (int): the id of the incoming road to the junction
 
             connecting_road (int): id of the connecting road (for junctiontypes virutal and default), or the linkedRoad (for junctiontype direct)
-            
+
             contact_point (ContactPoint): the contact point of the link
 
             id (int): id of the junction (automated)
@@ -390,7 +390,7 @@ class Connection():
 
     def get_element(self,junctiontype = JunctionType.default):
         """ returns the elementTree of the Connection
-            
+
             Parameters
             ----------
                 junctiontype (JunctionType): type of junction created (connections will be different)
@@ -406,14 +406,14 @@ class Connection():
 
 class Junction():
     """ Junction creates a junction of OpenDRIVE
-        
+
         Parameters
         ----------
             name (str): name of the junction
 
             id (int): id of the junction
 
-            junction_type (JunctionType): type of junction 
+            junction_type (JunctionType): type of junction
                 Default: JunctionType.default
 
             orientation (Orientation): the orientation of the junction (only used for virtual junction)
@@ -436,7 +436,7 @@ class Junction():
 
             connections (list of Connection): all the connections in the junction
 
-            junction_type (JunctionType): type of junction 
+            junction_type (JunctionType): type of junction
                 Default: JunctionType.default
 
             orientation (Orientation): the orientation of the junction (only used for virtual junction)
@@ -468,7 +468,7 @@ class Junction():
 
             id (int): id of the junction
 
-            junction_type (JunctionType): type of junction 
+            junction_type (JunctionType): type of junction
                 Default: JunctionType.default
 
             orientation (Orientation): the orientation of the junction (only used for virtual junction)
@@ -526,9 +526,9 @@ class Junction():
         # these are only used for virtual junctions
         if self.junction_type == JunctionType.virtual:
             if self.orientation == Orientation.positive:
-                retdict['orientation'] = '+'    
+                retdict['orientation'] = '+'
             elif self.orientation == Orientation.negative:
-                retdict['orientation'] = '-' 
+                retdict['orientation'] = '-'
             retdict['sEnd'] = str(self.send)
             retdict['sStart'] = str(self.sstart)
             retdict['mainRoad'] = str(self.mainroad)
@@ -546,7 +546,7 @@ class Junction():
 #from .exceptions import NotSameAmountOfLanesError
 from .enumerations import ContactPoint
 
-def are_roads_consecutive(road1, road2): 
+def are_roads_consecutive(road1, road2):
     """ checks if road2 follows road1
 
         Parameters
@@ -559,10 +559,10 @@ def are_roads_consecutive(road1, road2):
             bool
     """
 
-    if road1.successor is not None and road2.predecessor is not None: 
+    if road1.successor is not None and road2.predecessor is not None:
         if road1.successor.element_type == ElementType.road and road2.predecessor.element_type == ElementType.road:
-            if road1.successor.element_id == road2.id and road2.predecessor.element_id == road1.id: 
-                return True 
+            if road1.successor.element_id == road2.id and road2.predecessor.element_id == road1.id:
+                return True
 
     return False
 
@@ -578,13 +578,13 @@ def are_roads_connected(road1,road2):
         -------
             bool, str (successor or predecessor)
     """
-    if road1.successor is not None and road2.successor is not None: 
+    if road1.successor is not None and road2.successor is not None:
         if road1.successor.element_type == ElementType.road and road2.successor.element_type == ElementType.road:
-            if road1.successor.element_id == road2.id and road2.successor.element_id == road1.id: 
+            if road1.successor.element_id == road2.id and road2.successor.element_id == road1.id:
                 return True, 'successor'
-    if road1.predecessor is not None and road2.predecessor is not None: 
+    if road1.predecessor is not None and road2.predecessor is not None:
         if road1.predecessor.element_type == ElementType.road and road2.predecessor.element_type == ElementType.road:
-            if road1.predecessor.element_id == road2.id and road2.predecessor.element_id == road1.id: 
+            if road1.predecessor.element_id == road2.id and road2.predecessor.element_id == road1.id:
                 return True, 'predecessor'
     return False, ''
 
@@ -595,19 +595,19 @@ def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
 
         Parameters
         ----------
-            road1 (Road): the first road 
+            road1 (Road): the first road
 
             road2 (Road): the second road
 
             road1_land_ids (list of int): list of the ids of road1
 
             road2_land_ids (list of int): list of the ids of road2
-    
+
     """
     if len(road1_land_ids) != len(road2_land_ids):
         raise GeneralIssueInputArguments('Length of the lane id lists is not the same.')
     if road1.road_type == -1 and road2.road_type == -1:
-        
+
         first_linktype, _, first_connecting_lanesec =  _get_related_lanesection(road1,road2)
         second_linktype, _, second_connecting_lanesec =  _get_related_lanesection(road2,road1)
         for i in range(len(road1_land_ids)):
@@ -626,8 +626,8 @@ def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
 
 
 def create_lane_links(road1,road2):
-    """ create_lane_links takes two roads and if they are connected, match their lanes 
-        and creates lane links. 
+    """ create_lane_links takes two roads and if they are connected, match their lanes
+        and creates lane links.
         NOTE: now only works for roads/connecting roads with the same amount of lanes
 
         Parameters
@@ -638,21 +638,21 @@ def create_lane_links(road1,road2):
     """
     if road1.road_type == -1 and road2.road_type == -1:
         #both are roads
-        if are_roads_consecutive(road1, road2): 
+        if are_roads_consecutive(road1, road2):
             _create_links_roads(road1,road2)
-        elif are_roads_consecutive(road2, road1): 
+        elif are_roads_consecutive(road2, road1):
             _create_links_roads(road2,road1)
         else:
             connected,connectiontype = are_roads_connected(road1,road2)
             if connected:
                 _create_links_roads(road1,road2,connectiontype)
-                
+
     elif road1.road_type != -1:
         _create_links_connecting_road(road1,road2)
     elif road2.road_type != -1:
 
         _create_links_connecting_road(road2,road1)
-    
+
 def _create_links_connecting_road(connecting,road):
     """ _create_links_connecting_road will create lane links between a connecting road and a normal road
 
@@ -676,7 +676,7 @@ def _create_links_connecting_road(connecting,road):
                 else:
                     linkid += connecting.lane_offset_suc
                 connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(linktype,linkid)
-            
+
         if connecting.lanes.lanesections[connecting_lanesec].rightlanes:
             # do right lanes
             for i in range(len(connecting.lanes.lanesections[connecting_lanesec].rightlanes)):
@@ -709,7 +709,7 @@ def _get_related_lanesection(road,connected_road):
     linktype = None
     sign = None
     road_lanesection_id = None
- 
+
     if road.successor and road.successor.element_id == connected_road.id:
         linktype = 'successor'
         if road.successor.contact_point == ContactPoint.start:
@@ -727,7 +727,7 @@ def _get_related_lanesection(road,connected_road):
         road_lanesection_id = 0
 
     if connected_road.road_type != -1:
-        # treat connecting road in junction differently 
+        # treat connecting road in junction differently
         if connected_road.predecessor.element_id == road.id:
             if connected_road.predecessor.link_type == ContactPoint.start:
                 road_lanesection_id = -1
@@ -745,11 +745,11 @@ def _get_related_lanesection(road,connected_road):
     return linktype, sign, road_lanesection_id
 
 def _create_links_roads(pre_road,suc_road,same_type=''):
-    """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount. 
+    """ _create_links_roads takes two roads and connect the lanes with links, if they have the same amount.
 
         Parameters
         ----------
-            pre_road (Road): the predecessor road 
+            pre_road (Road): the predecessor road
 
             suc_road (Road): the successor road
 
@@ -800,7 +800,7 @@ def _create_links_roads(pre_road,suc_road,same_type=''):
 
 class JunctionGroup():
     """ JunctionGroup creates a JunctionGroup of OpenDRIVE
-        
+
         Parameters
         ----------
             name (str): name of the junctiongroup

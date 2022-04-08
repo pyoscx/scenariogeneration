@@ -33,7 +33,7 @@ roads[3].add_successor(xodr.ElementType.road,1,xodr.ContactPoint.start)
 roads[4].add_predecessor(xodr.ElementType.road,0,xodr.ContactPoint.end,lane_offset=-1)
 roads[4].add_successor(xodr.ElementType.road,2,xodr.ContactPoint.start)
 
-# create the junction struct 
+# create the junction struct
 junction = xodr.create_junction(roads[3:],1,roads[0:3])
 
 # create the opendrive

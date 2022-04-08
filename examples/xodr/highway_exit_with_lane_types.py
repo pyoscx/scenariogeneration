@@ -1,10 +1,10 @@
-""" 
+"""
     An example, using the generators, showing how to create a simple highway with exits and entries
 
-    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option 
+    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option
 
     Some features used:
-    
+
     - create_road
 
     - add_successor/add_predecessor with and without the lane_offset option
@@ -35,7 +35,7 @@ first_road.add_successor(xodr.ElementType.junction,100,direct_junction=[2,3])
 continuation_road.add_predecessor(xodr.ElementType.junction,100,direct_junction=[1])
 exit_road.add_predecessor(xodr.ElementType.junction,100,lane_offset=-2,direct_junction=[1])
 
-# create the junction struct 
+# create the junction struct
 direct_junction = xodr.create_direct_junction([first_road,continuation_road,exit_road],100)
 
 # create the opendrive

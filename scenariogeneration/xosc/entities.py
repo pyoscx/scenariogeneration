@@ -11,7 +11,7 @@ from .utils import DynamicsConstraints, CatalogFile, CatalogReference
 # TODO: Add functionality for lists in add_entity_byref & add_entity_bytype
 class Entities():
     """ The Entities class creates the entities part of OpenScenario
-        
+
         Attributes
         ----------
             scenario_objects (list of ScenarioObject): ScenarioObject type entities in the scenario
@@ -51,7 +51,7 @@ class Entities():
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Entities
 
@@ -62,7 +62,7 @@ class Entities():
             Returns
             -------
                 entities (Entities): a Entities object
-                
+
         """
         ent_ret = Entities()
         scenario_objects = []
@@ -73,14 +73,14 @@ class Entities():
         if element.find('EntitySelection') != None:
             for entity in element.findall('EntitySelection'):
                 entity_selections.append(Entity.parse(entity))
-        
+
         ent_ret.entities = entity_selections
         ent_ret.scenario_objects = scenario_objects
         return ent_ret
 
     def add_scenario_object(self, name, entityobject, controller=None):
         """ adds a ScenarioObject to the scenario
-        
+
             Parameters
             ----------
                 name (str): name of the scenario object
@@ -93,28 +93,28 @@ class Entities():
         """
 
         self.scenario_objects.append(ScenarioObject(name,entityobject,controller))
-    
+
     def add_entity_bytype(self,name,object_type):
         """ adds an Entity to the scenario
-        
+
             Parameters
             ----------
                 name (str): name of the entity
 
                 object_type (ObjectType or list of ObjectType): type of entity
-            
+
         """
         self.entities.append(Entity(name,object_type=object_type))
 
     def add_entity_byref(self,name,entity):
         """ adds an Entity to the scenario
-        
+
             Parameters
             ----------
                 name (str): name of the entity
 
                 entity (str): type of entity
-            
+
         """
 
         self.entities.append(Entity(name,entityref=entity))
@@ -136,7 +136,7 @@ class Entities():
 
 class ScenarioObject(VersionBase):
     """ The ScenarioObject creates a scenario object of OpenScenario
-        
+
         Parameters
         ----------
             name (str): name of the object
@@ -160,10 +160,10 @@ class ScenarioObject(VersionBase):
 
             get_element()
                 Returns the full ElementTree of the class
-            
+
             get_attributes()
                 returns the attributes of the class
-    """ 
+    """
     def __init__(self ,name ,entityobject ,controller = None):
         """ initalizes the ScenarioObject
 
@@ -180,7 +180,7 @@ class ScenarioObject(VersionBase):
         self.name = name
         if not (isinstance(entityobject,CatalogReference) or isinstance(entityobject,Vehicle) or isinstance(entityobject,Pedestrian) or isinstance(entityobject,MiscObject) or (not self.isVersion(minor=0) and isinstance(entityobject,ExternalObjectReference))):
             raise TypeError('entityobject is not of type CatalogReference, Vehicle, Pedestrian, MiscObject, nor ExternalObjectReference (or to old version of openscenario)')
-        
+
         if controller is not None and not (isinstance(controller,CatalogReference) or isinstance(controller,Controller)):
             raise TypeError('controller input is not of type CatalogReference or Controller')
         self.entityobject = entityobject
@@ -194,7 +194,7 @@ class ScenarioObject(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ScenarioObject
 
@@ -205,7 +205,7 @@ class ScenarioObject(VersionBase):
             Returns
             -------
                 scenarioobject (ScenarioObject): a ScenarioObject object
-                
+
         """
         name = element.attrib['name']
         if element.find('CatalogReference') != None:
@@ -218,7 +218,7 @@ class ScenarioObject(VersionBase):
             entityobject = MiscObject.parse(element.find('MiscObject'))
         elif element.find('ExternalObjectReference') != None:
             entityobject = ExternalObjectReference.parse(element.find('ExternalObjectReference'))
-        
+
         controller = None
         if element.find('ObjectController') != None:
             object_controller_element = element.find('ObjectController')
@@ -226,10 +226,10 @@ class ScenarioObject(VersionBase):
                 controller = Controller.parse(object_controller_element.find('Controller'))
             elif object_controller_element.find('CatalogReference') != None:
                 controller = CatalogReference.parse(object_controller_element.find('CatalogReference'))
-        
+
         return ScenarioObject(name, entityobject,controller)
 
-        
+
 
     def get_attributes(self):
         """ returns the attributes of the Entity as a dict
@@ -242,17 +242,17 @@ class ScenarioObject(VersionBase):
 
         """
         element = ET.Element('ScenarioObject',attrib=self.get_attributes())
-        
+
         element.append(self.entityobject.get_element())
         if self.controller:
             objcont = ET.SubElement(element,'ObjectController')
             objcont.append(self.controller.get_element())
-        
+
         return element
 class Entity():
     """ The Entity class creates an Entity of OpenScenario
         Can either use a object_type or entityref (not both)
-        
+
         Parameters
         ----------
             name (str): name of the Entity
@@ -325,7 +325,7 @@ class Entity():
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Entity
 
@@ -336,7 +336,7 @@ class Entity():
             Returns
             -------
                 entity (Entity): a Entity object
-                
+
         """
         name = element.attrib['name']
         bytypes = []
@@ -353,7 +353,7 @@ class Entity():
             for entity in entities:
                 entity_refs.append(entity.attrib['entityRef'])
             bytypes = None
-        
+
         return Entity(name, object_type=bytypes,entityref= entity_refs)
 
     def get_attributes(self):
@@ -387,8 +387,8 @@ class Pedestrian(VersionBase):
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
 
-            category (PedestrianCategory): type of of pedestrian 
-            
+            category (PedestrianCategory): type of of pedestrian
+
             model (str): definition model of the pedestrian
                 Default: None
 
@@ -444,10 +444,10 @@ class Pedestrian(VersionBase):
 
             mass (float): mass of the pedestrian
 
-            category (PedestrianCategory): type of of pedestrian 
+            category (PedestrianCategory): type of of pedestrian
 
             boundingbox (BoundingBox): the bounding box of the pedestrian
-        
+
             model (str): definition model of the pedestrian
                 Default: None
         """
@@ -455,7 +455,7 @@ class Pedestrian(VersionBase):
         self.model = model
         self.mass = convert_float(mass)
         if not hasattr(PedestrianCategory,str(category)):
-            ValueError(str(category) + ' is not a valid pedestrian type')    
+            ValueError(str(category) + ' is not a valid pedestrian type')
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
 
@@ -495,7 +495,7 @@ class Pedestrian(VersionBase):
             model = element.attrib['model']
         category = getattr(PedestrianCategory, element.attrib['pedestrianCategory'])
         if element.find('ParameterDeclarations') != None:
-            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         else:
             parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
@@ -509,7 +509,7 @@ class Pedestrian(VersionBase):
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Pedestrian to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -519,13 +519,13 @@ class Pedestrian(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the Pedestrian to an existing catalog
 
@@ -538,7 +538,7 @@ class Pedestrian(VersionBase):
         cf.open_catalog(filename)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the pedestrian
 
@@ -596,7 +596,7 @@ class Pedestrian(VersionBase):
         element.append(self.parameters.get_element())
         element.append(self.boundingbox.get_element())
         element.append(self.properties.get_element())
-        
+
         return element
 
 class MiscObject(VersionBase):
@@ -610,10 +610,10 @@ class MiscObject(VersionBase):
 
             category (MiscObjectCategory): the category of the misc object
 
-            boundingbox (BoundingBox): the bounding box of the MiscObject   
+            boundingbox (BoundingBox): the bounding box of the MiscObject
 
-            model3d (str): path to model file (valid from V1.1) 
-                Default: None           
+            model3d (str): path to model file (valid from V1.1)
+                Default: None
 
         Attributes
         ----------
@@ -670,15 +670,15 @@ class MiscObject(VersionBase):
 
             category (MiscObjectCategory): the category of the misc object
 
-            boundingbox (BoundingBox): the bounding box of the MiscObject       
-        
+            boundingbox (BoundingBox): the bounding box of the MiscObject
+
             model3d (str): path to model file (valid from V1.1)
                 Default: None
         """
         self.name = name
         self.mass = convert_float(mass)
         if not hasattr(MiscObjectCategory,str(category)):
-            raise TypeError(str(category) + ' is not a valid MiscObject type')    
+            raise TypeError(str(category) + ' is not a valid MiscObject type')
         self.category = category
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
@@ -719,7 +719,7 @@ class MiscObject(VersionBase):
         category = getattr(MiscObjectCategory, element.attrib['miscObjectCategory'])
 
         if element.find('ParameterDeclarations') != None:
-            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         else:
             parameters = ParameterDeclarations()
 
@@ -728,10 +728,10 @@ class MiscObject(VersionBase):
         object.properties = properties
         return object
 
-    
+
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the MiscObject to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -741,13 +741,13 @@ class MiscObject(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the MiscObject to an existing catalog
 
@@ -760,7 +760,7 @@ class MiscObject(VersionBase):
         cf.open_catalog(filename)
         cf.add_to_catalog(self)
         cf.dump()
-    
+
     def add_parameter(self,parameter):
         """ adds a parameter declaration to the MiscObject
 
@@ -815,7 +815,7 @@ class MiscObject(VersionBase):
         element.append(self.parameters.get_element())
         element.append(self.boundingbox.get_element())
         element.append(self.properties.get_element())
-        
+
         return element
 
 class Vehicle(VersionBase):
@@ -838,12 +838,12 @@ class Vehicle(VersionBase):
             max_acceleration (float): the maximum acceleration of the vehicle
 
             max_deceleration (float): the maximum deceleration of the vehicle
-            
+
             mass (float): the mass of the vehicle (valid from OpenSCENARIO V1.1)
                 Default: None
-            
-            model3d (str): path to model file (valid from V1.1) 
-                Default: None  
+
+            model3d (str): path to model file (valid from V1.1)
+                Default: None
 
         Attributes
         ----------
@@ -863,8 +863,8 @@ class Vehicle(VersionBase):
 
             mass (float): the mass of the vehicle
 
-            model3d (str): path to model file (valid from V1.1) 
-                Default: None  
+            model3d (str): path to model file (valid from V1.1)
+                Default: None
 
         Methods
         -------
@@ -920,15 +920,15 @@ class Vehicle(VersionBase):
                 mass (float): the mass of the vehicle (valid from OpenSCENARIO V1.1)
                     Default: None
 
-                model3d (str): path to model file (valid from V1.1) 
-                    Default: None  
+                model3d (str): path to model file (valid from V1.1)
+                    Default: None
         """
         self.name = name
         if not hasattr(VehicleCategory,str(vehicle_type)):
-            raise TypeError(vehicle_type + ' is not a valid vehicle type.')  
+            raise TypeError(vehicle_type + ' is not a valid vehicle type.')
         if not isinstance(boundingbox,BoundingBox):
             raise TypeError('boundingbox input is not of type BoundingBox')
-        
+
         self.vehicle_type = vehicle_type
         self.boundingbox = boundingbox
 
@@ -974,12 +974,12 @@ class Vehicle(VersionBase):
             model3d = element.attrib['model3d']
         # if element.find('ParameterDeclarations'):
         if element.find('ParameterDeclarations') != None:
-            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))  
+            parameters = ParameterDeclarations.parse(element.find('ParameterDeclarations'))
         else:
             parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find('BoundingBox'))
         properties = Properties.parse(element.find('Properties'))
-        
+
         performance = DynamicsConstraints.parse(element.find('Performance'))
         max_speed = performance.get_attributes()['maxSpeed']
         max_acc = performance.get_attributes()['maxAcceleration']
@@ -988,7 +988,7 @@ class Vehicle(VersionBase):
         axles_element = element.find('Axles')
         frontaxle = Axle.parse(axles_element.find('FrontAxle'))
         rearaxle = Axle.parse(axles_element.find('RearAxle'))
-        
+
         vehicle = Vehicle(name, vehicle_type,boundingbox,frontaxle,rearaxle,max_speed,max_acc,max_dec,mass,model3d)
         vehicle.properties = properties
         vehicle.parameters = parameters
@@ -1003,7 +1003,7 @@ class Vehicle(VersionBase):
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the vehicle to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -1013,13 +1013,13 @@ class Vehicle(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
         cf.add_to_catalog(self)
         cf.dump()
-        
+
     def append_to_catalog(self,filename):
         """ adds the vehicle to an existing catalog
 
@@ -1041,7 +1041,7 @@ class Vehicle(VersionBase):
                 axle (Axle): an additional Axle
 
         """
-        
+
         self.axles.add_axle(axle)
 
 
@@ -1103,7 +1103,7 @@ class Vehicle(VersionBase):
         element.append(self.dynamics.get_element('Performance'))
         element.append(self.axles.get_element())
         element.append(self.properties.get_element())
-        
+
         return element
 
 
@@ -1145,9 +1145,9 @@ class Axle():
                 Returns the attributes of the class
 
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class 
+                parses a ElementTree created by the class and returns an instance of the class
 
-            
+
     """
     def __init__(self,maxsteer,wheeldia,track_width,xpos, zpos):
         """ initalzie the Axle
@@ -1181,13 +1181,13 @@ class Axle():
             Returns
             -------
                 axle (Axle): a Axle object
-                
-        """   
+
+        """
         maxsteer = convert_float(element.attrib['maxSteering'])
         wheeldia = convert_float(element.attrib['wheelDiameter'])
         track_width = convert_float(element.attrib['trackWidth'])
         xpos = convert_float(element.attrib['positionX'])
-        zpos = convert_float(element.attrib['positionZ'])  
+        zpos = convert_float(element.attrib['positionZ'])
         return Axle(maxsteer, wheeldia, track_width, xpos, zpos)
 
     def __eq__(self,other):
@@ -1207,7 +1207,7 @@ class Axle():
 
         """
         return ET.Element(elementname, attrib=self.get_attributes())
-        
+
 class Axles():
     """ the Axles combines the different Axles to one Element
 
@@ -1233,9 +1233,9 @@ class Axles():
 
             get_element()
                 Returns the full ElementTree of the class
-            
+
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class 
+                parses a ElementTree created by the class and returns an instance of the class
 
 
     """
@@ -1277,8 +1277,8 @@ class Axles():
             Returns
             -------
                 axles (Axles): axles object
-                
-        """    
+
+        """
         frontaxle = Axle.parse(element.find('FrontAxle'))
         rearaxle = Axle.parse(element.find('RearAxle'))
         axles = Axles(frontaxle, rearaxle)
@@ -1287,7 +1287,7 @@ class Axles():
             axle = Axle.parse(additional)
             axles.add_axle(axle)
         return axles
-    
+
     def add_axle(self,axle):
         """ adds an additional axle to the Axles
 
@@ -1336,7 +1336,7 @@ class ExternalObjectReference():
             get_attributes()
                 Returns the attributes of the class
 
-            
+
     """
     def __init__(self,name):
         """ initalzie the ExternalObjectReference
@@ -1353,7 +1353,7 @@ class ExternalObjectReference():
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ExternalObjectReference
 
@@ -1365,7 +1365,7 @@ class ExternalObjectReference():
             -------
                 reference (ExternalObjectReference): a ExternalObjectReference object
 
-        """    
+        """
         name = element.attrib['name']
         return ExternalObjectReference(name)
 
@@ -1380,4 +1380,4 @@ class ExternalObjectReference():
 
         """
         return ET.Element('ExternalObjectReference', attrib=self.get_attributes())
-        
+

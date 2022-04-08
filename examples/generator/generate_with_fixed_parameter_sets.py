@@ -16,11 +16,11 @@ class Scenario(ScenarioGenerator):
         d1 = {}
         d1['road_curvature'] = 0.001
         d1['speed'] = 10
-        
+
         d2 = {}
         d2['road_curvature'] = 0.002
         d2['speed'] = 20
-        
+
         self.parameters.append(d1)
         self.parameters.append(d2)
         self.naming = 'parameter'

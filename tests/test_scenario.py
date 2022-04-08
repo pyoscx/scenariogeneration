@@ -42,7 +42,7 @@ def test_catalog():
 
     catalog3 = OSC.Catalog()
     catalog3.add_catalog('VehicleCatalog','Catalogs/VehicleCatalogs')
-    
+
 
     assert catalog == catalog2
     assert catalog != catalog3

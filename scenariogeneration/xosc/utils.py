@@ -44,7 +44,7 @@ class _EntityTriggerType(VersionBase):
 
 class ParameterDeclarations(VersionBase):
     """ The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
-                    
+
         Attributes
         ----------
             parameters: list of Parameter objects
@@ -56,7 +56,7 @@ class ParameterDeclarations(VersionBase):
 
             add_parameter(Parameter)
                 adds a Parameter to the ParameterDeclarations
-            
+
             parse(element)
                 parses a ElementTree created by the class and returns an instance of the class
 
@@ -67,7 +67,7 @@ class ParameterDeclarations(VersionBase):
         """
         self.parameters = []
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ParameterDeclarations
 
@@ -78,7 +78,7 @@ class ParameterDeclarations(VersionBase):
             Returns
             -------
                 parameterdeclaration (ParameterDeclaration): a ParameterDeclarationn object
-                
+
         """
         parameter_declarations = ParameterDeclarations()
         declarations = element.findall('ParameterDeclaration')
@@ -117,7 +117,7 @@ class ParameterDeclarations(VersionBase):
 
 class EntityRef(VersionBase):
     """ EntityRef creates an EntityRef element of openscenario
-        
+
         Parameters
         ----------
             entity (str): name of the entity
@@ -144,11 +144,11 @@ class EntityRef(VersionBase):
             Parameters
             ----------
                 entity (str): name of the entity
-                
+
         """
         self.entity = entity
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of EntityRef
 
@@ -184,12 +184,12 @@ class EntityRef(VersionBase):
 
 class Parameter(VersionBase):
     """ Parameter is a declaration of a ParameterDeclaration for declarations
-        
+
         Parameters
         ----------
             name (str): name of parameter
 
-            parameter_type (ParameterType): type of the parameter 
+            parameter_type (ParameterType): type of the parameter
 
             value (str): value of the parameter
 
@@ -222,7 +222,7 @@ class Parameter(VersionBase):
     """
 
     def __init__(self,name,parameter_type,value):
-        """ initalize the Parameter 
+        """ initalize the Parameter
 
             Parameters
             ----------
@@ -247,7 +247,7 @@ class Parameter(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Parameter
 
@@ -258,7 +258,7 @@ class Parameter(VersionBase):
             Returns
             -------
                 parameter (Parameter): Parameter object
-                
+
         """
         name = element.attrib['name']
         value = element.attrib['value']
@@ -268,13 +268,13 @@ class Parameter(VersionBase):
         for constraint_group in constraint_groups:
             parameter.add_value_constraint_group(ValueConstraintGroup.parse(constraint_group))
         return parameter
-    
+
     def add_value_constraint_group(self,constraint_group):
         """ adds a value constraint to the value constraint group
 
         Parameters
         ----------
-            constraint_group (ValueConstraintGroup): the value constraint group to be added 
+            constraint_group (ValueConstraintGroup): the value constraint group to be added
 
         """
         if not isinstance(constraint_group,ValueConstraintGroup):
@@ -299,10 +299,10 @@ class Parameter(VersionBase):
 
 class Orientation(VersionBase):
     """ Orientation describes the angular orientation of an entity
-        
+
         Parameters
         ----------
-            h (float): header 
+            h (float): header
 
             p (float): pitch
 
@@ -312,7 +312,7 @@ class Orientation(VersionBase):
 
         Attributes
         ----------
-            h (float): header 
+            h (float): header
 
             p (float): pitch
 
@@ -336,11 +336,11 @@ class Orientation(VersionBase):
 
     """
     def __init__(self,h=None,p=None,r=None,reference = None):
-        """ initalize Orientation 
-        
+        """ initalize Orientation
+
             Parameters
             ----------
-                h (float): header 
+                h (float): header
 
                 p (float): pitch
 
@@ -361,7 +361,7 @@ class Orientation(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Orientation
 
@@ -428,7 +428,7 @@ class Orientation(VersionBase):
 
 class TransitionDynamics(VersionBase):
     """ TransitionDynamics is used to define how the dynamics of a change
-        
+
         Parameters
         ----------
             shape (DynamicsShapes): shape of the transition
@@ -484,7 +484,7 @@ class TransitionDynamics(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of TransitionDynamics
 
@@ -517,7 +517,7 @@ class TransitionDynamics(VersionBase):
 
 class DynamicsConstraints(VersionBase):
     """ DynamicsConstraints is used by triggers
-        
+
         Parameters
         ----------
             max_acceleration (float): maximum acceleration allowed
@@ -570,7 +570,7 @@ class DynamicsConstraints(VersionBase):
             Returns
             -------
                 constrains (DynamicsConstrains): a DynamicsConstrains object
-                
+
         """
         max_acceleration = None
         max_deceleration = None
@@ -581,9 +581,9 @@ class DynamicsConstraints(VersionBase):
         if 'maxDeceleration' in element.attrib:
             max_deceleration = convert_float(element.attrib['maxDeceleration'])
         if 'maxSpeed' in element.attrib:
-            max_speed = convert_float(element.attrib['maxSpeed'])       
+            max_speed = convert_float(element.attrib['maxSpeed'])
 
-        return DynamicsConstraints(max_acceleration, max_deceleration, max_speed) 
+        return DynamicsConstraints(max_acceleration, max_deceleration, max_speed)
 
     def __eq__(self,other):
         if isinstance(other,DynamicsConstraints):
@@ -624,9 +624,9 @@ class DynamicsConstraints(VersionBase):
 
 
 class License(VersionBase):
-    """ License creates the License used by FileHeader in the OpenScenario file 
+    """ License creates the License used by FileHeader in the OpenScenario file
         (valid from OpenSCENARIO V1.1)
-        
+
         Parameters
         ----------
             name (str): name of the License
@@ -642,7 +642,7 @@ class License(VersionBase):
             name (str): name of the License
 
             resource (str): link to URL
-                
+
             spdxId (str): license identifier
 
         Methods
@@ -659,7 +659,7 @@ class License(VersionBase):
     """
     def __init__(self,name,resource=None,spdxId=None):
         """ init the License
-        
+
         Parameters
         ----------
             name (str): name of the License
@@ -693,7 +693,7 @@ class License(VersionBase):
             Returns
             -------
                 license (License): a License object
-                
+
         """
         name = element.attrib['name']
         resource = None
@@ -702,7 +702,7 @@ class License(VersionBase):
         spdxId = None
         if 'spdxId' in element.attrib:
             spdxId = element.attrib['spdxId']
-        
+
         return License(name, resource, spdxId)
 
     def get_attributes(self):
@@ -729,10 +729,10 @@ class License(VersionBase):
 
 class FileHeader(VersionBase):
     """ FileHeader creates the header of the OpenScenario file1
-        
+
         Parameters
         ----------
-            name (str): name of the scenario 
+            name (str): name of the scenario
 
             author (str): the author of the scenario
 
@@ -747,14 +747,14 @@ class FileHeader(VersionBase):
 
         Attributes
         ----------
-            name (str): name of the scenario 
+            name (str): name of the scenario
 
             author (str): the author of the scenario
 
             license (License): license (valid from OpenSCENARIO V1.1)
-            
+
             creation_date (datetime.datetime): optional hardcoded creation date
-            
+
         Methods
         -------
             parse(element)
@@ -769,10 +769,10 @@ class FileHeader(VersionBase):
     """
     def __init__(self,author,description,revMinor=1,license=None,creation_date=None):
         """ FileHeader creates the header of the OpenScenario file1
-        
+
             Parameters
             ----------
-                name (str): name of the scenario 
+                name (str): name of the scenario
 
                 author (str): the author of the scenario
 
@@ -818,16 +818,16 @@ class FileHeader(VersionBase):
             Returns
             -------
                 header (FileHeader): a FileHeader object
-                
+
         """
         author = element.attrib['author']
         description = element.attrib['description']
-        # revMinor = element.attrib['revMinor'] 
-        # revMajor = element.attrib['revMajor'] 
+        # revMinor = element.attrib['revMinor']
+        # revMajor = element.attrib['revMajor']
         license = None
         if element.find('license') != None:
             license = License.parse(element.find('license'))
-        
+
         return FileHeader(author= author, description=description,license=license)
 
     def get_attributes(self):
@@ -853,8 +853,8 @@ class FileHeader(VersionBase):
 
 
 class TimeReference(VersionBase):
-    """ the TimeReference class creates a TimeReference, 
-        
+    """ the TimeReference class creates a TimeReference,
+
         Parameters
         ----------
             referece_domain (ReferenceContext): absolute or relative time reference (must be combined with scale and offset)
@@ -868,11 +868,11 @@ class TimeReference(VersionBase):
 
         Attributes
         ----------
-            referece_domain (ReferenceContext): absolute or relative time reference 
+            referece_domain (ReferenceContext): absolute or relative time reference
 
-            scale (float): scalefactor of the timeings 
+            scale (float): scalefactor of the timeings
 
-            offset (float): offset for time values 
+            offset (float): offset for time values
 
         Methods
         -------
@@ -935,12 +935,12 @@ class TimeReference(VersionBase):
             Returns
             -------
                 timing (TimeReference): a TimeReference object
-                
+
         """
         if element.find('None') != None:
             return TimeReference()
 
-        timing_element = element.find('Timing') 
+        timing_element = element.find('Timing')
         scale = None
         offset = None
         reference_domain = None
@@ -951,7 +951,7 @@ class TimeReference(VersionBase):
             scale = timing_element.attrib['scale']
         if 'domainAbsoluteRelative' in timing_element.attrib:
             reference_domain = getattr(ReferenceContext, timing_element.attrib['domainAbsoluteRelative'])
-        
+
         return TimeReference(reference_domain, scale, offset)
 
 
@@ -982,13 +982,13 @@ class TimeReference(VersionBase):
 
 class _TrafficSignalState(VersionBase):
     """ crates a _TrafficSignalState used by Phase
-        
+
         Parameters
         ----------
             signal_id (str): id of the traffic signal
 
             state (str): state of the signal
-                
+
         Attributes
         ----------
             signal_id (str): id of the traffic signal
@@ -1010,8 +1010,8 @@ class _TrafficSignalState(VersionBase):
 
 
     def __init__(self, signal_id, state):
-        """ initalize the _TrafficSignalState 
-        
+        """ initalize the _TrafficSignalState
+
         Parameters
         ----------
             signal_id (str): id of the traffic signal
@@ -1040,7 +1040,7 @@ class _TrafficSignalState(VersionBase):
             Returns
             -------
                 ts_state (_TrafficSignalState): a _TrafficSignalState object
-                
+
         """
         signal_id = element.attrib['trafficSignalId']
         state = element.attrib['state']
@@ -1048,7 +1048,7 @@ class _TrafficSignalState(VersionBase):
 
     def get_attributes(self):
         """ returns the attributes of the _TrafficSignalState
-        
+
         """
         retdict = {}
         retdict['trafficSignalId'] = self.signal_id
@@ -1065,13 +1065,13 @@ class _TrafficSignalState(VersionBase):
 
 class Phase(VersionBase):
     """ crates a Traffic light phase
-        
+
         Parameters
         ----------
             name (str): if of the phase
 
             duration (float): duration of the phase
-                
+
         Attributes
         ----------
             name (str): if of the phase
@@ -1096,8 +1096,8 @@ class Phase(VersionBase):
     """
 
     def __init__(self, name, duration):
-        """ initalize the Phase 
-        
+        """ initalize the Phase
+
         Parameters
         ----------
             name (str): if of the phase
@@ -1127,7 +1127,7 @@ class Phase(VersionBase):
             Returns
             -------
                 phase (Phase): a Phase object
-                
+
         """
         duration = convert_float(element.attrib['duration'])
         name = element.attrib['name']
@@ -1154,7 +1154,7 @@ class Phase(VersionBase):
 
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalController
-        
+
         """
         retdict = {}
         retdict['name'] = self.name
@@ -1173,7 +1173,7 @@ class Phase(VersionBase):
 
 class TrafficSignalController(VersionBase):
     """ the TrafficSignalController class creates a polyline of (minimum 2) positions
-        
+
         Parameters
         ----------
             name (str): if of the trafic signal
@@ -1209,8 +1209,8 @@ class TrafficSignalController(VersionBase):
     """
 
     def __init__(self, name, delay = None,reference = None):
-        """ initalize the TrafficSignalController 
-        
+        """ initalize the TrafficSignalController
+
         Parameters
         ----------
             name (str): if of the trafic signal
@@ -1245,24 +1245,24 @@ class TrafficSignalController(VersionBase):
             Returns
             -------
                 tsc (TrafficSignalController): a TrafficSignalController object
-                
+
         """
         name = element.attrib['name']
-        
+
         delay = None
         if 'delay' in element.attrib:
             delay = element.attrib['delay']
-        
+
         reference  = None
         if 'reference' in element.attrib:
             reference = element.attrib['reference']
-        
+
         tsc = TrafficSignalController(name,delay,reference)
-        
+
         phases = element.findall('Phase')
         if phases != None:
             for phase in phases:
-              tsc.phases.append(Phase.parse(phase))  
+              tsc.phases.append(Phase.parse(phase))
 
         return tsc
 
@@ -1280,7 +1280,7 @@ class TrafficSignalController(VersionBase):
 
     def get_attributes(self):
         """ returns the attributes of the TrafficSignalController
-        
+
         """
         retdict = {}
         retdict['name'] = self.name
@@ -1303,11 +1303,11 @@ class TrafficSignalController(VersionBase):
 
 class TrafficDefinition(VersionBase):
     """ the TrafficDefinition class creates a TrafficDefinition used by the different TrafficActions
-        
+
         Parameters
         ----------
             name (str): name of the traffic definition
-       
+
 
         Attributes
         ----------
@@ -1338,12 +1338,12 @@ class TrafficDefinition(VersionBase):
 
             add_controller(controller,weight)
                 Adds a controller to the traffic definition
-                
+
     """
 
     def __init__(self, name):
-        """ initalize the TrafficDefinition 
-        
+        """ initalize the TrafficDefinition
+
         Parameters
         ----------
             name (str): name of the traffic definition
@@ -1378,7 +1378,7 @@ class TrafficDefinition(VersionBase):
             Returns
             -------
                 td (TrafficDefinition): a TrafficDefinition object
-                
+
         """
         name = element.attrib['name']
         td = TrafficDefinition(name)
@@ -1389,7 +1389,7 @@ class TrafficDefinition(VersionBase):
             weight = convert_float(entry.attrib['weight'])
             category = getattr(VehicleCategory, entry.attrib['category'])
             td.add_vehicle(category,weight)
-        
+
         controller_distributions = element.find('ControllerDistribution')
         controller_entries = controller_distributions.findall('ControllerDistributionEntry')
         for controller_dist in controller_entries:
@@ -1401,7 +1401,7 @@ class TrafficDefinition(VersionBase):
                 catalog_reference = CatalogReference.parse(controller_dist.find('CatalogReference'))
                 td.add_controller(catalog_reference,weight)
 
-        return td        
+        return td
 
     def add_vehicle(self,vehiclecategory,weight):
         """ Adds a vehicle to the traffic distribution
@@ -1435,7 +1435,7 @@ class TrafficDefinition(VersionBase):
 
     def get_attributes(self):
         """ returns the attributes of the TrafficDefinition
-        
+
         """
         retdict = {}
         retdict['name'] = self.name
@@ -1468,7 +1468,7 @@ class TrafficDefinition(VersionBase):
 
 class CatalogFile(VersionBase):
     """ The CatalogFile class handles any catalogs in open scenario, such as writing, and updating them
-        
+
         Parameters
         ----------
             prettyprint (boolean): if the final file should have prettyprint or not
@@ -1488,7 +1488,7 @@ class CatalogFile(VersionBase):
                 Returns the full ElementTree of the class
 
             add_catalog(catalogname, path)
-                Adds a new catalog 
+                Adds a new catalog
     """
 
     def __init__(self,prettyprint = True):
@@ -1505,11 +1505,11 @@ class CatalogFile(VersionBase):
 
     def add_to_catalog(self,obj,osc_minor_version=1):
         """ add_to_catalog adds an element to the catalog
-            
+
             Parameters
             ----------
                 obj (*pyoscx): any pyoscx object (should be matching with the catalog)
-                
+
                 osc_minor_version (int): the minor version of OpenSCENARIO to write to the catalog
                     Default: 1
         """
@@ -1524,7 +1524,7 @@ class CatalogFile(VersionBase):
 
     def open_catalog(self,filename):
         """ open_catalog reads an existing catalog file
-            
+
             Parameters
             ----------
                 filename (str): path to the catalog file
@@ -1535,8 +1535,8 @@ class CatalogFile(VersionBase):
         self.catalog_element = tree.getroot()
 
     def create_catalog(self,filename,catalogtype,description,author):
-        """ create_catalog_element creates an empty catalog of a desiered type, 
-            
+        """ create_catalog_element creates an empty catalog of a desiered type,
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -1546,15 +1546,15 @@ class CatalogFile(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         self.filename = filename
         self.catalog_element = self.create_catalog_element(catalogtype,description,author)
 
 
     def create_catalog_element(self,catalogtype,description,author):
-        """ create_catalog_element creates an empty catalog of a desiered type, 
-            
+        """ create_catalog_element creates an empty catalog of a desiered type,
+
             Parameters
             ----------
                 catalogtype (str): name of the catalog
@@ -1562,7 +1562,7 @@ class CatalogFile(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':XMLNS,'xsi:noNamespaceSchemaLocation':'../../'+XSI})
         header = FileHeader(description,author)
@@ -1579,7 +1579,7 @@ class CatalogFile(VersionBase):
 
 class Catalog(VersionBase):
     """ The Catalog class creates the CatalogLocation of the OpenScenario input
-        
+
         Parameters
         ----------
 
@@ -1595,7 +1595,7 @@ class Catalog(VersionBase):
                 Returns the full ElementTree of the class
 
             add_catalog(catalogname, path)
-                Adds a new catalog 
+                Adds a new catalog
     """
     _CATALOGS = [\
         'VehicleCatalog',
@@ -1630,7 +1630,7 @@ class Catalog(VersionBase):
             Returns
             -------
                 catalog (Catalog): a Catalog object
-                
+
         """
         catalog = Catalog()
 
@@ -1638,44 +1638,44 @@ class Catalog(VersionBase):
         if vc_element is not None:
             path = vc_element.find('Directory').attrib['path']
             catalog.add_catalog('VehicleCatalog', path)
-        
+
         cc_element = element.find('ControllerCatalog')
         if cc_element is not None:
             path = cc_element.find('Directory').attrib['path']
             catalog.add_catalog('ControllerCatalog', path)
-        
+
         pc_element = element.find('PedestrianCatalog')
         if pc_element is not None:
             path = pc_element.find('Directory').attrib['path']
             catalog.add_catalog('PedestrianCatalog', path)
-        
+
         moc_element = element.find('MiscObjectCatalog')
         if moc_element is not None:
             path = moc_element.find('Directory').attrib['path']
             catalog.add_catalog('MiscObjectCatalog', path)
-        
+
         ec_element = element.find('EnvironmentCatalog')
         if ec_element is not None:
             path = ec_element.find('Directory').attrib['path']
             catalog.add_catalog('EnvironmentCatalog', path)
-        
+
         mc_element = element.find('ManeuverCatalog')
         if mc_element is not None:
             path = mc_element.find('Directory').attrib['path']
             catalog.add_catalog('ManeuverCatalog', path)
-        
+
         tc_element = element.find('TrajectoryCatalog')
         if tc_element is not None:
             path = tc_element.find('Directory').attrib['path']
             catalog.add_catalog('TrajectoryCatalog', path)
-        
+
         rc_element = element.find('RouteCatalog')
         if rc_element is not None:
             path = rc_element.find('Directory').attrib['path']
             catalog.add_catalog('RouteCatalog', path)
 
         return catalog
-        
+
 
     def add_catalog(self,catalogname,path):
         """ add new catalog to be used
@@ -1685,7 +1685,7 @@ class Catalog(VersionBase):
             catalogname (str): name of the catalog
 
             path (str): path to the catalog
-        
+
         """
 
 
@@ -1709,18 +1709,18 @@ class Catalog(VersionBase):
 
 class CatalogReference(VersionBase):
     """ CatalogReference creates an CatalogReference element of openscenario
-        
+
         Parameters
         ----------
             catalogname (str): name of the catalog
 
-            entryname (str): name of the entry in the catalog            
+            entryname (str): name of the entry in the catalog
 
         Attributes
         ----------
             catalogname (str): name of the catalog
 
-            entryname (str): name of the entry in the catalog 
+            entryname (str): name of the entry in the catalog
 
             parameterassignments (list of ParameterAssignment): the parameter assignments for the given catalogreference
 
@@ -1746,8 +1746,8 @@ class CatalogReference(VersionBase):
             ----------
                 catalogname (str): name of the catalog
 
-                entryname (str): name of the entry in the catalog    
-                
+                entryname (str): name of the entry in the catalog
+
         """
         self.catalogname = catalogname
         self.entryname = entryname
@@ -1762,7 +1762,7 @@ class CatalogReference(VersionBase):
 
     # TODO: CatalogElement???
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of CatalogReference
 
@@ -1778,14 +1778,14 @@ class CatalogReference(VersionBase):
         catalogname =  element.attrib['catalogName']
         entryname = element.attrib['entryName']
         reference = CatalogReference(catalogname, entryname)
-        
+
         parameter_assignments = element.find('ParameterAssignments')
         if parameter_assignments != None:
             parameters = parameter_assignments.findall('ParameterAssignment')
             for parameter in parameters:
                 parameter_assignment = ParameterAssignment.parse(parameter)
                 reference.parameterassignments.append(parameter_assignment)
-                
+
         return reference
 
 
@@ -1821,7 +1821,7 @@ class CatalogReference(VersionBase):
 
 class ParameterAssignment(VersionBase):
     """ ParameterAssignment creates an ParameterAssignment element of openscenario
-        
+
         Parameters
         ----------
             parameterref (str): name of the parameter
@@ -1839,7 +1839,7 @@ class ParameterAssignment(VersionBase):
         -------
             parse(element)
                 parses a ElementTree created by the class and returns an instance of the class
-                
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -1854,8 +1854,8 @@ class ParameterAssignment(VersionBase):
             ----------
                 parameterref (str): name of the parameter
 
-                value (str): assigned value of the parameter   
-                
+                value (str): assigned value of the parameter
+
         """
         self.parameterref = parameterref
         self.value = value
@@ -1866,7 +1866,7 @@ class ParameterAssignment(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ParameterAssignment
 
@@ -1882,7 +1882,7 @@ class ParameterAssignment(VersionBase):
 
         value = element.attrib['value']
         parameterref = element.attrib['parameterRef']
-    
+
         return ParameterAssignment(parameterref, value)
 
 
@@ -1903,7 +1903,7 @@ class ParameterAssignment(VersionBase):
 
 class TimeOfDay(VersionBase):
     """ TimeOfDay creates an TimeOfDay element of openscenario
-        
+
         Parameters
         ----------
             animation (bool): if animation should be used
@@ -1965,8 +1965,8 @@ class TimeOfDay(VersionBase):
 
                 minute (int): minute
 
-                second (int): second   
-                
+                second (int): second
+
         """
         self.animation = animation
         self.year = year
@@ -1994,7 +1994,7 @@ class TimeOfDay(VersionBase):
             -------
                 timeofday (TimeOfDay): a TimeOfDay object
         """
-        animation = element.attrib['animation']        
+        animation = element.attrib['animation']
         var = element.attrib['dateTime']
         year = convert_int(var[0:4])
         month = convert_int(var[5:7])
@@ -2003,8 +2003,8 @@ class TimeOfDay(VersionBase):
         hour = convert_int(var[11:13])
         minute = convert_int(var[14:16])
         second = convert_int(var[17:19])
- 
-        return TimeOfDay(animation,year,month,day,hour,minute,second) 
+
+        return TimeOfDay(animation,year,month,day,hour,minute,second)
 
     def get_attributes(self):
         """ returns the attributes of the TimeOfDay as a dict
@@ -2023,7 +2023,7 @@ class TimeOfDay(VersionBase):
 
 class Weather(VersionBase):
     """ Weather creates an Weather element of openscenario
-        
+
         Parameters
         ----------
             cloudstate (CloudState): cloudstate of the weather
@@ -2100,7 +2100,7 @@ class Weather(VersionBase):
 
                 wind (Wind): the wind (valid from OpenSCENARIO V1.1)
                     Default: None
-                
+
         """
         if cloudstate and not hasattr(CloudState,str(cloudstate)):
             raise TypeError('cloudstate input is not of type CloudState')
@@ -2132,7 +2132,7 @@ class Weather(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Weather
 
@@ -2206,7 +2206,7 @@ class Weather(VersionBase):
 
 class Fog(VersionBase):
     """ Fog creates an Fog element used by the Weather element of openscenario
-        
+
         Parameters
         ----------
             visual_range (int): visual range of fog
@@ -2241,7 +2241,7 @@ class Fog(VersionBase):
 
                 bounding_box (BoundingBox): bounding box of fog
                     Default: None
-                
+
         """
 
         self.visual_range = visual_range
@@ -2255,7 +2255,7 @@ class Fog(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Fog
 
@@ -2267,13 +2267,13 @@ class Fog(VersionBase):
             -------
                 fog (Fog): a Fog object
 
-        """ 
+        """
 
         visual_range = element.attrib['visualRange']
         bounding_box = None
         if element.find('BoundingBox') != None:
             bounding_box = BoundingBox.parse(element.find('BoundingBox'))
-        
+
         return Fog(visual_range, bounding_box)
 
     def get_attributes(self):
@@ -2298,7 +2298,7 @@ class Fog(VersionBase):
 
 class Sun(VersionBase):
     """ Sun creates an Sun element used by the Weather element of openscenario
-        
+
         Parameters
         ----------
             intensity (float): intensity of the sun (in lux)
@@ -2337,7 +2337,7 @@ class Sun(VersionBase):
                 azimuth (float): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
 
                 elevation (float): sun elevation angle 0 x/y plane, pi/2 zenith
-                
+
         """
 
         self.azimuth = azimuth
@@ -2350,7 +2350,7 @@ class Sun(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Sun
 
@@ -2362,7 +2362,7 @@ class Sun(VersionBase):
             -------
                 sun (Sun): a Sun object
 
-        """ 
+        """
         azimuth = element.attrib['azimuth']
         elevation = element.attrib['elevation']
         intensity = element.attrib['intensity']
@@ -2390,7 +2390,7 @@ class Sun(VersionBase):
 
 class Precipitation(VersionBase):
     """ Precipitation creates an Precipitation element used by the Weather element of openscenario
-        
+
         Parameters
         ----------
             precipitation (PrecipitationType): dry, rain or snow
@@ -2423,7 +2423,7 @@ class Precipitation(VersionBase):
                 precipitation (PrecipitationType): dry, rain or snow
 
                 intensity (float): intensity of precipitation (0...1)
-                
+
         """
         if not hasattr(PrecipitationType,str(precipitation)):
             raise TypeError('precipitation input is not of type PrecipitationType')
@@ -2436,7 +2436,7 @@ class Precipitation(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Precipitation
 
@@ -2448,16 +2448,16 @@ class Precipitation(VersionBase):
             -------
                 precipitation (Precipitation): a Precipitation object
 
-        """ 
+        """
         intesity = None
         if 'precipitationIntensity' in element.attrib:
             intesity = element.attrib['precipitationIntensity']
-        elif 'intensity' in element.attrib: 
+        elif 'intensity' in element.attrib:
             intesity = element.attrib['intensity']
         precipitation = getattr(PrecipitationType, element.attrib['precipitationType'])
 
         return Precipitation(precipitation, intesity)
-        
+
     def get_attributes(self):
         """ returns the attributes of the Precipitation as a dict
 
@@ -2481,7 +2481,7 @@ class Precipitation(VersionBase):
 
 class Wind(VersionBase):
     """ Wind creates an Wind element used by the Weather element of openscenario
-        
+
         Parameters
         ----------
             direction (float): wind direction (radians)
@@ -2514,7 +2514,7 @@ class Wind(VersionBase):
                 direction (float): wind direction (radians)
 
                 speed (float): wind speed (m/s)
-                
+
         """
         self.direction = direction
         self.speed = speed
@@ -2525,7 +2525,7 @@ class Wind(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Wind
 
@@ -2537,12 +2537,12 @@ class Wind(VersionBase):
             -------
                 wind (Wind): a Wind object
 
-        """ 
+        """
         direction = element.attrib['direction']
         speed = element.attrib['speed']
 
         return Wind(direction,speed)
-    
+
     def get_attributes(self):
         """ returns the attributes of the Wind as a dict
 
@@ -2559,7 +2559,7 @@ class Wind(VersionBase):
 
 class RoadCondition(VersionBase):
     """ Weather creates an Weather element of openscenario
-        
+
         Parameters
         ----------
             friction_scale_factor (float): scale factor of the friction
@@ -2594,7 +2594,7 @@ class RoadCondition(VersionBase):
 
                 properties (Properties): properties of the roadcondition
                     Default: None
-                
+
         """
         self.friction_scale_factor = friction_scale_factor
         if properties is not None and not isinstance(properties,Properties):
@@ -2607,7 +2607,7 @@ class RoadCondition(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RoadCondition
 
@@ -2619,7 +2619,7 @@ class RoadCondition(VersionBase):
             -------
                 roadcondition (RoadCondition): a RoadCondition object
 
-        """ 
+        """
         friction_scale_factor = element.attrib['frictionScaleFactor']
         properties = None
         if element.find('Properties') != None:
@@ -2645,7 +2645,7 @@ class RoadCondition(VersionBase):
 # TODO: add name (string)
 class Environment(VersionBase):
     """ The Environment class creates a environment used by Environment
-        
+
         Parameters
         ----------
             name (string): Name of the environment. If used in catalog name is required.
@@ -2727,7 +2727,7 @@ class Environment(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Environment
 
@@ -2739,7 +2739,7 @@ class Environment(VersionBase):
             -------
                 environment (Environment): a Environment object
 
-        """ 
+        """
         name = element.attrib['name']
         parameters = None
         weather = None
@@ -2754,12 +2754,12 @@ class Environment(VersionBase):
             weather = Weather.parse(element.find('Weather'))
         if element.find('RoadCondition') != None:
             roadcondition = RoadCondition.parse(element.find('RoadCondition'))
-        
+
         return Environment(name, timeofday, weather, roadcondition, parameters)
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the environment to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -2769,7 +2769,7 @@ class Environment(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
@@ -2818,7 +2818,7 @@ class Controller(VersionBase):
             name (str): name of the object
 
             properties (Properties): properties of the controller
-                
+
         Attributes
         ----------
             parameters (ParameterDeclaration): Parameter declarations of the vehicle
@@ -2854,7 +2854,7 @@ class Controller(VersionBase):
             name (str): name of the object
 
             properties (Properties): properties of the Controller
-        
+
         """
         self.name = name
 
@@ -2892,14 +2892,14 @@ class Controller(VersionBase):
         parameters_element = element.find('ParameterDeclarations')
         controller.parameters = ParameterDeclarations.parse(parameters_element)
 
-        return controller        
-            
+        return controller
+
 
 
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -2909,7 +2909,7 @@ class Controller(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
@@ -2974,7 +2974,7 @@ class BoundingBox(VersionBase):
             y_center (float): y distance from back axel to clas
 
             z_center (float): z distance from back axel to center
-                
+
 
         Attributes
         ----------
@@ -3008,7 +3008,7 @@ class BoundingBox(VersionBase):
             y_center (float): y distance from back axel to center
 
             z_center (float): z distance from back axel to center
-        
+
         """
         self.boundingbox = Dimensions(width,length,height)
         self.center = Center(x_center,y_center,z_center)
@@ -3046,8 +3046,8 @@ class BoundingBox(VersionBase):
         cen_dict = center.get_attributes()
         dimension = Dimensions.parse(element.find('Dimensions'))
         dim_dict =dimension.get_attributes()
-        return BoundingBox(dim_dict['width'],dim_dict['length'], dim_dict['height'], cen_dict['x'], cen_dict['y'], cen_dict['z']) 
-        
+        return BoundingBox(dim_dict['width'],dim_dict['length'], dim_dict['height'], cen_dict['x'], cen_dict['y'], cen_dict['z'])
+
 class Center(VersionBase):
     """ the Center Class creates a centerpoint for a bounding box, reference point of a vehicle is the back axel
 
@@ -3058,7 +3058,7 @@ class Center(VersionBase):
             y (float): y distance from back axel to center
 
             z (float): z distance from back axel to center
-                
+
 
         Attributes
         ----------
@@ -3090,7 +3090,7 @@ class Center(VersionBase):
             y (float): y distance from back axel to center
 
             z (float): z distance from back axel to center
-        
+
         """
         self.x = convert_float(x)
         self.y = convert_float(y)
@@ -3144,7 +3144,7 @@ class Dimensions(VersionBase):
             length (float): the lenght of the entity
 
             height (float): the height of the entity
-                
+
 
         Attributes
         ----------
@@ -3176,7 +3176,7 @@ class Dimensions(VersionBase):
             length (float): the lenght of the entity
 
             height (float): the height of the entity
-        
+
         """
         self.width = convert_float(width)
         self.length = convert_float(length)
@@ -3220,7 +3220,7 @@ class Dimensions(VersionBase):
         return element
 
 class Properties(VersionBase):
-    """ the Properties contains are for user defined properties of an object               
+    """ the Properties contains are for user defined properties of an object
 
         Attributes
         ----------
@@ -3242,7 +3242,7 @@ class Properties(VersionBase):
             get_element()
                 Returns the full ElementTree of the class
 
-            
+
     """
     def __init__(self):
         """ initalzie the Properties
@@ -3258,7 +3258,7 @@ class Properties(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of class Properties:
 
@@ -3270,7 +3270,7 @@ class Properties(VersionBase):
             Returns
             -------
                 properties (Properties): a Properties object
-                
+
         """
         properties = Properties()
         files = element.findall('File')
@@ -3284,7 +3284,7 @@ class Properties(VersionBase):
                 name = property.attrib['name']
                 value = property.attrib['value']
                 properties.add_property(name, value)
-        
+
         return properties
 
     def add_file(self,filename):
@@ -3328,13 +3328,13 @@ class AbsoluteSpeed(VersionBase):
         Parameters
         ----------
             value (float): absolute speed [m/s]
-            
+
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
 
         Attributes
         ----------
             value (float): absolute speed [m/s]
-            
+
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
 
         Methods
@@ -3344,7 +3344,7 @@ class AbsoluteSpeed(VersionBase):
 
             get_element()
                 Returns the full ElementTree of the class
-                
+
             get_attributes()
                 Returns the attributes of the class
     """
@@ -3369,7 +3369,7 @@ class AbsoluteSpeed(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of AbsoluteSpeed
 
@@ -3380,7 +3380,7 @@ class AbsoluteSpeed(VersionBase):
             Returns
             -------
                 absolutespeed (AbsoluteSpeed): a AbsoluteSpeed object
-                
+
         """
         absolute_speed_element = element.find('AbsoluteSpeed')
         value = absolute_speed_element.attrib['value']
@@ -3390,7 +3390,7 @@ class AbsoluteSpeed(VersionBase):
             state = TargetDistanceSteadyState.parse(absolute_speed_element.find('TargetDistanceSteadyState'))
         elif absolute_speed_element.find('TargetTimeSteadyState') != None:
             state = TargetTimeSteadyState.parse(absolute_speed_element.find('TargetTimeSteadyState'))
-        
+
         return AbsoluteSpeed(value, state)
 
     def get_attributes(self):
@@ -3420,17 +3420,17 @@ class RelativeSpeedToMaster(VersionBase):
         Parameters
         ----------
             value (float): Relative speed. Unit: m/s.
-            
+
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            
+
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
 
         Attributes
         ----------
             value (float): Relative speed. Unit: m/s.
-            
+
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            
+
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
 
         Methods
@@ -3450,9 +3450,9 @@ class RelativeSpeedToMaster(VersionBase):
         Parameters
         ----------
             value (float): Relative speed. Unit: m/s.
-            
+
             speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-            
+
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
         """
         self.value = value
@@ -3489,12 +3489,12 @@ class RelativeSpeedToMaster(VersionBase):
 
         value = speed_element.attrib['value']
         speedTargetValueType = getattr(SpeedTargetValueType, speed_element.attrib['speedTargetValueType'])
-        state = None 
+        state = None
         if speed_element.find('TargetDistanceSteadyState') != None:
             state = TargetDistanceSteadyState.parse(speed_element.find('TargetDistanceSteadyState'))
         elif speed_element.find('TargetTimeSteadyState') != None:
             state = TargetTimeSteadyState.parse(speed_element.find('TargetTimeSteadyState'))
-        
+
         return RelativeSpeedToMaster(value,speedTargetValueType,state)
 
     def get_attributes(self):
@@ -3522,7 +3522,7 @@ class RelativeSpeedToMaster(VersionBase):
 class TargetDistanceSteadyState(VersionBase):
     """ the TargetDistanceSteadyState describes a SteadyState of type TargetDistanceSteadyState
         (Valid from OpenSCENARIO V1.1)
-        
+
         Parameters
         ----------
             distance (float): distance to target for the steady state
@@ -3546,7 +3546,7 @@ class TargetDistanceSteadyState(VersionBase):
         Parameters
         ----------
             distance (float): distance to target for the steady state
-        
+
         """
         self.distance = distance
 
@@ -3556,7 +3556,7 @@ class TargetDistanceSteadyState(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of TargetDistanceSteadyState
 
@@ -3567,14 +3567,14 @@ class TargetDistanceSteadyState(VersionBase):
             Returns
             -------
                 tdss (TargetDistanceSteadyState): a TargetDistanceSteadyState object
-                
-        """ 
+
+        """
         distance = element.attrib['distance']
         return TargetDistanceSteadyState(distance)
 
     def get_attributes(self):
         """ returns the attributes of the TargetDistanceSteadyState
-        
+
         """
         if self.isVersion(1, 0):
             raise OpenSCENARIOVersionError('TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1')
@@ -3592,7 +3592,7 @@ class TargetDistanceSteadyState(VersionBase):
 class TargetTimeSteadyState(VersionBase):
     """ the TargetTimeSteadyState describes a SteadyState of type TargetTimeSteadyState
         (Valid from OpenSCENARIO V1.1)
-        
+
         Parameters
         ----------
             time_gap (float): time_gap to target for the steady state
@@ -3616,7 +3616,7 @@ class TargetTimeSteadyState(VersionBase):
         Parameters
         ----------
             time_gap (float): time_gap to target for the steady state
-        
+
         """
         self.time_gap = time_gap
 
@@ -3626,7 +3626,7 @@ class TargetTimeSteadyState(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of TargetTimeSteadyState
 
@@ -3637,14 +3637,14 @@ class TargetTimeSteadyState(VersionBase):
             Returns
             -------
                 ttss (TargetTimeSteadyState): a TargetTimeSteadyState object
-                
+
         """
         time = element.attrib['time']
         return TargetTimeSteadyState(time)
 
     def get_attributes(self):
         """ returns the attributes of the TargetTimeSteadyState
-        
+
         """
         if self.isVersion(1, 0):
             raise OpenSCENARIOVersionError('TargetTimeSteadyState was introduced in OpenSCENARIO V1.1')
@@ -3660,8 +3660,8 @@ class TargetTimeSteadyState(VersionBase):
 
 
 def merge_dicts(*dict_args):
-    """ Funciton to merge dicts 
-    
+    """ Funciton to merge dicts
+
     """
     retdict = {}
     for d in dict_args:
@@ -3745,7 +3745,7 @@ def convert_int(value):
 
 class ValueConstraintGroup(VersionBase):
     """ Creates the the ValueConstraintGroup file for open scenario
-        
+
         Parameters
         ----------
             None
@@ -3781,14 +3781,14 @@ class ValueConstraintGroup(VersionBase):
 
         Parameters
         ----------
-            value_constraint (ValueConstraint): the value constraint to be added 
+            value_constraint (ValueConstraint): the value constraint to be added
 
         """
         if not isinstance(value_constraint,ValueConstraint):
             raise TypeError('value_conatraint input is not of type ValueConstraint')
         self.value_constraints.append(value_constraint)
-    
-    @staticmethod 
+
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ValueConstraintGroup
 
@@ -3799,7 +3799,7 @@ class ValueConstraintGroup(VersionBase):
             Returns
             -------
                 group (ValueConstraintGroup): a ValueConstraintGroup object
-                
+
         """
         value_constraints = ValueConstraintGroup()
         constraints = element.findall('ValueConstraint')
@@ -3807,7 +3807,7 @@ class ValueConstraintGroup(VersionBase):
             value_constraint = ValueConstraint.parse(constraint)
             value_constraints.add_value_constraint(value_constraint)
         return value_constraints
-        
+
     def get_element(self):
         """ returns the elementTree of the ValueConstraintGroup
 
@@ -3824,16 +3824,16 @@ class ValueConstraintGroup(VersionBase):
 
 class ValueConstraint(VersionBase):
     """ Creates the the ValueConstraint file for open scenario
-        
+
         Parameters
         ----------
-            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string" 
+            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
 
             value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
 
         Attributes
         ----------
-            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string" 
+            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
 
             value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
 
@@ -3856,13 +3856,13 @@ class ValueConstraint(VersionBase):
 
         Parameters
         ----------
-            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string" 
+            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
 
             value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
         """
         self.value = value
         if not hasattr(Rule,str(rule)):
-            raise TypeError(str(rule) + ' is not a valid ValueConstraint type')    
+            raise TypeError(str(rule) + ' is not a valid ValueConstraint type')
         self.rule = rule
 
     def __eq__(self,other):
@@ -3871,7 +3871,7 @@ class ValueConstraint(VersionBase):
                return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ValueConstraint
 
@@ -3882,7 +3882,7 @@ class ValueConstraint(VersionBase):
             Returns
             -------
                 constraint (ValueConstraint): ValueConstraint object
-                
+
         """
         value = element.attrib['value']
         rule = getattr(Rule, element.attrib['rule'])

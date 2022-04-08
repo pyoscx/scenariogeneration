@@ -1,12 +1,12 @@
-""" 
+"""
     Example of a synchronizing two vehicles at one point
 
     Some features used:
-    
-    
+
+
     - AbsoluteSynchronizeAction
 
-        
+
 """
 import os
 from scenariogeneration import xosc, prettyprint

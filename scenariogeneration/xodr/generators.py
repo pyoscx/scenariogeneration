@@ -42,7 +42,7 @@ STD_START_CLOTH = 1/1000000000
 
 def standard_lane(offset=3,rm = STD_ROADMARK_BROKEN):
     """ standard_lane creates a simple lane with an offset an a roadmark
-        
+
         Parameters
         ----------
             offset (int): width of the lane
@@ -64,14 +64,14 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
         This is a simple implementation and has some constraints:
          - left and right merges has to be at the same place (or one per lane), TODO: will be fixed with the singleSide attribute later on.
          - the change will be a 3 degree polynomial with the derivative 0 on both start and end.
-        
+
         Please note that the merges/splits are defined in the road direction, NOT the driving direction.
 
         Parameters
         ----------
             right_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the right side of the road, if int constant number of lanes
 
-            left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes. 
+            left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes.
 
             road_length (float): the full length of the road
 
@@ -91,21 +91,21 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
     # create centerlane
     lc = Lane(a=0)
     lc.add_roadmark(center_road_mark)
-    
-    
+
+
     # create the lanesections needed
     for ls in range(len(left_lane)):
-        lsec = LaneSection(left_lane[ls].s_start,lc)   
+        lsec = LaneSection(left_lane[ls].s_start,lc)
         # do the right lanes
         for i in range(max(right_lane[ls].n_lanes_start,right_lane[ls].n_lanes_end)):
-            
+
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
             if i == max(right_lane[ls].n_lanes_start,right_lane[ls].n_lanes_end)-1:
                 rm = STD_ROADMARK_SOLID
             else:
                 rm = STD_ROADMARK_BROKEN
 
-            # check if the number of lanes should change or not 
+            # check if the number of lanes should change or not
             if right_lane[ls].n_lanes_start > right_lane[ls].n_lanes_end and i == -right_lane[ls].sub_lane-1:
                 # lane merge
                 coeff = get_coeffs_for_poly3(right_lane[ls].s_end-right_lane[ls].s_start,lane_width,False)
@@ -118,8 +118,8 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
                 rightlane.add_roadmark(rm)
             else:
                 rightlane = standard_lane(lane_width,rm)
-            
-            lsec.add_right_lane(rightlane)      
+
+            lsec.add_right_lane(rightlane)
 
         for i in range(max(left_lane[ls].n_lanes_start,left_lane[ls].n_lanes_end)):
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
@@ -128,7 +128,7 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
             else:
                 rm = STD_ROADMARK_BROKEN
 
-            # check if the number of lanes should change or not 
+            # check if the number of lanes should change or not
             if left_lane[ls].n_lanes_start < left_lane[ls].n_lanes_end and i == left_lane[ls].sub_lane-1:
                 # lane split
                 coeff = get_coeffs_for_poly3(left_lane[ls].s_end-left_lane[ls].s_start,lane_width,True)
@@ -141,9 +141,9 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
                 leftlane.add_roadmark(rm)
             else:
                 leftlane = standard_lane(lane_width,rm)
-            
-            lsec.add_left_lane(leftlane)   
-        
+
+            lsec.add_left_lane(leftlane)
+
         lanesections.append(lsec)
 
     # create the lane linker to link the lanes correctly
@@ -162,9 +162,9 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
             for j in range(0,right_lane[i-1].n_lanes_end+1):
                 # adjust for the lost lane
                 if right_lane[i-1].sub_lane < -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j])    
+                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j])
                 elif right_lane[i-1].sub_lane > -(j+1):
-                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j-1])    
+                    lanelinker.add_link(lanesections[i-1].rightlanes[j],lanesections[i].rightlanes[j-1])
 
         else:
             # same number of lanes, just add the links
@@ -185,9 +185,9 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
             for j in range(0,left_lane[i-1].n_lanes_end+1):
                 # adjust for the lost lane
                 if left_lane[i-1].sub_lane < (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j-1])    
+                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j-1])
                 elif left_lane[i-1].sub_lane > (j+1):
-                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j])    
+                    lanelinker.add_link(lanesections[i-1].leftlanes[j],lanesections[i].leftlanes[j])
 
         else:
             # same number of lanes, just add the links
@@ -201,8 +201,8 @@ def create_lanes_merge_split(right_lane_def,left_lane_def,road_length,center_roa
     return lanes
 
 def create_road(geometry, id, left_lanes=1, right_lanes=1, road_type=-1, center_road_mark=STD_ROADMARK_SOLID, lane_width=3):
-    """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken, 
-        except the outer lane, that will be solid. 
+    """ create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken,
+        except the outer lane, that will be solid.
 
         Parameters
         ----------
@@ -210,7 +210,7 @@ def create_road(geometry, id, left_lanes=1, right_lanes=1, road_type=-1, center_
 
             id (int): id of the new road
 
-            left_lanes (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes. 
+            left_lanes (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes.
                 Default: 1
 
             right_lanes (list of LaneDef, or an int): a list of the splits/merges that are wanted on the right side of the road, if int constant number of lanes
@@ -221,7 +221,7 @@ def create_road(geometry, id, left_lanes=1, right_lanes=1, road_type=-1, center_
             center_road_mark (RoadMark): roadmark for the center line
 
             lane_width (float): the with of all lanes
-    
+
         Returns
         -------
             road (Road): a straight road
@@ -235,11 +235,11 @@ def create_road(geometry, id, left_lanes=1, right_lanes=1, road_type=-1, center_
     else:
         pv.add_geometry(geometry)
         raw_length += geometry.length
-    
+
     lanes = create_lanes_merge_split(right_lanes,left_lanes,raw_length,center_road_mark,lane_width)
-    
+
     road = Road(id,pv,lanes,road_type=road_type)
-    
+
     return road
 
 def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
@@ -282,7 +282,7 @@ def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offse
     lanes1 = Lanes()
     lanes1.add_lanesection(lanesec1)
 
-    # finally create the roads 
+    # finally create the roads
     return Road(road_id,planview1,lanes1,road_type=junction)
 
 def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, cloth_start=STD_START_CLOTH, n_lanes=1, lane_offset=3):
@@ -295,7 +295,7 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, c
             arc_angle (float): how much of the curv should be the arc
 
             cloth_angle (float): how much of the curv should be the clothoid (will be doubled since there are two clothoids)
-            
+
             r_id (int): the id of the road
 
             junction (int): if the Road belongs to a junction
@@ -313,7 +313,7 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, c
         -------
             road (Road): a road built up of a Spiral-Arc-Spiral
     """
-    
+
     pv = PlanView()
     # adjust sign if angle is negative
     if cloth_angle < 0 and  arc_curv > 0:
@@ -321,8 +321,8 @@ def create_cloth_arc_cloth(arc_curv, arc_angle, cloth_angle, r_id, junction=1, c
         cloth_angle = -cloth_angle
         arc_curv = -arc_curv
         cloth_start = -cloth_start
-        arc_angle = -arc_angle 
-    
+        arc_angle = -arc_angle
+
     # create geometries
     spiral1 = Spiral(cloth_start, arc_curv, angle=cloth_angle)
     arc = Arc(arc_curv, angle=arc_angle)
@@ -348,21 +348,21 @@ def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2
 
         Parameters
         ----------
-            cloth1_start (float): initial curvature of spiral 1 
+            cloth1_start (float): initial curvature of spiral 1
 
-            cloth1_end (float): ending curvature of spiral 1 
+            cloth1_end (float): ending curvature of spiral 1
 
-            cloth1_length (float): total length of spiral 1 
+            cloth1_length (float): total length of spiral 1
 
             cloth2_start (float): initial curvature of spiral 2
 
-            cloth2_end (float): ending curvature of spiral 2 
+            cloth2_end (float): ending curvature of spiral 2
 
             cloth2_length (float): total length of spiral 2
 
-            cloth3_start (float): initial curvature of spiral 3 
+            cloth3_start (float): initial curvature of spiral 3
 
-            cloth3_end (float): ending curvature of spiral 3 
+            cloth3_end (float): ending curvature of spiral 3
 
             cloth3_length (float): total length of spiral 3
 
@@ -383,9 +383,9 @@ def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2
         -------
             road (Road): a road built up of a Spiral-Spiral-Spiral
     """
-    
+
     pv = PlanView()
-    
+
     # create geometries
     spiral1 = Spiral(cloth1_start, cloth1_end, length=cloth1_length)
     spiral2 = Spiral(cloth2_start, cloth2_end, length=cloth2_length)
@@ -400,8 +400,8 @@ def create_3cloths(cloth1_start, cloth1_end, cloth1_length, cloth2_start, cloth2
     if road_marks:
         center_lane.add_roadmark(road_marks)
     lsec = LaneSection(0,center_lane)
-    
-        
+
+
     for i in range(1, n_lanes+1, 1):
         rl = Lane(a=lane_offset)
         ll = Lane(a=lane_offset)
@@ -422,33 +422,33 @@ def get_lanes_offset(road1, road2, contactpoint):
 
         Parameters
         ----------
-            road1 (Road): first road 
+            road1 (Road): first road
 
-            road2 (Road): second road 
+            road2 (Road): second road
 
         Returns
         -------
-            n_lanes (int): 
+            n_lanes (int):
 
             lane_offset (int):
     """
-    #now we always look at lanesection[0] to take the number of lanes 
-    #TO DO - understand if the roads are connect through end or start and then take the relative lane section 
-    if contactpoint == ContactPoint.end: 
-        n_lanesection = 0 
+    #now we always look at lanesection[0] to take the number of lanes
+    #TO DO - understand if the roads are connect through end or start and then take the relative lane section
+    if contactpoint == ContactPoint.end:
+        n_lanesection = 0
     else:
         n_lanesection = -1
     if len(road1.lanes.lanesections[n_lanesection].leftlanes) == len(road2.lanes.lanesections[0].leftlanes) and len(road1.lanes.lanesections[n_lanesection].rightlanes) == len(road2.lanes.lanesections[0].rightlanes):
-        n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes) 
-        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].a     
+        n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes)
+        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].a
     else:
         raise NotSameAmountOfLanesError('Incoming road ',road1.id, ' and outcoming road ', road2.id, 'do not have the same number of left lanes.')
-        
-    return n_lanes, lane_offset 
+
+    return n_lanes, lane_offset
 
 
 def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_part = 1/3,startnum=100,n_lanes=1,lane_width=3):
-    """ creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo 
+    """ creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
         - 3way crossings (either a T junction, or 120 deg junction)
         - 4way crossing (all 90 degree turns)
         NOTE: this will not generate any links or add any successor/predecessors to the roads, and has to be added manually,
@@ -456,12 +456,12 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
 
         Parameters
         ----------
-       
-            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
                                     to be defined in mathimatically positive order, beginning with the first incoming road
 
             r (float): the radius of the arcs in the junction (will determine the size of the junction)
-            
+
             junction (int): the id of the junction
                 default: 1
 
@@ -472,7 +472,7 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
                 default: (1/3)
 
             startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
-            
+
             n_lanes (int): the number of lanes in the junction
 
             lane_width (float): the lane width of the lanes in the junction
@@ -482,7 +482,7 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
 
     """
     angle = np.pi/2
-    angle_cloth = angle*spiral_part 
+    angle_cloth = angle*spiral_part
     spiral_length = 2*abs(angle_cloth*r)
 
     cloth = pcloth.Clothoid.StandardParams(0, 0, 0, STD_START_CLOTH, (1/r - STD_START_CLOTH) / spiral_length, spiral_length)
@@ -492,9 +492,9 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
     linelength = 2*(X0 + r + Y0)
 
     junction_roads = []
-    
+
     for i in range(len(angles)-1):
-        
+
         for j in range(1+i,len(angles)):
             # check angle needed for junction
             an = np.sign(angles[j]-angles[i]-np.pi)
@@ -504,13 +504,13 @@ def create_junction_roads_standalone(angles,r,junction=1,spiral_part = 1/3, arc_
             angle_cloth = an1*spiral_part
 
             #adjust angle if multiple of pi
-            if an1 > np.pi: 
+            if an1 > np.pi:
                 an1 = -(2*np.pi - an1)
 
             # create road, either straight or curved
             if an == 0:
                 tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lane_width)
-            else: 
+            else:
                 tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lane_width )
 
             # add predecessor and successor
@@ -529,11 +529,11 @@ def create_junction_roads_from_arc(roads,angles,r=0,junction=1,arc_part = 1/3,st
         ----------
             roads (list of Road): all roads that should go into the junction
 
-            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
                                     to be defined in mathimatically positive order, beginning with the first incoming road [0, +2pi]
 
             r (float): the radius of the arcs in the junction (will determine the size of the junction)
-            
+
             junction (int): the id of the junction
                 default: 1
 
@@ -551,36 +551,36 @@ def create_junction_roads_from_arc(roads,angles,r=0,junction=1,arc_part = 1/3,st
     """
 
     #arc_part = 1 - 2*spiral_part
-    spiral_part = (1 - arc_part)/2 
+    spiral_part = (1 - arc_part)/2
 
     angle = np.pi/2
-    angle_cloth = angle*spiral_part 
+    angle_cloth = angle*spiral_part
     spiral_length = 2*abs(angle_cloth*r)
-    
+
     cloth = pcloth.Clothoid.StandardParams(0, 0, 0, STD_START_CLOTH, (1/r - STD_START_CLOTH) / spiral_length, spiral_length)
 
     X0 = cloth.XEnd-r*np.sin(angle_cloth)
     Y0 = cloth.YEnd-r*(1-np.cos(angle_cloth))
-    
+
     linelength = 2*(X0 + r + Y0)
 
     junction_roads = []
 
     # loop over the roads to get all possible combinations of connecting roads
     for i in range(len(roads)-1):
-        # for now the first road is place as base, 
+        # for now the first road is place as base,
         if i == 0:
             cp = ContactPoint.end
             roads[i].add_successor(ElementType.junction,junction)
         else:
             cp = ContactPoint.start
             roads[i].add_predecessor(ElementType.junction,junction)
-        
+
         for j in range(1+i,len(roads)):
             # check angle needed for junction [-pi, +pi]
             an1 = angles[j]-angles[i] -np.pi
             #adjust angle if multiple of pi
-            if an1 > np.pi: 
+            if an1 > np.pi:
                 an1 = -(2*np.pi - an1)
 
             angle_arc = an1*arc_part
@@ -591,12 +591,12 @@ def create_junction_roads_from_arc(roads,angles,r=0,junction=1,arc_part = 1/3,st
             # create road, either straight or curved
             n_lanes, lanes_offset = get_lanes_offset(roads[i], roads[j], cp )
             if sig == 0:
-                # create straight road 
+                # create straight road
                 tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
-            else: 
+            else:
                 # create the cloth-arc-cloth road given the radius fo the arc
                 tmp_junc = create_cloth_arc_cloth(  1/r , angle_arc , angle_cloth , startnum , junction, n_lanes=n_lanes, lane_offset=lanes_offset )
-                
+
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road,roads[i].id,cp)
             tmp_junc.add_successor(ElementType.road,roads[j].id,ContactPoint.start)
@@ -618,11 +618,11 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnu
         ----------
             roads (list of Road): all roads that should go into the junction
 
-            angles (list of float): the angles from where the roads should be coming in (see description for what is supported), 
+            angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
                                     to be defined in mathimatically positive order, beginning with the first incoming road [0, +2pi]
 
             R (list of float): the radius of the whole junction, meaning the distance between roads and the center of the junction. If only one value is specified, then all roads will have the same distance.
-            
+
             junction (int): the id of the junction
                 default: 1
 
@@ -643,12 +643,12 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnu
     """
 
 
-    if (len(roads) is not len(angles)): 
+    if (len(roads) is not len(angles)):
         raise GeneralIssueInputArguments('roads and angles do not have the same size.')
 
-    if len(R) == 1: 
+    if len(R) == 1:
         R = R*np.ones(len(roads))
-    elif len(R) > 1 and len(R) is not len(roads): 
+    elif len(R) > 1 and len(R) is not len(roads):
         raise GeneralIssueInputArguments('roads and R do not have the same size.')
 
 
@@ -657,19 +657,19 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnu
 
     # loop over the roads to get all possible combinations of connecting roads
     for i in range(len(roads)-1):
-        # for now the first road is place as base, 
+        # for now the first road is place as base,
         if i == 0:
             cp = ContactPoint.end
             roads[i].add_successor(ElementType.junction,junction)
         else:
             cp = ContactPoint.start
             roads[i].add_predecessor(ElementType.junction,junction)
-        
+
         for j in range(1+i,len(roads)):
             # check angle needed for junction [-pi, +pi]
             an1 = angles[j]-angles[i] -np.pi
             #adjust angle if multiple of pi
-            if an1 > np.pi: 
+            if an1 > np.pi:
                 an1 = -(2*np.pi - an1)
 
             sig = np.sign(an1)
@@ -678,7 +678,7 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnu
             # create road, either straight or curved
             n_lanes, lanes_offset = get_lanes_offset(roads[i], roads[j], cp )
             if sig == 0:
-                # create straight road 
+                # create straight road
                 linelength = R[i]+R[j]
                 tmp_junc = create_straight_road(startnum,length= linelength,junction=junction, n_lanes=n_lanes, lane_offset=lanes_offset)
                 for l in tmp_junc.lanes.lanesections[0].leftlanes:
@@ -697,7 +697,7 @@ def create_junction_roads(roads , angles, R, junction=1, arc_part = 1/3, startnu
                         tmp_junc.lanes.lanesections[0].leftlanes[-1].roadmark = outer_road_marks
                     else:
                         tmp_junc.lanes.lanesections[0].rightlanes[-1].roadmark = outer_road_marks
-            else: 
+            else:
                 clothoids = pcloth.SolveG2(-R[i], 0, 0, STD_START_CLOTH, R[j]*np.cos(an1), R[j]*np.sin(an1), an1, STD_START_CLOTH)
                 tmp_junc = create_3cloths(clothoids[0].KappaStart, clothoids[0].KappaEnd, clothoids[0].length, clothoids[1].KappaStart, clothoids[1].KappaEnd, clothoids[1].length, clothoids[2].KappaStart, clothoids[2].KappaEnd, clothoids[2].length, startnum, junction, n_lanes=n_lanes, lane_offset=lanes_offset,road_marks=inner_road_marks)
 
@@ -723,16 +723,16 @@ def _create_junction_links(connection, nlanes,r_or_l,sign,from_offset=0,to_offse
         ----------
             connection (Connection): the connection to fill
 
-            nlanes (int): number of lanes 
+            nlanes (int): number of lanes
 
             r_or_l (1 or -1): if the lane should start from -1 or 1
 
-            sign (1 or -1): if the sign should change 
+            sign (1 or -1): if the sign should change
 
-            from_offset (int): if there is an offset in the beginning 
+            from_offset (int): if there is an offset in the beginning
                 Default: 0
 
-            to_offset (int): if there is an offset in the end of the road 
+            to_offset (int): if there is an offset in the end of the road
                 Default: 0
     """
     for i in range(1, nlanes+1, 1):
@@ -748,9 +748,9 @@ def create_junction(junction_roads, id, roads, name='my junction'):
             junction_roads (list of Road): all connecting roads in the junction
 
             id (int): the id of the junction
-            
+
             roads (list of Road): all incomming roads to the junction
-            
+
             name(str): name of the junction
             default: 'my junction'
 
@@ -761,11 +761,11 @@ def create_junction(junction_roads, id, roads, name='my junction'):
     """
 
     junc = Junction(name,id)
-    
+
     for jr in junction_roads:
         # handle succesor lanes
-        conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end) 
-        _, sign, _ =  _get_related_lanesection(jr,get_road_by_id(roads,jr.successor.element_id) ) 
+        conne1 = Connection(jr.successor.element_id,jr.id,ContactPoint.end)
+        _, sign, _ =  _get_related_lanesection(jr,get_road_by_id(roads,jr.successor.element_id) )
 
         _create_junction_links(conne1,len(jr.lanes.lanesections[-1].rightlanes),-1,sign,to_offset=jr.lane_offset_suc)
         _create_junction_links(conne1,len(jr.lanes.lanesections[-1].leftlanes),1,sign,to_offset=jr.lane_offset_suc)
@@ -773,7 +773,7 @@ def create_junction(junction_roads, id, roads, name='my junction'):
 
         # handle predecessor lanes
         conne2 = Connection(jr.predecessor.element_id,jr.id,ContactPoint.start)
-        _, sign, _ =  _get_related_lanesection( jr,get_road_by_id(roads,jr.predecessor.element_id)) 
+        _, sign, _ =  _get_related_lanesection( jr,get_road_by_id(roads,jr.predecessor.element_id))
         _create_junction_links(conne2,len(jr.lanes.lanesections[0].rightlanes),-1,sign,from_offset=jr.lane_offset_pred)
         _create_junction_links(conne2,len(jr.lanes.lanesections[0].leftlanes),1,sign,from_offset=jr.lane_offset_pred)
         junc.add_connection(conne2)
@@ -788,7 +788,7 @@ def create_direct_junction(roads, id, name='my direct junction'):
             roads (list of Road): all roads that are building up the direct junction
 
             id (int): the id of the junction
-            
+
             name(str): name of the junction
             default: 'my direct junction'
 
@@ -809,7 +809,7 @@ def create_direct_junction(roads, id, name='my direct junction'):
                     used_road_indexes.append(dr)
                     conn = Connection(r.id,str(dr),ContactPoint.start)
                     outgoingroad = get_road_by_id(roads,dr)
-                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) ) 
+                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) )
                     _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=outgoingroad.lane_offset_pred)
                     _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=outgoingroad.lane_offset_pred)
                     junc.add_connection(conn)
@@ -818,7 +818,7 @@ def create_direct_junction(roads, id, name='my direct junction'):
                     used_road_indexes.append(dr)
                     conn = Connection(r.id,str(dr),ContactPoint.end)
                     outgoingroad = get_road_by_id(roads,dr)
-                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) ) 
+                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) )
                     _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].rightlanes),-1,1,from_offset=outgoingroad.lane_offset_suc)
                     _create_junction_links(conn,len(outgoingroad.lanes.lanesections[-1].leftlanes),1,1,from_offset=outgoingroad.lane_offset_suc)
                     junc.add_connection(conn)
@@ -850,10 +850,10 @@ class LaneDef():
     """ LaneDef is used to help create a lane merge or split. Can handle one lane merging or spliting.
 
         NOTE: This is not part of the OpenDRIVE standard, but a helper for the xodr module.
-        
+
         Parameters
         ----------
-            s_start (float): s coordinate of the start of the change 
+            s_start (float): s coordinate of the start of the change
 
             s_end (float): s coordinate of the end of the change
 
@@ -865,7 +865,7 @@ class LaneDef():
 
         Attributes
         ----------
-            s_start (float): s coordinate of the start of the change 
+            s_start (float): s coordinate of the start of the change
 
             s_end (float): s coordinate of the end of the change
 
@@ -896,7 +896,7 @@ def _create_lane_lists(right,left,tot_length):
             tot_length (float): the total length of the road
 
     """
-    
+
     const_right_lanes = None
     const_left_lanes = None
 
@@ -907,7 +907,7 @@ def _create_lane_lists(right,left,tot_length):
     r_it = 0
     l_it = 0
     # some primariy checks to handle int instead of LaneDef
-    
+
     if not isinstance(right,list):
         const_right_lanes = right
         right = []
@@ -916,9 +916,9 @@ def _create_lane_lists(right,left,tot_length):
         const_left_lanes = left
         left = []
 
-            
+
     while present_s < tot_length:
-        
+
         if r_it < len(right):
             # check if there is still a right LaneDef to be used, and is the next one to add
             if right[r_it].s_start == present_s:
@@ -953,31 +953,31 @@ def _create_lane_lists(right,left,tot_length):
             else:
                 n_l_lanes = left[-1].n_lanes_end
 
-        
+
 
 
         # create and add the requiered LaneDefs
         if not add_left and not add_right:
-            # no LaneDefs, just add same amout of lanes 
+            # no LaneDefs, just add same amout of lanes
             s_end = min(next_left,next_right)
             retlanes_right.append(LaneDef(present_s,s_end,n_r_lanes,n_r_lanes))
             retlanes_left.append(LaneDef(present_s,s_end,n_l_lanes,n_l_lanes))
             present_s = s_end
         elif add_left and add_right:
-            # Both have changes in the amount of lanes, 
+            # Both have changes in the amount of lanes,
             retlanes_left.append(left[l_it])
             retlanes_right.append(right[r_it])
             present_s = left[l_it].s_end
             r_it += 1
             l_it += 1
         elif add_right:
-            # only the right lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the left 
+            # only the right lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the left
             retlanes_right.append(right[r_it])
             retlanes_left.append(LaneDef(present_s,s_end,n_l_lanes,n_l_lanes))
             present_s = right[r_it].s_end
             r_it += 1
         elif add_left:
-            # only the left lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the right 
+            # only the left lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the right
             retlanes_left.append(left[l_it])
             retlanes_right.append(LaneDef(present_s,s_end,n_r_lanes,n_r_lanes))
             present_s = left[l_it].s_end
@@ -986,9 +986,9 @@ def _create_lane_lists(right,left,tot_length):
     return retlanes_right, retlanes_left
 
 def get_coeffs_for_poly3(length,lane_offset,zero_start):
-    """ get_coeffs_for_poly3 creates the coefficients for a third degree polynomial, can be used for all kinds of descriptions in xodr. 
+    """ get_coeffs_for_poly3 creates the coefficients for a third degree polynomial, can be used for all kinds of descriptions in xodr.
 
-        Assuming that the derivative is 0 at the start and end of the segment. 
+        Assuming that the derivative is 0 at the start and end of the segment.
 
         Parameters
         ----------
@@ -996,7 +996,7 @@ def get_coeffs_for_poly3(length,lane_offset,zero_start):
 
             lane_offset (float): the lane offset (width) of the lane
 
-            zero_start (bool): True; start with zero and ends with lane_offset width, 
+            zero_start (bool): True; start with zero and ends with lane_offset width,
                                False; start with lane_offset and ends with zero width
 
         Return

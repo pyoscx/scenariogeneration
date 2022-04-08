@@ -13,7 +13,7 @@ from .position import Trajectory, Route
 
 class CatalogLoader():
     """ CatalogLoader makes it possible to read certain elements from a catalog
-            
+
 
             Attributes
             ----------
@@ -24,7 +24,7 @@ class CatalogLoader():
             -------
                 load_catalog(catalog_reference,catalog_path)
                     loads a catalog that can be parsed later on
-                
+
                 get_entry(catalog_reference)
                     reads a loaded catalog and returns the object
         """
@@ -38,7 +38,7 @@ class CatalogLoader():
 
     def load_catalog(self,catalog_reference,catalog_path):
         """ CatalogLoader makes it possible to read certain elements from a catalog
-            
+
             Parameters
             ----------
                 catalog_reference (CatalogReference or str): name/reference to the catalog
@@ -55,7 +55,7 @@ class CatalogLoader():
         with open(fullpath,'r') as f:
             catalog_element = ET.parse(f).find('Catalog')
             self.all_catalogs[name_ref] = catalog_element
-    
+
     def parse(self,catalog_reference):
         """ parse reads reads a specific entry from a loaded catalog
 
@@ -66,7 +66,7 @@ class CatalogLoader():
             Returns
             -------
                 The catalog entry
-        
+
         """
         if not catalog_reference.catalogname in self.all_catalogs:
             raise NoCatalogFoundError('Catalog ' + catalog_reference.catalogname + ' is not loaded yet.')
@@ -95,13 +95,13 @@ class CatalogLoader():
                     return Trajectory.parse(entry)
             elif entry.tag == 'Route':
                 if entry.attrib['name'] == catalog_reference.entryname:
-                    return Route.parse(entry)    
+                    return Route.parse(entry)
             else:
                 raise NotImplementedError('This catalogtype is not supported yet.')
-    
+
     def read_entry(self,catalog_reference,catalog_path):
         """ read_entry loads and reads a catalog directly (both load_catalog, and parse)
-            
+
             The catalog will still be loaded and can be used with parse after this.
 
             Parameters
@@ -118,9 +118,9 @@ def CatalogReader(catalog_reference,catalog_path):
     """ CatalogReader is a function that will read a openscenario catalog and return the corresponding scenariogeneration.xosc object
 
         Main use case for this is to be able to parametrize and write scenarios based on a catalog based entry
-        
+
         NOTE: only Vehicle, and Pedestrian is implemented
-        
+
         Parameters
         ----------
             catalog_reference (CatalogReference): the catalog reference needed
@@ -131,13 +131,13 @@ def CatalogReader(catalog_reference,catalog_path):
         -------
             The catalog entry
     """
-    
+
     # TODO: add a raised error if the catalog doesn't contain the correct data
     loaded_catalog = catalog_reference.catalogname
-    
+
     with open(os.path.join(catalog_path,catalog_reference.catalogname + '.xosc'),'r') as f:
         loaded_catalog = ET.parse(f)
-        
+
         catalog = loaded_catalog.find('Catalog')
 
         for entry in catalog:
@@ -164,7 +164,7 @@ def CatalogReader(catalog_reference,catalog_path):
                     return Trajectory.parse(entry)
             elif entry.tag == 'Route':
                 if entry.attrib['name'] == catalog_reference.entryname:
-                    return Route.parse(entry)    
+                    return Route.parse(entry)
             else:
                 raise NotImplementedError('This catalogtype is not supported yet.')
 
@@ -191,7 +191,7 @@ def ParseOpenScenario(file_path):
     """ ParseOpenScenario parses a openscenario file (of any type) and returns the python object
 
         Parameters
-        ---------- 
+        ----------
             file_path (str): full path to the .xosc file
 
         Returns

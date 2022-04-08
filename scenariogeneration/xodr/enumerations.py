@@ -17,7 +17,7 @@ class MarkRule(Enum):
     no_passing = auto()
     caution = auto()
     none = auto()
-    
+
 class LaneType(Enum):
     """ Enum for LaneType
     """
@@ -109,7 +109,7 @@ class LaneChange(Enum):
     increase = auto()
     decrease = auto()
     both = auto()
-    none = auto()    
+    none = auto()
 
 class ElementType(Enum):
     """ Enum for LaneChange
@@ -128,7 +128,7 @@ class Direction(Enum):
     """
     same = auto()
     opposite = auto()
-    
+
 class Orientation(Enum):
     """ Enum for Orientation
     """
@@ -155,13 +155,13 @@ class ObjectType(Enum):
     gantry = auto()
     soundBarrier = auto()
     roadMark = auto()
-    
+
 class Dynamic(Enum):
     """ Enum for Dynamic
     """
     yes = auto()
     no = auto()
-    
+
 class RoadSide(Enum):
     """ Enum for RoadSide
     """

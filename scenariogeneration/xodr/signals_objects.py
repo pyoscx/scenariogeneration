@@ -3,7 +3,7 @@
 """
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
-from .enumerations import ObjectType, Orientation, Dynamic 
+from .enumerations import ObjectType, Orientation, Dynamic
 
 class _SignalObjectBase():
     """ creates a common basis for Signal and Object shall not be instantiated directly
@@ -19,27 +19,27 @@ class _SignalObjectBase():
             Type (ObjectType or string): type of the Signal (typically string) / Object (typically enum ObjectType)
 
             subtype (string): subtype for further specification of Signal / Object
-            
+
             dynamic (Dynamic): specifies if Signal / Object is static (road sign) or dynamic (traffic light)
-            
+
             name (string): name for identification of Signal / Object
-            
+
             zOffset (float): vertical offset of Signal / Object with respect to centerline
-            
+
             orientation (Orientation): orientation of Signal / Object with respect to road
-            
+
             pitch (float): pitch angle (rad) of Signal / Object relative to the inertial system (xy-plane)
-            
-            roll (float): roll angle (rad) of Signal / Object after applying pitch, relative to the inertial system (x’’y’’-plane) 
-            
+
+            roll (float): roll angle (rad) of Signal / Object after applying pitch, relative to the inertial system (x’’y’’-plane)
+
             width (float): width of the Signal / Object
-            
+
             height (float): height of Signal / Object
-            
-            _usedIDs ({[str]}): dictionary with list of used IDs, keys are class names of child class (Object, Signal). 
+
+            _usedIDs ({[str]}): dictionary with list of used IDs, keys are class names of child class (Object, Signal).
             Shared among all instances of Signal/Object to auto-generate unique IDs.
 
-            _IDCounter ({int}): dictionary with counter for auto-generation of IDs, keys are class names of child class (Object, Signal). 
+            _IDCounter ({int}): dictionary with counter for auto-generation of IDs, keys are class names of child class (Object, Signal).
             Shared among all instances of Signal/Object to auto-generate unique IDs.
 
 
@@ -47,12 +47,12 @@ class _SignalObjectBase():
         -------
             get_common_attributes()
                 Returns a dictionary of all attributes of FileHeader
-                
+
             _update_id()
                 Ensures that an ID is assigned if none was provided and that provided IDs are unique
                 Should be called when adding an Object or signal to the road
         """
-        
+
     _usedIDs = {}
     _IDCounter = {}
 
@@ -70,28 +70,28 @@ class _SignalObjectBase():
             Type (ObjectType or string): type of the Signal (typically string) / Object (typically enum ObjectType)
 
             subtype (string): subtype for further specification of Signal / Object
-            
+
             dynamic (Dynamic): specifies if Signal / Object is static (road sign) or dynamic (traffic light)
-            
+
             name (string): name for identification of Signal / Object
-            
+
             zOffset (float): vertical offset of Signal / Object with respect to centerline
-            
+
             orientation (Orientation): orientation of Signal / Object with respect to road
-            
+
             pitch (float): pitch angle (rad) of Signal / Object relative to the inertial system (xy-plane)
-            
+
             roll (float): roll angle (rad) of Signal / Object after applying pitch, relative to the inertial system (x’’y’’-plane)
-            
+
             width (float): width of the Signal / Object
-            
+
             height (float): height of Signal / Object
 
-        """ 
+        """
         self.s = s
         self.t = t
         self.height = height
-        self.Type = Type       
+        self.Type = Type
         self.dynamic = dynamic
         self.name = name
         self.zOffset = zOffset
@@ -101,8 +101,8 @@ class _SignalObjectBase():
         self.roll = roll
         self.width = width
         self.id = id
-        
-    
+
+
     def __eq__(self, other):
         if isinstance(other,_SignalObjectBase):
             if self.get_common_attributes() == other.get_common_attributes():
@@ -114,24 +114,24 @@ class _SignalObjectBase():
         try:
             if str(self.id) in self._usedIDs[self.__class__.__name__]:
                 print ("Warning: id",self.id,"has already been used for another",self.__class__.__name__,"...auto-generating unique id.")
-                
+
         except KeyError:
             self._usedIDs[self.__class__.__name__]=[]
             self._IDCounter[self.__class__.__name__]=0
-            
-        
+
+
         if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
             while (str(self._IDCounter[self.__class__.__name__]) in self._usedIDs[self.__class__.__name__]):
                 self._IDCounter[self.__class__.__name__]+=1
-            self.id = str(self._IDCounter[self.__class__.__name__])             
-    
+            self.id = str(self._IDCounter[self.__class__.__name__])
+
         self._usedIDs[self.__class__.__name__].append(str(self.id))
-        
-        
-        
+
+
+
     def get_common_attributes(self):
             """ returns common attributes of Signal and Object as a dict
-    
+
             """
             retdict = {}
             retdict['id'] = str(self.id)
@@ -147,20 +147,20 @@ class _SignalObjectBase():
             if self.width is not None:
                 retdict['width'] = str(self.width)
             if self.height is not None:
-                retdict['height'] = str(self.height)            
-            if self.name is not None:   
-                retdict['name'] = str(self.name)            
+                retdict['height'] = str(self.height)
+            if self.name is not None:
+                retdict['name'] = str(self.name)
             if (isinstance(self.Type, ObjectType)):
                 retdict['type'] = enum2str(self.Type)
             else:
-                retdict['type'] = str(self.Type)                        
+                retdict['type'] = str(self.Type)
             if self.orientation == Orientation.positive:
-                retdict['orientation'] = '+'    
+                retdict['orientation'] = '+'
             elif self.orientation == Orientation.negative:
-                retdict['orientation'] = '-'        
+                retdict['orientation'] = '-'
             else:
-                retdict['orientation'] = enum2str(self.orientation)    
-            
+                retdict['orientation'] = enum2str(self.orientation)
+
             return retdict
 
 class Signal(_SignalObjectBase):
@@ -172,36 +172,36 @@ class Signal(_SignalObjectBase):
 
             t (float): t-coordinate of Signal (init in base class)
 
-            country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)        
-            
+            country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)
+
             Type (SignalType or str): type of Signal (str) (init in base class)
-            
+
             subtype (string): subtype for further specification of Signal (init in base class)
-            
+
             id (string): id of Signal (init in base class)
-            
+
             name (string): name for identification of Signal (init in base class)
-            
+
             dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
-            
+
             value (float): value for further specification of the signal
-            
+
             unit (str): unit, needs to be provided when value is given
-            
+
             zOffset (float): vertical offset of Signal with respect to centerline (init in base class)
-            
+
             orientation (Orientation): orientation of Signal with respect to road (init in base class)
-            
+
             hOffset (float): heading offset of the signal relative to orientation
-            
+
             pitch (float): pitch angle (rad) of Signal relative to the inertial system (xy-plane) (init in base class)
-            
+
             roll (float): roll angle (rad) of Signal after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-            
+
             width (float): width of the Signal (init in base class)
-            
+
             height (float): height of Signal (init in base class)
-            
+
             validity (Validity): explicit validity information for a signal (optional)
 
         Methods
@@ -211,10 +211,10 @@ class Signal(_SignalObjectBase):
 
             get_attributes()
                 Returns a dictionary of all attributes of the class
-                
+
     """
 
-    def __init__(self, s, t, country, Type, subtype="-1", id=None, name=None, dynamic=Dynamic.no, value=None, unit=None, zOffset=1.5, orientation=Orientation.positive, 
+    def __init__(self, s, t, country, Type, subtype="-1", id=None, name=None, dynamic=Dynamic.no, value=None, unit=None, zOffset=1.5, orientation=Orientation.positive,
                  hOffset=0, pitch=0, roll=0, height=None, width=None):
         """ initalizes the Signal
 
@@ -223,9 +223,9 @@ class Signal(_SignalObjectBase):
             s (float): s-coordinate of Signal (init in base class)
 
             t (float): t-coordinate of Signal (init in base class)
-            
+
             country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)
-            
+
             Type (SignalType or str): type of Signal (str) (init in base class)
 
             subtype (string): subtype for further specification of Signal (init in base class)
@@ -233,31 +233,31 @@ class Signal(_SignalObjectBase):
             id (string): id of Signal (init in base class)
                 Default: None
             name (string): name for identification of Signal (init in base class)
-                Default: None 
+                Default: None
             dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
-                Default: Dynamic.no 
+                Default: Dynamic.no
             value (float): value for further specification of the signal
                 Default: None
             unit (str): unit, needs to be provided when value is given
-                Default: None                                  
+                Default: None
             zOffset (float): vertical offset of Signal with respect to centerline (init in base class)
-                Default: 0                        
+                Default: 0
             orientation (Orientation): orientation of Signal with respect to road (init in base class)
-                Default: Orientation.none                                    
+                Default: Orientation.none
             hOffset (float): heading offset of the signal relative to orientation
                 Default: 0
             pitch (float): pitch angle (rad) of Signal relative to the inertial system (xy-plane) (init in base class)
-                Default: 0                                 
+                Default: 0
             roll (float): roll angle (rad) of Signal after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-                Default: 0                                             
+                Default: 0
             width (float): width of the Signal (init in base class)
-                Default: None     
+                Default: None
             height (float): height of Signal (init in base class)
-                Default: None                                       
+                Default: None
 
-        """        
-        
-        
+        """
+
+
         #get attributes that are common with signals
         super().__init__(s,t,id,Type,subtype,dynamic,name,zOffset,orientation,pitch,roll,width,height)
         self.s = s
@@ -272,8 +272,8 @@ class Signal(_SignalObjectBase):
         self.unit = unit
         self.hOffset = hOffset
         self.validity = None
-        
-        
+
+
     def __eq__(self, other):
         if isinstance(other,Signal):
             if self.get_attributes() == other.get_attributes():
@@ -286,21 +286,21 @@ class Signal(_SignalObjectBase):
         retdict["type"] = str(self.type)
         retdict["subtype"] = str(self.subtype)
         if self.hOffset is not None:
-            retdict["hOffset"] = str(self.hOffset)    
-        #TODO check if value is supplied --> unit is mandatory in that case   
+            retdict["hOffset"] = str(self.hOffset)
+        #TODO check if value is supplied --> unit is mandatory in that case
         if self.value is not None:
             retdict["value"] = str(self.value)
             retdict["unit"] = str(self.unit)
         return retdict
 
-    def add_validity(self, fromLane, toLane): 
-        if self.validity: 
+    def add_validity(self, fromLane, toLane):
+        if self.validity:
             raise ValueError('only one validity is allowed')
         self.validity = Validity(fromLane, toLane)
 
     def get_element(self):
         element = ET.Element('signal', attrib=self.get_attributes())
-        if self.validity: 
+        if self.validity:
             element.append(self.validity.get_element())
         return element
 
@@ -320,7 +320,7 @@ class Validity():
 
             get_attributes()
                 Returns a dictionary of all attributes of the class
-                
+
     """
 
     def __init__(self, fromLane, toLane):
@@ -343,7 +343,7 @@ class Validity():
         return False
 
     def get_attributes(self):
-        """ returns the attributes of Validity as a dict 
+        """ returns the attributes of Validity as a dict
 
         """
         retdict = {}
@@ -418,42 +418,42 @@ class Object(_SignalObjectBase):
             type (ObjectType or string): type of Object (typically enum ObjectType) (init in base class)
 
             subtype (string): subtype for further specification of Object (init in base class)
-            
+
             id (string): id of Object (init in base class)
-            
+
             name (string): name for identification of Object (init in base class)
-            
+
             dynamic (Dynamic): specifies if Object is static or dynamic (init in base class)
 
             zOffset (float): vertical offset of Object with respect to centerline (init in base class)
 
             orientation (Orientation): orientation of Object with respect to road (init in base class)
-            
+
             hdg (float): heading angle (rad) of the Object relative to road direction
-            
+
             pitch (float): pitch angle (rad) of Object relative to the inertial system (xy-plane) (init in base class)
-            
-            roll (float): roll angle (rad) of Object after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)            
+
+            roll (float): roll angle (rad) of Object after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
 
             width (float): width of the Object (init in base class)
 
             length (float): width of the Object (shall not be used with radius)
 
-            height (float): height of Object (init in base class)            
-            
+            height (float): height of Object (init in base class)
+
             radius (float): radius of the Object (shall not be used with width/length)
-        
+
             validLength (float): validLength
-            
+
             _repeats ([dict]): list of dictionary containing attributes for optional subelement for repeating Objects to be filled by repeat method
 
             validity (Validity): explicit validity information for a signal (optional)
-            
+
         Methods
         -------
             repeat()
                 adds a dictionary to _repeats[] list to create a subelement for repeating the Object
-                
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -461,7 +461,7 @@ class Object(_SignalObjectBase):
                 Returns a dictionary of all attributes of FileHeader
 
     """
-        
+
     def __init__(self,s,t,Type=ObjectType.none,subtype=None,id=None,name=None,dynamic=Dynamic.no,zOffset=0,orientation=Orientation.none,hdg=0,pitch=0,roll=0,width=None,length=None,height=None,radius=None,validLength=None):
         """ initalizes the Object
 
@@ -470,7 +470,7 @@ class Object(_SignalObjectBase):
             s (float): s-coordinate of Object (init in base class)
 
             t (float): t-coordinate of Object (init in base class)
-            
+
             Type (ObjectType or string): type of Object (typically enum ObjectType) (init in base class)
                 Default: ObjectType.none
             subtype (string): subtype for further specification of Object (init in base class)
@@ -478,46 +478,46 @@ class Object(_SignalObjectBase):
             id (string): id of Object (init in base class)
                 Default: None
             name (string): name for identification of Object (init in base class)
-                Default: None 
+                Default: None
             dynamic (Dynamic): specifies if Object is static or dynamic (init in base class)
-                Default: Dynamic.no                            
+                Default: Dynamic.no
             zOffset (float): vertical offset of Object with respect to centerline (init in base class)
-                Default: 0                        
+                Default: 0
             orientation (Orientation): orientation of Object with respect to road (init in base class)
-                Default: Orientation.none                                    
+                Default: Orientation.none
             hdg (float): heading angle (rad) of the Object relative to road direction
                 Default: 0
             pitch (float): pitch angle (rad) of Object relative to the inertial system (xy-plane) (init in base class)
-                Default: 0                                 
+                Default: 0
             roll (float): roll angle (rad) of Object after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-                Default: 0                                             
+                Default: 0
             width (float): width of the Object (init in base class)
-                Default: None     
+                Default: None
             length (float): length of the Object (shall not be used with radius)
-                Default: None  
+                Default: None
             height (float): height of Object (init in base class)
                 Default: None
             radius (float): radius of the Object (shall not be used with width/length)
-                Default: None                               
+                Default: None
             validLength (float): validity of object along s-coordinate
-                Default: None                                             
+                Default: None
 
         """
         #get attributes that are common with signals
         super().__init__(s,t,id,Type,subtype,dynamic,name,zOffset,orientation,pitch,roll,width,height)
-                
+
         #attributes that differ from signals
         self.validLength = validLength
         self.length = length
         self.hdg = hdg
         self.radius = radius
-        
+
         #list for repeat entries
         self._repeats = []
 
         self.validity = None
-    
-        #check if width/length combination or radius was provided and ensure working defaults 
+
+        #check if width/length combination or radius was provided and ensure working defaults
         if radius is not None and (width is not None or length is not None):
             print ("Object with id",self.id,"was provided with radius, width and/or length. Provide either radius or width and length. Using radius as fallback.")
             self.width = None
@@ -539,23 +539,23 @@ class Object(_SignalObjectBase):
         return False
 
     def repeat(self,repeatLength,repeatDistance,sStart=None,tStart=None,tEnd=None,heightStart=None,heightEnd=None,zOffsetStart=None,zOffsetEnd=None,widthStart=None,widthEnd=None,lengthStart=None,lengthEnd=None,radiusStart=None,radiusEnd=None):
-        
+
         self._repeats.append({})
 
         self._repeats[-1]['length']=str(repeatLength)
         self._repeats[-1]['distance']=str(repeatDistance)
-        
+
         def infoFallback(id, attributeName):
             pass
             #print ("Info: Using data of parent object with id",id,"as attribute",attributeName,"was not specified for repeat entry.")
-                  
+
         #ensuring that all attributes that are required according to OpenDRIVE 1.6 are filled - for convenience the ones of the parent object are used
-        #if not provided specifically          
+        #if not provided specifically
         if sStart == None:
             self._repeats[-1]['s']=str(self.s)
             infoFallback(self.id, 's')
         else:
-            self._repeats[-1]['s']=str(sStart)           
+            self._repeats[-1]['s']=str(sStart)
         if tStart == None:
             self._repeats[-1]['tStart']=str(self.t)
             infoFallback(self.id, 'tStart')
@@ -586,7 +586,7 @@ class Object(_SignalObjectBase):
             infoFallback(self.id, 'zOffsetEnd')
         else:
             self._repeats[-1]['zOffsetEnd']=str(zOffsetEnd)
-        
+
         #attributes below are optional according to OpenDRIVE 1.6 - no further checks as these values overrule the ones of parent object
         #and fallbacks might be implemented differently by different simulators
         if widthStart is not None:
@@ -600,13 +600,13 @@ class Object(_SignalObjectBase):
         if radiusStart is not None:
              self._repeats[-1]['radiusStart']=str(radiusStart)
         if radiusEnd is not None:
-             self._repeats[-1]['radiusEnd']=str(radiusEnd)   
+             self._repeats[-1]['radiusEnd']=str(radiusEnd)
 
-    def add_validity(self, fromLane, toLane): 
-        if self.validity: 
+    def add_validity(self, fromLane, toLane):
+        if self.validity:
             raise ValueError('only one validity is allowed')
-        self.validity = Validity(fromLane, toLane)        
-            
+        self.validity = Validity(fromLane, toLane)
+
     def get_attributes(self):
         """ returns the attributes of the Object as a dict
 
@@ -615,13 +615,13 @@ class Object(_SignalObjectBase):
         if self.validLength is not None:
             retdict['validLength'] = str(self.validLength)
         retdict['hdg'] = str(self.hdg)
-        
+
         if self.radius is not None:
             retdict['radius'] = str(self.radius)
         elif self.length is not None and self.width is not None:
             retdict['length'] = str(self.length)
             retdict['width'] = str(self.width)
-        
+
         return retdict
 
     def get_element(self):
@@ -631,8 +631,8 @@ class Object(_SignalObjectBase):
         element = ET.Element('object',attrib=self.get_attributes())
         for _repeat in self._repeats:
             ET.SubElement(element,'repeat', attrib=_repeat)
-        if self.validity: 
+        if self.validity:
             element.append(self.validity.get_element())
 
         return element
-    
+

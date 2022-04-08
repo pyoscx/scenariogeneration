@@ -1,5 +1,5 @@
 """ Fundamental example how to build up a road split with lane split afterwards.
-    
+
     This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
 
     This example should be seen as a way to create your own complex split case that the LaneDef + create_road cannot handle
@@ -18,7 +18,7 @@
 
 """
 
-from scenariogeneration import xodr 
+from scenariogeneration import xodr
 import os
 
 # create some simple roads
@@ -115,7 +115,7 @@ roads[3].add_successor(xodr.ElementType.road,1,xodr.ContactPoint.start)
 roads[4].add_predecessor(xodr.ElementType.road,0,xodr.ContactPoint.end,lane_offset=-2)
 roads[4].add_successor(xodr.ElementType.road,2,xodr.ContactPoint.start)
 
-# create the junction struct 
+# create the junction struct
 junction = xodr.create_junction(roads[3:],1,roads[0:3])
 
 # create the opendrive

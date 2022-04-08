@@ -4,13 +4,13 @@
 
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
-from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType, MarkRule 
+from .enumerations import LaneType, LaneChange, RoadMarkWeight, RoadMarkColor, RoadMarkType, MarkRule
 from .links import _Links,_Link
 
 
 class Lanes():
     """ creates the Lanes element of opendrive
-    
+
 
         Attributes
         ----------
@@ -24,7 +24,7 @@ class Lanes():
             add_lanesection(lanesection)
                 adds a lane section to Lanes
 
-            add_laneoffset(laneoffset) 
+            add_laneoffset(laneoffset)
                 adds a lane offset to Lanes
     """
     def __init__(self):
@@ -42,28 +42,28 @@ class Lanes():
         return False
 
     def add_lanesection(self,lanesection, lanelinks=None):
-        """ creates the Lanes element of opendrive    
+        """ creates the Lanes element of opendrive
 
         Parameters
         ----------
             lanesection (LaneSection): a LaneSection to add
 
-            lanelink (LaneLinker): (optional) a LaneLink to add 
+            lanelink (LaneLinker): (optional) a LaneLink to add
 
         """
         # add links to the lanes
-        if lanelinks: 
-            #loop over all links 
+        if lanelinks:
+            #loop over all links
             if not isinstance(lanelinks, list):
                 lanelinks = [lanelinks]
             for lanelink in lanelinks:
                 for link in lanelink.links:
-                    # check if link already added 
+                    # check if link already added
                     if not link.used:
                         link.predecessor.add_link('successor',link.successor.lane_id)
                         link.successor.add_link('predecessor',link.predecessor.lane_id)
                         link.used = True
-          
+
         self.lanesections.append(lanesection)
 
     def add_laneoffset(self, laneoffset):
@@ -155,7 +155,7 @@ class LaneOffset():
     def get_attributes(self):
         """ returns the attributes of the LaneOffset
         """
-    
+
         retdict = {}
         retdict['s'] = str(self.s)
         retdict['a'] = str(self.a)
@@ -168,7 +168,7 @@ class LaneOffset():
         """ returns the elementTree of the LaneOffset
         """
         element = ET.Element('laneOffset',attrib=self.get_attributes())
-        
+
         return element
 
 class LaneSection():
@@ -241,7 +241,7 @@ class LaneSection():
         lane._set_lane_id(self._left_id)
         self._left_id += 1
         self.leftlanes.append(lane)
-    
+
     def add_right_lane(self,lane):
         """ adds a lane to the right of the center, add from center outwards
 
@@ -291,7 +291,7 @@ class Lane():
 
         Parameters
         ----------
-            
+
             lane_type (LaneType): type of lane
                 Default: LaneType.driving
 
@@ -314,7 +314,7 @@ class Lane():
         Attributes
         ----------
             lane_id (int): id of the lane (automatically assigned by LaneSection)
-            
+
             lane_type (LaneType): type of lane
 
             a (float): a coefficient
@@ -348,7 +348,7 @@ class Lane():
 
         Parameters
         ----------
-            
+
             lane_type (LaneType): type of lane
                 Default: LaneType.driving
 
@@ -367,7 +367,7 @@ class Lane():
             soffset (float): soffset of lane renamed to s in case of centerlane
                 Default: 0
 
-        """ 
+        """
         self.lane_id = None
         self.lane_type = lane_type
         self.a = a
@@ -376,7 +376,7 @@ class Lane():
         self.d = d
         self.soffset = soffset
         #TODO: enable multiple widths records per lane (only then soffset really makes sense! ASAM requires one width record to have sOffset=0)
-        self.heights = [] #height entries to elevate the lane independent from the road elevation 
+        self.heights = [] #height entries to elevate the lane independent from the road elevation
         self.roadmark = None
         self.links = _Links()
 
@@ -393,7 +393,7 @@ class Lane():
             self.roadmark == other.roadmark:
                 return True
         return False
-        
+
         #TODO: add more features to add for lane
     def add_link(self,link_type,id):
         """ adds a link to the lane section
@@ -416,26 +416,26 @@ class Lane():
 
     def add_roadmark(self,roadmark):
         """ add_roadmark adds a roadmark to the lane
-        
+
         Parameters
         ----------
             roadmark (RoadMark): roadmark of the lane
 
         """
         self.roadmark = roadmark
-    
+
     def add_height(self, inner, outer=None, soffset=0):
         """ add_height adds a height entry to the lane to elevate it independent from the road elevation
-        
+
         Parameters
         ----------
             inner (float): inner height
-            
+
             outer (float): outer height (if not provided, inner height is used)
                 Default: None
-                
+
             s_offset (float): s offset of the height record
-                Default: 0                
+                Default: 0
 
         """
         heightdict = {}
@@ -445,10 +445,10 @@ class Lane():
         else:
             heightdict['outer'] = str(inner)
         heightdict['sOffset'] = str(soffset)
-        
+
         self.heights.append(heightdict)
-      
-        
+
+
 
     def get_attributes(self):
         """ returns the attributes of the Lane as a dict
@@ -467,32 +467,32 @@ class Lane():
 
         """
         element = ET.Element('lane',attrib=self.get_attributes())
-                
+
         #polynomial dict either for width (left/right lanes) or laneOffset (center lane)
         polynomialdict = {}
         polynomialdict['a'] = str(self.a)
         polynomialdict['b'] = str(self.b)
         polynomialdict['c'] = str(self.c)
         polynomialdict['d'] = str(self.d)
-        polynomialdict['sOffset'] = str(self.soffset) 
-        
-        #according to standard if lane is centerlane it should 
-        #not have a width record and omit the link record        
-        if self.lane_id != 0: 
+        polynomialdict['sOffset'] = str(self.soffset)
+
+        #according to standard if lane is centerlane it should
+        #not have a width record and omit the link record
+        if self.lane_id != 0:
             element.append(self.links.get_element())
-            ET.SubElement(element,'width',attrib=polynomialdict)        
+            ET.SubElement(element,'width',attrib=polynomialdict)
         #use polynomial dict for laneOffset in case of center lane (only if values provided)
         # removed, should not be here..
         # elif any([self.a,self.b,self.c,self.d]):
-        #     polynomialdict['s'] = polynomialdict.pop('sOffset')            
-        #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)                         
-            
+        #     polynomialdict['s'] = polynomialdict.pop('sOffset')
+        #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)
+
         if self.roadmark:
             element.append(self.roadmark.get_element())
-            
+
         for height in self.heights:
             ET.SubElement(element,'height',attrib=height)
-            
+
         return element
 
 class RoadMark():
@@ -547,7 +547,7 @@ class RoadMark():
 
         Parameters
         ----------
-            marking_type (str): the type of marking          
+            marking_type (str): the type of marking
 
             width (float): width of the marking / line
                 Default: None
@@ -570,10 +570,10 @@ class RoadMark():
             laneChange (LaneChange): indicates direction in which lane change is allowed
                 Default: none
 
-        """ 
+        """
         #required arguments - must be provided by user
         self.marking_type = marking_type
-        
+
         #required arguments - must be provided by user or taken from defaults
         self.marking_weight = marking_weight
         self.color = color
@@ -588,22 +588,22 @@ class RoadMark():
         self.toffset = toffset
         self.rule = rule
 
-            
+
         #TODO: there may be more line child elements per roadmark, which is currently unsupported
         self._line = []
         #check if arguments were passed that require line child element
         if any([length, space, toffset, rule]):
             #set defaults in case no values were provided
-            #values for broken lines 
-            if marking_type == RoadMarkType.broken: 
+            #values for broken lines
+            if marking_type == RoadMarkType.broken:
                 self.length = length or 3
                 self.space = space or 3
-            #values for solid lines 
+            #values for solid lines
             elif marking_type == RoadMarkType.solid:
                 self.length = length or 3
                 self.space = space or 0
             #create empty line if arguments are missing
-            else: 
+            else:
                 self.length = length or 0
                 self.space = length or 0
                 print ("No defaults for arguments 'space' and 'length' for roadmark type", enum2str(marking_type), "available and no values were passed. Creating an empty roadmark.")
@@ -614,8 +614,8 @@ class RoadMark():
             self._line.append(RoadLine(self.width,self.length,self.space,self.toffset,self.soffset,self.rule,self.color))
 
     def add_specific_road_line(self,line):
-        """ function to add your own roadline to the RoadMark, to use for multi line type of roadmarks, 
-            
+        """ function to add your own roadline to the RoadMark, to use for multi line type of roadmarks,
+
             Parameters
             ----------
                 line (RoadLine): the roadline to add
@@ -656,7 +656,7 @@ class RoadMark():
             for l in self._line:
                 typeelement.append(l.get_element())
         return element
-        
+
 class RoadLine():
     """ creates a Line type of to be used in roadmark
 
@@ -722,7 +722,7 @@ class RoadLine():
             color (RoadMarkColor): color of line (optional)
 
 
-        """ 
+        """
         self.length = length
         self.space = space
         self.toffset = toffset
@@ -737,7 +737,7 @@ class RoadLine():
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-        
+
 
     def get_attributes(self):
         """ returns the attributes of the Lane as a dict

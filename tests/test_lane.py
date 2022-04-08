@@ -5,7 +5,7 @@ from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
 def test_roadline():
     line = pyodrx.RoadLine()
-    
+
     prettyprint(line.get_element())
     line = pyodrx.RoadLine(1,2,3,5,1,pyodrx.MarkRule.no_passing,pyodrx.RoadMarkColor.standard)
     prettyprint(line.get_element())
@@ -51,7 +51,7 @@ def test_lane_with_height():
     prettyprint(lane.get_element())
 
 def test_lanesection():
-    
+
     ls = pyodrx.LaneSection(0,pyodrx.Lane())
     prettyprint(ls.get_element())
     right_lane = pyodrx.Lane()
@@ -82,7 +82,7 @@ def test_laneoffset():
     assert laneoffset1 == laneoffset3
 
 def test_lanes():
-    
+
     ls = pyodrx.LaneSection(0,pyodrx.Lane())
     lanes = pyodrx.Lanes()
     lanes.add_lanesection(ls)

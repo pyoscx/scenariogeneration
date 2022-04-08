@@ -1,16 +1,16 @@
-""" 
+"""
     Example showing how to create "repeating traffic" if a car goes to the end of the road
-    
+
     Some features used:
-        
-        - multiple execusions 
-        
+
+        - multiple execusions
+
         - EndOfRoadCondition
-        
+
         - Teleport
-        
+
         - LanePosition
-        
+
 """
 import os
 from scenariogeneration import xosc, prettyprint
@@ -42,7 +42,7 @@ for i in range(20):
 
     event = xosc.Event('speedchange',xosc.Priority.overwrite,maxexecution=10)
     event.add_action('restart',xosc.TeleportAction(xosc.LanePosition(0,0,-1,1)))
-    
+
     trig_cond = xosc.EndOfRoadCondition(0)
 
     event.add_trigger(xosc.EntityTrigger('trigger',0,xosc.ConditionEdge.rising,trig_cond,targetname+str(i)))
@@ -55,7 +55,7 @@ for i in range(20):
     mangr.add_maneuver(man)
     mangr.add_actor(targetname+str(i))
     act.add_maneuver_group(mangr)
-    
+
 
 ## create the storyboard
 sb = xosc.StoryBoard(init,xosc.ValueTrigger('stop_simulation',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(100,xosc.Rule.greaterThan),'stop'))

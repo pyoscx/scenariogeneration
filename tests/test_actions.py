@@ -23,7 +23,7 @@ traffic.add_vehicle(OSC.VehicleCategory.car,0.9)
 traffic.add_vehicle(OSC.VehicleCategory.bicycle,0.1)
 env = OSC.Environment('Env_name', tod,weather,rc)
 
-@pytest.mark.parametrize("action", [OSC.EnvironmentAction(env), 
+@pytest.mark.parametrize("action", [OSC.EnvironmentAction(env),
                                     OSC.AddEntityAction('my new thingy',OSC.WorldPosition()),
                                     OSC.DeleteEntityAction('my new thingy'),
                                     OSC.ParameterAddAction('Myparam',3),
@@ -165,7 +165,7 @@ def test_lanechange_rel():
     lanechange4 = OSC.RelativeLaneChangeAction.parse(lanechange.get_element())
     prettyprint(lanechange4.get_element(),None)
     assert lanechange4 == lanechange
-    
+
 
 def test_laneoffset_abs():
     laneoffset = OSC.AbsoluteLaneOffsetAction(1,OSC.DynamicsShapes.step,3,False)
@@ -227,7 +227,7 @@ def test_teleport():
     assert teleport == teleport4
 
 def test_assign_route():
-    
+
     route = OSC.Route('myroute')
     route.add_waypoint(OSC.WorldPosition(0,0,0,0,0,0),OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1,1,0,0,0,0),OSC.RouteStrategy.shortest)
@@ -301,8 +301,8 @@ def test_assign_controller_action():
     prop2.add_property('theotherthing','true')
 
     cnt2 = OSC.Controller('mycontroller',prop2)
-    
-    
+
+
     aca2 = OSC.AssignControllerAction(cnt)
     aca3 = OSC.AssignControllerAction(cnt2)
     assert aca == aca2
@@ -335,7 +335,7 @@ def test_override_controller():
     ocva2.set_brake(True,2)
     ocva3 = OSC.OverrideControllerValueAction()
     ocva3.set_brake(True,3)
-    
+
     assert ocva1 == ocva2
     assert ocva1 != ocva3
 
@@ -356,7 +356,7 @@ def test_visual_action():
     assert va4 == va
 
 def test_sync_action():
-    
+
     asa = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
     prettyprint(asa.get_element(),None)
     asa2 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2)
@@ -366,7 +366,7 @@ def test_sync_action():
     asa4 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
     prettyprint(asa4,None)
     asa5 = OSC.SynchronizeAction('Ego',OSC.WorldPosition(0,0,0,0,0,0),OSC.WorldPosition(10,0,0,0,0,0),target_tolerance=1, target_tolerance_master=2, final_speed=OSC.AbsoluteSpeed(20/3.6, OSC.TargetTimeSteadyState(2)))
-    
+
     asa6 = OSC.SynchronizeAction.parse(asa4.get_element())
     prettyprint(asa6.get_element(),None)
     assert asa6 == asa4
@@ -399,7 +399,7 @@ def test_follow_traj_action_polyline():
     trajact4 = OSC.FollowTrajectoryAction.parse(trajact.get_element())
     prettyprint(trajact4.get_element(),None)
     assert trajact4 == trajact
-    
+
 
 def testParameterAddActions():
     pa = OSC.ParameterAddAction('Myparam',3)
@@ -481,10 +481,10 @@ def test_trafficsignalcontrolleraction():
 
     tsc_action4 = OSC.TrafficSignalControllerAction.parse(tsc_action.get_element())
     assert tsc_action == tsc_action4
-    
+
 
 def test_trafficsourceaction():
-    
+
     prop = OSC.Properties()
     prop.add_file('mycontrollerfile.xml')
     controller = OSC.Controller('mycontroller',prop)
@@ -514,7 +514,7 @@ def test_trafficsourceaction():
 
 
 def test_trafficsinkaction():
-    
+
     prop = OSC.Properties()
     prop.add_file('mycontrollerfile.xml')
     controller = OSC.Controller('mycontroller',prop)
@@ -539,9 +539,9 @@ def test_trafficsinkaction():
     assert sink_action == sink_action4
 
 
-    
+
 def test_trafficswarmaction():
-    
+
     prop = OSC.Properties()
     prop.add_file('mycontrollerfile.xml')
     controller = OSC.Controller('mycontroller',prop)
@@ -627,5 +627,5 @@ def test_userdefinedaction():
     prettyprint(uda3)
     assert uda3 == uda
 
-    
+
 
