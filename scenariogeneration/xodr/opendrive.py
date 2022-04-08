@@ -255,6 +255,7 @@ class Road():
         if element_type != ElementType.junction and len(direct_junction) > 0:
             raise ValueError('If direct junction is used, the element_type has to be junction')
         self.succ_direct_junction = direct_junction
+        return self
 
     def add_predecessor(self,element_type,element_id,contact_point=None,lane_offset=0,direct_junction=[]):
         """ add_successor adds a successor link to the road
@@ -278,7 +279,7 @@ class Road():
         if element_type != ElementType.junction and len(direct_junction) > 0:
             raise ValueError('If direct junction is used, the element_type has to be junction')
         self.pred_direct_junction = direct_junction
-
+        return self
 
     def add_neighbor(self,element_type,element_id,direction):
         """ add_neighbor adds a neighbor to a road
@@ -297,6 +298,7 @@ class Road():
 
         self.links.add_link(suc)
         self._neighbor_added += 1
+        return self
 
     def add_elevation(self,s,a,b,c,d):
         """ ads an elevation profile to the road (3-degree polynomial)
@@ -314,6 +316,7 @@ class Road():
                 d (float): d coefficient of the polynomial
         """
         self.elevationprofile.add_elevation(_Poly3Profile(s,a,b,c,d))
+        return self
 
     def add_superelevation(self,s,a,b,c,d):
         """ ads a superelevation profile to the road (3-degree polynomial)
@@ -331,6 +334,7 @@ class Road():
                 d (float): d coefficient of the polynomial
         """
         self.lateralprofile.add_superelevation(_Poly3Profile(s,a,b,c,d))
+        return self
 
     def add_shape(self,s,t,a,b,c,d):
         """ ads a superelevation profile to the road (3-degree polynomial)
@@ -350,6 +354,7 @@ class Road():
                 d (float): d coefficient of the polynomial
         """
         self.lateralprofile.add_shape(_Poly3Profile(s,a,b,c,d,t))
+        return self
 
     def add_object(self,road_object):
         """ add_object adds an object to a road and calls a function that ensures unique IDs
@@ -366,6 +371,7 @@ class Road():
         else:
             road_object._update_id()
             self.objects.append(road_object)
+        return self
 
     def add_object_roadside(self, road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both, widthStart=None, widthEnd=None, lengthStart=None, lengthEnd=None, radiusStart=None, radiusEnd=None):
         """ add_object_roadside is a convenience function to add a repeating object on side of the road,
@@ -435,6 +441,7 @@ class Road():
             road_object.hdg = np.pi * (1 + hdg_factors[idx]) / 2
             road_object.repeat(self.planview.get_total_length() - sOffset - s_lanesections[idx], repeatDistance, widthStart=widthStart, widthEnd=widthEnd, lengthStart=lengthStart, lengthEnd=lengthEnd, radiusStart=radiusStart, radiusEnd=radiusEnd)
         self.add_object(road_objects)
+        return self
 
     def add_signal(self,signal):
         """ add_signal adds a signal to a road
@@ -448,6 +455,7 @@ class Road():
         else:
             signal._update_id()
             self.signals.append(signal)
+        return self
 
     def add_type(self,road_type,s = 0,country=None,speed=None,speed_unit='m/s'):
         """ adds a type to the road (not to mix with junction or not as the init)
@@ -466,7 +474,7 @@ class Road():
                 sped_unit (str): unit of the speed, can be 'm/s','mph,'kph'
         """
         self.types.append(_Type(road_type,s,country,speed,speed_unit))
-
+        return self
 
     def get_end_point(self):
         """ get the x, y, and heading, of the end of the road
@@ -600,6 +608,7 @@ class OpenDrive():
             ValueError('No road was added and the added road has a predecessor, please add the predecessor first')
 
         self.roads[str(road.id)] = road
+        return self
 
     def adjust_roads_and_lanes(self):
         """ Adjust starting position of all geometries of all roads and try to link all lanes in neighbouring roads
@@ -801,6 +810,7 @@ class OpenDrive():
 
         """
         self.junctions.append(junction)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the FileHeader

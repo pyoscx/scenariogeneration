@@ -93,6 +93,7 @@ class Entities():
         """
 
         self.scenario_objects.append(ScenarioObject(name,entityobject,controller))
+        return self
 
     def add_entity_bytype(self,name,object_type):
         """ adds an Entity to the scenario
@@ -105,6 +106,7 @@ class Entities():
 
         """
         self.entities.append(Entity(name,object_type=object_type))
+        return self
 
     def add_entity_byref(self,name,entity):
         """ adds an Entity to the scenario
@@ -118,6 +120,7 @@ class Entities():
         """
 
         self.entities.append(Entity(name,entityref=entity))
+        return self
 
 
     def get_element(self):
@@ -550,6 +553,7 @@ class Pedestrian(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def add_property(self,name, value):
         """ adds a single property to the pedestrian
@@ -562,6 +566,7 @@ class Pedestrian(VersionBase):
 
         """
         self.properties.add_property(name,value)
+        return self
 
     def add_property_file(self,filename):
         """ adds a property file to the pedestrian
@@ -572,6 +577,7 @@ class Pedestrian(VersionBase):
 
         """
         self.properties.add_file(filename)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the pedestrian
@@ -772,6 +778,7 @@ class MiscObject(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def add_property(self,name, value):
         """ adds a single property to the MiscObject
@@ -784,6 +791,7 @@ class MiscObject(VersionBase):
 
         """
         self.properties.add_property(name,value)
+        return self
 
     def add_property_file(self,filename):
         """ adds a property file to the MiscObject
@@ -794,6 +802,7 @@ class MiscObject(VersionBase):
 
         """
         self.properties.add_file(filename)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the MiscObject
@@ -1043,6 +1052,7 @@ class Vehicle(VersionBase):
         """
 
         self.axles.add_axle(axle)
+        return self
 
 
     def add_parameter(self,parameter):
@@ -1056,6 +1066,7 @@ class Vehicle(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def add_property(self,name, value):
         """ adds a single property to the vehicle
@@ -1068,6 +1079,7 @@ class Vehicle(VersionBase):
 
         """
         self.properties.add_property(name,value)
+        return self
 
     def add_property_file(self,filename):
         """ adds a property file to the vehicle
@@ -1078,6 +1090,7 @@ class Vehicle(VersionBase):
 
         """
         self.properties.add_file(filename)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Center
@@ -1299,6 +1312,7 @@ class Axles():
         if not isinstance(axle,Axle):
             raise TypeError('axle input is not of type Axle')
         self.additionals.append(axle)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the Axle

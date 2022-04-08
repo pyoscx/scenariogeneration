@@ -41,6 +41,7 @@ class ElevationProfile():
         if not isinstance(elevation,_Poly3Profile):
             raise TypeError('add_elevation requires an _Poly3Profile as input, not ' + str(type(elevation)))
         self.elevations.append(elevation)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the ElevationProfile
@@ -98,6 +99,7 @@ class LateralProfile():
         if not isinstance(superelevation,_Poly3Profile):
             raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(superelevation)))
         self.superelevations.append(superelevation)
+        return self
 
     def add_shape(self,shape):
         """ adds an elevation to the LateralProfile
@@ -110,6 +112,7 @@ class LateralProfile():
         if not isinstance(shape,_Poly3Profile):
             raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(shape)))
         self.shapes.append(shape)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the LateralProfile

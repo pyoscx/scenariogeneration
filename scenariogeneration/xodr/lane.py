@@ -65,6 +65,7 @@ class Lanes():
                         link.used = True
 
         self.lanesections.append(lanesection)
+        return self
 
     def add_laneoffset(self, laneoffset):
         """ adds a lane offset to Lanes
@@ -76,6 +77,7 @@ class Lanes():
         if not isinstance(laneoffset, LaneOffset):
             raise TypeError('add_laneoffset requires a LaneOffset as input, not ' + str(type(laneoffset)))
         self.laneoffsets.append(laneoffset)
+        return self
 
     def get_element(self):
         """ returns the elementTree of Lanes
@@ -241,6 +243,7 @@ class LaneSection():
         lane._set_lane_id(self._left_id)
         self._left_id += 1
         self.leftlanes.append(lane)
+        return self
 
     def add_right_lane(self,lane):
         """ adds a lane to the right of the center, add from center outwards
@@ -252,6 +255,7 @@ class LaneSection():
         lane._set_lane_id(self._right_id)
         self._right_id -= 1
         self.rightlanes.append(lane)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Lane as a dict
@@ -405,6 +409,7 @@ class Lane():
             id (str/id): id of the linked lane
         """
         self.links.add_link(_Link(link_type,str(id)))
+        return self
 
     def _set_lane_id(self,lane_id):
         """ set the lane id of the lane and set lane type to 'none' in case of centerlane
@@ -423,6 +428,7 @@ class Lane():
 
         """
         self.roadmark = roadmark
+        return self
 
     def add_height(self, inner, outer=None, soffset=0):
         """ add_height adds a height entry to the lane to elevate it independent from the road elevation
@@ -447,8 +453,7 @@ class Lane():
         heightdict['sOffset'] = str(soffset)
 
         self.heights.append(heightdict)
-
-
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Lane as a dict
@@ -622,6 +627,8 @@ class RoadMark():
 
         """
         self._line.append(line)
+        return self
+
     def __eq__(self, other):
         if isinstance(other,RoadMark):
             if self._line == other._line and \

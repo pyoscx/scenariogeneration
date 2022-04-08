@@ -291,6 +291,7 @@ class RoadNetwork(VersionBase):
         if not isinstance(traffic_signal_controller,TrafficSignalController):
             raise TypeError('traffic_signal_controller input is not of type TrafficSignalController')
         self.traffic_signals.append(traffic_signal_controller)
+        return self
 
     def add_used_area_position(self,position):
         """ adds a position to determine the usedArea of the roadnetwork used, this feature was added in OpenSCENARIO V1.1.
@@ -302,6 +303,7 @@ class RoadNetwork(VersionBase):
 
         """
         self.used_area_positions.append(position)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the RoadNetwork
