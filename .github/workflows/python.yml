@@ -27,6 +27,6 @@ jobs:
         run: python3 -m pip install pytest
       - uses: actions/checkout@v2
       - name: Install requirements
-        run: python3 setup.py install  # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
       - name: Run tests
         run: python3 -m pytest tests/
