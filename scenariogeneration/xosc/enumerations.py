@@ -513,13 +513,6 @@ class RoutingAlgorithm(metaclass=_EnumMeta):
     undefined = _OscEnum("RoutingAlgorithm", "undefined", min_minor_version=2)
 
 
-class SensorCategory(metaclass=_EnumMeta):
-    camera = _OscEnum("SensorCategory", "camera", min_minor_version=2)
-    lidar = _OscEnum("SensorCategory", "lidar", min_minor_version=2)
-    radar = _OscEnum("SensorCategory", "radar", min_minor_version=2)
-    ultrasonic = _OscEnum("SensorCategory", "ultrasonic", min_minor_version=2)
-    other = _OscEnum("SensorCategory", "other", min_minor_version=2)
-
 
 class VehicleComponentType(metaclass=_EnumMeta):
     hood = _OscEnum("VehicleComponentType", "hood", min_minor_version=2)
