@@ -783,10 +783,23 @@ def test_lightstateaction():
     lsa5 = OSC.LightStateAction.parse(lsa3.get_element())
     assert lsa5 == lsa3
 
+
 def test_speedprofileaction():
-    spa = OSC.SpeedProfileAction([5,4,3],OSC.FollowMode.follow,[1,2,3],OSC.DynamicsConstraints(1,1,1),'ego')
-    spa2 = OSC.SpeedProfileAction([5,4,3],OSC.FollowMode.follow,[1,2,3],OSC.DynamicsConstraints(1,1,1),'ego')
-    spa3 = OSC.SpeedProfileAction([5,4,3],OSC.FollowMode.follow)
+    spa = OSC.SpeedProfileAction(
+        [5, 4, 3],
+        OSC.FollowMode.follow,
+        [1, 2, 3],
+        OSC.DynamicsConstraints(1, 1, 1),
+        "ego",
+    )
+    spa2 = OSC.SpeedProfileAction(
+        [5, 4, 3],
+        OSC.FollowMode.follow,
+        [1, 2, 3],
+        OSC.DynamicsConstraints(1, 1, 1),
+        "ego",
+    )
+    spa3 = OSC.SpeedProfileAction([5, 4, 3], OSC.FollowMode.follow)
     prettyprint(spa)
     prettyprint(spa3)
     assert spa == spa2
@@ -794,4 +807,3 @@ def test_speedprofileaction():
     spa4 = OSC.SpeedProfileAction.parse(spa.get_element())
     prettyprint(spa4)
     assert spa == spa4
-

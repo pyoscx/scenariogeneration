@@ -190,78 +190,12 @@ class ConditionEdge(metaclass=_EnumMeta):
     none = _OscEnum("ConditionEdge", "none")
 
 
-class MiscObjectCategory(metaclass=_EnumMeta):
-    """Enum for MiscObjectCategory"""
-
-    none = _OscEnum("MiscObjectCategory", "none")
-    obstacle = _OscEnum("MiscObjectCategory", "obstacle")
-    pole = _OscEnum("MiscObjectCategory", "pole")
-    tree = _OscEnum("MiscObjectCategory", "tree")
-    vegetation = _OscEnum("MiscObjectCategory", "vegetation")
-    barrier = _OscEnum("MiscObjectCategory", "barrier")
-    building = _OscEnum("MiscObjectCategory", "building")
-    parkingSpace = _OscEnum("MiscObjectCategory", "parkingSpace")
-    patch = _OscEnum("MiscObjectCategory", "patch")
-    railing = _OscEnum("MiscObjectCategory", "railing")
-    grafficIsland = _OscEnum("MiscObjectCategory", "grafficIsland")
-    crosswalk = _OscEnum("MiscObjectCategory", "crosswalk")
-    streetLamp = _OscEnum("MiscObjectCategory", "streetLamp")
-    gantry = _OscEnum("MiscObjectCategory", "gantry")
-    soundBarrier = _OscEnum("MiscObjectCategory", "soundBarrier")
-    wind = _OscEnum("MiscObjectCategory", "wind", max_minor_version=0)
-    roadMark = _OscEnum("MiscObjectCategory", "roadMark")
-
-
-class ObjectType(metaclass=_EnumMeta):
-    """Enum for ObjectType"""
-
-    pedestrian = _OscEnum("ObjectType", "pedestrian")
-    vehicle = _OscEnum("ObjectType", "vehicle")
-    miscellaneous = _OscEnum("ObjectType", "miscellaneous")
-    external = _OscEnum("ObjectType", "external", min_minor_version=1)
-    sensor = _OscEnum("ObjectType", "sensor", min_minor_version=2)
-
-
-class ParameterType(metaclass=_EnumMeta):
-    """Enum for ParameterType"""
-
-    integer = _OscEnum(
-        "ParameterType", "integer", max_minor_version=1, replacement="int"
-    )
-    int = _OscEnum("ParameterType", "int", min_minor_version=2)
-    double = _OscEnum("ParameterType", "double")
-    string = _OscEnum("ParameterType", "string")
-    unsighedInt = _OscEnum("ParameterType", "unsighedInt")
-    unsighedShort = _OscEnum("ParameterType", "unsighedShort")
-    boolean = _OscEnum("ParameterType", "boolean")
-    dateTime = _OscEnum("ParameterType", "dateTime")
-
-
-class PedestrianCategory(metaclass=_EnumMeta):
-    """Enum for PedestrianCategory"""
-
-    pedestrian = _OscEnum("PedestrianCategory", "pedestrian")
-    wheelchair = _OscEnum("PedestrianCategory", "wheelchair")
-    animal = _OscEnum("PedestrianCategory", "animal")
-
-
 class DynamicsDimension(metaclass=_EnumMeta):
     """Enum for DynamicsDimension"""
 
     rate = _OscEnum("DynamicsDimension", "rate")
     time = _OscEnum("DynamicsDimension", "time")
     distance = _OscEnum("DynamicsDimension", "distance")
-
-
-class Priority(metaclass=_EnumMeta):
-    """Enum for Priority"""
-
-    overwrite = _OscEnum(
-        "Priority", "overwrite", max_minor_version=1, replacement="override"
-    )
-    override = _OscEnum("Priority", "override", min_minor_version=2)
-    skip = _OscEnum("Priority", "skip")
-    parallel = _OscEnum("Priority", "parallel")
 
 
 class DynamicsShapes(metaclass=_EnumMeta):
@@ -314,7 +248,10 @@ class ObjectType(metaclass=_EnumMeta):
 class ParameterType(metaclass=_EnumMeta):
     """Enum for ParameterType"""
 
-    integer = _OscEnum("ParameterType", "integer")
+    integer = _OscEnum(
+        "ParameterType", "integer", max_minor_version=1, replacement="int"
+    )
+    int = _OscEnum("ParameterType", "int", min_minor_version=2)
     double = _OscEnum("ParameterType", "double")
     string = _OscEnum("ParameterType", "string")
     unsighedInt = _OscEnum("ParameterType", "unsighedInt")
@@ -342,7 +279,10 @@ class PrecipitationType(metaclass=_EnumMeta):
 class Priority(metaclass=_EnumMeta):
     """Enum for Priority"""
 
-    overwrite = _OscEnum("Priority", "overwrite")
+    overwrite = _OscEnum(
+        "Priority", "overwrite", max_minor_version=1, replacement="override"
+    )
+    override = _OscEnum("Priority", "override", min_minor_version=2)
     skip = _OscEnum("Priority", "skip")
     parallel = _OscEnum("Priority", "parallel")
 

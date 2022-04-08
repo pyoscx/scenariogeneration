@@ -564,13 +564,11 @@ class DynamicsConstraints(VersionBase):
 
         max_deceleration (float): maximum deceleration allowed
 
-            max_acceleration_rate (float): maximum acceleration rate allowed
+        max_speed (float): maximum speed allowed
 
-            max_deceleration_rate (float): maximum deceleration rate allowed
+        max_acceleration_rate (float): maximum acceleration rate allowed
 
-        Attributes
-        ----------
-            max_acceleration (float): maximum acceleration allowed
+        max_deceleration_rate (float): maximum deceleration rate allowed
 
     Attributes
     ----------
@@ -578,14 +576,11 @@ class DynamicsConstraints(VersionBase):
 
         max_deceleration (float): maximum deceleration allowed
 
-            max_acceleration_rate (float): maximum acceleration rate allowed
+        max_speed (float): maximum speed allowed
 
-            max_deceleration_rate (float): maximum deceleration rate allowed
+        max_acceleration_rate (float): maximum acceleration rate allowed
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+        max_deceleration_rate (float): maximum deceleration rate allowed
 
     Methods
     -------

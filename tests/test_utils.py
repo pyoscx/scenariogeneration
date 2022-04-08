@@ -136,11 +136,11 @@ def test_orientation_filled(testinp, results):
 
 
 def test_parameter():
-    param = OSC.Parameter("stuffs", OSC.ParameterType.integer, "1")
+    param = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
     prettyprint(param.get_element())
-    param2 = OSC.Parameter("stuffs", OSC.ParameterType.integer, "1")
-    param3 = OSC.Parameter("stuffs", OSC.ParameterType.integer, "2")
-    param4 = OSC.Parameter("stuffs", OSC.ParameterType.integer, "1")
+    param2 = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
+    param3 = OSC.Parameter("stuffs", OSC.ParameterType.int, "2")
+    param4 = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
     assert param == param2
     assert param != param3
     param5 = OSC.Parameter.parse(param.get_element())
@@ -187,17 +187,17 @@ def test_catalogreference():
 def test_paramdeclaration():
 
     pardec = OSC.ParameterDeclarations()
-    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.integer, "1"))
+    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.int, "1"))
     pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
     pardec2 = OSC.ParameterDeclarations()
-    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.integer, "1"))
+    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.int, "1"))
     pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
     pardec3 = OSC.ParameterDeclarations.parse(pardec.get_element())
     prettyprint(pardec.get_element())
     assert pardec == pardec2
     assert pardec == pardec3
     pardec4 = OSC.ParameterDeclarations()
-    pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.integer, "1"))
+    pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.int, "1"))
     pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.double, "0.01"))
     assert pardec4 != pardec
 
@@ -285,7 +285,7 @@ def test_controller():
     prop.add_property("mything", "2")
     prop.add_property("theotherthing", "true")
 
-    param = OSC.Parameter("stuffs", OSC.ParameterType.integer, "1")
+    param = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
     param2 = OSC.Parameter("stuffs2", OSC.ParameterType.double, "5")
     cnt = OSC.Controller("mycontroler", prop)
     prettyprint(cnt.get_element())
@@ -567,13 +567,13 @@ def test_fog():
 
 
 def test_dynamicsConstraints():
-    dc = OSC.DynamicsConstraints(2,2,3,1,2)
-    dc2 = OSC.DynamicsConstraints(2,2,3,1,2)
-    dc3 = OSC.DynamicsConstraints(3,2,2)
+    dc = OSC.DynamicsConstraints(2, 2, 3, 1, 2)
+    dc2 = OSC.DynamicsConstraints(2, 2, 3, 1, 2)
+    dc3 = OSC.DynamicsConstraints(3, 2, 2)
     prettyprint(dc.get_element())
     assert dc == dc2
     assert dc != dc3
-    
+
     dc4 = OSC.DynamicsConstraints.parse(dc.get_element())
     prettyprint(dc4.get_element())
     assert dc == dc4
