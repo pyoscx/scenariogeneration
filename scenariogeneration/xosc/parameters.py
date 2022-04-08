@@ -4,70 +4,94 @@
 import xml.etree.ElementTree as ET
 
 from .enumerations import VersionBase, XMLNS, XSI
-from .utils import _StochasticDistributionType,  FileHeader, VersionBase, ParameterAssignment, Rule, convert_float
-from .exceptions import NotEnoughInputArguments, OpenSCENARIOVersionError, NotAValidElement
+from .utils import (
+    _StochasticDistributionType,
+    FileHeader,
+    VersionBase,
+    ParameterAssignment,
+    Rule,
+    convert_float,
+)
+from .exceptions import (
+    NotEnoughInputArguments,
+    OpenSCENARIOVersionError,
+    NotAValidElement,
+)
 from ..helpers import prettyprint, printToFile
 
 
-class _StochasticFactory():
+class _StochasticFactory:
     @staticmethod
     def parse_distribution(element):
-        if element.find('NormalDistribution') is not None:
-            return NormalDistribution.parse(element.find('NormalDistribution'))
-        elif element.find('UniformDistribution') is not None:
-            return UniformDistribution.parse(element.find('UniformDistribution'))
-        elif element.find('PoissonDistribution') is not None:
-            return PoissonDistribution.parse(element.find('PoissonDistribution'))
-        elif element.find('Histogram') is not None:
-            return Histogram.parse(element.find('Histogram'))
-        elif element.find('ProbabilityDistributionSet') is not None:
-            return ProbabilityDistributionSet.parse(element.find('ProbabilityDistributionSet'))
-        elif element.find('UserDefinedDistribution') is not None:
-            return NotImplementedError('UserDefinedDistribution is not implemented yet.')
+        if element.find("NormalDistribution") is not None:
+            return NormalDistribution.parse(element.find("NormalDistribution"))
+        elif element.find("UniformDistribution") is not None:
+            return UniformDistribution.parse(element.find("UniformDistribution"))
+        elif element.find("PoissonDistribution") is not None:
+            return PoissonDistribution.parse(element.find("PoissonDistribution"))
+        elif element.find("Histogram") is not None:
+            return Histogram.parse(element.find("Histogram"))
+        elif element.find("ProbabilityDistributionSet") is not None:
+            return ProbabilityDistributionSet.parse(
+                element.find("ProbabilityDistributionSet")
+            )
+        elif element.find("UserDefinedDistribution") is not None:
+            return NotImplementedError(
+                "UserDefinedDistribution is not implemented yet."
+            )
         else:
-            raise NotAValidElement('element ', element ,'is not a valid Stochastic distribution')
+            raise NotAValidElement(
+                "element ", element, "is not a valid Stochastic distribution"
+            )
 
-class _DeterministicFactory():
+
+class _DeterministicFactory:
     @staticmethod
     def parse_distribution(element):
-        if element.find('DistributionSet') is not None:
-            return DistributionSet.parse(element.find('DistributionSet'))
-        elif element.find('DistributionRange') is not None:
-            return DistributionRange.parse(element.find('DistributionRange'))
-        elif element.find('UserDefinedDistribution') is not None:
-            return NotImplementedError('UserDefinedDistribution is not implemented yet.')
+        if element.find("DistributionSet") is not None:
+            return DistributionSet.parse(element.find("DistributionSet"))
+        elif element.find("DistributionRange") is not None:
+            return DistributionRange.parse(element.find("DistributionRange"))
+        elif element.find("UserDefinedDistribution") is not None:
+            return NotImplementedError(
+                "UserDefinedDistribution is not implemented yet."
+            )
         else:
-            raise NotAValidElement('element ', element ,'is not a valid deterministic distribution')
+            raise NotAValidElement(
+                "element ", element, "is not a valid deterministic distribution"
+            )
 
-class _HistogramBin():
-    """ the _HistogramBin is used by Histogram to define the bins
 
-        Parameters
-        ----------
-            weight (float): the weight of the bin
+class _HistogramBin:
+    """the _HistogramBin is used by Histogram to define the bins
 
-            range (Range): the range of the bin
+    Parameters
+    ----------
+        weight (float): the weight of the bin
 
-        Attributes
-        ----------
-            weight (float): the weight of the bin
+        range (Range): the range of the bin
 
-            range (Range): the range of the bin
+    Attributes
+    ----------
+        weight (float): the weight of the bin
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+        range (Range): the range of the bin
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self, weight, range = None):
-        """ initalizes the Histogram
+
+    def __init__(self, weight, range=None):
+        """initalizes the Histogram
 
         Parameters
         ----------
@@ -76,83 +100,83 @@ class _HistogramBin():
             range (Range): the range of the bin
 
         """
-        if range and not isinstance(range,Range):
-            raise TypeError('range input is not of type Histogram')
+        if range and not isinstance(range, Range):
+            raise TypeError("range input is not of type Histogram")
         self.weight = convert_float(weight)
         self.range = range
 
-    def __eq__(self,other):
-        if isinstance(other,_HistogramBin):
-            if self.get_attributes() == other.get_attributes() and \
-                self.range == other.range:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, _HistogramBin):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.range == other.range
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of _HistogramBin
+        """Parses the xml element of _HistogramBin
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A _HistogramBin element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A _HistogramBin element (same as generated by the class itself)
 
-            Returns
-            -------
-                histogram (_HistogramBin): a _HistogramBin object
+        Returns
+        -------
+            histogram (_HistogramBin): a _HistogramBin object
 
         """
-        range_element = element.find('Range')
+        range_element = element.find("Range")
         if range_element is not None:
             range = Range.parse(range_element)
         else:
             range = None
 
-        return _HistogramBin(convert_float(element.attrib['weight']), range)
+        return _HistogramBin(convert_float(element.attrib["weight"]), range)
 
     def get_attributes(self):
-        """ returns the attributes of the HistogramBin as a dict
-
-        """
-        retdict = {'weight':str(self.weight)}
+        """returns the attributes of the HistogramBin as a dict"""
+        retdict = {"weight": str(self.weight)}
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the HistogramBin
-
-        """
-        element = ET.Element('HistogramBin',self.get_attributes())
+        """returns the elementTree of the HistogramBin"""
+        element = ET.Element("HistogramBin", self.get_attributes())
         element.append(self.range.get_element())
         return element
 
-class _ProbabilityDistributionSetElement():
-    """ the _ProbabilityDistributionSetElement is used by ProbabilityDistributionSet to define the elements
 
-        Parameters
-        ----------
-            value (string): possible value
+class _ProbabilityDistributionSetElement:
+    """the _ProbabilityDistributionSetElement is used by ProbabilityDistributionSet to define the elements
 
-            weight (float): weight of the value
+    Parameters
+    ----------
+        value (string): possible value
 
-        Attributes
-        ----------
-            value (string): possible value
+        weight (float): weight of the value
 
-            weight (float): weight of the value
+    Attributes
+    ----------
+        value (string): possible value
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+        weight (float): weight of the value
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
+
     def __init__(self, value, weight):
-        """ initalizes the Histogram
+        """initalizes the Histogram
 
         Parameters
         ----------
@@ -164,71 +188,71 @@ class _ProbabilityDistributionSetElement():
         self.value = value
         self.weight = convert_float(weight)
 
-    def __eq__(self,other):
-        if isinstance(other,_ProbabilityDistributionSetElement):
+    def __eq__(self, other):
+        if isinstance(other, _ProbabilityDistributionSetElement):
             if self.get_attributes() == other.get_attributes():
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of _ProbabilityDistributionSetElement
-
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A _ProbabilityDistributionSetElement element (same as generated by the class itself)
-
-            Returns
-            -------
-                pds (_ProbabilityDistributionSetElement): a _ProbabilityDistributionSetElement object
-
-        """
-
-        return _ProbabilityDistributionSetElement(element.attrib['value'], convert_float(element.attrib['weight']))
-
-    def get_attributes(self):
-        """ returns the attributes of the _ProbabilityDistributionSetElement as a dict
-
-        """
-        retdict = {'value':self.value,'weight':str(self.weight)}
-        return retdict
-
-    def get_element(self):
-        """ returns the elementTree of the _ProbabilityDistributionSetElement
-
-        """
-        element = ET.Element('Element',self.get_attributes())
-        return element
-
-class Range():
-    """ the Range creates a Range used by parameter distributions
+        """Parses the xml element of _ProbabilityDistributionSetElement
 
         Parameters
         ----------
-            lower (float): lower limit of the range
+            element (xml.etree.ElementTree.Element): A _ProbabilityDistributionSetElement element (same as generated by the class itself)
 
-            upper (float): upper limit of the range
-
-        Attributes
-        ----------
-            lower (float): lower limit of the range
-
-            upper (float): upper limit of the range
-
-        Methods
+        Returns
         -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+            pds (_ProbabilityDistributionSetElement): a _ProbabilityDistributionSetElement object
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        """
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        return _ProbabilityDistributionSetElement(
+            element.attrib["value"], convert_float(element.attrib["weight"])
+        )
+
+    def get_attributes(self):
+        """returns the attributes of the _ProbabilityDistributionSetElement as a dict"""
+        retdict = {"value": self.value, "weight": str(self.weight)}
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the _ProbabilityDistributionSetElement"""
+        element = ET.Element("Element", self.get_attributes())
+        return element
+
+
+class Range:
+    """the Range creates a Range used by parameter distributions
+
+    Parameters
+    ----------
+        lower (float): lower limit of the range
+
+        upper (float): upper limit of the range
+
+    Attributes
+    ----------
+        lower (float): lower limit of the range
+
+        upper (float): upper limit of the range
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,lower,upper):
-        """ initalizes the Range
+
+    def __init__(self, lower, upper):
+        """initalizes the Range
 
         Parameters
         ----------
@@ -240,79 +264,79 @@ class Range():
         self.lower = convert_float(lower)
         self.upper = convert_float(upper)
 
-    def __eq__(self,other):
-        if isinstance(other,Range):
+    def __eq__(self, other):
+        if isinstance(other, Range):
             if self.get_attributes() == other.get_attributes():
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of Range
+        """Parses the xml element of Range
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A Range element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A Range element (same as generated by the class itself)
 
-            Returns
-            -------
-                range (Range): a Range object
+        Returns
+        -------
+            range (Range): a Range object
 
         """
 
-        return Range(convert_float(element.attrib['lowerLimit']),convert_float(element.attrib['upperLimit']))
+        return Range(
+            convert_float(element.attrib["lowerLimit"]),
+            convert_float(element.attrib["upperLimit"]),
+        )
 
     def get_attributes(self):
-        """ returns the attributes of the Range as a dict
-
-        """
-        retdict = {'lowerLimit':str(self.lower),'upperLimit':str(self.upper)}
+        """returns the attributes of the Range as a dict"""
+        retdict = {"lowerLimit": str(self.lower), "upperLimit": str(self.upper)}
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the Range
-
-        """
-        element = ET.Element('Range',self.get_attributes())
+        """returns the elementTree of the Range"""
+        element = ET.Element("Range", self.get_attributes())
         return element
 
 
 ## Stochastic distributions
-class Stochastic():
-    """ Creates the Stochastic type of parameter distributions
+class Stochastic:
+    """Creates the Stochastic type of parameter distributions
 
-        Parameters
-        ----------
-            number_of_tests (int): number of tests to run
+    Parameters
+    ----------
+        number_of_tests (int): number of tests to run
 
-            random_seed (float): the seed for the run
-                Default: None
+        random_seed (float): the seed for the run
+            Default: None
 
-        Attributes
-        ----------
-            number_of_tests (int): number of tests to run
+    Attributes
+    ----------
+        number_of_tests (int): number of tests to run
 
-            random_seed (float): the seed for the run
+        random_seed (float): the seed for the run
 
-            distributions (dict of *StochasticDistribution): the distributions for the parameters
+        distributions (dict of *StochasticDistribution): the distributions for the parameters
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            add_distribution(parametername, distribution)
-                Adds a parameter/distribution pair
+        add_distribution(parametername, distribution)
+            Adds a parameter/distribution pair
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self,number_of_tests,random_seed=None):
-        """ initalizes the Stochastic
+
+    def __init__(self, number_of_tests, random_seed=None):
+        """initalizes the Stochastic
 
         Parameters
         ----------
@@ -326,40 +350,42 @@ class Stochastic():
         self.random_seed = random_seed
         self.distributions = {}
 
-    def __eq__(self,other):
-        if isinstance(other,Stochastic):
-            if self.get_attributes() == other.get_attributes() and \
-                self.distributions == other.distributions:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, Stochastic):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.distributions == other.distributions
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of Stochastic
+        """Parses the xml element of Stochastic
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A Stochastic element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A Stochastic element (same as generated by the class itself)
 
-            Returns
-            -------
-                Stochastic (Stochastic): a Stochastic object
+        Returns
+        -------
+            Stochastic (Stochastic): a Stochastic object
 
         """
 
-        if 'randomSeed' in element.attrib:
-            seed = element.attrib['randomSeed']
+        if "randomSeed" in element.attrib:
+            seed = element.attrib["randomSeed"]
         else:
             seed = None
-        stoc = Stochastic(element.attrib['numberOfTestRuns'], seed)
-        for dist_element in element.findall('StochasticDistribution'):
-            name = dist_element.attrib['parameterName']
+        stoc = Stochastic(element.attrib["numberOfTestRuns"], seed)
+        for dist_element in element.findall("StochasticDistribution"):
+            name = dist_element.attrib["parameterName"]
             dist = _StochasticFactory.parse_distribution(dist_element)
-            stoc.add_distribution(name,dist)
+            stoc.add_distribution(name, dist)
         return stoc
 
-    def add_distribution(self,parametername,distribution):
-        """ adds a parameter and a related distribution to it
+    def add_distribution(self, parametername, distribution):
+        """adds a parameter and a related distribution to it
 
         Parameters
         ----------
@@ -368,70 +394,70 @@ class Stochastic():
             distribution (StochasticDistribution): the distribution of that parameter
 
         """
-        if not isinstance(distribution,_StochasticDistributionType):
-            raise TypeError('distribution input is not a valid StochasticDistribution')
+        if not isinstance(distribution, _StochasticDistributionType):
+            raise TypeError("distribution input is not a valid StochasticDistribution")
         self.distributions[parametername] = distribution
         return self
 
     def get_attributes(self):
-        """ returns the attributes of the Stochastic as a dict
-
-        """
+        """returns the attributes of the Stochastic as a dict"""
         retdict = {}
-        retdict['numberOfTestRuns'] = str(self.number_of_tests)
+        retdict["numberOfTestRuns"] = str(self.number_of_tests)
         if self.random_seed is not None:
-            retdict['randomSeed']= str(self.random_seed)
+            retdict["randomSeed"] = str(self.random_seed)
 
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the Stochastic
-
-        """
-        element = ET.Element('Stochastic',self.get_attributes())
+        """returns the elementTree of the Stochastic"""
+        element = ET.Element("Stochastic", self.get_attributes())
         if not self.distributions:
-            raise NotEnoughInputArguments('No distribution has been added')
+            raise NotEnoughInputArguments("No distribution has been added")
         for d in self.distributions:
             # dist = ET.SubElement(element,'stochasticDistribution',)
-            dist = ET.SubElement(element, 'StochasticDistribution', attrib={'parameterName':d})
+            dist = ET.SubElement(
+                element, "StochasticDistribution", attrib={"parameterName": d}
+            )
             dist.append(self.distributions[d].get_element())
 
         return element
 
+
 class NormalDistribution(_StochasticDistributionType):
-    """ the NormalDistribution is a Stochastic distribution
+    """the NormalDistribution is a Stochastic distribution
 
-        Parameters
-        ----------
-            expected_value (float): the expected value (mean) of the distribution
+    Parameters
+    ----------
+        expected_value (float): the expected value (mean) of the distribution
 
-            variance (float): variance of the distribution
+        variance (float): variance of the distribution
 
-            range (Range): limit of the values (optional)
-                Default: None
+        range (Range): limit of the values (optional)
+            Default: None
 
-        Attributes
-        ----------
-            expected_value (float): the expected value (mean) of the distribution
+    Attributes
+    ----------
+        expected_value (float): the expected value (mean) of the distribution
 
-            variance (float): variance of the distribution
+        variance (float): variance of the distribution
 
-            range (Range): limit of the values (optional)
+        range (Range): limit of the values (optional)
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self, expected_value, variance, range = None):
-        """ initalizes the NormalDistribution
+
+    def __init__(self, expected_value, variance, range=None):
+        """initalizes the NormalDistribution
 
         Parameters
         ----------
@@ -443,77 +469,82 @@ class NormalDistribution(_StochasticDistributionType):
                 Default: None
 
         """
-        if range and not isinstance(range,Range):
-            raise TypeError('range input is not of type Range')
+        if range and not isinstance(range, Range):
+            raise TypeError("range input is not of type Range")
         self.expected_value = expected_value
         self.variance = variance
         self.range = range
 
-    def __eq__(self,other):
-        if isinstance(other,NormalDistribution):
-            if self.get_attributes() == other.get_attributes() and \
-                self.range == other.range:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, NormalDistribution):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.range == other.range
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of NormalDistribution
+        """Parses the xml element of NormalDistribution
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A NormalDistribution element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A NormalDistribution element (same as generated by the class itself)
 
-            Returns
-            -------
-                nd (NormalDistribution): a NormalDistribution object
+        Returns
+        -------
+            nd (NormalDistribution): a NormalDistribution object
 
         """
-        if element.find('Range') is not None:
-            range = Range.parse(element.find('Range'))
+        if element.find("Range") is not None:
+            range = Range.parse(element.find("Range"))
         else:
             range = None
-        nd = NormalDistribution(element.attrib['expectedValue'],element.attrib['variance'],range)
+        nd = NormalDistribution(
+            element.attrib["expectedValue"], element.attrib["variance"], range
+        )
         return nd
 
     def get_attributes(self):
-        """ returns the attributes of the NormalDistribution as a dict
-
-        """
-        retdict = {'expectedValue':str(self.expected_value),'variance':str(self.variance)}
+        """returns the attributes of the NormalDistribution as a dict"""
+        retdict = {
+            "expectedValue": str(self.expected_value),
+            "variance": str(self.variance),
+        }
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the NormalDistribution
-
-        """
-        element = ET.Element('NormalDistribution',self.get_attributes())
+        """returns the elementTree of the NormalDistribution"""
+        element = ET.Element("NormalDistribution", self.get_attributes())
         if self.range:
             element.append(self.range.get_element())
         return element
 
+
 class UniformDistribution(_StochasticDistributionType):
-    """ the UniformDistribution is a Stochastic distribution
+    """the UniformDistribution is a Stochastic distribution
 
-        Parameters
-        ----------
-            range (Range): limit of the values
+    Parameters
+    ----------
+        range (Range): limit of the values
 
-        Attributes
-        ----------
-            range (Range): limit of the values
+    Attributes
+    ----------
+        range (Range): limit of the values
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
+
     def __init__(self, range):
-        """ initalizes the UniformDistribution
+        """initalizes the UniformDistribution
 
         Parameters
         ----------
@@ -521,70 +552,70 @@ class UniformDistribution(_StochasticDistributionType):
 
 
         """
-        if not isinstance(range,Range):
-            raise TypeError('range input is not of type Range')
+        if not isinstance(range, Range):
+            raise TypeError("range input is not of type Range")
         self.range = range
 
-    def __eq__(self,other):
-        if isinstance(other,UniformDistribution):
+    def __eq__(self, other):
+        if isinstance(other, UniformDistribution):
             if self.range == other.range:
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of UniformDistribution
+        """Parses the xml element of UniformDistribution
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A UniformDistribution element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A UniformDistribution element (same as generated by the class itself)
 
-            Returns
-            -------
-                ud (UniformDistribution): a UniformDistribution object
+        Returns
+        -------
+            ud (UniformDistribution): a UniformDistribution object
 
         """
 
-        return UniformDistribution(Range.parse(element.find('Range')))
+        return UniformDistribution(Range.parse(element.find("Range")))
 
     def get_element(self):
-        """ returns the elementTree of the UniformDistribution
-
-        """
-        element = ET.Element('UniformDistribution')
+        """returns the elementTree of the UniformDistribution"""
+        element = ET.Element("UniformDistribution")
         element.append(self.range.get_element())
         return element
 
+
 class PoissonDistribution(_StochasticDistributionType):
-    """ the PoissonDistribution is a Stochastic distribution
+    """the PoissonDistribution is a Stochastic distribution
 
-        Parameters
-        ----------
-            expected_value (float): the expected value of the distribution
+    Parameters
+    ----------
+        expected_value (float): the expected value of the distribution
 
-            range (Range): limit of the values (optional)
-                Default: None
+        range (Range): limit of the values (optional)
+            Default: None
 
-        Attributes
-        ----------
-            expected_value (float): the expected value of the distribution
+    Attributes
+    ----------
+        expected_value (float): the expected value of the distribution
 
-            range (Range): limit of the values (optional)
+        range (Range): limit of the values (optional)
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+        get_attributes()
+            Returns a dictionary of all attributes of the class
 
     """
-    def __init__(self, expected_value, range = None):
-        """ initalizes the PoissonDistribution
+
+    def __init__(self, expected_value, range=None):
+        """initalizes the PoissonDistribution
 
         Parameters
         ----------
@@ -594,268 +625,265 @@ class PoissonDistribution(_StochasticDistributionType):
                 Default: None
 
         """
-        if range and not isinstance(range,Range):
-            raise TypeError('range input is not of type Range')
+        if range and not isinstance(range, Range):
+            raise TypeError("range input is not of type Range")
         self.expected_value = expected_value
         self.range = range
 
-    def __eq__(self,other):
-        if isinstance(other,PoissonDistribution):
-            if self.get_attributes() == other.get_attributes() and \
-                self.range == other.range:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, PoissonDistribution):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.range == other.range
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of PoissonDistribution
+        """Parses the xml element of PoissonDistribution
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A PoissonDistribution element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A PoissonDistribution element (same as generated by the class itself)
 
-            Returns
-            -------
-                pd (PoissonDistribution): a PoissonDistribution object
+        Returns
+        -------
+            pd (PoissonDistribution): a PoissonDistribution object
 
         """
-        if element.find('Range') is not None:
-            range = Range.parse(element.find('Range'))
+        if element.find("Range") is not None:
+            range = Range.parse(element.find("Range"))
         else:
             range = None
-        pd = PoissonDistribution(element.attrib['expectedValue'],range)
+        pd = PoissonDistribution(element.attrib["expectedValue"], range)
         return pd
 
     def get_attributes(self):
-        """ returns the attributes of the PoissonDistribution as a dict
-
-        """
-        retdict = {'expectedValue':str(self.expected_value)}
+        """returns the attributes of the PoissonDistribution as a dict"""
+        retdict = {"expectedValue": str(self.expected_value)}
         return retdict
 
     def get_element(self):
-        """ returns the elementTree of the PoissonDistribution
-
-        """
-        element = ET.Element('PoissonDistribution',self.get_attributes())
+        """returns the elementTree of the PoissonDistribution"""
+        element = ET.Element("PoissonDistribution", self.get_attributes())
         if self.range:
             element.append(self.range.get_element())
         return element
 
+
 class Histogram(_StochasticDistributionType):
-    """ the Histogram is a Stochastic distribution
+    """the Histogram is a Stochastic distribution
 
-        Parameters
-        ----------
+    Parameters
+    ----------
 
-        Attributes
-        ----------
-            bins (list of _HistogramBin): the bins defining the histogram
+    Attributes
+    ----------
+        bins (list of _HistogramBin): the bins defining the histogram
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
-            add_bin(weight,range)
-                adds a weight and a range to a bin
+        add_bin(weight,range)
+            adds a weight and a range to a bin
 
     """
-    def __init__(self):
-        """ initalizes the Histogram
 
-        """
+    def __init__(self):
+        """initalizes the Histogram"""
         self.bins = []
 
-    def __eq__(self,other):
-        if isinstance(other,Histogram):
+    def __eq__(self, other):
+        if isinstance(other, Histogram):
             if self.bins == other.bins:
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of Histogram
+        """Parses the xml element of Histogram
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A Histogram element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A Histogram element (same as generated by the class itself)
 
-            Returns
-            -------
-                histogram (Histogram): a Histogram object
+        Returns
+        -------
+            histogram (Histogram): a Histogram object
 
         """
         hist = Histogram()
-        for h_element in element.findall('HistogramBin'):
+        for h_element in element.findall("HistogramBin"):
             hist.bins.append(_HistogramBin.parse(h_element))
         return hist
 
-    def add_bin(self,weight,range):
-        """ returns the attributes of the Histogram as a dict
+    def add_bin(self, weight, range):
+        """returns the attributes of the Histogram as a dict
 
-            Parameters
-            ----------
-                weight (float): the weight of the bin
+        Parameters
+        ----------
+            weight (float): the weight of the bin
 
-                range (Range): the range of the bin
+            range (Range): the range of the bin
 
         """
-        self.bins.append(_HistogramBin(weight,range))
+        self.bins.append(_HistogramBin(weight, range))
         return self
 
     def get_element(self):
-        """ returns the elementTree of the Histogram
-
-        """
-        element = ET.Element('Histogram')
+        """returns the elementTree of the Histogram"""
+        element = ET.Element("Histogram")
         if not self.bins:
-            raise NotEnoughInputArguments('The Histogram has no bins, please use add_bin to add atleast one.')
+            raise NotEnoughInputArguments(
+                "The Histogram has no bins, please use add_bin to add atleast one."
+            )
         for bin in self.bins:
             element.append(bin.get_element())
         return element
 
+
 class ProbabilityDistributionSet(_StochasticDistributionType):
-    """ the ProbabilityDistributionSet is a Stochastic distribution
+    """the ProbabilityDistributionSet is a Stochastic distribution
 
-        Parameters
-        ----------
+    Parameters
+    ----------
 
-        Attributes
-        ----------
-            sets (list of _ProbabilityDistributionSetElement): the sets defining the ProbabilityDistributionSet
+    Attributes
+    ----------
+        sets (list of _ProbabilityDistributionSetElement): the sets defining the ProbabilityDistributionSet
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
-            add_set(value, weight)
-                adds a weight and a range to a bin
+        add_set(value, weight)
+            adds a weight and a range to a bin
 
     """
-    def __init__(self):
-        """ initalizes the ProbabilityDistributionSet
 
-        """
+    def __init__(self):
+        """initalizes the ProbabilityDistributionSet"""
         self.sets = []
 
-    def __eq__(self,other):
-        if isinstance(other,ProbabilityDistributionSet):
+    def __eq__(self, other):
+        if isinstance(other, ProbabilityDistributionSet):
             if self.sets == other.sets:
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of ProbabilityDistributionSet
+        """Parses the xml element of ProbabilityDistributionSet
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A ProbabilityDistributionSet element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A ProbabilityDistributionSet element (same as generated by the class itself)
 
-            Returns
-            -------
-                pds (ProbabilityDistributionSet): a ProbabilityDistributionSet object
+        Returns
+        -------
+            pds (ProbabilityDistributionSet): a ProbabilityDistributionSet object
 
         """
         pds = ProbabilityDistributionSet()
-        for e in element.findall('Element'):
+        for e in element.findall("Element"):
             pds.sets.append(_ProbabilityDistributionSetElement.parse(e))
         return pds
 
     def add_set(self, value, weight):
-        """ adds a set element to the ProbabilityDistributionSet
+        """adds a set element to the ProbabilityDistributionSet
 
-            Parameters
-            ----------
-                value (string): possible value
+        Parameters
+        ----------
+            value (string): possible value
 
-                weight (float): weight of the value
+            weight (float): weight of the value
 
         """
-        self.sets.append(_ProbabilityDistributionSetElement(value,weight))
+        self.sets.append(_ProbabilityDistributionSetElement(value, weight))
         return self
 
     def get_element(self):
-        """ returns the elementTree of the ProbabilityDistributionSet
-
-        """
-        element = ET.Element('ProbabilityDistributionSet')
+        """returns the elementTree of the ProbabilityDistributionSet"""
+        element = ET.Element("ProbabilityDistributionSet")
         if not self.sets:
-            raise NotEnoughInputArguments('No sets were added to the ProbabilityDistributionSet, please use add_set')
+            raise NotEnoughInputArguments(
+                "No sets were added to the ProbabilityDistributionSet, please use add_set"
+            )
         for bin in self.sets:
             element.append(bin.get_element())
         return element
 
+
 ### Deterministic
 
 
+class ParameterValueSet:
+    """Creates the ParameterValueSet used by the DeterministicMultiParameterDistribution
 
-class ParameterValueSet():
-    """ Creates the ParameterValueSet used by the DeterministicMultiParameterDistribution
-
-        Parameters
-        ----------
+    Parameters
+    ----------
 
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
-            assignments (list of ParameterAssignment): the the assignments for the ValueSet
+        assignments (list of ParameterAssignment): the the assignments for the ValueSet
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            add_parameter(parameterref, value)
-                Adds a parameter value pair
+        add_parameter(parameterref, value)
+            Adds a parameter value pair
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
-    def __init__(self):
-        """ initalizes the ParameterValueSet
 
-        """
+    def __init__(self):
+        """initalizes the ParameterValueSet"""
 
         self.sets = []
 
-    def __eq__(self,other):
-        if isinstance(other,ParameterValueSet):
+    def __eq__(self, other):
+        if isinstance(other, ParameterValueSet):
             if self.sets == other.sets:
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of ParameterValueSet
+        """Parses the xml element of ParameterValueSet
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A ParameterValueSet element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A ParameterValueSet element (same as generated by the class itself)
 
-            Returns
-            -------
-                parameter_value_set (ParameterValueSet): a ParameterValueSet object
+        Returns
+        -------
+            parameter_value_set (ParameterValueSet): a ParameterValueSet object
 
         """
         parameter_value_set = ParameterValueSet()
-        for pa in element.findall('ParameterAssignment'):
+        for pa in element.findall("ParameterAssignment"):
             parameter_value_set.sets.append(ParameterAssignment.parse(pa))
 
         return parameter_value_set
 
-    def add_parameter(self,parameterref,value):
-        """ adds a parameter and a value
+    def add_parameter(self, parameterref, value):
+        """adds a parameter and a value
 
         Parameters
         ----------
@@ -865,107 +893,132 @@ class ParameterValueSet():
 
         """
 
-        self.sets.append(ParameterAssignment(parameterref,value))
+        self.sets.append(ParameterAssignment(parameterref, value))
         return self
 
-
     def get_element(self):
-        """ returns the elementTree of the ParameterValueSet
-
-        """
-        element = ET.Element('ParameterValueSet')
+        """returns the elementTree of the ParameterValueSet"""
+        element = ET.Element("ParameterValueSet")
 
         if not self.sets:
-            raise NotEnoughInputArguments('No sets has been added')
+            raise NotEnoughInputArguments("No sets has been added")
         for s in self.sets:
             element.append(s.get_element())
 
         return element
 
-class DeterministicMultiParameterDistribution():
-    """ Creates the DeterministicMultiParameterDistribution type of parameter distributions
 
-        Parameters
-        ----------
+class DeterministicMultiParameterDistribution:
+    """Creates the DeterministicMultiParameterDistribution type of parameter distributions
+
+    Parameters
+    ----------
 
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
-            distributions (list of ParameterValueSet): the distributions for the parameters
+        distributions (list of ParameterValueSet): the distributions for the parameters
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            add_value_set(parameter_value_set)
-                Adds a parameter value set
+        add_value_set(parameter_value_set)
+            Adds a parameter value set
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
-    def __init__(self):
-        """ initalizes the DeterministicMultiParameterDistribution
 
-        """
+    def __init__(self):
+        """initalizes the DeterministicMultiParameterDistribution"""
 
         self.sets = []
 
-    def __eq__(self,other):
-        if isinstance(other,DeterministicMultiParameterDistribution):
+    def __eq__(self, other):
+        if isinstance(other, DeterministicMultiParameterDistribution):
             if self.sets == other.sets:
-               return True
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of DeterministicMultiParameterDistribution
+        """Parses the xml element of DeterministicMultiParameterDistribution
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A DeterministicMultiParameterDistribution element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A DeterministicMultiParameterDistribution element (same as generated by the class itself)
 
-            Returns
-            -------
-                distribution (DeterministicMultiParameterDistribution): a DeterministicMultiParameterDistribution object
+        Returns
+        -------
+            distribution (DeterministicMultiParameterDistribution): a DeterministicMultiParameterDistribution object
 
         """
         dist = DeterministicMultiParameterDistribution()
-        for h_element in element.findall('ValueSetDistribution/ParameterValueSet'):
+        for h_element in element.findall("ValueSetDistribution/ParameterValueSet"):
             dist.sets.append(ParameterValueSet.parse(h_element))
         return dist
 
-    def add_value_set(self,parameter_value_set):
-        """ adds a parameter and a related distribution to it
+    def add_value_set(self, parameter_value_set):
+        """adds a parameter and a related distribution to it
 
         Parameters
         ----------
             parameter_value_set (ParameterValueSet): a set of parameters
 
         """
-        if not isinstance(parameter_value_set,ParameterValueSet):
-            raise TypeError('distribution input is not of type ParameterValueSet')
+        if not isinstance(parameter_value_set, ParameterValueSet):
+            raise TypeError("distribution input is not of type ParameterValueSet")
         self.sets.append(parameter_value_set)
         return self
 
-
     def get_element(self):
-        """ returns the elementTree of the DeterministicMultiParameterDistribution
-
-        """
-        element = ET.Element('DeterministicMultiParameterDistribution')
-        value_set_element = ET.SubElement(element,'ValueSetDistribution')
+        """returns the elementTree of the DeterministicMultiParameterDistribution"""
+        element = ET.Element("DeterministicMultiParameterDistribution")
+        value_set_element = ET.SubElement(element, "ValueSetDistribution")
         if not self.sets:
-            raise NotEnoughInputArguments('No sets has been added')
+            raise NotEnoughInputArguments("No sets has been added")
         for d in self.sets:
             value_set_element.append(d.get_element())
 
         return element
 
-class DistributionRange():
-    """ Creates the DistributionRange used to define a Single parameter distribution
+
+class DistributionRange:
+    """Creates the DistributionRange used to define a Single parameter distribution
+
+    Parameters
+    ----------
+        step_width (float): step size of the distribution
+
+        range (Range): the range of the parameter
+
+    Attributes
+    ----------
+
+        step_width (float): step size of the distribution
+
+        range (Range): the range of the parameter
+
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, step_width, range):
+        """initalizes the DistributionRange
 
         Parameters
         ----------
@@ -973,302 +1026,294 @@ class DistributionRange():
 
             range (Range): the range of the parameter
 
-        Attributes
-        ----------
-
-            step_width (float): step size of the distribution
-
-            range (Range): the range of the parameter
-
-
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
-
-            get_element(elementname)
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns a dictionary of all attributes of the class
-
-    """
-    def __init__(self,step_width,range):
-        """ initalizes the DistributionRange
-
-            Parameters
-            ----------
-                step_width (float): step size of the distribution
-
-                range (Range): the range of the parameter
-
         """
 
         self.step_width = step_width
-        if not isinstance(range,Range):
+        if not isinstance(range, Range):
             raise TypeError("range is not of type Range.")
         self.range = range
 
-    def __eq__(self,other):
-        if isinstance(other,DistributionRange):
-            if self.get_attributes() == other.get_attributes() and \
-                self.range == other.range:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, DistributionRange):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.range == other.range
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of DistributionRange
+        """Parses the xml element of DistributionRange
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A DistributionRange element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A DistributionRange element (same as generated by the class itself)
 
-            Returns
-            -------
-                distribution_range (DistributionRange): a DistributionRange object
+        Returns
+        -------
+            distribution_range (DistributionRange): a DistributionRange object
 
         """
 
-        distribution_range = DistributionRange(element.attrib['stepWidth'],Range.parse(element.find('Range')))
+        distribution_range = DistributionRange(
+            element.attrib["stepWidth"], Range.parse(element.find("Range"))
+        )
         return distribution_range
 
     def get_attributes(self):
-        """ returns the attributes of the DistributionRange as a dict
-
-        """
-        retdict = {'stepWidth':str(self.step_width)}
+        """returns the attributes of the DistributionRange as a dict"""
+        retdict = {"stepWidth": str(self.step_width)}
         return retdict
 
-
     def get_element(self):
-        """ returns the elementTree of the DistributionRange
-
-        """
-        element = ET.Element('DistributionRange',attrib=self.get_attributes())
+        """returns the elementTree of the DistributionRange"""
+        element = ET.Element("DistributionRange", attrib=self.get_attributes())
         element.append(self.range.get_element())
 
         return element
 
 
-class DistributionSet():
-    """ Creates the DistributionSet used to define a Single parameter distribution
+class DistributionSet:
+    """Creates the DistributionSet used to define a Single parameter distribution
 
-        Parameters
-        ----------
+    Parameters
+    ----------
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
-            value_elements (list of str double): a list of all values
+        value_elements (list of str double): a list of all values
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
-    def __init__(self):
-        """ initalizes the DistributionSet
 
-        """
+    def __init__(self):
+        """initalizes the DistributionSet"""
         self.value_elements = []
 
-    def __eq__(self,other):
-        if isinstance(other,DistributionSet):
-            if  self.value_elements == other.value_elements:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, DistributionSet):
+            if self.value_elements == other.value_elements:
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of DistributionSet
+        """Parses the xml element of DistributionSet
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A DistributionSet element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A DistributionSet element (same as generated by the class itself)
 
-            Returns
-            -------
-                dist (DistributionSet): a DistributionSet object
+        Returns
+        -------
+            dist (DistributionSet): a DistributionSet object
 
         """
         dist = DistributionSet()
-        for v in element.findall('Element'):
-            dist.add_value(v.attrib['value'])
+        for v in element.findall("Element"):
+            dist.add_value(v.attrib["value"])
         return dist
 
-    def add_value(self,value):
-        """ adds a value to the DistirbutionSet
+    def add_value(self, value):
+        """adds a value to the DistirbutionSet
 
-            Parameters
-            ----------
-                value (str): the value to be added to the distribution
+        Parameters
+        ----------
+            value (str): the value to be added to the distribution
         """
         self.value_elements.append(value)
         return self
 
     def get_element(self):
-        """ returns the elementTree of the DistributionSet
-
-        """
-        element = ET.Element('DistributionSet')
+        """returns the elementTree of the DistributionSet"""
+        element = ET.Element("DistributionSet")
         if not self.value_elements:
-            raise NotEnoughInputArguments('No values has been added to the DistributionSet')
+            raise NotEnoughInputArguments(
+                "No values has been added to the DistributionSet"
+            )
         for value in self.value_elements:
-            ET.SubElement(element,'Element',attrib={'value':value})
+            ET.SubElement(element, "Element", attrib={"value": value})
 
         return element
 
-class Deterministic():
-    """ Creates the Deterministic type of parameter distributions
 
-        Parameters
-        ----------
+class Deterministic:
+    """Creates the Deterministic type of parameter distributions
+
+    Parameters
+    ----------
 
 
-        Attributes
-        ----------
+    Attributes
+    ----------
 
-            multi_distributions (list of DeterministicMultiParameterDistribution): multi parameter distributions
+        multi_distributions (list of DeterministicMultiParameterDistribution): multi parameter distributions
 
-            single_distributions (dict of DistributionSet/DistributionRange): single parameter distribution
+        single_distributions (dict of DistributionSet/DistributionRange): single parameter distribution
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            add_multi_distribution(distribution)
-                Adds a DeterministicMultiParameterDistribution
+        add_multi_distribution(distribution)
+            Adds a DeterministicMultiParameterDistribution
 
-            add_single_distribution(parametername,distribution)
-                adds a DeterministicSingleParameterDistribution
+        add_single_distribution(parametername,distribution)
+            adds a DeterministicSingleParameterDistribution
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
-    def __init__(self):
-        """ initalizes the Deterministic
 
-        """
+    def __init__(self):
+        """initalizes the Deterministic"""
 
         self.multi_distributions = []
         self.single_distributions = {}
-    def __eq__(self,other):
-        if isinstance(other,Deterministic):
-            if self.multi_distributions == other.multi_distributions and \
-               self.single_distributions == other.single_distributions:
-               return True
+
+    def __eq__(self, other):
+        if isinstance(other, Deterministic):
+            if (
+                self.multi_distributions == other.multi_distributions
+                and self.single_distributions == other.single_distributions
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of Deterministic
+        """Parses the xml element of Deterministic
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A Deterministic element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A Deterministic element (same as generated by the class itself)
 
-            Returns
-            -------
-                deterministic (Deterministic): a Deterministic object
+        Returns
+        -------
+            deterministic (Deterministic): a Deterministic object
 
         """
         deterministic = Deterministic()
-        for single_dist in element.findall('DeterministicSingleParameterDistribution'):
-            param_name = single_dist.attrib['parameterName']
+        for single_dist in element.findall("DeterministicSingleParameterDistribution"):
+            param_name = single_dist.attrib["parameterName"]
             dist = _DeterministicFactory.parse_distribution(single_dist)
-            deterministic.add_single_distribution(param_name,dist)
-        for multi_dist in element.findall('DeterministicMultiParameterDistribution'):
-            deterministic.add_multi_distribution(DeterministicMultiParameterDistribution.parse(multi_dist))
+            deterministic.add_single_distribution(param_name, dist)
+        for multi_dist in element.findall("DeterministicMultiParameterDistribution"):
+            deterministic.add_multi_distribution(
+                DeterministicMultiParameterDistribution.parse(multi_dist)
+            )
 
         return deterministic
 
-    def add_multi_distribution(self,distribution):
-        """ adds a DeterministicMultiParameterDistribution
+    def add_multi_distribution(self, distribution):
+        """adds a DeterministicMultiParameterDistribution
 
-            Parameters
-            ----------
-                distribution (DeterministicMultiParameterDistribution): the distribution of that parameter
+        Parameters
+        ----------
+            distribution (DeterministicMultiParameterDistribution): the distribution of that parameter
 
         """
-        if not isinstance(distribution,DeterministicMultiParameterDistribution):
-            raise TypeError('distribution input is not of type DeterministicMultiParameterDistribution')
+        if not isinstance(distribution, DeterministicMultiParameterDistribution):
+            raise TypeError(
+                "distribution input is not of type DeterministicMultiParameterDistribution"
+            )
         self.multi_distributions.append(distribution)
         return self
 
-    def add_single_distribution(self,parametername,distribution):
-        """ adds a parameter and a related distribution to it
+    def add_single_distribution(self, parametername, distribution):
+        """adds a parameter and a related distribution to it
 
-            Parameters
-            ----------
-                parametername (str): reference to the parameter
+        Parameters
+        ----------
+            parametername (str): reference to the parameter
 
-                distribution (DistributionSet or DistributionRange): the distribution of that parameter
+            distribution (DistributionSet or DistributionRange): the distribution of that parameter
 
         """
-        if not (isinstance(distribution,DistributionSet) or isinstance(distribution,DistributionRange)):
-            raise TypeError('distribution input is not of type DeterministicMultiParameterDistribution')
+        if not (
+            isinstance(distribution, DistributionSet)
+            or isinstance(distribution, DistributionRange)
+        ):
+            raise TypeError(
+                "distribution input is not of type DeterministicMultiParameterDistribution"
+            )
         self.single_distributions[parametername] = distribution
         return self
 
     def get_element(self):
-        """ returns the elementTree of the Deterministic
+        """returns the elementTree of the Deterministic"""
 
-        """
-
-        element = ET.Element('Deterministic')
+        element = ET.Element("Deterministic")
         for md in self.multi_distributions:
             element.append(md.get_element())
         for d in self.single_distributions:
-            dist = ET.SubElement(element,'DeterministicSingleParameterDistribution',attrib={'parameterName':d})
+            dist = ET.SubElement(
+                element,
+                "DeterministicSingleParameterDistribution",
+                attrib={"parameterName": d},
+            )
             dist.append(self.single_distributions[d].get_element())
-
 
         return element
 
 
 ## wrapper
 
+
 class ParameterValueDistribution(VersionBase):
-    """ Creates the the ParameterValueDistribution file for open scenario
+    """Creates the the ParameterValueDistribution file for open scenario
 
-        Parameters
-        ----------
-            number_of_tests (int): number of tests to run
+    Parameters
+    ----------
+        number_of_tests (int): number of tests to run
 
-            random_seed (float): the seed for the run
-                Default: None
+        random_seed (float): the seed for the run
+            Default: None
 
-        Attributes
-        ----------
-            number_of_tests (int): number of tests to run
+    Attributes
+    ----------
+        number_of_tests (int): number of tests to run
 
-            random_seed (float): the seed for the run
+        random_seed (float): the seed for the run
 
-            distributions (dict of *StochasticDistribution): the distributions for the parameters
+        distributions (dict of *StochasticDistribution): the distributions for the parameters
 
-        Methods
-        -------
-            parse(element)
-                parses a ElementTree created by the class and returns an instance of the class
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
 
-            write_xml(filename)
-                write a open scenario xml
+        write_xml(filename)
+            write a open scenario xml
 
-            get_element(elementname)
-                Returns the full ElementTree of the class
+        get_element(elementname)
+            Returns the full ElementTree of the class
 
     """
+
     _XMLNS = XMLNS
     _XSI = XSI
-    def __init__(self, description, author, scenario_file, parameter_distribution, osc_minor_version=1):
-        """ initalizes the ParameterValueDistribution
+
+    def __init__(
+        self,
+        description,
+        author,
+        scenario_file,
+        parameter_distribution,
+        osc_minor_version=1,
+    ):
+        """initalizes the ParameterValueDistribution
 
         Parameters
         ----------
@@ -1283,65 +1328,82 @@ class ParameterValueDistribution(VersionBase):
             osc_minor_version (int): the osi version wanted (Note: only available from OpenSCENARIO V1.1.0)
 
         """
-        self.header = FileHeader(author,description,revMinor=osc_minor_version)
-        if not isinstance(parameter_distribution,Stochastic) and not isinstance(parameter_distribution,Deterministic):
-            raise TypeError(type(parameter_distribution) + "is not of type Stochastic or Deterministic")
+        self.header = FileHeader(author, description, revMinor=osc_minor_version)
+        if not isinstance(parameter_distribution, Stochastic) and not isinstance(
+            parameter_distribution, Deterministic
+        ):
+            raise TypeError(
+                type(parameter_distribution)
+                + "is not of type Stochastic or Deterministic"
+            )
         self.scenario_file = scenario_file
         self.parameter_distribution = parameter_distribution
 
-    def __eq__(self,other):
-        if isinstance(other,ParameterValueDistribution):
-            if self.header == other.header and \
-                self.scenario_file == other.scenario_file and \
-                self.parameter_distribution == other.parameter_distribution:
-               return True
+    def __eq__(self, other):
+        if isinstance(other, ParameterValueDistribution):
+            if (
+                self.header == other.header
+                and self.scenario_file == other.scenario_file
+                and self.parameter_distribution == other.parameter_distribution
+            ):
+                return True
         return False
 
     @staticmethod
     def parse(element):
-        """ Parses the xml element of ParameterValueDistribution
+        """Parses the xml element of ParameterValueDistribution
 
-            Parameters
-            ----------
-                element (xml.etree.ElementTree.Element): A ParameterValueDistribution element (same as generated by the class itself)
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): A ParameterValueDistribution element (same as generated by the class itself)
 
-            Returns
-            -------
-                paramvaluedist (ParameterValueDistribution): a ParameterValueDistribution object
+        Returns
+        -------
+            paramvaluedist (ParameterValueDistribution): a ParameterValueDistribution object
 
         """
 
-
-        pvd_element = element.find('ParameterValueDistribution')
-        if pvd_element.find('Stochastic') is not None:
-            dist = Stochastic.parse(pvd_element.find('Stochastic'))
-        elif pvd_element.find('Deterministic') is not None:
-            dist = Deterministic.parse(pvd_element.find('Deterministic'))
+        pvd_element = element.find("ParameterValueDistribution")
+        if pvd_element.find("Stochastic") is not None:
+            dist = Stochastic.parse(pvd_element.find("Stochastic"))
+        elif pvd_element.find("Deterministic") is not None:
+            dist = Deterministic.parse(pvd_element.find("Deterministic"))
         else:
-            raise NotAValidElement('ParameterValueDistribution is missing a distribution')
+            raise NotAValidElement(
+                "ParameterValueDistribution is missing a distribution"
+            )
 
-        pvd = ParameterValueDistribution('','',pvd_element.find('ScenarioFile').attrib['filepath'],dist)
-        pvd.header = FileHeader.parse(element.find('FileHeader'))
+        pvd = ParameterValueDistribution(
+            "", "", pvd_element.find("ScenarioFile").attrib["filepath"], dist
+        )
+        pvd.header = FileHeader.parse(element.find("FileHeader"))
         return pvd
 
     def get_element(self):
-        """ returns the elementTree of the ParameterValueDistribution
-
-        """
+        """returns the elementTree of the ParameterValueDistribution"""
         if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError('Everything related to ParameterValueDistribution was introduced in OpenSCENARIO V1.1')
-        element = ET.Element('OpenSCENARIO',attrib={'xmlns:xsi':self._XMLNS,'xsi:noNamespaceSchemaLocation':self._XSI})
+            raise OpenSCENARIOVersionError(
+                "Everything related to ParameterValueDistribution was introduced in OpenSCENARIO V1.1"
+            )
+        element = ET.Element(
+            "OpenSCENARIO",
+            attrib={
+                "xmlns:xsi": self._XMLNS,
+                "xsi:noNamespaceSchemaLocation": self._XSI,
+            },
+        )
         element.append(self.header.get_element())
-        parameterdist = ET.SubElement(element,'ParameterValueDistribution')
-        ET.SubElement(parameterdist,'ScenarioFile',attrib={'filepath':self.scenario_file})
+        parameterdist = ET.SubElement(element, "ParameterValueDistribution")
+        ET.SubElement(
+            parameterdist, "ScenarioFile", attrib={"filepath": self.scenario_file}
+        )
 
         parameterdist.append(self.parameter_distribution.get_element())
 
         return element
 
-
-    def write_xml(self,filename,prettyprint = True):
-        """ write_xml writes the parametervaluedistribution xml file
+    def write_xml(self, filename, prettyprint=True):
+        """write_xml writes the parametervaluedistribution xml file
 
         Parameters
         ----------
@@ -1351,6 +1413,4 @@ class ParameterValueDistribution(VersionBase):
                 Default: True
 
         """
-        printToFile(self.get_element(),filename,prettyprint)
-
-
+        printToFile(self.get_element(), filename, prettyprint)

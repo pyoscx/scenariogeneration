@@ -22,7 +22,7 @@ planview = xodr.PlanView()
 planview.add_geometry(xodr.Line(300))
 
 ## create the customized centerlanes with different lanemarkings
-centerlanes =[]
+centerlanes = []
 # standard solid solid
 
 solid_solid = xodr.Lane()
@@ -36,8 +36,8 @@ centerlanes.append(solid_broken)
 
 # customized broken broken
 broken_broken_roadmark = xodr.RoadMark(xodr.RoadMarkType.broken_broken)
-broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2,9,3,0.2))
-broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2,3,9,-0.2,3))
+broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2, 9, 3, 0.2))
+broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2, 3, 9, -0.2, 3))
 broken_broken = xodr.Lane()
 broken_broken.add_roadmark(broken_broken_roadmark)
 centerlanes.append(broken_broken)
@@ -47,7 +47,7 @@ centerlanes.append(broken_broken)
 lanes = xodr.Lanes()
 ls_start = 0
 for i in centerlanes:
-    lanesection = xodr.LaneSection(ls_start,i)
+    lanesection = xodr.LaneSection(ls_start, i)
     left_lane_with_roadmark = xodr.Lane(a=4)
     left_lane_with_roadmark.add_roadmark(xodr.STD_ROADMARK_BROKEN)
 
@@ -61,19 +61,18 @@ for i in centerlanes:
 
 
 # create the road
-road = xodr.Road(0,planview,lanes)
+road = xodr.Road(0, planview, lanes)
 
 # create the opendrive and add the road
-odr = xodr.OpenDrive('road with custom lanes')
+odr = xodr.OpenDrive("road with custom lanes")
 odr.add_road(road)
 
 # adjust the road
 odr.adjust_roads_and_lanes()
 
 # write the OpenDRIVE file as xodr using current script name
-odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
+odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
 
 # uncomment the following lines to display the road using esmini
 # from scenariogeneration import esmini
 # esmini(odr,os.path.join('esmini'))
-

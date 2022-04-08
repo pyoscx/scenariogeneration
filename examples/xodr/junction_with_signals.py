@@ -19,10 +19,20 @@ for i in range(incoming_roads):
     # roads.append(xodr.generators.create_straight_road(i, length=100, junction=-1, n_lanes=2, lane_offset=3))
     angles.append(i * 2 * np.pi / incoming_roads)
     if angles[-1] == 0:
-        roads[-1].add_signal(xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1"))
+        roads[-1].add_signal(
+            xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+        )
     else:
-        roads[-1].add_signal(xodr.Signal(s=2.0, t=4, country="USA", Type="R1", subtype="1", orientation=xodr.Orientation.negative))
-
+        roads[-1].add_signal(
+            xodr.Signal(
+                s=2.0,
+                t=4,
+                country="USA",
+                Type="R1",
+                subtype="1",
+                orientation=xodr.Orientation.negative,
+            )
+        )
 
 
 # use this for a T-crossing instead
@@ -30,7 +40,7 @@ for i in range(incoming_roads):
 
 # print(roads)
 junc = xodr.create_junction_roads(roads, angles, [8])
-odr = xodr.OpenDrive('myroad')
+odr = xodr.OpenDrive("myroad")
 junction = xodr.create_junction(junc, 1, roads)
 
 odr.add_junction(junction)
@@ -42,8 +52,8 @@ for j in junc:
 odr.adjust_roads_and_lanes()
 
 # write the OpenDRIVE file as xodr using current script name
-odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
+odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
 
 # uncomment the following lines to display the road using esmini
-#from scenariogeneration import esmini
-#esmini(odr,os.path.join('esmini'))
+# from scenariogeneration import esmini
+# esmini(odr,os.path.join('esmini'))
