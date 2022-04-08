@@ -5,22 +5,24 @@ from enum import Enum, auto
 
 
 class TrafficRule(Enum):
-    """ Enum for MarkRule
-    """
+    """Enum for MarkRule"""
+
     RHT = auto()
     LHT = auto()
     none = auto()
 
+
 class MarkRule(Enum):
-    """ Enum for MarkRule
-    """
+    """Enum for MarkRule"""
+
     no_passing = auto()
     caution = auto()
     none = auto()
 
+
 class LaneType(Enum):
-    """ Enum for LaneType
-    """
+    """Enum for LaneType"""
+
     none = auto()
     driving = auto()
     stop = auto()
@@ -50,9 +52,10 @@ class LaneType(Enum):
     mwyEntry = auto()
     mwyExit = auto()
 
+
 class RoadMarkColor(Enum):
-    """ Enum for RoadMarkColor
-    """
+    """Enum for RoadMarkColor"""
+
     standard = auto()
     blue = auto()
     green = auto()
@@ -62,16 +65,16 @@ class RoadMarkColor(Enum):
     orange = auto()
 
 
-
 class RoadMarkWeight(Enum):
-    """ Enum for RoadMarkWeight
-    """
+    """Enum for RoadMarkWeight"""
+
     standard = auto()
     bold = auto()
 
+
 class RoadMarkType(Enum):
-    """ Enum for RoadMarkType
-    """
+    """Enum for RoadMarkType"""
+
     none = auto()
     solid = auto()
     broken = auto()
@@ -85,9 +88,10 @@ class RoadMarkType(Enum):
     custom = auto()
     edge = auto()
 
+
 class RoadType(Enum):
-    """ Enum for RoadType
-    """
+    """Enum for RoadType"""
+
     unknown = auto()
     rural = auto()
     motorway = auto()
@@ -104,41 +108,46 @@ class RoadType(Enum):
 
 
 class LaneChange(Enum):
-    """ Enum for LaneChange
-    """
+    """Enum for LaneChange"""
+
     increase = auto()
     decrease = auto()
     both = auto()
     none = auto()
 
+
 class ElementType(Enum):
-    """ Enum for LaneChange
-    """
+    """Enum for LaneChange"""
+
     road = auto()
     junction = auto()
 
+
 class ContactPoint(Enum):
-    """ Enum for ContactPoint
-    """
+    """Enum for ContactPoint"""
+
     start = auto()
     end = auto()
 
+
 class Direction(Enum):
-    """ Enum for Direction
-    """
+    """Enum for Direction"""
+
     same = auto()
     opposite = auto()
 
+
 class Orientation(Enum):
-    """ Enum for Orientation
-    """
+    """Enum for Orientation"""
+
     positive = auto()
     negative = auto()
     none = auto()
 
+
 class ObjectType(Enum):
-    """ Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated types
-    """
+    """Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated types"""
+
     none = auto()
     obstacle = auto()
     pole = auto()
@@ -156,29 +165,32 @@ class ObjectType(Enum):
     soundBarrier = auto()
     roadMark = auto()
 
+
 class Dynamic(Enum):
-    """ Enum for Dynamic
-    """
+    """Enum for Dynamic"""
+
     yes = auto()
     no = auto()
 
+
 class RoadSide(Enum):
-    """ Enum for RoadSide
-    """
+    """Enum for RoadSide"""
+
     both = auto()
     left = auto()
     right = auto()
 
+
 class JunctionGroupType(Enum):
-    """ Enum for JunctionGroup
-    """
+    """Enum for JunctionGroup"""
+
     roundabout = auto()
     unknown = auto()
 
-class JunctionType(Enum):
-    """ Enum for JunctionType
 
-    """
+class JunctionType(Enum):
+    """Enum for JunctionType"""
+
     default = auto()
     virtual = auto()
     direct = auto()

@@ -30,9 +30,9 @@ planview = xodr.PlanView()
 
 ##2. Create some geometries and add them to the planview
 line1 = xodr.Line(100)
-arc1 = xodr.Arc(0.05,angle=np.pi/2)
+arc1 = xodr.Arc(0.05, angle=np.pi / 2)
 line2 = xodr.Line(100)
-cloth1 = xodr.Spiral(0.05,-0.1,30)
+cloth1 = xodr.Spiral(0.05, -0.1, 30)
 line3 = xodr.Line(100)
 
 planview.add_geometry(line1)
@@ -43,14 +43,14 @@ planview.add_geometry(line3)
 
 
 ##3. Create a solid roadmark
-rm = xodr.RoadMark(xodr.RoadMarkType.solid,0.2)
+rm = xodr.RoadMark(xodr.RoadMarkType.solid, 0.2)
 
 ##4. Create centerlane
 centerlane = xodr.Lane(a=2)
 centerlane.add_roadmark(rm)
 
 ##5. Create lane section form the centerlane
-lanesec = xodr.LaneSection(0,centerlane)
+lanesec = xodr.LaneSection(0, centerlane)
 
 ##6. Create left and right lanes
 lane2 = xodr.Lane(a=3)
@@ -67,10 +67,10 @@ lanes = xodr.Lanes()
 lanes.add_lanesection(lanesec)
 
 ##9. Create Road from Planview and Lanes
-road = xodr.Road(1,planview,lanes)
+road = xodr.Road(1, planview, lanes)
 
 ##10. Create the OpenDrive class (Master class)
-odr = xodr.OpenDrive('myroad')
+odr = xodr.OpenDrive("myroad")
 
 ##11. Finally add roads to Opendrive
 odr.add_road(road)
@@ -82,8 +82,8 @@ odr.adjust_roads_and_lanes()
 prettyprint(odr.get_element())
 
 # write the OpenDRIVE file as xodr using current script name
-odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
+odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
 
 # uncomment the following lines to display the road using esmini
-#from scenariogeneration import esmini
-#esmini(odr,os.path.join('esmini'))
+# from scenariogeneration import esmini
+# esmini(odr,os.path.join('esmini'))

@@ -11,23 +11,21 @@ import os
 from scenariogeneration import xodr
 
 
-
-
 # create a simple planview
 planview = xodr.PlanView()
 planview.add_geometry(xodr.Line(500))
 
 # create the customized lanes
 centerlane = xodr.Lane(lane_type=xodr.LaneType.median)
-lanesection = xodr.LaneSection(0,centerlane)
+lanesection = xodr.LaneSection(0, centerlane)
 
 # add the median to the center
-lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.median,a=0.3))
-lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.median,a=0.3))
+lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.median, a=0.3))
+lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.median, a=0.3))
 
 # add a curb
-lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb,a=0.1))
-lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb,a=0.1))
+lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
+lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
 
 # add driving lanes with roadmarks
 left_lane_with_roadmark = xodr.Lane(a=4)
@@ -44,34 +42,33 @@ lanesection.add_right_lane(xodr.Lane(a=4))
 
 # add a border
 
-lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.border,a=0.2))
-lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.border,a=0.2))
+lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.border, a=0.2))
+lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.border, a=0.2))
 
 # add a final curb
-lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb,a=0.1))
-lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb,a=0.1))
+lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
+lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
 
 # add a bikingroad on one side
-lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.biking,a=2))
+lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.biking, a=2))
 
 # create the lanes and add the lanesection
 lanes = xodr.Lanes()
 lanes.add_lanesection(lanesection)
 
 # create the road
-road = xodr.Road(0,planview,lanes)
+road = xodr.Road(0, planview, lanes)
 
 # create the opendrive and add the road
-odr = xodr.OpenDrive('road with custom lanes')
+odr = xodr.OpenDrive("road with custom lanes")
 odr.add_road(road)
 
 # adjust the road
 odr.adjust_roads_and_lanes()
 
 # write the OpenDRIVE file as xodr using current script name
-odr.write_xml(os.path.basename(__file__).replace('.py','.xodr'))
+odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
 
 # uncomment the following lines to display the road using esmini
-#from scenariogeneration import esmini
-#esmini(odr,os.path.join('esmini'))
-
+# from scenariogeneration import esmini
+# esmini(odr,os.path.join('esmini'))

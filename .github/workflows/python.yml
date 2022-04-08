@@ -1,0 +1,32 @@
+name: Python checks
+
+on:
+  push:
+    paths:
+      - .github/workflows/python.yml
+      - '**.py'
+  pull_request:
+    paths:
+      - .github/workflows/python.yml
+      - '**.py'
+
+jobs:
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install black
+        run: python3 -m pip install black
+      - uses: actions/checkout@v2
+      - name: Run black
+        run: python3 -m black --check **/*.py
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install pytest
+        run: python3 -m pip install pytest
+      - uses: actions/checkout@v2
+      - name: Install requirements
+        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+      - name: Run tests
+        run: python3 -m pytest tests/

@@ -1,3 +1,6 @@
+![Python](https://github.com/pyoscx/scenariogeneration/actions/workflows/python.yml/badge.svg?branch=main)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 # scenariogeneration
 
 The Python scenariogeneration package is a collection of libraries for generating OpenSCENARIO (.xosc) and OpenDRIVE (.xodr) XML files.
