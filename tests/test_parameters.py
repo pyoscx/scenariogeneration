@@ -19,10 +19,10 @@ def test_Stochastic():
     nd = OSC.NormalDistribution(0,1)
     stoc = OSC.Stochastic(100,1.234)
     stoc.add_distribution('myparam1',nd)
-    
+
     stoc2 = OSC.Stochastic(100,1.234)
     stoc2.add_distribution('myparam1',nd)
-    
+
     stoc3 = OSC.Stochastic(100,1.234)
     stoc3.add_distribution('myparam1',nd)
     stoc3.add_distribution('myparam2',nd)
@@ -68,10 +68,10 @@ def test_histogrambin():
     assert hb == hb2
     assert hb != hb3
     prettyprint(hb)
-    
+
     hb4 = OSC.parameters._HistogramBin.parse(hb.get_element())
     assert hb4 == hb
-    
+
 def test_histogram():
     h = OSC.Histogram()
     h.add_bin(1,OSC.Range(0,1))
@@ -86,7 +86,7 @@ def test_histogram():
     assert h != h3
     h4 = OSC.Histogram.parse(h3.get_element())
     assert h4 == h3
-    
+
 def test_uniformdist():
     ud = OSC.UniformDistribution(OSC.Range(0,1))
     ud2 = OSC.UniformDistribution(OSC.Range(0,1))
@@ -150,7 +150,7 @@ def test_distributionrange():
     assert dr != dr4
     dr5 = OSC.DistributionRange.parse(dr.get_element())
     assert dr5 == dr
-    
+
 def test_distributionset():
     ds = OSC.DistributionSet()
     ds.add_value('1')
@@ -187,13 +187,13 @@ def test_DeterministicMultiParameterDistribution():
     prettyprint(dist4,None)
     assert dist4 == dist3
 
-    
+
 
 def test_deterministic():
     pvs = OSC.ParameterValueSet()
     pvs.add_parameter('myparam1','1')
     dr = OSC.DistributionRange(1,OSC.Range(0,3))
-    
+
     dist = OSC.DeterministicMultiParameterDistribution()
     dist.add_value_set(pvs)
 
@@ -214,7 +214,7 @@ def test_deterministic():
     assert det != det3
     det4 = OSC.Deterministic.parse(det.get_element())
     assert det4 == det
-    
+
 
 def test_declaration_with_Stochastic():
     nd = OSC.NormalDistribution(0,1)
@@ -279,7 +279,7 @@ def test_Stochastic_factory(distribution):
     element.append(distribution.get_element())
     prettyprint(element, None)
     factoryoutput = OSC.parameters._StochasticFactory.parse_distribution(element)
-    
+
     prettyprint(factoryoutput)
     assert distribution == factoryoutput
 
@@ -297,6 +297,6 @@ def test_deterministic_factory(distribution):
     element.append(distribution.get_element())
     prettyprint(element, None)
     factoryoutput = OSC.parameters._DeterministicFactory.parse_distribution(element)
-    
+
     prettyprint(factoryoutput)
     assert distribution == factoryoutput

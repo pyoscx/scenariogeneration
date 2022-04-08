@@ -12,14 +12,14 @@ from .position import _PositionFactory
 
 class EmptyTrigger(_TriggerType):
     """ EmptyTrigger creates an empty trigger
-        
+
         Parameters
         ----------
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
 
         Attributes
         ----------
-            
+
         Methods
         -------
             get_element()
@@ -31,7 +31,7 @@ class EmptyTrigger(_TriggerType):
 
         Parameters
         ----------
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
 
         """
         if triggeringpoint not in ['start','stop']:
@@ -55,7 +55,7 @@ class EmptyTrigger(_TriggerType):
 
         """
         return ET.Element(self._triggerpoint)
-        
+
 class _EntityConditionFactory():
     @staticmethod
     def parse_entity_condition(element):
@@ -85,7 +85,7 @@ class _EntityConditionFactory():
             return DistanceCondition.parse(element)
         elif element.find('RelativeDistanceCondition') is not None:
             return RelativeDistanceCondition.parse(element)
-        else:       
+        else:
             raise NotAValidElement('element ', element ,'is not a valid entity condition')
 
 
@@ -127,15 +127,15 @@ class _ConditionFactory():
 class Trigger(_TriggerType):
     """ The Trigger class creates a Trigger that can be used if multiple ConditionGroups are wanted
         The Trigger acts like an "OR" logic for all added ConditionGroups
-        
+
         Parameters
         ----------
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
                 Default: start
 
         Attributes
         ----------
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
 
             conditiongroups (list of ConditionGroup): a list of all conditiongroups
 
@@ -145,7 +145,7 @@ class Trigger(_TriggerType):
                 Returns the full ElementTree of the class
 
             add_conditiongroup(conditiongroup)
-                Adds a conditiongroup to the trigger 
+                Adds a conditiongroup to the trigger
 
     """
     def __init__(self,triggeringpoint = 'start'):
@@ -154,7 +154,7 @@ class Trigger(_TriggerType):
         Parameters
         ----------
             triggeringpoint (str): start or stop
-         
+
         """
         if triggeringpoint not in ['start','stop']:
             raise ValueError('not a valid triggering point, valid start or stop')
@@ -196,12 +196,12 @@ class Trigger(_TriggerType):
             Returns
             -------
                 conditiongroup (ConditionGroup): a ConditionGroup object
-                
+
         """
-        
+
         trigger = Trigger()
         trigger._triggerpoint = element.tag
-        
+
         conditiongroups = element.findall('ConditionGroup')
         for condgr in conditiongroups:
             trigger.add_conditiongroup(ConditionGroup.parse(condgr))
@@ -214,13 +214,14 @@ class Trigger(_TriggerType):
         Parameters
         ----------
             conditiongroup (ConditionGroup): a conditiongroup to add to the trigger
-         
+
         """
         if not isinstance(conditiongroup,ConditionGroup):
-            raise TypeError('conditiongroup input not of type ConditionGroup')   
+            raise TypeError('conditiongroup input not of type ConditionGroup')
         conditiongroup._set_used_by_parent()
         self.conditiongroups.append(conditiongroup)
-    
+        return self
+
     def get_element(self):
         """ returns the elementTree of the Trigger
 
@@ -236,7 +237,7 @@ class Trigger(_TriggerType):
 class ConditionGroup(_TriggerType):
     """ The ConditionGroup class creates a Trigger that can be used if multiple Conditions are wanted
         The ConditionGroups acts like an "AND" logic for all added conditions
-        
+
         Parameters
         ----------
             triggeringpoint (str): start or stop (not needed if used with the Trigger class)
@@ -244,7 +245,7 @@ class ConditionGroup(_TriggerType):
 
         Attributes
         ----------
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
 
             conditions (list of EntityTriggers and Valuetriggers): a list of all conditions
 
@@ -263,7 +264,7 @@ class ConditionGroup(_TriggerType):
         Parameters
         ----------
             triggeringpoint (str): start or stop
-         
+
         """
         if triggeringpoint not in ['start','stop']:
             raise ValueError('not a valid triggering point, valid start or stop')
@@ -288,13 +289,13 @@ class ConditionGroup(_TriggerType):
                 if self._triggerpoint == other._triggerpoint and \
                     self.conditions[0] == other:
                     return True
-        
+
         return False
 
     @staticmethod
     def parse(element):
         """ Parses the xml element of ConditionGroup
-            Note: if 
+            Note: if
 
             Parameters
             ----------
@@ -303,9 +304,9 @@ class ConditionGroup(_TriggerType):
             Returns
             -------
                 conditiongroup (ConditionGroup): a ConditionGroup object
-                
+
         """
-        
+
         condgr = ConditionGroup()
         conditions = element.findall('Condition')
         for cond in conditions:
@@ -320,20 +321,21 @@ class ConditionGroup(_TriggerType):
             Parameters
             ----------
                 condition (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
-         
+
         """
         if not ( isinstance(condition,EntityTrigger) or isinstance(condition,ValueTrigger)):
-            raise TypeError('condition input not of type EntityTrigger or ValueTrigger')   
+            raise TypeError('condition input not of type EntityTrigger or ValueTrigger')
         condition._set_used_by_parent()
         self.conditions.append(condition)
         self._used_by_parent = False
-    
+        return self
+
     def _set_used_by_parent(self):
         """ _set_used_by_parent is used internaly if the condition group is added to a Trigger
 
         """
         self._used_by_parent = True
-    
+
     def get_element(self):
         """ returns the elementTree of the ConditionGroup
 
@@ -356,8 +358,8 @@ class ConditionGroup(_TriggerType):
 
 
 class EntityTrigger(_TriggerType):
-    """ the EntityTrigger creates an Trigger containing an EntityTrigger 
-        
+    """ the EntityTrigger creates an Trigger containing an EntityTrigger
+
         Parameters
         ----------
             name (str): name of the trigger
@@ -373,8 +375,8 @@ class EntityTrigger(_TriggerType):
             triggeringrule (TriggeringEntitiesRule): rule of the trigger
                 Default: 'any'
 
-            triggeringpoint (str): start or stop 
-            
+            triggeringpoint (str): start or stop
+
         Attributes
         ----------
             name (str): name of the trigger
@@ -384,7 +386,7 @@ class EntityTrigger(_TriggerType):
             conditionedge (ConditionEdge): the condition edge
 
             entitycondition (*EntityCondition): the entitycondition
-        
+
             triggerentity (TriggeringEntities): the triggering entity
 
         Methods
@@ -409,13 +411,13 @@ class EntityTrigger(_TriggerType):
 
             entitycondotion (*EntityCondition): an entity condition
 
-            triggeringentity (str): the entity of the trigger 
+            triggeringentity (str): the entity of the trigger
 
             triggeringrule (TriggeringEntitiesRule): rule of the trigger
                 Default: 'any'
 
-            triggeringpoint (str): start or stop 
-    
+            triggeringpoint (str): start or stop
+
         """
         self.name = name
         if triggeringpoint not in ['start','stop']:
@@ -424,7 +426,7 @@ class EntityTrigger(_TriggerType):
             self._triggerpoint = 'StartTrigger'
         else:
             self._triggerpoint = 'StopTrigger'
-            
+
         self.delay = delay
         if not hasattr(ConditionEdge,str(conditionedge)):
             raise ValueError('not a valid condition edge')
@@ -434,7 +436,7 @@ class EntityTrigger(_TriggerType):
         self.entitycondition = entitycondition
         self.triggerentity = TriggeringEntities(triggeringrule)
         self.triggerentity.add_entity(triggerentity)
-        
+
         self._used_by_parent = False
 
     def __eq__(self,other):
@@ -460,7 +462,7 @@ class EntityTrigger(_TriggerType):
     def parse(element):
         """ Parses the xml element of EntityTrigger
             NOTE: this parser will ONLY parse the Condition itself, not the CondintionGroup or Trigger that it can generate
-            
+
             Parameters
             ----------
                 element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
@@ -468,7 +470,7 @@ class EntityTrigger(_TriggerType):
             Returns
             -------
                 condition (EntityTrigger): a EntityTrigger object
-                
+
         """
         if element.tag != 'Condition':
             raise NotAValidElement('ValueTrigger only parses a Condition, not ', element)
@@ -498,6 +500,8 @@ class EntityTrigger(_TriggerType):
             triggeringentity (str)
         """
         self.triggerentity.add_entity(triggerentity)
+        return self
+
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
 
@@ -528,7 +532,7 @@ class EntityTrigger(_TriggerType):
 
 class ValueTrigger(_TriggerType):
     """ the ValueTrigger creates a Trigger of the type ValueTrigger of openscenario
-        
+
         Parameters
         ----------
             name (str): name of the trigger
@@ -539,13 +543,13 @@ class ValueTrigger(_TriggerType):
 
             valuecondition (*ValueCondition): a value condition
 
-            triggeringentity (str): the entity of the trigger 
+            triggeringentity (str): the entity of the trigger
 
             triggeringrule (str): rule of the trigger
                 Default: 'any'
 
-            triggeringpoint (str): start or stop 
-            
+            triggeringpoint (str): start or stop
+
         Attributes
         ----------
             name (str): name of the trigger
@@ -555,7 +559,7 @@ class ValueTrigger(_TriggerType):
             conditionedge (ConditionEdge): the condition edge
 
             valuecondition (*ValueCondition): the value condition
-        
+
             triggerentity (TriggeringEntities): the triggering entity
 
         Methods
@@ -569,7 +573,7 @@ class ValueTrigger(_TriggerType):
     """
     def __init__(self,name,delay,conditionedge,valuecondition,triggeringpoint='start'):
         """ initalize the ValueTrigger
-        
+
         Parameters
         ----------
             name (str): name of the trigger
@@ -580,12 +584,12 @@ class ValueTrigger(_TriggerType):
 
             valuecondition (*ValueCondition): a value condition
 
-            triggeringentity (str): the entity of the trigger 
+            triggeringentity (str): the entity of the trigger
 
             triggeringrule (str): rule of the trigger
                 Default: 'any'
             #TODO CHECK THIS
-            triggeringpoint (str): start or stop 
+            triggeringpoint (str): start or stop
 
         """
         self.name = name
@@ -595,7 +599,7 @@ class ValueTrigger(_TriggerType):
             self._triggerpoint = 'StartTrigger'
         else:
             self._triggerpoint = 'StopTrigger'
-            
+
         self.delay = delay
         if not hasattr(ConditionEdge,str(conditionedge)):
             raise ValueError('not a valid condition edge')
@@ -627,7 +631,7 @@ class ValueTrigger(_TriggerType):
     def parse(element):
         """ Parses the xml element of ValueTrigger
             NOTE: this parser will ONLY parse the Condition itself, not the CondintionGroup or Trigger that it can generate
-            
+
             Parameters
             ----------
                 element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
@@ -635,7 +639,7 @@ class ValueTrigger(_TriggerType):
             Returns
             -------
                 condition (ValueTrigger): a ValueTrigger object
-                
+
         """
         if element.tag != 'Condition':
             raise NotAValidElement('ValueTrigger only parses a Condition, not ', element)
@@ -677,7 +681,7 @@ class ValueTrigger(_TriggerType):
 
 class TriggeringEntities(VersionBase):
     """ the TriggeringEntities class is used by Value and Entity Triggers to defined the trigger entity
-        
+
         Parameters
         ----------
             triggeringrule (TriggeringEntitiesRule): all or any
@@ -692,7 +696,7 @@ class TriggeringEntities(VersionBase):
         -------
             add_entity(entity)
                 adds a entityref to the triggering entities
-                
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -702,7 +706,7 @@ class TriggeringEntities(VersionBase):
     """
     def __init__(self,triggeringrule):
         """ initalize the TriggeringEntities
-        
+
         Parameters
         ----------
             entity (TriggeringEntitiesRule): name of the entity
@@ -712,7 +716,7 @@ class TriggeringEntities(VersionBase):
         """
         if not hasattr(TriggeringEntitiesRule,str(triggeringrule)):
             raise ValueError('not a vaild triggering rule')
-        self.entity = [] 
+        self.entity = []
         self.triggeringrule = triggeringrule
 
     def __eq__(self,other):
@@ -733,9 +737,9 @@ class TriggeringEntities(VersionBase):
             Returns
             -------
                 triggeringentities (TriggeringEntities): a TriggeringEntities object
-                
+
         """
-        
+
         rule = getattr(TriggeringEntitiesRule,element.attrib['triggeringEntitiesRule'])
         triggeringentities = TriggeringEntities(rule)
         entrefs = element.findall('EntityRef')
@@ -750,9 +754,10 @@ class TriggeringEntities(VersionBase):
         Parameters
         ----------
             entity (str): name of the entity to add
-        
+
         """
         self.entity.append(EntityRef(entity))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the LaneOffsetAction as a dict
@@ -774,11 +779,11 @@ class TriggeringEntities(VersionBase):
 """ Entity conditions
 
 
-""" 
+"""
 
 class EndOfRoadCondition(_EntityTriggerType):
     """ the EndOfRoadCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             duration (float): the duration at the en of road
@@ -790,7 +795,7 @@ class EndOfRoadCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -801,7 +806,7 @@ class EndOfRoadCondition(_EntityTriggerType):
     """
     def __init__(self,duration):
         """ initalize the EndOfRoadCondition
-        
+
         Parameters
         ----------
             duration (float): the duration after the condition
@@ -826,7 +831,7 @@ class EndOfRoadCondition(_EntityTriggerType):
             Returns
             -------
                 condition (EndOfRoadCondition): a EndOfRoadCondition object
-                
+
         """
         condition = element.find('EndOfRoadCondition')
         duration = condition.attrib['duration']
@@ -849,7 +854,7 @@ class EndOfRoadCondition(_EntityTriggerType):
 
 class CollisionCondition(_EntityTriggerType):
     """ the CollisionCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             entity (str or ObjectType): name of the entity to collide with
@@ -861,7 +866,7 @@ class CollisionCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -872,13 +877,13 @@ class CollisionCondition(_EntityTriggerType):
     """
     def __init__(self,entity):
         """ the CollisionCondition class is an Entity Condition used by the EntityTrigger
-        
+
             Parameters
             ----------
                 entity (str or ObjectType): name of the entity to collide with
 
         """
-        
+
         self.entity = entity
 
     def __eq__(self,other):
@@ -898,17 +903,17 @@ class CollisionCondition(_EntityTriggerType):
             Returns
             -------
                 condition (CollisionCondition): a CollisionCondition object
-                
+
         """
         condition = element.find('CollisionCondition')
         bytype = condition.find('ByType')
         if bytype is not None:
-            entity = getattr(ObjectType,bytype.attrib['type']) 
+            entity = getattr(ObjectType,bytype.attrib['type'])
         else:
             entityref = EntityRef.parse(condition.find('EntityRef'))
             entity = entityref.entity
         return CollisionCondition(entity)
-    
+
     def get_element(self):
         """ returns the elementTree of the CollisionCondition
 
@@ -923,7 +928,7 @@ class CollisionCondition(_EntityTriggerType):
 
 class OffroadCondition(_EntityTriggerType):
     """ the OffroadCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             duration (float): the duration of offroad
@@ -935,7 +940,7 @@ class OffroadCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -945,8 +950,8 @@ class OffroadCondition(_EntityTriggerType):
 
     """
     def __init__(self,duration):
-        """ initalize the OffroadCondition 
-        
+        """ initalize the OffroadCondition
+
         Parameters
         ----------
             duration (float): the duration of offroad
@@ -971,7 +976,7 @@ class OffroadCondition(_EntityTriggerType):
             Returns
             -------
                 condition (OffroadCondition): a OffroadCondition object
-                
+
         """
         condition = element.find('OffroadCondition')
         duration = condition.attrib['duration']
@@ -993,14 +998,14 @@ class OffroadCondition(_EntityTriggerType):
 
 class TimeHeadwayCondition(_EntityTriggerType):
     """ the TimeHeadwayCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             entity (str): name of the entity for the headway
 
             value (float): time of headway
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1012,14 +1017,14 @@ class TimeHeadwayCondition(_EntityTriggerType):
                 Default: RelativeDistanceType.longitudinal
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                Default: CoordinateSystem.road 
+                Default: CoordinateSystem.road
         Attributes
         ----------
             entity (str): name of the entity for the headway
 
             value (float): time of headway
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
 
@@ -1028,11 +1033,11 @@ class TimeHeadwayCondition(_EntityTriggerType):
             distance_type (RelativeDistanceType): how the relative distance should be calculated (valid from V1.1)
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                
+
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1043,18 +1048,18 @@ class TimeHeadwayCondition(_EntityTriggerType):
     """
     def __init__(self,entity,value,rule,alongroute=True,freespace=True,distance_type=RelativeDistanceType.longitudinal,coordinate_system=CoordinateSystem.road):
         """ initalize the TimeHeadwayCondition
-        
+
         Parameters
         ----------
             entity (str): name of the entity for the headway
 
             value (float): time of headway
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
                 Default: True
-                
+
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
                 Default: True
 
@@ -1062,7 +1067,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
                 Default: RelativeDistanceType.longitudinal
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                Default: CoordinateSystem.road 
+                Default: CoordinateSystem.road
         """
         self.entity = entity
         self.value = value
@@ -1099,7 +1104,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
             Returns
             -------
                 condition (TimeHeadwayCondition): a TimeHeadwayCondition object
-                
+
         """
         condition = element.find('TimeHeadwayCondition')
         entity = condition.attrib['entityRef']
@@ -1114,13 +1119,13 @@ class TimeHeadwayCondition(_EntityTriggerType):
             reldisttype = getattr(RelativeDistanceType,condition.attrib['relativeDistanceType'])
         else:
             reldisttype = RelativeDistanceType.longitudinal
-        
+
         if 'coordinateSystem' in condition.attrib:
             coordsystem = getattr(CoordinateSystem,condition.attrib['coordinateSystem'])
         else:
             coordsystem = CoordinateSystem.road
         freespace = convert_bool(condition.attrib['freespace'])
-        
+
         return TimeHeadwayCondition(entity,value,rule,alongroute,freespace,reldisttype,coordsystem)
 
     def get_attributes(self):
@@ -1149,13 +1154,13 @@ class TimeHeadwayCondition(_EntityTriggerType):
 
 class TimeToCollisionCondition(_EntityTriggerType):
     """ the TimeToCollisionCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
 
             value (float): time to collision
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1172,13 +1177,13 @@ class TimeToCollisionCondition(_EntityTriggerType):
                 Default: RelativeDistanceType.longitudinal
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                Default: CoordinateSystem.road 
+                Default: CoordinateSystem.road
 
         Attributes
         ----------
             value (float): time before collision
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
             Default: True
@@ -1193,11 +1198,11 @@ class TimeToCollisionCondition(_EntityTriggerType):
             distance_type (RelativeDistanceType): how the relative distance should be calculated (valid from V1.1)
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                
+
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1208,13 +1213,13 @@ class TimeToCollisionCondition(_EntityTriggerType):
     """
     def __init__(self,value,rule,alongroute=True,freespace=True,entity=None,position=None,distance_type=RelativeDistanceType.longitudinal,coordinate_system=CoordinateSystem.road):
         """ initalize the TimeToCollisionCondition
-        
+
         Parameters
         ----------
 
             value (float): time to collision
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             alongroute (bool): if the route should count
                 Default: True
@@ -1226,12 +1231,12 @@ class TimeToCollisionCondition(_EntityTriggerType):
                 entity (str): the entity to trigger collision on
 
                 position (*Position): a position for collision
-        
+
             distance_type (RelativeDistanceType): how the relative distance should be calculated (valid from V1.1)
                 Default: RelativeDistanceType.longitudinal
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                Default: CoordinateSystem.road 
+                Default: CoordinateSystem.road
         """
         self.value = value
         if not isinstance(alongroute,bool):
@@ -1254,7 +1259,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
                 raise TypeError('input position is not a valid Position')
             self.position = position
             self.use_entity = False
-        
+
         if self.use_entity == None:
             raise ValueError('neither position or entity was set.')
 
@@ -1284,7 +1289,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
             Returns
             -------
                 condition (TimeToCollisionCondition): a TimeToCollisionCondition object
-                
+
         """
         condition = element.find('TimeToCollisionCondition')
         value = condition.attrib['value']
@@ -1299,7 +1304,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
             reldisttype = getattr(RelativeDistanceType,condition.attrib['relativeDistanceType'])
         else:
             reldisttype = RelativeDistanceType.longitudinal
-        
+
         if 'coordinateSystem' in condition.attrib:
             coordsystem = getattr(CoordinateSystem,condition.attrib['coordinateSystem'])
         else:
@@ -1329,7 +1334,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         basedict['freespace'] = convert_bool(self.freespace)
         basedict['rule'] = self.rule.get_name()
         return basedict
-        
+
 
     def get_element(self):
         """ returns the elementTree of the TimeToCollisionCondition
@@ -1337,36 +1342,36 @@ class TimeToCollisionCondition(_EntityTriggerType):
         """
         element = ET.Element('EntityCondition')
         collisionevent = ET.SubElement(element,'TimeToCollisionCondition',attrib=self.get_attributes())
-        
+
         targetelement = ET.SubElement(collisionevent,'TimeToCollisionConditionTarget')
 
         if self.use_entity:
             targetelement.append(self.entity.get_element())
-        else: 
+        else:
             targetelement.append(self.position.get_element())
-        
-        
+
+
         return element
-        
+
 class AccelerationCondition(_EntityTriggerType):
     """ the AccelerationCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Attributes
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1377,12 +1382,12 @@ class AccelerationCondition(_EntityTriggerType):
     """
     def __init__(self,value,rule):
         """ the AccelerationCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
         """
         self.value = value
         if not hasattr(Rule,str(rule)):
@@ -1406,7 +1411,7 @@ class AccelerationCondition(_EntityTriggerType):
             Returns
             -------
                 condition (AccelerationCondition): a AccelerationCondition object
-                
+
         """
         condition = element.find('AccelerationCondition')
         value = condition.attrib['value']
@@ -1429,7 +1434,7 @@ class AccelerationCondition(_EntityTriggerType):
 
 class StandStillCondition(_EntityTriggerType):
     """ the StandStillCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             duration (float): time of standstill
@@ -1441,7 +1446,7 @@ class StandStillCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1452,7 +1457,7 @@ class StandStillCondition(_EntityTriggerType):
     """
     def __init__(self,duration):
         """ the StandStillCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             duration (float): time of standstill
@@ -1477,7 +1482,7 @@ class StandStillCondition(_EntityTriggerType):
             Returns
             -------
                 condition (StandStillCondition): a StandStillCondition object
-                
+
         """
         condition = element.find('StandStillCondition')
         duration = condition.attrib['duration']
@@ -1499,23 +1504,23 @@ class StandStillCondition(_EntityTriggerType):
 
 class SpeedCondition(_EntityTriggerType):
     """ the SpeedCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): speed to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Attributes
         ----------
             value (float): speed to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1526,12 +1531,12 @@ class SpeedCondition(_EntityTriggerType):
     """
     def __init__(self,value,rule):
         """ initalize the SpeedCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): speed to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
         """
         self.value = value
         if not hasattr(Rule,str(rule)):
@@ -1543,7 +1548,7 @@ class SpeedCondition(_EntityTriggerType):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-    
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of SpeedCondition
@@ -1555,7 +1560,7 @@ class SpeedCondition(_EntityTriggerType):
             Returns
             -------
                 condition (SpeedCondition): a SpeedCondition object
-                
+
         """
         condition = element.find('SpeedCondition')
         value = condition.attrib['value']
@@ -1582,12 +1587,12 @@ class SpeedCondition(_EntityTriggerType):
 
 class RelativeSpeedCondition(_EntityTriggerType):
     """ the RelativeSpeedCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             entity (str): name of the entity to be relative to
 
@@ -1595,14 +1600,14 @@ class RelativeSpeedCondition(_EntityTriggerType):
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             entity (str): name of the entity to be relative to
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1613,15 +1618,15 @@ class RelativeSpeedCondition(_EntityTriggerType):
     """
     def __init__(self,value,rule,entity):
         """ initalize the RelativeSpeedCondition
-        
+
         Parameters
         ----------
             value (float): acceleration
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             entity (str): name of the entity to be relative to
-            
+
         """
         self.value = value
         if not hasattr(Rule,str(rule)):
@@ -1646,7 +1651,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
             Returns
             -------
                 condition (RelativeSpeedCondition): a RelativeSpeedCondition object
-                
+
         """
         condition = element.find('RelativeSpeedCondition')
         value = condition.attrib['value']
@@ -1675,7 +1680,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
 class TraveledDistanceCondition(_EntityTriggerType):
     """ the TraveledDistanceCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): how far it has traveled
@@ -1687,7 +1692,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1698,11 +1703,11 @@ class TraveledDistanceCondition(_EntityTriggerType):
     """
     def __init__(self,value):
         """ the TraveledDistanceCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): how far it has traveled
-        
+
         """
         self.value = value
 
@@ -1723,7 +1728,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
             Returns
             -------
                 condition (TraveledDistanceCondition): a TraveledDistanceCondition object
-                
+
         """
         condition = element.find('TraveledDistanceCondition')
         value = condition.attrib['value']
@@ -1741,11 +1746,11 @@ class TraveledDistanceCondition(_EntityTriggerType):
         """
         element = ET.Element('EntityCondition')
         ET.SubElement(element,'TraveledDistanceCondition',attrib=self.get_attributes())
-        return element 
-    
+        return element
+
 class ReachPositionCondition(_EntityTriggerType):
     """ the ReachPositionCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             position (*Position): any position to reach
@@ -1761,7 +1766,7 @@ class ReachPositionCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1772,7 +1777,7 @@ class ReachPositionCondition(_EntityTriggerType):
     """
     def __init__(self,position,tolerance):
         """ initalize the ReachPositionCondition
-        
+
         Parameters
         ----------
             position (*Position): any position to reach
@@ -1803,7 +1808,7 @@ class ReachPositionCondition(_EntityTriggerType):
             Returns
             -------
                 condition (ReachPositionCondition): a ReachPositionCondition object
-                
+
         """
         condition = element.find('ReachPositionCondition')
         tolerance = condition.attrib['tolerance']
@@ -1815,7 +1820,7 @@ class ReachPositionCondition(_EntityTriggerType):
 
         """
         return {'tolerance':str(self.tolerance)}
-        
+
 
     def get_element(self):
         """ returns the elementTree of the ReachPositionCondition
@@ -1828,12 +1833,12 @@ class ReachPositionCondition(_EntityTriggerType):
 
 class DistanceCondition(_EntityTriggerType):
     """ the DistanceCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): distance to position
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             position (*Position): any position to reach
 
@@ -1847,7 +1852,7 @@ class DistanceCondition(_EntityTriggerType):
                 Default: RelativeDistanceType.longitudinal
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
-                Default: CoordinateSystem.road 
+                Default: CoordinateSystem.road
 
         Attributes
         ----------
@@ -1868,7 +1873,7 @@ class DistanceCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -1912,7 +1917,7 @@ class DistanceCondition(_EntityTriggerType):
             Returns
             -------
                 condition (DistanceCondition): a DistanceCondition object
-                
+
         """
         condition = element.find('DistanceCondition')
         value = condition.attrib['value']
@@ -1927,7 +1932,7 @@ class DistanceCondition(_EntityTriggerType):
             reldisttype = getattr(RelativeDistanceType,condition.attrib['relativeDistanceType'])
         else:
             reldisttype = RelativeDistanceType.longitudinal
-        
+
         if 'coordinateSystem' in condition.attrib:
             coordsystem = getattr(CoordinateSystem,condition.attrib['coordinateSystem'])
         else:
@@ -1943,7 +1948,7 @@ class DistanceCondition(_EntityTriggerType):
         """
         basedict = {}
         basedict['value'] = str(self.value)
-        
+
         basedict['freespace'] = convert_bool(self.freespace)
         basedict['rule'] = self.rule.get_name()
         if self.isVersion(minor=0):
@@ -1958,7 +1963,7 @@ class DistanceCondition(_EntityTriggerType):
         """ returns the elementTree of the DistanceCondition
 
         """
-        
+
         element = ET.Element('EntityCondition')
         distancecond = ET.SubElement(element,'DistanceCondition',attrib=self.get_attributes())
         distancecond.append(self.position.get_element())
@@ -1966,16 +1971,16 @@ class DistanceCondition(_EntityTriggerType):
 
 class RelativeDistanceCondition(_EntityTriggerType):
     """ the RelativeDistanceCondition class is an Entity Condition used by the EntityTrigger
-        
+
         Parameters
         ----------
             value (float): distance to position
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             dist_type (RelativeDistanceType): type of relative distance
 
-            entity (str): name of the entity fore relative distance     
+            entity (str): name of the entity fore relative distance
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
                 Default: True
@@ -1987,7 +1992,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         ----------
             value (float): distance to position
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             entity (str): name of the entity fore relative distance
 
@@ -2000,7 +2005,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2011,16 +2016,16 @@ class RelativeDistanceCondition(_EntityTriggerType):
     """
     def __init__(self,value,rule,dist_type,entity,alongroute=True,freespace=True,coordinate_system=CoordinateSystem.entity):
         """ initalize the RelativeDistanceCondition
-        
+
         Parameters
         ----------
             value (float): distance to position
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             dist_type (RelativeDistanceType): type of relative distance
 
-            entity (str): name of the entity fore relative distance           
+            entity (str): name of the entity fore relative distance
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
                 Default: True
@@ -2059,7 +2064,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
             Returns
             -------
                 condition (RelativeDistanceCondition): a RelativeDistanceCondition object
-                
+
         """
         condition = element.find('RelativeDistanceCondition')
         value = condition.attrib['value']
@@ -2075,12 +2080,12 @@ class RelativeDistanceCondition(_EntityTriggerType):
             reldisttype = getattr(RelativeDistanceType,condition.attrib['relativeDistanceType'])
         else:
             reldisttype = RelativeDistanceType.longitudinal
-        
+
         if 'coordinateSystem' in condition.attrib:
             coordsystem = getattr(CoordinateSystem,condition.attrib['coordinateSystem'])
         else:
             coordsystem = CoordinateSystem.road
-        
+
         return RelativeDistanceCondition(value,rule,reldisttype,entity,alongroute,freespace,coordsystem)
 
     def get_attributes(self):
@@ -2104,7 +2109,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         element = ET.Element('EntityCondition')
         ET.SubElement(element,'RelativeDistanceCondition',attrib=self.get_attributes())
         return element
-        
+
 
 
 """ Value Conditions
@@ -2113,27 +2118,27 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
 class ParameterCondition(_ValueTriggerType):
     """ the ParameterCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
             parameter (str): the parameter to trigger on
 
-            value (int): value to trigger on 
+            value (int): value to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Attributes
         ----------
             parameter (str): the parameter to trigger on
 
-            value (int): value to trigger on 
+            value (int): value to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2149,9 +2154,9 @@ class ParameterCondition(_ValueTriggerType):
             ----------
                 parameter (str): the parameter to trigger on
 
-                value (int): value to trigger on 
+                value (int): value to trigger on
 
-                rule (Rule): condition rule of triggering 
+                rule (Rule): condition rule of triggering
 
         """
         self.parameter = parameter
@@ -2177,7 +2182,7 @@ class ParameterCondition(_ValueTriggerType):
             Returns
             -------
                 condition (ParameterCondition): a ParameterCondition object
-                
+
         """
         parameter = element.attrib['parameterRef']
         value = element.attrib['value']
@@ -2200,16 +2205,16 @@ class ParameterCondition(_ValueTriggerType):
 
 class TimeOfDayCondition(_ValueTriggerType):
     """ the TimeOfDayCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             time of day (str): datetime ??? format unknown
-            
+
         Attributes
         ----------
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
             time of day (str): datetime ??? format unknown
 
@@ -2226,10 +2231,10 @@ class TimeOfDayCondition(_ValueTriggerType):
         """ initalize the TimeOfDayCondition
             Parameters
             ----------
-                rule (Rule): condition rule of triggering 
+                rule (Rule): condition rule of triggering
 
                 time of day (str): datetime ??? format unknown
-            
+
         """
         if not hasattr(Rule,str(rule)):
             raise ValueError(rule + '; is not a valid rule.')
@@ -2253,13 +2258,13 @@ class TimeOfDayCondition(_ValueTriggerType):
             Returns
             -------
                 condition (TimeOfDayCondition): a TimeOfDayCondition object
-                
+
         """
-        
+
         datetime = element.attrib['datetime']
         rule = getattr(Rule,element.attrib['rule'])
         return TimeOfDayCondition(rule,datetime)
-    
+
     def get_attributes(self):
         """ returns the attributes of the TimeOfDayCondition as a dict
 
@@ -2277,23 +2282,23 @@ class TimeOfDayCondition(_ValueTriggerType):
 
 class SimulationTimeCondition(_ValueTriggerType):
     """ the SimulationTimeCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
-            value (int): simulation time 
+            value (int): simulation time
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Attributes
         ----------
-            value (int): simulation time 
+            value (int): simulation time
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2307,9 +2312,9 @@ class SimulationTimeCondition(_ValueTriggerType):
 
             Parameters
             ----------
-                value (int): simulation time 
+                value (int): simulation time
 
-                rule (Rule): condition rule of triggering 
+                rule (Rule): condition rule of triggering
         """
         self.value = value
         if not hasattr(Rule,str(rule)):
@@ -2333,7 +2338,7 @@ class SimulationTimeCondition(_ValueTriggerType):
             Returns
             -------
                 condition (SimulationTimeCondition): a SimulationTimeCondition object
-                
+
         """
         condition = element.find('SimulationTimeCondition')
         value = element.attrib['value']
@@ -2356,7 +2361,7 @@ class SimulationTimeCondition(_ValueTriggerType):
 
 class StoryboardElementStateCondition(_ValueTriggerType):
     """ the StoryboardElementStateCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
             element (StoryboardElementType): the element to trigger on
@@ -2376,7 +2381,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2421,7 +2426,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
             Returns
             -------
                 condition (StoryboardElementStateCondition): a StoryboardElementStateCondition object
-                
+
         """
         ref = element.attrib['storyboardElementRef']
         sbet = getattr(StoryboardElementType,element.attrib['storyboardElementType'])
@@ -2442,27 +2447,27 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
 class UserDefinedValueCondition(_ValueTriggerType):
     """ the UserDefinedValueCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
             name (str): name of the parameter
 
             value (int): value to trigger on
 
-            rule (Rule): condition rule of triggering 
-            
+            rule (Rule): condition rule of triggering
+
         Attributes
         ----------
             name (str): name of the parameter
 
             value (int): value to trigger on
 
-            rule (Rule): condition rule of triggering 
+            rule (Rule): condition rule of triggering
 
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2473,14 +2478,14 @@ class UserDefinedValueCondition(_ValueTriggerType):
     """
     def __init__(self,name,value,rule):
         """ initalize the UserDefinedValueCondition
-        
+
             Parameters
             ----------
                 name (str): name of the parameter
 
                 value (int): value to trigger on
 
-                rule (Rule): condition rule of triggering 
+                rule (Rule): condition rule of triggering
         """
         self.name = name
         self.value = value
@@ -2505,7 +2510,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
             Returns
             -------
                 condition (UserDefinedValueCondition): a UserDefinedValueCondition object
-                
+
         """
         name = element.attrib['name']
         value = element.attrib['value']
@@ -2527,7 +2532,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
 
 class TrafficSignalCondition(_ValueTriggerType):
     """ the TrafficSignalCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
             name (str): name of the traficsignal ???
@@ -2543,7 +2548,7 @@ class TrafficSignalCondition(_ValueTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2564,7 +2569,7 @@ class TrafficSignalCondition(_ValueTriggerType):
         """
         self.name = name
         self.state = state
-    
+
     def __eq__(self,other):
         if isinstance(other,TrafficSignalCondition):
             if self.get_attributes() == other.get_attributes():
@@ -2582,7 +2587,7 @@ class TrafficSignalCondition(_ValueTriggerType):
             Returns
             -------
                 condition (TrafficSignalCondition): a TrafficSignalCondition object
-                
+
         """
         name = element.attrib['name']
         state = element.attrib['state']
@@ -2603,7 +2608,7 @@ class TrafficSignalCondition(_ValueTriggerType):
 
 class TrafficSignalControllerCondition(_ValueTriggerType):
     """ the TrafficSignalControllerCondition class is an Value Condition used by the ValueTrigger
-        
+
         Parameters
         ----------
             trafficsignalref (str): ???
@@ -2619,7 +2624,7 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element()
                 Returns the full ElementTree of the class
@@ -2630,7 +2635,7 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
     """
     def __init__(self,trafficsignalref,phase):
         """ initalize the TrafficSignalControllerCondition
-        
+
             Parameters
             ----------
                 trafficsignalref (str): ???
@@ -2658,7 +2663,7 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
             Returns
             -------
                 condition (TrafficSignalControllerCondition): a TrafficSignalControllerCondition object
-                
+
         """
         trafficsignalref = element.attrib['trafficSignalControllerRef']
         phase = element.attrib['phase']

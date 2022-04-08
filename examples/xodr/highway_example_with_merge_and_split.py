@@ -1,19 +1,19 @@
-""" 
+"""
     An example, using the generators, showing how to create a highway with exits and entries, that has their own entry and exit lanes
 
-    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option 
+    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option
 
     Some features used:
-    
+
     - create_road
 
     - LaneDef (not a real OpenDrive definition but a helper for the xodr module)
-    
+
     - add_successor/add_predecessor with and without the lane_offset option
 
     - create_junction
 
-    
+
 """
 
 from scenariogeneration import xodr
@@ -72,7 +72,7 @@ roads[7].add_successor(xodr.ElementType.road,8,xodr.ContactPoint.start)
 # add connection to the entry road
 roads[8].add_predecessor(xodr.ElementType.junction,2)
 
-# create the junction struct 
+# create the junction struct
 exit_junction = xodr.create_junction(roads[3:5],1,roads[0:3])
 entry_junction = xodr.create_junction(roads[6:8],2,[roads[x] for x in [1,5,8]])
 # create the opendrive

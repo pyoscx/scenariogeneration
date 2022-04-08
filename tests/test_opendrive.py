@@ -23,11 +23,11 @@ def test_simple_road():
     prettyprint(road.get_element())
 
 
-    
 
-    
+
+
 def test_link_road():
-    
+
     planview = pyodrx.PlanView()
     planview.add_geometry(pyodrx.Line(100))
     lane1 = pyodrx.Lane(a=2)
@@ -82,7 +82,7 @@ def test_link_road():
 ([10, 100,-1,10, 5]),
 ])
 
-def test_create_straight_road(data): 
+def test_create_straight_road(data):
 
     road = pyodrx.generators.create_straight_road(data[0], length=data[1], junction=data[2], n_lanes=data[3], lane_offset=data[4])
     odr = pyodrx.OpenDrive('myroad')
@@ -100,7 +100,7 @@ def test_create_straight_road(data):
     assert road.lanes.lanesections[0].leftlanes[0].b == 0
     assert road.lanes.lanesections[0].leftlanes[0].c == 0
     assert road.lanes.lanesections[0].leftlanes[0].d == 0
-    
+
 
 def test_road_type():
     rt = pyodrx.opendrive._Type(pyodrx.RoadType.motorway,0,'SE')
@@ -116,7 +116,7 @@ def test_road_type():
     rt3 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway,1,'SE',speed='no limit')
     assert rt == rt2
     assert rt != rt3
-    
+
 
 def test_road_with_road_types():
     road = pyodrx.create_straight_road(0)
@@ -128,7 +128,7 @@ def test_road_with_road_types():
     road2.add_type(pyodrx.RoadType.motorway,0)
     road3 = pyodrx.create_straight_road(0,50)
     road3.add_type(pyodrx.RoadType.motorway,0)
-    
+
     odr = pyodrx.OpenDrive('')
     odr2 = pyodrx.OpenDrive('')
     odr3 = pyodrx.OpenDrive('')

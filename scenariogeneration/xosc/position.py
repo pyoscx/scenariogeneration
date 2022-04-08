@@ -55,7 +55,7 @@ class _ShapeFactory():
 
 class WorldPosition(_PositionType):
     """ the WorldPostion creates a worldposition of openScenario
-        
+
         Parameters
         ----------
             x (float): x-coord of the entity
@@ -88,10 +88,10 @@ class WorldPosition(_PositionType):
         -------
             parse(element)
                 parses a ElementTree created by the class and returns an instance of the class
-                
+
             get_element(elementname)
                 Returns the full ElementTree of the class
-            
+
             get_attributes()
                 Returns a dictionary of all attributes of the class
 
@@ -112,10 +112,10 @@ class WorldPosition(_PositionType):
                 p (float): pitch of the entity
 
                 r (float): roll of the entity
-        """ 
+        """
         self.x = convert_float(x)
         self.y = convert_float(y)
-        
+
         self.z = convert_float(z)
         self.h = convert_float(h)
         self.p = convert_float(p)
@@ -127,7 +127,7 @@ class WorldPosition(_PositionType):
                return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of WorldPosition
 
@@ -156,7 +156,7 @@ class WorldPosition(_PositionType):
         if 'r' in position_element.attrib:
             r = convert_float(position_element.attrib['r'])
         return WorldPosition(x,y,z,h,p,r)
-        
+
     def get_attributes(self):
         """ returns the attributes of the WorldPostion as a dict
 
@@ -185,7 +185,7 @@ class WorldPosition(_PositionType):
 
 class RelativeWorldPosition(_PositionType):
     """ the WorldRelativePosition creates a RelativePosition with the option of world as reference
-        
+
         Parameters
         ----------
             entity (str): the entity to be relative to
@@ -198,7 +198,7 @@ class RelativeWorldPosition(_PositionType):
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Attributes
         ----------
             target (str): the entity to be relative to
@@ -248,14 +248,14 @@ class RelativeWorldPosition(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
-    
+
     def __eq__(self,other):
         if isinstance(other,RelativeWorldPosition):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of RelativeWorldPosition
 
@@ -266,14 +266,14 @@ class RelativeWorldPosition(_PositionType):
             Returns
             -------
                 position (RelativeWorldPosition): a world position object
-                
+
         """
         position_element = element.find('RelativeWorldPosition')
         dx = convert_float(position_element.attrib['dx'])
         dy = convert_float(position_element.attrib['dy'])
         dz = convert_float(position_element.attrib['dz'])
         entityref = position_element.attrib['entityRef']
-        
+
         if position_element.find('Orientation') != None:
             orientation = Orientation.parse(position_element.find('Orientation'))
         else:
@@ -300,7 +300,7 @@ class RelativeWorldPosition(_PositionType):
                     Default: Position
 
         """
-        element = ET.Element(elementname)            
+        element = ET.Element(elementname)
         relpos = ET.SubElement(element,'RelativeWorldPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             relpos.append(self.orient.get_element())
@@ -308,7 +308,7 @@ class RelativeWorldPosition(_PositionType):
 
 class RelativeObjectPosition(_PositionType):
     """ the RelativeObjectPosition creates a RelativePosition with the option of object as reference
-        
+
         Parameters
         ----------
             entity (str): the entity to be relative to
@@ -321,7 +321,7 @@ class RelativeObjectPosition(_PositionType):
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Attributes
         ----------
             target (str): the entity to be relative to
@@ -379,7 +379,7 @@ class RelativeObjectPosition(_PositionType):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
                 return True
         return False
-    
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of RelativeObjectPosition
@@ -391,7 +391,7 @@ class RelativeObjectPosition(_PositionType):
             Returns
             -------
                 position (RelativeObjectPosition): a world position object
-                
+
         """
         position_element = element.find('RelativeObjectPosition')
         dx = convert_float(position_element.attrib['dx'])
@@ -401,7 +401,7 @@ class RelativeObjectPosition(_PositionType):
         else:
             dz = None
         entityref = position_element.attrib['entityRef']
-        
+
         if position_element.find('Orientation') != None:
             orientation = Orientation.parse(position_element.find('Orientation'))
         else:
@@ -427,9 +427,9 @@ class RelativeObjectPosition(_PositionType):
             ----------
                 elementname (str): used if another name is needed for the position
                     Default: Position
-                    
+
         """
-        element = ET.Element(elementname)              
+        element = ET.Element(elementname)
         relpos = ET.SubElement(element,'RelativeObjectPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             relpos.append(self.orient.get_element())
@@ -438,7 +438,7 @@ class RelativeObjectPosition(_PositionType):
 
 class RoadPosition(_PositionType):
     """  the RoadPosition creates a RoadPosition of openScenario
-        
+
         Parameters
         ----------
             s (float): length along road
@@ -449,7 +449,7 @@ class RoadPosition(_PositionType):
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Attributes
         ----------
             s (float): length along road
@@ -460,7 +460,7 @@ class RoadPosition(_PositionType):
 
             orient (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Methods
         -------
             parse(element)
@@ -475,7 +475,7 @@ class RoadPosition(_PositionType):
     """
     def __init__(self,s,t,reference_id,orientation=Orientation()):
         """ initalize the RoadPosition
-        
+
             Parameters
             ----------
                 s (float): length along road
@@ -512,7 +512,7 @@ class RoadPosition(_PositionType):
             Returns
             -------
                 position (RoadPosition): a world position object
-                
+
         """
         position_element = element.find('RoadPosition')
         roadId = convert_int(position_element.attrib['roadId'])
@@ -532,9 +532,9 @@ class RoadPosition(_PositionType):
         retdict = {}
         retdict['roadId'] = str(self.id)
         retdict['s'] = str(self.s)
-        retdict['t'] = str(self.t)                
+        retdict['t'] = str(self.t)
         return retdict
-    
+
     def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RoadPosition
 
@@ -542,7 +542,7 @@ class RoadPosition(_PositionType):
             ----------
                 elementname (str): used if another name is needed for the position
                     Default: Position
-                    
+
         """
         element = ET.Element(elementname)
         roadpos = ET.SubElement(element,'RoadPosition',attrib=self.get_attributes())
@@ -553,7 +553,7 @@ class RoadPosition(_PositionType):
 
 class RelativeRoadPosition(_PositionType):
     """  the RelativeRoadPosition creates a RelativeRoadPosition of openScenario
-        
+
         Parameters
         ----------
             ds (float): length along road
@@ -564,7 +564,7 @@ class RelativeRoadPosition(_PositionType):
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Attributes
         ----------
             ds (float): length along road
@@ -575,7 +575,7 @@ class RelativeRoadPosition(_PositionType):
 
             orient (Orientation): the angular orientation of the entity
                 Default: Orientation()
-        
+
         Methods
         -------
             parse(element)
@@ -590,7 +590,7 @@ class RelativeRoadPosition(_PositionType):
     """
     def __init__(self,ds,dt,entity,orientation=Orientation()):
         """ initalize the RelativeRoadPosition
-        
+
             Parameters
             ----------
                 ds (float): length along road
@@ -609,7 +609,7 @@ class RelativeRoadPosition(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
-    
+
     def __eq__(self,other):
         if isinstance(other,RelativeRoadPosition):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
@@ -627,10 +627,10 @@ class RelativeRoadPosition(_PositionType):
             Returns
             -------
                 position (RelativeRoadPosition): a world position object
-                
+
         """
         position_element = element.find('RelativeRoadPosition')
-        
+
         ds = convert_float(position_element.attrib['ds'])
         dt = convert_float(position_element.attrib['dt'])
         entityref = position_element.attrib['entityRef']
@@ -650,7 +650,7 @@ class RelativeRoadPosition(_PositionType):
         retdict['ds'] = str(self.ds)
         retdict['dt'] = str(self.dt)
         return retdict
-    
+
     def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RelativeRoadPosition
 
@@ -658,9 +658,9 @@ class RelativeRoadPosition(_PositionType):
             ----------
                 elementname (str): used if another name is needed for the position
                     Default: Position
-                    
+
         """
-        element = ET.Element(elementname)    
+        element = ET.Element(elementname)
         roadpos = ET.SubElement(element,'RelativeRoadPosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             roadpos.append(self.orient.get_element())
@@ -668,7 +668,7 @@ class RelativeRoadPosition(_PositionType):
 
 class LanePosition(_PositionType):
     """ the LanePosition creates a LanePosition of openScenario
-        
+
         Parameters
         ----------
             s (float): length along road
@@ -677,10 +677,10 @@ class LanePosition(_PositionType):
 
             lane_id (int): lane of the road
 
-            road_id (int): id of the road           
+            road_id (int): id of the road
 
             orientation (Orientation): the angular orientation of the entity
-                Default: Orientation()    
+                Default: Orientation()
 
         Attributes
         ----------
@@ -698,7 +698,7 @@ class LanePosition(_PositionType):
         Methods
         -------
             parse(element)
-                parses a ElementTree created by the class and returns an instance of the class   
+                parses a ElementTree created by the class and returns an instance of the class
 
             get_element(elementname)
                 Returns the full ElementTree of the class
@@ -709,21 +709,21 @@ class LanePosition(_PositionType):
     """
     def __init__(self,s,offset,lane_id,road_id,orientation=Orientation()):
         """ initalizes the LanePosition
-        
+
         Parameters
         ----------
             s (float): length along road
 
             offset (float): offset from center of lane
-            
+
             lane_id (int): lane of the road
 
-            road_id (int): id of the road           
+            road_id (int): id of the road
 
             orientation (Orientation): the angular orientation of the entity
-                Default: Orientation()  
-        
-        """ 
+                Default: Orientation()
+
+        """
         self.s = convert_float(s)
         self.lane_id = convert_int(lane_id)
         self.offset = convert_float(offset)
@@ -731,7 +731,7 @@ class LanePosition(_PositionType):
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
-    
+
     def __eq__(self,other):
         if isinstance(other,LanePosition):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
@@ -749,7 +749,7 @@ class LanePosition(_PositionType):
             Returns
             -------
                 position (LanePosition): a world position object
-                
+
         """
         position_element = element.find('LanePosition')
         roadId = convert_int(position_element.attrib['roadId'])
@@ -772,9 +772,9 @@ class LanePosition(_PositionType):
         retdict['laneId'] = str(self.lane_id)
         retdict['s'] = str(self.s)
         retdict['offset'] = str(self.offset)
-                   
+
         return retdict
-    
+
     def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the LanePosition
 
@@ -782,9 +782,9 @@ class LanePosition(_PositionType):
             ----------
                 elementname (str): used if another name is needed for the position
                     Default: Position
-                    
+
         """
-        element = ET.Element(elementname)    
+        element = ET.Element(elementname)
         lanepos = ET.SubElement(element,'LanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             lanepos.append(self.orient.get_element())
@@ -793,14 +793,14 @@ class LanePosition(_PositionType):
 
 class RelativeLanePosition(_PositionType):
     """ the RelativeLanePosition creates a RelativeLanePosition of openScenario
-        
+
         Parameters
         ----------
             lane_id (int): lane of the road
 
-            entity (str): id of the entity  
+            entity (str): id of the entity
 
-            offset (float): offset from center of lane             
+            offset (float): offset from center of lane
                 Default: 0
 
             ds (float): length along road (use this or dsLane)
@@ -810,7 +810,7 @@ class RelativeLanePosition(_PositionType):
                 Default: None
 
             orientation (Orientation): the angular orientation of the entity
-                Default: Orientation()    
+                Default: Orientation()
 
         Attributes
         ----------
@@ -841,14 +841,14 @@ class RelativeLanePosition(_PositionType):
     """
     def __init__(self,lane_id,entity,offset=0,ds=None,dsLane=None,orientation=Orientation()):
         """ initalizes the RelativeLanePosition
-        
+
         Parameters
         ----------
             lane_id (int): lane of the road
 
-            entity (str): id of the entity  
+            entity (str): id of the entity
 
-            offset (float): offset from center of lane             
+            offset (float): offset from center of lane
                 Default: 0
 
             ds (float): length along road (use this or dsLane)
@@ -858,9 +858,9 @@ class RelativeLanePosition(_PositionType):
                 Default: None
 
             orientation (Orientation): the angular orientation of the entity
-                Default: Orientation()    
-        
-        """ 
+                Default: Orientation()
+
+        """
         if ds != None and dsLane != None:
             raise ToManyOptionalArguments('Not both of ds and dsLane can be used.')
         if ds == None and dsLane == None:
@@ -870,11 +870,11 @@ class RelativeLanePosition(_PositionType):
         self.lane_id = convert_int(lane_id)
         self.offset = convert_float(offset)
         self.entity = entity
-        
+
         if not isinstance(orientation,Orientation):
             raise TypeError('input orientation is not of type Orientation')
         self.orient = orientation
-    
+
     def __eq__(self,other):
         if isinstance(other,RelativeLanePosition):
             if self.get_attributes() == other.get_attributes() and self.orient == other.orient:
@@ -892,18 +892,18 @@ class RelativeLanePosition(_PositionType):
             Returns
             -------
                 position (RelativeLanePosition): a world position object
-                
+
         """
         position_element = element.find('RelativeLanePosition')
         ds = None
         dslane = None
         if 'ds' in position_element.attrib:
             ds = convert_float(position_element.attrib['ds'])
-            
+
         offset = convert_float(position_element.attrib['offset'])
         if 'dsLane' in position_element.attrib:
             dslane = convert_float(position_element.attrib['dsLane'])
-        
+
         dLane = convert_int(position_element.attrib['dLane'])
 
         entityref = position_element.attrib['entityRef']
@@ -928,7 +928,7 @@ class RelativeLanePosition(_PositionType):
         retdict['offset'] = str(self.offset)
         retdict['dLane'] = str(self.lane_id)
         return retdict
-    
+
     def get_element(self,elementname = 'Position'):
         """ returns the elementTree of the RelativeLanePosition
 
@@ -936,9 +936,9 @@ class RelativeLanePosition(_PositionType):
             ----------
                 elementname (str): used if another name is needed for the position
                     Default: Position
-                    
+
         """
-        element = ET.Element(elementname)    
+        element = ET.Element(elementname)
         lanepos = ET.SubElement(element,'RelativeLanePosition',attrib=self.get_attributes())
         if self.orient.is_filled():
             lanepos.append(self.orient.get_element())
@@ -947,7 +947,7 @@ class RelativeLanePosition(_PositionType):
 
 class RoutePositionOfCurrentEntity(_PositionType):
     """ RoutePositionOfCurrentEntity creates a RoutePosition with the InRoutePosition of type PositionOfCurrentEntity
-        
+
         Parameters
         ----------
             route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -976,7 +976,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
     """
     def __init__(self,route_ref,entity,orientation = Orientation()):
         """ Initalize the RoutePositionOfCurrentEntity class
-        
+
             Parameters
             ----------
                 route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -987,7 +987,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
                     Default: Orientation()
         """
         if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
-            raise TypeError('route input not of type Route or CatalogReference') 
+            raise TypeError('route input not of type Route or CatalogReference')
         self.route_ref = route_ref
         self.entity = entity
         if not isinstance(orientation,Orientation):
@@ -999,7 +999,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             if self.entity == other.entity and self.orientation == other.orientation and self.route_ref == other.route_ref:
                 return True
         return False
- 
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of RoutePositionOfCurrentEntity
@@ -1011,7 +1011,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             Returns
             -------
                 position (RoutePositionOfCurrentEntity): a RoutePositionOfCurrentEntity object
-                
+
         """
         position_element = element.find('RoutePosition')
         if position_element.find('Orientation') != None:
@@ -1025,7 +1025,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             routeref = Route.parse(route_element.find('Route'))
         else:
             routeref = CatalogReference.parse(route_element.find('CatalogReference'))
-    
+
         return RoutePositionOfCurrentEntity(routeref,entity,orientation)
 
     def get_element(self,elementname = 'Position'):
@@ -1045,7 +1045,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
 
 class RoutePositionInRoadCoordinates(_PositionType):
     """ RoutePositionInRoadCoordinates creates a RoutePosition with the InRoutePosition of type PositionInRoadCooardinates
-        
+
         Parameters
         ----------
             route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -1078,7 +1078,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
     """
     def __init__(self, route_ref, s, t, orientation = Orientation()):
         """ Initalize the RoutePositionInRoadCoordinates class
-        
+
             Parameters
             ----------
                 route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -1091,7 +1091,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
                     Default: Orientation()
         """
         if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
-            raise TypeError('route input not of type Route or CatalogReference') 
+            raise TypeError('route input not of type Route or CatalogReference')
         self.route_ref = route_ref
         self.s = convert_float(s)
         self.t = convert_float(t)
@@ -1116,7 +1116,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
             Returns
             -------
                 position (RoutePositionInRoadCoordinates): a RoutePositionInRoadCoordinates object
-                
+
         """
         position_element = element.find('RoutePosition')
         if position_element.find('Orientation') != None:
@@ -1131,7 +1131,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
             routeref = Route.parse(route_element.find('Route'))
         else:
             routeref = CatalogReference.parse(route_element.find('CatalogReference'))
-    
+
         return RoutePositionInRoadCoordinates(routeref,s,t,orientation)
 
     def get_element(self,elementname = 'Position'):
@@ -1150,7 +1150,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
 
 class RoutePositionInLaneCoordinates(_PositionType):
     """ RoutePositionInLaneCoordinates creates a RoutePosition with the InRoutePosition of type PositionInLaneCoordinates
-        
+
         Parameters
         ----------
             route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -1189,7 +1189,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
     """
     def __init__(self, route_ref, s, laneid, offset, orientation = Orientation()):
         """ Initalize the RoutePositionInLaneCoordinates class
-        
+
             Parameters
             ----------
                 route_ref (Route, or CatalogReference): Reference to the route the position is calculated from
@@ -1205,7 +1205,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
                     Default: Orientation()
         """
         if not ( isinstance(route_ref,Route) or isinstance(route_ref,CatalogReference)):
-            raise TypeError('route input not of type Route or CatalogReference') 
+            raise TypeError('route input not of type Route or CatalogReference')
         self.route_ref = route_ref
         self.s = convert_float(s)
         self.laneid = convert_int(laneid)
@@ -1220,7 +1220,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
             self.orientation == other.orientation and self.route_ref == other.route_ref:
                 return True
         return False
-    
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of RoutePositionInLaneCoordinates
@@ -1232,7 +1232,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
             Returns
             -------
                 position (RoutePositionInLaneCoordinates): a RoutePositionInLaneCoordinates object
-                
+
         """
         position_element = element.find('RoutePosition')
         if position_element.find('Orientation') != None:
@@ -1248,7 +1248,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
             routeref = Route.parse(route_element.find('Route'))
         else:
             routeref = CatalogReference.parse(route_element.find('CatalogReference'))
-    
+
         return RoutePositionInLaneCoordinates(routeref,s,lane_id,offset,orientation)
 
 
@@ -1268,7 +1268,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
 
 class TrajectoryPosition(_PositionType):
     """ TrajectoryPosition creates a TrajectoryPosition of OpenSCENARIO
-        
+
         Parameters
         ----------
             trajectory (Trajector, or CatalogRef): t coordinate of the road
@@ -1303,7 +1303,7 @@ class TrajectoryPosition(_PositionType):
     """
     def __init__(self, trajectory, s, t = None, orientation = Orientation()):
         """ Initalize the TrajectoryPosition class
-        
+
             Parameters
             ----------
                 trajectory (Trajectory, or CatalogRef): t coordinate of the road
@@ -1317,7 +1317,7 @@ class TrajectoryPosition(_PositionType):
                     Default: Orientation()
         """
         if not ( isinstance(trajectory,Trajectory) or isinstance(trajectory,CatalogReference)):
-            raise TypeError('trajectory input not of type Trajectory or CatalogReference') 
+            raise TypeError('trajectory input not of type Trajectory or CatalogReference')
         self.trajectory = trajectory
         self.s = convert_float(s)
         self.t = convert_float(t)
@@ -1331,7 +1331,7 @@ class TrajectoryPosition(_PositionType):
             self.orientation == other.orientation and self.trajectory == other.trajectory:
                 return True
         return False
-    
+
     @staticmethod
     def parse(element):
         """ Parses the xml element of TrajectoryPosition
@@ -1343,14 +1343,14 @@ class TrajectoryPosition(_PositionType):
             Returns
             -------
                 position (TrajectoryPosition): a TrajectoryPosition object
-                
+
         """
         position_element = element.find('TrajectoryPosition')
         if position_element.find('Orientation') != None:
             orientation = Orientation.parse(position_element.find('Orientation'))
         else:
             orientation = Orientation()
-        
+
         s = position_element.attrib['s']
         t = None
         if 't' in position_element:
@@ -1361,7 +1361,7 @@ class TrajectoryPosition(_PositionType):
             trajectory = Trajectory.parse(trajectory_element.find('Trajectory'))
         else:
             trajectory = CatalogReference.parse(trajectory_element.find('CatalogReference'))
-    
+
         return TrajectoryPosition(trajectory,s,t,orientation)
 
     def get_attributes(self):
@@ -1386,13 +1386,13 @@ class TrajectoryPosition(_PositionType):
         trajref_element = ET.SubElement(traj_element,'TrajectoryRef')
         trajref_element.append(self.trajectory.get_element())
         traj_element.append(self.orientation.get_element())
-        
+
         return element
 
 
 class GeoPosition(_PositionType):
-    """ GeoPosition creates a GeoPosition of OpenSCENARIO 
-        
+    """ GeoPosition creates a GeoPosition of OpenSCENARIO
+
         Parameters
         ----------
             latitue (float): latitude point on earth
@@ -1424,7 +1424,7 @@ class GeoPosition(_PositionType):
 
             get_element()
                 Returns the full ElementTree of the class
-            
+
             get_attributes()
                 Returns a dictionary of all attributes of the class
 
@@ -1432,7 +1432,7 @@ class GeoPosition(_PositionType):
     """
     def __init__(self, latitude, longitude, height = None, orientation = Orientation()):
         """ Initalize the GeoPosition class
-        
+
             Parameters
             ----------
                 latitue (float): latitude point on earth
@@ -1459,7 +1459,7 @@ class GeoPosition(_PositionType):
             self.orientation == other.orientation:
                 return True
         return False
-    
+
     def parse(element):
         """ Parses the xml element of GeoPosition
 
@@ -1470,7 +1470,7 @@ class GeoPosition(_PositionType):
             Returns
             -------
                 position (GeoPosition): a GeoPosition object
-                
+
         """
         position_element = element.find('GeoPosition')
         longitude = convert_float(position_element.attrib['longitude'])
@@ -1479,8 +1479,8 @@ class GeoPosition(_PositionType):
             height = convert_float(position_element.attrib['height'])
         else:
             height = None
-        
-        
+
+
         if position_element.find('Orientation') != None:
             orientation = Orientation.parse(position_element.find('Orientation'))
         else:
@@ -1508,13 +1508,13 @@ class GeoPosition(_PositionType):
         element = ET.Element(elementname)
         traj_element = ET.SubElement(element,'GeoPosition',self.get_attributes())
         traj_element.append(self.orientation.get_element())
-        
+
         return element
 
 
 class Polyline(VersionBase):
     """ the Polyline class creates a polyline of (minimum 2) positions
-        
+
         Parameters
         ----------
             time (list of double): a list of timings for the positions
@@ -1561,8 +1561,8 @@ class Polyline(VersionBase):
             if self.time == other.time and self.positions == other.positions:
                 return True
         return False
-    
-    @staticmethod 
+
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Polyline
 
@@ -1602,7 +1602,7 @@ class Polyline(VersionBase):
 
 class Clothoid(VersionBase):
     """ the Clothoid class creates a Clothoid shape
-        
+
         Parameters
         ----------
             curvature (float): start curvature of the clothoid
@@ -1679,7 +1679,7 @@ class Clothoid(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Clothoid
 
@@ -1700,15 +1700,15 @@ class Clothoid(VersionBase):
         stoptime = None
         if 'startTime' in clothoid_element.attrib:
             starttime = convert_float(clothoid_element.attrib['startTime'])
-        
+
         if 'stopTime' in clothoid_element.attrib:
             stoptime = convert_float(clothoid_element.attrib['stopTime'])
-        
+
         if 'curvatureDot' in clothoid_element.attrib:
             curvature_change = convert_float(clothoid_element.element['curvaturePrime'])
         elif 'curvaturePrime' in clothoid_element.attrib:
             curvature_change = convert_float(clothoid_element.attrib['curvaturePrime'])
-        
+
         return Clothoid(curvature,curvature_change,length,start_position,starttime,stoptime)
 
     def get_attributes(self):
@@ -1740,8 +1740,8 @@ class Clothoid(VersionBase):
 ################## Utilities using positions (here due to parsing dependencies)
 
 class ControlPoint(VersionBase):
-    """ the ControlPoint class is used by Nurbs to define points 
-        
+    """ the ControlPoint class is used by Nurbs to define points
+
         Parameters
         ----------
             position (*Position): a position for the point
@@ -1801,7 +1801,7 @@ class ControlPoint(VersionBase):
         return False
 
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of ControlPoint
 
@@ -1822,7 +1822,7 @@ class ControlPoint(VersionBase):
             weight = convert_float(element.attrib['weight'])
         pos_element = element.find('Position')
         position = _PositionFactory.parse_position(pos_element)
-        
+
         return ControlPoint(position,time,weight)
 
 
@@ -1848,7 +1848,7 @@ class ControlPoint(VersionBase):
 
 class Waypoint(VersionBase):
     """ the Route class creates a route, needs atleast two waypoints to be valid
-        
+
         Parameters
         ----------
             position (*Position): any position for the route
@@ -1894,7 +1894,7 @@ class Waypoint(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Waypoint
 
@@ -1930,7 +1930,7 @@ class Waypoint(VersionBase):
 
 class Route(VersionBase):
     """ the Route class creates a route, needs atleast two waypoints to be valid
-        
+
         Parameters
         ----------
             name (str): name of the Route
@@ -1943,7 +1943,7 @@ class Route(VersionBase):
             name (str): name of the Route
 
             closed (boolean): if the waypoints forms a loop
-            
+
             waypoints (list of Waypoint): a list of waypoints
 
             parameters (ParameterDeclarations)
@@ -1997,7 +1997,7 @@ class Route(VersionBase):
         return False
 
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of WorldPoRoutesition
 
@@ -2021,7 +2021,7 @@ class Route(VersionBase):
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -2031,7 +2031,7 @@ class Route(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
@@ -2062,6 +2062,7 @@ class Route(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('parameter input is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def add_waypoint(self,position,routestrategy):
         """ adds a waypoint to the Route
@@ -2075,6 +2076,7 @@ class Route(VersionBase):
         """
         # note: the checks for types are done in Waypoint
         self.waypoints.append(Waypoint(position,routestrategy))
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Route as a dict
@@ -2101,8 +2103,8 @@ class Route(VersionBase):
 
 
 class Trajectory(VersionBase):
-    """ the Trajectory class creates a Trajectory, 
-        
+    """ the Trajectory class creates a Trajectory,
+
         Parameters
         ----------
             name (str): name of the trajectory
@@ -2125,8 +2127,8 @@ class Trajectory(VersionBase):
                 parses a ElementTree created by the class and returns an instance of the class
 
             add_shape(Polyline, Clothoid, or Nurbs):
-                adds a shape to the trajectory 
-            
+                adds a shape to the trajectory
+
             add_parameter(Parameter)
                 adds a parameter to the route
 
@@ -2135,7 +2137,7 @@ class Trajectory(VersionBase):
 
             dump_to_catalog(filename,name,description,author)
                 crates a new catalog with the vehicle
-                
+
             get_element()
                 Returns the full ElementTree of the class
 
@@ -2170,7 +2172,7 @@ class Trajectory(VersionBase):
                 return True
         return False
 
-    @staticmethod 
+    @staticmethod
     def parse(element):
         """ Parses the xml element of Trajectory
 
@@ -2194,7 +2196,7 @@ class Trajectory(VersionBase):
 
     def dump_to_catalog(self,filename,catalogtype,description,author):
         """ dump_to_catalog creates a new catalog and adds the Controller to it
-            
+
             Parameters
             ----------
                 filename (str): path of the new catalog file
@@ -2204,7 +2206,7 @@ class Trajectory(VersionBase):
                 description (str): description of the catalog
 
                 author (str): author of the catalog
-        
+
         """
         cf = CatalogFile()
         cf.create_catalog(filename,catalogtype,description,author)
@@ -2235,6 +2237,7 @@ class Trajectory(VersionBase):
         if not (isinstance(shape,Polyline) or isinstance(shape,Clothoid) or isinstance(shape,Nurbs)):
             raise TypeError('shape input neither of type Polyline, Clothoid, or Nurbs')
         self.shapes = shape
+        return self
 
     def add_parameter(self,parameter):
         """ adds a parameter to the Trajectory
@@ -2247,6 +2250,7 @@ class Trajectory(VersionBase):
         if not isinstance(parameter,Parameter):
             raise TypeError('input parameter is not of type Parameter')
         self.parameters.add_parameter(parameter)
+        return self
 
     def get_attributes(self):
         """ returns the attributes of the Trajectory as a dict
@@ -2272,7 +2276,7 @@ class Trajectory(VersionBase):
 
 class Nurbs(VersionBase):
     """ the Nurbs class creates a Nurbs shape
-        
+
         Parameters
         ----------
             order (int): order of the nurbs
@@ -2281,7 +2285,7 @@ class Nurbs(VersionBase):
         ----------
             order (int): order of the nurbs
 
-            controlpoints (list of *ControlPoint): a list of control point createing the nurbs 
+            controlpoints (list of *ControlPoint): a list of control point createing the nurbs
 
             knots (list of double): knots of the nurbs (must be order + len(controlpoints)) in decending order
 
@@ -2341,8 +2345,8 @@ class Nurbs(VersionBase):
         """
         nurbs_element = element.find('Nurbs')
         order = convert_int(nurbs_element.attrib['order'])
-        
-        
+
+
         # print(pos_element)
         # position = _PositionFactory.parse_position(pos_element)
         nurbs = Nurbs(order)
@@ -2365,6 +2369,8 @@ class Nurbs(VersionBase):
                 knots (list of double): knots of the nurbs (must be order + len(controlpoints)) in decending order
         """
         self.knots = knots
+        return self
+
     def add_control_point(self,controlpoint):
         """ adds a controlpoint to the Nurbs
 
@@ -2375,6 +2381,7 @@ class Nurbs(VersionBase):
         if not isinstance(controlpoint,ControlPoint):
             raise TypeError('controlpoint input is not of type ControlPoint')
         self.controlpoints.append(controlpoint)
+        return self
 
     def get_attributes(self):
         """ returns the attributes as a dict of the Nurbs

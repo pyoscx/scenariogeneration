@@ -2,11 +2,11 @@
     Simple example showing how to pick a route in a junction
 
     Some features used:
-    
+
     - Route
-    
+
     - AssignRouteAction
-    
+
     - LanePosition
 """
 import os

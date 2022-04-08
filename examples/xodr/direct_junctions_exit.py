@@ -1,11 +1,11 @@
-""" 
-    Example of how to create a highway exit using direct junctions. 
+"""
+    Example of how to create a highway exit using direct junctions.
 
     Some features used:
 
     - create_road
 
-    - add_successor/add_predecessor with and without the lane_offset option, and the direct_junction input  
+    - add_successor/add_predecessor with and without the lane_offset option, and the direct_junction input
 
     - create_direct_junction
 """
@@ -24,7 +24,7 @@ first_road.add_successor(xodr.ElementType.junction,100,direct_junction=[2,3])
 continuation_road.add_predecessor(xodr.ElementType.junction,100,direct_junction=[1])
 exit_road.add_predecessor(xodr.ElementType.junction,100,lane_offset=-2,direct_junction=[1])
 
-# create the junction struct 
+# create the junction struct
 direct_junction = xodr.create_direct_junction([first_road,continuation_road,exit_road],100)
 
 # create the opendrive

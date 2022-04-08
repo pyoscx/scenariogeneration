@@ -17,7 +17,7 @@ class Scenario(ScenarioGenerator):
         self.parameters['road_curvature'] = [0.001, 0.002, 0.003, 0.004]
         self.parameters['speed'] = [10, 20, 30]
         self.naming = 'numerical'
-        
+
         # set so no duplicate roads are created
         self.generate_all_roads = False
 

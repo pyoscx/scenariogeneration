@@ -26,7 +26,7 @@ class ElevationProfile():
 
     def __eq__(self, other):
         if isinstance(other,ElevationProfile):
-            if self.elevations == other.elevations:         
+            if self.elevations == other.elevations:
                 return True
         return False
 
@@ -41,16 +41,17 @@ class ElevationProfile():
         if not isinstance(elevation,_Poly3Profile):
             raise TypeError('add_elevation requires an _Poly3Profile as input, not ' + str(type(elevation)))
         self.elevations.append(elevation)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the ElevationProfile
 
         """
-        
+
         element = ET.Element('elevationProfile')
         for i in self.elevations:
             element.append(i.get_element('elevation'))
-        
+
         return element
 
 class LateralProfile():
@@ -61,7 +62,7 @@ class LateralProfile():
         ----------
             superelevation (list of _Poly3Profile): list of superelevations of the road
 
-            shape (list of _Poly3Profile): list of shapes for the road 
+            shape (list of _Poly3Profile): list of shapes for the road
 
         Methods
         -------
@@ -83,7 +84,7 @@ class LateralProfile():
 
     def __eq__(self, other):
         if isinstance(other,LateralProfile):
-            if self.superelevations == other.superelevations and self.shapes == other.shapes:         
+            if self.superelevations == other.superelevations and self.shapes == other.shapes:
                 return True
         return False
 
@@ -98,6 +99,7 @@ class LateralProfile():
         if not isinstance(superelevation,_Poly3Profile):
             raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(superelevation)))
         self.superelevations.append(superelevation)
+        return self
 
     def add_shape(self,shape):
         """ adds an elevation to the LateralProfile
@@ -110,12 +112,13 @@ class LateralProfile():
         if not isinstance(shape,_Poly3Profile):
             raise TypeError('add_elevation requires an _Elevation as input, not ' + str(type(shape)))
         self.shapes.append(shape)
+        return self
 
     def get_element(self):
         """ returns the elementTree of the LateralProfile
 
         """
-        
+
         element = ET.Element('lateralProfile')
         for i in self.superelevations:
             element.append(i.get_element('superelevation'))
@@ -198,7 +201,7 @@ class _Poly3Profile():
 
     def __eq__(self, other):
         if isinstance(other,_Poly3Profile):
-            if self.get_attributes() == other.get_attributes():         
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
@@ -206,7 +209,7 @@ class _Poly3Profile():
         """ returns the attributes of the Elevetion
 
         """
-    
+
         retdict = {}
         retdict['s'] = str(self.s)
         if self.t != None:
@@ -230,7 +233,7 @@ class _Poly3Profile():
             raise ValueError('When shape is not used, the t value should not be set.')
 
         element = ET.Element(elementname,attrib=self.get_attributes())
-        
+
         return element
 
 

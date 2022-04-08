@@ -55,16 +55,16 @@ def test_vehicle():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     fa = OSC.Axle(2,2,2,1,1)
     ba = OSC.Axle(1,1,2,1,1)
-    
+
     veh = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
-    
+
     prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
     veh.add_property('myprop','12')
     veh.add_axle(ba)
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
     veh.add_parameter(param)
-    
+
     prettyprint(veh.get_element())
 
     veh2 = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
@@ -72,7 +72,7 @@ def test_vehicle():
     veh2.add_property('myprop','12')
     veh2.add_axle(ba)
     veh2.add_parameter(param)
-    
+
     veh3 = OSC.Vehicle('mycar',OSC.VehicleCategory.car,bb,fa,ba,150,10,10)
     assert veh == veh2
     assert veh != veh3
@@ -80,17 +80,17 @@ def test_vehicle():
     veh4 = OSC.Vehicle.parse(veh.get_element())
     prettyprint(veh4.get_element())
     assert veh4 == veh
-    
+
 def test_pedestrian():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     ped = OSC.Pedestrian('myped', 100, OSC.PedestrianCategory.pedestrian, bb,'ped')
-    
+
     prettyprint(ped.get_element())
     ped.add_property_file('propfile.xml')
     ped.add_property('myprop','12')
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
     ped.add_parameter(param)
-    
+
     prettyprint(ped.get_element())
 
     ped2 = OSC.Pedestrian('myped', 100, OSC.PedestrianCategory.pedestrian, bb,'ped')
@@ -102,13 +102,13 @@ def test_pedestrian():
     assert ped == ped2
     assert ped != ped3
 
-    ped4 = OSC.Pedestrian.parse(ped.get_element()) 
+    ped4 = OSC.Pedestrian.parse(ped.get_element())
     assert ped4 == ped
 
 def test_miscobj():
     bb = OSC.BoundingBox(2,5,1.5,1.5,0,0.2)
     veh = OSC.MiscObject('mycar',100,OSC.MiscObjectCategory.obstacle,bb)
-    
+
     prettyprint(veh.get_element())
     veh.add_property_file('propfile.xml')
     veh.add_property_file('propfile2.xml')
@@ -168,7 +168,7 @@ def test_scenarioobject():
     veh.add_axle(ba)
     param = OSC.Parameter('mypar',OSC.ParameterType.integer,'1')
     veh.add_parameter(param)
-    
+
     so = OSC.ScenarioObject('name', veh, cnt)
     so2 = OSC.ScenarioObject('name', veh, cnt)
     prettyprint(so.get_element())
@@ -203,7 +203,7 @@ def test_entities():
     entities3.add_scenario_object('Ego',veh)
     entities3.add_scenario_object('Target_1',veh)
     entities3.add_entity_bytype('Target_2',OSC.ObjectType.vehicle)
-    
+
     assert entities == entities2
     assert entities != entities3
 

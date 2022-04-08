@@ -9,8 +9,8 @@ from scenariogeneration import ScenarioGenerator
 class writer_dummy():
     def write_xml(self,filename):
         with open(filename,'w') as f:
-            pass 
-        
+            pass
+
 
 class ClassScenarioOnly(ScenarioGenerator):
     def __init__(self,parameters,naming):
@@ -36,10 +36,10 @@ class ClassBoth(ScenarioGenerator):
 
         self.parameters = parameters
         self.naming = naming
-    
+
     def scenario(self,**kwargs):
         return writer_dummy()
-    
+
     def road(self,**kwargs):
         return writer_dummy()
 
@@ -48,7 +48,7 @@ class ClassBoth(ScenarioGenerator):
 def list_of_params():
     d1 = {}
     d1['road_curvature'] = 0.001
-    d1['speed'] = 10      
+    d1['speed'] = 10
     d2 = {}
     d2['road_curvature'] = 0.002
     d2['speed'] = 20
@@ -81,7 +81,7 @@ def test_numerical_naming(list_of_params):
     sg.parameters = list_of_params
     sg.naming = 'numerical'
     name = sg._get_scenario_name(sg.parameters[0])
-    
+
     assert name == "scenario_generator0"
     name = sg._get_scenario_name(sg.parameters[1])
     assert name == "scenario_generator1"
@@ -91,7 +91,7 @@ def test_parameter_naming(list_of_params):
     sg.parameters = list_of_params
     sg.naming = 'parameter'
     name = sg._get_scenario_name(sg.parameters[0])
-    
+
     assert name == "scenario_generator_road_curvature-0.001_speed-10"
     name = sg._get_scenario_name(sg.parameters[1])
     assert name == "scenario_generator_road_curvature-0.002_speed-20"
@@ -99,7 +99,7 @@ def test_parameter_naming(list_of_params):
 
 def test_folder_creation(tmpdir):
     sg = ScenarioGenerator()
-    
+
     # test no folder existing
     nodir = os.path.join(tmpdir,'dir1')
     sg._create_folder_structure(nodir)

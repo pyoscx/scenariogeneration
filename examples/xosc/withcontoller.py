@@ -1,17 +1,17 @@
-""" 
+"""
     An example how to add a sumo controller to an object
 
 
     Some features used:
-    
-    - Controller 
-    
+
+    - Controller
+
     - Properties
 
 """
 
 import os
-from scenariogeneration import xosc, prettyprint 
+from scenariogeneration import xosc, prettyprint
 
 ### create catalogs
 catalog = xosc.Catalog()

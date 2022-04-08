@@ -1,18 +1,18 @@
-""" 
+"""
     An example showing how a "or logic" for conditions can be created, and one action can be triggered on different conditions
 
     Some features used:
-    
+
     - ConditionGroup
-    
+
     - Trigger
-    
+
     - TimeToCollisionCondition
-    
+
     - TimeHeadwayCondition
-    
+
     - AbsoluteSpeedAction
-        
+
 """
 from scenariogeneration import xosc, prettyprint
 import os

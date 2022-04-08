@@ -1,5 +1,5 @@
 """ Example how to create roads with customized centerline for double road markers
-    
+
     Some features used
 
     - PlanView
@@ -29,12 +29,12 @@ solid_solid = xodr.Lane()
 solid_solid.add_roadmark(xodr.STD_ROADMARK_SOLID_SOLID)
 centerlanes.append(solid_solid)
 
-# standard solid broken 
+# standard solid broken
 solid_broken = xodr.Lane()
 solid_broken.add_roadmark(xodr.STD_ROADMARK_SOLID_BROKEN)
 centerlanes.append(solid_broken)
 
-# customized broken broken 
+# customized broken broken
 broken_broken_roadmark = xodr.RoadMark(xodr.RoadMarkType.broken_broken)
 broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2,9,3,0.2))
 broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2,3,9,-0.2,3))

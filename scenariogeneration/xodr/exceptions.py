@@ -34,6 +34,6 @@ class MixOfGeometryAddition(Exception):
     pass
 
 class GeneralIssueInputArguments(Exception):
-    """ Raise when there is something wrong in the input arguments 
+    """ Raise when there is something wrong in the input arguments
     """
     pass

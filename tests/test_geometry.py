@@ -7,7 +7,7 @@ from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
 def test_line():
     line = pyodrx.Line(1)
-    
+
     p = line.get_element()
     prettyprint(p)
 
@@ -32,7 +32,7 @@ def test_line_calc(data,expdata):
 
 def test_spiral():
     spiral = pyodrx.Spiral(0,1, 10)
-    
+
     p = spiral.get_element()
     prettyprint(p)
     spiral2 = pyodrx.Spiral(0,1, 10)
@@ -127,12 +127,12 @@ def test_spiral_from_neg_to_pos_curv(data,expdata):
 
 def test_arc():
     arc = pyodrx.Arc(1,length = 1)
-    
+
     p = arc.get_element()
     prettyprint(p)
     arc2 = pyodrx.Arc(1,length = 1)
     arc3 = pyodrx.Arc(2,angle = 1)
-    
+
     p2 = arc3.get_element()
     prettyprint(p)
     assert arc == arc2
@@ -161,7 +161,7 @@ def test_arc_calc_length(data,expdata):
 
 
 @pytest.mark.parametrize("data, expdata",[\
-([np.pi, 0,0,0,1], [0,2,np.pi,np.pi]),  
+([np.pi, 0,0,0,1], [0,2,np.pi,np.pi]),
 ([np.pi, 0,0,0,1/2], [0,4,np.pi,np.pi*2]),
 ([np.pi/2, 1,1,0,1], [2,2,np.pi/2,np.pi/2]),
 ([-np.pi, 0,0,0,-1], [0,-2,-np.pi,np.pi]),
@@ -184,7 +184,7 @@ def test_arc_calc_angle(data,expdata):
 def test_polyparam():
     poly = pyodrx.ParamPoly3(1,2,3,4,5,6,7,8)
 
-    
+
     p = poly.get_element()
     prettyprint(p)
 
@@ -231,7 +231,7 @@ def test_inverted_Line(data):
 
     end_x,end_y,end_h,_ = line.get_end_data(data[1],data[2],data[3])
 
-    end_h += np.pi 
+    end_h += np.pi
 
     start_x,start_y,start_h,_ = line.get_start_data(end_x,end_y,end_h)
 
@@ -239,10 +239,10 @@ def test_inverted_Line(data):
 
     assert pytest.approx(start_x, 0.000001) == data[1]
     assert pytest.approx(start_y, 0.000001) == data[2]
-    assert pytest.approx(start_h, 0.1) == data[3] 
+    assert pytest.approx(start_h, 0.1) == data[3]
 
 @pytest.mark.parametrize("data",[\
-([1, np.pi, 0,0,0]), 
+([1, np.pi, 0,0,0]),
 ([1, np.pi/2, 0,0,0]),
 ([1, np.pi, 1,0,0]),
 ([1, np.pi, -1,0,0]),
@@ -260,12 +260,12 @@ def test_inverted_Line(data):
 ])
 
 def test_inverted_Arc(data):
-    
+
     arc = pyodrx.Arc(data[0],angle=data[1])
 
     end_x,end_y,end_h,_ = arc.get_end_data(data[2],data[3],data[4])
 
-    end_h += np.pi 
+    end_h += np.pi
 
     start_x,start_y,start_h,_ = arc.get_start_data(end_x,end_y,end_h)
 
@@ -273,7 +273,7 @@ def test_inverted_Arc(data):
 
     assert pytest.approx(start_x, 0.000001) == data[2]
     assert pytest.approx(start_y, 0.000001) == data[3]
-    assert pytest.approx(start_h, 0.00001) == data[4] 
+    assert pytest.approx(start_h, 0.00001) == data[4]
 
 
 @pytest.mark.parametrize("data",[\
@@ -301,7 +301,7 @@ def test_inverted_Spiral(data):
 
     end_x,end_y,end_h,_ = cloth.get_end_data(data[3],data[4],data[5])
 
-    end_h += np.pi 
+    end_h += np.pi
 
     start_x,start_y,start_h,_ = cloth.get_start_data(end_x,end_y,end_h)
 
@@ -309,7 +309,7 @@ def test_inverted_Spiral(data):
 
     assert pytest.approx(start_x, 0.000001) == data[3]
     assert pytest.approx(start_y, 0.000001) == data[4]
-    assert pytest.approx(start_h, 0.000001) == data[5] 
+    assert pytest.approx(start_h, 0.000001) == data[5]
 
 
 def test_planview():
@@ -317,7 +317,7 @@ def test_planview():
     planview.add_geometry(Line(100))
     planview.add_geometry(Line(100))
     planview.adjust_geometries()
-    x,y,z = planview.get_end_point() 
+    x,y,z = planview.get_end_point()
     assert x == 200
     assert y == 0
     assert z == 0
@@ -338,16 +338,16 @@ def test_planview():
     planview = pyodrx.PlanView()
     planview.add_geometry(Line(100))
     planview.add_geometry(Line(100))
-    
+
 
     planview2 = pyodrx.PlanView()
     planview2.add_geometry(Line(100))
     planview2.add_geometry(Line(100))
-    
+
     planview3 = pyodrx.PlanView()
     planview3.add_geometry(Line(100))
     planview3.add_geometry(Line(10))
-    
+
     assert planview != planview2
     assert planview != planview3
 
@@ -371,4 +371,4 @@ def test_manual_geometry(data,expdata):
     assert pytest.approx(x, 0.000001) == data[1]
     assert pytest.approx(y, 0.000001) == data[2]
     assert pytest.approx(h, 0.000001) == data[3]
-    
+

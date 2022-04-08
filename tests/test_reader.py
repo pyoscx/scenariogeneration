@@ -81,7 +81,7 @@ def osc_fixture():
     return xosc.Scenario('myscenario','Mandolin',parameters,entities=entities,storyboard = sb,roadnetwork=road,catalog=catalog)
 
 def test_catalog_reader_vehicle(tmpdir):
-    
+
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
     cf = xosc.CatalogFile()
     cf.create_catalog(tmpcatalog,'VehicleCatalog','My first vehicle catalog','Mandolin')
@@ -103,7 +103,7 @@ def test_catalog_reader_vehicle(tmpdir):
 
 
 def test_catalog_reader_pedestrian(tmpdir):
-    
+
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
     cf = xosc.CatalogFile()
     cf.create_catalog(tmpcatalog,'PedestrianCatalog','My first vehicle catalog','Mandolin')
@@ -141,7 +141,7 @@ def test_maneuver_reader(tmpdir):
     cf.dump()
     read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_maneuver'),tmpdir)
     assert read == orig
-    
+
 def test_route_reader(tmpdir):
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
     cf = xosc.CatalogFile()
@@ -192,14 +192,14 @@ def test_parameter_reader(tmpdir,osc_fixture):
     read_params = xosc.ParameterDeclarationReader(tmpfile)
 
     assert osc_fixture.parameters == read_params
-       
+
 def test_osc_reader_scenario(tmpdir,osc_fixture):
     tmpfile = os.path.join(tmpdir,'myscenario.xosc')
     osc_fixture.write_xml(tmpfile)
     scenario = xosc.ParseOpenScenario(tmpfile)
     prettyprint(osc_fixture)
     assert osc_fixture == scenario
-       
+
 def test_osc_reader_catalog(tmpdir):
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
     cf = xosc.CatalogFile()
@@ -217,7 +217,7 @@ def test_osc_reader_catalog(tmpdir):
     secondloader.load_catalog(catref,tmpdir)
     read = secondloader.parse(catref)
     assert read == orig
-    
+
 
 def test_catalog_loader(tmpdir):
     tmpcatalog = os.path.join(tmpdir,'my_catalog.xosc')
@@ -229,7 +229,7 @@ def test_catalog_loader(tmpdir):
     read = xosc.CatalogReader(xosc.CatalogReference('my_catalog','my_controller'),tmpdir)
     assert read == orig
 
-       
+
 
 def test_osc_reader_parameter(tmpdir,parameter_fixture):
     tmpfile = os.path.join(tmpdir,'myscenario.xosc')
@@ -238,6 +238,6 @@ def test_osc_reader_parameter(tmpdir,parameter_fixture):
     prettyprint(parameter_fixture)
     prettyprint(scenario)
     assert parameter_fixture == scenario
-       
+
 
 

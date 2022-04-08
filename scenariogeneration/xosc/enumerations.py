@@ -17,7 +17,7 @@ class VersionBase():
 
     def isVersion(self,major=1,minor=1):
         return major >= self.version_major and minor >= self.version_minor
-    
+
     def setVersion(self,major=1,minor=0):
         VersionBase.version_major = major
         VersionBase.version_minor = minor
@@ -88,7 +88,7 @@ class _OscEnum(VersionBase):
             -------
             name (str)
         """
-        
+
         if self.min_minor_version > self.version_minor:
             raise OpenSCENARIOVersionError(self.classname + '.' + self.name + ' is not part of OpenSCENARIO V' + str(self.version_major) + '.' + str(self.version_minor) + ', was introduced in V' + str(self.version_major) + '.' + str(self.min_minor_version))
         elif self.max_minor_version < self.version_minor:
@@ -139,7 +139,7 @@ class FollowMode():
 class MiscObjectCategory():
     """ Enum for MiscObjectCategory
     """
-    
+
     none = _OscEnum('MiscObjectCategory','none')
     obstacle = _OscEnum('MiscObjectCategory','obstacle')
     pole = _OscEnum('MiscObjectCategory','pole')

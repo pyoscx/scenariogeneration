@@ -1,5 +1,5 @@
 """ Fundamental example how to build up a road from scratch.
-    
+
     This example should be seen as a developer example how roads are built up from the very basic classes in OpenDRIVE
     create_road will take care of this and much more, so a user is recommended to use that generator instead.
 
@@ -23,9 +23,9 @@ import numpy as np
 import os
 
 
-## Multiple geometries in one only road. 
+## Multiple geometries in one only road.
 
-##1. Create the planview 
+##1. Create the planview
 planview = xodr.PlanView()
 
 ##2. Create some geometries and add them to the planview
@@ -45,7 +45,7 @@ planview.add_geometry(line3)
 ##3. Create a solid roadmark
 rm = xodr.RoadMark(xodr.RoadMarkType.solid,0.2)
 
-##4. Create centerlane 
+##4. Create centerlane
 centerlane = xodr.Lane(a=2)
 centerlane.add_roadmark(rm)
 
@@ -58,11 +58,11 @@ lane2.add_roadmark(rm)
 lane3 = xodr.Lane(a=3)
 lane3.add_roadmark(rm)
 
-##7. Add lanes to lane section 
+##7. Add lanes to lane section
 lanesec.add_left_lane(lane2)
 lanesec.add_right_lane(lane3)
 
-##8. Add lane section to Lanes 
+##8. Add lane section to Lanes
 lanes = xodr.Lanes()
 lanes.add_lanesection(lanesec)
 
@@ -72,10 +72,10 @@ road = xodr.Road(1,planview,lanes)
 ##10. Create the OpenDrive class (Master class)
 odr = xodr.OpenDrive('myroad')
 
-##11. Finally add roads to Opendrive 
+##11. Finally add roads to Opendrive
 odr.add_road(road)
 
-##12. Adjust initial positions of the roads looking at succ-pred logic 
+##12. Adjust initial positions of the roads looking at succ-pred logic
 odr.adjust_roads_and_lanes()
 
 ##13. Print the .xodr file

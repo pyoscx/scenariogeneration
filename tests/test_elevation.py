@@ -33,10 +33,10 @@ def test_elevationprofile():
     prettyprint(elevation.get_element())
     elevation.add_elevation(xodr.elevation._Poly3Profile(0,0,0,0,0))
     prettyprint(elevation.get_element())
-    
+
     elevation2 = xodr.ElevationProfile()
     elevation2.add_elevation(xodr.elevation._Poly3Profile(0,0,0,0,0))
-        
+
     elevation3 = xodr.ElevationProfile()
     elevation3.add_elevation(xodr.elevation._Poly3Profile(0,0,0,1,0))
     assert elevation == elevation2
@@ -53,7 +53,7 @@ def test_lateralprofile():
     latprofile2 = xodr.LateralProfile()
     latprofile2.add_shape(xodr.elevation._Poly3Profile(0,0,0,0,0,0))
     latprofile2.add_superelevation(xodr.elevation._Poly3Profile(0,0,0,0,0))
-    
+
     latprofile3 = xodr.LateralProfile()
     latprofile3.add_shape(xodr.elevation._Poly3Profile(0,0,0,0,0,0))
     latprofile3.add_superelevation(xodr.elevation._Poly3Profile(0,0,0,0,3))

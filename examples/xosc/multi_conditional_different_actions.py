@@ -1,21 +1,21 @@
-""" 
+"""
     An example showing how to setup a choise for one vehicle depending on what is happening around it, using multi conditions with different rules
 
     for different behaviour change speed_of_outer_car
 
     Some features used:
-    - ConditionGroup 
-    
+    - ConditionGroup
+
     - TimeToCollisionCondition
 
     - TimeHeadwayCondition
-    
+
     - AbsoluteSpeedAction
-    
+
     - AbsoluteLaneChangeAction
-    
+
     - Rule
-        
+
 """
 #change this to have different Ego behaviors (use 20 or 30)
 speed_of_outer_car = 20
@@ -65,7 +65,7 @@ init.add_init_action(targetname,xosc.AbsoluteSpeedAction(10,xosc.TransitionDynam
 slowdown_event = xosc.Event('speedchange',xosc.Priority.overwrite)
 slowdown_event.add_action('speedaction',xosc.AbsoluteSpeedAction(9,xosc.TransitionDynamics(xosc.DynamicsShapes.sinusoidal,xosc.DynamicsDimension.time,1)))
 
-# create two trigger conditions 
+# create two trigger conditions
 ttc_cond = xosc.TimeToCollisionCondition(3,xosc.Rule.lessThan,entity=targetname)
 headway_cond = xosc.TimeHeadwayCondition(speedyname,1,xosc.Rule.lessThan)
 

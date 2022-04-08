@@ -1,7 +1,7 @@
-""" 
+"""
     Example of how to create a junction but adding signals to the junction
 
-    
+
 """
 
 # Same approach to creating a junction as "full_junction.py" but with signals for each incoming road.
@@ -23,7 +23,7 @@ for i in range(incoming_roads):
     else:
         roads[-1].add_signal(xodr.Signal(s=2.0, t=4, country="USA", Type="R1", subtype="1", orientation=xodr.Orientation.negative))
 
-        
+
 
 # use this for a T-crossing instead
 # angles = [0,np.pi/2, 3*np.pi/2]

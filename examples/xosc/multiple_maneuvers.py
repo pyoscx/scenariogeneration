@@ -1,15 +1,15 @@
-""" 
+"""
     An example setting up multiple vehicles triggering on eachother and running in parallel
 
     Some features used:
-    
+
     - AbsoluteLaneChangeAction
-    
+
     - TimeHeadwayCondition
-        
+
 """
 import os
-from scenariogeneration import xosc, prettyprint 
+from scenariogeneration import xosc, prettyprint
 
 ### create catalogs
 catalog = xosc.Catalog()

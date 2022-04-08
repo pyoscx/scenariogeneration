@@ -2,7 +2,7 @@
 
 
     Some features used:
-    
+
     - ScenarioGenerator
 
     - (ScenarioGenerator).naming
@@ -11,7 +11,7 @@
 
     - (ScenarioGenerator).parameters
 
-    
+
 """
 from scenariogeneration import xosc, prettyprint
 import numpy as np
@@ -38,8 +38,8 @@ class Scenario(ScenarioGenerator):
         # parameters for the scenario
         self.parameters['distance'] = [12, 40]
         self.parameters['decel'] = [-2,-6]
-    
-    
+
+
 
     def road(self,**kwargs):
 
@@ -94,7 +94,7 @@ class Scenario(ScenarioGenerator):
         # create init (0 starting speed)
         init = xosc.Init()
         step_time = xosc.TransitionDynamics(xosc.DynamicsShapes.step,xosc.DynamicsDimension.time,1)
-        
+
         # caluclate correct offset based on target vehicle width
         cal_offset = 0
 
@@ -139,7 +139,7 @@ class Scenario(ScenarioGenerator):
         tar_man = xosc.Maneuver('target man')
         tar_man.add_event(event_tar)
         tar_man.add_event(event_tar_slowdown)
-        
+
 
         egomangr = xosc.ManeuverGroup('egomangr')
         egomangr.add_actor(egoname)
@@ -149,7 +149,7 @@ class Scenario(ScenarioGenerator):
         tarmangr.add_actor(targetname)
         tarmangr.add_maneuver(tar_man)
 
-        # create act 
+        # create act
         act = xosc.Act('ccrm act',xosc.ValueTrigger('starttrigger',0,xosc.ConditionEdge.rising,xosc.SimulationTimeCondition(0,xosc.Rule.greaterThan)))
 
         act.add_maneuver_group(egomangr)

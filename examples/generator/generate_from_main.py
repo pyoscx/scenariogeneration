@@ -51,7 +51,7 @@ class Scenario(ScenarioGenerator):
 
 if __name__ == "__main__":
     s = Scenario()
-    
+
     parameters = {}
     parameters['road_curvature'] = [0.001, 0.002, 0.003]
     parameters['speed'] = [10, 20, 30]

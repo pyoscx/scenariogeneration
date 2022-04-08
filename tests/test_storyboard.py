@@ -110,7 +110,7 @@ def test_actandstory():
     assert act != act3
 
     act4 = OSC.Act.parse(act3.get_element())
-    
+
     assert act4 == act3
 
     story = OSC.Story('mystory')
@@ -137,7 +137,7 @@ def test_init():
     init = OSC.Init()
     TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
     egospeed = OSC.AbsoluteSpeedAction(10,TD)
-    
+
     init.add_init_action('Ego',egospeed)
     init.add_init_action('Ego',OSC.TeleportAction(OSC.WorldPosition(1,2,3,0,0,0)))
     init.add_init_action('Target_1',egospeed)
@@ -162,10 +162,10 @@ def test_init():
     init3.add_init_action('Target_2',OSC.TeleportAction(OSC.WorldPosition(10,2,3,0,0,0)))
     init3.add_global_action(OSC.ParameterSetAction('my_param',2))
     prettyprint(init3.get_element(),None)
-    
+
     assert init == init2
     assert init != init3
-    
+
     init4 = OSC.Init.parse(init3.get_element())
     prettyprint(init4.get_element(),None)
     assert init3 == init4
@@ -174,7 +174,7 @@ def test_storyboard_story_input():
     init = OSC.Init()
     TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step,OSC.DynamicsDimension.rate,1)
     egospeed = OSC.AbsoluteSpeedAction(10,TD)
-      
+
     init.add_init_action('Ego',egospeed)
     init.add_init_action('Ego',OSC.TeleportAction(OSC.WorldPosition(1,2,3,0,0,0)))
     init.add_init_action('Target_1',egospeed)
@@ -224,7 +224,7 @@ def test_storyboard_story_input():
     assert sb3 == sb4
 
 def test_storyboard_act_input():
-    
+
     egoname = "Ego"
     targetname = "target"
 
@@ -257,7 +257,7 @@ def test_storyboard_act_input():
     event.add_action('newspeed',action)
 
 
-    ## create the act, 
+    ## create the act,
     man = OSC.Maneuver('my_maneuver')
     man.add_event(event)
 
@@ -291,7 +291,7 @@ def test_storyboard_act_input():
     assert sb3 == sb4
 
 def test_storyboard_mangr_input():
-    
+
     egoname = "Ego"
     targetname = "target"
 
@@ -324,7 +324,7 @@ def test_storyboard_mangr_input():
     event.add_action('newspeed',action)
 
 
-    ## create the ManeuverGroup, 
+    ## create the ManeuverGroup,
     man = OSC.Maneuver('my_maneuver')
     man.add_event(event)
 
@@ -339,13 +339,13 @@ def test_storyboard_mangr_input():
     sb.add_maneuver_group(mangr)
 
     prettyprint(sb.get_element())
-    
+
     sb2 = OSC.StoryBoard(init)
     sb2.add_maneuver_group(mangr)
     sb3 = OSC.StoryBoard(init)
     sb3.add_maneuver_group(mangr)
     sb3.add_maneuver_group(mangr)
-    
+
     assert sb == sb2
     assert sb != sb3
 
@@ -354,7 +354,7 @@ def test_storyboard_mangr_input():
 
 
 def test_storyboard_man_input():
-    
+
     egoname = "Ego"
     targetname = "target"
 
@@ -387,7 +387,7 @@ def test_storyboard_man_input():
     event.add_action('newspeed',action)
 
 
-    ## create the maneuver, 
+    ## create the maneuver,
     man = OSC.Maneuver('my_maneuver')
     man.add_event(event)
 
@@ -415,7 +415,7 @@ def test_empty_storyboard():
 
     ## create the storyboard
     sb = OSC.StoryBoard()
-   
+
 
 
     prettyprint(sb.get_element())
