@@ -272,7 +272,7 @@ class Road:
         self.successor = _Link("successor", element_id, element_type, contact_point)
         self.links.add_link(self.successor)
         self.lane_offset_suc = lane_offset
-        if element_type != ElementType.junction and len(direct_junction) > 0:
+        if element_type != ElementType.junction and direct_junction is not None and len(direct_junction) > 0:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
@@ -307,7 +307,7 @@ class Road:
         self.predecessor = _Link("predecessor", element_id, element_type, contact_point)
         self.links.add_link(self.predecessor)
         self.lane_offset_pred = lane_offset
-        if element_type != ElementType.junction and len(direct_junction) > 0:
+        if element_type != ElementType.junction and  direct_junction is not None and len(direct_junction) > 0:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
