@@ -760,23 +760,43 @@ class OpenDrive:
 
         if neighbour_type == "predecessor":
 
-            num_lane_offsets = main_road.lane_offset_pred
-            offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
-            )
-            x = -offset_width * np.sin(h) + x
-            y = offset_width * np.cos(h) + y
+            if contact_point == ContactPoint.start:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_start_point()
+                h = (
+                    h + np.pi
+                )  # we are attached to the predecessor's start, so road[k] will start in its opposite direction
+            elif contact_point == ContactPoint.end:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError("Unknown ContactPoint")
+            if main_road.pred_direct_junction: 
+                num_lane_offsets = main_road.pred_direct_junction[neighbour_id]
+            else:
+                num_lane_offsets = main_road.lane_offset_pred
+            x = -num_lane_offsets * 3 * np.sin(h) + x
+            y = num_lane_offsets * 3 * np.cos(h) + y
+            
+
             main_road.planview.set_start_point(x, y, h)
             main_road.planview.adjust_geometries()
 
         elif neighbour_type == "successor":
 
-            num_lane_offsets = main_road.lane_offset_suc
-            offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
-            )
-            x = offset_width * np.sin(h) + x
-            y = -offset_width * np.cos(h) + y
+            if contact_point == ContactPoint.start:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_start_point()
+                h = (
+                    h + np.pi
+                )  # we are attached to the predecessor's start, so road[k] will start in its opposite direction
+            elif contact_point == ContactPoint.end:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError("Unknown ContactPoint")
+            if main_road.succ_direct_junction:
+                num_lane_offsets = main_road.succ_direct_junction[neighbour_id]
+            else:
+                num_lane_offsets = main_road.lane_offset_suc
+            x = num_lane_offsets * 3 * np.sin(h) + x
+            y = -num_lane_offsets * 3 * np.cos(h) + y
             main_road.planview.set_start_point(x, y, h)
             main_road.planview.adjust_geometries(True)
 
