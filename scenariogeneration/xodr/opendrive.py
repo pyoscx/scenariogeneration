@@ -215,8 +215,8 @@ class Road:
         self.predecessor = None
         self.lane_offset_suc = 0
         self.lane_offset_pred = 0
-        self.succ_direct_junction = []
-        self.pred_direct_junction = []
+        self.succ_direct_junction = {}
+        self.pred_direct_junction = {}
         self.adjusted = False
         self.objects = []
         self.signals = []
@@ -252,7 +252,7 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=[],
+        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -264,7 +264,7 @@ class Road:
 
             contact_point (ContactPoint): the contact point of the link
 
-            direct_juction (list of int): road id that are successors to this road in a direct junction
+            direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
 
         """
         if self.successor:
@@ -276,7 +276,9 @@ class Road:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
-        self.succ_direct_junction = direct_junction
+        self.succ_direct_junction = {}
+        if direct_junction is not None:
+            self.succ_direct_junction = direct_junction
         return self
 
     def add_predecessor(
@@ -285,7 +287,7 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=[],
+        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -297,7 +299,7 @@ class Road:
 
             contact_point (ContactPoint): the contact point of the link
 
-            direct_juction (list of int): road id that are predecessors to this road in a direct junction
+            direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
 
         """
         if self.predecessor:
@@ -309,7 +311,9 @@ class Road:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
-        self.pred_direct_junction = direct_junction
+        self.pred_direct_junction = {}
+        if direct_junction is not None:
+            self.pred_direct_junction = direct_junction
         return self
 
     def add_neighbor(self, element_type, element_id, direction):
@@ -727,23 +731,43 @@ class OpenDrive:
 
         if neighbour_type == "predecessor":
 
-            num_lane_offsets = main_road.lane_offset_pred
-            offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
-            )
-            x = -offset_width * np.sin(h) + x
-            y = offset_width * np.cos(h) + y
+            if contact_point == ContactPoint.start:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_start_point()
+                h = (
+                    h + np.pi
+                )  # we are attached to the predecessor's start, so road[k] will start in its opposite direction
+            elif contact_point == ContactPoint.end:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError("Unknown ContactPoint")
+            if main_road.pred_direct_junction: 
+                num_lane_offsets = main_road.pred_direct_junction[neighbour_id]
+            else:
+                num_lane_offsets = main_road.lane_offset_pred
+            x = -num_lane_offsets * 3 * np.sin(h) + x
+            y = num_lane_offsets * 3 * np.cos(h) + y
+            
+
             main_road.planview.set_start_point(x, y, h)
             main_road.planview.adjust_geometries()
 
         elif neighbour_type == "successor":
 
-            num_lane_offsets = main_road.lane_offset_suc
-            offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
-            )
-            x = offset_width * np.sin(h) + x
-            y = -offset_width * np.cos(h) + y
+            if contact_point == ContactPoint.start:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_start_point()
+                h = (
+                    h + np.pi
+                )  # we are attached to the predecessor's start, so road[k] will start in its opposite direction
+            elif contact_point == ContactPoint.end:
+                x, y, h = self.roads[str(neighbour_id)].planview.get_end_point()
+            else:
+                raise ValueError("Unknown ContactPoint")
+            if main_road.succ_direct_junction:
+                num_lane_offsets = main_road.succ_direct_junction[neighbour_id]
+            else:
+                num_lane_offsets = main_road.lane_offset_suc
+            x = num_lane_offsets * 3 * np.sin(h) + x
+            y = -num_lane_offsets * 3 * np.cos(h) + y
             main_road.planview.set_start_point(x, y, h)
             main_road.planview.adjust_geometries(True)
 
