@@ -55,5 +55,5 @@ odr.add_junction(direct_junction)
 odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
 
 # uncomment the following lines to display the road using esmini
-# from scenariogeneration import esmini
-# esmini(odr,os.path.join('esmini'))
+from scenariogeneration import esmini
+esmini(odr,os.path.join('esmini'))

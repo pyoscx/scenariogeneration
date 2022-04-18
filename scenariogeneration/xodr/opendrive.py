@@ -215,8 +215,8 @@ class Road:
         self.predecessor = None
         self.lane_offset_suc = 0
         self.lane_offset_pred = 0
-        self.succ_direct_junction = []
-        self.pred_direct_junction = []
+        self.succ_direct_junction = {}
+        self.pred_direct_junction = {}
         self.adjusted = False
         self.objects = []
         self.signals = []
@@ -252,7 +252,7 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=[],
+        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -264,7 +264,7 @@ class Road:
 
             contact_point (ContactPoint): the contact point of the link
 
-            direct_juction (list of int): road id that are successors to this road in a direct junction
+            direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
 
         """
         if self.successor:
@@ -276,7 +276,9 @@ class Road:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
-        self.succ_direct_junction = direct_junction
+        self.succ_direct_junction = {}
+        if direct_junction is not None:
+            self.succ_direct_junction = direct_junction
         return self
 
     def add_predecessor(
@@ -285,7 +287,7 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=[],
+        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -297,7 +299,7 @@ class Road:
 
             contact_point (ContactPoint): the contact point of the link
 
-            direct_juction (list of int): road id that are predecessors to this road in a direct junction
+            direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
 
         """
         if self.predecessor:
@@ -309,7 +311,9 @@ class Road:
             raise ValueError(
                 "If direct junction is used, the element_type has to be junction"
             )
-        self.pred_direct_junction = direct_junction
+        self.pred_direct_junction = {}
+        if direct_junction is not None:
+            self.pred_direct_junction = direct_junction
         return self
 
     def add_neighbor(self, element_type, element_id, direction):
