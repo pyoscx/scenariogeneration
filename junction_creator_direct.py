@@ -56,6 +56,16 @@ else:
 
 
 
+### change the offset to be a dict with direct junction
+junction_creator.add_connection(road1, road2, [-2,-1,1,2], [-2,-1,1,2])
+junction_creator.add_connection(road1, road3, -3, -1)
+
+
+odr = xodr.OpenDrive('myroad')
+odr.add_road(road2)
+odr.add_road(road1)
+odr.add_road(road3)
+
 
 
 
