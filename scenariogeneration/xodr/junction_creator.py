@@ -13,11 +13,46 @@ import numpy as np
 STD_START_CLOTH = 1 / 1000000000
 
 class JunctionCreator():
-    
+    """ JunctionCreator is a helper class to create custom junctions. 
 
-    def __init__(self, id, name, junction_type = JunctionType.default, startnum = 100):
+        Parameters
+        ----------
+            id (int): the id of the junction
+
+            name (str): name of the junction
+
+            startnum (int): the starting id of this junctions roads
+                Default: 100
+
+        Attributes
+        ----------
+            id (int): the id of the junction
+
+            name (str): name of the junction
+
+            startnum (int): the starting id of this junctions roads
+            
+            incomming_roads (list of Road): all incomming roads for the junction
+
+            junction_roads (list of Road): all generated connecting roads
+
+            junction (Junction): the junction xodr element for the junction
+        
+        Methods
+        -------
+            add_incomming_road_circular_geometry(road, radius, angle, road_connection)
+                Adds a road on a circle defining the junction geometry
+                Note: cannot be used together with 'add_incomming_road_cartesian_geometry'
+
+            add_incomming_road_cartesian_geometry(road, x, y, heading, road_connection)
+                Adds a road on a generic x, y, heading geometry
+                Note: cannot be used together with 'add_incomming_road_circular_geometry'
+            
+            add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
+    """
+
+    def __init__(self, id, name, startnum = 100):
         self.id = id
-        self.junction_type = junction_type
         self.incomming_roads = []
         self._radie = []
         self._angles = []
@@ -26,11 +61,11 @@ class JunctionCreator():
         self._h = []
         self.junction_roads = []
         self.startnum = startnum
-        self.junction = Junction(name, id)
+        self.junction = Junction(name, id, junction_type=JunctionType.default)
         self._circular_junction = False
         self._generic_junction = False
 
-    def add_incomming_road_circular_junction(self, road, radius, angle, road_connection=None):
+    def add_incomming_road_circular_geometry(self, road, radius, angle, road_connection=None):
         self._handle_connection_input(road, road_connection)
 
         self.incomming_roads.append(road)
@@ -38,7 +73,7 @@ class JunctionCreator():
         self._angles.append(angle)
         self._circular_junction = True
 
-    def add_incomming_road_generic_junction(self, road, x, y, heading, road_connection = None):
+    def add_incomming_road_cartesian_geometry(self, road, x, y, heading, road_connection = None):
         self._handle_connection_input(road,road_connection)
 
         self.incomming_roads.append(road)
@@ -160,10 +195,7 @@ class JunctionCreator():
         if an1 > np.pi:
             an1 = -(2 * np.pi - an1)
 
-        # if np.sign(an1) == 0:
-        #     roadgeoms = Line(np.sqrt((self._x[idx2]-self._x[idx1] )**2 + (self._y[idx2]-self._y[idx1] )**2 ))
-        # else:
-            
+
         clothoids = pcloth.SolveG2(
                 self._x[idx1],
                 self._y[idx1],
