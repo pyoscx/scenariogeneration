@@ -37,4 +37,4 @@ odr.adjust_roads_and_lanes()
 
 
 from scenariogeneration import esmini
-esmini(odr,'/home/mander76/local/scenario_creation/esmini', window_size='2000 50 800 400')
+esmini(odr,'/home/micke/local/osc/esmini')
