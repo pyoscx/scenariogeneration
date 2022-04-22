@@ -6,6 +6,7 @@ from .enumerations import JunctionType, ElementType, ContactPoint
 from .geometry import Spiral, Line
 from .generators import create_road, _get_related_lanesection, _create_junction_links
 from .links import Junction, Connection
+from .exceptions import UndefinedRoadNetwork
 import pyclothoids as pcloth
 
 import numpy as np
@@ -29,13 +30,16 @@ class JunctionCreator():
         self._circular_junction = False
         self._generic_junction = False
 
-    def add_incomming_road_circular_junction(self, road, radius, angle):
+    def add_incomming_road_circular_junction(self, road, radius, angle, road_connection=None):
+        self._handle_connection_input(road, road_connection)
+
         self.incomming_roads.append(road)
         self._radie.append(radius)
         self._angles.append(angle)
         self._circular_junction = True
 
-    def add_incomming_road_generic_junction(self, road, x, y, heading):
+    def add_incomming_road_generic_junction(self, road, x, y, heading, road_connection = None):
+        self._handle_connection_input(road,road_connection)
 
         self.incomming_roads.append(road)
         self._x.append(x)
@@ -43,9 +47,19 @@ class JunctionCreator():
         self._h.append(heading)
         self._generic_junction = True
 
-    def generate_junction_roads(self):
-        pass
     
+    def _handle_connection_input(self,road,road_connection):
+        if road_connection is not None:
+            if road_connection == "successor":
+                road.add_successor(ElementType.junction, self.id)
+            elif road_connection == "predecessor":
+                road.add_predecessor(ElementType.junction, self.id)
+            else:
+                raise ValueError("road_connection can only be of the values 'successor', or 'predecessor'")
+        else: 
+            if not ((road.successor and road.successor.element_id == self.id) or (road.predecessor and road.predecessor.element_id == self.id)):
+                raise UndefinedRoadNetwork("road : "  + str(road.id) + " is not connected to junction: " + str(self.id))
+
     def _get_list_index(self, id):        
         return [self.incomming_roads.index(x) for x in self.incomming_roads if x.id == id][0]
 
@@ -146,21 +160,21 @@ class JunctionCreator():
         if an1 > np.pi:
             an1 = -(2 * np.pi - an1)
 
-        if np.sign(an1) == 0:
-            roadgeoms = Line(np.sqrt((self._x[idx2]-self._x[idx1] )**2 + (self._y[idx2]-self._y[idx1] )**2 ))
-        else:
+        # if np.sign(an1) == 0:
+        #     roadgeoms = Line(np.sqrt((self._x[idx2]-self._x[idx1] )**2 + (self._y[idx2]-self._y[idx1] )**2 ))
+        # else:
             
-            clothoids = pcloth.SolveG2(
-                    0,
-                    0,
-                    self._h[idx1] - np.pi,
-                    STD_START_CLOTH,
-                    self._x[idx2] - self._x[idx1],
-                    self._y[idx2] - self._y[idx1],
-                    self._h[idx2],
-                    STD_START_CLOTH,
-                )
-            roadgeoms = [Spiral(x.KappaStart, x.KappaEnd, length=x.length) for x in clothoids]
+        clothoids = pcloth.SolveG2(
+                self._x[idx1],
+                self._y[idx1],
+                self._h[idx1],
+                STD_START_CLOTH,
+                self._x[idx2],
+                self._y[idx2],
+                self._h[idx2] - np.pi,
+                STD_START_CLOTH,
+            )
+        roadgeoms = [Spiral(x.KappaStart, x.KappaEnd, length=x.length) for x in clothoids]
         return roadgeoms
 
     def _create_road_circular_geometry(self, idx1, idx2):
