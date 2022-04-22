@@ -4,7 +4,7 @@ from os import link
 from tracemalloc import start
 from .enumerations import JunctionType, ElementType, ContactPoint
 from .geometry import Spiral, Line
-from .generators import create_road, _get_related_lanesection
+from .generators import create_road, _get_related_lanesection, _create_junction_links
 from .links import Junction, Connection
 import pyclothoids as pcloth
 
@@ -93,10 +93,52 @@ class JunctionCreator():
 
         tmp_junc_road.add_predecessor(ElementType.road, road_one_id, contact_point=self._get_contact_point_connecting_road(road_one_id))
         tmp_junc_road.add_successor(ElementType.road, road_two_id, contact_point=self._get_contact_point_connecting_road(road_two_id))
+        self._add_connection(tmp_junc_road)
         self.junction_roads.append(tmp_junc_road)
         self.startnum += 1
 
+    def _add_connection(self, connecting_road):
+        conne1 = Connection(connecting_road.successor.element_id, connecting_road.id, ContactPoint.end)
+        _, sign, _ = _get_related_lanesection(
+            connecting_road, self.incomming_roads[self._get_list_index( connecting_road.successor.element_id)]
+        )
 
+        _create_junction_links(
+            conne1,
+            len(connecting_road.lanes.lanesections[-1].rightlanes),
+            -1,
+            sign,
+            to_offset=connecting_road.lane_offset_suc,
+        )
+        _create_junction_links(
+            conne1,
+            len(connecting_road.lanes.lanesections[-1].leftlanes),
+            1,
+            sign,
+            to_offset=connecting_road.lane_offset_suc,
+        )
+        self.junction.add_connection(conne1)
+
+        # handle predecessor lanes
+        conne2 = Connection(connecting_road.predecessor.element_id, connecting_road.id, ContactPoint.start)
+        _, sign, _ = _get_related_lanesection(
+            connecting_road, self.incomming_roads[self._get_list_index( connecting_road.predecessor.element_id)]
+        )
+        _create_junction_links(
+            conne2,
+            len(connecting_road.lanes.lanesections[0].rightlanes),
+            -1,
+            sign,
+            from_offset=connecting_road.lane_offset_pred,
+        )
+        _create_junction_links(
+            conne2,
+            len(connecting_road.lanes.lanesections[0].leftlanes),
+            1,
+            sign,
+            from_offset=connecting_road.lane_offset_pred,
+        )
+        self.junction.add_connection(conne2)
 
     def _create_generic_geometry(self, idx1, idx2):
         an1 = self._h[idx2] - self._h[idx1] - np.pi
