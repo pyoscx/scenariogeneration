@@ -820,6 +820,55 @@ def _get_related_lanesection(road, connected_road):
             sign = 1
         road_lanesection_id = 0
 
+    # treat direct junctions differently
+    if (
+        road.predecessor
+        and connected_road.predecessor
+        and road.predecessor.element_type == ElementType.junction
+        and connected_road.predecessor.element_type == ElementType.junction
+        and road.predecessor.element_id == connected_road.predecessor.element_id
+    ):
+        # predecessor - predecessor connection
+        linktype = "predecessor"
+        sign = -1
+        road_lanesection_id = 0
+
+    elif (
+        road.successor
+        and connected_road.predecessor
+        and road.successor.element_type == ElementType.junction
+        and connected_road.predecessor.element_type == ElementType.junction
+        and road.successor.element_id == connected_road.predecessor.element_id
+    ):
+        # successor - predecessor connection
+        linktype = "successor"
+        sign = 1
+        road_lanesection_id = -1
+
+    elif (
+        road.successor
+        and connected_road.successor
+        and road.successor.element_type == ElementType.junction
+        and connected_road.successor.element_type == ElementType.junction
+        and road.successor.element_id == connected_road.successor.element_id
+    ):
+        # successor - successor connection
+        linktype = "successor"
+        sign = -1
+        road_lanesection_id = -1
+
+    elif (
+        road.predecessor
+        and connected_road.successor
+        and road.predecessor.element_type == ElementType.junction
+        and connected_road.successor.element_type == ElementType.junction
+        and road.predecessor.element_id == connected_road.successor.element_id
+    ):
+        # predecessor - successor connection
+        linktype = "predecessor"
+        sign = 1
+        road_lanesection_id = 0
+
     if connected_road.road_type != -1:
         # treat connecting road in junction differently
         if connected_road.predecessor.element_id == road.id:
@@ -836,6 +885,7 @@ def _get_related_lanesection(road, connected_road):
             else:
                 road_lanesection_id = -1
                 sign = -1
+
     return linktype, sign, road_lanesection_id
 
 
