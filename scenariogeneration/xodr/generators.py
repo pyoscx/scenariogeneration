@@ -1277,10 +1277,10 @@ def get_coeffs_for_poly3(length, lane_offset, zero_start):
     # create the linear system
     A = np.array(
         [
-            [0, 1, 2 * s0, 3 * s0 ** 2],
-            [0, 1, 2 * s1, 3 * s1 ** 2],
-            [1, s0, s0 ** 2, s0 ** 3],
-            [1, s1, s1 ** 2, s1 ** 3],
+            [0, 1, 2 * s0, 3 * s0**2],
+            [0, 1, 2 * s1, 3 * s1**2],
+            [1, s0, s0**2, s0**3],
+            [1, s1, s1**2, s1**3],
         ]
     )
     if zero_start:
