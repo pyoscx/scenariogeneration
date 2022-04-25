@@ -12,13 +12,13 @@ road3 = xodr.create_road(xodr.Line(100),3)
 
 
 
-# junction_creator.add_incomming_road_circular_geometry(road1, radius = 20, angle=0, road_connection = 'predecessor')
-# junction_creator.add_incomming_road_circular_geometry(road2, radius = 30, angle=1*np.pi, road_connection = 'predecessor')
-# junction_creator.add_incomming_road_circular_geometry(road3, radius = 20, angle=1*np.pi/2, road_connection = 'predecessor')
+# junction_creator.add_incoming_road_circular_geometry(road1, radius = 20, angle=0, road_connection = 'predecessor')
+# junction_creator.add_incoming_road_circular_geometry(road2, radius = 30, angle=1*np.pi, road_connection = 'predecessor')
+# junction_creator.add_incoming_road_circular_geometry(road3, radius = 20, angle=1*np.pi/2, road_connection = 'predecessor')
 
-junction_creator.add_incomming_road_cartesian_geometry(road1,x=0,y=-5,heading=0, road_connection = 'predecessor')
-junction_creator.add_incomming_road_cartesian_geometry(road2,x=104,y=0,heading=0.1*np.pi, road_connection = 'predecessor')
-junction_creator.add_incomming_road_cartesian_geometry(road3,x=40,y=80,heading=-1*np.pi/2, road_connection = 'predecessor')
+junction_creator.add_incoming_road_cartesian_geometry(road1,x=0,y=-5,heading=0, road_connection = 'predecessor')
+junction_creator.add_incoming_road_cartesian_geometry(road2,x=104,y=0,heading=0.1*np.pi, road_connection = 'predecessor')
+junction_creator.add_incoming_road_cartesian_geometry(road3,x=40,y=80,heading=-1*np.pi/2, road_connection = 'predecessor')
 
 junction_creator.add_connection(road_one_id=1, road_two_id=2)
 junction_creator.add_connection(road_one_id=1, road_two_id=3)

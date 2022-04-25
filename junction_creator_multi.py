@@ -38,21 +38,21 @@ road5.add_successor(xodr.ElementType.junction,300)
 road6.add_predecessor(xodr.ElementType.junction, 300)
 road6.add_successor(xodr.ElementType.junction,400)
 
-junction_creator1.add_incomming_road_circular_junction(road1, radius = radius, angle=0)
-junction_creator1.add_incomming_road_circular_junction(road2, radius = radius, angle=np.pi)
-junction_creator1.add_incomming_road_circular_junction(road3, radius = radius, angle=np.pi/2)
+junction_creator1.add_incoming_road_circular_junction(road1, radius = radius, angle=0)
+junction_creator1.add_incoming_road_circular_junction(road2, radius = radius, angle=np.pi)
+junction_creator1.add_incoming_road_circular_junction(road3, radius = radius, angle=np.pi/2)
 
-junction_creator2.add_incomming_road_circular_junction(road2, radius = radius, angle=0)
-junction_creator2.add_incomming_road_circular_junction(road4, radius = radius, angle=3*np.pi/2)
-junction_creator2.add_incomming_road_circular_junction(road5, radius = radius, angle=np.pi/2)
+junction_creator2.add_incoming_road_circular_junction(road2, radius = radius, angle=0)
+junction_creator2.add_incoming_road_circular_junction(road4, radius = radius, angle=3*np.pi/2)
+junction_creator2.add_incoming_road_circular_junction(road5, radius = radius, angle=np.pi/2)
 
-junction_creator3.add_incomming_road_circular_junction(road3, radius = radius, angle=0)
-junction_creator3.add_incomming_road_circular_junction(road5, radius = radius, angle=-np.pi/2)
-junction_creator3.add_incomming_road_circular_junction(road6, radius = radius, angle=np.pi/2)
+junction_creator3.add_incoming_road_circular_junction(road3, radius = radius, angle=0)
+junction_creator3.add_incoming_road_circular_junction(road5, radius = radius, angle=-np.pi/2)
+junction_creator3.add_incoming_road_circular_junction(road6, radius = radius, angle=np.pi/2)
 
-junction_creator4.add_incomming_road_circular_junction(road1, radius = radius, angle=0)
-junction_creator4.add_incomming_road_circular_junction(road4, radius = radius, angle=np.pi/2)
-junction_creator4.add_incomming_road_circular_junction(road6, radius = radius, angle=-np.pi/2)
+junction_creator4.add_incoming_road_circular_junction(road1, radius = radius, angle=0)
+junction_creator4.add_incoming_road_circular_junction(road4, radius = radius, angle=np.pi/2)
+junction_creator4.add_incoming_road_circular_junction(road6, radius = radius, angle=-np.pi/2)
 
 junction_creator1.add_connection(road_one_id=1, road_two_id=2)
 junction_creator1.add_connection(road_one_id=1, road_two_id=2)
@@ -112,4 +112,4 @@ prettyprint(junction_creator4.junction)
 
 
 from scenariogeneration import esmini
-esmini(odr,'/home/mander76/local/scenario_creation/esmini', window_size='2000 50 800 400')
+esmini(odr,'esmini', window_size='2000 50 800 400')
