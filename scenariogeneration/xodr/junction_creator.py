@@ -835,19 +835,6 @@ class DirectJunctionCreator:
         add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
     """
 
-            name (str): name of the junction
-
-        Attributes
-        ----------
-            id (int): the id of the junction
-
-            junction (Junction): the junction xodr element for the junction
-        
-        Methods
-        -------
-            
-            add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
-    """
     def __init__(self, id, name):
         """Initalize the DirectJunctionCreator
 
