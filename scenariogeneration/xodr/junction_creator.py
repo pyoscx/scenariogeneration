@@ -32,7 +32,7 @@ class JunctionCreator():
 
             startnum (int): the starting id of this junctions roads
             
-            incomming_roads (list of Road): all incomming roads for the junction
+            incoming_roads (list of Road): all incoming roads for the junction
 
             junction_roads (list of Road): all generated connecting roads
 
@@ -40,20 +40,20 @@ class JunctionCreator():
         
         Methods
         -------
-            add_incomming_road_circular_geometry(road, radius, angle, road_connection)
+            add_incoming_road_circular_geometry(road, radius, angle, road_connection)
                 Adds a road on a circle defining the junction geometry
-                Note: cannot be used together with 'add_incomming_road_cartesian_geometry'
+                Note: cannot be used together with 'add_incoming_road_cartesian_geometry'
 
-            add_incomming_road_cartesian_geometry(road, x, y, heading, road_connection)
+            add_incoming_road_cartesian_geometry(road, x, y, heading, road_connection)
                 Adds a road on a generic x, y, heading geometry
-                Note: cannot be used together with 'add_incomming_road_circular_geometry'
+                Note: cannot be used together with 'add_incoming_road_circular_geometry'
             
             add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
     """
 
     def __init__(self, id, name, startnum = 100):
         self.id = id
-        self.incomming_roads = []
+        self.incoming_roads = []
         self._radie = []
         self._angles = []
         self._x = []
@@ -65,18 +65,21 @@ class JunctionCreator():
         self._circular_junction = False
         self._generic_junction = False
 
-    def add_incomming_road_circular_geometry(self, road, radius, angle, road_connection=None):
+    def add_incoming_road_circular_geometry(self, road, radius, angle, road_connection=None):
+        """ add_incoming_road_circular_geometry adds an incom
+        
+        """
         self._handle_connection_input(road, road_connection)
 
-        self.incomming_roads.append(road)
+        self.incoming_roads.append(road)
         self._radie.append(radius)
         self._angles.append(angle)
         self._circular_junction = True
 
-    def add_incomming_road_cartesian_geometry(self, road, x, y, heading, road_connection = None):
+    def add_incoming_road_cartesian_geometry(self, road, x, y, heading, road_connection = None):
         self._handle_connection_input(road,road_connection)
 
-        self.incomming_roads.append(road)
+        self.incoming_roads.append(road)
         self._x.append(x)
         self._y.append(y)
         self._h.append(heading)
@@ -96,22 +99,22 @@ class JunctionCreator():
                 raise UndefinedRoadNetwork("road : "  + str(road.id) + " is not connected to junction: " + str(self.id))
 
     def _get_list_index(self, id):        
-        return [self.incomming_roads.index(x) for x in self.incomming_roads if x.id == id][0]
+        return [self.incoming_roads.index(x) for x in self.incoming_roads if x.id == id][0]
 
     def _get_contact_point_connecting_road(self, road_id):
-        incomming_road = self.incomming_roads[self._get_list_index(road_id)]
-        if incomming_road.successor and incomming_road.successor.element_id == self.id:
+        incoming_road = self.incoming_roads[self._get_list_index(road_id)]
+        if incoming_road.successor and incoming_road.successor.element_id == self.id:
             return ContactPoint.end
-        elif incomming_road.predecessor and incomming_road.predecessor.element_id == self.id:
+        elif incoming_road.predecessor and incoming_road.predecessor.element_id == self.id:
             return ContactPoint.start
         else:
             raise AttributeError('road is not connected to this junction')
     
     def _get_connecting_lane_section(self, idx):
-        incomming_road = self.incomming_roads[idx]
-        if incomming_road.successor and incomming_road.successor.element_id == self.id:
+        incoming_road = self.incoming_roads[idx]
+        if incoming_road.successor and incoming_road.successor.element_id == self.id:
             return -1
-        elif incomming_road.predecessor and incomming_road.predecessor.element_id == self.id:
+        elif incoming_road.predecessor and incoming_road.predecessor.element_id == self.id:
             return 0
         else:
             raise AttributeError('road is not connected to this junction')
@@ -135,9 +138,9 @@ class JunctionCreator():
         
         tmp_junc_road = create_road(roadgeoms,
         self.startnum,
-        left_lanes=len(self.incomming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes),
-        right_lanes=len(self.incomming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].rightlanes), 
-        lane_width=self.incomming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes[0].a,
+        left_lanes=len(self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes),
+        right_lanes=len(self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].rightlanes), 
+        lane_width=self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes[0].a,
         road_type=self.id)
 
         tmp_junc_road.add_predecessor(ElementType.road, road_one_id, contact_point=self._get_contact_point_connecting_road(road_one_id))
@@ -149,7 +152,7 @@ class JunctionCreator():
     def _add_connection(self, connecting_road):
         conne1 = Connection(connecting_road.successor.element_id, connecting_road.id, ContactPoint.end)
         _, sign, _ = _get_related_lanesection(
-            connecting_road, self.incomming_roads[self._get_list_index( connecting_road.successor.element_id)]
+            connecting_road, self.incoming_roads[self._get_list_index( connecting_road.successor.element_id)]
         )
 
         _create_junction_links(
@@ -171,7 +174,7 @@ class JunctionCreator():
         # handle predecessor lanes
         conne2 = Connection(connecting_road.predecessor.element_id, connecting_road.id, ContactPoint.start)
         _, sign, _ = _get_related_lanesection(
-            connecting_road, self.incomming_roads[self._get_list_index( connecting_road.predecessor.element_id)]
+            connecting_road, self.incoming_roads[self._get_list_index( connecting_road.predecessor.element_id)]
         )
         _create_junction_links(
             conne2,
@@ -250,35 +253,35 @@ class DirectJunctionCreator():
 
         
 
-    def _get_contact_point_linked_road(self, incomming_road):
-        if incomming_road.successor and incomming_road.successor.element_id == self.id:
+    def _get_contact_point_linked_road(self, incoming_road):
+        if incoming_road.successor and incoming_road.successor.element_id == self.id:
             return ContactPoint.end
-        elif incomming_road.predecessor and incomming_road.predecessor.element_id == self.id:
+        elif incoming_road.predecessor and incoming_road.predecessor.element_id == self.id:
             return ContactPoint.start
         else:
             raise AttributeError('road is not connected to this junction')
 
-    def add_connection(self,incomming_road, linked_road, incomming_lanes = None, linked_lanes = None, all_roads = None):
+    def add_connection(self,incoming_road, linked_road, incoming_lanes = None, linked_lanes = None):
         single_road = False
         succ_lane_offset = 0
         pred_lane_offset = 0
-        if not isinstance(incomming_lanes,list):
-            incomming_lanes = [incomming_lanes]
+        if not isinstance(incoming_lanes,list):
+            incoming_lanes = [incoming_lanes]
             single_road = True
         if not isinstance(linked_lanes,list):
             linked_lanes = [linked_lanes]
             single_road = True
         if single_road:
-            if abs(incomming_lanes[0]) != abs(linked_lanes[0]):
-                lane_offset = abs(incomming_lanes[0]) - abs(linked_lanes[0])
-                succ_lane_offset = -1* np.sign(incomming_lanes[0])*lane_offset
+            if abs(incoming_lanes[0]) != abs(linked_lanes[0]):
+                lane_offset = abs(incoming_lanes[0]) - abs(linked_lanes[0])
+                succ_lane_offset = -1* np.sign(incoming_lanes[0])*lane_offset
                 pred_lane_offset = np.sign(linked_lanes[0])*lane_offset
-        incomming_road.succ_direct_junction[linked_road.id] =  succ_lane_offset
-        linked_road.pred_direct_junction[incomming_road.id] = pred_lane_offset
-        if incomming_lanes == None and linked_lanes == None:
+        incoming_road.succ_direct_junction[linked_road.id] =  succ_lane_offset
+        linked_road.pred_direct_junction[incoming_road.id] = pred_lane_offset
+        if incoming_lanes == None and linked_lanes == None:
             pass
         else:
-            connection = Connection(incomming_road.id, linked_road.id, self._get_contact_point_linked_road(linked_road))
-            for i in range(len(incomming_lanes)):
-                connection.add_lanelink(incomming_lanes[i], linked_lanes[i])
+            connection = Connection(incoming_road.id, linked_road.id, self._get_contact_point_linked_road(linked_road))
+            for i in range(len(incoming_lanes)):
+                connection.add_lanelink(incoming_lanes[i], linked_lanes[i])
             self.junction.add_connection(connection)
