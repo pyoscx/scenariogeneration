@@ -843,6 +843,7 @@ class DirectJunctionCreator:
             id (int): the id of the junction
 
             name (str): name of the junction
+
         """
         self.id = id
         self.junction = Junction(name, id, JunctionType.direct)
@@ -1021,9 +1022,15 @@ class DirectJunctionCreator:
             incoming_road.predecessor
             and incoming_road.predecessor.element_id == self.id
         ):
+<<<<<<< HEAD
             incoming_road.pred_direct_junction[linked_road.id] = succ_lane_offset
         else:
             incoming_road.succ_direct_junction[linked_road.id] = pred_lane_offset
+=======
+            incoming_road.pred_direct_junction[linked_road.id] = pred_lane_offset
+        else:
+            incoming_road.succ_direct_junction[linked_road.id] = succ_lane_offset
+>>>>>>> direct junction now connect for more than successor-predecessor pairs
 
         if linked_road.predecessor and linked_road.predecessor.element_id == self.id:
             linked_road.pred_direct_junction[incoming_road.id] = pred_lane_offset
