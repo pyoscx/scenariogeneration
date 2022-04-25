@@ -808,8 +808,8 @@ class ParamPoly3:
         #TODO: This is not tested or verified...
         """
         return np.sqrt(
-            (abs(3 * self.du * p ** 2 + 2 * self.cu * p + self.bu)) ** 2
-            + (abs(3 * self.dv * p ** 2 + 2 * self.cv * p + self.bv)) ** 2
+            (abs(3 * self.du * p**2 + 2 * self.cu * p + self.bu)) ** 2
+            + (abs(3 * self.dv * p**2 + 2 * self.cv * p + self.bv)) ** 2
         )
 
     def get_start_data(self, x, y, h):
@@ -837,14 +837,14 @@ class ParamPoly3:
             self.length = I[0]
         else:
             p = self.length
-        newu = self.au + self.bu * p + self.cu * p ** 2 + self.du * p ** 3
-        newv = self.av + self.bv * p + self.cv * p ** 2 + self.dv * p ** 3
+        newu = self.au + self.bu * p + self.cu * p**2 + self.du * p**3
+        newv = self.av + self.bv * p + self.cv * p**2 + self.dv * p**3
 
         new_x = x - (newu * np.cos(h) - np.sin(h) * newv)
         new_y = y - (newu * np.sin(h) + np.cos(h) * newv)
         new_h = h - np.arctan2(
-            self.bv + 2 * self.cv * p + 3 * self.dv * p ** 2,
-            self.bu + 2 * self.cu * p + 3 * self.du * p ** 2,
+            self.bv + 2 * self.cv * p + 3 * self.dv * p**2,
+            self.bu + 2 * self.cu * p + 3 * self.du * p**2,
         )
 
         return new_x, new_y, new_h, self.length
@@ -874,14 +874,14 @@ class ParamPoly3:
             self.length = I[0]
         else:
             p = self.length
-        newu = self.au + self.bu * p + self.cu * p ** 2 + self.du * p ** 3
-        newv = self.av + self.bv * p + self.cv * p ** 2 + self.dv * p ** 3
+        newu = self.au + self.bu * p + self.cu * p**2 + self.du * p**3
+        newv = self.av + self.bv * p + self.cv * p**2 + self.dv * p**3
 
         new_x = x + newu * np.cos(h) - np.sin(h) * newv
         new_y = y + newu * np.sin(h) + np.cos(h) * newv
         new_h = h + np.arctan2(
-            self.bv + 2 * self.cv * p + 3 * self.dv * p ** 2,
-            self.bu + 2 * self.cu * p + 3 * self.du * p ** 2,
+            self.bv + 2 * self.cv * p + 3 * self.dv * p**2,
+            self.bu + 2 * self.cu * p + 3 * self.du * p**2,
         )
 
         return new_x, new_y, new_h, self.length

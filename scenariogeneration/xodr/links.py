@@ -664,13 +664,17 @@ def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
 
         road2 (Road): the second road
 
-        road1_land_ids (list of int): list of the ids of road1
+        road1_land_ids (list of int): list of the ids of road1 (do not use the 0 lane)
 
-        road2_land_ids (list of int): list of the ids of road2
+        road2_land_ids (list of int): list of the ids of road2 (do not use the 0 lane)
 
     """
     if len(road1_land_ids) != len(road2_land_ids):
         raise GeneralIssueInputArguments("Length of the lane id lists is not the same.")
+
+    if (0 in road1_land_ids) or (0 in road2_land_ids):
+        raise ValueError("The 0 lane should not be linked.")
+
     if road1.road_type == -1 and road2.road_type == -1:
 
         first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
