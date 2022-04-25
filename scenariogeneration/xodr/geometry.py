@@ -301,7 +301,7 @@ class PlanView:
             length = sum(lengths)
             self.present_s = 0
 
-            for i in range(len(self._adjusted_geometries) -1, -1 ,-1 ):
+            for i in range(len(self._adjusted_geometries) - 1, -1, -1):
                 self._adjusted_geometries[i].set_s(self.present_s)
                 self.present_s += lengths[i]
             self._adjusted_geometries.reverse()
