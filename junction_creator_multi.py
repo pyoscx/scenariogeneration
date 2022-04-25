@@ -112,4 +112,8 @@ prettyprint(junction_creator4.junction)
 
 
 from scenariogeneration import esmini
+<<<<<<< HEAD
 esmini(odr,'esmini', window_size='2000 50 800 400')
+=======
+esmini(odr,'esmini', window_size='2000 50 800 400')
+>>>>>>> typo fix

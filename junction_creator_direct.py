@@ -67,16 +67,13 @@ odr.add_road(road1)
 odr.add_road(road3)
 
 
-
-
-
-
-
-
-
 odr.add_junction(junction_creator.junction)
 odr.adjust_roads_and_lanes()
 
 
 from scenariogeneration import esmini
+<<<<<<< HEAD
 esmini(odr,'../../esmini', window_size='2000 50 800 400')
+=======
+esmini(odr,'esmini', window_size='2000 50 800 400')
+>>>>>>> typo fix
