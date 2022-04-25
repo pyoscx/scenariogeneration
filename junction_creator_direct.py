@@ -27,16 +27,9 @@ odr.add_road(road1)
 odr.add_road(road3)
 
 
-
-
-
-
-
-
-
 odr.add_junction(junction_creator.junction)
 odr.adjust_roads_and_lanes()
 
 
 from scenariogeneration import esmini
-esmini(odr,'/home/mander76/local/scenario_creation/esmini', window_size='2000 50 800 400')
+esmini(odr,'esmini', window_size='2000 50 800 400')
