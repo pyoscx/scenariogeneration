@@ -451,6 +451,7 @@ class DirectJunctionCreator:
 
     def __init__(self, id, name):
         """Initalize the DirectJunctionCreator
+<<<<<<< HEAD
 
         Parameters
         ----------
@@ -458,6 +459,14 @@ class DirectJunctionCreator:
 
             name (str): name of the junction
 
+=======
+
+        Parameters
+        ----------
+            id (int): the id of the junction
+
+            name (str): name of the junction
+>>>>>>> 76f7410c0a4ab700d1fe37d3d16f1c8c1ec2f656
         """
         self.id = id
         self.junction = Junction(name, id, JunctionType.direct)
