@@ -457,7 +457,6 @@ class DirectJunctionCreator:
             id (int): the id of the junction
 
             name (str): name of the junction
-
         """
         self.id = id
         self.junction = Junction(name, id, JunctionType.direct)
