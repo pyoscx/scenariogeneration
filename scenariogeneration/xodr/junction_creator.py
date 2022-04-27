@@ -1,6 +1,3 @@
-from os import link
-from tracemalloc import start
-from turtle import end_poly
 from .enumerations import JunctionType, ElementType, ContactPoint
 from .geometry import Spiral, Line
 from .generators import create_road, _get_related_lanesection, _create_junction_links
