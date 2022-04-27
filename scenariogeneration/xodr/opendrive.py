@@ -273,10 +273,14 @@ class Road:
         self.successor = _Link("successor", element_id, element_type, contact_point)
         self.links.add_link(self.successor)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.lane_offset_suc[str(element_id)] = lane_offset
 =======
         self.lane_offset_suc = lane_offset
 >>>>>>> direct junction now connect for more than successor-predecessor pairs
+=======
+        self.lane_offset_suc[str(element_id)] = lane_offset
+>>>>>>> change of the offset usage, now a dict. Junctions now created can more handle predecessor/successor/left/right cases
         if (
             element_type != ElementType.junction
             and direct_junction is not None
@@ -316,10 +320,14 @@ class Road:
         self.predecessor = _Link("predecessor", element_id, element_type, contact_point)
         self.links.add_link(self.predecessor)
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.lane_offset_pred[str(element_id)] = lane_offset
 =======
         self.lane_offset_pred = lane_offset
 >>>>>>> direct junction now connect for more than successor-predecessor pairs
+=======
+        self.lane_offset_pred[str(element_id)] = lane_offset
+>>>>>>> change of the offset usage, now a dict. Junctions now created can more handle predecessor/successor/left/right cases
         if (
             element_type != ElementType.junction
             and direct_junction is not None
@@ -780,7 +788,10 @@ class OpenDrive:
             if main_road.pred_direct_junction:
                 num_lane_offsets = main_road.pred_direct_junction[neighbour_id]
             else:
-                num_lane_offsets = main_road.lane_offset_pred
+                if str(neighbour_id) in main_road.lane_offset_pred:
+                    num_lane_offsets = main_road.lane_offset_pred[str(neighbour_id)]
+                else:
+                    num_lane_offsets = 0
             x = -num_lane_offsets * 3 * np.sin(h) + x
             y = num_lane_offsets * 3 * np.cos(h) + y
 
@@ -801,7 +812,10 @@ class OpenDrive:
             if main_road.succ_direct_junction:
                 num_lane_offsets = main_road.succ_direct_junction[neighbour_id]
             else:
-                num_lane_offsets = main_road.lane_offset_suc
+                if str(neighbour_id) in main_road.lane_offset_suc:
+                    num_lane_offsets = main_road.lane_offset_suc[str(neighbour_id)]
+                else:
+                    num_lane_offsets = 0
             x = num_lane_offsets * 3 * np.sin(h) + x
             y = -num_lane_offsets * 3 * np.cos(h) + y
             main_road.planview.set_start_point(x, y, h)
