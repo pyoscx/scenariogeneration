@@ -5,7 +5,11 @@ from .enumerations import JunctionType, ElementType, ContactPoint
 from .geometry import Spiral, Line
 from .generators import create_road, _get_related_lanesection, _create_junction_links
 from .links import Junction, Connection
-from .exceptions import NotEnoughInputArguments, UndefinedRoadNetwork, NotSameAmountOfLanesError
+from .exceptions import (
+    NotEnoughInputArguments,
+    UndefinedRoadNetwork,
+    NotSameAmountOfLanesError,
+)
 import pyclothoids as pcloth
 
 import numpy as np
@@ -88,7 +92,7 @@ class JunctionCreator:
         """
         self.incoming_roads.append(road)
         self._handle_connection_input(road, road_connection)
-        
+
         self._radie.append(radius)
         self._angles.append(angle)
         self._circular_junction = True
@@ -117,12 +121,10 @@ class JunctionCreator:
         self.incoming_roads.append(road)
         self._handle_connection_input(road, road_connection)
 
-        
         self._x.append(x)
         self._y.append(y)
         self._h.append(heading)
         self._generic_junction = True
-
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
 
@@ -147,7 +149,7 @@ class JunctionCreator:
         )
         _incoming_lane_ids = []
         _linked_lane_ids = []
-        
+
         if sign > 0:
             _incoming_lane_ids.extend(
                 [x for x in range(-min(incoming_left_lanes, linked_left_lanes), 0, 1)]
@@ -173,9 +175,7 @@ class JunctionCreator:
                 ]
             )
 
-        elif (
-            sign < 0
-        ):  
+        elif sign < 0:
             _incoming_lane_ids.extend(
                 [x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
             )
@@ -234,12 +234,16 @@ class JunctionCreator:
             ):
                 self._create_connecting_roads_with_equal_lanes(road_one_id, road_two_id)
             else:
-                
+
                 self._create_connecting_roads_unequal_lanes(road_one_id, road_two_id)
         elif lane_one_id is not None and lane_two_id is not None:
-            self._create_connecting_road_with_lane_input(road_one_id, road_two_id, lane_one_id, lane_two_id)
+            self._create_connecting_road_with_lane_input(
+                road_one_id, road_two_id, lane_one_id, lane_two_id
+            )
         else:
-            raise NotEnoughInputArguments("if lane input is used, both has to be provided")
+            raise NotEnoughInputArguments(
+                "if lane input is used, both has to be provided"
+            )
 
     def _handle_connection_input(self, road, road_connection):
         """Checker to see if enough data is provided for an incoming road
@@ -285,7 +289,6 @@ class JunctionCreator:
                 len(road.lanes.lanesections[0].rightlanes)
             )
 
-
     def _get_list_index(self, id):
         """helping method to get the index of the road based on a road id
 
@@ -301,6 +304,28 @@ class JunctionCreator:
         return [
             self.incoming_roads.index(x) for x in self.incoming_roads if x.id == id
         ][0]
+
+    def _set_offset_for_incoming_road(self, road_idx, connecting_road_id, offset):
+        """_set_offset_for_incoming_road is a helper function to set the correct offsets for a incoming road
+
+        Parameters
+        ----------
+            road_idx (int): the index of the road
+
+            connecting_road_id (int): the id of the connecting road
+
+            offset (int): the lane offset
+
+        """
+
+        if self._get_connection_type(road_idx) == "successor":
+            self.incoming_roads[road_idx].lane_offset_suc[
+                str(connecting_road_id)
+            ] = offset
+        else:
+            self.incoming_roads[road_idx].lane_offset_pred[
+                str(connecting_road_id)
+            ] = offset
 
     def _get_contact_point_connecting_road(self, road_id):
         """_get_contact_point_connecting_road is a helper method to get the ContactPoint for a connecting road
@@ -360,7 +385,9 @@ class JunctionCreator:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
         elif self._generic_junction:
             roadgeoms = self._create_geometry_from_carthesian(idx1, idx2)
-        first_road_lane_ids, _ =self._get_minimum_lanes_to_connect(self.incoming_roads[idx1], self.incoming_roads[idx2])
+        first_road_lane_ids, _ = self._get_minimum_lanes_to_connect(
+            self.incoming_roads[idx1], self.incoming_roads[idx2]
+        )
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
@@ -384,20 +411,26 @@ class JunctionCreator:
             contact_point=self._get_contact_point_connecting_road(road_two_id),
         )
 
-        first_road_lane_ids, connecting_road_lane_ids =self._get_minimum_lanes_to_connect(self.incoming_roads[idx1], tmp_junc_road)
-        connection = Connection(
-            road_one_id, tmp_junc_road.id, ContactPoint.start
-        )
+        (
+            first_road_lane_ids,
+            connecting_road_lane_ids,
+        ) = self._get_minimum_lanes_to_connect(self.incoming_roads[idx1], tmp_junc_road)
+        connection = Connection(road_one_id, tmp_junc_road.id, ContactPoint.start)
         for i in range(len(first_road_lane_ids)):
-            connection.add_lanelink(first_road_lane_ids[i],connecting_road_lane_ids[i])
+            connection.add_lanelink(first_road_lane_ids[i], connecting_road_lane_ids[i])
         self.junction.add_connection(connection)
 
-        second_road_lane_ids, connecting_road_lane_ids =self._get_minimum_lanes_to_connect(self.incoming_roads[idx2], tmp_junc_road)
+        (
+            second_road_lane_ids,
+            connecting_road_lane_ids,
+        ) = self._get_minimum_lanes_to_connect(self.incoming_roads[idx2], tmp_junc_road)
         connection = Connection(
             tmp_junc_road.successor.element_id, tmp_junc_road.id, ContactPoint.end
         )
         for i in range(len(first_road_lane_ids)):
-            connection.add_lanelink(second_road_lane_ids[i], connecting_road_lane_ids[i])
+            connection.add_lanelink(
+                second_road_lane_ids[i], connecting_road_lane_ids[i]
+            )
         self.junction.add_connection(connection)
 
         self.junction_roads.append(tmp_junc_road)
@@ -457,7 +490,18 @@ class JunctionCreator:
         self.junction_roads.append(tmp_junc_road)
         self.startnum += 1
 
-    def _create_connecting_road_with_lane_input(self, road_one_id, road_two_id, lane_one_id, lane_two_id ):
+    def _get_connection_type(self, road_idx):
+        if (
+            self.incoming_roads[road_idx].successor
+            and self.incoming_roads[road_idx].successor.element_id == self.id
+        ):
+            return "successor"
+        else:
+            return "predecessor"
+
+    def _create_connecting_road_with_lane_input(
+        self, road_one_id, road_two_id, lane_one_id, lane_two_id
+    ):
         """_create_connecting_road_with_lane_input is a helper method that connects two roads with one lane on each road
 
         Parameters
@@ -470,20 +514,43 @@ class JunctionCreator:
 
             lane_two_id (int): the lane id(s) on the second road to connect
         """
-        
+
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
-        lane_width = self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes[0].a
-        start_offset = (abs(lane_one_id) - 1)*lane_width
-        end_offset = (abs(lane_two_id) - 1)*lane_width
+        lane_width = (
+            self.incoming_roads[idx1]
+            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+            .leftlanes[0]
+            .a
+        )
+        start_offset = (abs(lane_one_id) - 1) * lane_width
+        end_offset = (abs(lane_two_id) - 1) * lane_width
+
+        if self._get_connection_type(idx1) == "successor":
+            angle_offset_start = np.sign(lane_one_id) * np.pi / 2
+        else:
+            angle_offset_start = -np.sign(lane_one_id) * np.pi / 2
+        if self._get_connection_type(idx2) == "successor":
+            angle_offset_end = np.sign(lane_two_id) * np.pi / 2
+        else:
+            angle_offset_end = -np.sign(lane_two_id) * np.pi / 2
+
         if self._circular_junction:
             pass
         elif self._generic_junction:
-            start_x = self._x[idx1] + start_offset*np.cos(self._h[idx1] - np.pi/2)
-            start_y = self._y[idx1] + start_offset*np.sin(self._h[idx1]- np.pi/2)
+            start_x = self._x[idx1] + start_offset * np.cos(
+                self._h[idx1] + angle_offset_start
+            )
+            start_y = self._y[idx1] + start_offset * np.sin(
+                self._h[idx1] + angle_offset_start
+            )
             start_h = self._h[idx1]
-            end_x = self._x[idx2] + end_offset*np.cos(self._h[idx2] + np.pi/2)
-            end_y = self._y[idx2] + end_offset*np.sin(self._h[idx2] + np.pi/2)
+            end_x = self._x[idx2] + end_offset * np.cos(
+                self._h[idx2] + angle_offset_end
+            )
+            end_y = self._y[idx2] + end_offset * np.sin(
+                self._h[idx2] + angle_offset_end
+            )
             end_h = self._h[idx2] - np.pi
         clothoids = pcloth.SolveG2(
             start_x,
@@ -498,12 +565,21 @@ class JunctionCreator:
         roadgeoms = [
             Spiral(x.KappaStart, x.KappaEnd, length=x.length) for x in clothoids
         ]
-        if lane_one_id < 0:
-            num_left_lanes = 0
-            num_right_lanes = 1
+        if self._get_connection_type(idx1) == "successor":
+            if lane_one_id < 0:
+                num_left_lanes = 0
+                num_right_lanes = 1
+            else:
+                num_left_lanes = 1
+                num_right_lanes = 0
+
         else:
-            num_left_lanes = 1
-            num_right_lanes = 0
+            if lane_one_id < 0:
+                num_left_lanes = 1
+                num_right_lanes = 0
+            else:
+                num_left_lanes = 0
+                num_right_lanes = 1
 
         tmp_junc_road = create_road(
             roadgeoms,
@@ -514,26 +590,42 @@ class JunctionCreator:
             road_type=self.id,
         )
 
+        pred_lane_offset = np.sign(lane_one_id) * (abs(lane_one_id) - 1)
+        if self._get_connection_type(idx1) == "predecessor":
+            pred_lane_offset = -pred_lane_offset
+        succ_lane_offset = np.sign(lane_two_id) * (abs(lane_two_id) - 1)
+        if self._get_connection_type(idx2) == "predecessor":
+            succ_lane_offset = -succ_lane_offset
+
         tmp_junc_road.add_predecessor(
             ElementType.road,
             road_one_id,
             contact_point=self._get_contact_point_connecting_road(road_one_id),
-            lane_offset=np.sign(lane_one_id) * (abs(lane_one_id) -1)
+            lane_offset=pred_lane_offset,
         )
         tmp_junc_road.add_successor(
             ElementType.road,
             road_two_id,
             contact_point=self._get_contact_point_connecting_road(road_two_id),
-            lane_offset=np.sign(lane_two_id) * (abs(lane_two_id) -1)
+            lane_offset=succ_lane_offset,
         )
+        # add offsets to the incomming roads
+        self._set_offset_for_incoming_road(
+            idx1, tmp_junc_road.id, -np.sign(lane_one_id) * (abs(lane_one_id) - 1)
+        )
+        self._set_offset_for_incoming_road(
+            idx2, tmp_junc_road.id, -np.sign(lane_two_id) * (abs(lane_two_id) - 1)
+        )
+
         self.junction_roads.append(tmp_junc_road)
-        connection = Connection(
-            road_one_id, tmp_junc_road.id, ContactPoint.start
-        )
-        connection.add_lanelink(lane_one_id, lane_two_id)
+        connection = Connection(road_one_id, tmp_junc_road.id, ContactPoint.start)
+        if num_left_lanes:
+            connection.add_lanelink(lane_one_id, 1)
+        else:
+            connection.add_lanelink(lane_one_id, -1)
         self.junction.add_connection(connection)
         self.startnum += 1
-    
+
     def _add_connection_full(self, connecting_road):
         """_add_connection_full is a helper method creating connections for connections with equal amount of lanes
 
@@ -556,14 +648,18 @@ class JunctionCreator:
             len(connecting_road.lanes.lanesections[-1].rightlanes),
             -1,
             sign,
-            to_offset=connecting_road.lane_offset_suc,
+            to_offset=connecting_road.lane_offset_suc[
+                str(connecting_road.successor.element_id)
+            ],
         )
         _create_junction_links(
             conne1,
             len(connecting_road.lanes.lanesections[-1].leftlanes),
             1,
             sign,
-            to_offset=connecting_road.lane_offset_suc,
+            to_offset=connecting_road.lane_offset_suc[
+                str(connecting_road.successor.element_id)
+            ],
         )
         self.junction.add_connection(conne1)
 
@@ -584,14 +680,18 @@ class JunctionCreator:
             len(connecting_road.lanes.lanesections[0].rightlanes),
             -1,
             sign,
-            from_offset=connecting_road.lane_offset_pred,
+            from_offset=connecting_road.lane_offset_pred[
+                str(connecting_road.predecessor.element_id)
+            ],
         )
         _create_junction_links(
             conne2,
             len(connecting_road.lanes.lanesections[0].leftlanes),
             1,
             sign,
-            from_offset=connecting_road.lane_offset_pred,
+            from_offset=connecting_road.lane_offset_pred[
+                str(connecting_road.predecessor.element_id)
+            ],
         )
         self.junction.add_connection(conne2)
 
