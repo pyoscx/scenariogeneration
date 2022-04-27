@@ -57,14 +57,21 @@ else:
 
 
 ### change the offset to be a dict with direct junction
-junction_creator.add_connection(road1, road2, [-2,-1,1,2], [-2,-1,1,2])
+junction_creator.add_connection(road1, road2)
 junction_creator.add_connection(road1, road3, -3, -1)
 
 
 odr = xodr.OpenDrive('myroad')
-odr.add_road(road2)
-odr.add_road(road1)
 odr.add_road(road3)
+odr.add_road(road1)
+
+
+odr.add_road(road2)
+
+
+
+
+
 
 
 odr.add_junction(junction_creator.junction)
@@ -73,7 +80,11 @@ odr.adjust_roads_and_lanes()
 
 from scenariogeneration import esmini
 <<<<<<< HEAD
+<<<<<<< HEAD
 esmini(odr,'../../esmini', window_size='2000 50 800 400')
 =======
 esmini(odr,'esmini', window_size='2000 50 800 400')
 >>>>>>> typo fix
+=======
+esmini(odr,'../../esmini', window_size='2000 50 800 400')
+>>>>>>> first implementation of lane input in common junctions
