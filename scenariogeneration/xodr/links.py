@@ -4,6 +4,7 @@
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from .enumerations import ElementType, JunctionGroupType, JunctionType, Orientation
+import numpy as np
 
 from .exceptions import (
     NotEnoughInputArguments,
@@ -757,9 +758,15 @@ def _create_links_connecting_road(connecting, road):
                     * sign
                 )
                 if linktype == "predecessor":
-                    linkid += connecting.lane_offset_pred
+                    if str(road.id) in connecting.lane_offset_pred:
+                        linkid += np.sign(linkid) * abs(
+                            connecting.lane_offset_pred[str(road.id)]
+                        )
                 else:
-                    linkid += connecting.lane_offset_suc
+                    if str(road.id) in connecting.lane_offset_suc:
+                        linkid += np.sign(linkid) * abs(
+                            connecting.lane_offset_suc[str(road.id)]
+                        )
                 connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(
                     linktype, linkid
                 )
@@ -774,9 +781,15 @@ def _create_links_connecting_road(connecting, road):
                     * sign
                 )
                 if linktype == "predecessor":
-                    linkid += connecting.lane_offset_pred
+                    if str(road.id) in connecting.lane_offset_pred:
+                        linkid += np.sign(linkid) * abs(
+                            connecting.lane_offset_pred[str(road.id)]
+                        )
                 else:
-                    linkid += connecting.lane_offset_suc
+                    if str(road.id) in connecting.lane_offset_suc:
+                        linkid += np.sign(linkid) * abs(
+                            connecting.lane_offset_suc[str(road.id)]
+                        )
                 connecting.lanes.lanesections[connecting_lanesec].rightlanes[
                     i
                 ].add_link(linktype, linkid)
