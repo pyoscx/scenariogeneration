@@ -675,10 +675,10 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
 
     """
     if len(road1_lane_ids) != len(road2_lane_ids):
-        raise GeneralIssueInputArguments("Length of the lane id lists is not the same.")
+        raise GeneralIssueInputArguments("Length of the lane ID lists is not the same.")
 
     if (0 in road1_lane_ids) or (0 in road2_lane_ids):
-        raise ValueError("The 0 lane should not be linked.")
+        raise ValueError("The center lane (ID 0) should not be linked.")
 
     if road1.road_type == -1 and road2.road_type == -1:
 
@@ -689,27 +689,25 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
             road2, road1
         )
         for i in range(len(road1_lane_ids)):
-            if road1_lane_ids[i] < 0:
-                road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    road1_lane_ids[i]
-                ].add_link(first_linktype, road2_lane_ids[i])
-            else:
+            if road1_lane_ids[i] > 0:
                 road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road1_lane_ids[i]
+                    road1_lane_ids[i]-1
                 ].add_link(first_linktype, road2_lane_ids[i])
-
-            if road2_lane_ids[i] < 0:
-                road2.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    road2_lane_ids[i]
-                ].add_link(second_connecting_lanesec, road1_lane_ids[i])
             else:
-                road2.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road2_lane_ids[i]
-                ].add_link(second_connecting_lanesec, road1_lane_ids[i])
-
+                road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
+                    abs(road1_lane_ids[i])-1
+                ].add_link(first_linktype, road2_lane_ids[i])
+            if road2_lane_ids[i] > 0:
+                road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
+                    road2_lane_ids[i]-1
+                ].add_link(second_linktype, road1_lane_ids[i])
+            else:
+                road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
+                    abs(road2_lane_ids[i])-1
+                ].add_link(second_linktype, road1_lane_ids[i])
     else:
         raise NotImplementedError(
-            "linking connecting roads like this is not implemented yet."
+            "This API currently does not support linking with junction connecting roads."
         )
 
 
