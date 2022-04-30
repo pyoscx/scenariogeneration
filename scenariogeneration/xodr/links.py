@@ -391,7 +391,7 @@ class Connection:
         ----------
             in_lane: lane id of the incoming road
 
-            out_lane: land id of the outgoing road
+            out_lane: lane id of the outgoing road
         """
         self.links.append((in_lane, out_lane))
         return self
@@ -654,9 +654,14 @@ def are_roads_connected(road1, road2):
     return False, ""
 
 
-def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
-    """Experimantal funciton to connect roads with hardcoded lane numbers
-    NOTE: only use this when you have don't have the same amount of lanes between the edge of two roads
+def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
+    """
+    Experimental function to connect lanes of two roads given the corresponding lane IDs
+    (numbers).
+
+    NOTE: Usually only necessary when there is not the same amount of lanes at the
+    connection of two roads or there are new lanes with zero width at the beginning of a
+    road.
 
     Parameters
     ----------
@@ -664,15 +669,15 @@ def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
 
         road2 (Road): the second road
 
-        road1_land_ids (list of int): list of the ids of road1 (do not use the 0 lane)
+        road1_lane_ids (list of int): list of the ids of road1 (do not use the 0 lane)
 
-        road2_land_ids (list of int): list of the ids of road2 (do not use the 0 lane)
+        road2_lane_ids (list of int): list of the ids of road2 (do not use the 0 lane)
 
     """
-    if len(road1_land_ids) != len(road2_land_ids):
+    if len(road1_lane_ids) != len(road2_lane_ids):
         raise GeneralIssueInputArguments("Length of the lane id lists is not the same.")
 
-    if (0 in road1_land_ids) or (0 in road2_land_ids):
+    if (0 in road1_lane_ids) or (0 in road2_lane_ids):
         raise ValueError("The 0 lane should not be linked.")
 
     if road1.road_type == -1 and road2.road_type == -1:
@@ -683,24 +688,24 @@ def create_lane_links_unequal(road1, road2, road1_land_ids, road2_land_ids):
         second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
             road2, road1
         )
-        for i in range(len(road1_land_ids)):
-            if road1_land_ids[i] < 0:
+        for i in range(len(road1_lane_ids)):
+            if road1_lane_ids[i] < 0:
                 road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    road1_land_ids[i]
-                ].add_link(first_linktype, road2_land_ids[i])
+                    road1_lane_ids[i]
+                ].add_link(first_linktype, road2_lane_ids[i])
             else:
                 road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road1_land_ids[i]
-                ].add_link(first_linktype, road2_land_ids[i])
+                    road1_lane_ids[i]
+                ].add_link(first_linktype, road2_lane_ids[i])
 
-            if road2_land_ids[i] < 0:
+            if road2_lane_ids[i] < 0:
                 road2.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    road2_land_ids[i]
-                ].add_link(second_connecting_lanesec, road1_land_ids[i])
+                    road2_lane_ids[i]
+                ].add_link(second_connecting_lanesec, road1_lane_ids[i])
             else:
                 road2.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road2_land_ids[i]
-                ].add_link(second_connecting_lanesec, road1_land_ids[i])
+                    road2_lane_ids[i]
+                ].add_link(second_connecting_lanesec, road1_lane_ids[i])
 
     else:
         raise NotImplementedError(
