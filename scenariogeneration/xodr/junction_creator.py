@@ -260,7 +260,7 @@ class JunctionCreator:
                 road.add_predecessor(ElementType.junction, self.id)
             else:
                 raise ValueError(
-                    "road_connection can only be of the values 'successor', or 'predecessor'"
+                    "road_connection can only be of the values 'successor', or 'predecessor'. Not " + road_connection
                 )
         else:
             if not (
@@ -377,6 +377,10 @@ class JunctionCreator:
         """
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
+        if self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes:
+            lane_width = self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes[0].a
+        else:
+            lane_width = self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].rightlanes[0].a
         # check if the road has _angles/radius for these roads
         if self._circular_junction:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
@@ -385,15 +389,21 @@ class JunctionCreator:
         first_road_lane_ids, _ = self._get_minimum_lanes_to_connect(
             self.incoming_roads[idx1], self.incoming_roads[idx2]
         )
+        
+        if any([x > 0 for x in first_road_lane_ids]):
+            left_lanes = max(first_road_lane_ids)
+        else:
+            left_lanes = 0
+        if any([x < 0 for x in first_road_lane_ids]):
+            right_lanes = abs(min(first_road_lane_ids))
+        else:
+            right_lanes = 0
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
-            left_lanes=max(first_road_lane_ids),
-            right_lanes=abs(min(first_road_lane_ids)),
-            lane_width=self.incoming_roads[idx1]
-            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes[0]
-            .a,
+            left_lanes=left_lanes,
+            right_lanes=right_lanes,
+            lane_width=lane_width,
             road_type=self.id,
         )
 
@@ -424,7 +434,7 @@ class JunctionCreator:
         connection = Connection(
             tmp_junc_road.successor.element_id, tmp_junc_road.id, ContactPoint.end
         )
-        for i in range(len(first_road_lane_ids)):
+        for i in range(len(second_road_lane_ids)):
             connection.add_lanelink(
                 second_road_lane_ids[i], connecting_road_lane_ids[i]
             )
@@ -533,7 +543,25 @@ class JunctionCreator:
             angle_offset_end = -np.sign(lane_two_id) * np.pi / 2
 
         if self._circular_junction:
-            pass
+            an1 = self._angles[idx2] - self._angles[idx1] - np.pi
+            # adjust angle if multiple of pi
+            if an1 > np.pi:
+                an1 = -(2 * np.pi - an1)
+            # -self._radie[idx1],
+            #     0,
+            #     0,
+            #     STD_START_CLOTH,
+            #     self._radie[idx2] * np.cos(an1),
+            #     self._radie[idx2] * np.sin(an1),
+            #     an1,
+            #     STD_START_CLOTH,
+            start_x = -self._radie[idx1] + start_offset * np.cos(angle_offset_start)
+            start_y = 0
+            start_h = 0
+            end_x = self._radie[idx2] * np.cos(an1) + end_offset * np.cos(self._angles[idx2] + angle_offset_end)
+            end_y = self._radie[idx2] * np.sin(an1) + end_offset * np.sin(self._angles[idx2] + angle_offset_end)
+            end_h = an1
+
         elif self._generic_junction:
             start_x = self._x[idx1] + start_offset * np.cos(
                 self._h[idx1] + angle_offset_start
@@ -949,7 +977,7 @@ class DirectJunctionCreator:
         if incoming_lane_ids == None and linked_lane_ids == None:
             self._get_minimum_lanes_to_connect(incoming_road, linked_road)
 
-        else:
+        elif incoming_lane_ids is not None and linked_lane_ids is not None:
             if not isinstance(incoming_lane_ids, list):
                 self._incoming_lane_ids = [incoming_lane_ids]
                 single_road = True
