@@ -9,7 +9,6 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from os import get_terminal_size
 import xml.etree.ElementTree as ET
 
 from numpy.lib.function_base import disp
@@ -2386,6 +2385,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.brake_active = None
         self.brake_value = convert_float(0)
         self.brake_rate = None
+        self.brake_force = False
         self.clutch_active = None
         self.clutch_value = convert_float(0)
         self.clutch_rate = None
@@ -2395,24 +2395,35 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.steeringwheel_torque = None
         self.gear_active = None
         self.gear_value = convert_float(0)
+        self._gear_maunal = True
         self.parkingbrake_active = None
         self.parkingbrake_value = convert_float(0)
+        self.parkingbrake_rate = None
+        self.parkingbrake_force = False
 
     def __eq__(self, other):
         if isinstance(other, OverrideControllerValueAction):
             if (
                 self.throttle_value == other.throttle_value
                 and self.throttle_value == other.throttle_value
+                and self.throttle_rate == other.throttle_rate
                 and self.brake_active == other.brake_active
                 and self.brake_value == other.brake_value
+                and self.brake_rate == other.brake_rate
+                and self.brake_force == other.brake_force
                 and self.clutch_active == other.clutch_active
                 and self.clutch_value == other.clutch_value
+                and self.clutch_rate == other.clutch_rate
                 and self.steeringwheel_active == other.steeringwheel_active
                 and self.steeringwheel_value == other.steeringwheel_value
+                and self.steeringwheel_rate == other.steeringwheel_rate
+                and self.steeringwheel_torque == other.steeringwheel_torque
                 and self.gear_active == other.gear_active
                 and self.gear_value == other.gear_value
                 and self.parkingbrake_active == other.parkingbrake_active
                 and self.parkingbrake_value == other.parkingbrake_value
+                and self.parkingbrake_force == other.parkingbrake_force
+                and self.parkingbrake_rate == other.parkingbrake_rate
             ):
                 return True
         elif isinstance(other, ControllerAction):
@@ -2421,23 +2432,31 @@ class OverrideControllerValueAction(_PrivateActionType):
                 == other.overrideControllerValueAction.throttle_value
                 and self.throttle_value
                 == other.overrideControllerValueAction.throttle_value
+                and self.throttle_rate == other.overrideControllerValueAction.throttle_rate
                 and self.brake_active
                 == other.overrideControllerValueAction.brake_active
                 and self.brake_value == other.overrideControllerValueAction.brake_value
+                and self.brake_rate == other.overrideControllerValueAction.brake_rate
+                and self.brake_force == other.overrideControllerValueAction.brake_force
                 and self.clutch_active
                 == other.overrideControllerValueAction.clutch_active
                 and self.clutch_value
                 == other.overrideControllerValueAction.clutch_value
+                and self.clutch_rate == other.overrideControllerValueAction.clutch_rate
                 and self.steeringwheel_active
                 == other.overrideControllerValueAction.steeringwheel_active
                 and self.steeringwheel_value
                 == other.overrideControllerValueAction.steeringwheel_value
+                and self.steeringwheel_rate == other.overrideControllerValueAction.steeringwheel_rate
+                and self.steeringwheel_torque == other.overrideControllerValueAction.steeringwheel_torque
                 and self.gear_active == other.overrideControllerValueAction.gear_active
                 and self.gear_value == other.overrideControllerValueAction.gear_value
                 and self.parkingbrake_active
                 == other.overrideControllerValueAction.parkingbrake_active
                 and self.parkingbrake_value
                 == other.overrideControllerValueAction.parkingbrake_value
+                and self.parkingbrake_force == other.overrideControllerValueAction.parkingbrake_force
+                and self.parkingbrake_rate == other.overrideControllerValueAction.parkingbrake_rate
             ):
                 return True
         return False
@@ -2464,13 +2483,29 @@ class OverrideControllerValueAction(_PrivateActionType):
             throttle_element = ocva_element.find("Throttle")
             ocv_action.throttle_active = convert_bool(throttle_element.attrib["active"])
             ocv_action.throttle_value = convert_float(throttle_element.attrib["value"])
+            if "maxRate" in throttle_element.attrib:
+                ocv_action.throttle_rate = convert_float(throttle_element.attrib["maxRate"])
 
         ocv_action.brake_active = None
         ocv_action.brake_value = convert_float(0)
         if ocva_element.find("Brake") != None:
             brake_element = ocva_element.find("Brake")
             ocv_action.brake_active = convert_bool(brake_element.attrib["active"])
-            ocv_action.brake_value = convert_float(brake_element.attrib["value"])
+            if "value" in brake_element.attrib:
+                ocv_action.brake_value = convert_float(brake_element.attrib["value"])
+            else:
+                if brake_element.find("BrakePercent") is not None:
+                    brake_input_element = brake_element.find("BrakePercent")
+                    ocv_action.brake_force = False
+
+                elif brake_element.find("BrakeForce") is not None:
+                    brake_input_element = brake_element.find("BrakeForce")
+                    ocv_action.brake_force = True
+                else:
+                    raise ValueError('No value found while parsing brake.')
+                ocv_action.brake_value = convert_float(brake_input_element.attrib["value"])
+                if "maxRate" in brake_input_element.attrib:
+                    ocv_action.brake_rate = brake_input_element.attrib["maxRate"]
 
         ocv_action.clutch_active = None
         ocv_action.clutch_value = convert_float(0)
@@ -2478,6 +2513,8 @@ class OverrideControllerValueAction(_PrivateActionType):
             cluth_element = ocva_element.find("Clutch")
             ocv_action.clutch_active = convert_bool(cluth_element.attrib["active"])
             ocv_action.clutch_value = convert_float(cluth_element.attrib["value"])
+            if "maxRate" in cluth_element.attrib:
+                ocv_action.clutch_rate = convert_float(cluth_element.attrib["maxRate"])
 
         ocv_action.parkingbrake_active = None
         ocv_action.parkingbrake_value = convert_float(0)
@@ -2486,9 +2523,22 @@ class OverrideControllerValueAction(_PrivateActionType):
             ocv_action.parkingbrake_active = convert_bool(
                 parkingbrake_element.attrib["active"]
             )
-            ocv_action.parkingbrake_value = convert_float(
-                parkingbrake_element.attrib["value"]
-            )
+
+            if "value" in parkingbrake_element.attrib:
+                ocv_action.parkingbrake_value = convert_float(parkingbrake_element.attrib["value"])
+            else:
+                if parkingbrake_element.find("BrakePercent") is not None:
+                    parkingbrake_input_element = parkingbrake_element.find("BrakePercent")
+                    ocv_action.parkingbrake_force = False
+
+                elif parkingbrake_element.find("BrakeForce") is not None:
+                    parkingbrake_input_element = parkingbrake_element.find("BrakeForce")
+                    ocv_action.parkingbrake_force = True
+                else:
+                    raise ValueError('No value found while parsing brake.')
+                ocv_action.parkingbrake_value = convert_float(parkingbrake_input_element.attrib["value"])
+                if "maxRate" in parkingbrake_input_element.attrib:
+                    ocv_action.parkingbrake_rate = convert_float(parkingbrake_input_element.attrib["maxRate"])
 
         ocv_action.steeringwheel_active = None
         ocv_action.steeringwheel_value = convert_float(0)
@@ -2500,13 +2550,28 @@ class OverrideControllerValueAction(_PrivateActionType):
             ocv_action.steeringwheel_value = convert_float(
                 steeringwheel_element.attrib["value"]
             )
+            if "maxRate" in steeringwheel_element.attrib:
+                ocv_action.steeringwheel_rate = convert_float(steeringwheel_element.attrib["maxRate"])
+            if "maxTorque" in steeringwheel_element.attrib:
+                ocv_action.steeringwheel_torque = convert_float(steeringwheel_element.attrib["maxTorque"])
 
         ocv_action.gear_active = None
         ocv_action.gear_value = convert_float(0)
         if ocva_element.find("Gear") != None:
             gear_element = ocva_element.find("Gear")
             ocv_action.gear_active = convert_bool(gear_element.attrib["active"])
-            ocv_action.gear_value = convert_float(gear_element.attrib["number"])
+            if "number" in gear_element.attrib:
+                ocv_action.gear_value = convert_float(gear_element.attrib["number"])
+            elif gear_element.find("AutomaticGear") is not None:
+                ocv_action.gear_value = getattr(
+                AutomaticGearType,
+                gear_element.find("AutomaticGear").attrib["gear"],
+            )
+
+            elif gear_element.find("ManualGear") is not None:
+                ocv_action.gear_value = convert_float(gear_element.find("ManualGear").attrib["number"])
+            else:
+                raise ValueError("no gear number found in OverrideGearAction")
 
         return ocv_action
 
@@ -2520,14 +2585,14 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the clutch
                 Default: 0
 
-            rate (float): rate of the change
+            rate (float): rate of the change (Valid from OpenSCENARIO V1.2)
                 Default: None
         """
         self.clutch_active = convert_bool(active)
         self.clutch_value = convert_float(value)
         self.clutch_rate = rate
 
-    def set_brake(self, active, value=0):
+    def set_brake(self, active, value=0, rate=None, interpret_as_force=False):
         """Sets the brake value
 
         Parameters
@@ -2536,9 +2601,18 @@ class OverrideControllerValueAction(_PrivateActionType):
 
             value (float): value of the brake
                 Default: 0
+
+            rate (float): the rate of the change (Valid from OpenSCENARIO V1.2)
+                Default: None
+
+            interpret_as_force (bool): interpret the value as force instead of percent (Valid from OpenSCENARIO V1.2)
+                Default: None
+
         """
         self.brake_active = convert_bool(active)
         self.brake_value = convert_float(value)
+        self.brake_rate = rate
+        self.brake_force = interpret_as_force
 
     def set_throttle(self, active, value=0, rate=None):
         """Sets the throttle value
@@ -2578,7 +2652,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.steeringwheel_rate = convert_float(rate)
         self.steeringwheel_torque = convert_float(torque)
 
-    def set_parkingbrake(self, active, value=0):
+    def set_parkingbrake(self, active, value=0, rate=None, interpret_as_force=False):
         """Sets the parkingbrake value
 
         Parameters
@@ -2588,9 +2662,16 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the parkingbrake
                 Default: 0
 
+            rate (float): the rate of the change (Valid from OpenSCENARIO V1.2)
+                Default: None
+
+            interpret_as_force (bool): interpret the value as force instead of percent (Valid from OpenSCENARIO V1.2)
+                Default: None
         """
         self.parkingbrake_active = convert_bool(active)
         self.parkingbrake_value = convert_float(value)
+        self.parkingbrake_rate = rate
+        self.parkingbrake_force = interpret_as_force
 
     def set_gear(self, active, value=0):
         """Sets the gear value
@@ -2599,14 +2680,16 @@ class OverrideControllerValueAction(_PrivateActionType):
         ----------
             active (bool): if the gear should be overridden
 
-            value (float): value of the gear
+            value (float/AutomaticGearType): value of the gear
                 Default: 0
         """
         self.gear_active = convert_bool(active)
         if hasattr(AutomaticGearType, str(value)):
             self.gear_value = value
+            self._gear_maunal = False
         else:
             self.gear_value = convert_float(value)
+            self._gear_maunal = True
 
     def get_element(self):
         """returns the elementTree of the OverrideControllerValueAction"""
@@ -2642,54 +2725,116 @@ class OverrideControllerValueAction(_PrivateActionType):
                 throttle_dict,
             )
         if self.brake_active != None:
-            ET.SubElement(
+            if not self.isVersion(minor=2):
+
+                ET.SubElement(
                 overrideaction,
                 "Brake",
-                {
-                    "active": get_bool_string(self.brake_active),
-                    "value": str(self.brake_value),
-                },
-            )
+                    {
+                        "active": get_bool_string(self.brake_active),
+                        "value": str(self.brake_value),
+                    },
+                )
+            else:
+                override_brake = ET.SubElement(
+                overrideaction,
+                "Brake",
+                {"active": get_bool_string(self.brake_active)},
+                )
+                brake_dict = {"value": str(self.brake_value)}
+                if self.brake_rate is not None:
+                    brake_dict["maxRate"] = str(self.brake_rate)
+                if self.brake_force:
+                    ET.SubElement(override_brake, "BrakeForce", attrib=brake_dict)
+                else:
+                    ET.SubElement(override_brake, "BrakePercent", attrib=brake_dict)
+
         if self.clutch_active != None:
             if self.throttle_rate is not None and self.isVersion(minor=2):
                 throttle_dict ["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(minor=2):
                 raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
+            clutch_dict = {
+                    "active": get_bool_string(self.clutch_active),
+                    "value": str(self.clutch_value),
+                }
+            if self.clutch_rate is not None and self.isVersion(minor=2):
+                clutch_dict["maxRate"] = str(self.clutch_rate)
+            elif self.clutch_rate is not None and not self.isVersion(minor=2):
+                raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
             ET.SubElement(
                 overrideaction,
                 "Clutch",
-                {
-                    "active": get_bool_string(self.clutch_active),
-                    "value": str(self.clutch_value),
-                },
+                clutch_dict,
             )
         if self.parkingbrake_active != None:
-            ET.SubElement(
-                overrideaction,
-                "ParkingBrake",
-                {
-                    "active": get_bool_string(self.parkingbrake_active),
-                    "value": str(self.parkingbrake_value),
-                },
-            )
+            if not self.isVersion(minor=2):
+                ET.SubElement(
+                    overrideaction,
+                    "ParkingBrake",
+                    {
+                        "active": get_bool_string(self.parkingbrake_active),
+                        "value": str(self.parkingbrake_value),
+                    },
+                )
+            else:
+                override_parking = ET.SubElement(
+                    overrideaction,
+                    "ParkingBrake",
+                    {"active": get_bool_string(self.parkingbrake_active)},
+                )
+                parkingbrake_dict = {"value": str(self.parkingbrake_value)}
+                if self.parkingbrake_rate is not None:
+                    parkingbrake_dict["maxRate"] = str(self.parkingbrake_rate)
+                if self.parkingbrake_force:
+                    ET.SubElement(override_parking, "BrakeForce", attrib=parkingbrake_dict)
+                else:
+                    ET.SubElement(override_parking, "BrakePercent", attrib=parkingbrake_dict)
         if self.steeringwheel_active != None:
+            steering_dict = {
+                    "active": convert_bool(self.steeringwheel_active),
+                    "value": str(self.steeringwheel_value),
+                }
+            if self.steeringwheel_torque is not None:
+                if self.isVersion(minor=2):
+                    steering_dict['maxTorque'] = str(self.steeringwheel_torque)
+                else:
+                    raise OpenSCENARIOVersionError('maxTorque was introduced in OpenSCENARIO v1.2')
+            if self.steeringwheel_rate is not None:
+                if self.isVersion(minor=2):
+                    steering_dict['maxRate'] = str(self.steeringwheel_rate)
+                else:
+                    raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
             ET.SubElement(
                 overrideaction,
                 "SteeringWheel",
-                {
-                    "active": get_bool_string(self.steeringwheel_active),
-                    "value": str(self.steeringwheel_value),
-                },
+                steering_dict,
             )
+
         if self.gear_active != None:
-            ET.SubElement(
-                overrideaction,
-                "Gear",
-                {
-                    "active": get_bool_string(self.gear_active),
-                    "number": str(self.gear_value),
-                },
-            )
+            if not self.isVersion(minor=2):
+                ET.SubElement(
+                    overrideaction,
+                    "Gear",
+                    {
+                        "active": get_bool_string(self.gear_active),
+                        "number": str(self.gear_value),
+                    },
+                )
+            else:
+                override_gear_action = ET.SubElement(
+                    overrideaction,
+                    "Gear",
+                    {
+                        "active": get_bool_string(self.gear_active),
+                    },
+                )
+                if self._gear_maunal:
+                    ET.SubElement(override_gear_action, "ManualGear", {"number": str(self.gear_value)})
+                else:
+                    ET.SubElement(override_gear_action, "AutomaticGear", {"gear": self.gear_value.get_name()})
+
+
 
         return element
 
