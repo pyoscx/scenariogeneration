@@ -79,12 +79,7 @@ odr.adjust_roads_and_lanes()
 
 
 from scenariogeneration import esmini
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 esmini(odr,'../../esmini', window_size='2000 50 800 400')
-=======
-esmini(odr,'esmini', window_size='2000 50 800 400')
->>>>>>> typo fix
-=======
-esmini(odr,'../../esmini', window_size='2000 50 800 400')
->>>>>>> first implementation of lane input in common junctions
+

@@ -272,15 +272,9 @@ class Road:
             raise ValueError("only one successor is allowed")
         self.successor = _Link("successor", element_id, element_type, contact_point)
         self.links.add_link(self.successor)
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         self.lane_offset_suc[str(element_id)] = lane_offset
-=======
-        self.lane_offset_suc = lane_offset
->>>>>>> direct junction now connect for more than successor-predecessor pairs
-=======
-        self.lane_offset_suc[str(element_id)] = lane_offset
->>>>>>> change of the offset usage, now a dict. Junctions now created can more handle predecessor/successor/left/right cases
+
         if (
             element_type != ElementType.junction
             and direct_junction is not None
@@ -319,15 +313,7 @@ class Road:
             raise ValueError("only one predecessor is allowed")
         self.predecessor = _Link("predecessor", element_id, element_type, contact_point)
         self.links.add_link(self.predecessor)
-<<<<<<< HEAD
-<<<<<<< HEAD
         self.lane_offset_pred[str(element_id)] = lane_offset
-=======
-        self.lane_offset_pred = lane_offset
->>>>>>> direct junction now connect for more than successor-predecessor pairs
-=======
-        self.lane_offset_pred[str(element_id)] = lane_offset
->>>>>>> change of the offset usage, now a dict. Junctions now created can more handle predecessor/successor/left/right cases
         if (
             element_type != ElementType.junction
             and direct_junction is not None
