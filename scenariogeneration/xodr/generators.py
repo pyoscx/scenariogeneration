@@ -1001,14 +1001,14 @@ def create_junction(junction_roads, id, roads, name="my junction"):
             len(jr.lanes.lanesections[-1].rightlanes),
             -1,
             sign,
-            to_offset=jr.lane_offset_suc,
+            to_offset=jr.lane_offset_suc[str(jr.successor.element_id)],
         )
         _create_junction_links(
             conne1,
             len(jr.lanes.lanesections[-1].leftlanes),
             1,
             sign,
-            to_offset=jr.lane_offset_suc,
+            to_offset=jr.lane_offset_suc[str(jr.successor.element_id)],
         )
         junc.add_connection(conne1)
 
@@ -1022,14 +1022,14 @@ def create_junction(junction_roads, id, roads, name="my junction"):
             len(jr.lanes.lanesections[0].rightlanes),
             -1,
             sign,
-            from_offset=jr.lane_offset_pred,
+            from_offset=jr.lane_offset_pred[str(jr.predecessor.element_id)],
         )
         _create_junction_links(
             conne2,
             len(jr.lanes.lanesections[0].leftlanes),
             1,
             sign,
-            from_offset=jr.lane_offset_pred,
+            from_offset=jr.lane_offset_pred[str(jr.predecessor.element_id)],
         )
         junc.add_connection(conne2)
     return junc
