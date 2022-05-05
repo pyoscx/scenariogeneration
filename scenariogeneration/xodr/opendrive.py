@@ -916,7 +916,7 @@ class OpenDrive:
                                     )
 
                                     count_adjusted_roads += 1
-                        elif (
+                        if (
                             self.roads[k].predecessor is not None
                             and self.roads[k].predecessor.element_type
                             is ElementType.junction

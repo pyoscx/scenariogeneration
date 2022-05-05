@@ -125,7 +125,7 @@ class JunctionCreator:
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
 
-        incoming_connection, _, incoming_lane_section = _get_related_lanesection(
+        incoming_connection, incoming_sign, incoming_lane_section = _get_related_lanesection(
             incoming_road, linked_road
         )
         linked_connection, sign, linked_lane_section = _get_related_lanesection(
@@ -149,15 +149,15 @@ class JunctionCreator:
 
         if sign > 0:
             _incoming_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_left_lanes), 0, 1)]
+                [x for x in range(1, min(incoming_left_lanes, linked_left_lanes) +1, 1)]
             )
             _linked_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_left_lanes), 0, 1)]
+                [x for x in range(1, min(incoming_left_lanes, linked_left_lanes) +1, 1)]
             )
 
             _incoming_lane_ids.extend(
                 [
-                    x
+                    -x
                     for x in range(
                         1, min(incoming_right_lanes, linked_right_lanes) + 1, 1
                     )
@@ -165,7 +165,7 @@ class JunctionCreator:
             )
             _linked_lane_ids.extend(
                 [
-                    x
+                    -x
                     for x in range(
                         1, min(incoming_right_lanes, linked_right_lanes) + 1, 1
                     )
@@ -174,15 +174,15 @@ class JunctionCreator:
 
         elif sign < 0:
             _incoming_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
+                [x for x in range(1, min(incoming_left_lanes, linked_right_lanes) + 1, 1)]
             )
             _linked_lane_ids.extend(
-                [-x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
+                [-x for x in range(1, min(incoming_left_lanes, linked_right_lanes) + 1, 1)]
             )
 
             _incoming_lane_ids.extend(
                 [
-                    x
+                    -x
                     for x in range(
                         1, min(incoming_right_lanes, linked_left_lanes) + 1, 1
                     )
@@ -190,7 +190,7 @@ class JunctionCreator:
             )
             _linked_lane_ids.extend(
                 [
-                    -x
+                    x
                     for x in range(
                         1, min(incoming_right_lanes, linked_left_lanes) + 1, 1
                     )
@@ -390,14 +390,20 @@ class JunctionCreator:
             self.incoming_roads[idx1], self.incoming_roads[idx2]
         )
         
+        left_lanes = 0
+        right_lanes = 0
         if any([x > 0 for x in first_road_lane_ids]):
-            left_lanes = max(first_road_lane_ids)
-        else:
-            left_lanes = 0
+            if self._get_connection_type(idx1) == 'successor':
+                left_lanes = max(first_road_lane_ids)
+            else:
+                right_lanes = max(first_road_lane_ids)
+
         if any([x < 0 for x in first_road_lane_ids]):
-            right_lanes = abs(min(first_road_lane_ids))
-        else:
-            right_lanes = 0
+            if self._get_connection_type(idx1) == 'successor':
+                right_lanes = abs(min(first_road_lane_ids))
+            else:
+                left_lanes = abs(min(first_road_lane_ids))
+            
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,

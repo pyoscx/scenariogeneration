@@ -9,7 +9,7 @@ junction_creator = xodr.JunctionCreator(id = 100, name = 'my_junction',startnum=
 
 
 
-road_case = 6
+road_case = 1
 # junction_creator.add_incoming_road_circular_geometry(road1, radius = 20, angle=0, road_connection = 'predecessor')
 # junction_creator.add_incoming_road_circular_geometry(road2, radius = 30, angle=1*np.pi, road_connection = 'predecessor')
 # junction_creator.add_incoming_road_circular_geometry(road3, radius = 20, angle=1*np.pi/2, road_connection = 'predecessor')
@@ -101,7 +101,7 @@ if road_case == 6:
     junction_creator.add_incoming_road_circular_geometry(road1,20,0, road_connection = 'predecessor')
     junction_creator.add_incoming_road_circular_geometry(road2,20,np.pi/2, road_connection = 'predecessor')
     
-    junction_creator.add_connection(road_one_id=1, road_two_id=2)
+    junction_creator.add_connection(road_one_id=2, road_two_id=1)
     prettyprint(junction_creator.junction)
 
 
@@ -109,7 +109,7 @@ if road_case == 6:
 odr = xodr.OpenDrive('myroad')
 odr.add_road(road1)
 odr.add_road(road2)
-# odr.add_road(road3)
+odr.add_road(road3)
 
 
 
@@ -121,4 +121,4 @@ odr.adjust_roads_and_lanes()
 
 
 from scenariogeneration import esmini
-esmini(odr,'../../esmini',car_density=10)
+esmini(odr,'../../esmini',car_density=10, window_size= '2200 60 800 600')
