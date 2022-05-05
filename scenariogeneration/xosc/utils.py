@@ -1613,7 +1613,8 @@ class CatalogFile(VersionBase):
                 "xsi:noNamespaceSchemaLocation": "../../" + XSI,
             },
         )
-        header = FileHeader(description, author)
+#         header = FileHeader(description, author)
+        header = FileHeader(author, description)
         element.append(header.get_element())
         ET.SubElement(element, "Catalog", attrib={"name": catalogtype})
 
