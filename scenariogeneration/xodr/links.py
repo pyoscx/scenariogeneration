@@ -831,10 +831,10 @@ def _get_related_lanesection(road, connected_road):
         # treat connecting road in junction differently
         if connected_road.predecessor.element_id == road.id:
             if connected_road.predecessor.contact_point == ContactPoint.start:
-                road_lanesection_id = -1
+                road_lanesection_id = 0
                 sign = -1
             else:
-                road_lanesection_id = 0
+                road_lanesection_id = -1
                 sign = 1
         elif connected_road.successor.element_id == road.id:
             if connected_road.successor.contact_point == ContactPoint.start:
