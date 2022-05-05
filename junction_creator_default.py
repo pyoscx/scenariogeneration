@@ -121,13 +121,6 @@ if road_case == 6:
 
 
 =======
-junction_creator.add_incoming_road_cartesian_geometry(road1,x=0,y=-5,heading=0, road_connection = 'successor')
-junction_creator.add_incoming_road_cartesian_geometry(road2,x=104,y=0,heading=1.1*np.pi, road_connection = 'predecessor')
-junction_creator.add_incoming_road_cartesian_geometry(road3,x=40,y=-80,heading=1*np.pi/2, road_connection = 'successor')
-
-junction_creator.add_connection(road_one_id=1, road_two_id=2)
->>>>>>> first implementation of lane input in common junctions
-=======
 
 
 
@@ -219,6 +212,8 @@ if road_case == 6:
     junction_creator.add_incoming_road_circular_geometry(road2,20,np.pi/2, road_connection = 'predecessor')
     
     junction_creator.add_connection(road_one_id=1, road_two_id=2)
+=======
+>>>>>>> more fixing of linking for alot of different cases while creating normal junctions
     prettyprint(junction_creator.junction)
 
 
@@ -227,7 +222,7 @@ if road_case == 6:
 odr = xodr.OpenDrive('myroad')
 odr.add_road(road1)
 odr.add_road(road2)
-# odr.add_road(road3)
+odr.add_road(road3)
 
 
 
