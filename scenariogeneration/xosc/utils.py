@@ -1737,7 +1737,7 @@ class Catalog(VersionBase):
 
         if catalogname not in self._CATALOGS:
             raise ValueError(
-                "Not a correct catalog, approved catalogs are:" "".join(self._CATALOGS)
+                f"Not a correct catalog, approved catalogs are: {', '.join(self._CATALOGS)}."
             )
 
         self.catalogs[catalogname] = path
