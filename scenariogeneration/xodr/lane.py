@@ -281,7 +281,7 @@ class LaneSection:
 
         if self.leftlanes:
             left = ET.SubElement(element, "left")
-            for l in self.leftlanes:
+            for l in reversed(self.leftlanes):
                 left.append(l.get_element())
 
         center = ET.SubElement(element, "center")
