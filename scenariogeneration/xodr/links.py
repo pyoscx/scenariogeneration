@@ -424,7 +424,7 @@ class Connection:
         """
 
         element = ET.Element("connection", attrib=self.get_attributes(junctiontype))
-        for l in self.links:
+        for l in sorted(self.links, key=lambda x: x[0], reverse=True):
             ET.SubElement(
                 element, "laneLink", attrib={"from": str(l[0]), "to": str(l[1])}
             )
