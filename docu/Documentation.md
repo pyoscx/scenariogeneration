@@ -93,18 +93,46 @@ The  *create_cloth_arc_cloth* function creates road with a smooth curve based on
 #### create_3cloths
 Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using pyclothoids)
 
-#### create_junction_roads
-- The *create_junction_roads* generates all the roads for a simple intersection. The position of roads around a junction is defined by *R*, the distance of each road form the center of the junction, and by *angles*, defining how the roads around the junction are spanned. With these inputs, *create_junction_roads* generates all the roads in the junction, which are connecting the surrounding roads. 
-
-#### create_junction
-The *create_junction* function creates the "junction" element of OpenDRIVE, based on a list of "roads in the junction" (that can be generated from *create_junction_roads*) and a list of "roads going into the junction" 
-
-#### create_direct_junction
-Similar to *create_junction*, create_direct_junction can be used to create the junction element for a direct junction. This is possible when using the direct_junction input in add_predecessor/add_successor, see [direct_junction_exit](examples/xodr/direct_junction_exit.html) or [direct_junction_entry](examples/xodr/direct_junction_entry.html)
-
 
 #### LaneDef
 LaneDef is a helper class that enables simple lane merge/split roads to be created, this definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html)).
+
+### JunctionCreators
+
+Since version 0.8.0 the xodr module contains two JunctionCreators. The JunctionCreators replaces the create_junction, create_direct_junction, and create_junction_roads, which had some big limmitations when it came to create custom junctions. 
+
+### JunctionCreatorCommon
+The *JunctionCreatorCommon* is the class that helps the user to create the *common* junctions in OpenDRIVE, this is done in two steps: (1) adding the road to connect to the junction and its position, (2) adding connections between roads and optionally lanes. 
+
+#### Adding roads to the junction
+First of all, the roads needs a predecessor or successor pointing to the junction. This can be done in two different ways: (1) with the *add_successor/add_predecessor*, or (2) with the *add_incoming_road* functions in the junction creator. 
+
+When adding a road to the junction two functions are available, *add_incoming_road_cartesian_geometry* and *add_incoming_road_circular_geometry*, both uses a local coordinate system for that junciton that will help to connect the roads together. 
+- The *add_incoming_road_cartesian_geometry* uses a *x-y* coordinate system with an arbitrary origin, the incomming road is added with an *x-y-h* input, where *h* is the heading of the road _into_ the junction. 
+
+- The *add_incoming_road_circular_geometry* uses a *r-h* coordinate system where the origin is in the middle of the junction and *r* is the radius and *h* the heading from the center where to connect the road.
+
+An example can be seen below:
+```
+road1 = xodr.create_road(xodr.Line(100), id=1)
+road2 = xodr.create_road(xodr.Line(100), id=1)
+junction_creator = xodr.JunctionCreator(id = 100, 'my_junction')
+
+junction_creator.add_incoming_road_cartesian_geometry(road1, 
+            x = 0, 
+            y = 0, 
+            heading=0, 
+            road_connection='successor')
+
+junction_creator.add_incoming_road_cartesian_geometry(road2, 
+            x = 100, 
+            y = 0, 
+            heading=-3.1415, 
+            road_connection='predecessor')
+
+```
+
+
 
 ## ScenarioGenerator
 
