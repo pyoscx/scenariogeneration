@@ -691,19 +691,19 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         for i in range(len(road1_lane_ids)):
             if road1_lane_ids[i] > 0:
                 road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road1_lane_ids[i]-1
+                    road1_lane_ids[i] - 1
                 ].add_link(first_linktype, road2_lane_ids[i])
             else:
                 road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    abs(road1_lane_ids[i])-1
+                    abs(road1_lane_ids[i]) - 1
                 ].add_link(first_linktype, road2_lane_ids[i])
             if road2_lane_ids[i] > 0:
                 road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
-                    road2_lane_ids[i]-1
+                    road2_lane_ids[i] - 1
                 ].add_link(second_linktype, road1_lane_ids[i])
             else:
                 road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
-                    abs(road2_lane_ids[i])-1
+                    abs(road2_lane_ids[i]) - 1
                 ].add_link(second_linktype, road1_lane_ids[i])
     else:
         raise NotImplementedError(

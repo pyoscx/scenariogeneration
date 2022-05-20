@@ -92,7 +92,10 @@ def test_maneuvergroup():
     mangr4 = OSC.ManeuverGroup.parse(mangr3.get_element())
     assert mangr4 == mangr3
 
-
+    mangr5 = OSC.ManeuverGroup('with catalog')
+    mangr5.add_maneuver(OSC.CatalogReference('my_catalog','cut-in'))
+    prettyprint(mangr5.get_element())
+    
 def test_actandstory():
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)

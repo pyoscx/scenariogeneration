@@ -756,7 +756,9 @@ class ManeuverGroup:
             maneuver (Maneuver, or CatalogReference): maneuver to add
 
         """
-        if not isinstance(maneuver, Maneuver):
+        if not (
+            isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)
+        ):
             raise TypeError("maneuver input is not of type Maneuver")
         self.maneuvers.append(maneuver)
         return self
