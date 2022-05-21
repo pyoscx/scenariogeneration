@@ -1,4 +1,14 @@
-""" Fundamental example how to build up a road split with lane split afterwards.
+"""
+  scenariogeneration
+  https://github.com/pyoscx/scenariogeneration
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+  Copyright (c) 2022 The scenariogeneration Authors.
+  
+    Fundamental example how to build up a road split with lane split afterwards.
 
     This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
 

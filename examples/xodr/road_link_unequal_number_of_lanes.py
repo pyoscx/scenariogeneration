@@ -1,8 +1,18 @@
-""" Example for linking two roads with an unequal number of lanes.
+"""
+  scenariogeneration
+  https://github.com/pyoscx/scenariogeneration
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+  Copyright (c) 2022 The scenariogeneration Authors.
+  
+    Example for linking two roads with an unequal number of lanes.
 
-Note: This is possible and valid according to the OpenDRIVE standard. It is
-sometimes necessary to use this approach but it might often be prefered to begin
-a new lane section to change the number of lanes instead.
+    Note: This is possible and valid according to the OpenDRIVE standard. It is
+    sometimes necessary to use this approach but it might often be prefered to begin
+    a new lane section to change the number of lanes instead.
 """
 
 from scenariogeneration import xodr

@@ -1,4 +1,14 @@
-""" example how to add geometries with a fixed position, please note that *adjust_roads_and_lanes* will only take care of the lane linking in this case not any geometrical adjustmensts
+"""
+  scenariogeneration
+  https://github.com/pyoscx/scenariogeneration
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+  Copyright (c) 2022 The scenariogeneration Authors.
+  
+    Example how to add geometries with a fixed position, please note that *adjust_roads_and_lanes* will only take care of the lane linking in this case not any geometrical adjustmensts
 
     This is how a road can be built up if all exact postions of the geometries are already known
 

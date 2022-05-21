@@ -77,11 +77,7 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 
 ## Authors
 
-* **Mikael Andersson** - *Initial work* - [MandolinMicke](https://github.com/MandolinMicke) (xosc & xodr)
-
-* **Irene Natale** - *Inital work* - [inatale93](https://github.com/inatale93) (xodr)
-
-* **Andreas Tingberg** - *Maintainer* - [atingber](https://github.com/atingber)
+See [AUTHORS](https://github.com/pyoscx/scenariogeneration/blob/main/AUTHORS) file
 
 ## Data formats
 

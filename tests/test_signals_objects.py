@@ -1,5 +1,13 @@
 """
-Test script to create a straight road with a signal at an arbitrary s-coordinate.
+  scenariogeneration
+  https://github.com/pyoscx/scenariogeneration
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+  Copyright (c) 2022 The scenariogeneration Authors.
+
 """
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint

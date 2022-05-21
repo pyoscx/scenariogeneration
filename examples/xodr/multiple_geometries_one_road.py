@@ -1,4 +1,14 @@
-""" Fundamental example how to build up a road from scratch.
+"""
+  scenariogeneration
+  https://github.com/pyoscx/scenariogeneration
+ 
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ 
+  Copyright (c) 2022 The scenariogeneration Authors.
+  
+    Fundamental example how to build up a road from scratch.
 
     This example should be seen as a developer example how roads are built up from the very basic classes in OpenDRIVE
     create_road will take care of this and much more, so a user is recommended to use that generator instead.
