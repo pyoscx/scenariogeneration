@@ -5,7 +5,7 @@
 from scenariogeneration import xodr, prettyprint
 import numpy as np
 
-junction_creator = xodr.JunctionCreator(id = 100, name = 'my_junction',startnum=100)
+junction_creator = xodr.CommonJunctionCreator(id = 100, name = 'my_junction',startnum=100)
 
 
 
