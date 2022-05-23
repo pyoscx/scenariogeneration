@@ -47,7 +47,7 @@ def test_connection_single_right_lane_to_dobule_lane(data):
     ],
 )
 def test_connections_single_left_lane_to_double(data):
-    junction_creator = xodr.JunctionCreator(id = 100, name = 'my_junction',startnum=100)
+    junction_creator = xodr.CommonJunctionCreator(id = 100, name = 'my_junction',startnum=100)
     road1 = xodr.create_road(xodr.Line(100),1,left_lanes=1,right_lanes=0)
     road2 = xodr.create_road(xodr.Arc(0.01,100),2, left_lanes=1,right_lanes=1)
 
@@ -72,7 +72,7 @@ def test_connections_single_left_lane_to_double(data):
     ],
 )
 def test_connections_double_to_single_left_lane(data):
-    junction_creator = xodr.JunctionCreator(id = 100, name = 'my_junction',startnum=100)
+    junction_creator = xodr.CommonJunctionCreator(id = 100, name = 'my_junction',startnum=100)
     road1 = xodr.create_road(xodr.Line(100),1,left_lanes=1,right_lanes=1)
     road2 = xodr.create_road(xodr.Arc(0.01,100),2, left_lanes=1,right_lanes=0)
 
@@ -97,7 +97,7 @@ def test_connections_double_to_single_left_lane(data):
     ],
 )
 def test_connections_double_to_single_right_lane(data):
-    junction_creator = xodr.JunctionCreator(id = 100, name = 'my_junction',startnum=100)
+    junction_creator = xodr.CommonJunctionCreator(id = 100, name = 'my_junction',startnum=100)
     road1 = xodr.create_road(xodr.Line(100),1,left_lanes=0,right_lanes=1)
     road2 = xodr.create_road(xodr.Arc(0.01,100),2, left_lanes=1,right_lanes=1)
 
