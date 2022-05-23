@@ -20,7 +20,7 @@ from .enumerations import (
 )
 
 from .geometry import Line, Arc, Spiral, PlanView
-from .opendrive import Road, OpenDrive
+from .opendrive import Road
 from .links import Junction, Connection, _get_related_lanesection, LaneLinker
 from .exceptions import GeneralIssueInputArguments, NotSameAmountOfLanesError
 
