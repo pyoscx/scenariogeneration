@@ -50,3 +50,7 @@ class GeneralIssueInputArguments(Exception):
     """Raise when there is something wrong in the input arguments"""
 
     pass
+
+class IdAlreadyExists(Exception):
+    """ Raise when there is a clash between ids"""
+    pass
