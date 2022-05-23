@@ -6,10 +6,10 @@ import numpy as np
 
 radius = 100
 
-junction_creator1 = xodr.JunctionCreator(id = 100, name = 'my_junction')
-junction_creator2 = xodr.JunctionCreator(id = 200, name = 'my_junction2', startnum = 200)
-junction_creator3 = xodr.JunctionCreator(id = 300, name = 'my_junction3', startnum = 300)
-junction_creator4 = xodr.JunctionCreator(id = 400, name = 'my_junction4', startnum = 400)
+junction_creator1 = xodr.CommonJunctionCreator(id = 100, name = 'my_junction')
+junction_creator2 = xodr.CommonJunctionCreator(id = 200, name = 'my_junction2', startnum = 200)
+junction_creator3 = xodr.CommonJunctionCreator(id = 300, name = 'my_junction3', startnum = 300)
+junction_creator4 = xodr.CommonJunctionCreator(id = 400, name = 'my_junction4', startnum = 400)
 
 road1 = xodr.create_road(xodr.Line(100),1)
 road2 = xodr.create_road(xodr.Line(100),2)

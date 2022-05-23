@@ -682,12 +682,12 @@ class OpenDrive:
         return self
 
     def add_junction_creator(self, junction_creator):
-        """add_junction_creator takes a JunctionCreator as input and adds all neccesary info (roads and junctions) 
+        """add_junction_creator takes a CommonJunctionCreator as input and adds all neccesary info (roads and junctions) 
             to the opendrive
 
         Parameters
         ----------
-            road (JunctionCreator/DirectJunctionCreator): the junction creator
+            road (CommonJunctionCreator/DirectJunctionCreator): the junction creator
 
         """
         if junction_creator.junction.junction_type == JunctionType.default:

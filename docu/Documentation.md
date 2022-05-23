@@ -101,22 +101,30 @@ LaneDef is a helper class that enables simple lane merge/split roads to be creat
 
 Since version 0.8.0 the xodr module contains two JunctionCreators. The JunctionCreators replaces the create_junction, create_direct_junction, and create_junction_roads, which had some big limmitations when it came to create custom junctions. 
 
-### JunctionCreatorCommon
-The *JunctionCreatorCommon* is the class that helps the user to create the *common* junctions in OpenDRIVE, this is done in two steps: (1) adding the road to connect to the junction and its position, (2) adding connections between roads and optionally lanes. 
+#### CommonJunctionCreator
+The *CommonJunctionCreator* is the class that helps the user to create the *common* junctions in OpenDRIVE, this is done in two steps: (1) adding the road to connect to the junction and its position, (2) adding connections between roads and optionally lanes. 
 
-#### Adding roads to the junction
 First of all, the roads needs a predecessor or successor pointing to the junction. This can be done in two different ways: (1) with the *add_successor/add_predecessor*, or (2) with the *add_incoming_road* functions in the junction creator. 
 
 When adding a road to the junction two functions are available, *add_incoming_road_cartesian_geometry* and *add_incoming_road_circular_geometry*, both uses a local coordinate system for that junciton that will help to connect the roads together. 
 - The *add_incoming_road_cartesian_geometry* uses a *x-y* coordinate system with an arbitrary origin, the incomming road is added with an *x-y-h* input, where *h* is the heading of the road _into_ the junction. 
 
+![Cartesian](https://github.com/esmini/esmini/blob/master/docu/cartesian.png?raw=true "Cartesian geometry")
 - The *add_incoming_road_circular_geometry* uses a *r-h* coordinate system where the origin is in the middle of the junction and *r* is the radius and *h* the heading from the center where to connect the road.
+
+![Circular](https://github.com/esmini/esmini/blob/master/resources/circular.png?raw=true "Circular geometry")
+
+
 
 An example can be seen below:
 ```
-road1 = xodr.create_road(xodr.Line(100), id=1)
-road2 = xodr.create_road(xodr.Line(100), id=1)
-junction_creator = xodr.JunctionCreator(id = 100, 'my_junction')
+from scenariogeneration import xodr
+
+road1 = xodr.create_road(xodr.Line(100), id=1, left_lanes=2, right_lanes=2)
+road2 = xodr.create_road(xodr.Line(100), id=2, left_lanes=1, right_lanes=1)
+road3 = xodr.create_road(xodr.Line(100), id=3, left_lanes=2, right_lanes=2)
+
+junction_creator = xodr.CommonJunctionCreator(id = 100, name='my_junction')
 
 junction_creator.add_incoming_road_cartesian_geometry(road1, 
             x = 0, 
@@ -125,6 +133,12 @@ junction_creator.add_incoming_road_cartesian_geometry(road1,
             road_connection='successor')
 
 junction_creator.add_incoming_road_cartesian_geometry(road2, 
+            x = 50, 
+            y = 50, 
+            heading=3.1415*3/2, 
+            road_connection='predecessor')
+
+junction_creator.add_incoming_road_cartesian_geometry(road3, 
             x = 100, 
             y = 0, 
             heading=-3.1415, 
@@ -132,7 +146,102 @@ junction_creator.add_incoming_road_cartesian_geometry(road2,
 
 ```
 
+With all the roads added to the junction, connections can be added using the *add_connection* method. The minimum input of the *add_connection* method is the road ids (in the example above 1 and 2). This will generate a connecting road with the minimum equal number of lanes between the two roads (in the example above a road with one left and one right lanes). And simultaneously create the entries in the _junction_ element. 
 
+In some cases only some lanes should be connected between two roads, then the optional parameters to the *add_connection* method can be used, specifying the lanes that should be connected. This will generate a connecting road just between those two lanes. 
+
+Continuing the example above:
+
+```
+junction_creator.add_connection(road_one_id = 1, 
+                                road_two_id = 3)
+
+junction_creator.add_connection(road_one_id = 1, 
+                                road_two_id = 2, 
+                                lane_one_id = 2,
+                                lane_two_id = 1)
+
+junction_creator.add_connection(road_one_id = 2, 
+                                road_two_id = 3, 
+                                lane_one_id = -1, 
+                                lane_two_id = 2)
+
+```
+
+Finally the roads and junction have to be added to the *OpenDrive* object, and for simplicity, the *add_junction_creator* can be used. 
+The final part of the example will look like this
+
+
+```
+odr = xodr.OpenDrive('myroad')
+
+odr.add_road(road1)
+odr.add_road(road2)
+odr.add_road(road3)
+
+odr.add_junction_creator(junction_creator)
+odr.adjust_roads_and_lanes()
+
+```
+#### DirectJunctionCreator
+
+To create *direct* type of junctions, the DirectJunctionCreator can be used. Since a *DirectJunction* has no need to generate roads in the junction, no geometrical description is needed. For each road connected to the *DirectJunction*, the successor/predecessor has to be added with the add_successor/add_predecessor methods. 
+An example can be se below: 
+
+
+
+```
+from scenariogeneration import xodr
+junction_id = 100
+direct_junction = xodr.DirectJunctionCreator(junction_id,'my_direct_junction')
+
+first_road = xodr.create_road([xodr.Line(300)],
+            id= 1,
+            left_lanes=3,
+            right_lanes=4)
+
+continuation_road = xodr.create_road([xodr.Line(300)],
+            id= 2,
+            left_lanes=3,
+            right_lanes=3)
+
+off_ramp = xodr.create_road([xodr.Spiral(-0.00001,-0.02,length=150)], 
+            id= 3,
+            left_lanes=0,
+            right_lanes=1)
+
+first_road.add_successor(xodr.ElementType.junction, junction_id)
+continuation_road.add_predecessor(xodr.ElementType.junction, junction_id)
+off_ramp.add_predecessor(xodr.ElementType.junction, junction_id)
+```
+
+To create the connections in the *DirectJunction* the *add_connection* method is used, taking the road objects as inputs. To connect only certain lanes, the optional inputs *incoming_lane_id* and *linked_lane_id* parameters. 
+
+An example (continuation of the example above):
+
+```
+direct_junction.add_connection(
+            incoming_road = first_road,
+            linked_road = continuation_road)
+direct_junction.add_connection(
+            incoming_road = first_road,
+            linked_road = off_ramp,
+            incoming_lane_id=-4,
+            lined_lane_id = -1)
+```
+and finally adding the roads to opendrive:
+
+```
+odr = xodr.OpenDrive('myroad')
+
+odr.add_road(road1)
+odr.add_road(road2)
+odr.add_road(road3)
+
+odr.add_junction_creator(junction_creator)
+odr.adjust_roads_and_lanes()
+
+```
 
 ## ScenarioGenerator
 
