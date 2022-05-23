@@ -11,10 +11,11 @@
 """
 import xml.etree.ElementTree as ET
 
+
 from ..helpers import printToFile, enum2str
 from .links import _Link, _Links, create_lane_links
-from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule
-from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted
+from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule, JunctionType
+from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted, IdAlreadyExists
 from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
 
 
@@ -623,6 +624,9 @@ class OpenDrive:
         add_junction(junction)
             Adds a junction to the opendrive
 
+        add_junction_creator(junction_creator)
+            Adds the neccesary info from a junction creator to the opendrive
+
         adjust_roads_and_lanes()
             Adjust starting position of all geometries of all roads and try to link lanes in neighbouring roads
 
@@ -672,8 +676,25 @@ class OpenDrive:
             ValueError(
                 "No road was added and the added road has a predecessor, please add the predecessor first"
             )
-
+        if str(road.id) in self.roads:
+            raise IdAlreadyExists('Road id ' + str(road.id) + ' has already been added. ')
         self.roads[str(road.id)] = road
+        return self
+
+    def add_junction_creator(self, junction_creator):
+        """add_junction_creator takes a JunctionCreator as input and adds all neccesary info (roads and junctions) 
+            to the opendrive
+
+        Parameters
+        ----------
+            road (JunctionCreator/DirectJunctionCreator): the junction creator
+
+        """
+        if junction_creator.junction.junction_type == JunctionType.default:
+            for road in junction_creator.get_connecting_roads():
+                self.add_road(road)
+
+        self.add_junction(junction_creator.junction)
         return self
 
     def adjust_roads_and_lanes(self):
@@ -1007,6 +1028,8 @@ class OpenDrive:
             junction (Junction): the junction to add
 
         """
+        if any([junction.id == x.id for x in self.junctions]):
+            raise IdAlreadyExists('Junction with id ' + str(junction.id) + ' has already been added. ')
         self.junctions.append(junction)
         return self
 
