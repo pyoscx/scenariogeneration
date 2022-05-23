@@ -234,9 +234,15 @@ class CommonJunctionCreator:
 
                 self._create_connecting_roads_unequal_lanes(road_one_id, road_two_id)
         elif lane_one_id is not None and lane_two_id is not None:
-            self._create_connecting_road_with_lane_input(
-                road_one_id, road_two_id, lane_one_id, lane_two_id
-            )
+            if isinstance(lane_one_id, list):
+                for i in range(len(lane_one_id)):
+                    self._create_connecting_road_with_lane_input(
+                        road_one_id, road_two_id, lane_one_id[i], lane_two_id[i]
+                    )
+            else:
+                self._create_connecting_road_with_lane_input(
+                    road_one_id, road_two_id, lane_one_id, lane_two_id
+                )
         else:
             raise NotEnoughInputArguments(
                 "if lane input is used, both has to be provided"
