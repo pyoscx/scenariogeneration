@@ -14,8 +14,8 @@ import numpy as np
 STD_START_CLOTH = 1 / 1000000000
 
 
-class JunctionCreator:
-    """JunctionCreator is a helper class to create custom common junctions.
+class CommonJunctionCreator:
+    """CommonJunctionCreator is a helper class to create custom common junctions.
 
     Parameters
     ----------
