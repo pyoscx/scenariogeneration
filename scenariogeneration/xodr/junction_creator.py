@@ -566,8 +566,8 @@ class CommonJunctionCreator:
             #     self._radie[idx2] * np.sin(an1),
             #     an1,
             #     STD_START_CLOTH,
-            start_x = -self._radie[idx1] + start_offset * np.cos(angle_offset_start)
-            start_y = 0
+            start_x = -self._radie[idx1]
+            start_y = start_offset
             start_h = 0
             end_x = self._radie[idx2] * np.cos(an1) + end_offset * np.cos(self._angles[idx2] + angle_offset_end)
             end_y = self._radie[idx2] * np.sin(an1) + end_offset * np.sin(self._angles[idx2] + angle_offset_end)
