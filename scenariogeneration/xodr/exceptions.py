@@ -57,3 +57,9 @@ class IdAlreadyExists(Exception):
     """Raise when there is a clash between ids"""
 
     pass
+
+
+class RemovedFunctionality(Exception):
+    """Raise when a function has been removed"""
+
+    pass
