@@ -34,7 +34,11 @@ from .enumerations import (
 from .geometry import Line, Arc, Spiral, PlanView
 from .opendrive import Road
 from .links import Junction, Connection, _get_related_lanesection, LaneLinker
-from .exceptions import GeneralIssueInputArguments, NotSameAmountOfLanesError
+from .exceptions import (
+    GeneralIssueInputArguments,
+    NotSameAmountOfLanesError,
+    RemovedFunctionality,
+)
 
 
 STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid, 0.2)
@@ -1052,59 +1056,9 @@ def create_direct_junction(roads, id, name="my direct junction"):
         junction (Junction): the junction struct ready to use
 
     """
-
-    junc = Junction(name, id, junction_type=JunctionType.direct)
-    used_road_indexes = []
-    for r in roads:
-        # only check connection once
-        if r.id not in used_road_indexes:
-            used_road_indexes.append(r.id)
-            if r.succ_direct_junction:
-                for dr in r.succ_direct_junction:
-                    used_road_indexes.append(dr)
-                    conn = Connection(r.id, str(dr), ContactPoint.start)
-                    outgoingroad = get_road_by_id(roads, dr)
-                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) )
-                    _create_junction_links(
-                        conn,
-                        len(outgoingroad.lanes.lanesections[-1].rightlanes),
-                        -1,
-                        1,
-                        from_offset=outgoingroad.lane_offset_pred,
-                    )
-                    _create_junction_links(
-                        conn,
-                        len(outgoingroad.lanes.lanesections[-1].leftlanes),
-                        1,
-                        1,
-                        from_offset=outgoingroad.lane_offset_pred,
-                    )
-                    junc.add_connection(conn)
-            elif r.pred_direct_junction:
-                for dr in r.pred_direct_junction:
-                    used_road_indexes.append(dr)
-                    conn = Connection(r.id, str(dr), ContactPoint.end)
-                    outgoingroad = get_road_by_id(roads, dr)
-                    # _, sign, _ =  _get_related_lanesection(r,get_road_by_id(roads,dr) )
-                    _create_junction_links(
-                        conn,
-                        len(outgoingroad.lanes.lanesections[-1].rightlanes),
-                        -1,
-                        1,
-                        from_offset=outgoingroad.lane_offset_suc,
-                    )
-                    _create_junction_links(
-                        conn,
-                        len(outgoingroad.lanes.lanesections[-1].leftlanes),
-                        1,
-                        1,
-                        from_offset=outgoingroad.lane_offset_suc,
-                    )
-                    junc.add_connection(conn)
-            else:
-                raise ValueError("Road is not connected to a direct junction")
-
-    return junc
+    raise RemovedFunctionality(
+        "The create_direct_junction has been removed, due to its very limited functionality, please try the xodr.DirectJunctionCreator instead."
+    )
 
 
 def get_road_by_id(roads, id):
