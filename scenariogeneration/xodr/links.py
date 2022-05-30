@@ -769,7 +769,9 @@ def _create_links_connecting_road(connecting, road):
                 len(connecting.lanes.lanesections[road_lanesection_id].leftlanes)
             ):
                 linkid = (
-                    connecting.lanes.lanesections[road_lanesection_id].leftlanes[i].lane_id
+                    connecting.lanes.lanesections[road_lanesection_id]
+                    .leftlanes[i]
+                    .lane_id
                     * sign
                 )
                 if linktype == "predecessor":
@@ -792,7 +794,9 @@ def _create_links_connecting_road(connecting, road):
                 len(connecting.lanes.lanesections[connecting_lanesec].rightlanes)
             ):
                 linkid = (
-                    connecting.lanes.lanesections[road_lanesection_id].rightlanes[i].lane_id
+                    connecting.lanes.lanesections[road_lanesection_id]
+                    .rightlanes[i]
+                    .lane_id
                     * sign
                 )
                 if linktype == "predecessor":

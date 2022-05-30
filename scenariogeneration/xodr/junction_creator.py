@@ -124,9 +124,11 @@ class CommonJunctionCreator:
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
 
-        incoming_connection, incoming_sign, incoming_lane_section = _get_related_lanesection(
-            incoming_road, linked_road
-        )
+        (
+            incoming_connection,
+            incoming_sign,
+            incoming_lane_section,
+        ) = _get_related_lanesection(incoming_road, linked_road)
         linked_connection, sign, linked_lane_section = _get_related_lanesection(
             linked_road, incoming_road
         )
@@ -148,10 +150,20 @@ class CommonJunctionCreator:
 
         if sign > 0:
             _incoming_lane_ids.extend(
-                [x for x in range(1, min(incoming_left_lanes, linked_left_lanes) +1, 1)]
+                [
+                    x
+                    for x in range(
+                        1, min(incoming_left_lanes, linked_left_lanes) + 1, 1
+                    )
+                ]
             )
             _linked_lane_ids.extend(
-                [x for x in range(1, min(incoming_left_lanes, linked_left_lanes) +1, 1)]
+                [
+                    x
+                    for x in range(
+                        1, min(incoming_left_lanes, linked_left_lanes) + 1, 1
+                    )
+                ]
             )
 
             _incoming_lane_ids.extend(
@@ -173,10 +185,20 @@ class CommonJunctionCreator:
 
         elif sign < 0:
             _incoming_lane_ids.extend(
-                [x for x in range(1, min(incoming_left_lanes, linked_right_lanes) + 1, 1)]
+                [
+                    x
+                    for x in range(
+                        1, min(incoming_left_lanes, linked_right_lanes) + 1, 1
+                    )
+                ]
             )
             _linked_lane_ids.extend(
-                [-x for x in range(1, min(incoming_left_lanes, linked_right_lanes) + 1, 1)]
+                [
+                    -x
+                    for x in range(
+                        1, min(incoming_left_lanes, linked_right_lanes) + 1, 1
+                    )
+                ]
             )
 
             _incoming_lane_ids.extend(
@@ -265,7 +287,8 @@ class CommonJunctionCreator:
                 road.add_predecessor(ElementType.junction, self.id)
             else:
                 raise ValueError(
-                    "road_connection can only be of the values 'successor', or 'predecessor'. Not " + road_connection
+                    "road_connection can only be of the values 'successor', or 'predecessor'. Not "
+                    + road_connection
                 )
         else:
             if not (
@@ -382,10 +405,24 @@ class CommonJunctionCreator:
         """
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
-        if self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes:
-            lane_width = self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].leftlanes[0].a
+        if (
+            self.incoming_roads[idx1]
+            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+            .leftlanes
+        ):
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .leftlanes[0]
+                .a
+            )
         else:
-            lane_width = self.incoming_roads[idx1].lanes.lanesections[self._get_connecting_lane_section(idx1)].rightlanes[0].a
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .rightlanes[0]
+                .a
+            )
         # check if the road has _angles/radius for these roads
         if self._circular_junction:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
@@ -394,21 +431,21 @@ class CommonJunctionCreator:
         first_road_lane_ids, _ = self._get_minimum_lanes_to_connect(
             self.incoming_roads[idx1], self.incoming_roads[idx2]
         )
-        
+
         left_lanes = 0
         right_lanes = 0
         if any([x > 0 for x in first_road_lane_ids]):
-            if self._get_connection_type(idx1) == 'successor':
+            if self._get_connection_type(idx1) == "successor":
                 left_lanes = max(first_road_lane_ids)
             else:
                 right_lanes = max(first_road_lane_ids)
 
         if any([x < 0 for x in first_road_lane_ids]):
-            if self._get_connection_type(idx1) == 'successor':
+            if self._get_connection_type(idx1) == "successor":
                 right_lanes = abs(min(first_road_lane_ids))
             else:
                 left_lanes = abs(min(first_road_lane_ids))
-            
+
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
@@ -569,8 +606,12 @@ class CommonJunctionCreator:
             start_x = -self._radie[idx1]
             start_y = start_offset
             start_h = 0
-            end_x = self._radie[idx2] * np.cos(an1) + end_offset * np.cos(self._angles[idx2] + angle_offset_end)
-            end_y = self._radie[idx2] * np.sin(an1) + end_offset * np.sin(self._angles[idx2] + angle_offset_end)
+            end_x = self._radie[idx2] * np.cos(an1) + end_offset * np.cos(
+                self._angles[idx2] + angle_offset_end
+            )
+            end_y = self._radie[idx2] * np.sin(an1) + end_offset * np.sin(
+                self._angles[idx2] + angle_offset_end
+            )
             end_h = an1
 
         elif self._generic_junction:
@@ -984,11 +1025,9 @@ class DirectJunctionCreator:
                 Default: None
         """
 
-        # Note: can only handle offsets for single roads now
-        single_road = False
-        
+        # Note: Multiple lanes with offset is not supported yet.
         linked_lane_offset = 0
-        inc_lane_offset = 0 
+        inc_lane_offset = 0
         incoming_main_road = False
         if incoming_lane_ids == None and linked_lane_ids == None:
             self._get_minimum_lanes_to_connect(incoming_road, linked_road)
@@ -996,13 +1035,12 @@ class DirectJunctionCreator:
         elif incoming_lane_ids is not None and linked_lane_ids is not None:
             if not isinstance(incoming_lane_ids, list):
                 self._incoming_lane_ids = [incoming_lane_ids]
-                single_road = True
             else:
                 self._incoming_lane_ids = incoming_lane_ids
 
             if not isinstance(linked_lane_ids, list):
                 self._linked_lane_ids = [linked_lane_ids]
-                single_road = True
+
                 if abs(linked_lane_ids) == 1:
                     incoming_main_road = True
             else:
@@ -1013,18 +1051,32 @@ class DirectJunctionCreator:
                     "the incoming_lane_ids and linked_lane_ids are not the same length"
                 )
 
-        if single_road:
             if abs(self._incoming_lane_ids[0]) != abs(self._linked_lane_ids[0]):
-                lane_offset = abs(abs(self._incoming_lane_ids[0]) - abs(
-                    self._linked_lane_ids[0])
+                lane_offset = abs(
+                    abs(self._incoming_lane_ids[0]) - abs(self._linked_lane_ids[0])
                 )
+                # check if multiple lanes
+                if len(self._incoming_lane_ids) > 1:
+                    raise NotImplementedError(
+                        "Direct junction with multiple offset lanes has not been implemented yet."
+                    )
+                # if len(set([x1 - x2 for (x1, x2) in zip(self._incoming_lane_ids, self._linked_lane_ids)])) > 1:
+                #     raise UndefinedRoadNetwork("Cannot determine offset, please check your lane inputs")
 
-            if incoming_main_road:
-                linked_lane_offset = np.sign(self._linked_lane_ids[0]) * lane_offset
-                inc_lane_offset = -1 * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0]) * linked_lane_offset 
-            else:
-                inc_lane_offset = np.sign(self._incoming_lane_ids[0]) * lane_offset
-                linked_lane_offset = -1 * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0]) * inc_lane_offset 
+                if incoming_main_road:
+                    linked_lane_offset = np.sign(self._linked_lane_ids[0]) * lane_offset
+                    inc_lane_offset = (
+                        -1
+                        * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0])
+                        * linked_lane_offset
+                    )
+                else:
+                    inc_lane_offset = np.sign(self._incoming_lane_ids[0]) * lane_offset
+                    linked_lane_offset = (
+                        -1
+                        * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0])
+                        * inc_lane_offset
+                    )
         if (
             incoming_road.predecessor
             and incoming_road.predecessor.element_id == self.id

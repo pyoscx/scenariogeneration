@@ -15,7 +15,7 @@ from scenariogeneration import xodr
 
 # initalize the junction creator
 junction_id = 100
-junction_creator = xodr.DirectJunctionCreator(id = junction_id, name='my direct junction')
+junction_creator = xodr.DirectJunctionCreator(id=junction_id, name="my direct junction")
 
 # create 3 roads, and add the successor/predecessor junction
 
@@ -25,34 +25,32 @@ road3 = xodr.create_road(xodr.Line(100), id=3, left_lanes=2, right_lanes=2)
 
 # create direct junction connection to all common lanes between the main roads
 
-junction_creator = xodr.CommonJunctionCreator(id = 100, name='my_junction')
+junction_creator = xodr.CommonJunctionCreator(id=100, name="my_junction")
 
-junction_creator.add_incoming_road_cartesian_geometry(road1, 
-            x = 0, 
-            y = 0, 
-            heading=0, 
-            road_connection='successor')
+junction_creator.add_incoming_road_cartesian_geometry(
+    road1, x=0, y=0, heading=0, road_connection="successor"
+)
 
-junction_creator.add_incoming_road_cartesian_geometry(road2, 
-            x = 50, 
-            y = 50, 
-            heading=3.1415*3/2, 
-            road_connection='predecessor')
+junction_creator.add_incoming_road_cartesian_geometry(
+    road2, x=50, y=50, heading=3.1415 * 3 / 2, road_connection="predecessor"
+)
 
-junction_creator.add_incoming_road_cartesian_geometry(road3, 
-            x = 100, 
-            y = 0, 
-            heading=-3.1415, 
-            road_connection='predecessor')
+junction_creator.add_incoming_road_cartesian_geometry(
+    road3, x=100, y=0, heading=-3.1415, road_connection="predecessor"
+)
 
 
 # create the opendrive
-odr = xodr.OpenDrive('my_road')
+odr = xodr.OpenDrive("my_road")
 
 # add the roads
-junction_creator.add_connection(road_one_id = 1, road_two_id =3)
-junction_creator.add_connection(road_one_id = 1, road_two_id = 2, lane_one_id= 2,lane_two_id=1)
-junction_creator.add_connection(road_one_id = 2, road_two_id = 3, lane_one_id= -1, lane_two_id=2)
+junction_creator.add_connection(road_one_id=1, road_two_id=3)
+junction_creator.add_connection(
+    road_one_id=1, road_two_id=2, lane_one_id=2, lane_two_id=1
+)
+junction_creator.add_connection(
+    road_one_id=2, road_two_id=3, lane_one_id=-1, lane_two_id=2
+)
 
 odr.add_road(road1)
 odr.add_road(road2)
