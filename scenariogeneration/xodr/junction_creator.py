@@ -894,17 +894,17 @@ class DirectJunctionCreator:
         # if incoming_connection == "successor" and linked_connection == "predecessor" or incoming_connection == "predecessor" and linked_connection == "successor":
         if sign > 0:
             self._incoming_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_left_lanes), 0, 1)]
+                [x for x in range(-min(incoming_right_lanes, linked_right_lanes), 0, 1)]
             )
             self._linked_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_left_lanes), 0, 1)]
+                [x for x in range(-min(incoming_right_lanes, linked_right_lanes), 0, 1)]
             )
 
             self._incoming_lane_ids.extend(
                 [
                     x
                     for x in range(
-                        1, min(incoming_right_lanes, linked_right_lanes) + 1, 1
+                        1, min(incoming_left_lanes, linked_left_lanes) + 1, 1
                     )
                 ]
             )
@@ -912,7 +912,7 @@ class DirectJunctionCreator:
                 [
                     x
                     for x in range(
-                        1, min(incoming_right_lanes, linked_right_lanes) + 1, 1
+                        1, min(incoming_left_lanes, linked_left_lanes) + 1, 1
                     )
                 ]
             )
@@ -983,9 +983,13 @@ class DirectJunctionCreator:
             linked_lane_ids (int or list of ints): the linked lane ids to connect
                 Default: None
         """
+
+        # Note: can only handle offsets for single roads now
         single_road = False
-        succ_lane_offset = 0
-        pred_lane_offset = 0
+        
+        linked_lane_offset = 0
+        inc_lane_offset = 0 
+        incoming_main_road = False
         if incoming_lane_ids == None and linked_lane_ids == None:
             self._get_minimum_lanes_to_connect(incoming_road, linked_road)
 
@@ -999,6 +1003,8 @@ class DirectJunctionCreator:
             if not isinstance(linked_lane_ids, list):
                 self._linked_lane_ids = [linked_lane_ids]
                 single_road = True
+                if abs(linked_lane_ids) == 1:
+                    incoming_main_road = True
             else:
                 self._linked_lane_ids = linked_lane_ids
 
@@ -1009,26 +1015,29 @@ class DirectJunctionCreator:
 
         if single_road:
             if abs(self._incoming_lane_ids[0]) != abs(self._linked_lane_ids[0]):
-                lane_offset = abs(self._incoming_lane_ids[0]) - abs(
-                    self._linked_lane_ids[0]
+                lane_offset = abs(abs(self._incoming_lane_ids[0]) - abs(
+                    self._linked_lane_ids[0])
                 )
-                succ_lane_offset = (
-                    -1 * np.sign(self._incoming_lane_ids[0]) * lane_offset
-                )
-                pred_lane_offset = np.sign(self._linked_lane_ids[0]) * lane_offset
 
+            if incoming_main_road:
+                linked_lane_offset = np.sign(self._linked_lane_ids[0]) * lane_offset
+                inc_lane_offset = -1 * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0]) * linked_lane_offset 
+            else:
+                inc_lane_offset = np.sign(self._incoming_lane_ids[0]) * lane_offset
+                linked_lane_offset = -1 * np.sign(self._incoming_lane_ids[0] * self._linked_lane_ids[0]) * inc_lane_offset 
         if (
             incoming_road.predecessor
             and incoming_road.predecessor.element_id == self.id
         ):
-            incoming_road.pred_direct_junction[linked_road.id] = succ_lane_offset
+            incoming_road.pred_direct_junction[linked_road.id] = inc_lane_offset
         else:
-            incoming_road.succ_direct_junction[linked_road.id] = pred_lane_offset
+
+            incoming_road.succ_direct_junction[linked_road.id] = inc_lane_offset
 
         if linked_road.predecessor and linked_road.predecessor.element_id == self.id:
-            linked_road.pred_direct_junction[incoming_road.id] = pred_lane_offset
+            linked_road.pred_direct_junction[incoming_road.id] = linked_lane_offset
         else:
-            linked_road.succ_direct_junction[incoming_road.id] = succ_lane_offset
+            linked_road.succ_direct_junction[incoming_road.id] = linked_lane_offset
 
         connection = Connection(
             incoming_road.id,
