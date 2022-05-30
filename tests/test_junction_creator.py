@@ -1,8 +1,6 @@
-
 import pytest
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint
-
 
 
 @pytest.mark.parametrize(
