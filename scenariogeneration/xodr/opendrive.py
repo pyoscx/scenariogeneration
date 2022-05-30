@@ -677,12 +677,14 @@ class OpenDrive:
                 "No road was added and the added road has a predecessor, please add the predecessor first"
             )
         if str(road.id) in self.roads:
-            raise IdAlreadyExists('Road id ' + str(road.id) + ' has already been added. ')
+            raise IdAlreadyExists(
+                "Road id " + str(road.id) + " has already been added. "
+            )
         self.roads[str(road.id)] = road
         return self
 
     def add_junction_creator(self, junction_creator):
-        """add_junction_creator takes a CommonJunctionCreator as input and adds all neccesary info (roads and junctions) 
+        """add_junction_creator takes a CommonJunctionCreator as input and adds all neccesary info (roads and junctions)
             to the opendrive
 
         Parameters
@@ -1054,7 +1056,9 @@ class OpenDrive:
 
         """
         if any([junction.id == x.id for x in self.junctions]):
-            raise IdAlreadyExists('Junction with id ' + str(junction.id) + ' has already been added. ')
+            raise IdAlreadyExists(
+                "Junction with id " + str(junction.id) + " has already been added. "
+            )
         self.junctions.append(junction)
         return self
 

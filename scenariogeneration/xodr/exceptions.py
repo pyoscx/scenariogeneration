@@ -10,6 +10,7 @@
 
 """
 
+
 class NotSameAmountOfLanesError(Exception):
     """Raised when the amount of Lanes are not the same (used for the automation of linking)"""
 
@@ -51,6 +52,8 @@ class GeneralIssueInputArguments(Exception):
 
     pass
 
+
 class IdAlreadyExists(Exception):
-    """ Raise when there is a clash between ids"""
+    """Raise when there is a clash between ids"""
+
     pass
