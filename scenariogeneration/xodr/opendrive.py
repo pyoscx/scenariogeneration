@@ -253,7 +253,6 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -274,18 +273,6 @@ class Road:
         self.links.add_link(self.successor)
 
         self.lane_offset_suc[str(element_id)] = lane_offset
-
-        if (
-            element_type != ElementType.junction
-            and direct_junction is not None
-            and len(direct_junction) > 0
-        ):
-            raise ValueError(
-                "If direct junction is used, the element_type has to be junction"
-            )
-        self.succ_direct_junction = {}
-        if direct_junction is not None:
-            self.succ_direct_junction = direct_junction
         return self
 
     def add_predecessor(
@@ -294,7 +281,6 @@ class Road:
         element_id,
         contact_point=None,
         lane_offset=0,
-        direct_junction=None,
     ):
         """add_successor adds a successor link to the road
 
@@ -314,17 +300,6 @@ class Road:
         self.predecessor = _Link("predecessor", element_id, element_type, contact_point)
         self.links.add_link(self.predecessor)
         self.lane_offset_pred[str(element_id)] = lane_offset
-        if (
-            element_type != ElementType.junction
-            and direct_junction is not None
-            and len(direct_junction) > 0
-        ):
-            raise ValueError(
-                "If direct junction is used, the element_type has to be junction"
-            )
-        self.pred_direct_junction = {}
-        if direct_junction is not None:
-            self.pred_direct_junction = direct_junction
         return self
 
     def add_neighbor(self, element_type, element_id, direction):
