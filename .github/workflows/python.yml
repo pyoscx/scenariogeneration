@@ -37,7 +37,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
-      - name: run first example
+      - name: run xodr common_junction_creator
         run: python3 examples/xodr/common_junction_creator.py
-      - name: run second example
+      - name: run xodr direct_junction_creator
         run: python3 examples/xodr/direct_junction_creator.py
+      - name: run xodr highway_exit_with_lane_types
+        run: python3 examples/xodr/highway_exit_with_lane_types.py
