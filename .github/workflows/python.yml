@@ -31,15 +31,52 @@ jobs:
       - name: Run tests
         run: python3 -m pytest tests/
 
-  examples:
+  xodr_examples:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
-      - name: run xodr common_junction_creator
+      - name: common_junction_creator
         run: python3 examples/xodr/common_junction_creator.py
-      - name: run xodr direct_junction_creator
+      - name: direct_junction_creator
         run: python3 examples/xodr/direct_junction_creator.py
-      - name: run xodr highway_exit_with_lane_types
+      - name: full_junction
+        run: python3 examples/xodr/full_junction.py
+      - name: highway_example_with_merge_and_split
+        run: python3 examples/xodr/highway_example_with_merge_and_split.py
+      - name: highway_example
+        run: python3 examples/xodr/highway_example.py
+      - name: highway_exit_with_lane_types
         run: python3 examples/xodr/highway_exit_with_lane_types.py
+      - name: junction_trippel_twoway
+        run: python3 examples/xodr/junction_trippel_twoway.py
+      - name: junction_with_signals
+        run: python3 examples/xodr/junction_with_signals.py
+      - name: lane_number_change_merge
+        run: python3 examples/xodr/lane_number_change_merge.py
+      - name: manual_add_of_geometries
+        run: python3 examples/xodr/manual_add_of_geometries.py
+      - name: multiple_geometries_one_road_with_objects
+        run: python3 examples/xodr/multiple_geometries_one_road_with_objects.py
+      - name: multiple_geometries_one_road
+        run: python3 examples/xodr/multiple_geometries_one_road.py
+      - name: road_link_unequal_number_of_lanes
+        run: python3 examples/xodr/road_link_unequal_number_of_lanes.py
+      - name: road_merge_w_lane_merge
+        run: python3 examples/xodr/road_merge_w_lane_merge.py
+      - name: road_merge
+        run: python3 examples/xodr/road_merge.py
+      - name: road_split_w_lane_split
+        run: python3 examples/xodr/road_split_w_lane_split.py
+      - name: road_split
+        run: python3 examples/xodr/road_split.py
+      - name: road_with_custom_lanes
+        run: python3 examples/xodr/road_with_custom_lanes.py
+      - name: road_with_custom_roadmarkers
+        run: python3 examples/xodr/road_with_custom_roadmarkers.py
+      - name: simple_road_with_objects
+        run: python3 examples/xodr/simple_road_with_objects.py
+      - name: two_roads
+        run: python3 examples/xodr/two_roads.py
+
