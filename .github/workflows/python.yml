@@ -165,20 +165,20 @@ jobs:
           run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
         - name: CCRb
           if: always()
-          run: python3 examples/xosc/CCRb.py
+          run: python3 examples/generator/CCRb.py
         - name: CCRm
           if: always()
-          run: python3 examples/xosc/CCRm.py
+          run: python3 examples/generator/CCRm.py
         - name: CCRs
           if: always()
-          run: python3 examples/xosc/CCRs.py
+          run: python3 examples/generator/CCRs.py
         - name: generate_from_main
           if: always()
-          run: python3 examples/xosc/generate_from_main.py
+          run: python3 examples/generator/generate_from_main.py
         - name: generate_with_fixed_parameter_sets
           if: always()
-          run: python3 examples/xosc/generate_with_fixed_parameter_sets.py
+          run: python3 examples/generator/generate_with_fixed_parameter_sets.py
         - name: generate_with_permutations
           if: always()
-          run: python3 examples/xosc/generate_with_permutations.py
+          run: python3 examples/generator/generate_with_permutations.py
       
