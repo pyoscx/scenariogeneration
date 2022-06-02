@@ -83,6 +83,7 @@ jobs:
         if: always()
         run: python3 examples/xodr/road_merge.py
       - name: road_split_w_lane_split
+        if: always()
         run: python3 examples/xodr/road_split_w_lane_split.py
       - name: road_split
         if: always()
