@@ -38,6 +38,7 @@ jobs:
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
       - name: common_junction_creator
+        if: always()
         run: python3 examples/xodr/common_junction_creator.py
       - name: direct_junction_creator
         run: python3 examples/xodr/direct_junction_creator.py
@@ -54,6 +55,7 @@ jobs:
       - name: junction_with_signals
         run: python3 examples/xodr/junction_with_signals.py
       - name: lane_number_change_merge
+        if: always()
         run: python3 examples/xodr/lane_number_change_merge.py
       - name: manual_add_of_geometries
         run: python3 examples/xodr/manual_add_of_geometries.py
