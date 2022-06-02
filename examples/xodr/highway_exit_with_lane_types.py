@@ -22,7 +22,7 @@
 
     - LaneType
 
-    - create_direct_junction
+    - DirectJunctionCreator
 """
 
 from scenariogeneration import xodr
@@ -56,16 +56,14 @@ exit_road = xodr.create_road(
 exit_road.lanes.lanesections[0].rightlanes[0].lane_type = xodr.LaneType.offRamp
 
 # add successors and predecessors as a direct junction
-first_road.add_successor(xodr.ElementType.junction, 100, direct_junction=[2, 3])
-continuation_road.add_predecessor(xodr.ElementType.junction, 100, direct_junction=[1])
-exit_road.add_predecessor(
-    xodr.ElementType.junction, 100, lane_offset=-2, direct_junction=[1]
-)
+first_road.add_successor(xodr.ElementType.junction, 100)
+continuation_road.add_predecessor(xodr.ElementType.junction, 100)
+exit_road.add_predecessor(xodr.ElementType.junction, 100)
 
 # create the junction struct
-direct_junction = xodr.create_direct_junction(
-    [first_road, continuation_road, exit_road], 100
-)
+direct_junction = xodr.DirectJunctionCreator(100,'my exit')
+direct_junction.add_connection(first_road,continuation_road)
+direct_junction.add_connection(first_road,exit_road,-3,-1)
 
 # create the opendrive
 odr = xodr.OpenDrive("myroad")
@@ -75,7 +73,7 @@ odr.add_road(exit_road)
 
 # adjust the roads and lanes properly
 odr.adjust_roads_and_lanes()
-odr.add_junction(direct_junction)
+odr.add_junction_creator(direct_junction)
 
 
 # write the OpenDRIVE file as xodr using current script name
