@@ -30,3 +30,10 @@ jobs:
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
       - name: Run tests
         run: python3 -m pytest tests/
+
+  examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run first example
+        run: python3 examples/xodr/common_junction_creator.py
