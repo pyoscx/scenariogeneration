@@ -101,84 +101,84 @@ jobs:
         if: always()
         run: python3 examples/xodr/two_roads.py
 
-xosc_examples:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install requirements
-        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
-      - name: Acceleration_condition
-        if: always()
-        run: python3 examples/xosc/Acceleration_condition.py
-      - name: catalog_example
-        if: always()
-        run: python3 examples/xosc/catalog_example.py
-      - name: end_of_road_reset_traffic
-        if: always()
-        run: python3 examples/xosc/end_of_road_reset_traffic.py
-      - name: multi_conditional_and_triggers
-        if: always()
-        run: python3 examples/xosc/multi_conditional_and_triggers.py
-      - name: multi_conditional_different_actions
-        if: always()
-        run: python3 examples/xosc/multi_conditional_different_actions.py
-      - name: multi_conditional_or_triggers
-        if: always()
-        run: python3 examples/xosc/multi_conditional_or_triggers.py
-      - name: multiple_maneuvers
-        if: always()
-        run: python3 examples/xosc/multiple_maneuvers.py
-      - name: one_action_example
-        if: always()
-        run: python3 examples/xosc/one_action_example.py
-      - name: parallel_distance_actions
-        if: always()
-        run: python3 examples/xosc/parallel_distance_actions.py
-      - name: ParameterValueDistribution
-        if: always()
-        run: python3 examples/xosc/ParameterValueDistribution.py
-      - name: route_in_crossing
-        if: always()
-        run: python3 examples/xosc/route_in_crossing.py
-      - name: Speed_condition
-        if: always()
-        run: python3 examples/xosc/Speed_condition.py
-      - name: Stop_on_offroad
-        if: always()
-        run: python3 examples/xosc/Stop_on_offroad.py
-      - name: syncronize_straight_example
-        if: always()
-        run: python3 examples/xosc/syncronize_straight_example.py
-      - name: trajectory_example
-        if: always()
-        run: python3 examples/xosc/trajectory_example.py
-      - name: withcontoller
-        if: always()
-        run: python3 examples/xosc/withcontoller.py
+  xosc_examples:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Install requirements
+          run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+        - name: Acceleration_condition
+          if: always()
+          run: python3 examples/xosc/Acceleration_condition.py
+        - name: catalog_example
+          if: always()
+          run: python3 examples/xosc/catalog_example.py
+        - name: end_of_road_reset_traffic
+          if: always()
+          run: python3 examples/xosc/end_of_road_reset_traffic.py
+        - name: multi_conditional_and_triggers
+          if: always()
+          run: python3 examples/xosc/multi_conditional_and_triggers.py
+        - name: multi_conditional_different_actions
+          if: always()
+          run: python3 examples/xosc/multi_conditional_different_actions.py
+        - name: multi_conditional_or_triggers
+          if: always()
+          run: python3 examples/xosc/multi_conditional_or_triggers.py
+        - name: multiple_maneuvers
+          if: always()
+          run: python3 examples/xosc/multiple_maneuvers.py
+        - name: one_action_example
+          if: always()
+          run: python3 examples/xosc/one_action_example.py
+        - name: parallel_distance_actions
+          if: always()
+          run: python3 examples/xosc/parallel_distance_actions.py
+        - name: ParameterValueDistribution
+          if: always()
+          run: python3 examples/xosc/ParameterValueDistribution.py
+        - name: route_in_crossing
+          if: always()
+          run: python3 examples/xosc/route_in_crossing.py
+        - name: Speed_condition
+          if: always()
+          run: python3 examples/xosc/Speed_condition.py
+        - name: Stop_on_offroad
+          if: always()
+          run: python3 examples/xosc/Stop_on_offroad.py
+        - name: syncronize_straight_example
+          if: always()
+          run: python3 examples/xosc/syncronize_straight_example.py
+        - name: trajectory_example
+          if: always()
+          run: python3 examples/xosc/trajectory_example.py
+        - name: withcontoller
+          if: always()
+          run: python3 examples/xosc/withcontoller.py
 
 
-generator_examples:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install requirements
-        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
-      - name: CCRb
-        if: always()
-        run: python3 examples/xosc/CCRb.py
-      - name: CCRm
-        if: always()
-        run: python3 examples/xosc/CCRm.py
-      - name: CCRs
-        if: always()
-        run: python3 examples/xosc/CCRs.py
-      - name: generate_from_main
-        if: always()
-        run: python3 examples/xosc/generate_from_main.py
-      - name: generate_with_fixed_parameter_sets
-        if: always()
-        run: python3 examples/xosc/generate_with_fixed_parameter_sets.py
-      - name: generate_with_permutations
-        if: always()
-        run: python3 examples/xosc/generate_with_permutations.py
+  generator_examples:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Install requirements
+          run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+        - name: CCRb
+          if: always()
+          run: python3 examples/xosc/CCRb.py
+        - name: CCRm
+          if: always()
+          run: python3 examples/xosc/CCRm.py
+        - name: CCRs
+          if: always()
+          run: python3 examples/xosc/CCRs.py
+        - name: generate_from_main
+          if: always()
+          run: python3 examples/xosc/generate_from_main.py
+        - name: generate_with_fixed_parameter_sets
+          if: always()
+          run: python3 examples/xosc/generate_with_fixed_parameter_sets.py
+        - name: generate_with_permutations
+          if: always()
+          run: python3 examples/xosc/generate_with_permutations.py
       
