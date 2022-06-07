@@ -61,9 +61,9 @@ continuation_road.add_predecessor(xodr.ElementType.junction, 100)
 exit_road.add_predecessor(xodr.ElementType.junction, 100)
 
 # create the junction struct
-direct_junction = xodr.DirectJunctionCreator(100,'my exit')
-direct_junction.add_connection(first_road,continuation_road)
-direct_junction.add_connection(first_road,exit_road,-3,-1)
+direct_junction = xodr.DirectJunctionCreator(100, "my exit")
+direct_junction.add_connection(first_road, continuation_road)
+direct_junction.add_connection(first_road, exit_road, -3, -1)
 
 # create the opendrive
 odr = xodr.OpenDrive("myroad")
