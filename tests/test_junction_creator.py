@@ -1,7 +1,6 @@
 import pytest
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint
-from scenariogeneration.xodr import junction_creator
 
 @pytest.mark.parametrize(
     "data",

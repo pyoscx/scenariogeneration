@@ -271,7 +271,6 @@ class Road:
             raise ValueError("only one successor is allowed")
         self.successor = _Link("successor", element_id, element_type, contact_point)
         self.links.add_link(self.successor)
-
         self.lane_offset_suc[str(element_id)] = lane_offset
         return self
 
