@@ -1057,7 +1057,8 @@ class DirectJunctionCreator:
                     incoming_main_road = True
             else:
                 self._linked_lane_ids = linked_lane_ids
-
+                if min([abs(x) for x in self._linked_lane_ids]) == 1:
+                    incoming_main_road = True
             if len(self._linked_lane_ids) != len(self._linked_lane_ids):
                 raise NotSameAmountOfLanesError(
                     "the incoming_lane_ids and linked_lane_ids are not the same length"
@@ -1067,13 +1068,6 @@ class DirectJunctionCreator:
                 lane_offset = abs(
                     abs(self._incoming_lane_ids[0]) - abs(self._linked_lane_ids[0])
                 )
-                # check if multiple lanes
-                if len(self._incoming_lane_ids) > 1:
-                    raise NotImplementedError(
-                        "Direct junction with multiple offset lanes has not been implemented yet."
-                    )
-                # if len(set([x1 - x2 for (x1, x2) in zip(self._incoming_lane_ids, self._linked_lane_ids)])) > 1:
-                #     raise UndefinedRoadNetwork("Cannot determine offset, please check your lane inputs")
 
                 if incoming_main_road:
                     linked_lane_offset = np.sign(self._linked_lane_ids[0]) * lane_offset
