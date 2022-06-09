@@ -572,12 +572,24 @@ class CommonJunctionCreator:
 
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
-        lane_width = (
+        if (
             self.incoming_roads[idx1]
             .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes[0]
-            .a
-        )
+            .leftlanes
+        ):
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .leftlanes[0]
+                .a
+            )
+        else:
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .rightlanes[0]
+                .a
+            )
         start_offset = (abs(lane_one_id) - 1) * lane_width
         end_offset = (abs(lane_two_id) - 1) * lane_width
 
