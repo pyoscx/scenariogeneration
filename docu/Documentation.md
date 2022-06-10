@@ -99,7 +99,7 @@ LaneDef is a helper class that enables simple lane merge/split roads to be creat
 
 ### JunctionCreators
 
-Since version 0.8.0 the xodr module contains two JunctionCreators. The JunctionCreators replaces the create_junction, create_direct_junction, and create_junction_roads, which had some big limmitations when it came to create custom junctions. 
+Since version 0.8.0 the xodr module contains two JunctionCreators. The JunctionCreators replaces the create_junction, create_direct_junction, and create_junction_roads, which had some limmitations when it came to create custom junctions. 
 
 #### CommonJunctionCreator
 The *CommonJunctionCreator* is the class that helps the user to create the *common* junctions in OpenDRIVE, this is done in two steps: (1) adding the road to connect to the junction and its position, (2) adding connections between roads and optionally lanes. 
@@ -107,7 +107,7 @@ The *CommonJunctionCreator* is the class that helps the user to create the *comm
 First of all, the roads needs a predecessor or successor pointing to the junction. This can be done in two different ways: (1) with the *add_successor/add_predecessor*, or (2) with the *add_incoming_road* functions in the junction creator. 
 
 When adding a road to the junction two functions are available, *add_incoming_road_cartesian_geometry* and *add_incoming_road_circular_geometry*, both uses a local coordinate system for that junciton that will help to connect the roads together. 
-- The *add_incoming_road_cartesian_geometry* uses a *x-y* coordinate system with an arbitrary origin, the incomming road is added with an *x-y-h* input, where *h* is the heading of the road _into_ the junction. 
+- The *add_incoming_road_cartesian_geometry* uses a *x-y* coordinate system with an arbitrary origin, the incomming road is added with an *x-y-h* input, where *h* is the heading of the road __into__ the junction. 
 
 ![Cartesian](https://github.com/esmini/esmini/blob/master/docu/cartesian.png?raw=true "Cartesian geometry")
 - The *add_incoming_road_circular_geometry* uses a *r-h* coordinate system where the origin is in the middle of the junction and *r* is the radius and *h* the heading from the center where to connect the road.
