@@ -1049,7 +1049,6 @@ class DirectJunctionCreator:
                 Default: None
         """
 
-        # Note: Multiple lanes with offset is not supported yet.
         linked_lane_offset = 0
         inc_lane_offset = 0
         incoming_main_road = False

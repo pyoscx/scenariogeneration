@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="scenariogeneration",
-    version="0.7.12",
+    version="0.8.0",
     license="MPL-2.0",
     author="Mikael Andersson, Irene Natale, Andreas Tingberg",
     author_email="andmika@gmail.com",

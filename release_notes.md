@@ -1,5 +1,28 @@
 ## scenariogeneration release notes
 
+### 2021-06-10 Version 0.8.0
+- New Features
+    - all methods returns the object for oneliners
+    - Junction creators added (replacing old junction functionality), see UserGuide.
+        - Common and Direct junction creators added
+    - LaneLinking functionality for roads with different amount of lanes
+- Bug Fixes
+    - Some lane-section linking fixes
+    - connection offsets now take lane widths into account
+- Cleaning up & testing
+    - printing order of lanes and links
+    - linking of roads more independent on the "add_road" order than previously (especially when dealing with junctions)
+    - black standard applied
+    - workflows for testing:
+        - all examples scenarios/roads
+        - black
+        - pytest
+-Changed Classes (IMPORTANT, Interface and Functionality Changed!)
+    - Direct junction creation changed
+        - old way of creating direct junctions was very buggy and only worked in a few cases.
+        - add_successor/predecessor now does not have the direct_junction option
+        - new DirectJunctionCreator should be used to be sure, will cover much more cases than the old one. 
+
 ### 2021-03-30 Version 0.7.12
 - order when parsing model/model3d updated
 
