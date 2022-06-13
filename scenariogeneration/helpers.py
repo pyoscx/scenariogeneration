@@ -93,3 +93,33 @@ def enum2str(enum):
 
     """
     return enum.name.replace("_", " ")
+
+
+def convert_bool(value):
+    """Method to transform booleans to correct xml version (lower case)
+
+    Parameter
+    ---------
+        value (bool): the boolean
+
+    Return
+    ------
+        boolean (str)
+    """
+    if isinstance(value, str):
+        if value == "true" or value == "1":
+            return True
+        elif value == "false" or value == "0":
+            return False
+        elif value[0] == "$":
+            return value
+        else:
+            raise ValueError(
+                value
+                + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
+            )
+
+    if value:
+        return "true"
+    else:
+        return "false"

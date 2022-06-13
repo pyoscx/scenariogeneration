@@ -205,3 +205,15 @@ class JunctionType(Enum):
     default = auto()
     virtual = auto()
     direct = auto()
+
+
+class FillType(Enum):
+    """Enum for JunctionType"""
+
+    asphalt = auto()
+    cobble = auto()
+    concrete = auto()
+    grass = auto()
+    gravel = auto()
+    pavement = auto()
+    soil = auto()

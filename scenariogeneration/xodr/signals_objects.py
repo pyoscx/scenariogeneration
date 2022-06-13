@@ -9,9 +9,11 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+from lib2to3.pytree import convert
 import xml.etree.ElementTree as ET
-from ..helpers import enum2str
+from ..helpers import enum2str, convert_bool
 from .enumerations import ObjectType, Orientation, Dynamic
+from .exceptions import GeneralIssueInputArguments
 
 
 class _SignalObjectBase:
@@ -504,10 +506,14 @@ class Object(_SignalObjectBase):
 
         validity (Validity): explicit validity information for a signal (optional)
 
+        outlines (list of Outline): list of outlines for the object
     Methods
     -------
         repeat()
             adds a dictionary to _repeats[] list to create a subelement for repeating the Object
+
+        add_outline(outline)
+            adds a outline of the object
 
         get_element()
             Returns the full ElementTree of the class
@@ -602,7 +608,7 @@ class Object(_SignalObjectBase):
 
         # list for repeat entries
         self._repeats = []
-
+        self.outlines = []
         self.validity = None
 
         # check if width/length combination or radius was provided and ensure working defaults
@@ -636,6 +642,7 @@ class Object(_SignalObjectBase):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self._repeats == other._repeats
+                and self.outlines == other.outlines
             ):
                 return True
         return False
@@ -722,10 +729,27 @@ class Object(_SignalObjectBase):
             self._repeats[-1]["radiusEnd"] = str(radiusEnd)
 
     def add_validity(self, fromLane, toLane):
+        """adds a validity to the object
+
+        Parameters
+        ----------
+            fromLane (int): the from lane
+
+            toLane (int): the to lane
+        """
         if self.validity:
             raise ValueError("only one validity is allowed")
         self.validity = Validity(fromLane, toLane)
         return self
+
+    def add_outline(self, outline):
+        """adds an outline to the object
+
+        Parameters
+        ----------
+            outline (Outline): the outline to be added
+        """
+        self.outlines.append(outline)
 
     def get_attributes(self):
         """returns the attributes of the Object as a dict"""
@@ -749,5 +773,293 @@ class Object(_SignalObjectBase):
             ET.SubElement(element, "repeat", attrib=_repeat)
         if self.validity:
             element.append(self.validity.get_element())
+        if self.outlines:
+            outlines_element = ET.SubElement(element, "outlines")
+            for outline in self.outlines:
+                outlines_element.append(outline.get_element())
+        return element
+
+
+class CornerLocal:
+    """CornerLocal is one way to describe outline in for objects
+
+    Parameters
+    ----------
+        u (float): local u-coordinate
+
+        v (float): local v-coordinate
+
+        z (float): local z-coordinate
+
+        height (float): height of the object at this corner
+
+        id (int): id of the point (optional)
+
+    Attributes
+    ----------
+        u (float): local u-coordinate
+
+        v (float): local v-coordinate
+
+        z (float): local z-coordinate
+
+        height (float): height of the object at this corner
+
+        id (int): id of the point (optional)
+
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, u, v, z, height, id=None):
+        """initalize the cornerLocal
+
+        Parameters
+        ----------
+            u (float): local u-coordinate
+
+            v (float): local v-coordinate
+
+            z (float): local z-coordinate
+
+            height (float): height of the object at this corner
+
+            id (int): id of the point (optional)
+
+        """
+        self.u = u
+        self.v = v
+        self.z = z
+        self.height = height
+        self.id = id
+
+    def __eq__(self, other):
+        if isinstance(other, CornerLocal):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """returns the attributes of cornerLocal as a dict"""
+        retdict = {}
+        retdict["u"] = str(self.u)
+        retdict["v"] = str(self.v)
+        retdict["z"] = str(self.z)
+        retdict["height"] = str(self.height)
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of cornerLocal"""
+        element = ET.Element("cornerLocal", attrib=self.get_attributes())
+
+        return element
+
+
+class CornerRoad:
+    """CornerRoad is one way to describe outline in for objects
+
+    Parameters
+    ----------
+        s (float): s-coordinate of the corner
+
+        t (float): t-coordinate of the corner
+
+        dz (float): z-coordinate relative to the road
+
+        height (float): height of the object at this corner
+
+        id (int): id of the point (optional)
+
+    Attributes
+    ----------
+        s (float): s-coordinate of the corner
+
+        t (float): t-coordinate of the corner
+
+        dz (float): z-coordinate relative to the road
+
+        height (float): height of the object at this corner
+
+        id (int): id of the point (optional)
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, s, t, dz, height, id=None):
+        """initalize the CornerRoad
+
+        Parameters
+        ----------
+            s (float): s-coordinate of the corner
+
+            t (float): t-coordinate of the corner
+
+            dz (float): z-coordinate relative to the road
+
+            height (float): height of the object at this corner
+
+            id (int): id of the point (optional)
+
+        """
+        self.s = s
+        self.t = t
+        self.dz = dz
+        self.height = height
+        self.id = id
+
+    def __eq__(self, other):
+        if isinstance(other, CornerRoad):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """returns the attributes of cornerRoad as a dict"""
+        retdict = {}
+        retdict["s"] = str(self.s)
+        retdict["t"] = str(self.t)
+        retdict["dz"] = str(self.dz)
+        retdict["height"] = str(self.height)
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of cornerRoad"""
+        element = ET.Element("cornerRoad", attrib=self.get_attributes())
+
+        return element
+
+
+class Outline:
+    """Outline is used to wrap corners for an object in OpenDRIVE
+
+    Parameters
+    ----------
+        closed (bool): if the outline is closed (optional)
+
+        fill_type (FillType): filling of the object (optional)
+
+        lane_type (LaneType): type of the outline (optional)
+
+        outer (bool): defines if the outline is the outer outline (optional)
+
+        id (int): id of the point (optional)
+
+    Attributes
+    ----------
+        closed (bool): if the outline is closed (optional)
+
+        fill_type (FillType): filling of the object (optional)
+
+        lane_type (LaneType): type of the outline (optional)
+
+        outer (bool): defines if the outline is the outer outline (optional)
+
+        id (int): id of the point (optional)
+
+        corners (list of cornerRoad/cornerLocal): corners of the outline
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(
+        self, closed=None, fill_type=None, lane_type=None, outer=None, id=None
+    ):
+        """initalize the Outline
+
+        Parameters
+        ----------
+            closed (bool): if the outline is closed (optional)
+
+            fill_type (FillType): filling of the object (optional)
+
+            lane_type (LaneType): type of the outline (optional)
+
+            outer (bool): defines if the outline is the outer outline (optional)
+
+            id (int): id of the point (optional)
+
+        """
+        self.closed = closed
+        self.fill_type = fill_type
+        self.lane_type = lane_type
+        self.outer = outer
+        self.id = id
+        self.corners = []
+        self._corner_type = None
+
+    def __eq__(self, other):
+        if isinstance(other, Outline):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.corners == other.corners
+            ):
+                return True
+        return False
+
+    def add_corner(self, corner):
+        """add_corner adds a corner to the outline
+
+        Note: only the same typ of corners can be added
+
+        Parameters
+        ----------
+            corner (CornerRoad, CornerLocal)
+        """
+        if not (isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)):
+            raise TypeError("Not a valid corner.")
+        if len(self.corners) == 0:
+            if isinstance(corner, CornerLocal):
+                self._corner_type = "local"
+            else:
+                self._corner_type = "road"
+        if (isinstance(corner, CornerLocal) and self._corner_type == "local") or (
+            isinstance(corner, CornerRoad) and self._corner_type == "road"
+        ):
+            self.corners.append(corner)
+        else:
+            raise GeneralIssueInputArguments("Mix of cornertypes not allowed. ")
+
+    def get_attributes(self):
+        """returns the attributes of Outline as a dict"""
+        retdict = {}
+        if self.closed is not None:
+            retdict["closed"] = convert_bool(self.closed)
+        if self.outer is not None:
+            retdict["outer"] = convert_bool(self.outer)
+        if self.fill_type is not None:
+            retdict["fillType"] = enum2str(self.fill_type)
+        if self.lane_type is not None:
+            retdict["laneType"] = enum2str(self.lane_type)
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of Outline"""
+        element = ET.Element("outline", attrib=self.get_attributes())
+        for corner in self.corners:
+            element.append(corner.get_element())
 
         return element

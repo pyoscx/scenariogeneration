@@ -114,6 +114,12 @@ def test_object():
         height=1.0,
         Type=pyodrx.ObjectType.pole,
     )
+
+    outline = pyodrx.Outline()
+    outline.add_corner(pyodrx.CornerLocal(1, 2, 3, 4))
+    outline.add_corner(pyodrx.CornerLocal(1, 2, 3, 5))
+    object2.add_outline(outline)
+    prettyprint(object2)
     object3.id = object1.id
     assert object1 == object3
     assert object2 != object1
@@ -177,3 +183,43 @@ def test_object_roadside():
     )
     road.add_object_roadside(object1, 50, tOffset=0.85)
     prettyprint(road.get_element())
+
+
+def test_corner_local():
+    cl = pyodrx.CornerLocal(1, 2, 3, 4)
+    cl2 = pyodrx.CornerLocal(1, 2, 3, 4)
+    cl3 = pyodrx.CornerLocal(1, 2, 3, 3)
+    assert cl == cl2
+    assert cl != cl3
+    prettyprint(cl)
+
+
+def test_corner_road():
+    cr = pyodrx.CornerRoad(1, 2, 3, 4)
+    cr2 = pyodrx.CornerRoad(1, 2, 3, 4)
+    cr3 = pyodrx.CornerRoad(1, 2, 3, 3)
+    assert cr == cr2
+    assert cr != cr3
+    prettyprint(cr)
+
+
+def test_outline():
+    cr = pyodrx.CornerRoad(1, 2, 3, 4)
+    cr2 = pyodrx.CornerLocal(1, 2, 3, 4)
+
+    outline = pyodrx.Outline()
+    outline.add_corner(cr)
+    outline2 = pyodrx.Outline()
+    outline2.add_corner(cr)
+
+    outline3 = pyodrx.Outline()
+    outline3.add_corner(cr2)
+    outline4 = pyodrx.Outline(
+        True, pyodrx.FillType.asphalt, pyodrx.LaneType.bidirectional, False, 1
+    )
+    outline4.add_corner(cr2)
+    prettyprint(outline)
+    prettyprint(outline4)
+    assert outline == outline2
+    assert outline != outline3
+    assert outline != outline4
