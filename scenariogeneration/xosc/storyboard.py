@@ -1122,7 +1122,9 @@ class Event(VersionBase):
 
         """
         name = element.attrib["name"]
-        maxexec = convert_int(element.attrib["maximumExecutionCount"])
+        maxexec = None
+        if "maximumExecutionCount" in element.attrib:
+            maxexec = convert_int(element.attrib["maximumExecutionCount"])
         prio = getattr(Priority, element.attrib["priority"])
 
         event = Event(name, prio, maxexec)
@@ -1171,11 +1173,10 @@ class Event(VersionBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the Event"""
-        return {
-            "name": self.name,
-            "priority": self.priority.get_name(),
-            "maximumExecutionCount": str(self.maxexecution),
-        }
+        retdict = {"name": self.name, "priority": self.priority.get_name()}
+        if self.maxexecution is not None:
+            retdict["maximumExecutionCount"] = str(self.maxexecution)
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the Event"""
