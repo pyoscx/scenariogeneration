@@ -74,6 +74,14 @@ def test_roadmark():
     prettyprint(mark4.get_element())
 
 
+def test_poly3struct():
+    ps1 = pyodrx.lane._poly3struct(1, 2, 3, 4, 5)
+    ps2 = pyodrx.lane._poly3struct(1, 2, 3, 4, 5)
+    ps3 = pyodrx.lane._poly3struct(2, 2, 3, 4, 5)
+    assert ps1 == ps2
+    assert ps1 != ps3
+
+
 def test_lane():
     lane = pyodrx.Lane()
     lane._set_lane_id(1)
@@ -89,6 +97,23 @@ def test_lane():
     assert lane == lane2
     assert lane != lane3
 
+def test_lane_with_multiple_widths():
+    lane = pyodrx.Lane()
+    lane._set_lane_id(1)
+    prettyprint(lane.get_element())
+    lane = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 1, 2)
+    lane.add_lane_width(1,2,3,4,5)
+    lane._set_lane_id(1)
+    prettyprint(lane.get_element())
+
+    lane2 = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 1, 2)
+    lane2._set_lane_id(1)
+    lane2.add_lane_width(1,2,3,4,5)
+    lane3 = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 3, 2)
+    lane3._set_lane_id(1)
+    lane3.add_lane_width(1,2,3,4,6)
+    assert lane == lane2
+    assert lane != lane3
 
 def test_lane_with_height():
     lane = pyodrx.Lane(pyodrx.LaneType.sidewalk, 1, 1, 1, 1, 2)

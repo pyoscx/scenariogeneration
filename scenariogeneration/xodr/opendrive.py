@@ -460,14 +460,14 @@ class Road:
                 total_widths.append(0)
                 road_objects.append(cpy.deepcopy(road_object_prototype))
                 for lane in lanesection.leftlanes:
-                    total_widths[-1] = total_widths[-1] + lane.a
+                    total_widths[-1] = total_widths[-1] + lane.widths[0].a
             if side != RoadSide.left:
                 s_lanesections.append(lanesection.s)
                 hdg_factors.append(-1)
                 total_widths.append(0)
                 road_objects.append(cpy.deepcopy(road_object_prototype))
                 for lane in lanesection.rightlanes:
-                    total_widths[-1] = total_widths[-1] + lane.a
+                    total_widths[-1] = total_widths[-1] + lane.widths[0].a
 
         for idx, road_object in enumerate(road_objects):
             road_object.t = (total_widths[idx] + tOffset) * hdg_factors[idx]
@@ -788,10 +788,10 @@ class OpenDrive:
                 .rightlanes[0 : -1 * num_lane_offsets]
             ):
                 offset_width = offset_width - (
-                    lane.a
-                    + lane.b * relevant_s
-                    + lane.c * relevant_s**2
-                    + lane.d * relevant_s**3
+                    lane.widths[relevant_lanesection].a
+                    + lane.widths[relevant_lanesection].b * relevant_s
+                    + lane.widths[relevant_lanesection].c * relevant_s**2
+                    + lane.widths[relevant_lanesection].d * relevant_s**3
                 )
         if num_lane_offsets > 0:
             for lane in (
@@ -800,10 +800,10 @@ class OpenDrive:
                 .leftlanes[0:num_lane_offsets]
             ):
                 offset_width = offset_width + (
-                    lane.a
-                    + lane.b * relevant_s
-                    + lane.c * relevant_s**2
-                    + lane.d * relevant_s**3
+                    lane.widths[relevant_lanesection].a
+                    + lane.widths[relevant_lanesection].b * relevant_s
+                    + lane.widths[relevant_lanesection].c * relevant_s**2
+                    + lane.widths[relevant_lanesection].d * relevant_s**3
                 )
 
         return offset_width

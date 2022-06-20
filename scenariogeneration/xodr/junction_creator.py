@@ -426,6 +426,7 @@ class CommonJunctionCreator:
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
                 .leftlanes[0]
+                .widths[0]
                 .a
             )
         else:
@@ -433,6 +434,7 @@ class CommonJunctionCreator:
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
                 .rightlanes[0]
+                .widths[0]
                 .a
             )
         # check if the road has _angles/radius for these roads
@@ -522,7 +524,26 @@ class CommonJunctionCreator:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
         elif self._generic_junction:
             roadgeoms = self._create_geometry_from_carthesian(idx1, idx2)
-
+        if (
+            self.incoming_roads[idx1]
+            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+            .leftlanes
+        ):
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .leftlanes[0]
+                .widths[0]
+                .a
+            )
+        else:
+            lane_width = (
+                self.incoming_roads[idx1]
+                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                .rightlanes[0]
+                .widths[0]
+                .a
+            )
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
@@ -536,10 +557,7 @@ class CommonJunctionCreator:
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
                 .rightlanes
             ),
-            lane_width=self.incoming_roads[idx1]
-            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes[0]
-            .a,
+            lane_width=lane_width,
             road_type=self.id,
         )
 
@@ -593,6 +611,7 @@ class CommonJunctionCreator:
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
                 .leftlanes[0]
+                .widths[0]
                 .a
             )
         else:
@@ -600,6 +619,7 @@ class CommonJunctionCreator:
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
                 .rightlanes[0]
+                .widths[0]
                 .a
             )
         start_offset = (abs(lane_one_id) - 1) * lane_width
