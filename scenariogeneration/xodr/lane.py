@@ -491,7 +491,8 @@ class Lane:
             roadmark (RoadMark): roadmark of the lane
 
         """
-        self.roadmark.append(roadmark)
+        if roadmark is not None:
+            self.roadmark.append(roadmark)
         return self
 
     def add_height(self, inner, outer=None, soffset=0):

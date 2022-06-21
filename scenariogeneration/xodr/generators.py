@@ -867,11 +867,12 @@ def create_junction_roads(
                     n_lanes=n_lanes,
                     lane_offset=lanes_offset,
                 )
-                for l in tmp_junc.lanes.lanesections[0].leftlanes:
-                    l.roadmark[0] = inner_road_marks
-                for r in tmp_junc.lanes.lanesections[0].rightlanes:
-                    r.roadmark[0] = inner_road_marks
-                tmp_junc.lanes.lanesections[0].centerlane.roadmark[0] = inner_road_marks
+                if inner_road_marks:
+                    for l in tmp_junc.lanes.lanesections[0].leftlanes:
+                        l.roadmark[0] = inner_road_marks
+                    for r in tmp_junc.lanes.lanesections[0].rightlanes:
+                        r.roadmark[0] = inner_road_marks
+                    tmp_junc.lanes.lanesections[0].centerlane.roadmark[0] = inner_road_marks
                 if len(roads) == 3:
                     # not sure all will be needed since angles have to be in increasing order, but it "should work"
                     k = [x for x in [0, 1, 2] if x != j and x != i][0]
