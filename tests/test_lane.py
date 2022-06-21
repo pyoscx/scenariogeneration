@@ -14,6 +14,7 @@ import pytest
 
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
+from scenariogeneration.xodr.generators import STD_ROADMARK_BROKEN, STD_ROADMARK_SOLID
 
 
 def test_roadline():
@@ -97,29 +98,48 @@ def test_lane():
     assert lane == lane2
     assert lane != lane3
 
+
 def test_lane_with_multiple_widths():
     lane = pyodrx.Lane()
     lane._set_lane_id(1)
     prettyprint(lane.get_element())
     lane = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 1, 2)
-    lane.add_lane_width(1,2,3,4,5)
+    lane.add_lane_width(1, 2, 3, 4, 5)
     lane._set_lane_id(1)
     prettyprint(lane.get_element())
 
     lane2 = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 1, 2)
     lane2._set_lane_id(1)
-    lane2.add_lane_width(1,2,3,4,5)
+    lane2.add_lane_width(1, 2, 3, 4, 5)
     lane3 = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 3, 2)
     lane3._set_lane_id(1)
-    lane3.add_lane_width(1,2,3,4,6)
+    lane3.add_lane_width(1, 2, 3, 4, 6)
     assert lane == lane2
     assert lane != lane3
+
 
 def test_lane_with_height():
     lane = pyodrx.Lane(pyodrx.LaneType.sidewalk, 1, 1, 1, 1, 2)
     lane._set_lane_id(1)
     lane.add_height(0.15)
     prettyprint(lane.get_element())
+
+
+def test_lane_with_roadmarks():
+    lane = pyodrx.Lane()
+    lane._set_lane_id(1)
+    lane.add_roadmark(STD_ROADMARK_BROKEN)
+    lane2 = pyodrx.Lane()
+    lane2._set_lane_id(1)
+    lane2.add_roadmark(STD_ROADMARK_BROKEN)
+    lane3 = pyodrx.Lane()
+    lane3._set_lane_id(1)
+    lane3.add_roadmark(STD_ROADMARK_BROKEN)
+    lane3.add_roadmark(STD_ROADMARK_SOLID)
+    prettyprint(lane)
+    prettyprint(lane3)
+    assert lane == lane2
+    assert lane != lane3
 
 
 def test_lanesection():

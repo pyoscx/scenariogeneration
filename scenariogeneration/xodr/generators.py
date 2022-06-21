@@ -554,7 +554,7 @@ def get_lanes_offset(road1, road2, contactpoint):
         road2.lanes.lanesections[0].rightlanes
     ):
         n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes)
-        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].a
+        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].widths[0].a
     else:
         raise NotSameAmountOfLanesError(
             "Incoming road ",

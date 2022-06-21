@@ -425,7 +425,7 @@ class Lane:
         self.heights = (
             []
         )  # height entries to elevate the lane independent from the road elevation
-        self.roadmark = None
+        self.roadmark = []
         self.links = _Links()
 
     def __eq__(self, other):
@@ -491,7 +491,7 @@ class Lane:
             roadmark (RoadMark): roadmark of the lane
 
         """
-        self.roadmark = roadmark
+        self.roadmark.append(roadmark)
         return self
 
     def add_height(self, inner, outer=None, soffset=0):
@@ -546,7 +546,8 @@ class Lane:
         #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)
 
         if self.roadmark:
-            element.append(self.roadmark.get_element())
+            for r in self.roadmark:
+                element.append(r.get_element())
 
         for height in self.heights:
             ET.SubElement(element, "height", attrib=height)
