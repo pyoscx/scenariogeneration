@@ -868,10 +868,10 @@ def create_junction_roads(
                     lane_offset=lanes_offset,
                 )
                 for l in tmp_junc.lanes.lanesections[0].leftlanes:
-                    l.roadmark = inner_road_marks
+                    l.roadmark[0] = inner_road_marks
                 for r in tmp_junc.lanes.lanesections[0].rightlanes:
-                    r.roadmark = inner_road_marks
-                tmp_junc.lanes.lanesections[0].centerlane.roadmark = inner_road_marks
+                    r.roadmark[0] = inner_road_marks
+                tmp_junc.lanes.lanesections[0].centerlane.roadmark[0] = inner_road_marks
                 if len(roads) == 3:
                     # not sure all will be needed since angles have to be in increasing order, but it "should work"
                     k = [x for x in [0, 1, 2] if x != j and x != i][0]
@@ -880,23 +880,23 @@ def create_junction_roads(
                     ):
                         tmp_junc.lanes.lanesections[0].rightlanes[
                             -1
-                        ].roadmark = outer_road_marks
+                        ].roadmark[0] = outer_road_marks
                     elif (angles[i] < angles[j]) and (
                         (angles[k] > angles[j]) or (angles[k] < angles[i])
                     ):
                         tmp_junc.lanes.lanesections[0].rightlanes[
                             -1
-                        ].roadmark = outer_road_marks
+                        ].roadmark[0] = outer_road_marks
                     elif (angles[i] < angles[j]) and (
                         (angles[k] < angles[j]) or (angles[k] > angles[i])
                     ):
                         tmp_junc.lanes.lanesections[0].leftlanes[
                             -1
-                        ].roadmark = outer_road_marks
+                        ].roadmark[0] = outer_road_marks
                     else:
                         tmp_junc.lanes.lanesections[0].rightlanes[
                             -1
-                        ].roadmark = outer_road_marks
+                        ].roadmark[0] = outer_road_marks
             else:
                 clothoids = pcloth.SolveG2(
                     -R[i],
@@ -928,11 +928,11 @@ def create_junction_roads(
                 if tmp_junc.planview._raw_geometries[1].curvstart > 0:
                     tmp_junc.lanes.lanesections[0].leftlanes[
                         -1
-                    ].roadmark = outer_road_marks
+                    ].roadmark[0] = outer_road_marks
                 if tmp_junc.planview._raw_geometries[1].curvstart < 0:
                     tmp_junc.lanes.lanesections[0].rightlanes[
                         -1
-                    ].roadmark = outer_road_marks
+                    ].roadmark[0] = outer_road_marks
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road, roads[i].id, cp)
             tmp_junc.add_successor(ElementType.road, roads[j].id, ContactPoint.start)
