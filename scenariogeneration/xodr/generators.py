@@ -928,11 +928,11 @@ def create_junction_roads(
                 if tmp_junc.planview._raw_geometries[1].curvstart > 0:
                     tmp_junc.lanes.lanesections[0].leftlanes[
                         -1
-                    ].roadmark[0] = outer_road_marks
+                    ].add_roadmark(outer_road_marks)
                 if tmp_junc.planview._raw_geometries[1].curvstart < 0:
                     tmp_junc.lanes.lanesections[0].rightlanes[
                         -1
-                    ].roadmark[0] = outer_road_marks
+                    ].add_roadmark(outer_road_marks)
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road, roads[i].id, cp)
             tmp_junc.add_successor(ElementType.road, roads[j].id, ContactPoint.start)
