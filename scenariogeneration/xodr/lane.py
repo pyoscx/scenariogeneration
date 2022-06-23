@@ -10,6 +10,7 @@
 
 """
 
+from operator import index
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from .enumerations import (
@@ -316,6 +317,10 @@ class _poly3struct:
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
+    
+    def get_width(self,s):
+        width = self.a + self.b * (s - self.soffset) + self.c * (s - self.soffset)**2 + self.d * (s - self.soffset)**3
+        return width
 
     def get_attributes(self):
         polynomialdict = {}
@@ -464,6 +469,27 @@ class Lane:
 
         """
         self.widths.append(_poly3struct(a, b, c, d, soffset))
+
+    def get_width(self,s):
+        """ function that calculates the width of a lane at a point s
+
+        Note: no check that s is on the road can be made, that has to be taken care of by the user
+
+        Parameters
+        ----------
+            s (float): the point where the width is wished
+
+        Returns
+        -------
+            width (float): the width at point s
+        """
+        index_to_calc = 0
+        for i in range(len(self.widths)):
+            if s >= self.widths[i].soffset:
+                index_to_calc = i
+            else:
+                break
+        return self.widths[index_to_calc].get_width(s)
 
     def add_link(self, link_type, id):
         """adds a link to the lane section
@@ -695,7 +721,7 @@ class RoadMark:
                     self.length,
                     self.space,
                     self.toffset,
-                    self.soffset,
+                    0,
                     self.rule,
                     self.color,
                 )
