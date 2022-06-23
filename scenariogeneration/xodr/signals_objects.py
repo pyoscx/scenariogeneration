@@ -9,7 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from lib2to3.pytree import convert
+#from lib2to3.pytree import convert
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str, convert_bool
 from .enumerations import ObjectType, Orientation, Dynamic

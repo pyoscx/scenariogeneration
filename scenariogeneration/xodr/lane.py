@@ -373,29 +373,29 @@ class Lane:
             lane_type (LaneType): type of lane
                 Default: LaneType.driving
 
-            a (float): a polynomial coefficient for width (left/right) or laneoffset (center)
+            a (float or list): a polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            b (float): b polynomial coefficient for width (left/right) or laneoffset (center)
+            b (float or list): b polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            c (float): c polynomial coefficient for width (left/right) or laneoffset (center)
+            c (float or list): c polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            d (float): d polynomial coefficient for width (left/right) or laneoffset (center)
+            d (float or list): d polynomial coefficient for width (left/right) or laneoffset (center)
                 Default: 0
 
-            soffset (float): soffset of lane renamed to s in case of centerlane
+            soffset (float or list): soffset of lane renamed to s in case of centerlane
                 Default: 0
 
         """
         self.lane_id = None
         self.lane_type = lane_type
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.soffset = soffset
+        self.a = a if isinstance(a, list) else [a]
+        self.b = b if isinstance(b, list) else [b]
+        self.c = c if isinstance(c, list) else [c]
+        self.d = d if isinstance(d, list) else [d]
+        self.soffset = soffset if isinstance(soffset, list) else [soffset]
         # TODO: enable multiple widths records per lane (only then soffset really makes sense! ASAM requires one width record to have sOffset=0)
         self.heights = (
             []
@@ -485,23 +485,27 @@ class Lane:
         retdict["level"] = "false"
         return retdict
 
+    def _get_poly(self):
+        # polynomial dict either for width (left/right lanes) or laneOffset (center lane)
+        for idx in range(len(self.soffset)):
+            polynomialdict = {}
+            polynomialdict["a"] = str(self.a[idx] if idx < len(self.a) else 0.0)
+            polynomialdict["b"] = str(self.b[idx] if idx < len(self.b) else 0.0)
+            polynomialdict["c"] = str(self.c[idx] if idx < len(self.c) else 0.0)
+            polynomialdict["d"] = str(self.d[idx] if idx < len(self.d) else 0.0)
+            polynomialdict["sOffset"] = str(self.soffset[idx])
+            yield polynomialdict
+
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("lane", attrib=self.get_attributes())
-
-        # polynomial dict either for width (left/right lanes) or laneOffset (center lane)
-        polynomialdict = {}
-        polynomialdict["a"] = str(self.a)
-        polynomialdict["b"] = str(self.b)
-        polynomialdict["c"] = str(self.c)
-        polynomialdict["d"] = str(self.d)
-        polynomialdict["sOffset"] = str(self.soffset)
 
         # according to standard if lane is centerlane it should
         # not have a width record and omit the link record
         if self.lane_id != 0:
             element.append(self.links.get_element())
-            ET.SubElement(element, "width", attrib=polynomialdict)
+            for polynomialdict in self._get_poly():
+                ET.SubElement(element, "width", attrib=polynomialdict)
         # use polynomial dict for laneOffset in case of center lane (only if values provided)
         # removed, should not be here..
         # elif any([self.a,self.b,self.c,self.d]):
