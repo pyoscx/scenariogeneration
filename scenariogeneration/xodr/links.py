@@ -993,7 +993,7 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
             suc_road, pre_road
         )
         if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(
-            suc_road.lanes.lanesections[-1].leftlanes
+            suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes
         ):
             for i in range(
                 len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)
@@ -1020,7 +1020,7 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
             )
 
         if len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes) == len(
-            suc_road.lanes.lanesections[-1].rightlanes
+            suc_road.lanes.lanesections[suc_connecting_lanesec].rightlanes
         ):
             for i in range(
                 len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes)
