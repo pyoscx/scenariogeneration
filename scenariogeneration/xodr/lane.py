@@ -317,9 +317,14 @@ class _poly3struct:
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
-    
-    def get_width(self,s):
-        width = self.a + self.b * (s - self.soffset) + self.c * (s - self.soffset)**2 + self.d * (s - self.soffset)**3
+
+    def get_width(self, s):
+        width = (
+            self.a
+            + self.b * (s - self.soffset)
+            + self.c * (s - self.soffset) ** 2
+            + self.d * (s - self.soffset) ** 3
+        )
         return width
 
     def get_attributes(self):
@@ -470,8 +475,8 @@ class Lane:
         """
         self.widths.append(_poly3struct(a, b, c, d, soffset))
 
-    def get_width(self,s):
-        """ function that calculates the width of a lane at a point s
+    def get_width(self, s):
+        """function that calculates the width of a lane at a point s
 
         Note: no check that s is on the road can be made, that has to be taken care of by the user
 
