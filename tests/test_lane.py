@@ -174,6 +174,11 @@ def test_laneoffset():
     assert laneoffset1 != laneoffset2
     assert laneoffset1 == laneoffset3
 
+def test_lane_width_calc():
+    lane = pyodrx.Lane(a=3,b=2)
+    lane.add_lane_width(a=2,b=0.5,soffset=10)
+    assert lane.get_width(5) == 13
+    assert lane.get_width(12) == 3
 
 def test_lanes():
 

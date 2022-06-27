@@ -17,7 +17,7 @@ from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule, JunctionType
 from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted, IdAlreadyExists
 from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
-
+from .utils import get_lane_sec_and_s_for_lane_calc
 
 import datetime as dt
 from itertools import combinations
@@ -703,38 +703,31 @@ class OpenDrive:
         ----------
         road_id (int): id of the road we want to adjust
 
-        neighbour_id(int): id of the neighbour road we take as reference (we suppose the neighbour road is already adjusted)
+        neighbour_id (int): id of the neighbour road we take as reference (we suppose the neighbour road is already adjusted)
 
-        contact_point(ContactPoint): type of contact point with point of view of roads[road_id]
+        contact_point (ContactPoint): type of contact point with point of view of roads[road_id]
 
-        neighbour_type(str): 'successor'/'predecessor' type of linking to the neighbouring road
+        neighbour_type (str): 'successor'/'predecessor' type of linking to the neighbouring road
 
 
         """
 
         main_road = self.roads[str(road_id)]
-
+        
+                
         if contact_point == ContactPoint.start:
             x, y, h = self.roads[str(neighbour_id)].planview.get_start_point()
             h = (
                 h + np.pi
             )  # we are attached to the predecessor's start, so road[k] will start in its opposite direction
-            relevant_lanesection = 0  # since we are at the start the first lane section is relevant for determining widths for lane offset
-            relevant_s = 0  # since we are at the start, the relevant s-coordinate for determining widths for lane offset is 0
         elif contact_point == ContactPoint.end:
             x, y, h = self.roads[str(neighbour_id)].planview.get_end_point()
-            relevant_lanesection = (
-                -1
-            )  # since we are at the end the last lane section is relevant for determining widths for lane offset
-            relevant_s = (
-                self.roads[str(neighbour_id)].planview.get_total_length()
-                - self.roads[str(neighbour_id)]
-                .lanes.lanesections[relevant_lanesection]
-                .s
-            )
+
+        
             # since we are at the end, the relevant s-coordinate for determining widths for lane offset is the length of the last lane section
         else:
             raise ValueError("Unknown ContactPoint")
+        
 
         if neighbour_type == "predecessor":
             num_lane_offsets = 0
@@ -743,7 +736,7 @@ class OpenDrive:
             elif str(neighbour_id) in main_road.lane_offset_pred:
                 num_lane_offsets = main_road.lane_offset_pred[str(neighbour_id)]
             offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
+                road_id, neighbour_id, num_lane_offsets, contact_point
             )
             x = -offset_width * np.sin(h) + x
             y = offset_width * np.cos(h) + y
@@ -758,7 +751,7 @@ class OpenDrive:
             elif str(neighbour_id) in main_road.lane_offset_suc:
                 num_lane_offsets = main_road.lane_offset_suc[str(neighbour_id)]
             offset_width = self._calculate_lane_offset_width(
-                neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
+                road_id, neighbour_id, num_lane_offsets, contact_point
             )
             x = offset_width * np.sin(h) + x
             y = -offset_width * np.cos(h) + y
@@ -767,7 +760,7 @@ class OpenDrive:
             main_road.planview.adjust_geometries(True)
 
     def _calculate_lane_offset_width(
-        self, neighbour_id, relevant_lanesection, relevant_s, num_lane_offsets
+        self, road_id, neighbour_id, num_lane_offsets, contact_point
     ):
         """calculate the width for shifting the road if a lane offset is present
 
@@ -778,6 +771,8 @@ class OpenDrive:
 
 
         """
+
+        relevant_lanesection, relevant_s = get_lane_sec_and_s_for_lane_calc(self.roads[str(neighbour_id)],contact_point)
         # remains 0 if no lane offset exists
         offset_width = 0
         # if a lane offset exists, loop through relevant lanes (left/right) at the relevant s-coordinate to determine width of offset
@@ -807,7 +802,7 @@ class OpenDrive:
                 )
 
         return offset_width
-
+        
     def adjust_startpoints(self):
         """Adjust starting position of all geoemtries of all roads
 

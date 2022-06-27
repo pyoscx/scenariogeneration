@@ -610,17 +610,13 @@ class CommonJunctionCreator:
             lane_width = (
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[0]
-                .widths[0]
-                .a
+                .leftlanes[lane_one_id].get_width(0)
             )
         else:
             lane_width = (
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[0]
-                .widths[0]
-                .a
+                .rightlanes[lane_one_id].get_width(0)
             )
         start_offset = (abs(lane_one_id) - 1) * lane_width
         end_offset = (abs(lane_two_id) - 1) * lane_width
@@ -732,10 +728,10 @@ class CommonJunctionCreator:
         )
         # add offsets to the incomming roads
         self._set_offset_for_incoming_road(
-            idx1, tmp_junc_road.id, -np.sign(lane_one_id) * (abs(lane_one_id) - 1)
+            idx1, tmp_junc_road.id, -pred_lane_offset
         )
         self._set_offset_for_incoming_road(
-            idx2, tmp_junc_road.id, -np.sign(lane_two_id) * (abs(lane_two_id) - 1)
+            idx2, tmp_junc_road.id, -succ_lane_offset
         )
 
         self.junction_roads.append(tmp_junc_road)
