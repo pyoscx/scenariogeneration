@@ -564,7 +564,7 @@ class Lane:
         # not have a width record and omit the link record
         if self.lane_id != 0:
             element.append(self.links.get_element())
-            for w in self.widths:
+            for w in sorted(self.widths, key=lambda x: x.soffset):
                 ET.SubElement(element, "width", attrib=w.get_attributes())
         # use polynomial dict for laneOffset in case of center lane (only if values provided)
         # removed, should not be here..
@@ -573,7 +573,7 @@ class Lane:
         #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)
 
         if self.roadmark:
-            for r in self.roadmark:
+            for r in sorted(self.roadmark, key=lambda x: x.soffset):
                 element.append(r.get_element())
 
         for height in self.heights:
