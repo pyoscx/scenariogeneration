@@ -1,5 +1,21 @@
 ## scenariogeneration release notes
 
+
+### 2021-07-01 Version 0.9.0
+- New Features
+    - outline can now be added for objects in opendrive
+    - multiple lane widths and multiple roadmarks can be added for a Lane
+    - method in lane to calculate the width at any s-coordinate
+- Bug Fixes
+    - maximumExecusion in event no longer required for parsing (according to the standard)
+    - in Route position namings fixed to the correct names
+-Changed Classes (API not changed, but if attributes are used this will brake some cases)
+    - Lane
+        - no longer have a, b, c, d, soffset as object attributes replaced with a list of a _poly3struct objects instead
+        eg: previously to get the parameter a on the lane one would use _lane.a_, now _lane.widths[0].a_ should be used.   
+
+
+
 ### 2021-06-10 Version 0.8.0
 - New Features
     - all methods returns the object for oneliners
