@@ -100,7 +100,10 @@ jobs:
       - name: two_roads
         if: always()
         run: python3 examples/xodr/two_roads.py
-
+      - name: road_with_multiple_lane_widths
+        if: always()
+        run: python3 examples/xodr/road_with_multiple_lane_widths.py
+        
   xosc_examples:
       runs-on: ubuntu-latest
       steps:

@@ -10,6 +10,7 @@
 
 """
 
+from operator import index
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from .enumerations import (
@@ -303,6 +304,39 @@ class LaneSection:
         return element
 
 
+class _poly3struct:
+    def __init__(self, a=0, b=0, c=0, d=0, soffset=0):
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.soffset = soffset
+
+    def __eq__(self, other):
+        if isinstance(other, _poly3struct):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_width(self, s):
+        width = (
+            self.a
+            + self.b * (s - self.soffset)
+            + self.c * (s - self.soffset) ** 2
+            + self.d * (s - self.soffset) ** 3
+        )
+        return width
+
+    def get_attributes(self):
+        polynomialdict = {}
+        polynomialdict["a"] = str(self.a)
+        polynomialdict["b"] = str(self.b)
+        polynomialdict["c"] = str(self.c)
+        polynomialdict["d"] = str(self.d)
+        polynomialdict["sOffset"] = str(self.soffset)
+        return polynomialdict
+
+
 class Lane:
     """creates a Lane of opendrive
 
@@ -362,6 +396,8 @@ class Lane:
         add_roadmark(roadmark)
             adds a new roadmark to the lane
 
+        add_lane_width(a, b, c, d, soffset)
+            adds an additional width element to the lane
     """
 
     def __init__(self, lane_type=LaneType.driving, a=0, b=0, c=0, d=0, soffset=0):
@@ -391,16 +427,15 @@ class Lane:
         """
         self.lane_id = None
         self.lane_type = lane_type
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
+        self.widths = []
+        self.add_lane_width(a, b, c, d, soffset)
+
         self.soffset = soffset
         # TODO: enable multiple widths records per lane (only then soffset really makes sense! ASAM requires one width record to have sOffset=0)
         self.heights = (
             []
         )  # height entries to elevate the lane independent from the road elevation
-        self.roadmark = None
+        self.roadmark = []
         self.links = _Links()
 
     def __eq__(self, other):
@@ -408,11 +443,7 @@ class Lane:
             if (
                 self.links == other.links
                 and self.get_attributes() == other.get_attributes()
-                and self.a == other.a
-                and self.b == other.b
-                and self.c == other.c
-                and self.d == other.d
-                and self.soffset == other.soffset
+                and self.widths == other.widths
                 and self.heights == other.heights
                 and self.roadmark == other.roadmark
             ):
@@ -420,6 +451,50 @@ class Lane:
         return False
 
         # TODO: add more features to add for lane
+
+    def add_lane_width(self, a=0, b=0, c=0, d=0, soffset=0):
+        """adds an additional width element to the lane
+
+        Parameters
+        ----------
+            a (float): a polynomial coefficient for width
+                Default: 0
+
+            b (float): b polynomial coefficient for width
+                Default: 0
+
+            c (float): c polynomial coefficient for width
+                Default: 0
+
+            d (float): d polynomial coefficient for width
+                Default: 0
+
+            soffset (float): soffset of lane renamed to s in case of centerlane
+                Default: 0
+
+        """
+        self.widths.append(_poly3struct(a, b, c, d, soffset))
+
+    def get_width(self, s):
+        """function that calculates the width of a lane at a point s
+
+        Note: no check that s is on the road can be made, that has to be taken care of by the user
+
+        Parameters
+        ----------
+            s (float): the point where the width is wished
+
+        Returns
+        -------
+            width (float): the width at point s
+        """
+        index_to_calc = 0
+        for i in range(len(self.widths)):
+            if s >= self.widths[i].soffset:
+                index_to_calc = i
+            else:
+                break
+        return self.widths[index_to_calc].get_width(s)
 
     def add_link(self, link_type, id):
         """adds a link to the lane section
@@ -447,7 +522,8 @@ class Lane:
             roadmark (RoadMark): roadmark of the lane
 
         """
-        self.roadmark = roadmark
+        if roadmark is not None:
+            self.roadmark.append(roadmark)
         return self
 
     def add_height(self, inner, outer=None, soffset=0):
@@ -489,19 +565,12 @@ class Lane:
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("lane", attrib=self.get_attributes())
 
-        # polynomial dict either for width (left/right lanes) or laneOffset (center lane)
-        polynomialdict = {}
-        polynomialdict["a"] = str(self.a)
-        polynomialdict["b"] = str(self.b)
-        polynomialdict["c"] = str(self.c)
-        polynomialdict["d"] = str(self.d)
-        polynomialdict["sOffset"] = str(self.soffset)
-
         # according to standard if lane is centerlane it should
         # not have a width record and omit the link record
         if self.lane_id != 0:
             element.append(self.links.get_element())
-            ET.SubElement(element, "width", attrib=polynomialdict)
+            for w in sorted(self.widths, key=lambda x: x.soffset):
+                ET.SubElement(element, "width", attrib=w.get_attributes())
         # use polynomial dict for laneOffset in case of center lane (only if values provided)
         # removed, should not be here..
         # elif any([self.a,self.b,self.c,self.d]):
@@ -509,7 +578,8 @@ class Lane:
         #     ET.SubElement(element,'laneOffset',attrib=polynomialdict)
 
         if self.roadmark:
-            element.append(self.roadmark.get_element())
+            for r in sorted(self.roadmark, key=lambda x: x.soffset):
+                element.append(r.get_element())
 
         for height in self.heights:
             ET.SubElement(element, "height", attrib=height)
@@ -656,7 +726,7 @@ class RoadMark:
                     self.length,
                     self.space,
                     self.toffset,
-                    self.soffset,
+                    0,
                     self.rule,
                     self.color,
                 )

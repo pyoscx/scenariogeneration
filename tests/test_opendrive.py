@@ -116,10 +116,10 @@ def test_create_straight_road(data):
     assert int(redict["junction"]) == data[2]
     assert len(road.lanes.lanesections[0].leftlanes) == data[3]
     assert len(road.lanes.lanesections[0].rightlanes) == data[3]
-    assert road.lanes.lanesections[0].leftlanes[0].a == data[4]
-    assert road.lanes.lanesections[0].leftlanes[0].b == 0
-    assert road.lanes.lanesections[0].leftlanes[0].c == 0
-    assert road.lanes.lanesections[0].leftlanes[0].d == 0
+    assert road.lanes.lanesections[0].leftlanes[0].widths[0].a == data[4]
+    assert road.lanes.lanesections[0].leftlanes[0].widths[0].b == 0
+    assert road.lanes.lanesections[0].leftlanes[0].widths[0].c == 0
+    assert road.lanes.lanesections[0].leftlanes[0].widths[0].d == 0
 
 
 def test_road_type():
