@@ -21,12 +21,12 @@ from scenariogeneration import xodr
 
 import os
 
-# create a normal road 
+# create a normal road
 
-road = xodr.create_road(xodr.Line(200),id=0,lane_width=3)
+road = xodr.create_road(xodr.Line(200), id=0, lane_width=3)
 
-road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=3,b=2,soffset=100)
-road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=5,b=0,soffset=150)
+road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=3, b=2, soffset=100)
+road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=5, b=0, soffset=150)
 
 # create the opendrive
 odr = xodr.OpenDrive("myroad")
