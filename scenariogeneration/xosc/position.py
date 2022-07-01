@@ -50,11 +50,11 @@ class _PositionFactory:
             return LanePosition.parse(element)
         elif element.findall("RelativeLanePosition"):
             return RelativeLanePosition.parse(element)
-        elif element.findall("RoutePosition/InRoutePosition/PositionOfCurrentEntity"):
+        elif element.findall("RoutePosition/InRoutePosition/FromCurrentEntity"):
             return RoutePositionOfCurrentEntity.parse(element)
-        elif element.findall("RoutePosition/InRoutePosition/PositionInRoadCoordinates"):
+        elif element.findall("RoutePosition/InRoutePosition/FromRoadCoordinates"):
             return RoutePositionInRoadCoordinates.parse(element)
-        elif element.findall("RoutePosition/InRoutePosition/PositionInLaneCoordinates"):
+        elif element.findall("RoutePosition/InRoutePosition/FromLaneCoordinates"):
             return RoutePositionInLaneCoordinates.parse(element)
         elif element.findall("TrajectoryPosition"):
             return TrajectoryPosition.parse(element)
@@ -1075,7 +1075,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             orientation = Orientation.parse(position_element.find("Orientation"))
         else:
             orientation = Orientation()
-        entityelement = position_element.find("InRoutePosition/PositionOfCurrentEntity")
+        entityelement = position_element.find("InRoutePosition/FromCurrentEntity")
         entity = entityelement.attrib["entityRef"]
         route_element = position_element.find("RouteRef")
         if route_element.find("Route") != None:
@@ -1094,7 +1094,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
         relement.append(self.orientation.get_element())
         inroute = ET.SubElement(relement, "InRoutePosition")
         ET.SubElement(
-            inroute, "PositionOfCurrentEntity", attrib={"entityRef": self.entity}
+            inroute, "FromCurrentEntity", attrib={"entityRef": self.entity}
         )
         return element
 
@@ -1188,7 +1188,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
         else:
             orientation = Orientation()
         road_coord_element = position_element.find(
-            "InRoutePosition/PositionInRoadCoordinates"
+            "InRoutePosition/FromRoadCoordinates"
         )
         s = road_coord_element.attrib["pathS"]
         t = road_coord_element.attrib["t"]
@@ -1210,7 +1210,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
         inroute = ET.SubElement(relement, "InRoutePosition")
         ET.SubElement(
             inroute,
-            "PositionInRoadCoordinates",
+            "FromRoadCoordinates",
             attrib={"pathS": str(self.s), "t": str(self.t)},
         )
         return element
@@ -1316,11 +1316,14 @@ class RoutePositionInLaneCoordinates(_PositionType):
         else:
             orientation = Orientation()
         lane_coord_element = position_element.find(
-            "InRoutePosition/PositionInLaneCoordinates"
+            "InRoutePosition/FromLaneCoordinates"
         )
         s = lane_coord_element.attrib["pathS"]
         lane_id = lane_coord_element.attrib["laneId"]
-        offset = lane_coord_element.attrib["laneOffset"]
+        try:
+            offset = lane_coord_element.attrib["laneOffset"]
+        except KeyError:
+            offset = 0
         route_element = position_element.find("RouteRef")
         if route_element.find("Route") != None:
             routeref = Route.parse(route_element.find("Route"))
@@ -1339,7 +1342,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
         inroute = ET.SubElement(relement, "InRoutePosition")
         ET.SubElement(
             inroute,
-            "PositionInLaneCoordinates",
+            "FromLaneCoordinates",
             attrib={
                 "pathS": str(self.s),
                 "laneId": str(self.laneid),
