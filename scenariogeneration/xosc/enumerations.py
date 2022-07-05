@@ -572,15 +572,15 @@ class VehicleLightType(metaclass=_EnumMeta):
     )
 
 
-class VehicleRole(metaclass=_EnumMeta):
-    none = _OscEnum("VehicleRole", "none", min_minor_version=2)
-    ambulance = _OscEnum("VehicleRole", "ambulance", min_minor_version=2)
-    civil = _OscEnum("VehicleRole", "civil", min_minor_version=2)
-    fire = _OscEnum("VehicleRole", "fire", min_minor_version=2)
-    military = _OscEnum("VehicleRole", "military", min_minor_version=2)
-    police = _OscEnum("VehicleRole", "police", min_minor_version=2)
-    publicTransport = _OscEnum("VehicleRole", "publicTransport", min_minor_version=2)
-    roadAssistance = _OscEnum("VehicleRole", "roadAssistance", min_minor_version=2)
+class Role(metaclass=_EnumMeta):
+    none = _OscEnum("Role", "none", min_minor_version=2)
+    ambulance = _OscEnum("Role", "ambulance", min_minor_version=2)
+    civil = _OscEnum("Role", "civil", min_minor_version=2)
+    fire = _OscEnum("Role", "fire", min_minor_version=2)
+    military = _OscEnum("Role", "military", min_minor_version=2)
+    police = _OscEnum("Role", "police", min_minor_version=2)
+    publicTransport = _OscEnum("Role", "publicTransport", min_minor_version=2)
+    roadAssistance = _OscEnum("Role", "roadAssistance", min_minor_version=2)
 
 
 class Wetness(metaclass=_EnumMeta):
@@ -589,3 +589,16 @@ class Wetness(metaclass=_EnumMeta):
     wetWithPuddles = _OscEnum("Wetness", "wetWithPuddles", min_minor_version=2)
     lowFlooded = _OscEnum("Wetness", "lowFlooded", min_minor_version=2)
     highFlooded = _OscEnum("Wetness", "highFlooded", min_minor_version=2)
+
+class ColorType:
+    other = _OscEnum("ColorType", "other", min_minor_version=2)
+    red = _OscEnum("ColorType", "red", min_minor_version=2)
+    yellow = _OscEnum("ColorType", "yellow", min_minor_version=2)
+    green = _OscEnum("ColorType", "green", min_minor_version=2)
+    blue = _OscEnum("ColorType", "blue", min_minor_version=2)
+    violet = _OscEnum("ColorType", "violet", min_minor_version=2)
+    orange = _OscEnum("ColorType", "orange", min_minor_version=2)
+    brown = _OscEnum("ColorType", "brown", min_minor_version=2)
+    black = _OscEnum("ColorType", "black", min_minor_version=2)
+    grey = _OscEnum("ColorType", "grey", min_minor_version=2)
+    white = _OscEnum("ColorType", "white", min_minor_version=2)

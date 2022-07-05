@@ -17,10 +17,9 @@ Missing features for OpenSCENARIO V1.2.0:
     AnimationType (Created)
     AppearanceAction (Created)
     AssignControllerAction (Changed)
-    AutomaticGear (Created)
+
     
-    Brake (Created)
-    BrakeInput (Created)
+
     ByValueCondition (Changed)
     
     Color (Created)
@@ -36,38 +35,25 @@ Missing features for OpenSCENARIO V1.2.0:
     DistanceCondition (Changed)
     
     DomeImage (Created)
-    DynamicConstraints (Changed)
+
     
     
     EntityCondition (Changed)
     FileHeader (Changed)
     
     
-    Gear (Created)
     GeoPosition (Changed)
     GlobalAction (Changed)
     
     
-    
-    
-    
-    
-    LightState (Created)
-    LightStateAction (Created)
-    LightType (Created)
+
     LongitudinalAction (Changed)
     
     ManualGear (Created)
     
     ModifyRule (Changed)
     
-    OverrideBrakeAction (Changed)
-    OverrideClutchAction (Changed)
-    
-    OverrideGearAction (Changed)
-    OverrideParkingBrakeAction (Changed)
-    OverrideSteeringWheelAction (Changed)
-    OverrideThrottleAction (Changed)
+
     ParameterAction (Changed)
     ParameterAddValueRule (Changed)
     
@@ -97,8 +83,8 @@ Missing features for OpenSCENARIO V1.2.0:
     SensorReference (Created)
     SensorReferenceSet (Created)
     SpeedCondition (Changed)
-    SpeedProfileAction (Created)
-    SpeedProfileEntry (Created)
+
+
     Storyboard (Changed)
     Sun (Changed)
     TimeHeadwayCondition (Changed)
@@ -129,24 +115,12 @@ Missing features for OpenSCENARIO V1.2.0:
     Weather (Changed)
     
 
-Changed Enumerations
 
-    AutomaticGearType (Created)
-    CloudState (Changed)
-    ColorType (Created)
-    ControllerType (Created)
-    DirectionalDimension (Created)
-    
-    FractionalCloudCover (Created)
-    LightMode (Created)
-    ParameterType (Changed)
-    PedestrianGestureType (Created)
-    PedestrianMotionType (Created)
-    Priority (Changed)
-    Role (Created)
-    RoutingAlgorithm (Created)
-    
-    VehicleComponentType (Created)
-    VehicleLightType (Created)
-    Wetness (Created)
+
+
+
+
+
+
+
 
