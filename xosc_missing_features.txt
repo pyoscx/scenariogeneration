@@ -2,3 +2,151 @@ Missing features for OpenSCENARIO V1.1.0:
 
 
 UserDefinedDistribution (Created)
+
+Missing features for OpenSCENARIO V1.2.0: 
+
+
+
+    
+    
+    AccelerationCondition (Changed)
+    ActivateControllerAction (Changed)
+    AnimationAction (Created)
+    AnimationFile (Created)
+    AnimationState (Created)
+    AnimationType (Created)
+    AppearanceAction (Created)
+    AssignControllerAction (Changed)
+    AutomaticGear (Created)
+    
+    Brake (Created)
+    BrakeInput (Created)
+    ByValueCondition (Changed)
+    
+    Color (Created)
+    ColorCmyk (Created)
+    ColorRgb (Created)
+    ComponentAnimation (Created)
+    
+    
+    Controller (Changed)
+    CustomContent (Created)
+    
+    DirectionOfTravelDistribution (Created)
+    DistanceCondition (Changed)
+    
+    DomeImage (Created)
+    DynamicConstraints (Changed)
+    
+    
+    EntityCondition (Changed)
+    FileHeader (Changed)
+    
+    
+    Gear (Created)
+    GeoPosition (Changed)
+    GlobalAction (Changed)
+    
+    
+    
+    
+    
+    
+    LightState (Created)
+    LightStateAction (Created)
+    LightType (Created)
+    LongitudinalAction (Changed)
+    
+    ManualGear (Created)
+    
+    ModifyRule (Changed)
+    
+    OverrideBrakeAction (Changed)
+    OverrideClutchAction (Changed)
+    
+    OverrideGearAction (Changed)
+    OverrideParkingBrakeAction (Changed)
+    OverrideSteeringWheelAction (Changed)
+    OverrideThrottleAction (Changed)
+    ParameterAction (Changed)
+    ParameterAddValueRule (Changed)
+    
+    ParameterModifyAction (Changed)
+    ParameterMultiplyByValueRule (Changed)
+    ParameterSetAction (Changed)
+    Pedestrian (Changed)
+    PedestrianAnimation (Created)
+    PedestrianGesture (Created)
+    Performance (Changed)
+    Phase (Changed)
+    
+    
+    PrivateAction (Changed)
+    Properties (Changed)
+    ReachPositionCondition (Changed)
+    RelativeClearanceCondition (Created)
+    RelativeDistanceCondition (Changed)
+    
+    RelativeLaneRange (Created)
+    
+    
+    RelativeSpeedCondition (Changed)
+    RoadCondition (Changed)
+    ScenarioDefinition (Changed)
+    ScenarioObject (Changed)
+    SensorReference (Created)
+    SensorReferenceSet (Created)
+    SpeedCondition (Changed)
+    SpeedProfileAction (Created)
+    SpeedProfileEntry (Created)
+    Storyboard (Changed)
+    Sun (Changed)
+    TimeHeadwayCondition (Changed)
+    TimeToCollisionCondition (Changed)
+    
+    TrafficDefinition (Changed)
+    TrafficSignalGroupState (Created)
+    TrafficSourceAction (Changed)
+    TrafficSwarmAction (Changed)
+    TransitionDynamics (Changed)
+    UserDefinedAnimation (Created)
+    UserDefinedComponent (Created)
+    UserDefinedLight (Created)
+    VariableAction (Created)
+    VariableAddValueRule (Created)
+    VariableCondition (Created)
+    VariableDeclaration (Created)
+    VariableModifyAction (Created)
+    VariableModifyRule (Created)
+    VariableMultiplyByValueRule (Created)
+    VariableSetAction (Created)
+    Vehicle (Changed)
+    VehicleComponent (Created)
+    VehicleLight (Created)
+    VehicleRoleDistribution (Created)
+    VehicleRoleDistributionEntry (Created)
+    VisibilityAction (Changed)
+    Weather (Changed)
+    
+
+Changed Enumerations
+
+    AutomaticGearType (Created)
+    CloudState (Changed)
+    ColorType (Created)
+    ControllerType (Created)
+    DirectionalDimension (Created)
+    
+    FractionalCloudCover (Created)
+    LightMode (Created)
+    ParameterType (Changed)
+    PedestrianGestureType (Created)
+    PedestrianMotionType (Created)
+    Priority (Changed)
+    Role (Created)
+    RoutingAlgorithm (Created)
+    
+    VehicleComponentType (Created)
+    VehicleLightType (Created)
+    Wetness (Created)
+
