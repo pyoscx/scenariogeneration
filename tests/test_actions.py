@@ -760,19 +760,19 @@ def test_lightstateaction():
         OSC.VehicleLightType.brakeLights,
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(255, 0, 0),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
     )
     lsa2 = OSC.LightStateAction(
         OSC.VehicleLightType.brakeLights,
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(255, 0, 0),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
     )
     lsa3 = OSC.LightStateAction(
         OSC.UserDefinedLight("super light"),
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(255, 0, 0),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
     )
     prettyprint(lsa)
     prettyprint(lsa3)

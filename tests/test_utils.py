@@ -704,10 +704,32 @@ def test_convert_bool():
         OSC.convert_bool("asdf")
 
 
+def test_colorrgb():
+    c = OSC.ColorRGB(1, 2, 3)
+    c2 = OSC.ColorRGB(1, 2, 3)
+    c3 = OSC.ColorRGB(1, 2, 4)
+    prettyprint(c)
+    assert c == c2
+    assert c != c3
+    c4 = OSC.ColorRGB.parse(c.get_element())
+    assert c == c4
+
+def test_colorcmyk():
+    c = OSC.ColorCMYK(1, 2, 3,1)
+    c2 = OSC.ColorCMYK(1, 2, 3,1)
+    c3 = OSC.ColorCMYK(1, 2, 4,2)
+    prettyprint(c)
+    assert c == c2
+    assert c != c3
+    c4 = OSC.ColorCMYK.parse(c.get_element())
+    assert c == c4
+
 def test_color():
-    c = OSC.Color(1, 2, 3)
-    c2 = OSC.Color(1, 2, 3)
-    c3 = OSC.Color(1, 2, 4)
+     
+    c = OSC.Color(OSC.ColorType.black,OSC.ColorCMYK(1, 2, 3,1))
+
+    c2 = c = OSC.Color(OSC.ColorType.black,OSC.ColorCMYK(1, 2, 3,1))
+    c3 = OSC.Color(OSC.ColorType.black, OSC.ColorRGB(1, 2, 3))
     prettyprint(c)
     assert c == c2
     assert c != c3
@@ -729,14 +751,14 @@ def test_userdefinedlight():
 def test_lightstate():
     ls = OSC.utils._LightState(
         OSC.LightMode.on,
-        color=OSC.Color(1, 2, 3),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
         intensity=200,
         flashing_off_duration=0.3,
         flashing_on_duration=0.2,
     )
     ls2 = OSC.utils._LightState(
         OSC.LightMode.on,
-        color=OSC.Color(1, 2, 3),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
         intensity=200,
         flashing_off_duration=0.3,
         flashing_on_duration=0.2,

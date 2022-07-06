@@ -21,10 +21,7 @@ Missing features for OpenSCENARIO V1.2.0:
     
 
     ByValueCondition (Changed)
-    
-    Color (Created)
-    ColorCmyk (Created)
-    ColorRgb (Created)
+
     ComponentAnimation (Created)
     
     
@@ -114,13 +111,6 @@ Missing features for OpenSCENARIO V1.2.0:
     VisibilityAction (Changed)
     Weather (Changed)
     
-
-
-
-
-
-
-
 
 
 
