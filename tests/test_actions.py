@@ -370,7 +370,8 @@ def test_assign_controller_action():
     cnt2 = OSC.Controller("mycontroller", prop2)
 
     aca2 = OSC.AssignControllerAction(cnt)
-    aca3 = OSC.AssignControllerAction(cnt2)
+    aca3 = OSC.AssignControllerAction(cnt2, True, True, True, True)
+    prettyprint(aca3.get_element(), None)
     assert aca == aca2
     assert aca != aca3
 

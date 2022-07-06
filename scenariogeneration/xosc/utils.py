@@ -4083,7 +4083,10 @@ class ValueConstraint(VersionBase):
         return element
 
 
-class ColorRGB(VersionBase):
+class _ColorDefinition(VersionBase):
+    """ color definition used only for inheritance"""
+
+class ColorRGB(_ColorDefinition):
     """Creates the RGB Color element in OpenSCENARIO
 
     Parameters
@@ -4178,7 +4181,7 @@ class ColorRGB(VersionBase):
         return element
 
 
-class ColorCMYK(VersionBase):
+class ColorCMYK(_ColorDefinition):
     """Creates the CMYK Color element in OpenSCENARIO
 
     Parameters
@@ -4290,13 +4293,13 @@ class Color(VersionBase):
     ----------
         color_type (ColorType): semantic value of color
             
-        color_definition (ColorRGB or ColorCmyk): the color definition
+        color_definition (_ColorDefinition): the color definition
             
     Attributes
     ----------
         color_type (ColorType): semantic value of color
             
-        color_definition (ColorRGB or ColorCmyk): the color definition
+        color_definition (_ColorDefinition): the color definition
 
     Methods
     -------
@@ -4321,7 +4324,11 @@ class Color(VersionBase):
             color_definition (ColorRGB or ColorCmyk): the color definition
             
         """
+        if not hasattr(ColorType, str(color_type)):
+            raise TypeError(str(color_type) + " is not a valid ColorType type")
         self.color_type = color_type
+        if not isinstance(color_definition,_ColorDefinition):
+            raise TypeError("input is not a color definition")
         self.color_definition = color_definition
         
 

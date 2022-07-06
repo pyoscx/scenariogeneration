@@ -2203,6 +2203,13 @@ class AssignControllerAction(_PrivateActionType):
 
         activateLongitudinal (bool): if the longitudinal control should be activated (valid from V1.1)
             Default: True
+
+        activateLighting (bool): if the lighting control should be activated (valid from V1.2)
+            Default: False
+
+        activateAnimation (bool): if the lighting control should be activated (valid from V1.2)
+            Default: False
+
     Attributes
     ----------
         controller (boolController or Catalogreferenceean): a controller to assign
@@ -2210,6 +2217,10 @@ class AssignControllerAction(_PrivateActionType):
         activateLateral (bool): if the lateral control should be activated (valid from V1.1)
 
         activateLongitudinal (bool): if the longitudinal control should be activated (valid from V1.1)
+
+        activateLighting (bool): if the lighting control should be activated (valid from V1.2)
+
+        activateAnimation (bool): if the lighting control should be activated (valid from V1.2)
 
     Methods
     -------
@@ -2221,7 +2232,7 @@ class AssignControllerAction(_PrivateActionType):
 
     """
 
-    def __init__(self, controller, activateLateral=True, activateLongitudinal=True):
+    def __init__(self, controller, activateLateral=True, activateLongitudinal=True, activateLighting = False, activateAnimation = False):
         """initalizes the AssignControllerAction
 
         Parameters
@@ -2242,6 +2253,8 @@ class AssignControllerAction(_PrivateActionType):
         self.controller = controller
         self.activateLateral = convert_bool(activateLateral)
         self.activateLongitudinal = convert_bool(activateLongitudinal)
+        self.activateLighting = convert_bool(activateLighting)
+        self.activateAnimation = convert_bool(activateAnimation)
 
     def __eq__(self, other):
         if isinstance(other, AssignControllerAction):
@@ -2276,7 +2289,16 @@ class AssignControllerAction(_PrivateActionType):
             activate_longitudinal = convert_bool(
                 aca_element.attrib["activateLongitudinal"]
             )
-
+        activate_lighting = False
+        if "activateLighting" in aca_element.attrib:
+            activate_lighting = convert_bool(
+                aca_element.attrib["activateLighting"]
+            )
+        activate_animation = False
+        if "activateAnimation" in aca_element.attrib:
+            activate_animation = convert_bool(
+                aca_element.attrib["activateAnimation"]
+            )
         controller = None
         if aca_element.find("Controller") != None:
             controller = Controller.parse(aca_element.find("Controller"))
@@ -2286,18 +2308,22 @@ class AssignControllerAction(_PrivateActionType):
             raise NotAValidElement("No Controller found for AssignControllerAction")
 
         return AssignControllerAction(
-            controller, activate_lateral, activate_longitudinal
+            controller, activate_lateral, activate_longitudinal, activate_lighting, activate_animation
         )
 
     def get_attributes(self):
         """returns the attributes of the VisibilityAction as a dict"""
-        if self.isVersion(minor=0):
-            return {}
-        else:
-            return {
+        retdict = {}
+
+        if self.isVersion(minor=1):
+            retdict = {
                 "activateLateral": get_bool_string(self.activateLateral),
                 "activateLongitudinal": get_bool_string(self.activateLongitudinal),
             }
+        if self.isVersion(minor=2):
+            retdict["activateLighting"] = get_bool_string(self.activateLighting)
+            retdict["activateAnimation"] = get_bool_string(self.activateAnimation)
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the AssignControllerAction"""
