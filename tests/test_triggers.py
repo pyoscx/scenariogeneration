@@ -98,6 +98,12 @@ def test_accelerationcondition():
     assert cond != cond3
     cond4 = OSC.AccelerationCondition.parse(cond.get_element())
     assert cond == cond4
+    cond5 = OSC.AccelerationCondition(1, OSC.Rule.lessThan, OSC.DirectionalDimension.longitudinal)
+    cond6 = OSC.AccelerationCondition(1, OSC.Rule.lessThan, OSC.DirectionalDimension.lateral)
+    prettyprint(cond5.get_element())
+    cond7 = OSC.AccelerationCondition.parse(cond5.get_element())
+    assert cond5 != cond6
+    assert cond5 == cond7
 
 
 def test_standstillcondition():

@@ -25,6 +25,7 @@ from .utils import (
 )
 from .enumerations import (
     CoordinateSystem,
+    DirectionalDimension,
     ObjectType,
     Rule,
     ConditionEdge,
@@ -1486,11 +1487,16 @@ class AccelerationCondition(_EntityTriggerType):
 
         rule (Rule): condition rule of triggering
 
+        direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered)
+            Default: None
+
     Attributes
     ----------
         value (float): acceleration
 
         rule (Rule): condition rule of triggering
+
+        direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered)
 
     Methods
     -------
@@ -1505,7 +1511,7 @@ class AccelerationCondition(_EntityTriggerType):
 
     """
 
-    def __init__(self, value, rule):
+    def __init__(self, value, rule, direction=None):
         """the AccelerationCondition class is an Entity Condition used by the EntityTrigger
 
         Parameters
@@ -1513,11 +1519,17 @@ class AccelerationCondition(_EntityTriggerType):
             value (float): acceleration
 
             rule (Rule): condition rule of triggering
+
+            direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered)
         """
         self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
+        if direction and not hasattr(DirectionalDimension, str(direction)):
+            raise ValueError(direction + "; is not a valid direction")
+        self.direction = direction
+
 
     def __eq__(self, other):
         if isinstance(other, AccelerationCondition):
@@ -1538,14 +1550,22 @@ class AccelerationCondition(_EntityTriggerType):
             condition (AccelerationCondition): a AccelerationCondition object
 
         """
+        direction = None
         condition = element.find("AccelerationCondition")
         value = convert_float(condition.attrib["value"])
         rule = getattr(Rule, condition.attrib["rule"])
-        return AccelerationCondition(value, rule)
+        if "direction" in condition.attrib:
+            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+        return AccelerationCondition(value, rule, direction)
 
     def get_attributes(self):
         """returns the attributes of the AccelerationCondition as a dict"""
-        return {"value": str(self.value), "rule": self.rule.get_name()}
+        retdict = {}
+        retdict["value"] = str(self.value)
+        retdict["rule"] = self.rule.get_name()
+        if self.direction is not None and self.isVersion(minor=2):
+            retdict["direction"] = self.direction.get_name()
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the AccelerationCondition"""
