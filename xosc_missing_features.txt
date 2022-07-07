@@ -8,8 +8,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
     
-    
-    ActivateControllerAction (Changed)
     AnimationAction (Created)
     AnimationFile (Created)
     AnimationState (Created)

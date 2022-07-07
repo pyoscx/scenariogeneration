@@ -4588,3 +4588,92 @@ class _LightState(VersionBase):
         if self.color:
             element.append(self.color.get_element())
         return element
+
+
+class AnimationFile(VersionBase):
+    """The _LightState creates a LightState element used by LightStateAction
+
+    Parameters
+    ----------
+        file (string): filepath of the annimation / motion file
+
+        timeOffset (float): time offset from beginning of animation
+
+    Attributes
+    ----------
+
+        timeOffset (float): time offset from beginning of animation
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, file, timeOffset=None):
+        """initalizes the AnimationFile
+
+        Parameters
+        ----------
+        file (string): filepath of the annimation / motion file
+
+        timeOffset (float): time offset from beginning of animation
+
+        """
+        self.file = file
+        self.timeOffset = convert_float(timeOffset)
+
+    def __eq__(self, other):
+        if isinstance(other, AnimationFile):
+            if (
+                other.get_attributes() == self.get_attributes()
+                and other.file == self.file
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parsese the xml element of a AnimationFile
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a AnimationFile element
+
+        Returns
+        -------
+            AnimationFile (AnimationFile): a AnimationFile object
+
+        """
+
+        timeOffset = None
+        if element.find("File") is not None:
+            file = element.find("File").attrib["filepath"]
+        if "timeOffset" in element.attrib:
+            timeOffset = convert_float(element.attrib["timeOffset"])
+        return AnimationFile(file, timeOffset)
+
+    def get_attributes(self):
+        """returns the attributes of the AnimationFile as a dict"""
+        retdict = {}
+        if self.timeOffset is not None:
+            retdict["timeOffset"] = str(self.timeOffset)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the AnimationFile"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "AnimationFile was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("AnimationFile", attrib=self.get_attributes())
+        if self.file:
+            ET.SubElement(element, "File", {"filepath": self.file})
+        return element

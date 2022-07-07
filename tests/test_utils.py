@@ -789,3 +789,16 @@ def test_fileheader():
 
     fh4 = OSC.FileHeader.parse(fh.get_element())
     assert fh4 == fh
+
+
+def test_animationfile():
+    ani = OSC.AnimationFile("file_ref")
+    ani2 = OSC.AnimationFile("file_ref", 1.5)
+    prettyprint(ani2.get_element())
+    ani3 = OSC.AnimationFile("file_ref2", 1.5)
+    assert ani != ani2
+    assert ani2 != ani3
+
+    ani4 = OSC.AnimationFile.parse(ani2.get_element())
+    prettyprint(ani4.get_element())
+    assert ani4 == ani2
