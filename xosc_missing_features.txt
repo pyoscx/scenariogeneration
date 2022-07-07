@@ -14,12 +14,10 @@ Missing features for OpenSCENARIO V1.2.0:
     AnimationFile (Created)
     AnimationState (Created)
     AnimationType (Created)
-    AppearanceAction (Created)
+
 
 
     
-
-    ByValueCondition (Changed)
 
     ComponentAnimation (Created)
     

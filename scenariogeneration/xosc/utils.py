@@ -33,7 +33,8 @@ from .enumerations import (
     VersionBase,
     SpeedTargetValueType,
     LightMode,
-    ColorType
+    ColorType,
+    ControllerType
 )
 import datetime as dt
 
@@ -2928,12 +2929,16 @@ class Controller(VersionBase):
 
         properties (Properties): properties of the controller
 
+        controller_type (ControllerType): controller type (valid from V1.2)
+            Default: None
+
     Attributes
     ----------
         parameters (ParameterDeclaration): Parameter declarations of the vehicle
 
         properties (Properties): additional properties of the vehicle
 
+        controller_type (ControllerType): controller type
     Methods
     -------
         parse(element)
@@ -2956,7 +2961,7 @@ class Controller(VersionBase):
 
     """
 
-    def __init__(self, name, properties):
+    def __init__(self, name, properties, controller_type = None):
         """initalzie the Controller Class
 
         Parameters
@@ -2965,6 +2970,8 @@ class Controller(VersionBase):
 
             properties (Properties): properties of the Controller
 
+            controller_type (ControllerType): controller type (valid from V1.2)
+                Default: None
         """
         self.name = name
 
@@ -2972,6 +2979,11 @@ class Controller(VersionBase):
         if not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
+        
+        if controller_type == None or hasattr(ControllerType, str(controller_type)):
+            self.controller_type = controller_type
+        else:
+            raise TypeError("controller_type not a balid controller_type")
 
     def __eq__(self, other):
         if isinstance(other, Controller):
@@ -3054,7 +3066,14 @@ class Controller(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Controller as a dict"""
-        return {"name": self.name}
+        retdict = {"name": self.name}
+        if self.controller_type:
+            if self.isVersion(minor=2):
+                retdict['controllerType'] = self.controller_type.get_name()
+            else:
+                raise OpenSCENARIOVersionError("controllerType was introduced in OSC v1.2")
+        
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the Controller"""

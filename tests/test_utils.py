@@ -287,9 +287,9 @@ def test_controller():
 
     param = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
     param2 = OSC.Parameter("stuffs2", OSC.ParameterType.double, "5")
-    cnt = OSC.Controller("mycontroler", prop)
+    cnt = OSC.Controller("mycontroler", prop,controller_type=OSC.ControllerType.appearance)
     prettyprint(cnt.get_element())
-    cnt2 = OSC.Controller("mycontroler", prop)
+    cnt2 = OSC.Controller("mycontroler", prop,controller_type=OSC.ControllerType.appearance)
     cnt3 = OSC.Controller("mycontroler3", prop)
     assert cnt == cnt2
     assert cnt != cnt3
