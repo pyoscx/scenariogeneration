@@ -27,6 +27,7 @@ from .enumerations import (
     CoordinateSystem,
     DirectionalDimension,
     ObjectType,
+    RoutingAlgorithm,
     Rule,
     ConditionEdge,
     TriggeringEntitiesRule,
@@ -1990,6 +1991,9 @@ class DistanceCondition(_EntityTriggerType):
         coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
             Default: CoordinateSystem.road
 
+        routing_algorithm (RoutingAlgorithm): the routing algorithm to use if a relevant coordinate system is used (road/lane)
+            Default: RoutingAlgorithm.undefined
+
     Attributes
     ----------
         value (float): distance to position
@@ -2005,6 +2009,8 @@ class DistanceCondition(_EntityTriggerType):
         distance_type (RelativeDistanceType): how the relative distance should be calculated
 
         coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance
+
+        routing_algorithm (RoutingAlgorithm): the routing algorithm to use if a relevant coordinate system is used (road/lane)
 
     Methods
     -------
@@ -2028,6 +2034,7 @@ class DistanceCondition(_EntityTriggerType):
         freespace=True,
         distance_type=RelativeDistanceType.longitudinal,
         coordinate_system=CoordinateSystem.road,
+        routing_algorithm=RoutingAlgorithm.undefined
     ):
         self.value = value
         self.alongroute = convert_bool(alongroute)
@@ -2044,6 +2051,7 @@ class DistanceCondition(_EntityTriggerType):
             raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
         self.relative_distance_type = distance_type
         self.coordinate_system = coordinate_system
+        self.routing_algorithm = routing_algorithm
 
     def __eq__(self, other):
         if isinstance(other, DistanceCondition):
@@ -2089,11 +2097,18 @@ class DistanceCondition(_EntityTriggerType):
             )
         else:
             coordsystem = CoordinateSystem.road
+        
+        if "routingAlgorithm" in condition.attrib:
+            routing_algorithm = getattr(
+                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            )
+        else:
+            routing_algorithm = RoutingAlgorithm.undefined
         position = None
 
         position = _PositionFactory.parse_position(condition.find("Position"))
         return DistanceCondition(
-            value, rule, position, alongroute, freespace, reldisttype, coordsystem
+            value, rule, position, alongroute, freespace, reldisttype, coordsystem, routing_algorithm
         )
 
     def get_attributes(self):
@@ -2106,9 +2121,10 @@ class DistanceCondition(_EntityTriggerType):
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
-            basedict["relativeDistanceType"] = self.relative_distance_type.name
-            basedict["coordinateSystem"] = self.coordinate_system.name
-
+            basedict["relativeDistanceType"] = self.relative_distance_type.get_name()
+            basedict["coordinateSystem"] = self.coordinate_system.get_name()
+        if self.isVersion(minor=2):
+            basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
         return basedict
 
     def get_element(self):

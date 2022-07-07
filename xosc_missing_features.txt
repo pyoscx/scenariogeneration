@@ -20,11 +20,11 @@ Missing features for OpenSCENARIO V1.2.0:
     ComponentAnimation (Created)
     
     
-    Controller (Changed)
+
     CustomContent (Created)
     
     DirectionOfTravelDistribution (Created)
-    DistanceCondition (Changed)
+    
     
     DomeImage (Created)
 
@@ -77,7 +77,7 @@ Missing features for OpenSCENARIO V1.2.0:
     SpeedCondition (Changed)
 
 
-    Storyboard (Changed)
+
     Sun (Changed)
     TimeHeadwayCondition (Changed)
     TimeToCollisionCondition (Changed)

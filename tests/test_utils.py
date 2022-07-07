@@ -19,7 +19,7 @@ from scenariogeneration.xosc.utils import _TrafficSignalState, ValueConstraintGr
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion()
+    OSC.enumerations.VersionBase().setVersion(minor=2)
 
 
 @pytest.mark.parametrize(

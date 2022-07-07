@@ -15,6 +15,9 @@ from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 import xml.etree.ElementTree as ET
 
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
 
 def test_endofroadcond():
     cond = OSC.EndOfRoadCondition(20)
@@ -170,10 +173,10 @@ def test_reachpositioncondition():
 
 
 def test_distancecondition():
-    cond = OSC.DistanceCondition(1, OSC.Rule.lessThan, OSC.WorldPosition(), True, False)
+    cond = OSC.DistanceCondition(1, OSC.Rule.lessThan, OSC.WorldPosition(), True, False,routing_algorithm=OSC.RoutingAlgorithm.fastest)
     prettyprint(cond.get_element())
     cond2 = OSC.DistanceCondition(
-        1, OSC.Rule.lessThan, OSC.WorldPosition(), True, False
+        1, OSC.Rule.lessThan, OSC.WorldPosition(), True, False,routing_algorithm=OSC.RoutingAlgorithm.fastest
     )
     cond3 = OSC.DistanceCondition(
         1, OSC.Rule.greaterThan, OSC.WorldPosition(), True, False
