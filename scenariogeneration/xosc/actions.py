@@ -9,7 +9,10 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+from lib2to3.pytree import convert
+import string
 import xml.etree.ElementTree as ET
+from defer import return_value
 
 from numpy.lib.function_base import disp
 
@@ -43,7 +46,7 @@ from .enumerations import (
     DynamicsShapes,
     VehicleLightType,
     LightMode,
-    AutomaticGearType
+    AutomaticGearType,
 )
 from .exceptions import (
     NoActionsDefinedError,
@@ -2103,11 +2106,23 @@ class ActivateControllerAction(_PrivateActionType):
 
         longitudinal (boolean): activate or deactivate the controller
 
+        animation (boolean): activate or deactivate an animation
+
+        lighting (boolean): activate or deactivate lights
+
+        controllerRef (Controller): reference to a controller assigned to the entity
+
     Attributes
     ----------
         lateral (boolean): activate or deactivate the controller
 
         longitudinal (boolean): activate or deactivate the controller
+
+        animation (boolean): activate or deactivate an animation
+
+        lighting (boolean): activate or deactivate lights
+
+        controllerRef (Controller): reference to a controller assigned to the entity
 
     Methods
     -------
@@ -2122,7 +2137,14 @@ class ActivateControllerAction(_PrivateActionType):
 
     """
 
-    def __init__(self, lateral=None, longitudinal=None):
+    def __init__(
+        self,
+        lateral=None,
+        longitudinal=None,
+        animation=None,
+        lighting=None,
+        controllerRef=None,
+    ):
         """initalizes the ActivateControllerAction
 
         Parameters
@@ -2131,11 +2153,19 @@ class ActivateControllerAction(_PrivateActionType):
                 Default: None
 
             longitudinal (boolean): activate or deactivate the controller
-                Default: None
-        """
 
+            animation (boolean): activate or deactivate an animation
+
+            lighting (boolean): activate or deactivate lights
+
+            controllerRef (Controller): reference to a controller assigned to the entity
+
+        """
         self.lateral = convert_bool(lateral)
         self.longitudinal = convert_bool(longitudinal)
+        self.animation = convert_bool(animation)
+        self.lighting = convert_bool(lighting)
+        self.controllerRef = controllerRef
 
     def __eq__(self, other):
         if isinstance(other, ActivateControllerAction):
@@ -2159,22 +2189,41 @@ class ActivateControllerAction(_PrivateActionType):
             ac_action (ActivateControllerAction): a ActivateControllerAction object
 
         """
-        aca_element = element.find("ControllerAction/ActivateControllerAction")
         lateral = None
         longitudinal = None
+        animation = None
+        lighting = None
+        controllerRef = None
+        aca_element = element.find("ControllerAction/ActivateControllerAction")
         if "lateral" in aca_element.attrib:
             lateral = convert_bool(aca_element.attrib["lateral"])
         if "longitudinal" in aca_element.attrib:
             longitudinal = convert_bool(aca_element.attrib["longitudinal"])
+        if "animation" in aca_element.attrib:
+            animation = convert_bool(aca_element.attrib["animation"])
+        if "lighting" in aca_element.attrib:
+            lighting = convert_bool(aca_element.attrib["lighting"])
+        if "controllerRef" in aca_element.attrib:
+            controllerRef = aca_element.attrib["controllerRef"]
 
-        return ActivateControllerAction(lateral, longitudinal)
+        return ActivateControllerAction(
+            lateral, longitudinal, animation, lighting, controllerRef
+        )
 
     def get_attributes(self):
         """returns the attributes of the ActivateControllerAction as a dict"""
-        return {
-            "lateral": get_bool_string(self.lateral),
-            "longitudinal": get_bool_string(self.longitudinal),
-        }
+        retdict = {}
+        if self.lateral is not None:
+            retdict["lateral"] = convert_bool(self.lateral)
+        if self.longitudinal is not None:
+            retdict["longitudinal"] = convert_bool(self.longitudinal)
+        if self.animation is not None and self.isVersion(minor=2):
+            retdict["animation"] = convert_bool(self.animation)
+        if self.lighting is not None and self.isVersion(minor=2):
+            retdict["lighting"] = convert_bool(self.lighting)
+        if self.controllerRef is not None and self.isVersion(minor=2):
+            retdict["controllerRef"] = self.controllerRef
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the ActivateControllerAction"""
@@ -2232,7 +2281,14 @@ class AssignControllerAction(_PrivateActionType):
 
     """
 
-    def __init__(self, controller, activateLateral=True, activateLongitudinal=True, activateLighting = False, activateAnimation = False):
+    def __init__(
+        self,
+        controller,
+        activateLateral=True,
+        activateLongitudinal=True,
+        activateLighting=False,
+        activateAnimation=False,
+    ):
         """initalizes the AssignControllerAction
 
         Parameters
@@ -2291,14 +2347,10 @@ class AssignControllerAction(_PrivateActionType):
             )
         activate_lighting = False
         if "activateLighting" in aca_element.attrib:
-            activate_lighting = convert_bool(
-                aca_element.attrib["activateLighting"]
-            )
+            activate_lighting = convert_bool(aca_element.attrib["activateLighting"])
         activate_animation = False
         if "activateAnimation" in aca_element.attrib:
-            activate_animation = convert_bool(
-                aca_element.attrib["activateAnimation"]
-            )
+            activate_animation = convert_bool(aca_element.attrib["activateAnimation"])
         controller = None
         if aca_element.find("Controller") != None:
             controller = Controller.parse(aca_element.find("Controller"))
@@ -2308,7 +2360,11 @@ class AssignControllerAction(_PrivateActionType):
             raise NotAValidElement("No Controller found for AssignControllerAction")
 
         return AssignControllerAction(
-            controller, activate_lateral, activate_longitudinal, activate_lighting, activate_animation
+            controller,
+            activate_lateral,
+            activate_longitudinal,
+            activate_lighting,
+            activate_animation,
         )
 
     def get_attributes(self):
@@ -2458,7 +2514,8 @@ class OverrideControllerValueAction(_PrivateActionType):
                 == other.overrideControllerValueAction.throttle_value
                 and self.throttle_value
                 == other.overrideControllerValueAction.throttle_value
-                and self.throttle_rate == other.overrideControllerValueAction.throttle_rate
+                and self.throttle_rate
+                == other.overrideControllerValueAction.throttle_rate
                 and self.brake_active
                 == other.overrideControllerValueAction.brake_active
                 and self.brake_value == other.overrideControllerValueAction.brake_value
@@ -2473,16 +2530,20 @@ class OverrideControllerValueAction(_PrivateActionType):
                 == other.overrideControllerValueAction.steeringwheel_active
                 and self.steeringwheel_value
                 == other.overrideControllerValueAction.steeringwheel_value
-                and self.steeringwheel_rate == other.overrideControllerValueAction.steeringwheel_rate
-                and self.steeringwheel_torque == other.overrideControllerValueAction.steeringwheel_torque
+                and self.steeringwheel_rate
+                == other.overrideControllerValueAction.steeringwheel_rate
+                and self.steeringwheel_torque
+                == other.overrideControllerValueAction.steeringwheel_torque
                 and self.gear_active == other.overrideControllerValueAction.gear_active
                 and self.gear_value == other.overrideControllerValueAction.gear_value
                 and self.parkingbrake_active
                 == other.overrideControllerValueAction.parkingbrake_active
                 and self.parkingbrake_value
                 == other.overrideControllerValueAction.parkingbrake_value
-                and self.parkingbrake_force == other.overrideControllerValueAction.parkingbrake_force
-                and self.parkingbrake_rate == other.overrideControllerValueAction.parkingbrake_rate
+                and self.parkingbrake_force
+                == other.overrideControllerValueAction.parkingbrake_force
+                and self.parkingbrake_rate
+                == other.overrideControllerValueAction.parkingbrake_rate
             ):
                 return True
         return False
@@ -2510,7 +2571,9 @@ class OverrideControllerValueAction(_PrivateActionType):
             ocv_action.throttle_active = convert_bool(throttle_element.attrib["active"])
             ocv_action.throttle_value = convert_float(throttle_element.attrib["value"])
             if "maxRate" in throttle_element.attrib:
-                ocv_action.throttle_rate = convert_float(throttle_element.attrib["maxRate"])
+                ocv_action.throttle_rate = convert_float(
+                    throttle_element.attrib["maxRate"]
+                )
 
         ocv_action.brake_active = None
         ocv_action.brake_value = convert_float(0)
@@ -2528,8 +2591,10 @@ class OverrideControllerValueAction(_PrivateActionType):
                     brake_input_element = brake_element.find("BrakeForce")
                     ocv_action.brake_force = True
                 else:
-                    raise ValueError('No value found while parsing brake.')
-                ocv_action.brake_value = convert_float(brake_input_element.attrib["value"])
+                    raise ValueError("No value found while parsing brake.")
+                ocv_action.brake_value = convert_float(
+                    brake_input_element.attrib["value"]
+                )
                 if "maxRate" in brake_input_element.attrib:
                     ocv_action.brake_rate = brake_input_element.attrib["maxRate"]
 
@@ -2551,20 +2616,28 @@ class OverrideControllerValueAction(_PrivateActionType):
             )
 
             if "value" in parkingbrake_element.attrib:
-                ocv_action.parkingbrake_value = convert_float(parkingbrake_element.attrib["value"])
+                ocv_action.parkingbrake_value = convert_float(
+                    parkingbrake_element.attrib["value"]
+                )
             else:
                 if parkingbrake_element.find("BrakePercent") is not None:
-                    parkingbrake_input_element = parkingbrake_element.find("BrakePercent")
+                    parkingbrake_input_element = parkingbrake_element.find(
+                        "BrakePercent"
+                    )
                     ocv_action.parkingbrake_force = False
 
                 elif parkingbrake_element.find("BrakeForce") is not None:
                     parkingbrake_input_element = parkingbrake_element.find("BrakeForce")
                     ocv_action.parkingbrake_force = True
                 else:
-                    raise ValueError('No value found while parsing brake.')
-                ocv_action.parkingbrake_value = convert_float(parkingbrake_input_element.attrib["value"])
+                    raise ValueError("No value found while parsing brake.")
+                ocv_action.parkingbrake_value = convert_float(
+                    parkingbrake_input_element.attrib["value"]
+                )
                 if "maxRate" in parkingbrake_input_element.attrib:
-                    ocv_action.parkingbrake_rate = convert_float(parkingbrake_input_element.attrib["maxRate"])
+                    ocv_action.parkingbrake_rate = convert_float(
+                        parkingbrake_input_element.attrib["maxRate"]
+                    )
 
         ocv_action.steeringwheel_active = None
         ocv_action.steeringwheel_value = convert_float(0)
@@ -2577,9 +2650,13 @@ class OverrideControllerValueAction(_PrivateActionType):
                 steeringwheel_element.attrib["value"]
             )
             if "maxRate" in steeringwheel_element.attrib:
-                ocv_action.steeringwheel_rate = convert_float(steeringwheel_element.attrib["maxRate"])
+                ocv_action.steeringwheel_rate = convert_float(
+                    steeringwheel_element.attrib["maxRate"]
+                )
             if "maxTorque" in steeringwheel_element.attrib:
-                ocv_action.steeringwheel_torque = convert_float(steeringwheel_element.attrib["maxTorque"])
+                ocv_action.steeringwheel_torque = convert_float(
+                    steeringwheel_element.attrib["maxTorque"]
+                )
 
         ocv_action.gear_active = None
         ocv_action.gear_value = convert_float(0)
@@ -2590,12 +2667,14 @@ class OverrideControllerValueAction(_PrivateActionType):
                 ocv_action.gear_value = convert_float(gear_element.attrib["number"])
             elif gear_element.find("AutomaticGear") is not None:
                 ocv_action.gear_value = getattr(
-                AutomaticGearType,
-                gear_element.find("AutomaticGear").attrib["gear"],
-            )
+                    AutomaticGearType,
+                    gear_element.find("AutomaticGear").attrib["gear"],
+                )
 
             elif gear_element.find("ManualGear") is not None:
-                ocv_action.gear_value = convert_float(gear_element.find("ManualGear").attrib["number"])
+                ocv_action.gear_value = convert_float(
+                    gear_element.find("ManualGear").attrib["number"]
+                )
             else:
                 raise ValueError("no gear number found in OverrideGearAction")
 
@@ -2738,13 +2817,15 @@ class OverrideControllerValueAction(_PrivateActionType):
             )
         if self.throttle_active != None:
             throttle_dict = {
-                    "active": get_bool_string(self.throttle_active),
-                    "value": str(self.throttle_value),
-                }
+                "active": get_bool_string(self.throttle_active),
+                "value": str(self.throttle_value),
+            }
             if self.throttle_rate is not None and self.isVersion(minor=2):
-                throttle_dict ["maxRate"] = str(self.throttle_rate)
+                throttle_dict["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(minor=2):
-                raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
+                raise OpenSCENARIOVersionError(
+                    "maxRate was introduced in OpenSCENARIO v1.2"
+                )
             ET.SubElement(
                 overrideaction,
                 "Throttle",
@@ -2754,8 +2835,8 @@ class OverrideControllerValueAction(_PrivateActionType):
             if not self.isVersion(minor=2):
 
                 ET.SubElement(
-                overrideaction,
-                "Brake",
+                    overrideaction,
+                    "Brake",
                     {
                         "active": get_bool_string(self.brake_active),
                         "value": str(self.brake_value),
@@ -2763,9 +2844,9 @@ class OverrideControllerValueAction(_PrivateActionType):
                 )
             else:
                 override_brake = ET.SubElement(
-                overrideaction,
-                "Brake",
-                {"active": get_bool_string(self.brake_active)},
+                    overrideaction,
+                    "Brake",
+                    {"active": get_bool_string(self.brake_active)},
                 )
                 brake_dict = {"value": str(self.brake_value)}
                 if self.brake_rate is not None:
@@ -2777,17 +2858,21 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         if self.clutch_active != None:
             if self.throttle_rate is not None and self.isVersion(minor=2):
-                throttle_dict ["maxRate"] = str(self.throttle_rate)
+                throttle_dict["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(minor=2):
-                raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
+                raise OpenSCENARIOVersionError(
+                    "maxRate was introduced in OpenSCENARIO v1.2"
+                )
             clutch_dict = {
-                    "active": get_bool_string(self.clutch_active),
-                    "value": str(self.clutch_value),
-                }
+                "active": get_bool_string(self.clutch_active),
+                "value": str(self.clutch_value),
+            }
             if self.clutch_rate is not None and self.isVersion(minor=2):
                 clutch_dict["maxRate"] = str(self.clutch_rate)
             elif self.clutch_rate is not None and not self.isVersion(minor=2):
-                raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
+                raise OpenSCENARIOVersionError(
+                    "maxRate was introduced in OpenSCENARIO v1.2"
+                )
             ET.SubElement(
                 overrideaction,
                 "Clutch",
@@ -2813,24 +2898,32 @@ class OverrideControllerValueAction(_PrivateActionType):
                 if self.parkingbrake_rate is not None:
                     parkingbrake_dict["maxRate"] = str(self.parkingbrake_rate)
                 if self.parkingbrake_force:
-                    ET.SubElement(override_parking, "BrakeForce", attrib=parkingbrake_dict)
+                    ET.SubElement(
+                        override_parking, "BrakeForce", attrib=parkingbrake_dict
+                    )
                 else:
-                    ET.SubElement(override_parking, "BrakePercent", attrib=parkingbrake_dict)
+                    ET.SubElement(
+                        override_parking, "BrakePercent", attrib=parkingbrake_dict
+                    )
         if self.steeringwheel_active != None:
             steering_dict = {
-                    "active": convert_bool(self.steeringwheel_active),
-                    "value": str(self.steeringwheel_value),
-                }
+                "active": convert_bool(self.steeringwheel_active),
+                "value": str(self.steeringwheel_value),
+            }
             if self.steeringwheel_torque is not None:
                 if self.isVersion(minor=2):
-                    steering_dict['maxTorque'] = str(self.steeringwheel_torque)
+                    steering_dict["maxTorque"] = str(self.steeringwheel_torque)
                 else:
-                    raise OpenSCENARIOVersionError('maxTorque was introduced in OpenSCENARIO v1.2')
+                    raise OpenSCENARIOVersionError(
+                        "maxTorque was introduced in OpenSCENARIO v1.2"
+                    )
             if self.steeringwheel_rate is not None:
                 if self.isVersion(minor=2):
-                    steering_dict['maxRate'] = str(self.steeringwheel_rate)
+                    steering_dict["maxRate"] = str(self.steeringwheel_rate)
                 else:
-                    raise OpenSCENARIOVersionError('maxRate was introduced in OpenSCENARIO v1.2')
+                    raise OpenSCENARIOVersionError(
+                        "maxRate was introduced in OpenSCENARIO v1.2"
+                    )
             ET.SubElement(
                 overrideaction,
                 "SteeringWheel",
@@ -2856,11 +2949,17 @@ class OverrideControllerValueAction(_PrivateActionType):
                     },
                 )
                 if self._gear_maunal:
-                    ET.SubElement(override_gear_action, "ManualGear", {"number": str(self.gear_value)})
+                    ET.SubElement(
+                        override_gear_action,
+                        "ManualGear",
+                        {"number": str(self.gear_value)},
+                    )
                 else:
-                    ET.SubElement(override_gear_action, "AutomaticGear", {"gear": self.gear_value.get_name()})
-
-
+                    ET.SubElement(
+                        override_gear_action,
+                        "AutomaticGear",
+                        {"gear": self.gear_value.get_name()},
+                    )
 
         return element
 

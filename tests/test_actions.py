@@ -352,6 +352,15 @@ def test_activate_controller_action():
     prettyprint(aca5)
     aca6 = OSC.ActivateControllerAction.parse(aca5.get_element())
 
+    aca5 = OSC.ActivateControllerAction(True, True, True, True, "controller_name")
+    aca6 = OSC.ActivateControllerAction(True, True, True, True, "controller_name2")
+    assert aca5 != aca6
+    aca7 = OSC.ActivateControllerAction(True, True, True, False, "controller_name")
+    assert aca5 != aca7
+    aca8 = OSC.ActivateControllerAction.parse(aca5.get_element())
+    prettyprint(aca5.get_element())
+    assert aca5 == aca8
+
 
 def test_assign_controller_action():
     prop = OSC.Properties()
@@ -761,19 +770,19 @@ def test_lightstateaction():
         OSC.VehicleLightType.brakeLights,
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0, 0, 0)),
     )
     lsa2 = OSC.LightStateAction(
         OSC.VehicleLightType.brakeLights,
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0, 0, 0)),
     )
     lsa3 = OSC.LightStateAction(
         OSC.UserDefinedLight("super light"),
         OSC.LightMode.on,
         transition_time=0.1,
-        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0,0,0)),
+        color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0, 0, 0)),
     )
     prettyprint(lsa)
     prettyprint(lsa3)

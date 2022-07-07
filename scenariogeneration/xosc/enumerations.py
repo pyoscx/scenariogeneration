@@ -590,6 +590,7 @@ class Wetness(metaclass=_EnumMeta):
     lowFlooded = _OscEnum("Wetness", "lowFlooded", min_minor_version=2)
     highFlooded = _OscEnum("Wetness", "highFlooded", min_minor_version=2)
 
+
 class ColorType:
     other = _OscEnum("ColorType", "other", min_minor_version=2)
     red = _OscEnum("ColorType", "red", min_minor_version=2)

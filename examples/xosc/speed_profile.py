@@ -32,8 +32,12 @@ egoname = "Ego"
 targetname = "Target"
 
 entities = xosc.Entities()
-entities.add_scenario_object(egoname, xosc.CatalogReference('VehicleCatalog','car_white'))
-entities.add_scenario_object(targetname, xosc.CatalogReference('VehicleCatalog','car_red'))
+entities.add_scenario_object(
+    egoname, xosc.CatalogReference("VehicleCatalog", "car_white")
+)
+entities.add_scenario_object(
+    targetname, xosc.CatalogReference("VehicleCatalog", "car_red")
+)
 
 
 ### create init
@@ -56,14 +60,32 @@ init.add_init_action(targetname, targetstart)
 
 
 ### create an event
-ego_event = xosc.Event('ego_speed_change',xosc.Priority.overwrite)
-ego_event.add_trigger(xosc.ValueTrigger('sim_time_trigger',0,xosc.ConditionEdge.none,xosc.SimulationTimeCondition(1,xosc.Rule.greaterThan)))
-ego_speed_change = xosc.SpeedProfileAction([20,30,25,40],xosc.FollowMode.follow,[0,5,10,20])
-ego_event.add_action('ego_speed_change',ego_speed_change)
-ego_man = xosc.Maneuver('ego_speed').add_event(ego_event)
+ego_event = xosc.Event("ego_speed_change", xosc.Priority.overwrite)
+ego_event.add_trigger(
+    xosc.ValueTrigger(
+        "sim_time_trigger",
+        0,
+        xosc.ConditionEdge.none,
+        xosc.SimulationTimeCondition(1, xosc.Rule.greaterThan),
+    )
+)
+ego_speed_change = xosc.SpeedProfileAction(
+    [20, 30, 25, 40], xosc.FollowMode.follow, [0, 5, 10, 20]
+)
+ego_event.add_action("ego_speed_change", ego_speed_change)
+ego_man = xosc.Maneuver("ego_speed").add_event(ego_event)
 ## create the storyboard
-sb = xosc.StoryBoard(init,xosc.ValueTrigger('sim_time_trigger',0,xosc.ConditionEdge.none,xosc.SimulationTimeCondition(30,xosc.Rule.greaterThan),'stop'))
-sb.add_maneuver(ego_man,actors=egoname)
+sb = xosc.StoryBoard(
+    init,
+    xosc.ValueTrigger(
+        "sim_time_trigger",
+        0,
+        xosc.ConditionEdge.none,
+        xosc.SimulationTimeCondition(30, xosc.Rule.greaterThan),
+        "stop",
+    ),
+)
+sb.add_maneuver(ego_man, actors=egoname)
 
 ## create the scenario
 sce = xosc.Scenario(

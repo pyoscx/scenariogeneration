@@ -34,7 +34,7 @@ from .enumerations import (
     SpeedTargetValueType,
     LightMode,
     ColorType,
-    ControllerType
+    ControllerType,
 )
 import datetime as dt
 
@@ -2961,7 +2961,7 @@ class Controller(VersionBase):
 
     """
 
-    def __init__(self, name, properties, controller_type = None):
+    def __init__(self, name, properties, controller_type=None):
         """initalzie the Controller Class
 
         Parameters
@@ -2979,7 +2979,7 @@ class Controller(VersionBase):
         if not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
-        
+
         if controller_type == None or hasattr(ControllerType, str(controller_type)):
             self.controller_type = controller_type
         else:
@@ -3069,10 +3069,12 @@ class Controller(VersionBase):
         retdict = {"name": self.name}
         if self.controller_type:
             if self.isVersion(minor=2):
-                retdict['controllerType'] = self.controller_type.get_name()
+                retdict["controllerType"] = self.controller_type.get_name()
             else:
-                raise OpenSCENARIOVersionError("controllerType was introduced in OSC v1.2")
-        
+                raise OpenSCENARIOVersionError(
+                    "controllerType was introduced in OSC v1.2"
+                )
+
         return retdict
 
     def get_element(self):
@@ -4103,7 +4105,8 @@ class ValueConstraint(VersionBase):
 
 
 class _ColorDefinition(VersionBase):
-    """ color definition used only for inheritance"""
+    """color definition used only for inheritance"""
+
 
 class ColorRGB(_ColorDefinition):
     """Creates the RGB Color element in OpenSCENARIO
@@ -4195,7 +4198,9 @@ class ColorRGB(_ColorDefinition):
     def get_element(self):
         """returns the elementTree of the ValueConstraint"""
         if not self.isVersion(minor=2):
-            raise OpenSCENARIOVersionError("ColorRGB was introduced in OpenSCENARIO V1.2")
+            raise OpenSCENARIOVersionError(
+                "ColorRGB was introduced in OpenSCENARIO V1.2"
+            )
         element = ET.Element("ColorRgb", attrib=self.get_attributes())
         return element
 
@@ -4300,7 +4305,9 @@ class ColorCMYK(_ColorDefinition):
     def get_element(self):
         """returns the elementTree of the ColorCMYK"""
         if not self.isVersion(minor=2):
-            raise OpenSCENARIOVersionError("ColorCMYK was introduced in OpenSCENARIO V1.2")
+            raise OpenSCENARIOVersionError(
+                "ColorCMYK was introduced in OpenSCENARIO V1.2"
+            )
         element = ET.Element("ColorCmyk", attrib=self.get_attributes())
         return element
 
@@ -4311,13 +4318,13 @@ class Color(VersionBase):
     Parameters
     ----------
         color_type (ColorType): semantic value of color
-            
+
         color_definition (_ColorDefinition): the color definition
-            
+
     Attributes
     ----------
         color_type (ColorType): semantic value of color
-            
+
         color_definition (_ColorDefinition): the color definition
 
     Methods
@@ -4339,21 +4346,23 @@ class Color(VersionBase):
         Parameters
         ----------
             color_type (ColorType): semantic value of color
-            
+
             color_definition (ColorRGB or ColorCmyk): the color definition
-            
+
         """
         if not hasattr(ColorType, str(color_type)):
             raise TypeError(str(color_type) + " is not a valid ColorType type")
         self.color_type = color_type
-        if not isinstance(color_definition,_ColorDefinition):
+        if not isinstance(color_definition, _ColorDefinition):
             raise TypeError("input is not a color definition")
         self.color_definition = color_definition
-        
 
     def __eq__(self, other):
         if isinstance(other, Color):
-            if self.get_attributes() == other.get_attributes() and self.color_definition == other.color_definition:
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.color_definition == other.color_definition
+            ):
                 return True
         return False
 
@@ -4391,6 +4400,7 @@ class Color(VersionBase):
         element = ET.Element("Color", attrib=self.get_attributes())
         element.append(self.color_definition.get_element())
         return element
+
 
 class UserDefinedLight(VersionBase):
     """The CustomCommandAction creates a simulator defined action

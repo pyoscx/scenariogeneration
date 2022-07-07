@@ -1530,7 +1530,6 @@ class AccelerationCondition(_EntityTriggerType):
             raise ValueError(direction + "; is not a valid direction")
         self.direction = direction
 
-
     def __eq__(self, other):
         if isinstance(other, AccelerationCondition):
             if self.get_attributes() == other.get_attributes():
