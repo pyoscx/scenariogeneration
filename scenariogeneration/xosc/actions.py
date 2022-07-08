@@ -9,12 +9,8 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from lib2to3.pytree import convert
-import string
-import xml.etree.ElementTree as ET
-from defer import return_value
 
-from numpy.lib.function_base import disp
+import xml.etree.ElementTree as ET
 
 
 from .utils import (

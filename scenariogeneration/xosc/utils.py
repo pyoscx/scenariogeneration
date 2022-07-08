@@ -9,11 +9,10 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from abc import abstractstaticmethod
+
 import os
 
 
-from numpy.lib.arraysetops import isin
 from .exceptions import OpenSCENARIOVersionError
 import xml.etree.ElementTree as ET
 from ..helpers import printToFile
@@ -4676,4 +4675,85 @@ class AnimationFile(VersionBase):
         element = ET.Element("AnimationFile", attrib=self.get_attributes())
         if self.file:
             ET.SubElement(element, "File", {"filepath": self.file})
+        return element
+
+
+
+class DirectionOfTravelDistribution(VersionBase):
+    """The DirectionOfTravelDistribution is used by SwarmTraffic to define how the traffic should flow
+
+    Parameters
+    ----------
+        opposite (float): weight of traffic going against the reference entity
+
+        same (float): weight of traffic going the same way the reference entity
+
+    Attributes
+    ----------
+
+        opposite (float): weight of traffic going against the reference entity
+
+        same (float): weight of traffic going the same way the reference entity
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, opposite, same):
+        """initalizes the DirectionOfTravelDistribution
+
+        Parameters
+        ----------
+        opposite (float): weight of traffic going against the reference entity
+
+        same (float): weight of traffic going the same way the reference entity
+
+        """
+        self.opposite = convert_float(opposite)
+        self.same = convert_float(same)
+
+    def __eq__(self, other):
+        if isinstance(other, DirectionOfTravelDistribution):
+            if (
+                other.get_attributes() == self.get_attributes()
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parsese the xml element of a DirectionOfTravelDistribution
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a DirectionOfTravelDistribution element
+
+        Returns
+        -------
+            DirectionOfTravelDistribution (DirectionOfTravelDistribution): a DirectionOfTravelDistribution object
+
+        """
+        
+        return DirectionOfTravelDistribution(convert_float(element.attrib["opposite"]), convert_float(element.attrib["same"]))
+
+    def get_attributes(self):
+        """returns the attributes of the DirectionOfTravelDistribution as a dict"""
+        retdict = {"opposite":str(self.opposite), "same":str(self.same)}
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the DirectionOfTravelDistribution"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("DirectionOfTravelDistribution", attrib=self.get_attributes())
         return element

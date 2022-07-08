@@ -802,3 +802,15 @@ def test_animationfile():
     ani4 = OSC.AnimationFile.parse(ani2.get_element())
     prettyprint(ani4.get_element())
     assert ani4 == ani2
+
+def test_directionoftraveldistribution():
+    dotd = OSC.DirectionOfTravelDistribution(1,2)
+    dotd2 = OSC.DirectionOfTravelDistribution(1,2)
+    prettyprint(dotd.get_element())
+    dotd3 = OSC.DirectionOfTravelDistribution(1,1)
+    assert dotd == dotd2
+    assert dotd != dotd3
+
+    dotd4 = OSC.DirectionOfTravelDistribution.parse(dotd.get_element())
+    prettyprint(dotd4.get_element())
+    assert dotd4 == dotd
