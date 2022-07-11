@@ -24,6 +24,58 @@ from itertools import combinations
 import numpy as np
 import copy as cpy
 
+class _Offset:
+    def __init__(self, x, y, hdg):
+        self.x = x
+        self.y = y
+        self.hdg = hdg
+
+    def __eq__(self, other):
+        if isinstance(other, _Header):
+            if (
+                self.x == other.x
+                and self.y == other.y
+                and self.hdg == other.hdg
+            ):
+                return True
+        return False
+
+    def get_attributes(self):
+        retdict = {}
+        retdict["x"] = str(self.x)
+        retdict["y"] = str(self.y)
+        retdict["hdg"] = str(self.hdg)
+        return retdict
+
+    def get_element(self):
+        element = ET.Element("offset", attrib=self.get_attributes())
+        return element
+
+
+class _UserData:
+    def __init__(self, code, value):
+        self.code = code
+        self.value = value
+
+    def __eq__(self, other):
+        if isinstance(other, _Header):
+            if (
+                self.key == other.key
+                and self.value == other.value
+            ):
+                return True
+        return False
+
+    def get_attributes(self):
+        retdict = {}
+        retdict["code"] = self.code
+        retdict["value"] = self.value
+        return retdict
+
+    def get_element(self):
+        element = ET.Element("userData", attrib=self.get_attributes())
+        return element
+
 
 class _Header:
     """Header creates the header of the OpenDrive file
@@ -69,6 +121,8 @@ class _Header:
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
+        self.offset = None
+        self.user_data = []
 
     def __eq__(self, other):
         if isinstance(other, _Header):
@@ -79,6 +133,12 @@ class _Header:
             ):
                 return True
         return False
+
+    def add_offset(self, x, y, hdg):
+        self.offset = _Offset(x, y, hdg)
+
+    def add_user_data(self, key, value):
+        self.user_data.append(_UserData(key, value))
 
     def get_attributes(self):
         """returns the attributes as a dict of the FileHeader"""
@@ -96,6 +156,10 @@ class _Header:
     def get_element(self):
         """returns the elementTree of the FileHeader"""
         element = ET.Element("header", attrib=self.get_attributes())
+        if self.offset is not None:
+            element.append(self.offset.get_element())
+        for user_data in self.user_data:
+            element.append(user_data.get_element())
 
         return element
 
@@ -639,6 +703,12 @@ class OpenDrive:
             ):
                 return True
         return False
+
+    def add_offset(self, x, y, hdg):
+        self._header.add_offset(x, y, hdg)
+
+    def add_user_data(self, key, value):
+        self._header.add_user_data(key, value)
 
     def add_road(self, road):
         """Adds a new road to the opendrive
