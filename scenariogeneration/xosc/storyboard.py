@@ -1112,7 +1112,7 @@ class Event(VersionBase):
 
         """
         name = element.attrib["name"]
-        maxexec = convert_int(element.attrib["maximumExecutionCount"])
+        maxexec = convert_int(element.get("maximumExecutionCount", 1))
         prio = getattr(Priority, element.attrib["priority"])
 
         event = Event(name, prio, maxexec)
