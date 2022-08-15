@@ -304,6 +304,17 @@ def test_trafficsignalcondition():
     assert cond == cond4
 
 
+def test_relaticeclearancecondition():
+    cond = OSC.RelativeClearanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.euclidianDistance,'ego')
+    prettyprint(cond.get_element())
+    cond2 = OSC.RelativeClearanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.euclidianDistance,'ego')
+    cond3 = OSC.RelativeClearanceCondition(10,OSC.Rule.greaterThan,OSC.RelativeDistanceType.longitudinal,'ego')
+    assert cond == cond2
+    assert cond != cond3
+
+    cond4 = OSC.RelativeClearanceCondition.parse(cond.get_element())
+    assert cond == cond4
+
 def test_trafficsignalconditioncontroller():
     cond = OSC.TrafficSignalControllerCondition("somereferens", "yellow")
     prettyprint(cond.get_element())
