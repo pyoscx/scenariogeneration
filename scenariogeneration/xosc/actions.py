@@ -1976,7 +1976,7 @@ class ActivateControllerAction(_PrivateActionType):
 
     """
 
-    def __init__(self, lateral = None, longitudinal = None):
+    def __init__(self, lateral=None, longitudinal=None):
         """initalizes the ActivateControllerAction
 
         Parameters
@@ -1987,10 +1987,10 @@ class ActivateControllerAction(_PrivateActionType):
             longitudinal (boolean): activate or deactivate the controller
                 Default: None
         """
-        
+
         if lateral is not None and not isinstance(lateral, bool):
             raise TypeError("lateral input is not of type bool")
-            
+
         if longitudinal is not None and not isinstance(longitudinal, bool):
             raise TypeError("longitudinal input is not of type bool")
         self.lateral = lateral
@@ -2021,9 +2021,9 @@ class ActivateControllerAction(_PrivateActionType):
         aca_element = element.find("ControllerAction/ActivateControllerAction")
         lateral = None
         longitudinal = None
-        if 'lateral' in aca_element.attrib:
+        if "lateral" in aca_element.attrib:
             lateral = convert_bool(aca_element.attrib["lateral"])
-        if 'longitudinal' in aca_element.attrib:
+        if "longitudinal" in aca_element.attrib:
             longitudinal = convert_bool(aca_element.attrib["longitudinal"])
 
         return ActivateControllerAction(lateral, longitudinal)

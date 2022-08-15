@@ -1093,9 +1093,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
         routeref.append(self.route_ref.get_element())
         relement.append(self.orientation.get_element())
         inroute = ET.SubElement(relement, "InRoutePosition")
-        ET.SubElement(
-            inroute, "FromCurrentEntity", attrib={"entityRef": self.entity}
-        )
+        ET.SubElement(inroute, "FromCurrentEntity", attrib={"entityRef": self.entity})
         return element
 
 

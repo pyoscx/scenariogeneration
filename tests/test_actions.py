@@ -341,16 +341,17 @@ def test_activate_controller_action():
     prettyprint(aca.get_element(), None)
     aca2 = OSC.ActivateControllerAction(True, True)
     aca3 = OSC.ActivateControllerAction(True, False)
-    
+
     assert aca == aca2
     assert aca != aca3
-    
+
     aca4 = OSC.ActivateControllerAction.parse(aca.get_element())
     prettyprint(aca4.get_element(), None)
     assert aca4 == aca
     aca5 = OSC.ActivateControllerAction()
     prettyprint(aca5)
     aca6 = OSC.ActivateControllerAction.parse(aca5.get_element())
+
 
 def test_assign_controller_action():
     prop = OSC.Properties()
