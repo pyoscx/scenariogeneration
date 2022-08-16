@@ -39,6 +39,7 @@ from .enumerations import (
     ColorType,
     ControllerType,
     FractionalCloudCover,
+    Wetness,
 )
 import datetime as dt
 
@@ -2734,11 +2735,16 @@ class RoadCondition(VersionBase):
         properties (Properties): properties of the roadcondition
             Default: None
 
+        wetness (Wetness): wetness of the road
+            Default: None
+
     Attributes
     ----------
         friction_scale_factor (float): scale factor of the friction
 
         properties (Properties): properties of the roadcondition
+
+        wetness (Wetness): wetness of the road
 
     Methods
     -------
@@ -2753,7 +2759,7 @@ class RoadCondition(VersionBase):
 
     """
 
-    def __init__(self, friction_scale_factor, properties=None):
+    def __init__(self, friction_scale_factor, properties=None, wetness=None):
         """initalize the Weather
 
         Parameters
@@ -2763,11 +2769,16 @@ class RoadCondition(VersionBase):
             properties (Properties): properties of the roadcondition
                 Default: None
 
+            wetness (Wetness): wetness of the road
+                Default: None
         """
         self.friction_scale_factor = friction_scale_factor
         if properties is not None and not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
+        if wetness and not hasattr(Wetness, str(wetness)):
+            raise TypeError(str(wetness) + "; is not a valid Wetness")
+        self.wetness = wetness
 
     def __eq__(self, other):
         if isinstance(other, RoadCondition):
@@ -2792,15 +2803,21 @@ class RoadCondition(VersionBase):
 
         """
         friction_scale_factor = element.attrib["frictionScaleFactor"]
+
         properties = None
+        wetness = None
         if element.find("Properties") != None:
             properties = Properties.parse(element.find("Properties"))
-
-        return RoadCondition(friction_scale_factor, properties)
+        if "wetness" in element.attrib:
+            wetness = getattr(Wetness, element.attrib["wetness"])
+        return RoadCondition(friction_scale_factor, properties, wetness)
 
     def get_attributes(self):
         """returns the attributes of the RoadCondition as a dict"""
-        return {"frictionScaleFactor": str(self.friction_scale_factor)}
+        retdict = {"frictionScaleFactor": str(self.friction_scale_factor)}
+        if self.wetness:
+            retdict["wetness"] = self.wetness.get_name()
+        return retdict
 
     def get_element(self):
         """returns the elementTree of the RoadCondition"""

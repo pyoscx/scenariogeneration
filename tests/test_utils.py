@@ -457,9 +457,9 @@ def test_roadcondition():
     prop.add_property("mything", "2")
     prop.add_property("theotherthing", "true")
     prop.add_file("propfile.xml")
-    rc = OSC.RoadCondition(1, prop)
+    rc = OSC.RoadCondition(1, prop, OSC.Wetness.highFlooded)
     prettyprint(rc.get_element())
-    rc2 = OSC.RoadCondition(1, prop)
+    rc2 = OSC.RoadCondition(1, prop, OSC.Wetness.highFlooded)
     rc3 = OSC.RoadCondition(2)
     assert rc == rc2
     assert rc != rc3
