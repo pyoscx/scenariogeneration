@@ -1754,6 +1754,9 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
         entity (str): name of the entity to be relative to
 
+        directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
+            Default: None
+
     Attributes
     ----------
         value (float): acceleration
@@ -1761,6 +1764,8 @@ class RelativeSpeedCondition(_EntityTriggerType):
         rule (Rule): condition rule of triggering
 
         entity (str): name of the entity to be relative to
+
+        directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
 
     Methods
     -------
@@ -1775,7 +1780,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
     """
 
-    def __init__(self, value, rule, entity):
+    def __init__(self, value, rule, entity, directional_dimension=None):
         """initalize the RelativeSpeedCondition
 
         Parameters
@@ -1786,12 +1791,21 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
             entity (str): name of the entity to be relative to
 
+            directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
+                Default: None
         """
         self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
         self.entity = entity
+        if directional_dimension and not hasattr(
+            DirectionalDimension, str(directional_dimension)
+        ):
+            raise TypeError(
+                directional_dimension + "; is not a valid DirectionalDimension."
+            )
+        self.directional_dimension = directional_dimension
 
     def __eq__(self, other):
         if isinstance(other, RelativeSpeedCondition):
@@ -1816,7 +1830,10 @@ class RelativeSpeedCondition(_EntityTriggerType):
         value = convert_float(condition.attrib["value"])
         entity = condition.attrib["entityRef"]
         rule = getattr(Rule, condition.attrib["rule"])
-        return RelativeSpeedCondition(value, rule, entity)
+        direction = None
+        if "direction" in condition.attrib:
+            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+        return RelativeSpeedCondition(value, rule, entity, direction)
 
     def get_attributes(self):
         """returns the attributes of the RelativeSpeedCondition as a dict"""
@@ -1824,6 +1841,8 @@ class RelativeSpeedCondition(_EntityTriggerType):
         basedict["value"] = str(self.value)
         basedict["rule"] = self.rule.get_name()
         basedict["entityRef"] = self.entity
+        if self.directional_dimension is not None and self.isVersion(minor=2):
+            basedict["direction"] = self.directional_dimension.get_name()
         return basedict
         # return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
 

@@ -62,13 +62,12 @@ Missing features for OpenSCENARIO V1.2.0:
     RelativeLaneRange (Created)
     
     
-    RelativeSpeedCondition (Changed)
     RoadCondition (Changed)
     ScenarioDefinition (Changed)
     ScenarioObject (Changed)
     SensorReference (Created)
     SensorReferenceSet (Created)
-    SpeedCondition (Changed)
+    
 
 
 

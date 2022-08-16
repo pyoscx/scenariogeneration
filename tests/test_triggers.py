@@ -139,9 +139,13 @@ def test_speedcondition():
 
 
 def test_relativespeedcondition():
-    cond = OSC.RelativeSpeedCondition(1, OSC.Rule.lessThan, "Ego")
+    cond = OSC.RelativeSpeedCondition(
+        1, OSC.Rule.lessThan, "Ego", OSC.DirectionalDimension.lateral
+    )
     prettyprint(cond.get_element())
-    cond2 = OSC.RelativeSpeedCondition(1, OSC.Rule.lessThan, "Ego")
+    cond2 = OSC.RelativeSpeedCondition(
+        1, OSC.Rule.lessThan, "Ego", OSC.DirectionalDimension.lateral
+    )
     cond3 = OSC.RelativeSpeedCondition(1, OSC.Rule.lessThan, "Ego2")
     assert cond == cond2
     assert cond != cond3
