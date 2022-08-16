@@ -2393,23 +2393,28 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
         opposite_lanes (bool): if lanes in opposite direction are considered
 
-
     Attributes
     ----------
-        value (float): distance to position
+        distance_backward (float): distance backwards
 
-        rule (Rule): condition rule of triggering
-
-        entity (str): name of the entity fore relative distance
-
-        dist_type (RelativeDistanceType): type of relative distance
+        distance_forward (float): distance forward
 
         freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
 
-        coordinate_system (CoordinateSystem): what coordinate system to use (valid from V1.1)
+        opposite_lanes (bool): if lanes in opposite direction are considered
+
+        entities (list of EntityRef): specific entities to look for
+
+        lane_ranges (list of tuple): lanes to be checked
 
     Methods
     -------
+        add_entity(entity)
+            adds an entity to the RelativeClearanceCondition
+
+        add_relative_lane_range(from, to)
+            adds a RelativeLaneRange to the RelativeClearanceCondition
+
         parse(element)
             parses a ElementTree created by the class and returns an instance of the class
 
@@ -2423,49 +2428,43 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
     def __init__(
         self,
-        value,
-        rule,
-        dist_type,
-        entity,
-        alongroute=True,
+        opposite_lanes,
+        distance_backward=0,
+        distance_forward=0,
         freespace=True,
-        coordinate_system=CoordinateSystem.entity,
     ):
         """initalize the RelativeDistanceCondition
 
         Parameters
         ----------
-            value (float): distance to position
+            distance_backward (float): distance backwards
 
-            rule (Rule): condition rule of triggering
-
-            dist_type (RelativeDistanceType): type of relative distance
-
-            entity (str): name of the entity fore relative distance
+            distance_forward (float): distance forward
 
             freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
-                Default: True
 
-            coordinate_system (CoordinateSystem): what coordinate system to use (valid from V1.1)
-                Default: CoordinateSystem.entity
+            opposite_lanes (bool): if lanes in opposite direction are considered
         """
-        self.value = value
+
         if not isinstance(freespace, bool):
             raise TypeError("freespace input not of type bool")
-        self.alongroute = alongroute
         self.freespace = freespace
-        if not hasattr(RelativeDistanceType, str(dist_type)):
-            raise TypeError("dist_type is not of type RelativeDistanceType")
-        self.dist_type = dist_type
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
-        self.entity = entity
-        self.coordinate_system = coordinate_system
+        if not isinstance(opposite_lanes, bool):
+            raise TypeError("opposite_lanes input not of type bool")
+        self.opposite_lanes = opposite_lanes
+        self.distance_backward = convert_float(distance_backward)
+        self.distance_forward = convert_float(distance_forward)
+
+        self.entities = []
+        self.lane_ranges = []
 
     def __eq__(self, other):
         if isinstance(other, RelativeClearanceCondition):
-            if self.get_attributes() == other.get_attributes():
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.entities == other.entities
+                and self.lane_ranges == other.lane_ranges
+            ):
                 return True
         return False
 
@@ -2483,51 +2482,84 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
         """
         condition = element.find("RelativeClearanceCondition")
-        value = condition.attrib["value"]
-        rule = getattr(Rule, condition.attrib["rule"])
-        freespace = convert_bool(condition.attrib["freespace"])
-        entity = condition.attrib["entityRef"]
-        if "alongRoute" in condition.attrib:
-            alongroute = convert_bool(condition.attrib["alongRoute"])
+        if "freespace" in condition.attrib:
+            freespace = convert_bool(condition.attrib["freespace"])
         else:
-            alongroute = True
+            freespace = convert_bool(condition.attrib["freeSpace"])
 
-        if "relativeDistanceType" in condition.attrib:
-            reldisttype = getattr(
-                RelativeDistanceType, condition.attrib["relativeDistanceType"]
-            )
+        opposite_lanes = convert_bool(condition.attrib["oppositeLanes"])
+
+        if "distanceBackward" in condition.attrib:
+            back_dist = convert_float(condition.attrib["distanceBackward"])
         else:
-            reldisttype = RelativeDistanceType.longitudinal
+            back_dist = None
 
-        if "coordinateSystem" in condition.attrib:
-            coordsystem = getattr(
-                CoordinateSystem, condition.attrib["coordinateSystem"]
-            )
+        if "distanceForward" in condition.attrib:
+            fwd_dist = convert_float(condition.attrib["distanceForward"])
         else:
-            coordsystem = CoordinateSystem.road
-
-        return RelativeClearanceCondition(
-            value, rule, reldisttype, entity, alongroute, freespace, coordsystem
+            fwd_dist = None
+        retval = RelativeClearanceCondition(
+            opposite_lanes, back_dist, fwd_dist, freespace
         )
+        for er in condition.findall("EntityRef"):
+            retval.add_entity(er.attrib["entityRef"])
+
+        for r in condition.findall("RelativeLaneRange"):
+            retval.add_relative_lane_range(
+                convert_int(r.attrib["from"]), convert_int(r.attrib["to"])
+            )
+
+        return retval
+
+    def add_entity(self, entity):
+        """adds an entity to the RelativeClearanceCondition
+
+        Parameters
+        ----------
+            entity (str): name of the entity
+
+        """
+        self.entities.append(EntityRef(entity))
+
+    def add_relative_lane_range(self, from_lane, to_lane):
+        """adds an RelativeLaneRange to the RelativeClearanceCondition
+
+        Parameters
+        ----------
+            from_lane (int): start lane
+
+            to_lane (int): end lane
+
+        """
+        self.lane_ranges.append((from_lane, to_lane))
 
     def get_attributes(self):
         """returns the attributes of the RelativeClearanceCondition as a dict"""
         basedict = {}
-        basedict["value"] = str(self.value)
+        basedict["oppositeLanes"] = convert_bool(self.opposite_lanes)
+        # TODO: wrong in the spec, should be lower case s
         basedict["freespace"] = convert_bool(self.freespace)
-        basedict["entityRef"] = self.entity
-        basedict["rule"] = self.rule.get_name()
-        basedict["relativeDistanceType"] = self.dist_type.get_name()
-        if not self.isVersion(minor=0):
-            basedict["coordinateSystem"] = self.coordinate_system.get_name()
+
+        if self.distance_backward is not None:
+            basedict["distanceBackward"] = str(self.distance_backward)
+        if self.distance_forward is not None:
+            basedict["distanceForward"] = str(self.distance_forward)
         return basedict
 
     def get_element(self):
         """returns the elementTree of the RelativeClearanceCondition"""
         element = ET.Element("EntityCondition")
-        ET.SubElement(
+        relative_clearence_element = ET.SubElement(
             element, "RelativeClearanceCondition", attrib=self.get_attributes()
         )
+        for e in self.entities:
+            relative_clearence_element.append(e.get_element())
+        for r in self.lane_ranges:
+            ET.SubElement(
+                relative_clearence_element,
+                "RelativeLaneRange",
+                {"from": str(r[0]), "to": str(r[1])},
+            )
         return element
 
 

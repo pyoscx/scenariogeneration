@@ -321,21 +321,31 @@ def test_trafficsignalcondition():
 
 
 def test_relaticeclearancecondition():
-    cond = OSC.RelativeClearanceCondition(
-        10, OSC.Rule.greaterThan, OSC.RelativeDistanceType.euclidianDistance, "ego"
-    )
+    cond = OSC.RelativeClearanceCondition(True, -1, 3)
+    cond.add_entity("ego")
+    cond.add_relative_lane_range(1, 2)
     prettyprint(cond.get_element())
-    cond2 = OSC.RelativeClearanceCondition(
-        10, OSC.Rule.greaterThan, OSC.RelativeDistanceType.euclidianDistance, "ego"
-    )
-    cond3 = OSC.RelativeClearanceCondition(
-        10, OSC.Rule.greaterThan, OSC.RelativeDistanceType.longitudinal, "ego"
-    )
+
+    cond2 = OSC.RelativeClearanceCondition(True, -1, 3)
+    cond2.add_entity("ego")
+    cond2.add_relative_lane_range(1, 2)
+
+    cond3 = OSC.RelativeClearanceCondition(True, -1, 3)
+    cond3.add_entity("ego")
+    cond3.add_entity("target")
+    cond3.add_relative_lane_range(1, 2)
+    cond3.add_relative_lane_range(5, 6)
+    prettyprint(cond3.get_element())
+
     assert cond == cond2
     assert cond != cond3
 
     cond4 = OSC.RelativeClearanceCondition.parse(cond.get_element())
     assert cond == cond4
+
+    cond5 = OSC.RelativeClearanceCondition.parse(cond3.get_element())
+    prettyprint(cond5.get_element())
+    assert cond3 == cond5
 
 
 def test_trafficsignalconditioncontroller():
