@@ -208,11 +208,23 @@ def test_distancecondition():
 
 def test_relativedistancecondition():
     cond = OSC.RelativeDistanceCondition(
-        1, OSC.Rule.equalTo, OSC.RelativeDistanceType.longitudinal, "Ego", True, False
+        1,
+        OSC.Rule.equalTo,
+        OSC.RelativeDistanceType.longitudinal,
+        "Ego",
+        True,
+        False,
+        routing_algorithm=OSC.RoutingAlgorithm.fastest,
     )
     prettyprint(cond.get_element())
     cond2 = OSC.RelativeDistanceCondition(
-        1, OSC.Rule.equalTo, OSC.RelativeDistanceType.longitudinal, "Ego", True, False
+        1,
+        OSC.Rule.equalTo,
+        OSC.RelativeDistanceType.longitudinal,
+        "Ego",
+        True,
+        False,
+        routing_algorithm=OSC.RoutingAlgorithm.fastest,
     )
     cond3 = OSC.RelativeDistanceCondition(
         1, OSC.Rule.equalTo, OSC.RelativeDistanceType.longitudinal, "Ego", True, True

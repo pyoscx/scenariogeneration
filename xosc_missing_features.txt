@@ -53,16 +53,11 @@ Missing features for OpenSCENARIO V1.2.0:
     Phase (Changed)
     
     
-    PrivateAction (Changed)
     Properties (Changed)
-    ReachPositionCondition (Changed)
-    
-    RelativeDistanceCondition (Changed)
     
     RelativeLaneRange (Created)
     
     
-    RoadCondition (Changed)
     ScenarioDefinition (Changed)
     ScenarioObject (Changed)
     SensorReference (Created)

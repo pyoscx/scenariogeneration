@@ -36,7 +36,11 @@ from .enumerations import (
     StoryboardElementState,
     VersionBase,
 )
-from .exceptions import ToManyOptionalArguments, NotAValidElement
+from .exceptions import (
+    OpenSCENARIOVersionError,
+    ToManyOptionalArguments,
+    NotAValidElement,
+)
 from .position import _PositionFactory
 
 
@@ -2004,6 +2008,10 @@ class ReachPositionCondition(_EntityTriggerType):
             element, "ReachPositionCondition", attrib=self.get_attributes()
         )
         reachposcond.append(self.position.get_element())
+        if self.isVersion(minor=2):
+            Warning(
+                "ReachPositionCondition is deprecrated, please use DistanceCondition instead"
+            )
         return element
 
 
@@ -2203,6 +2211,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
         coordinate_system (CoordinateSystem): what coordinate system to use (valid from V1.1)
             Default: CoordinateSystem.entity
 
+        routing_algorithm (RoutingAlgorithm): if coordinate_system road/lane is used, this can be set (valid from V1.2)
+            Default: None
+
     Attributes
     ----------
         value (float): distance to position
@@ -2216,6 +2227,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
         freespace (bool): (True) distance between bounding boxes, (False) distance between ref point
 
         coordinate_system (CoordinateSystem): what coordinate system to use (valid from V1.1)
+
+        routing_algorithm (RoutingAlgorithm): if coordinate_system road/lane is used, this can be set (valid from V1.2)
+            Default: None
 
     Methods
     -------
@@ -2239,6 +2253,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         alongroute=True,
         freespace=True,
         coordinate_system=CoordinateSystem.entity,
+        routing_algorithm=None,
     ):
         """initalize the RelativeDistanceCondition
 
@@ -2257,6 +2272,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
             coordinate_system (CoordinateSystem): what coordinate system to use (valid from V1.1)
                 Default: CoordinateSystem.entity
+
+            routing_algorithm (RoutingAlgorithm): if coordinate_system road/lane is used, this can be set (valid from V1.2)
+                Default: None
         """
         self.value = value
         self.alongroute = convert_bool(alongroute)
@@ -2269,6 +2287,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
         self.rule = rule
         self.entity = entity
         self.coordinate_system = coordinate_system
+        if routing_algorithm and not hasattr(RoutingAlgorithm, str(routing_algorithm)):
+            raise TypeError(str(routing_algorithm) + " is not a valid RoutingAlgorithm")
+        self.routing_algorithm = routing_algorithm
 
     def __eq__(self, other):
         if isinstance(other, RelativeDistanceCondition):
@@ -2312,9 +2333,22 @@ class RelativeDistanceCondition(_EntityTriggerType):
             )
         else:
             coordsystem = CoordinateSystem.road
+        if "routingAlgorithm" in condition.attrib:
+            routing_algorithm = getattr(
+                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            )
+        else:
+            routing_algorithm = None
 
         return RelativeDistanceCondition(
-            value, rule, reldisttype, entity, alongroute, freespace, coordsystem
+            value,
+            rule,
+            reldisttype,
+            entity,
+            alongroute,
+            freespace,
+            coordsystem,
+            routing_algorithm,
         )
 
     def get_attributes(self):
@@ -2327,6 +2361,14 @@ class RelativeDistanceCondition(_EntityTriggerType):
         basedict["relativeDistanceType"] = self.dist_type.get_name()
         if not self.isVersion(minor=0):
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
+        if self.routing_algorithm:
+            if not (self.isVersion(minor=0) or self.isVersion(minor=1)):
+                basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
+            else:
+                raise OpenSCENARIOVersionError(
+                    "RoutingAlgorithm was introduced in V1.2"
+                )
+
         return basedict
 
     def get_element(self):
