@@ -1651,11 +1651,16 @@ class SpeedCondition(_EntityTriggerType):
 
         rule (Rule): condition rule of triggering
 
+        directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
+            Default: None
+
     Attributes
     ----------
         value (float): speed to trigger on
 
         rule (Rule): condition rule of triggering
+
+        directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
 
     Methods
     -------
@@ -1670,7 +1675,7 @@ class SpeedCondition(_EntityTriggerType):
 
     """
 
-    def __init__(self, value, rule):
+    def __init__(self, value, rule, directional_dimension=None):
         """initalize the SpeedCondition class is an Entity Condition used by the EntityTrigger
 
         Parameters
@@ -1678,11 +1683,21 @@ class SpeedCondition(_EntityTriggerType):
             value (float): speed to trigger on
 
             rule (Rule): condition rule of triggering
+
+            directional_dimension (DirectionalDimension): direction of the speed to compare (if not used, total speed is considered)
+                Default: None
         """
         self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
+        if directional_dimension and not hasattr(
+            DirectionalDimension, str(directional_dimension)
+        ):
+            raise TypeError(
+                directional_dimension + "; is not a valid DirectionalDimension."
+            )
+        self.directional_dimension = directional_dimension
 
     def __eq__(self, other):
         if isinstance(other, SpeedCondition):
@@ -1706,13 +1721,18 @@ class SpeedCondition(_EntityTriggerType):
         condition = element.find("SpeedCondition")
         value = convert_float(condition.attrib["value"])
         rule = getattr(Rule, condition.attrib["rule"])
-        return SpeedCondition(value, rule)
+        direction = None
+        if "direction" in condition.attrib:
+            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+        return SpeedCondition(value, rule, direction)
 
     def get_attributes(self):
         """returns the attributes of the SpeedCondition as a dict"""
         basedict = {}
         basedict["value"] = str(self.value)
         basedict["rule"] = self.rule.get_name()
+        if self.directional_dimension is not None and self.isVersion(minor=2):
+            basedict["direction"] = self.directional_dimension.get_name()
         return basedict
         # return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
 

@@ -2537,7 +2537,7 @@ class Sun(VersionBase):
         elevation = element.attrib["elevation"]
         if "intensity" in element.attrib:
             intensity = element.attrib["intensity"]
-        else: 
+        else:
             intensity = element.attrib["illuminance"]
 
         return Sun(intensity, azimuth, elevation)

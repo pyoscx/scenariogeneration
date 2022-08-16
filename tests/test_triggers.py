@@ -127,9 +127,9 @@ def test_standstillcondition():
 
 
 def test_speedcondition():
-    cond = OSC.SpeedCondition(1, OSC.Rule.lessThan)
+    cond = OSC.SpeedCondition(1, OSC.Rule.lessThan, OSC.DirectionalDimension.lateral)
     prettyprint(cond.get_element())
-    cond2 = OSC.SpeedCondition(1, OSC.Rule.lessThan)
+    cond2 = OSC.SpeedCondition(1, OSC.Rule.lessThan, OSC.DirectionalDimension.lateral)
     cond3 = OSC.SpeedCondition(2, OSC.Rule.lessThan)
     assert cond == cond2
     assert cond != cond3
