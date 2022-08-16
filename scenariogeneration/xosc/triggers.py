@@ -2299,7 +2299,6 @@ class RelativeDistanceCondition(_EntityTriggerType):
         return element
 
 
-
 class RelativeClearanceCondition(_EntityTriggerType):
     """the RelativeClearanceCondition class is an Entity Condition used by the EntityTrigger
 

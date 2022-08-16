@@ -22,9 +22,7 @@ Missing features for OpenSCENARIO V1.2.0:
     CustomContent (Created)
        
     
-    DomeImage (Created)
-
-    
+        
     
 
     FileHeader (Changed)
@@ -100,7 +98,7 @@ Missing features for OpenSCENARIO V1.2.0:
     VehicleRoleDistribution (Created)
     VehicleRoleDistributionEntry (Created)
     VisibilityAction (Changed)
-    Weather (Changed)
+
     
 
 

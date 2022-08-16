@@ -38,6 +38,7 @@ from .enumerations import (
     LightMode,
     ColorType,
     ControllerType,
+    FractionalCloudCover,
 )
 import datetime as dt
 
@@ -2133,7 +2134,7 @@ class Weather(VersionBase):
 
     Parameters
     ----------
-        cloudstate (CloudState): cloudstate of the weather
+        cloudstate (CloudState, or FractionalCloudCover): cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover (>V1.2 ))
             Default: None
 
         atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
@@ -2154,6 +2155,11 @@ class Weather(VersionBase):
         wind (Wind): the wind (valid from OpenSCENARIO V1.1)
             Default: None
 
+        dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
+            Default: None
+
+        dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
+            Default: None
     Attributes
     ----------
         cloudstate (CloudState): cloudstate of the weather
@@ -2169,6 +2175,10 @@ class Weather(VersionBase):
         precipitation (Precipitation): the precipitation state
 
         wind (Wind): the wind (valid from OpenSCENARIO V1.1)
+
+        dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
+
+        dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
 
     Methods
     -------
@@ -2192,12 +2202,14 @@ class Weather(VersionBase):
         fog=None,
         precipitation=None,
         wind=None,
+        dome_image=None,
+        dome_azimuth_offset=None,
     ):
         """initalize the Weather
 
         Parameters
         ----------
-            cloudstate (CloudState): cloudstate of the weather
+            cloudstate (CloudState, or FractionalCloudCover): cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover (>V1.2 ))
                 Default: None
 
             atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
@@ -2218,9 +2230,19 @@ class Weather(VersionBase):
             wind (Wind): the wind (valid from OpenSCENARIO V1.1)
                 Default: None
 
+            dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
+                Default: None
+
+            dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
+                Default: None
         """
-        if cloudstate and not hasattr(CloudState, str(cloudstate)):
-            raise TypeError("cloudstate input is not of type CloudState")
+        if cloudstate and not (
+            hasattr(CloudState, str(cloudstate))
+            or hasattr(FractionalCloudCover, str(cloudstate))
+        ):
+            raise TypeError(
+                "cloudstate input is not of type CloudState or FractionalCloudCover"
+            )
         if precipitation and not isinstance(precipitation, Precipitation):
             raise TypeError("precipitation input is not of type Precipitation")
         if fog and not isinstance(fog, Fog):
@@ -2237,6 +2259,8 @@ class Weather(VersionBase):
         self.sun = sun
         self.wind = wind
         self.precipitation = precipitation
+        self.dome_image = dome_image
+        self.dome_azimuth_offset = convert_float(dome_azimuth_offset)
 
     def __eq__(self, other):
         if isinstance(other, Weather):
@@ -2246,6 +2270,8 @@ class Weather(VersionBase):
                 and self.wind == other.wind
                 and self.sun == other.sun
                 and self.precipitation == other.precipitation
+                and self.dome_image == other.dome_image
+                and self.dome_azimuth_offset == self.dome_azimuth_offset
             ):
                 return True
         return False
@@ -2270,6 +2296,8 @@ class Weather(VersionBase):
         sun = None
         wind = None
         precipitation = None
+        dome_file = None
+        dome_azimuth = None
 
         if "temperature" in element.attrib:
             temperature = element.attrib["temperature"]
@@ -2285,9 +2313,21 @@ class Weather(VersionBase):
             precipitation = Precipitation.parse(element.find("Precipitation"))
         if element.find("Wind") != None:
             wind = Wind.parse(element.find("Wind"))
+        if element.find("DomeImage") != None:
+            dome_file = element.find("DomeImage").find("DomeFile")
 
+            if "azimuthOffset" in element.find("DomeImage").attrib:
+                dome_azimuth = convert_float(element.find("DomeImage").attrib)
         return Weather(
-            cloudstate, atmosphericPressure, temperature, sun, fog, precipitation, wind
+            cloudstate,
+            atmosphericPressure,
+            temperature,
+            sun,
+            fog,
+            precipitation,
+            wind,
+            dome_file,
+            dome_azimuth,
         )
 
     def get_attributes(self):
@@ -2322,6 +2362,16 @@ class Weather(VersionBase):
             element.append(self.wind.get_element())
         if self.wind and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError("Wind was introduced in OpenSCENARIO V1.1")
+        if self.dome_image and (self.isVersion(minor=0) or self.isVersion(minor=1)):
+            raise OpenSCENARIOVersionError(
+                "DomeImage was introduced in OpenSCENARIO V1.2"
+            )
+        if self.dome_image:
+            dome_attr = {}
+            if self.dome_azimuth_offset:
+                dome_attr["azimuthOffset"] = str(self.dome_azimuth_offset)
+            dome_element = ET.SubElement(element, "DomeImage", attrib=dome_attr)
+            ET.SubElement(dome_element, "File", attrib={"filepath": self.dome_image})
         return element
 
 

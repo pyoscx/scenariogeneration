@@ -425,9 +425,13 @@ def test_trafficdefinition():
 
 
 def test_weather():
-    weather = OSC.Weather(OSC.CloudState.free, 100, 0)
+    weather = OSC.Weather(
+        OSC.CloudState.free, 100, 0, dome_image="dome.jpg", dome_azimuth_offset=2
+    )
     prettyprint(weather.get_element())
-    weather2 = OSC.Weather(OSC.CloudState.free, 100, 0)
+    weather2 = OSC.Weather(
+        OSC.CloudState.free, 100, 0, dome_image="dome.jpg", dome_azimuth_offset=2
+    )
     weather3 = OSC.Weather(OSC.CloudState.free, 100, 1)
     assert weather == weather2
     assert weather != weather3
