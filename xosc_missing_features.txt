@@ -72,7 +72,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
 
-    Sun (Changed)
     TimeHeadwayCondition (Changed)
     TimeToCollisionCondition (Changed)
     

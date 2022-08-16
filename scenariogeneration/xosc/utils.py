@@ -2535,7 +2535,10 @@ class Sun(VersionBase):
         """
         azimuth = element.attrib["azimuth"]
         elevation = element.attrib["elevation"]
-        intensity = element.attrib["intensity"]
+        if "intensity" in element.attrib:
+            intensity = element.attrib["intensity"]
+        else: 
+            intensity = element.attrib["illuminance"]
 
         return Sun(intensity, azimuth, elevation)
 
@@ -2543,7 +2546,10 @@ class Sun(VersionBase):
         """returns the attributes of the Precipitation as a dict"""
         retdict = {}
         retdict["azimuth"] = str(self.azimuth)
-        retdict["intensity"] = str(self.intensity)
+        if self.isVersion(minor=2):
+            retdict["illuminance"] = str(self.intensity)
+        else:
+            retdict["intensity"] = str(self.intensity)
         retdict["elevation"] = str(self.elevation)
         return retdict
 
