@@ -4800,7 +4800,8 @@ class DirectionOfTravelDistribution(VersionBase):
 
     @staticmethod
     def parse(element):
-        """Parsese the xml element of a DirectionOfTravelDistribution
+        """Parses the xml element of a DirectionOfTravelDistribution
+
         Parameters
         ----------
             element (xml.etree.ElementTree.Element): a DirectionOfTravelDistribution element
@@ -4831,4 +4832,77 @@ class DirectionOfTravelDistribution(VersionBase):
         element = ET.Element(
             "DirectionOfTravelDistribution", attrib=self.get_attributes()
         )
+        return element
+
+
+class UserDefinedAnimation(VersionBase):
+    """The UserDefinedAnimation creates a UserDefinedAnimation element used by AnimationType
+
+    Parameters
+    ----------
+        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
+
+    Attributes
+    ----------
+
+        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, type):
+        """initalizes the UserDefinedAnimation
+
+        Parameters
+        ----------
+        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
+
+        """
+        self.type = type
+
+    def __eq__(self, other):
+        if isinstance(other, UserDefinedAnimation):
+            if other.get_attributes() == self.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a UserDefinedAnimation
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+
+        Returns
+        -------
+            UserDefinedAnimation (UserDefinedAnimation): a UserDefinedAnimation object
+
+        """
+
+        return UserDefinedAnimation(element.attrib["userDefinedAnimationType"])
+
+    def get_attributes(self):
+        """returns the attributes of the UserDefinedAnimation as a dict"""
+        retdict = {}
+        retdict["userDefinedAnimationType"] = self.type
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the UserDefinedAnimation"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "UserDefinedAnimation was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("UserDefinedAnimation", attrib=self.get_attributes())
         return element

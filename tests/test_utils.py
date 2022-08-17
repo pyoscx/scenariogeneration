@@ -824,3 +824,11 @@ def test_directionoftraveldistribution():
     dotd4 = OSC.DirectionOfTravelDistribution.parse(dotd.get_element())
     prettyprint(dotd4.get_element())
     assert dotd4 == dotd
+
+
+def test_userdefinedanimation():
+    ani = OSC.UserDefinedAnimation("animation_type")
+    ani2 = OSC.UserDefinedAnimation("animation_type2")
+    assert ani != ani2
+    ani3 = OSC.UserDefinedAnimation.parse(ani.get_element())
+    assert ani == ani3
