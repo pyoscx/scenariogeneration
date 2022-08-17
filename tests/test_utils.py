@@ -791,6 +791,15 @@ def test_fileheader():
     assert fh4 == fh
 
 
+def test_animationstate():
+    ani = OSC.AnimationState(1.5)
+    ani2 = OSC.AnimationState(1.6)
+    prettyprint(ani.get_element())
+    assert ani != ani2
+    ani3 = OSC.AnimationState.parse(ani.get_element())
+    assert ani == ani3
+
+
 def test_animationfile():
     ani = OSC.AnimationFile("file_ref")
     ani2 = OSC.AnimationFile("file_ref", 1.5)
@@ -803,11 +812,12 @@ def test_animationfile():
     prettyprint(ani4.get_element())
     assert ani4 == ani2
 
+
 def test_directionoftraveldistribution():
-    dotd = OSC.DirectionOfTravelDistribution(1,2)
-    dotd2 = OSC.DirectionOfTravelDistribution(1,2)
+    dotd = OSC.DirectionOfTravelDistribution(1, 2)
+    dotd2 = OSC.DirectionOfTravelDistribution(1, 2)
     prettyprint(dotd.get_element())
-    dotd3 = OSC.DirectionOfTravelDistribution(1,1)
+    dotd3 = OSC.DirectionOfTravelDistribution(1, 1)
     assert dotd == dotd2
     assert dotd != dotd3
 

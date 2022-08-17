@@ -10,6 +10,7 @@
 
 """
 
+from distutils.version import Version
 import os
 
 
@@ -4589,8 +4590,80 @@ class _LightState(VersionBase):
         return element
 
 
+class AnimationState(VersionBase):
+    """The AnimationState creates a AnimationState element used by AnimationAction
+
+    Parameters
+    ----------
+        state (float): the goal state after the animationstateaction is executed
+
+    Attributes
+    ----------
+        state (float): the goal state after the animationstateaction is executed
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and return an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, state):
+        """initalizes the AnimationState
+
+        Parameters
+        ----------
+            state (float): the goal state after the animationstateaction is executed
+
+        """
+        self.state = state
+
+    def __eq__(self, other):
+        if isinstance(other, AnimationState):
+            if other.get_attributes() == self.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a AnimationState
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a AnimationState element
+
+        Returns
+        -------
+            AnimationState (AnimationState): an AnimationState object
+
+        """
+        state = convert_float(element.attrib["state"])
+        return AnimationState(state)
+
+    def get_attributes(self):
+        """returns the attributes of the AnimationState as a dict"""
+        retdict = {}
+        retdict["state"] = str(self.state)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the AnimationState"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "AnimationState was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("AnimationState", attrib=self.get_attributes())
+        return element
+
+
 class AnimationFile(VersionBase):
-    """The _LightState creates a LightState element used by LightStateAction
+    """The AnimationFile creates a AnimationFile element used by AnimationType
 
     Parameters
     ----------
@@ -4639,7 +4712,7 @@ class AnimationFile(VersionBase):
 
     @staticmethod
     def parse(element):
-        """Parsese the xml element of a AnimationFile
+        """Parses the xml element of a AnimationFile
 
         Parameters
         ----------
@@ -4676,7 +4749,6 @@ class AnimationFile(VersionBase):
         if self.file:
             ET.SubElement(element, "File", {"filepath": self.file})
         return element
-
 
 
 class DirectionOfTravelDistribution(VersionBase):
@@ -4722,9 +4794,7 @@ class DirectionOfTravelDistribution(VersionBase):
 
     def __eq__(self, other):
         if isinstance(other, DirectionOfTravelDistribution):
-            if (
-                other.get_attributes() == self.get_attributes()
-            ):
+            if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
@@ -4740,12 +4810,15 @@ class DirectionOfTravelDistribution(VersionBase):
             DirectionOfTravelDistribution (DirectionOfTravelDistribution): a DirectionOfTravelDistribution object
 
         """
-        
-        return DirectionOfTravelDistribution(convert_float(element.attrib["opposite"]), convert_float(element.attrib["same"]))
+
+        return DirectionOfTravelDistribution(
+            convert_float(element.attrib["opposite"]),
+            convert_float(element.attrib["same"]),
+        )
 
     def get_attributes(self):
         """returns the attributes of the DirectionOfTravelDistribution as a dict"""
-        retdict = {"opposite":str(self.opposite), "same":str(self.same)}
+        retdict = {"opposite": str(self.opposite), "same": str(self.same)}
         return retdict
 
     def get_element(self):
@@ -4755,5 +4828,7 @@ class DirectionOfTravelDistribution(VersionBase):
                 "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("DirectionOfTravelDistribution", attrib=self.get_attributes())
+        element = ET.Element(
+            "DirectionOfTravelDistribution", attrib=self.get_attributes()
+        )
         return element
