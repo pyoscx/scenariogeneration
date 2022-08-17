@@ -52,7 +52,7 @@ Missing features for OpenSCENARIO V1.2.0:
     ParameterSetAction (Changed)
     Pedestrian (Changed)
     PedestrianAnimation (Created)
-    PedestrianGesture (Created)
+  
     Performance (Changed)
     Phase (Changed)
     

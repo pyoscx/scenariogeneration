@@ -476,9 +476,11 @@ class PedestrianGestureType(metaclass=_EnumMeta):
         "PedestrianGestureType", "umbrellaLeftHand", min_minor_version=2
     )
     crossArms = _OscEnum("PedestrianGestureType", "crossArms", min_minor_version=2)
-    coffeeRightHand = _OscEnum("PedestrianGestureType", "", min_minor_version=2)
-    coffeeLeftHand = _OscEnum(
+    coffeeRightHand = _OscEnum(
         "PedestrianGestureType", "coffeeRightHand", min_minor_version=2
+    )
+    coffeeLeftHand = _OscEnum(
+        "PedestrianGestureType", "coffeeLeftHand", min_minor_version=2
     )
     sandwichRightHand = _OscEnum(
         "PedestrianGestureType", "sandwichRightHand", min_minor_version=2

@@ -846,3 +846,15 @@ def test_userdefinedcomponent():
     assert ani == ani3
     ani4 = OSC.UserDefinedAnimation.parse(ani.get_element())
     assert ani == ani4
+
+
+def test_pedestriangesture():
+    pg = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeLeftHand)
+    pg2 = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeRightHand)
+    prettyprint(pg.get_element())
+    assert pg != pg2
+    pg3 = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeLeftHand)
+    assert pg == pg3
+    pg4 = OSC.PedestrianGesture.parse(pg.get_element())
+    prettyprint(pg4.get_element())
+    assert pg4 == pg
