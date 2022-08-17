@@ -86,7 +86,7 @@ Missing features for OpenSCENARIO V1.2.0:
     TrafficSwarmAction (Changed)
     TransitionDynamics (Changed)
     
-    UserDefinedComponent (Created)
+
     UserDefinedLight (Created)
     VariableAction (Created)
     VariableAddValueRule (Created)

@@ -4906,3 +4906,76 @@ class UserDefinedAnimation(VersionBase):
 
         element = ET.Element("UserDefinedAnimation", attrib=self.get_attributes())
         return element
+
+
+class UserDefinedComponent(VersionBase):
+    """The UserDefinedComponent creates a UserDefinedComponent element used by UserDefinedComponent
+
+    Parameters
+    ----------
+        userDefinedComponentType (str): User defined component type.
+
+    Attributes
+    ----------
+
+        userDefinedComponentType (str): User defined component type.
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, type):
+        """initalizes the UserDefinedComponent
+
+        Parameters
+        ----------
+        userDefinedComponentType (str): User defined component type.
+
+        """
+        self.type = type
+
+    def __eq__(self, other):
+        if isinstance(other, UserDefinedComponent):
+            if other.get_attributes() == self.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a UserDefinedComponent
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedComponent element
+
+        Returns
+        -------
+            UserDefinedComponent (UserDefinedComponent): a UserDefinedComponent object
+
+        """
+
+        return UserDefinedComponent(element.attrib["userDefinedComponentType"])
+
+    def get_attributes(self):
+        """returns the attributes of the UserDefinedComponent as a dict"""
+        retdict = {}
+        retdict["userDefinedComponentType"] = self.type
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the UserDefinedComponent"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "UserDefinedComponent was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("UserDefinedComponent", attrib=self.get_attributes())
+        return element

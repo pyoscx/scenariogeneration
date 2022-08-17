@@ -829,6 +829,20 @@ def test_directionoftraveldistribution():
 def test_userdefinedanimation():
     ani = OSC.UserDefinedAnimation("animation_type")
     ani2 = OSC.UserDefinedAnimation("animation_type2")
+    ani3 = OSC.UserDefinedAnimation("animation_type")
+    prettyprint(ani.get_element())
     assert ani != ani2
-    ani3 = OSC.UserDefinedAnimation.parse(ani.get_element())
     assert ani == ani3
+    ani4 = OSC.UserDefinedAnimation.parse(ani.get_element())
+    assert ani == ani4
+
+
+def test_userdefinedcomponent():
+    ani = OSC.UserDefinedAnimation("component_type")
+    ani2 = OSC.UserDefinedAnimation("component_type2")
+    ani3 = OSC.UserDefinedAnimation("component_type")
+    prettyprint(ani.get_element())
+    assert ani != ani2
+    assert ani == ani3
+    ani4 = OSC.UserDefinedAnimation.parse(ani.get_element())
+    assert ani == ani4
