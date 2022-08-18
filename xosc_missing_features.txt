@@ -97,7 +97,7 @@ Missing features for OpenSCENARIO V1.2.0:
     VariableMultiplyByValueRule (Created)
     VariableSetAction (Created)
     Vehicle (Changed)
-    VehicleComponent (Created)
+    
     VehicleLight (Created)
     VehicleRoleDistribution (Created)
     VehicleRoleDistributionEntry (Created)

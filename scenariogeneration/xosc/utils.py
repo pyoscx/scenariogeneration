@@ -32,6 +32,7 @@ from .enumerations import (
     VehicleCategory,
     PrecipitationType,
     CloudState,
+    VehicleComponentType,
     VersionBase,
     SpeedTargetValueType,
     LightMode,
@@ -5167,4 +5168,79 @@ class PedestrianAnimation(VersionBase):
         element = ET.Element("PedestrianAnimation", attrib=self.get_attributes())
         for gesture in self.gestures:
             element.append(gesture.get_element())
+        return element
+
+
+class VehicleComponent(VersionBase):
+    """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
+
+    Parameters
+    ----------
+        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+
+    Attributes
+    ----------
+
+        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, type):
+        """initalizes the VehicleComponent
+
+        Parameters
+        ----------
+        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+
+        """
+        if not hasattr(VehicleComponentType, str(type)):
+            raise ValueError(type + " is  not a valid type.")
+        self.type = type
+
+    def __eq__(self, other):
+        if isinstance(other, VehicleComponent):
+            if other.get_attributes() == self.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a VehicleComponent
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+
+        Returns
+        -------
+            VehicleComponent (VehicleComponent): a VehicleComponent object
+
+        """
+        type = getattr(VehicleComponentType, element.attrib["vehicleComponentType"])
+        return VehicleComponent(type)
+
+    def get_attributes(self):
+        """returns the attributes of the VehicleComponent as a dict"""
+        retdict = {}
+        retdict["vehicleComponentType"] = self.type.get_name()
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the VehicleComponent"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "VehicleComponent was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("VehicleComponent", attrib=self.get_attributes())
         return element

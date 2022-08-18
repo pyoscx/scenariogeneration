@@ -877,3 +877,15 @@ def test_pedestriananimation():
     prettyprint(pa.get_element())
     pa5 = OSC.PedestrianAnimation.parse(pa.get_element())
     assert pa5 == pa
+
+
+def test_vehiclecomponent():
+    vc = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    vc2 = OSC.VehicleComponent(OSC.VehicleComponentType.doorRearLeft)
+    prettyprint(vc.get_element())
+    assert vc != vc2
+    vc3 = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    assert vc == vc3
+    vc4 = OSC.VehicleComponent.parse(vc.get_element())
+    prettyprint(vc4.get_element())
+    assert vc4 == vc
