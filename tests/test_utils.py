@@ -858,3 +858,22 @@ def test_pedestriangesture():
     pg4 = OSC.PedestrianGesture.parse(pg.get_element())
     prettyprint(pg4.get_element())
     assert pg4 == pg
+
+
+def test_pedestriananimation():
+    pa = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
+    pa2 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation2")
+    pa3 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.ducking, "animation1")
+    prettyprint(pa.get_element())
+    assert pa != pa2
+    assert pa != pa3
+    pa4 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
+    gesture = OSC.PedestrianGesture(OSC.PedestrianGestureType.sandwichLeftHand)
+    gesture2 = OSC.PedestrianGesture(OSC.PedestrianGestureType.sandwichRightHand)
+    pa.add_gesture(gesture)
+    pa4.add_gesture(gesture2)
+    assert pa != pa4
+    pa.add_gesture(gesture2)
+    prettyprint(pa.get_element())
+    pa5 = OSC.PedestrianAnimation.parse(pa.get_element())
+    assert pa5 == pa

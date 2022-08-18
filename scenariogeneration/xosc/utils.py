@@ -21,6 +21,7 @@ from ..helpers import printToFile
 from .enumerations import (
     ParameterType,
     PedestrianGestureType,
+    PedestrianMotionType,
     Rule,
     ReferenceContext,
     DynamicsShapes,
@@ -5014,7 +5015,6 @@ class PedestrianGesture(VersionBase):
         gesture (PedestrianGestureType): specific gesture of a pedestrian
 
         """
-        # print(type(gesture))
         if not hasattr(PedestrianGestureType, str(gesture)):
             raise ValueError("gesture is  not a valid type.")
         self.gesture = gesture
@@ -5055,4 +5055,116 @@ class PedestrianGesture(VersionBase):
             )
 
         element = ET.Element("PedestrianGesture", attrib=self.get_attributes())
+        return element
+
+
+class PedestrianAnimation(VersionBase):
+    """The PedestrianAnimation creates a PedestrianAnimation element used by AnimationType
+
+    Parameters
+    ----------
+        motion (PedestrianMotionType): Motion of a pedestrian
+
+        userDefinedPedestrianAnimation (str): User defined pedestrian animation
+
+    Attributes
+    ----------
+
+        motion (PedestrianMotionType): Motion of a pedestrian
+
+        userDefinedPedestrianAnimation (str): User defined pedestrian animation
+
+        gestures (PedestrianGesture): Gestures of a pedestrian
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        add_gesture(gesture)
+            Adds a pedestrian gesture to the pedestrian animation
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+    """
+
+    def __init__(self, motion=None, animation=None):
+        """initalizes the PedestrianAnimation
+
+        Parameters
+        ----------
+        motion (PedestrianMotionType): Motion of a pedestrian
+
+        userDefinedPedestrianAnimation (str): User defined pedestrian animation
+
+        """
+        if motion is not None and not hasattr(PedestrianMotionType, str(motion)):
+            raise ValueError("motion is  not a valid type.")
+        self.motion = motion
+        self.animation = animation
+        self.gestures = []
+
+    def __eq__(self, other):
+        if isinstance(other, PedestrianAnimation):
+            if (
+                other.get_attributes() == self.get_attributes()
+                and other.gestures == self.gestures
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a PedestrianAnimation
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+
+        Returns
+        -------
+            PedestrianAnimation (PedestrianAnimation): a PedestrianAnimation object
+
+        """
+        motion = getattr(PedestrianMotionType, element.attrib["motion"])
+        animation = element.attrib["userDefinedPedestrianAnimation"]
+        pa = PedestrianAnimation(motion, animation)
+
+        for gesture in element.findall("PedestrianGesture"):
+            pa.add_gesture(PedestrianGesture.parse(gesture))
+        return pa
+
+    def add_gesture(self, gesture):
+        """adds a pedestrian gesture to the vehicle
+
+        Parameters
+        ----------
+            gesture (PedestrianGestrure): A new gesture of the pedestrian
+
+        """
+        if not isinstance(gesture, PedestrianGesture):
+            raise TypeError("gesture input is not of type PedestrianGesture")
+        self.gestures.append(gesture)
+        return self
+
+    def get_attributes(self):
+        """returns the attributes of the PedestrianAnimation as a dict"""
+        retdict = {}
+        retdict["motion"] = self.motion.get_name()
+        retdict["userDefinedPedestrianAnimation"] = str(self.animation)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the PedestrianAnimation"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "PedestrianAnimation was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("PedestrianAnimation", attrib=self.get_attributes())
+        for gesture in self.gestures:
+            element.append(gesture.get_element())
         return element

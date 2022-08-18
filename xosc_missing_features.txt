@@ -51,7 +51,7 @@ Missing features for OpenSCENARIO V1.2.0:
     ParameterMultiplyByValueRule (Changed)
     ParameterSetAction (Changed)
     Pedestrian (Changed)
-    PedestrianAnimation (Created)
+
   
     Performance (Changed)
     Phase (Changed)
