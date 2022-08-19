@@ -5219,7 +5219,7 @@ class VehicleComponent(VersionBase):
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+            element (xml.etree.ElementTree.Element): a VehicleComponent element
 
         Returns
         -------
@@ -5243,4 +5243,85 @@ class VehicleComponent(VersionBase):
             )
 
         element = ET.Element("VehicleComponent", attrib=self.get_attributes())
+        return element
+
+
+class ComponentAnimation(VersionBase):
+    """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
+
+    Parameters
+    ----------
+        vehicleComponent (vehicleComponent): Available components types attached to a vehicle
+
+        userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
+
+    Attributes
+    ----------
+
+        vehicleComponent (vehicleComponent): Available components types attached to a vehicle
+
+        userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
+
+    Methods
+    -------
+        parse(element)
+            parses a ElementTree created by the class and returns an instance of the class
+
+        get_element(elementname)
+            Returns the full ElementTree of the class
+    """
+
+    def __init__(self, component):
+        """initalizes the VehicleComponent
+
+        Parameters
+        ----------
+        component (vehicleComponent or UserDefinedComponent): Either available components types attached to the vehicle or a user defined component
+        """
+        if not isinstance(component, VehicleComponent) and not isinstance(
+            component, UserDefinedComponent
+        ):
+            raise TypeError(
+                component + " is not of type VehicleComponent or UserDefinedComponent"
+            )
+        self.component = component
+
+    def __eq__(self, other):
+        if isinstance(other, ComponentAnimation):
+            if other.component.get_attributes() == self.component.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element):
+        """Parses the xml element of a ComponentAnimation
+
+        Parameters
+        ----------
+            element (xml.etree.ElementTree.Element): a ComponentAnimation element
+
+        Returns
+        -------
+            ComponentAnimation (ComponentAnimation): a ComponentAnimation object
+
+        """
+        if element.find("VehicleComponent") != None:
+            component = VehicleComponent.parse(element.find("VehicleComponent"))
+        else:
+            component = UserDefinedComponent.parse(element.find("UserDefinedComponent"))
+        return ComponentAnimation(component)
+
+    def get_element(self):
+        """returns the elementTree of the ComponentAnimation"""
+        if not self.isVersion(minor=2):
+            raise OpenSCENARIOVersionError(
+                "ComponentAnimation was introduced in OpenSCENARIO V1.2"
+            )
+
+        element = ET.Element("ComponentAnimation")
+        if isinstance(VehicleComponent, type(self.component)):
+            element.append(self.component.get_element())
+        else:
+            element.append(self.component.get_element())
+
         return element

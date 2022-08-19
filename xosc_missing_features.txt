@@ -15,7 +15,7 @@ Missing features for OpenSCENARIO V1.2.0:
 
     
 
-    ComponentAnimation (Created)
+    
     
     
 

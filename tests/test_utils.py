@@ -838,13 +838,13 @@ def test_userdefinedanimation():
 
 
 def test_userdefinedcomponent():
-    ani = OSC.UserDefinedAnimation("component_type")
-    ani2 = OSC.UserDefinedAnimation("component_type2")
-    ani3 = OSC.UserDefinedAnimation("component_type")
+    ani = OSC.UserDefinedComponent("component_type")
+    ani2 = OSC.UserDefinedComponent("component_type2")
+    ani3 = OSC.UserDefinedComponent("component_type")
     prettyprint(ani.get_element())
     assert ani != ani2
     assert ani == ani3
-    ani4 = OSC.UserDefinedAnimation.parse(ani.get_element())
+    ani4 = OSC.UserDefinedComponent.parse(ani.get_element())
     assert ani == ani4
 
 
@@ -889,3 +889,32 @@ def test_vehiclecomponent():
     vc4 = OSC.VehicleComponent.parse(vc.get_element())
     prettyprint(vc4.get_element())
     assert vc4 == vc
+
+
+def test_componentanimation():
+    vc = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    vc2 = OSC.VehicleComponent(OSC.VehicleComponentType.doorRearRight)
+    udc = OSC.UserDefinedComponent("my_component")
+    udc2 = OSC.UserDefinedComponent("my_component2")
+    udc3 = OSC.UserDefinedComponent("doorFrontLeft")
+    ca = OSC.ComponentAnimation(vc)
+    prettyprint(ca.get_element())
+    ca2 = OSC.ComponentAnimation(vc2)
+    assert ca != ca2
+    ca3 = OSC.ComponentAnimation(udc)
+    prettyprint(ca3.get_element())
+    ca4 = OSC.ComponentAnimation(udc3)
+    prettyprint(ca4.get_element())
+    assert ca != ca3
+    assert ca != ca4
+    ca5 = OSC.ComponentAnimation(udc2)
+    assert ca3 != ca5
+
+    ca6 = OSC.ComponentAnimation.parse(ca.get_element())
+    prettyprint(ca6.get_element())
+    assert ca6 == ca
+    ca7 = OSC.ComponentAnimation.parse(ca2.get_element())
+    assert ca7 == ca2
+    ca8 = OSC.ComponentAnimation.parse(ca4.get_element())
+    assert ca8 == ca4
+    assert ca8 != ca
