@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2021-07-01 Version 0.9.1
+- Bug Fixes
+    - removal of non mandatory inputs to ActivateControllerAction
+    - removal of unneccesary library
+
+
 
 ### 2021-07-01 Version 0.9.0
 - New Features
