@@ -27,6 +27,7 @@ from .enumerations import (
     MiscObjectCategory,
     ObjectType,
     VersionBase,
+    Role,
 )
 from .utils import DynamicsConstraints, CatalogFile, CatalogReference
 
@@ -439,6 +440,9 @@ class Pedestrian(VersionBase):
         model (str): definition model of the pedestrian
             Default: None
 
+        role (Role): the role of the Pedestrian (valid from OpenSCENARIO V1.2)
+            Default: None
+
     Attributes
     ----------
         name (str): name of the pedestrian
@@ -454,6 +458,8 @@ class Pedestrian(VersionBase):
         parameters (ParameterDeclaration): Parameter declarations of the pedestrian
 
         properties (Properties): additional properties of the pedestrian
+
+        role (Role): the role of the Pedestrian
 
     Methods
     -------
@@ -483,7 +489,7 @@ class Pedestrian(VersionBase):
 
     """
 
-    def __init__(self, name, mass, category, boundingbox, model=None):
+    def __init__(self, name, mass, category, boundingbox, model=None, role=None):
         """initalzie the Pedestrian Class
 
         Parameters
@@ -498,6 +504,9 @@ class Pedestrian(VersionBase):
 
             model (str): definition model of the pedestrian
                 Default: None
+
+            role (Role): the role of the Vehicle
+                Default: None
         """
         self.name = name
         self.model = model
@@ -511,6 +520,9 @@ class Pedestrian(VersionBase):
         self.boundingbox = boundingbox
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
+        if role is not None and not hasattr(Role, str(role)):
+            raise TypeError(role + " is not a valid vehicle role.")
+        self.role = role
 
     def __eq__(self, other):
         if isinstance(other, Pedestrian):
@@ -519,6 +531,7 @@ class Pedestrian(VersionBase):
                 and self.boundingbox == other.boundingbox
                 and self.properties == other.properties
                 and self.parameters == other.parameters
+                and self.role == other.role
             ):
                 return True
         return False
@@ -552,8 +565,10 @@ class Pedestrian(VersionBase):
             parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find("BoundingBox"))
         properties = Properties.parse(element.find("Properties"))
-
-        pedestrian = Pedestrian(name, mass, category, boundingbox, model)
+        role = None
+        if "role" in element.attrib:
+            role = getattr(Role, element.attrib["role"])
+        pedestrian = Pedestrian(name, mass, category, boundingbox, model, role)
         pedestrian.parameters = parameters
         pedestrian.properties = properties
 
@@ -639,6 +654,8 @@ class Pedestrian(VersionBase):
             else:
                 retdict["model3d"] = self.model
         retdict["mass"] = str(self.mass)
+        if self.role and not self.isVersion(minor=0) and not self.isVersion(minor=1):
+            retdict["role"] = self.role.get_name()
         return retdict
 
     def get_element(self):
@@ -901,6 +918,15 @@ class Vehicle(VersionBase):
         model3d (str): path to model file (valid from V1.1)
             Default: None
 
+        max_acceleration_rate (float): the maximum acceleration rate (jerk) of the vehicle (valid from OpenSCENARIO V1.2)
+            Default: None
+
+        max_deceleration_rate (float): the maximum acceleration rate (jerk) of the vehicle (valid from OpenSCENARIO V1.2)
+            Default: None
+
+        role (Role): the role of the Vehicle (valid from OpenSCENARIO V1.2)
+            Default: None
+
     Attributes
     ----------
         name (str): name of the vehicle
@@ -920,7 +946,8 @@ class Vehicle(VersionBase):
         mass (float): the mass of the vehicle
 
         model3d (str): path to model file (valid from V1.1)
-            Default: None
+
+        role (Role): the role of the Vehicle
 
     Methods
     -------
@@ -965,6 +992,9 @@ class Vehicle(VersionBase):
         max_deceleration,
         mass=None,
         model3d=None,
+        max_acceleration_rate=None,
+        max_deceleration_rate=None,
+        role=None,
     ):
         """initalzie the Vehicle Class
 
@@ -991,6 +1021,15 @@ class Vehicle(VersionBase):
 
             model3d (str): path to model file (valid from V1.1)
                 Default: None
+
+            max_acceleration_rate (float): the maximum acceleration rate (jerk) of the vehicle (valid from OpenSCENARIO V1.2)
+                Default: None
+
+            max_deceleration_rate (float): the maximum acceleration rate (jerk) of the vehicle (valid from OpenSCENARIO V1.2)
+                Default: None
+
+            role (Role): the role of the Vehicle
+                Default: None
         """
         self.name = name
         if not hasattr(VehicleCategory, str(vehicle_type)):
@@ -1003,12 +1042,19 @@ class Vehicle(VersionBase):
 
         self.axles = Axles(frontaxle, rearaxle)
         self.dynamics = DynamicsConstraints(
-            max_acceleration, max_deceleration, max_speed
+            max_acceleration,
+            max_deceleration,
+            max_speed,
+            max_acceleration_rate,
+            max_deceleration_rate,
         )
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
-        self.mass = mass
+        self.mass = convert_float(mass)
         self.model3d = model3d
+        if role is not None and not hasattr(Role, str(role)):
+            raise TypeError(role + " is not a valid vehicle role.")
+        self.role = role
 
     def __eq__(self, other):
         if isinstance(other, Vehicle):
@@ -1020,6 +1066,7 @@ class Vehicle(VersionBase):
                 and self.dynamics == other.dynamics
                 and self.parameters == other.parameters
                 and self.mass == other.mass
+                and self.role == other.role
             ):
                 return True
         return False
@@ -1040,7 +1087,7 @@ class Vehicle(VersionBase):
         name = element.attrib["name"]
         mass = None
         if "mass" in element.attrib:
-            mass = element.attrib["mass"]
+            mass = convert_float(element.attrib["mass"])
         vehicle_type = getattr(VehicleCategory, element.attrib["vehicleCategory"])
         model3d = None
         if "model3d" in element.attrib:
@@ -1056,14 +1103,19 @@ class Vehicle(VersionBase):
         properties = Properties.parse(element.find("Properties"))
 
         performance = DynamicsConstraints.parse(element.find("Performance"))
-        max_speed = performance.get_attributes()["maxSpeed"]
-        max_acc = performance.get_attributes()["maxAcceleration"]
-        max_dec = performance.get_attributes()["maxDeceleration"]
+        max_speed = performance.max_speed
+        max_acc = performance.max_acceleration
+        max_dec = performance.max_deceleration
+        max_acc_rate = performance.max_acceleration_rate
+        max_dec_rate = performance.max_deceleration_rate
 
         axles_element = element.find("Axles")
         frontaxle = Axle.parse(axles_element.find("FrontAxle"))
         rearaxle = Axle.parse(axles_element.find("RearAxle"))
 
+        role = None
+        if "role" in element.attrib:
+            role = getattr(Role, element.attrib["role"])
         vehicle = Vehicle(
             name,
             vehicle_type,
@@ -1075,6 +1127,9 @@ class Vehicle(VersionBase):
             max_dec,
             mass,
             model3d,
+            max_acc_rate,
+            max_dec_rate,
+            role,
         )
         vehicle.properties = properties
         vehicle.parameters = parameters
@@ -1176,6 +1231,8 @@ class Vehicle(VersionBase):
             retdict["mass"] = str(self.mass)
         if not self.isVersion(minor=0) and self.model3d:
             retdict["model3d"] = self.model3d
+        if self.role and not self.isVersion(minor=0) and not self.isVersion(minor=1):
+            retdict["role"] = self.role.get_name()
 
         return retdict
 

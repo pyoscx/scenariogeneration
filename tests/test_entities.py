@@ -16,6 +16,11 @@ from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import CatalogReference, EntityRef
 
 
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
+
+
 def test_properties():
     prop = OSC.Properties()
     prop.add_file("myprops.xml")
@@ -88,18 +93,38 @@ def test_vehicle():
     veh2.add_axle(ba)
     veh2.add_parameter(param)
 
-    veh3 = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh3 = OSC.Vehicle(
+        "mycar",
+        OSC.VehicleCategory.car,
+        bb,
+        fa,
+        ba,
+        150,
+        10,
+        10,
+        2000,
+        "model",
+        1,
+        1,
+        OSC.Role.police,
+    )
+    prettyprint(veh3)
     assert veh == veh2
     assert veh != veh3
 
     veh4 = OSC.Vehicle.parse(veh.get_element())
-    prettyprint(veh4.get_element())
     assert veh4 == veh
+    prettyprint(veh4.get_element())
+    veh5 = OSC.Vehicle.parse(veh3.get_element())
+    prettyprint(veh5)
+    assert veh5 == veh3
 
 
 def test_pedestrian():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
-    ped = OSC.Pedestrian("myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped")
+    ped = OSC.Pedestrian(
+        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", OSC.Role.police
+    )
 
     prettyprint(ped.get_element())
     ped.add_property_file("propfile.xml")
@@ -109,7 +134,9 @@ def test_pedestrian():
 
     prettyprint(ped.get_element())
 
-    ped2 = OSC.Pedestrian("myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped")
+    ped2 = OSC.Pedestrian(
+        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", OSC.Role.police
+    )
     ped2.add_property_file("propfile.xml")
     ped2.add_property("myprop", "12")
     ped2.add_parameter(param)

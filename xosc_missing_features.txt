@@ -46,10 +46,7 @@ Missing features for OpenSCENARIO V1.2.0:
     ParameterModifyAction (Changed)
     ParameterMultiplyByValueRule (Changed)
     ParameterSetAction (Changed)
-    Pedestrian (Changed)
-
   
-    Performance (Changed)
     Phase (Changed)
     
     
@@ -85,7 +82,7 @@ Missing features for OpenSCENARIO V1.2.0:
     VariableModifyRule (Created)
     VariableMultiplyByValueRule (Created)
     VariableSetAction (Created)
-    Vehicle (Changed)
+    
     
     VehicleLight (Created)
     VehicleRoleDistribution (Created)
