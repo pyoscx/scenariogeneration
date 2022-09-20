@@ -871,8 +871,8 @@ class FileHeader(VersionBase):
         retdict = {
             "description": self.description,
             "author": self.author,
-            "revMajor": str(self._revMajor),
-            "revMinor": str(self._revMinor),
+            "revMajor": str(self.version_major),
+            "revMinor": str(self.version_minor),
         }
         if self.creation_date != None:
             retdict["date"] = self.creation_date.isoformat()

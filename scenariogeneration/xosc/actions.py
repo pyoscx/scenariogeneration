@@ -282,7 +282,7 @@ class AbsoluteSpeedAction(_PrivateActionType):
             transition_dynamics (TransitionDynamics): how the change should be made
 
         """
-        self.speed = speed
+        self.speed = convert_float(speed)
         if not isinstance(transition_dynamics, TransitionDynamics):
             raise TypeError("transition_dynamics input not of type TransitionDynamics")
         self.transition_dynamics = transition_dynamics
@@ -398,7 +398,7 @@ class RelativeSpeedAction(_PrivateActionType):
             continuous (bool): if the controller tries to keep the relative speed
 
         """
-        self.speed = speed
+        self.speed = convert_float(speed)
         self.target = entity
         if not hasattr(SpeedTargetValueType, str(valuetype)):
             raise TypeError("valuetype input not of type SpeedTargetValueType")
