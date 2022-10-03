@@ -18,7 +18,9 @@ jobs:
         run: python3 -m pip install black
       - uses: actions/checkout@v2
       - name: Run black
-        run: python3 -m black --check **/*.py
+        run: |
+          shopt -s globstar
+          python3 -m black --check **/*.py
 
   pytest:
     runs-on: ubuntu-latest
@@ -103,7 +105,7 @@ jobs:
       - name: road_with_multiple_lane_widths
         if: always()
         run: python3 examples/xodr/road_with_multiple_lane_widths.py
-        
+
   xosc_examples:
       runs-on: ubuntu-latest
       steps:
@@ -184,4 +186,4 @@ jobs:
         - name: generate_with_permutations
           if: always()
           run: python3 examples/generator/generate_with_permutations.py
-      
+
