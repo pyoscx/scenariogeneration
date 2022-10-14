@@ -1,13 +1,15 @@
 ## scenariogeneration release notes
 
-### 2021-07-01 Version 0.9.1
+### 2021-10-14 Version 0.9.2
+- Bug Fixes
+    - Converting from 1.1 to 1.0 bug fixed.
+
+### 2022-09-08 Version 0.9.1
 - Bug Fixes
     - removal of non mandatory inputs to ActivateControllerAction
     - removal of unneccesary library
 
-
-
-### 2021-07-01 Version 0.9.0
+### 2022-07-01 Version 0.9.0
 - New Features
     - outline can now be added for objects in opendrive
     - multiple lane widths and multiple roadmarks can be added for a Lane
@@ -18,11 +20,9 @@
 -Changed Classes (API not changed, but if attributes are used this will brake some cases)
     - Lane
         - no longer have a, b, c, d, soffset as object attributes replaced with a list of a _poly3struct objects instead
-        eg: previously to get the parameter a on the lane one would use _lane.a_, now _lane.widths[0].a_ should be used.   
+        eg: previously to get the parameter a on the lane one would use _lane.a_, now _lane.widths[0].a_ should be used.
 
-
-
-### 2021-06-10 Version 0.8.0
+### 2022-06-10 Version 0.8.0
 - New Features
     - all methods returns the object for oneliners
     - Junction creators added (replacing old junction functionality), see UserGuide.
@@ -43,16 +43,16 @@
     - Direct junction creation changed
         - old way of creating direct junctions was very buggy and only worked in a few cases.
         - add_successor/predecessor now does not have the direct_junction option
-        - new DirectJunctionCreator should be used to be sure, will cover much more cases than the old one. 
+        - new DirectJunctionCreator should be used to be sure, will cover much more cases than the old one.
 
-### 2021-03-30 Version 0.7.12
+### 2022-03-30 Version 0.7.12
 - order when parsing model/model3d updated
 
-### 2021-03-29 Version 0.7.11
+### 2022-03-29 Version 0.7.11
 - Bug fixes
     - ParameterDeclarations had more bugs that were fixed.
 
-### 2021-03-29 Version 0.7.10
+### 2022-03-29 Version 0.7.10
 - Bug fixes
     - ParameterDeclarations does not have to exist to parse a scenario.
     - cleaning up some duplicate functions
@@ -60,21 +60,21 @@
     - The sizes of Repeated Objects can now be set
 - Documentation updates
 
-### 2021-02-28 Version 0.7.9
+### 2022-02-28 Version 0.7.9
 - New Feature
-    - create_junction_roads now have inputs to set the inner and outer (boarder) roadmarks 
+    - create_junction_roads now have inputs to set the inner and outer (boarder) roadmarks
          - Default is changed: inside no roadmarks, boarder solid
 
-### 2021-02-09 Version 0.7.8
+### 2022-02-09 Version 0.7.8
 - Bug fix in OverrideGearAction
 - New Feature
     - license can now be added directly in the creation of Scenario
     - creation_date is added to file header if a custom date is wanted. (also as optional input to scenario)
 
-### 2021-01-28 Version 0.7.6
+### 2022-01-28 Version 0.7.6
 - Bug fix in parsing along route
 
-### 2021-01-27 Version 0.7.5
+### 2022-01-27 Version 0.7.5
 - Cleaning up some dependencies
     - removed some non-used libraries and dependencies
     - cleaning up imports
@@ -82,15 +82,15 @@
     - booleans can now be parsed from "0" and "1"
 
 
-### 2021-01-23 Version 0.7.4
+### 2022-01-23 Version 0.7.4
 - New Features
     - RoadMarks can now have multiple lines (for double road marks)
-    
+
         - New standard roadmarks added for standard double roadmarks (solid-solid, solid-broken, broken-solid, and broken-broken)
         - new example how to create custom roadmarks
-- Some updates to documentation 
+- Some updates to documentation
 
-### 2021-01-17 Version 0.7.3
+### 2022-01-17 Version 0.7.3
 - Bug fix
     - removed some unnecessary printouts
     - fixed bug in parsing catalog for entities
@@ -100,7 +100,7 @@
     - Direct junctions is now supported!
         - new funciton create_direct_junction (for the junction struct)
         - new input to add_successor/add_predecessor direct_junction to enable automation
-        - examples for entry and exit added. 
+        - examples for entry and exit added.
 - New Classes
     - ControllerAction, now controller actions can be added within one element (required for 1.0), while parsing any controller action, this will be the return type.
 
@@ -116,13 +116,13 @@
 
 ### 2021-12-16 Version 0.7.0
 - New features
-    - Parsing is here for OpenSCENARIO! Now a .xosc can be parsed and return the python object. 
+    - Parsing is here for OpenSCENARIO! Now a .xosc can be parsed and return the python object.
       This enables the user to modify an existing .xosc file easily in python.
       Note: It might not have the exact structure as it was created, eg. for triggers which will have both the Tigger and ConditionGroup present (so will never return an ValueTrigger or EntityTrigger object)
     - ValueConstraint and ValueConstraintGroup added, and can be added to Parameters
-    - New CatalogLoader implemented, can now load a catalog and read multiple time from it without reloading the file. CatalogReader will still exist for a while but will be removed in future releases. 
+    - New CatalogLoader implemented, can now load a catalog and read multiple time from it without reloading the file. CatalogReader will still exist for a while but will be removed in future releases.
 - Some properties changed (that were missing or should be optional)
-- utf-8 encoding is now default, but can be changed as a new input to write functions. 
+- utf-8 encoding is now default, but can be changed as a new input to write functions.
 - Changed Classes (IMPORTANT, Interface Changed!)
     - Some bugs were found in the implementation of OpenSCENARIO 1.1, hence some classes had to be changed.
         - Environment (removed wrong input name)
@@ -137,7 +137,7 @@
     - esmini osi input was changed, so not bool anymore, but a string (the name of the file)
 - Bug fixes
     - checks for non-mandatory fields can now handle 0 (didn't before)
-    
+
 - Changed Classes (IMPORTANT, Interface Changed!)
     - AbosoluteSyncronizeAction and RelativeSyncronizeAction are removed and replaced with SyncronizeAction that handles both.
         - New classes related to the SyncronizeActions
@@ -148,7 +148,7 @@
 
 ### 2021-09-10 Version 0.5.4
 - New features
-    - Support for ParameterValueDistribution type of xosc file. 
+    - Support for ParameterValueDistribution type of xosc file.
         - All distributions (except UserDefinedDistribution) added
         - Example of how to write a parametrized scenario
 
@@ -188,7 +188,7 @@
 - New features (scenariogeneration)
     - New exceptions - to take care of different versions of OpenSCENARIO (will throw exceptions if V1.0.0 is wanted but trying to use features from V1.1.0)
     - VersionBase - new base class to handle different versions of OpenSCENARIO
- 
+
     - the class Scenario has a new input "osc_minor_version" which enables the user to generate both OpenSCENARIO V1.0.0 and V1.1.0 type of files (V1.1.0 is default)
 
 - Changed Classes (IMPORTANT, Interface Changed!)
@@ -203,17 +203,17 @@
                 - Fog
                 - Sun
                 - Precipitation
-                - Wind 
+                - Wind
     - Enum is no longer used, but replaced with _OscEnum which helps with the versioning of OpenSCENARIO, main difference is that to get the enum name, use .get_name() instead of .name
 
 ### 2021-06-10 Version 0.4.0
 - update of generators
    - create_junction_roads now uses R (distance from the center of the junction to the roads), instead of r (the radius of the arc that made the connecting road)
-   - create_junction_roads can now handle any angles and any amount of roads going in to the junction, will assume a circle (radius R) to fit the roads into. 
+   - create_junction_roads can now handle any angles and any amount of roads going in to the junction, will assume a circle (radius R) to fit the roads into.
 - big documentation update, new page, including examples in online documentation.
 - road-road linking generalized so roads can be added as successor/successor or predecessor/predecessor pairs.
 - bug fix
-   - it was possible to add multiple lane links, this is fixed, now only one successor/predecessor is alowed. 
+   - it was possible to add multiple lane links, this is fixed, now only one successor/predecessor is alowed.
 
 ### 2021-05-28 Version 0.3.7
 - bug fix for Arcs
@@ -229,7 +229,7 @@
     - Easy creation of lane merge/splits with generators. See "highway_example_with_merge_and_split.py"
     - added __eq__ to all classes, (some limitations in the xodr module where the ids are generated)
     - scenario_generator got a new attribute (generate_all_roads), that if false will only generate unique roads (thanks to the __eq__   integration). See "generate_with_permutations.py"
-    
+
 
 ### 2021-04-22 Version 0.3.4
 - some documentation updates
@@ -247,7 +247,7 @@
 ### 2021-04-22 Version 0.3.2
 - Restructuring
     - All override controller actions (OverrideThrottleAction, OverrideBrakeAction, ...) are merged into one class, and the old ones are removed.
-        
+
 
 ### 2021-04-20 Version 0.3.1
 - New Features
