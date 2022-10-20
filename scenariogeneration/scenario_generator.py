@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -249,6 +249,7 @@ class ScenarioGenerator:
                 it = int(np.floor(np.random.rand() * len(self.all_permutations)))
         else:
             it = order
+            self._it = it
         osc, odr = self._generate_road_and_scenario(self.all_permutations[it])
         self._reset_name_counter()
         return osc, odr
