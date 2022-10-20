@@ -1,6 +1,10 @@
 ## scenariogeneration release notes
 
-### 2021-10-14 Version 0.9.2
+### 2022-10-20 Version 0.9.3
+- Bug Fixes
+    - scenario_generator: if generate_single is used with int and the option numerical, the name will be that number
+
+### 2022-10-14 Version 0.9.2
 - Bug Fixes
     - Converting from 1.1 to 1.0 bug fixed.
 
