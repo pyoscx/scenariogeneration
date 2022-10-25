@@ -202,7 +202,7 @@ class Signal(_SignalObjectBase):
         t (float): t-coordinate of Signal (init in base class)
 
         country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)
-        
+
         countryRevision (str): defines the year of the applied traffic rules and may be necessary to ensure unique sign interpretation together with country, type and subtype (optional)
 
         Type (SignalType or str): type of Signal (str) (init in base class)

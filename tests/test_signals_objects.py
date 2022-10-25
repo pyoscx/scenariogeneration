@@ -56,7 +56,7 @@ def test_signal():
         value=120,
         unit="km/h",
     )
-    
+
     signal2_wRev = pyodrx.Signal(
         s=20.0,
         t=-2,
