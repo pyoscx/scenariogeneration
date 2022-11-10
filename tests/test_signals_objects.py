@@ -57,9 +57,23 @@ def test_signal():
         unit="km/h",
     )
 
+    signal2_wRev = pyodrx.Signal(
+        s=20.0,
+        t=-2,
+        dynamic=pyodrx.Dynamic.no,
+        orientation=pyodrx.Orientation.positive,
+        country="DEU",
+        countryRevision="2017",
+        Type="274",
+        subtype="120",
+        value=120,
+        unit="km/h",
+    )
+
     road = pyodrx.create_straight_road(0)
     road.add_signal(signal1)
     road.add_signal(signal2)
+    road.add_signal(signal2_wRev)
     prettyprint(road.get_element())
     signal3 = pyodrx.Signal(
         s=10.0,
@@ -75,6 +89,7 @@ def test_signal():
     signal3.id = signal1.id
     assert signal1 == signal3
     assert signal1 != signal2
+    assert signal2 != signal2_wRev
 
 
 def test_object():
