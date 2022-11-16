@@ -13,6 +13,18 @@ import itertools
 import os
 import numpy as np
 import sys
+from multiprocessing import Pool
+from .helpers import printToFile
+
+
+class _generation_struct:
+    def __init__(self, data, filename):
+        self.data = data
+        self.filename = filename
+
+
+def _write_xml_file(data_struct):
+    printToFile(data_struct.data, data_struct.filename, True)
 
 
 class ScenarioGenerator:
@@ -24,13 +36,16 @@ class ScenarioGenerator:
 
     Attributes
     ----------
-        road_file (str): name of the roadfile,
+        road_file (str): name of the roadfile
 
         parameters (dict of lists, or list of dicts): parameter sets to be used
 
         naming (str): two options "numerical" or "parameter"
 
         generate_all_roads (bool): will only generate unique roads
+
+        number_of_parallel_writings (int): parallelize the writing of the xml files
+            Default: 1 (no parallelization)
     """
 
     def __init__(self):
@@ -43,6 +58,7 @@ class ScenarioGenerator:
         self.generate_all_roads = True
         self._created_roads = {}
         self._name_separator = "_"
+        self.number_of_parallel_writings = 1
 
     def road(self, **kwargs):
         """Dummy method for generating an OpenDRIVE road
@@ -133,7 +149,7 @@ class ScenarioGenerator:
         scenario_name = self._get_scenario_name(permutation)
         self.road_file = ""
         scenario_file = ""
-
+        files_to_write = []
         road = self.road(**permutation)
         if road:
             new_unique_road = True
@@ -149,7 +165,13 @@ class ScenarioGenerator:
                         self._generation_folder, "xodr", scenario_name + ".xodr"
                     )
                 )
-                road.write_xml(self.road_file)
+                if self.number_of_parallel_writings == 1:
+                    road.write_xml(self.road_file)
+                else:
+                    files_to_write.append(
+                        _generation_struct(road.get_element(), self.road_file)
+                    )
+
                 if self.write_relative_road_path:
                     self.road_file = self.road_file.replace(
                         os.path.abspath(self._generation_folder), os.path.pardir
@@ -162,8 +184,13 @@ class ScenarioGenerator:
             scenario_file = os.path.join(
                 self._generation_folder, "xosc", scenario_name + ".xosc"
             )
-            sce.write_xml(scenario_file)
-        return scenario_file, self.road_file
+            if self.number_of_parallel_writings == 1:
+                sce.write_xml(scenario_file)
+            else:
+                files_to_write.append(
+                    _generation_struct(sce.get_element(), scenario_file)
+                )
+        return scenario_file, self.road_file, files_to_write
 
     def _get_scenario_name(self, permutation):
         """_get_scenario_name generates the name of the wanted file, based on the permutation
@@ -287,12 +314,17 @@ class ScenarioGenerator:
         if override_parameters:
             self.parameters = override_parameters
         self._handle_input_parameters()
-
+        files_to_write = []
         for p in self.all_permutations:
 
-            scenario_file, road_file = self._generate_road_and_scenario(p)
+            scenario_file, road_file, writables = self._generate_road_and_scenario(p)
             scenario_files.append(scenario_file)
             road_files.append(road_file)
+            files_to_write.extend(writables)
+
+        if self.number_of_parallel_writings != 1:
+            with Pool(self.number_of_parallel_writings) as p:
+                p.map(_write_xml_file, files_to_write)
         self._reset_name_counter()
         return scenario_files, road_files
 

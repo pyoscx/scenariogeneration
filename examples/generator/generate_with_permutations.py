@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
     Example of creating OpenSCENARIO and OpenDRIVE files with parameter sweep type of input
@@ -31,6 +31,7 @@ class Scenario(ScenarioGenerator):
 
         # set so no duplicate roads are created
         self.generate_all_roads = False
+        self.number_of_parallel_writings = 2
 
     def road(self, **kwargs):
 

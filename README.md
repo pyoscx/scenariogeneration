@@ -11,13 +11,13 @@ The package consists of the __scenario_generator__ module and two  Python subpac
 
 The user documentation can be found [here](https://pyoscx.github.io/), the API documentation [here](https://pyoscx.github.io/scenariogeneration/index.html) and the change log in [release_notes.md](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
 
-Please note that this is not an official implementation of either OpenSCENARIO or OpenDRIVE. 
+Please note that this is not an official implementation of either OpenSCENARIO or OpenDRIVE.
 
 ## Coverage
 
 As of V0.7.2, the coverage of the modules varies:
 - The xosc module has full coverage of OpenSCENARIO V1.0.0, and most of V1.1.0, if something is missing please raise an issue or make a pull request.
-- The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.7.1). 
+- The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.7.1).
 
 For more details se xodr_coverage.txt and xosc_missing_features.txt
 
@@ -56,7 +56,7 @@ def Scenario(ScenarioGenerator): ...
 s = Scenario()
 if __name__ == "__main__":
     s = Scenario()
-    
+
     esmini(s,esminipath ='path to esmini', index_to_run = 'first')
 ```
 where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmini will run that scenario/road for you.
@@ -69,7 +69,7 @@ where *index_to_run* can be 'first', 'random', 'middle' or an integer, and esmin
 
 ### clothoids
 
-[pyclothoids](https://github.com/phillipd94/pyclothoids), used for construction and optimization of clothoids gemetries
+[pyclothoids](https://github.com/phillipd94/pyclothoids), used for construction and optimization of clothoids geometries
 
 ### blender implementation
 
