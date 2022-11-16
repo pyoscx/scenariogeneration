@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -30,6 +30,7 @@ def esmini(
     resource_path=None,
     timestep=0.01,
     car_density=15,
+    headless=False
 ):
     """write a scenario and runs it in esminis OpenDriveViewer with some random traffic
 
@@ -71,6 +72,7 @@ def esmini(
 
         car_density (int): density of fictious cars (used only for pure OpenDRIVE cases)
 
+        headless (boolean): run esmini in headless mode (no viewer)
     """
     additional_args = ""
     # resource_path = os.path.join(esminipath,'resources')
@@ -92,7 +94,8 @@ def esmini(
         executable = "odrviewer"
         filetype = " --odr "
         additional_args += " --density " + str(car_density)
-        additional_args += " --window " + window_size
+        if not headless:
+            additional_args += " --window " + window_size
         run_with_replayer = False
         filename = os.path.join(generation_path, "xodr", "python_road.xodr")
         generator.write_xml(filename, True)
@@ -110,7 +113,7 @@ def esmini(
             additional_args += " --headless" + " --fixed_timestep " + str(ts)
             if not record:
                 record = "python_record"
-        else:
+        elif not headless:
             additional_args += " --window " + window_size
 
         filename = os.path.join(generation_path, "xosc", "python_scenario.xosc")
@@ -135,7 +138,7 @@ def esmini(
                 additional_args += " --headless" + " --fixed_timestep " + str(ts)
                 if not record:
                     record = "python_record"
-            else:
+            elif not headless:
                 additional_args += " --window " + window_size
 
             filename = scenario_file
