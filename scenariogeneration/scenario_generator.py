@@ -277,7 +277,8 @@ class ScenarioGenerator:
         else:
             it = order
             self._it = it
-        osc, odr = self._generate_road_and_scenario(self.all_permutations[it])
+        self.number_of_parallel_writings = 1
+        osc, odr, _ = self._generate_road_and_scenario(self.all_permutations[it])
         self._reset_name_counter()
         return osc, odr
 
