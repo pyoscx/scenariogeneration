@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -135,7 +135,17 @@ class _OscEnum(VersionBase):
         return self.name
 
 
-class CloudState:
+class _EnumMeta(type):
+    """This class is used to add functionality to the Enum classes in the xosc module
+    Note: this class should only be inherited
+
+    """
+
+    def __getitem__(self, name):
+        return self.__dict__[name]
+
+
+class CloudState(metaclass=_EnumMeta):
     """Enum for CloudState"""
 
     skyOff = _OscEnum("CloudState", "skyOff")
@@ -145,7 +155,7 @@ class CloudState:
     rainy = _OscEnum("CloudState", "rainy")
 
 
-class ConditionEdge:
+class ConditionEdge(metaclass=_EnumMeta):
     """Enum for ConditionEdge"""
 
     rising = _OscEnum("ConditionEdge", "rising")
@@ -154,7 +164,7 @@ class ConditionEdge:
     none = _OscEnum("ConditionEdge", "none")
 
 
-class DynamicsDimension:
+class DynamicsDimension(metaclass=_EnumMeta):
     """Enum for DynamicsDimension"""
 
     rate = _OscEnum("DynamicsDimension", "rate")
@@ -162,7 +172,7 @@ class DynamicsDimension:
     distance = _OscEnum("DynamicsDimension", "distance")
 
 
-class DynamicsShapes:
+class DynamicsShapes(metaclass=_EnumMeta):
     """Enum for DynamicsShapes"""
 
     linear = _OscEnum("DynamicsShapes", "linear")
@@ -171,14 +181,14 @@ class DynamicsShapes:
     step = _OscEnum("DynamicsShapes", "step")
 
 
-class FollowMode:
+class FollowMode(metaclass=_EnumMeta):
     """Enum for FollowMode"""
 
     position = _OscEnum("FollowMode", "position")
     follow = _OscEnum("FollowMode", "follow")
 
 
-class MiscObjectCategory:
+class MiscObjectCategory(metaclass=_EnumMeta):
     """Enum for MiscObjectCategory"""
 
     none = _OscEnum("MiscObjectCategory", "none")
@@ -200,7 +210,7 @@ class MiscObjectCategory:
     roadMark = _OscEnum("MiscObjectCategory", "roadMark")
 
 
-class ObjectType:
+class ObjectType(metaclass=_EnumMeta):
     """Enum for ObjectType"""
 
     pedestrian = _OscEnum("ObjectType", "pedestrian")
@@ -209,7 +219,7 @@ class ObjectType:
     external = _OscEnum("ObjectType", "external", min_minor_version=1)
 
 
-class ParameterType:
+class ParameterType(metaclass=_EnumMeta):
     """Enum for ParameterType"""
 
     integer = _OscEnum("ParameterType", "integer")
@@ -221,7 +231,7 @@ class ParameterType:
     dateTime = _OscEnum("ParameterType", "dateTime")
 
 
-class PedestrianCategory:
+class PedestrianCategory(metaclass=_EnumMeta):
     """Enum for PedestrianCategory"""
 
     pedestrian = _OscEnum("PedestrianCategory", "pedestrian")
@@ -229,7 +239,7 @@ class PedestrianCategory:
     animal = _OscEnum("PedestrianCategory", "animal")
 
 
-class PrecipitationType:
+class PrecipitationType(metaclass=_EnumMeta):
     """Enum for PercipitationType"""
 
     dry = _OscEnum("PrecipitationType", "dry")
@@ -237,7 +247,7 @@ class PrecipitationType:
     snow = _OscEnum("PrecipitationType", "snow")
 
 
-class Priority:
+class Priority(metaclass=_EnumMeta):
     """Enum for Priority"""
 
     overwrite = _OscEnum("Priority", "overwrite")
@@ -245,14 +255,14 @@ class Priority:
     parallel = _OscEnum("Priority", "parallel")
 
 
-class ReferenceContext:
+class ReferenceContext(metaclass=_EnumMeta):
     """Enum for ReferenceContext"""
 
     relative = _OscEnum("ReferenceContext", "relative")
     absolute = _OscEnum("ReferenceContext", "absolute")
 
 
-class RelativeDistanceType:
+class RelativeDistanceType(metaclass=_EnumMeta):
     """Enum for RelativeDistanceType"""
 
     longitudinal = _OscEnum("RelativeDistanceType", "longitudinal")
@@ -265,7 +275,7 @@ class RelativeDistanceType:
     )
 
 
-class RouteStrategy:
+class RouteStrategy(metaclass=_EnumMeta):
     """Enum for RouteStrategy"""
 
     fastest = _OscEnum("RouteStrategy", "fastest")
@@ -274,7 +284,7 @@ class RouteStrategy:
     random = _OscEnum("RouteStrategy", "random")
 
 
-class Rule:
+class Rule(metaclass=_EnumMeta):
     """Enum for Rule"""
 
     greaterThan = _OscEnum("Rule", "greaterThan")
@@ -285,14 +295,14 @@ class Rule:
     notEqualTo = _OscEnum("Rule", "notEqualTo", min_minor_version=1)
 
 
-class SpeedTargetValueType:
+class SpeedTargetValueType(metaclass=_EnumMeta):
     """Enum for SpeedTargetValueType"""
 
     delta = _OscEnum("SpeedTargetValueType", "delta")
     factor = _OscEnum("SpeedTargetValueType", "factor")
 
 
-class StoryboardElementState:
+class StoryboardElementState(metaclass=_EnumMeta):
     """Enum for StoryboardElementState"""
 
     startTransition = _OscEnum("StoryboardElementState", "startTransition")
@@ -304,7 +314,7 @@ class StoryboardElementState:
     standbyState = _OscEnum("StoryboardElementState", "standbyState")
 
 
-class StoryboardElementType:
+class StoryboardElementType(metaclass=_EnumMeta):
     """Enum for StoryboardElementType"""
 
     story = _OscEnum("StoryboardElementType", "story")
@@ -315,14 +325,14 @@ class StoryboardElementType:
     maneuverGroup = _OscEnum("StoryboardElementType", "maneuverGroup")
 
 
-class TriggeringEntitiesRule:
+class TriggeringEntitiesRule(metaclass=_EnumMeta):
     """Enum for TriggeringEntitiesRule"""
 
     any = _OscEnum("TriggeringEntitiesRule", "any")
     all = _OscEnum("TriggeringEntitiesRule", "all")
 
 
-class VehicleCategory:
+class VehicleCategory(metaclass=_EnumMeta):
     """Enum for VehicleCategory"""
 
     car = _OscEnum("VehicleCategory", "car")
@@ -337,7 +347,7 @@ class VehicleCategory:
     tram = _OscEnum("VehicleCategory", "tram")
 
 
-class CoordinateSystem:
+class CoordinateSystem(metaclass=_EnumMeta):
     """Enum for CoordinateSystem"""
 
     entity = _OscEnum("CoordinateSystem", "entity", min_minor_version=1)
@@ -346,7 +356,7 @@ class CoordinateSystem:
     trajectory = _OscEnum("CoordinateSystem", "trajectory", min_minor_version=1)
 
 
-class LateralDisplacement:
+class LateralDisplacement(metaclass=_EnumMeta):
     any = _OscEnum("LateralDisplacement", "any", min_minor_version=1)
     leftToReferencedEntity = _OscEnum(
         "LateralDisplacement", "leftToReferencedEntity", min_minor_version=1
@@ -356,7 +366,7 @@ class LateralDisplacement:
     )
 
 
-class LongitudinalDisplacement:
+class LongitudinalDisplacement(metaclass=_EnumMeta):
     any = _OscEnum("LongitudinalDisplacement", "any", min_minor_version=1)
     trailingReferencedEntity = _OscEnum(
         "LongitudinalDisplacement", "trailingReferencedEntity", min_minor_version=1
