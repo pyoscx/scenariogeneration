@@ -30,7 +30,7 @@ def esmini(
     resource_path=None,
     timestep=0.01,
     car_density=15,
-    headless=False
+    headless=False,
 ):
     """write a scenario and runs it in esminis OpenDriveViewer with some random traffic
 
