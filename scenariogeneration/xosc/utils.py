@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -261,6 +261,8 @@ class Parameter(VersionBase):
         if not hasattr(ParameterType, str(parameter_type)):
             raise ValueError("parameter_type not a valid type.")
         self.parameter_type = parameter_type
+        if isinstance(value, bool):
+            value = get_bool_string(value)
         self.value = value
         self.constraint_groups = []
 
@@ -3796,10 +3798,21 @@ def convert_bool(value):
         else:
             raise ValueError(
                 value
-                + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
+                + "is not a valid type of boolean input to openscenario, if a string is used as a boolean value (parameter or expression), it should have a $ as the first char.."
             )
 
     if value:
+        return True
+    elif value == None:
+        return None
+    else:
+        return False
+
+
+def get_bool_string(value):
+    if isinstance(value, str) and value[0] == "$":
+        return value
+    elif value:
         return "true"
     else:
         return "false"

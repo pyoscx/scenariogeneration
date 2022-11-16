@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -683,16 +683,16 @@ def test_convert_int():
     assert OSC.convert_int("1") == 1
     assert OSC.convert_int("$asdf") == "$asdf"
     with pytest.raises(ValueError):
-        OSC.convert_float("asdf")
+        OSC.convert_int("asdf")
 
 
 def test_convert_bool():
-    assert OSC.convert_bool(1) == "true"
+    assert OSC.convert_bool(1) == True
 
-    assert OSC.convert_bool(False) == "false"
+    assert OSC.convert_bool(False) == False
     assert OSC.convert_bool("$asdf") == "$asdf"
     assert OSC.convert_bool("0") == False
     assert OSC.convert_bool("1") == True
 
     with pytest.raises(ValueError):
-        OSC.convert_float("asdf")
+        OSC.convert_bool("asdf")

@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -22,7 +22,13 @@ from .utils import (
     _EntityTriggerType,
     _ValueTriggerType,
 )
-from .utils import ParameterDeclarations, CatalogFile, convert_bool, convert_int
+from .utils import (
+    ParameterDeclarations,
+    CatalogFile,
+    convert_bool,
+    convert_int,
+    get_bool_string,
+)
 from .enumerations import Priority, Rule, ConditionEdge, VersionBase
 from .actions import _GlobalActionFactory, _PrivateActionFactory
 
@@ -835,7 +841,7 @@ class _Actors:
 
         """
         self.actors = []
-        self.select = selectTriggeringEntities
+        self.select = convert_bool(selectTriggeringEntities)
 
     def __eq__(self, other):
         if isinstance(other, _Actors):
@@ -880,7 +886,7 @@ class _Actors:
 
     def get_attributes(self):
         """returns the attributes of the _Actors as a dict"""
-        return {"selectTriggeringEntities": convert_bool(self.select)}
+        return {"selectTriggeringEntities": get_bool_string(self.select)}
 
     def get_element(self):
         """returns the elementTree of the _Actors"""

@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -20,6 +20,7 @@ from .utils import (
     VersionBase,
     ParameterDeclarations,
     convert_bool,
+    get_bool_string,
     ReferenceContext,
     CatalogFile,
     Parameter,
@@ -166,8 +167,8 @@ class WorldPosition(_PositionType):
 
         """
         position_element = element.find("WorldPosition")
-        x = float(position_element.attrib["x"])
-        y = float(position_element.attrib["y"])
+        x = convert_float(position_element.attrib["x"])
+        y = convert_float(position_element.attrib["y"])
         z = None
         h = None
         r = None
@@ -1188,8 +1189,8 @@ class RoutePositionInRoadCoordinates(_PositionType):
         road_coord_element = position_element.find(
             "InRoutePosition/FromRoadCoordinates"
         )
-        s = road_coord_element.attrib["pathS"]
-        t = road_coord_element.attrib["t"]
+        s = convert_float(road_coord_element.attrib["pathS"])
+        t = convert_float(road_coord_element.attrib["t"])
         route_element = position_element.find("RouteRef")
         if route_element.find("Route") != None:
             routeref = Route.parse(route_element.find("Route"))
@@ -1316,10 +1317,10 @@ class RoutePositionInLaneCoordinates(_PositionType):
         lane_coord_element = position_element.find(
             "InRoutePosition/FromLaneCoordinates"
         )
-        s = lane_coord_element.attrib["pathS"]
-        lane_id = lane_coord_element.attrib["laneId"]
+        s = convert_float(lane_coord_element.attrib["pathS"])
+        lane_id = convert_int(lane_coord_element.attrib["laneId"])
         try:
-            offset = lane_coord_element.attrib["laneOffset"]
+            offset = convert_float(lane_coord_element.attrib["laneOffset"])
         except KeyError:
             offset = 0
         route_element = position_element.find("RouteRef")
@@ -2087,9 +2088,7 @@ class Route(VersionBase):
 
         """
         self.name = name
-        if not isinstance(closed, bool):
-            raise TypeError("closed input is not of type bool")
-        self.closed = closed
+        self.closed = convert_bool(closed)
         self.waypoints = []
         self.parameters = ParameterDeclarations()
 
@@ -2188,7 +2187,7 @@ class Route(VersionBase):
         """returns the attributes of the Route as a dict"""
         retdict = {}
         retdict["name"] = self.name
-        retdict["closed"] = convert_bool(self.closed)
+        retdict["closed"] = get_bool_string(self.closed)
         return retdict
 
     def get_element(self):
@@ -2258,9 +2257,7 @@ class Trajectory(VersionBase):
         """
 
         self.name = name
-        if not isinstance(closed, bool):
-            raise TypeError("closed input is not boolean")
-        self.closed = closed
+        self.closed = convert_bool(closed)
         self.parameters = ParameterDeclarations()
         self.shapes = None
 
@@ -2361,7 +2358,7 @@ class Trajectory(VersionBase):
         """returns the attributes of the Trajectory as a dict"""
         retdict = {}
         retdict["name"] = self.name
-        retdict["closed"] = convert_bool(self.closed)
+        retdict["closed"] = get_bool_string(self.closed)
         return retdict
 
     def get_element(self):

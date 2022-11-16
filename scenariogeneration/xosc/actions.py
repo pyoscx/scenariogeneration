@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -28,6 +28,7 @@ from .utils import (
     RelativeSpeedToMaster,
     convert_float,
     convert_int,
+    get_bool_string,
 )
 from .utils import Controller, _PositionType
 
@@ -403,13 +404,11 @@ class RelativeSpeedAction(_PrivateActionType):
         if not hasattr(SpeedTargetValueType, str(valuetype)):
             raise TypeError("valuetype input not of type SpeedTargetValueType")
         self.valuetype = valuetype
-        if not isinstance(continuous, bool):
-            raise TypeError("continuous input not of type bool")
 
         if not isinstance(transition_dynamics, TransitionDynamics):
             raise TypeError("transition_dynamics input not of type TransitionDynamics")
         self.transition_dynamics = transition_dynamics
-        self.continuous = continuous
+        self.continuous = convert_bool(continuous)
 
     def __eq__(self, other):
         if isinstance(other, RelativeSpeedAction):
@@ -439,7 +438,7 @@ class RelativeSpeedAction(_PrivateActionType):
         td_element = element.find("LongitudinalAction/SpeedAction/SpeedActionDynamics")
         speed = speed_element.attrib["value"]
         entity = speed_element.attrib["entityRef"]
-        continuous = bool(speed_element.attrib["continuous"])
+        continuous = convert_bool(speed_element.attrib["continuous"])
         valuetype = getattr(
             SpeedTargetValueType, speed_element.attrib["speedTargetValueType"]
         )
@@ -454,7 +453,7 @@ class RelativeSpeedAction(_PrivateActionType):
             "entityRef": self.target,
             "value": str(self.speed),
             "speedTargetValueType": self.valuetype.get_name(),
-            "continuous": convert_bool(self.continuous),
+            "continuous": get_bool_string(self.continuous),
         }
 
     def get_element(self):
@@ -574,12 +573,6 @@ class LongitudinalDistanceAction(_PrivateActionType):
                 Default LongitudinalDisplacement.any
         """
         self.target = entity
-        if not isinstance(continuous, bool):
-            raise TypeError("continuous input not of type bool")
-
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-
         self.freespace = convert_bool(freespace)
         self.continuous = convert_bool(continuous)
         self.dynamic_constraint = DynamicsConstraints(
@@ -676,8 +669,8 @@ class LongitudinalDistanceAction(_PrivateActionType):
         """returns the attributes of the LongitudinalDistanceAction as a dict"""
         retdict = {}
         retdict["entityRef"] = self.target
-        retdict["freespace"] = str(self.freespace)
-        retdict["continuous"] = str(self.continuous)
+        retdict["freespace"] = get_bool_string(self.freespace)
+        retdict["continuous"] = get_bool_string(self.continuous)
         if self.distance != None:
             retdict["distance"] = str(self.distance)
         if self.timeGap != None:
@@ -989,15 +982,12 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
             continuous (bool): if the controller tries to keep the relative speed
                 Default: True
         """
-        if not isinstance(continuous, bool):
-            raise TypeError("continuous input not of type bool")
-
-        self.continuous = continuous
-        self.value = value
+        self.continuous = convert_bool(continuous)
+        self.value = convert_float(value)
         if not hasattr(DynamicsShapes, str(shape)):
             raise ValueError(shape + "; is not a valid shape.")
         self.dynshape = shape
-        self.maxlatacc = maxlatacc
+        self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other):
         if isinstance(other, AbsoluteLaneOffsetAction):
@@ -1048,7 +1038,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         laneoffsetaction = ET.SubElement(
             lataction,
             "LaneOffsetAction",
-            attrib={"continuous": convert_bool(self.continuous)},
+            attrib={"continuous": get_bool_string(self.continuous)},
         )
         ET.SubElement(
             laneoffsetaction,
@@ -1121,16 +1111,13 @@ class RelativeLaneOffsetAction(_PrivateActionType):
             continuous (bool): if the controller tries to keep the relative speed
                 Default: True
         """
-        if not isinstance(continuous, bool):
-            raise TypeError("continuous input not of type bool")
-
-        self.continuous = continuous
-        self.value = value
+        self.continuous = convert_bool(continuous)
+        self.value = convert_float(value)
         self.target = entity
         if not hasattr(DynamicsShapes, str(shape)):
             raise ValueError(shape + "; is not a valid shape.")
         self.dynshape = shape
-        self.maxlatacc = maxlatacc
+        self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other):
         if isinstance(other, RelativeLaneOffsetAction):
@@ -1165,7 +1152,7 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         dynamics = getattr(DynamicsShapes, load_element.attrib["dynamicsShape"])
 
         rtlo_element = loa_element.find("LaneOffsetTarget/RelativeTargetLaneOffset")
-        value = rtlo_element.attrib["value"]
+        value = convert_float(rtlo_element.attrib["value"])
         entity = rtlo_element.attrib["entityRef"]
 
         return RelativeLaneOffsetAction(value, entity, dynamics, maxacc, contiuous)
@@ -1184,7 +1171,7 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         laneoffsetaction = ET.SubElement(
             lataction,
             "LaneOffsetAction",
-            attrib={"continuous": convert_bool(self.continuous)},
+            attrib={"continuous": get_bool_string(self.continuous)},
         )
         ET.SubElement(
             laneoffsetaction,
@@ -1307,14 +1294,9 @@ class LateralDistanceAction(_PrivateActionType):
         """
         self.distance = distance
         self.target = entity
-        if not isinstance(continuous, bool):
-            raise TypeError("continuous input not of type bool")
 
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-
-        self.freespace = freespace
-        self.continuous = continuous
+        self.freespace = convert_bool(freespace)
+        self.continuous = convert_bool(continuous)
         self.dynamic_constraint = DynamicsConstraints(
             max_acceleration, max_deceleration, max_speed
         )
@@ -1392,8 +1374,8 @@ class LateralDistanceAction(_PrivateActionType):
         """returns the attributes of the LateralDistanceAction as a dict"""
         retdict = {}
         retdict["entityRef"] = self.target
-        retdict["freespace"] = convert_bool(self.freespace)
-        retdict["continuous"] = convert_bool(self.continuous)
+        retdict["freespace"] = get_bool_string(self.freespace)
+        retdict["continuous"] = get_bool_string(self.continuous)
         if self.distance != None:
             retdict["distance"] = str(self.distance)
         if not self.isVersion(minor=0):
@@ -1988,13 +1970,8 @@ class ActivateControllerAction(_PrivateActionType):
                 Default: None
         """
 
-        if lateral is not None and not isinstance(lateral, bool):
-            raise TypeError("lateral input is not of type bool")
-
-        if longitudinal is not None and not isinstance(longitudinal, bool):
-            raise TypeError("longitudinal input is not of type bool")
-        self.lateral = lateral
-        self.longitudinal = longitudinal
+        self.lateral = convert_bool(lateral)
+        self.longitudinal = convert_bool(longitudinal)
 
     def __eq__(self, other):
         if isinstance(other, ActivateControllerAction):
@@ -2031,8 +2008,8 @@ class ActivateControllerAction(_PrivateActionType):
     def get_attributes(self):
         """returns the attributes of the ActivateControllerAction as a dict"""
         return {
-            "lateral": convert_bool(self.lateral),
-            "longitudinal": convert_bool(self.longitudinal),
+            "lateral": get_bool_string(self.lateral),
+            "longitudinal": get_bool_string(self.longitudinal),
         }
 
     def get_element(self):
@@ -2099,8 +2076,8 @@ class AssignControllerAction(_PrivateActionType):
         ):
             raise TypeError("route input not of type Route or CatalogReference")
         self.controller = controller
-        self.activateLateral = activateLateral
-        self.activateLongitudinal = activateLongitudinal
+        self.activateLateral = convert_bool(activateLateral)
+        self.activateLongitudinal = convert_bool(activateLongitudinal)
 
     def __eq__(self, other):
         if isinstance(other, AssignControllerAction):
@@ -2154,8 +2131,8 @@ class AssignControllerAction(_PrivateActionType):
             return {}
         else:
             return {
-                "activateLateral": convert_bool(self.activateLateral),
-                "activateLongitudinal": convert_bool(self.activateLongitudinal),
+                "activateLateral": get_bool_string(self.activateLateral),
+                "activateLongitudinal": get_bool_string(self.activateLongitudinal),
             }
 
     def get_element(self):
@@ -2373,7 +2350,7 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the clutch
                 Default: 0
         """
-        self.clutch_active = active
+        self.clutch_active = convert_bool(active)
         self.clutch_value = convert_float(value)
 
     def set_brake(self, active, value=0):
@@ -2386,7 +2363,7 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the brake
                 Default: 0
         """
-        self.brake_active = active
+        self.brake_active = convert_bool(active)
         self.brake_value = convert_float(value)
 
     def set_throttle(self, active, value=0):
@@ -2399,7 +2376,7 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the throttle
                 Default: 0
         """
-        self.throttle_active = active
+        self.throttle_active = convert_bool(active)
         self.throttle_value = convert_float(value)
 
     def set_steeringwheel(self, active, value=0):
@@ -2413,7 +2390,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 Default: 0
 
         """
-        self.steeringwheel_active = active
+        self.steeringwheel_active = convert_bool(active)
         self.steeringwheel_value = convert_float(value)
 
     def set_parkingbrake(self, active, value=0):
@@ -2427,7 +2404,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 Default: 0
 
         """
-        self.parkingbrake_active = active
+        self.parkingbrake_active = convert_bool(active)
         self.parkingbrake_value = convert_float(value)
 
     def set_gear(self, active, value=0):
@@ -2440,7 +2417,7 @@ class OverrideControllerValueAction(_PrivateActionType):
             value (float): value of the gear
                 Default: 0
         """
-        self.gear_active = active
+        self.gear_active = convert_bool(active)
         self.gear_value = convert_float(value)
 
     def get_element(self):
@@ -2467,7 +2444,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "Throttle",
                 {
-                    "active": convert_bool(self.throttle_active),
+                    "active": get_bool_string(self.throttle_active),
                     "value": str(self.throttle_value),
                 },
             )
@@ -2476,7 +2453,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "Brake",
                 {
-                    "active": convert_bool(self.brake_active),
+                    "active": get_bool_string(self.brake_active),
                     "value": str(self.brake_value),
                 },
             )
@@ -2485,7 +2462,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "Clutch",
                 {
-                    "active": convert_bool(self.clutch_active),
+                    "active": get_bool_string(self.clutch_active),
                     "value": str(self.clutch_value),
                 },
             )
@@ -2494,7 +2471,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "ParkingBrake",
                 {
-                    "active": convert_bool(self.parkingbrake_active),
+                    "active": get_bool_string(self.parkingbrake_active),
                     "value": str(self.parkingbrake_value),
                 },
             )
@@ -2503,7 +2480,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "SteeringWheel",
                 {
-                    "active": convert_bool(self.steeringwheel_active),
+                    "active": get_bool_string(self.steeringwheel_active),
                     "value": str(self.steeringwheel_value),
                 },
             )
@@ -2512,7 +2489,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 overrideaction,
                 "Gear",
                 {
-                    "active": convert_bool(self.gear_active),
+                    "active": get_bool_string(self.gear_active),
                     "number": str(self.gear_value),
                 },
             )
@@ -2564,15 +2541,9 @@ class VisibilityAction(_PrivateActionType):
         sensors (boolean): visible to sensors or not
 
         """
-        if not isinstance(graphics, bool):
-            raise TypeError("graphics input is not of type bool")
-        if not isinstance(traffic, bool):
-            raise TypeError("traffic input is not of type bool")
-        if not isinstance(sensors, bool):
-            raise TypeError("sensors input is not of type bool")
-        self.graphics = graphics
-        self.traffic = traffic
-        self.sensors = sensors
+        self.graphics = convert_bool(graphics)
+        self.traffic = convert_bool(traffic)
+        self.sensors = convert_bool(sensors)
 
     def __eq__(self, other):
         if isinstance(other, VisibilityAction):
@@ -2603,9 +2574,9 @@ class VisibilityAction(_PrivateActionType):
     def get_attributes(self):
         """returns the attributes of the VisibilityAction as a dict"""
         return {
-            "graphics": convert_bool(self.graphics),
-            "traffic": convert_bool(self.traffic),
-            "sensors": convert_bool(self.sensors),
+            "graphics": get_bool_string(self.graphics),
+            "traffic": get_bool_string(self.traffic),
+            "sensors": get_bool_string(self.sensors),
         }
 
     def get_element(self):
@@ -2681,8 +2652,6 @@ class SynchronizeAction(_PrivateActionType):
             entity_PositionType (*Position): the position of the entity to syncronize to
 
             target_PositionType (*Position): the position of the target that should syncronize
-
-            speed (float): the absolute speed of the target that should syncronize
 
             target_tolerance_master (optional) (float): tolerance offset of the master's position [m]. (Valid from OpenSCENARIO V1.1)
 
@@ -2836,7 +2805,7 @@ class ParameterAddAction(_ActionType):
 
         """
         self.parameter_ref = parameter_ref
-        self.value = value
+        self.value = convert_float(value)
 
     def __eq__(self, other):
         if isinstance(other, ParameterAddAction):
@@ -2866,7 +2835,7 @@ class ParameterAddAction(_ActionType):
         ma_element = pa_element.find("ModifyAction")
         rule_element = ma_element.find("Rule")
         mbv_element = rule_element.find("AddValue")
-        value = mbv_element.attrib["value"]
+        value = convert_float(mbv_element.attrib["value"])
 
         return ParameterAddAction(parameterRef, value)
 
@@ -2926,7 +2895,7 @@ class ParameterMultiplyAction(_ActionType):
 
         """
         self.parameter_ref = parameter_ref
-        self.value = value
+        self.value = convert_float(value)
 
     def __eq__(self, other):
         if isinstance(other, ParameterMultiplyAction):
@@ -2956,7 +2925,7 @@ class ParameterMultiplyAction(_ActionType):
         ma_element = pa_element.find("ModifyAction")
         rule_element = ma_element.find("Rule")
         mbv_element = rule_element.find("MultiplyByValue")
-        value = mbv_element.attrib["value"]
+        value = convert_float(mbv_element.attrib["value"])
 
         return ParameterMultiplyAction(parameterRef, value)
 
@@ -3016,7 +2985,7 @@ class ParameterSetAction(_ActionType):
 
         """
         self.parameter_ref = parameter_ref
-        self.value = value
+        self.value = convert_float(value)
 
     def __eq__(self, other):
         if isinstance(other, ParameterSetAction):
@@ -3043,7 +3012,7 @@ class ParameterSetAction(_ActionType):
         pa_element = element.find("ParameterAction")
         parameterRef = pa_element.attrib["parameterRef"]
         psa_element = pa_element.find("SetAction")
-        value = psa_element.attrib["value"]
+        value = convert_float(psa_element.attrib["value"])
         return ParameterSetAction(parameterRef, value)
 
     def get_attributes(self):
@@ -3449,8 +3418,8 @@ class TrafficSourceAction(_ActionType):
             name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
                 Default: None
         """
-        self.rate = rate
-        self.radius = radius
+        self.rate = convert_float(rate)
+        self.radius = convert_float(radius)
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
 
@@ -3458,7 +3427,7 @@ class TrafficSourceAction(_ActionType):
             raise TypeError("trafficdefinition input is not of type TrafficDefinition")
         self.position = position
         self.trafficdefinition = trafficdefinition
-        self.velocity = velocity
+        self.velocity = convert_float(velocity)
         self.name = name
 
     def __eq__(self, other):
@@ -3491,11 +3460,11 @@ class TrafficSourceAction(_ActionType):
             name = ta_element.attrib["trafficName"]
         tsa_element = ta_element.find("TrafficSourceAction")
 
-        radius = tsa_element.attrib["radius"]
-        rate = tsa_element.attrib["rate"]
+        radius = convert_float(tsa_element.attrib["radius"])
+        rate = convert_float(tsa_element.attrib["rate"])
         velocity = None
         if "velocity" in tsa_element.attrib:
-            velocity = tsa_element.attrib["velocity"]
+            velocity = convert_float(tsa_element.attrib["velocity"])
 
         position = _PositionFactory.parse_position(tsa_element.find("Position"))
         trafficdefinition = TrafficDefinition.parse(
@@ -3590,8 +3559,8 @@ class TrafficSinkAction(_ActionType):
             name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
 
         """
-        self.rate = rate
-        self.radius = radius
+        self.rate = convert_float(rate)
+        self.radius = convert_float(radius)
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
 
@@ -3630,10 +3599,10 @@ class TrafficSinkAction(_ActionType):
             name = ta_element.attrib["trafficName"]
 
         tsa_element = ta_element.find("TrafficSinkAction")
-        radius = tsa_element.attrib["radius"]
+        radius = convert_float(tsa_element.attrib["radius"])
         rate = None
         if "rate" in tsa_element.attrib:
-            rate = tsa_element.attrib["rate"]
+            rate = convert_float(tsa_element.attrib["rate"])
 
         if tsa_element.find("TrafficDefinition") != None:
             trafficdefinition = TrafficDefinition.parse(
@@ -3763,16 +3732,16 @@ class TrafficSwarmAction(_ActionType):
             name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
                 Default: None
         """
-        self.semimajoraxis = semimajoraxis
-        self.semiminoraxis = semiminoraxis
-        self.innerradius = innerradius
-        self.offset = offset
-        self.numberofvehicles = numberofvehicles
+        self.semimajoraxis = convert_float(semimajoraxis)
+        self.semiminoraxis = convert_float(semiminoraxis)
+        self.innerradius = convert_float(innerradius)
+        self.offset = convert_float(offset)
+        self.numberofvehicles = convert_int(numberofvehicles)
         self.centralobject = centralobject
         if not isinstance(trafficdefinition, TrafficDefinition):
             raise TypeError("trafficdefinition input is not of type TrafficDefinition")
         self.trafficdefinition = trafficdefinition
-        self.velocity = velocity
+        self.velocity = convert_float(velocity)
         self.name = name
 
     def __eq__(self, other):
@@ -3806,14 +3775,14 @@ class TrafficSwarmAction(_ActionType):
 
         tsa_element = ta_element.find("TrafficSwarmAction")
 
-        innerradius = tsa_element.attrib["innerRadius"]
-        numberofvehicles = tsa_element.attrib["numberOfVehicles"]
-        offset = tsa_element.attrib["offset"]
-        semimajoraxis = tsa_element.attrib["semiMajorAxis"]
-        semiminoraxis = tsa_element.attrib["semiMinorAxis"]
+        innerradius = convert_float(tsa_element.attrib["innerRadius"])
+        numberofvehicles = convert_int(tsa_element.attrib["numberOfVehicles"])
+        offset = convert_float(tsa_element.attrib["offset"])
+        semimajoraxis = convert_float(tsa_element.attrib["semiMajorAxis"])
+        semiminoraxis = convert_float(tsa_element.attrib["semiMinorAxis"])
         velocity = None
         if "velocity" in tsa_element.attrib:
-            velocity = tsa_element.attrib["velocity"]
+            velocity = convert_float(tsa_element.attrib["velocity"])
 
         trafficdefinition = TrafficDefinition.parse(
             tsa_element.find("TrafficDefinition")
