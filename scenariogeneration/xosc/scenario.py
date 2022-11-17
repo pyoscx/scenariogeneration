@@ -94,6 +94,7 @@ class Scenario:
         osc_minor_version=1,
         license=None,
         creation_date=None,
+        header_properties=None,
     ):
 
         """Initalizes the Scenario class, and creates the header.
@@ -123,6 +124,8 @@ class Scenario:
             createtion_date (datetime.datetime): optional creation date of the scenario
                 Default: None (will be at the time of generation)
 
+            header_properties (Properties): properties that can be added to the header
+                Default: None
         """
         if not isinstance(entities, Entities):
             raise TypeError("entities input is not of type Entities")
@@ -146,6 +149,7 @@ class Scenario:
             revMinor=osc_minor_version,
             license=license,
             creation_date=creation_date,
+            properties=header_properties,
         )
 
     def __eq__(self, other):

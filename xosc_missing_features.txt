@@ -1,77 +1,62 @@
-Missing features for OpenSCENARIO V1.1.0: 
+Missing features for OpenSCENARIO V1.1.0:
 
 
 UserDefinedDistribution (Created)
 
-Missing features for OpenSCENARIO V1.2.0: 
+Missing features for OpenSCENARIO V1.2.0:
 
 
 
-    
+
     AnimationAction (Created)
     AnimationType (Created)
 
 
 
-    
 
-    
-    
-    
+
+
+
+
 
     CustomContent (Created)
-       
-    
-        
-    
-
-    FileHeader (Changed)
-    
-    
-    GeoPosition (Changed)
     GlobalAction (Changed)
-    
-    
 
-    LongitudinalAction (Changed)
-    
     ManualGear (Created)
-    
+
     ModifyRule (Changed)
-    
+
 
     ParameterAction (Changed)
     ParameterAddValueRule (Changed)
-    
+
     ParameterModifyAction (Changed)
     ParameterMultiplyByValueRule (Changed)
     ParameterSetAction (Changed)
-  
+
     Phase (Changed)
-    
-    
+
+
     Properties (Changed)
-    
-    RelativeLaneRange (Created)
-    
-    
+
+
     ScenarioDefinition (Changed)
     ScenarioObject (Changed)
     SensorReference (Created)
     SensorReferenceSet (Created)
-    
+
 
 
 
     TimeHeadwayCondition (Changed)
     TimeToCollisionCondition (Changed)
-    
+
     TrafficDefinition (Changed)
     TrafficSignalGroupState (Created)
     TrafficSourceAction (Changed)
     TrafficSwarmAction (Changed)
     TransitionDynamics (Changed)
-    
+
 
     UserDefinedLight (Created)
     VariableAction (Created)
@@ -82,14 +67,14 @@ Missing features for OpenSCENARIO V1.2.0:
     VariableModifyRule (Created)
     VariableMultiplyByValueRule (Created)
     VariableSetAction (Created)
-    
-    
+
+
     VehicleLight (Created)
     VehicleRoleDistribution (Created)
     VehicleRoleDistributionEntry (Created)
     VisibilityAction (Changed)
 
-    
+
 
 
 

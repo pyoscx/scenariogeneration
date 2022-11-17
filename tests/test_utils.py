@@ -784,10 +784,13 @@ def test_lightstate():
 
 
 def test_fileheader():
+
     fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
     prettyprint(fh.get_element())
     fh2 = OSC.FileHeader("my_scenario", "Mandolin")
-    fh3 = OSC.FileHeader("my_scenario", "Mandolin2")
+    props = OSC.Properties()
+    props.add_property("prop1", "something")
+    fh3 = OSC.FileHeader("my_scenario", "Mandolin2", properties=props)
     assert fh == fh2
     assert fh != fh3
 

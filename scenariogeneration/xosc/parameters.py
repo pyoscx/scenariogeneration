@@ -1320,6 +1320,8 @@ class ParameterValueDistribution(VersionBase):
         scenario_file,
         parameter_distribution,
         osc_minor_version=1,
+        header_properties=None,
+        license=None,
     ):
         """initalizes the ParameterValueDistribution
 
@@ -1335,8 +1337,18 @@ class ParameterValueDistribution(VersionBase):
 
             osc_minor_version (int): the osi version wanted (Note: only available from OpenSCENARIO V1.1.0)
 
+            header_properties (Properties): properties that can be added to the header
+                Default: None
+
+            licence (License): optional license to the file header
+                Default: None
         """
-        self.header = FileHeader(author, description, revMinor=osc_minor_version)
+        self.header = FileHeader(
+            author,
+            description,
+            revMinor=osc_minor_version,
+            properties=header_properties,
+        )
         if not isinstance(parameter_distribution, Stochastic) and not isinstance(
             parameter_distribution, Deterministic
         ):

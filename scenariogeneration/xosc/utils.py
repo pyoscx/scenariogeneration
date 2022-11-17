@@ -10,7 +10,6 @@
 
 """
 
-from distutils.version import Version
 import os
 
 
@@ -827,6 +826,8 @@ class FileHeader(VersionBase):
         creation_date (datetime.datetime): optional hardcoded creation date
             Default: datetime.datetime.now() (when actually generating the xml)
 
+        properties (Properties): additional info about the scenario
+            Default: None
     Attributes
     ----------
         name (str): name of the scenario
@@ -837,6 +838,7 @@ class FileHeader(VersionBase):
 
         creation_date (datetime.datetime): optional hardcoded creation date
 
+        properties (Properties): additional info about the scenarios
     Methods
     -------
         parse(element)
@@ -851,7 +853,13 @@ class FileHeader(VersionBase):
     """
 
     def __init__(
-        self, author, description, revMinor=1, license=None, creation_date=None
+        self,
+        author,
+        description,
+        revMinor=1,
+        license=None,
+        creation_date=None,
+        properties=None,
     ):
         """FileHeader creates the header of the OpenScenario file1
 
@@ -869,6 +877,8 @@ class FileHeader(VersionBase):
 
             creation_date (datetime.datetime): optional hardcoded creation date
                 Default: datetime.datetime.now() (when actually generating the xml)
+            properties (Properties): additional info about the scenario
+                Default: None
         """
         self.description = description
         self.author = author
@@ -879,6 +889,9 @@ class FileHeader(VersionBase):
         if license and not isinstance(license, License):
             raise TypeError("license is not of type License")
         self.license = license
+        if properties and not isinstance(properties, Properties):
+            raise TypeError("properties is not of type Properties")
+        self.properties = properties
 
     def __eq__(self, other):
         if isinstance(other, FileHeader):
@@ -887,6 +900,7 @@ class FileHeader(VersionBase):
                 and self.author == other.author
                 and self._revMajor == other._revMajor
                 and self._revMinor == other._revMinor
+                and self.properties == other.properties
             ):
                 # will not compare date, since this will never be the same
                 return True
@@ -936,6 +950,9 @@ class FileHeader(VersionBase):
         element = ET.Element("FileHeader", attrib=self.get_attributes())
         if self.license:
             element.append(self.license.get_element())
+        if self.properties and self.version_minor > 1:
+            element.append(self.properties.get_element())
+
         return element
 
 

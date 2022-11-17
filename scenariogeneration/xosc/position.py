@@ -1588,10 +1588,16 @@ class GeoPosition(_PositionType):
     def get_attributes(self):
         """returns the attributes of the GeoPosition as a dict"""
         retdict = {}
-        retdict["longitude"] = str(self.longitude)
-        retdict["latitude"] = str(self.latitude)
-        if self.height is not None:
-            retdict["height"] = str(self.height)
+        if self.isVersion(minor=1):
+            retdict["longitude"] = str(self.longitude)
+            retdict["latitude"] = str(self.latitude)
+            if self.height is not None:
+                retdict["height"] = str(self.height)
+        else:
+            retdict["longitudeDeg"] = str(self.longitude)
+            retdict["latitudeDeg"] = str(self.latitude)
+            if self.height is not None:
+                retdict["altitude"] = str(self.height)
         return retdict
 
     def get_element(self, elementname="Position"):
