@@ -1,5 +1,14 @@
 ## scenariogeneration release notes
 
+### 2022-11-17 Version 0.10.0
+- New Features
+    - esmini runner can now run in headless mode (without replay), with the headless input key
+    - countryRevision added for Signals
+    - __getitem__ introduced for xosc enums (Follomode['position'] now works)
+    - parallelization of writing the xml files for ScenarioGenerator (usefull for large generations)
+- Bug Fixes
+    - boolean checks updated so that parameterstrings on the format "$my_boolean_parameter" can be used in all xosc classes
+
 ### 2022-10-20 Version 0.9.3
 - Bug Fixes
     - scenario_generator: if generate_single is used with int and the option numerical, the name will be that number
