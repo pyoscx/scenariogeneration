@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -15,6 +15,9 @@ import xml.etree.ElementTree as ET
 from .utils import (
     EntityRef,
     convert_bool,
+    convert_int,
+    convert_float,
+    get_bool_string,
     _PositionType,
     _ValueTriggerType,
     _EntityTriggerType,
@@ -487,7 +490,7 @@ class EntityTrigger(_TriggerType):
         else:
             self._triggerpoint = "StopTrigger"
 
-        self.delay = delay
+        self.delay = convert_float(delay)
         if not hasattr(ConditionEdge, str(conditionedge)):
             raise ValueError("not a valid condition edge")
         self.conditionedge = conditionedge
@@ -547,7 +550,7 @@ class EntityTrigger(_TriggerType):
             )
 
         name = element.attrib["name"]
-        delay = element.attrib["delay"]
+        delay = convert_float(element.attrib["delay"])
         conditionedge = getattr(ConditionEdge, element.attrib["conditionEdge"])
         entityconditionelement = element.find("ByEntityCondition")
         triggering_entities = TriggeringEntities.parse(
@@ -673,7 +676,7 @@ class ValueTrigger(_TriggerType):
         else:
             self._triggerpoint = "StopTrigger"
 
-        self.delay = delay
+        self.delay = convert_float(delay)
         if not hasattr(ConditionEdge, str(conditionedge)):
             raise ValueError("not a valid condition edge")
         self.conditionedge = conditionedge
@@ -729,7 +732,7 @@ class ValueTrigger(_TriggerType):
             )
 
         name = element.attrib["name"]
-        delay = element.attrib["delay"]
+        delay = convert_float(element.attrib["delay"])
         conditionedge = getattr(ConditionEdge, element.attrib["conditionEdge"])
         condition = _ValueConditionFactory.parse_value_condition(
             element.find("ByValueCondition")
@@ -896,7 +899,7 @@ class EndOfRoadCondition(_EntityTriggerType):
             duration (float): the duration after the condition
 
         """
-        self.duration = duration
+        self.duration = convert_float(duration)
 
     def __eq__(self, other):
         if isinstance(other, EndOfRoadCondition):
@@ -918,7 +921,7 @@ class EndOfRoadCondition(_EntityTriggerType):
 
         """
         condition = element.find("EndOfRoadCondition")
-        duration = condition.attrib["duration"]
+        duration = convert_float(condition.attrib["duration"])
         return EndOfRoadCondition(duration)
 
     def get_attributes(self):
@@ -1038,7 +1041,7 @@ class OffroadCondition(_EntityTriggerType):
             duration (float): the duration of offroad
 
         """
-        self.duration = duration
+        self.duration = convert_float(duration)
 
     def __eq__(self, other):
         if isinstance(other, OffroadCondition):
@@ -1060,7 +1063,7 @@ class OffroadCondition(_EntityTriggerType):
 
         """
         condition = element.find("OffroadCondition")
-        duration = condition.attrib["duration"]
+        duration = convert_float(condition.attrib["duration"])
         return OffroadCondition(duration)
 
     def get_attributes(self):
@@ -1158,13 +1161,9 @@ class TimeHeadwayCondition(_EntityTriggerType):
                 Default: CoordinateSystem.road
         """
         self.entity = entity
-        self.value = value
-        if not isinstance(alongroute, bool):
-            raise TypeError("alongroute input not of type bool")
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-        self.alongroute = alongroute
-        self.freespace = freespace
+        self.value = convert_float(value)
+        self.alongroute = convert_bool(alongroute)
+        self.freespace = convert_bool(freespace)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -1228,11 +1227,11 @@ class TimeHeadwayCondition(_EntityTriggerType):
         basedict["entityRef"] = self.entity
         basedict["value"] = str(self.value)
         if self.isVersion(minor=0):
-            basedict["alongRoute"] = convert_bool(self.alongroute)
+            basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
             basedict["relativeDistanceType"] = self.relative_distance_type.get_name()
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
-        basedict["freespace"] = convert_bool(self.freespace)
+        basedict["freespace"] = get_bool_string(self.freespace)
         basedict["rule"] = self.rule.get_name()
         return basedict
 
@@ -1340,13 +1339,9 @@ class TimeToCollisionCondition(_EntityTriggerType):
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
                 Default: CoordinateSystem.road
         """
-        self.value = value
-        if not isinstance(alongroute, bool):
-            raise TypeError("alongroute input not of type bool")
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-        self.freespace = freespace
-        self.alongroute = alongroute
+        self.value = convert_float(value)
+        self.freespace = convert_bool(freespace)
+        self.alongroute = convert_bool(alongroute)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -1457,11 +1452,11 @@ class TimeToCollisionCondition(_EntityTriggerType):
         basedict = {}
         basedict["value"] = str(self.value)
         if self.isVersion(minor=0):
-            basedict["alongRoute"] = convert_bool(self.alongroute)
+            basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
             basedict["relativeDistanceType"] = self.relative_distance_type.name
             basedict["coordinateSystem"] = self.coordinate_system.name
-        basedict["freespace"] = convert_bool(self.freespace)
+        basedict["freespace"] = get_bool_string(self.freespace)
         basedict["rule"] = self.rule.get_name()
         return basedict
 
@@ -1519,7 +1514,7 @@ class AccelerationCondition(_EntityTriggerType):
 
             rule (Rule): condition rule of triggering
         """
-        self.value = value
+        self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -1544,7 +1539,7 @@ class AccelerationCondition(_EntityTriggerType):
 
         """
         condition = element.find("AccelerationCondition")
-        value = condition.attrib["value"]
+        value = convert_float(condition.attrib["value"])
         rule = getattr(Rule, condition.attrib["rule"])
         return AccelerationCondition(value, rule)
 
@@ -1591,7 +1586,7 @@ class StandStillCondition(_EntityTriggerType):
             duration (float): time of standstill
 
         """
-        self.duration = duration
+        self.duration = convert_float(duration)
 
     def __eq__(self, other):
         if isinstance(other, StandStillCondition):
@@ -1613,7 +1608,7 @@ class StandStillCondition(_EntityTriggerType):
 
         """
         condition = element.find("StandStillCondition")
-        duration = condition.attrib["duration"]
+        duration = convert_float(condition.attrib["duration"])
         return StandStillCondition(duration)
 
     def get_attributes(self):
@@ -1664,7 +1659,7 @@ class SpeedCondition(_EntityTriggerType):
 
             rule (Rule): condition rule of triggering
         """
-        self.value = value
+        self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -1689,7 +1684,7 @@ class SpeedCondition(_EntityTriggerType):
 
         """
         condition = element.find("SpeedCondition")
-        value = condition.attrib["value"]
+        value = convert_float(condition.attrib["value"])
         rule = getattr(Rule, condition.attrib["rule"])
         return SpeedCondition(value, rule)
 
@@ -1752,7 +1747,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
             entity (str): name of the entity to be relative to
 
         """
-        self.value = value
+        self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -1778,7 +1773,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
         """
         condition = element.find("RelativeSpeedCondition")
-        value = condition.attrib["value"]
+        value = convert_float(condition.attrib["value"])
         entity = condition.attrib["entityRef"]
         rule = getattr(Rule, condition.attrib["rule"])
         return RelativeSpeedCondition(value, rule, entity)
@@ -1831,7 +1826,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
             value (float): how far it has traveled
 
         """
-        self.value = value
+        self.value = convert_float(value)
 
     def __eq__(self, other):
         if isinstance(other, TraveledDistanceCondition):
@@ -1853,7 +1848,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
 
         """
         condition = element.find("TraveledDistanceCondition")
-        value = condition.attrib["value"]
+        value = convert_float(condition.attrib["value"])
         return TraveledDistanceCondition(value)
 
     def get_attributes(self):
@@ -1910,7 +1905,7 @@ class ReachPositionCondition(_EntityTriggerType):
         if not (isinstance(position, _PositionType)):
             raise TypeError("position input is not a valid Position")
         self.position = position
-        self.tolerance = tolerance
+        self.tolerance = convert_float(tolerance)
 
     def __eq__(self, other):
         if isinstance(other, ReachPositionCondition):
@@ -1935,7 +1930,7 @@ class ReachPositionCondition(_EntityTriggerType):
 
         """
         condition = element.find("ReachPositionCondition")
-        tolerance = condition.attrib["tolerance"]
+        tolerance = convert_float(condition.attrib["tolerance"])
         position = _PositionFactory.parse_position(condition.find("Position"))
         return ReachPositionCondition(position, tolerance)
 
@@ -2016,8 +2011,8 @@ class DistanceCondition(_EntityTriggerType):
         coordinate_system=CoordinateSystem.road,
     ):
         self.value = value
-        self.alongroute = alongroute
-        self.freespace = freespace
+        self.alongroute = convert_bool(alongroute)
+        self.freespace = convert_bool(freespace)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -2087,10 +2082,10 @@ class DistanceCondition(_EntityTriggerType):
         basedict = {}
         basedict["value"] = str(self.value)
 
-        basedict["freespace"] = convert_bool(self.freespace)
+        basedict["freespace"] = get_bool_string(self.freespace)
         basedict["rule"] = self.rule.get_name()
         if self.isVersion(minor=0):
-            basedict["alongRoute"] = convert_bool(self.alongroute)
+            basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
             basedict["relativeDistanceType"] = self.relative_distance_type.name
             basedict["coordinateSystem"] = self.coordinate_system.name
@@ -2183,10 +2178,8 @@ class RelativeDistanceCondition(_EntityTriggerType):
                 Default: CoordinateSystem.entity
         """
         self.value = value
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-        self.alongroute = alongroute
-        self.freespace = freespace
+        self.alongroute = convert_bool(alongroute)
+        self.freespace = convert_bool(freespace)
         if not hasattr(RelativeDistanceType, str(dist_type)):
             raise TypeError("dist_type is not of type RelativeDistanceType")
         self.dist_type = dist_type
@@ -2247,7 +2240,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         """returns the attributes of the RelativeDistanceCondition as a dict"""
         basedict = {}
         basedict["value"] = str(self.value)
-        basedict["freespace"] = convert_bool(self.freespace)
+        basedict["freespace"] = get_bool_string(self.freespace)
         basedict["entityRef"] = self.entity
         basedict["rule"] = self.rule.get_name()
         basedict["relativeDistanceType"] = self.dist_type.get_name()
@@ -2314,7 +2307,7 @@ class ParameterCondition(_ValueTriggerType):
 
         """
         self.parameter = parameter
-        self.value = value
+        self.value = convert_int(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -2339,7 +2332,7 @@ class ParameterCondition(_ValueTriggerType):
 
         """
         parameter = element.attrib["parameterRef"]
-        value = element.attrib["value"]
+        value = convert_int(element.attrib["value"])
         rule = getattr(Rule, element.attrib["rule"])
         return ParameterCondition(parameter, value, rule)
 
@@ -2434,7 +2427,7 @@ class SimulationTimeCondition(_ValueTriggerType):
 
     Parameters
     ----------
-        value (int): simulation time
+        value (float): simulation time
 
         rule (Rule): condition rule of triggering
 
@@ -2462,11 +2455,11 @@ class SimulationTimeCondition(_ValueTriggerType):
 
         Parameters
         ----------
-            value (int): simulation time
+            value (float): simulation time
 
             rule (Rule): condition rule of triggering
         """
-        self.value = value
+        self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -2491,7 +2484,7 @@ class SimulationTimeCondition(_ValueTriggerType):
 
         """
         condition = element.find("SimulationTimeCondition")
-        value = element.attrib["value"]
+        value = convert_float(element.attrib["value"])
         rule = getattr(Rule, element.attrib["rule"])
         return SimulationTimeCondition(value, rule)
 
@@ -2666,7 +2659,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
 
         """
         name = element.attrib["name"]
-        value = element.attrib["value"]
+        value = convert_int(element.attrib["value"])
         rule = getattr(Rule, element.attrib["rule"])
         return UserDefinedValueCondition(name, value, rule)
 
