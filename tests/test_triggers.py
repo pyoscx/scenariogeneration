@@ -65,10 +65,17 @@ def test_timeheadwaycondition():
     cond = OSC.TimeHeadwayCondition("Ego", 20, OSC.Rule.equalTo, True, False)
     prettyprint(cond.get_element())
     cond2 = OSC.TimeHeadwayCondition("Ego", 20, OSC.Rule.equalTo, True, False)
-    cond3 = OSC.TimeHeadwayCondition("Ego", 20, OSC.Rule.equalTo, True, True)
+    cond3 = OSC.TimeHeadwayCondition(
+        "Ego",
+        20,
+        OSC.Rule.equalTo,
+        True,
+        True,
+        routing_algorithm=OSC.RoutingAlgorithm.assignedRoute,
+    )
     assert cond == cond2
     assert cond != cond3
-
+    prettyprint(cond3.get_element())
     cond4 = OSC.TimeHeadwayCondition.parse(cond.get_element())
     assert cond == cond4
 

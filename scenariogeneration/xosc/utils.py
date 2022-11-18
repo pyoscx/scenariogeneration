@@ -150,7 +150,7 @@ class ParameterDeclarations(VersionBase):
 
 class VariableDeclarations(VersionBase):
     """The VariableDeclarations class creates the VariableDeclarations of OpenScenario
-
+    (Valid from V1.2)
     Attributes
     ----------
         variables: list of Variable objects
@@ -414,7 +414,7 @@ class Parameter(VersionBase):
 
 class Variable(VersionBase):
     """Variable is a declaration of an entry in VariableDeclaration
-
+    (valid from V1.2)
     Parameters
     ----------
         name (str): name of variable

@@ -3388,7 +3388,7 @@ class LightStateAction(_PrivateActionType):
 #### Global Actions ####
 class ParameterAddAction(_ActionType):
     """The ParameterAddAction class creates a ParameterAction of type ParameterModifyAction which adds a value to an existing Parameter
-
+    (valid to V1.1, deprecated since V1.2)
     Parameters
     ----------
         parameter_ref (str): name of the parameter
@@ -3460,14 +3460,14 @@ class ParameterAddAction(_ActionType):
         return ParameterAddAction(parameterRef, value)
 
     def get_attributes(self):
-        """returns the attributes of the AbsoluteSpeedAction as a dict"""
+        """returns the attributes of the ParameterAddAction as a dict"""
         return {"value": str(self.value)}
 
     def get_element(self):
-        """returns the elementTree of the AbsoluteSpeedAction"""
+        """returns the elementTree of the ParameterAddAction"""
         if self.version_minor > 1:
             raise OpenSCENARIOVersionError(
-                "ParameterActions were deprecated in OSC 1.2"
+                "ParameterAddAction was deprecated in OSC 1.2, please use VariableAddAction instead"
             )
         element = ET.Element("GlobalAction")
         paramaction = ET.SubElement(
@@ -3482,7 +3482,7 @@ class ParameterAddAction(_ActionType):
 
 class ParameterMultiplyAction(_ActionType):
     """The ParameterMultiplyAction class creates a ParameterAction of tyoe ParameterModifyAction which adds a value to an existing Parameter
-
+    (valid to V1.1, deprecated since V1.2)
     Parameters
     ----------
         parameter_ref (str): name of the parameter
@@ -3561,7 +3561,7 @@ class ParameterMultiplyAction(_ActionType):
         """returns the elementTree of the ParameterMultiplyAction"""
         if self.version_minor > 1:
             raise OpenSCENARIOVersionError(
-                "ParameterActions were deprecated in OSC 1.2"
+                "ParameterMultiplyAction was deprecated in OSC 1.2, please use VariableMultiplyAction instead"
             )
         element = ET.Element("GlobalAction")
         paramaction = ET.SubElement(
@@ -3576,7 +3576,7 @@ class ParameterMultiplyAction(_ActionType):
 
 class ParameterSetAction(_ActionType):
     """The ParameterSetAction class creates a ParameterAction which adds a value to an existing Parameter
-
+    (valid to V1.1, deprecated since V1.2)
     Parameters
     ----------
         parameter_ref (str): name of the parameter
@@ -3653,7 +3653,7 @@ class ParameterSetAction(_ActionType):
         """returns the elementTree of the ParameterSetAction"""
         if self.version_minor > 1:
             raise OpenSCENARIOVersionError(
-                "ParameterActions were deprecated in OSC 1.2"
+                "ParameterSetAction was deprecated in OSC 1.2, please use VariableSetAction instead"
             )
         element = ET.Element("GlobalAction")
         paramaction = ET.SubElement(
@@ -3666,7 +3666,7 @@ class ParameterSetAction(_ActionType):
 
 class VariableAddAction(_ActionType):
     """The VariableAddAction class creates a VariableAction of type VariableModifyAction which adds a value to an existing Variable
-
+        (valid from V1.2)
     Parameters
     ----------
         variable_ref (str): name of the variable
@@ -3758,7 +3758,7 @@ class VariableAddAction(_ActionType):
 
 class VariableMultiplyAction(_ActionType):
     """The VariableMultiplyAction class creates a VariableAction of tyoe VariableModifyAction which adds a value to an existing Variable
-
+        (valid from V1.2)
     Parameters
     ----------
         variable_ref (str): name of the variable
@@ -3850,7 +3850,7 @@ class VariableMultiplyAction(_ActionType):
 
 class VariableSetAction(_ActionType):
     """The VariableSetAction class creates a VariableAction which adds a value to an existing Variable
-
+        (valid from V1.2)
     Parameters
     ----------
         variable_ref (str): name of the variable

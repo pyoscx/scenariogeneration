@@ -1105,6 +1105,10 @@ class TimeHeadwayCondition(_EntityTriggerType):
 
         coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
             Default: CoordinateSystem.road
+
+        routing_algorithm (RoutingAlgorithm): the routing algorithm for the condition (valid from V1.2)
+            Default: None
+
     Attributes
     ----------
         entity (str): name of the entity for the headway
@@ -1120,6 +1124,8 @@ class TimeHeadwayCondition(_EntityTriggerType):
         distance_type (RelativeDistanceType): how the relative distance should be calculated (valid from V1.1)
 
         coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
+
+        routing_algorithm (RoutingAlgorithm): the routing algorithm for the condition (valid from V1.2)
 
     Methods
     -------
@@ -1143,6 +1149,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
         freespace=True,
         distance_type=RelativeDistanceType.longitudinal,
         coordinate_system=CoordinateSystem.road,
+        routing_algorithm=None,
     ):
         """initalize the TimeHeadwayCondition
 
@@ -1165,6 +1172,9 @@ class TimeHeadwayCondition(_EntityTriggerType):
 
             coordinate_system (CoordinateSystem): what coordinate system to use for the relative distance (valid from V1.1)
                 Default: CoordinateSystem.road
+
+            routing_algorithm (RoutingAlgorithm): the routing algorithm for the condition (valid from V1.2)
+
         """
         self.entity = entity
         self.value = convert_float(value)
@@ -1179,6 +1189,9 @@ class TimeHeadwayCondition(_EntityTriggerType):
             raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
         self.relative_distance_type = distance_type
         self.coordinate_system = coordinate_system
+        if routing_algorithm and not hasattr(RoutingAlgorithm, str(routing_algorithm)):
+            raise ValueError(routing_algorithm + "; is not a valid RoutingAlgorithm.")
+        self.routing_algorithm = routing_algorithm
 
     def __eq__(self, other):
         if isinstance(other, TimeHeadwayCondition):
@@ -1203,6 +1216,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
         entity = condition.attrib["entityRef"]
         value = condition.attrib["value"]
         rule = getattr(Rule, condition.attrib["rule"])
+        routing_algorithm = None
         if "alongRoute" in condition.attrib:
             alongroute = convert_bool(condition.attrib["alongRoute"])
         else:
@@ -1223,8 +1237,19 @@ class TimeHeadwayCondition(_EntityTriggerType):
             coordsystem = CoordinateSystem.road
         freespace = convert_bool(condition.attrib["freespace"])
 
+        if "routingAlgorithm" in condition.attrib:
+            routing_algorithm = getattr(
+                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            )
         return TimeHeadwayCondition(
-            entity, value, rule, alongroute, freespace, reldisttype, coordsystem
+            entity,
+            value,
+            rule,
+            alongroute,
+            freespace,
+            reldisttype,
+            coordsystem,
+            routing_algorithm,
         )
 
     def get_attributes(self):
@@ -1239,6 +1264,12 @@ class TimeHeadwayCondition(_EntityTriggerType):
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
         basedict["freespace"] = get_bool_string(self.freespace)
         basedict["rule"] = self.rule.get_name()
+        if self.routing_algorithm:
+            if self.version_minor < 2:
+                raise OpenSCENARIOVersionError(
+                    "RoutingAlgorithm in TimeHeadwayCondition was added in OSC V1.2"
+                )
+            basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
         return basedict
 
     def get_element(self):
@@ -2654,7 +2685,7 @@ class ParameterCondition(_ValueTriggerType):
 
 
 class VariableCondition(_ValueTriggerType):
-    """the VariableCondition class is an Value Condition used by the ValueTrigger
+    """the VariableCondition class is an Value Condition used by the ValueTrigger (valid from V1.2)
 
     Parameters
     ----------
