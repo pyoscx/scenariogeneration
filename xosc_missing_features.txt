@@ -39,10 +39,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
 
-
-    TimeHeadwayCondition (Changed)
-    TimeToCollisionCondition (Changed)
-
     TrafficDefinition (Changed)
     TrafficSignalGroupState (Created)
     TrafficSourceAction (Changed)

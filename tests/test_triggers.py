@@ -89,7 +89,11 @@ def test_timetocollisioncondition():
         value=20, alongroute=True, rule=OSC.Rule.equalTo, entity="Ego"
     )
     cond3 = OSC.TimeToCollisionCondition(
-        value=20, alongroute=True, rule=OSC.Rule.equalTo, position=OSC.WorldPosition()
+        value=20,
+        alongroute=True,
+        rule=OSC.Rule.equalTo,
+        position=OSC.WorldPosition(),
+        routing_algorithm=OSC.RoutingAlgorithm.assignedRoute,
     )
     prettyprint(cond3.get_element(), None)
     assert cond == cond2
