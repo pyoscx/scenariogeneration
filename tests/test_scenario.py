@@ -121,7 +121,8 @@ def test_scenario():
 
     sb = OSC.StoryBoard(init)
     sb.add_story(story)
-
+    variables = OSC.VariableDeclarations()
+    variables.add_variable(OSC.Variable("my_var", OSC.ParameterType.string, "hej"))
     sce = OSC.Scenario(
         "myscenario",
         "Mandolin",
@@ -150,11 +151,12 @@ def test_scenario():
         storyboard=sb,
         roadnetwork=road,
         catalog=catalog,
+        variable_declaration=variables,
     )
 
     assert sce == sce2
     assert sce != sce3
-
+    prettyprint(sce3)
     sce4 = OSC.Scenario.parse(sce.get_element())
     prettyprint(sce4.get_element(), None)
     assert sce == sce4

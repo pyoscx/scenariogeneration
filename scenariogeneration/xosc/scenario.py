@@ -18,7 +18,13 @@ import xml.dom.minidom as mini
 
 
 from ..helpers import printToFile
-from .utils import FileHeader, ParameterDeclarations, Catalog, TrafficSignalController
+from .utils import (
+    FileHeader,
+    ParameterDeclarations,
+    Catalog,
+    TrafficSignalController,
+    VariableDeclarations,
+)
 from .enumerations import VersionBase, XMLNS, XSI
 from .entities import Entities
 from .storyboard import StoryBoard
@@ -95,6 +101,7 @@ class Scenario:
         license=None,
         creation_date=None,
         header_properties=None,
+        variable_declaration=None,
     ):
 
         """Initalizes the Scenario class, and creates the header.
@@ -118,14 +125,16 @@ class Scenario:
             osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
                 Default: 1
 
-            licence (License): optional license to the file header
+            licence (License): optional license to the file header (Valid from OSC V1.1)
                 Default: None
 
             createtion_date (datetime.datetime): optional creation date of the scenario
                 Default: None (will be at the time of generation)
 
-            header_properties (Properties): properties that can be added to the header
+            header_properties (Properties): properties that can be added to the header (Valid from OSC V1.2)
                 Default: None
+
+            variable_declaration (VariableDeclarations): (Valid from OSC V1.2)
         """
         if not isinstance(entities, Entities):
             raise TypeError("entities input is not of type Entities")
@@ -138,6 +147,13 @@ class Scenario:
         if not isinstance(parameters, ParameterDeclarations):
             raise TypeError("parameters input is not of type ParameterDeclarations")
 
+        if variable_declaration and not isinstance(
+            variable_declaration, VariableDeclarations
+        ):
+            raise TypeError(
+                "variable_declaration input is not of type VariableDeclarations"
+            )
+        self.variable_declaration = variable_declaration
         self.entities = entities
         self.storyboard = storyboard
         self.roadnetwork = roadnetwork
@@ -161,6 +177,7 @@ class Scenario:
                 and self.catalog == other.catalog
                 and self.header == other.header
                 and self.parameters == other.parameters
+                and self.variable_declaration == other.variable_declaration
             ):
                 return True
         return False
@@ -189,6 +206,9 @@ class Scenario:
         entities = Entities.parse(element.find("Entities"))
         roadnetwork = RoadNetwork.parse(element.find("RoadNetwork"))
 
+        variables = None
+        if element.find("VariableDeclarations") is not None:
+            variables = VariableDeclarations.parse(element.find("VariableDeclarations"))
         return Scenario(
             header.description,
             header.author,
@@ -198,6 +218,8 @@ class Scenario:
             roadnetwork,
             catalog,
             header._revMinor,
+            header.properties,
+            variables,
         )
 
     def get_element(self):
@@ -215,6 +237,8 @@ class Scenario:
         element.append(self.roadnetwork.get_element())
         element.append(self.entities.get_element())
         element.append(self.storyboard.get_element())
+        if self.variable_declaration:
+            element.append(self.variable_declaration.get_element())
 
         return element
 

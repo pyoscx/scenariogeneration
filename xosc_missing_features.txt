@@ -31,8 +31,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
     Properties (Changed)
 
-
-    ScenarioDefinition (Changed)
     ScenarioObject (Changed)
     SensorReference (Created)
     SensorReferenceSet (Created)
