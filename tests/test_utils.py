@@ -162,6 +162,18 @@ def test_parameter():
     assert param4 == param6
 
 
+def test_variable():
+    param = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
+    prettyprint(param.get_element())
+    param2 = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
+    param3 = OSC.Variable("stuffs", OSC.ParameterType.int, "2")
+    param4 = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
+    assert param == param2
+    assert param != param3
+    param5 = OSC.Variable.parse(param.get_element())
+    assert param == param5
+
+
 def test_catalogreference():
     catref = OSC.CatalogReference("VehicleCatalog", "S60")
     prettyprint(catref.get_element())
@@ -199,6 +211,24 @@ def test_paramdeclaration():
     pardec4 = OSC.ParameterDeclarations()
     pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.int, "1"))
     pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.double, "0.01"))
+    assert pardec4 != pardec
+
+
+def test_variabledeclaration():
+
+    pardec = OSC.VariableDeclarations()
+    pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.int, "1"))
+    pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec2 = OSC.VariableDeclarations()
+    pardec2.add_variable(OSC.Variable("myparam1", OSC.ParameterType.int, "1"))
+    pardec2.add_variable(OSC.Variable("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec3 = OSC.VariableDeclarations.parse(pardec.get_element())
+    prettyprint(pardec.get_element())
+    assert pardec == pardec2
+    assert pardec == pardec3
+    pardec4 = OSC.VariableDeclarations()
+    pardec4.add_variable(OSC.Variable("myparam2", OSC.ParameterType.int, "1"))
+    pardec4.add_variable(OSC.Variable("myparam2", OSC.ParameterType.double, "0.01"))
     assert pardec4 != pardec
 
 

@@ -18,6 +18,7 @@ from scenariogeneration.helpers import prettify
 from scenariogeneration.xosc.actions import TrafficSignalControllerAction
 from scenariogeneration.xosc.enumerations import ReferenceContext
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0)
 
@@ -35,24 +36,37 @@ traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 env = OSC.Environment("Env_name", tod, weather, rc)
 
 
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
+
+
 @pytest.mark.parametrize(
-    "action",
+    "input",
     [
-        OSC.EnvironmentAction(env),
-        OSC.AddEntityAction("my new thingy", OSC.WorldPosition()),
-        OSC.DeleteEntityAction("my new thingy"),
-        OSC.ParameterAddAction("Myparam", 3),
-        OSC.ParameterSetAction("Myparam", 3),
-        OSC.TrafficSignalStateAction("my signal", "red"),
-        OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"),
-        OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
-        OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10),
-        OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic),
-        OSC.TrafficStopAction("Stop_Action"),
+        [OSC.EnvironmentAction(env), _MINOR_VERSION],
+        [OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), _MINOR_VERSION],
+        [OSC.DeleteEntityAction("my new thingy"), _MINOR_VERSION],
+        [OSC.ParameterAddAction("Myparam", 3), 1],
+        [OSC.ParameterMultiplyAction("Myparam", 3), 1],
+        [OSC.ParameterSetAction("Myparam", 3), 1],
+        [OSC.VariableAddAction("Myparam", 3), _MINOR_VERSION],
+        [OSC.VariableMultiplyAction("Myparam", 3), _MINOR_VERSION],
+        [OSC.VariableSetAction("Myparam", 3), _MINOR_VERSION],
+        [OSC.TrafficSignalStateAction("my signal", "red"), _MINOR_VERSION],
+        [OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), _MINOR_VERSION],
+        [
+            OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
+            _MINOR_VERSION,
+        ],
+        [OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), _MINOR_VERSION],
+        [OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), _MINOR_VERSION],
+        [OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION],
     ],
 )
-def test_global_action_factory(action):
-
+def test_global_action_factory(input):
+    action = input[0]
+    action.setVersion(minor=input[1])
     factoryoutput = OSC.actions._GlobalActionFactory.parse_globalaction(
         action.get_element()
     )
@@ -524,6 +538,7 @@ def test_follow_traj_action_polyline():
 
 def testParameterAddActions():
     pa = OSC.ParameterAddAction("Myparam", 3)
+    pa.setVersion(minor=1)
     prettyprint(pa.get_element())
     pa2 = OSC.ParameterAddAction("Myparam", 3)
     pa3 = OSC.ParameterAddAction("Myparam", 2)
@@ -536,6 +551,7 @@ def testParameterAddActions():
 
 def testParameterMultiplyActions():
     pa = OSC.ParameterMultiplyAction("Myparam", 3)
+    pa.setVersion(minor=1)
     prettyprint(pa)
     pa2 = OSC.ParameterMultiplyAction("Myparam", 3)
     pa3 = OSC.ParameterMultiplyAction("Myparam", 2)
@@ -548,6 +564,7 @@ def testParameterMultiplyActions():
 
 def testParameterSetActions():
     pa = OSC.ParameterSetAction("Myparam", 3)
+    pa.setVersion(minor=1)
     prettyprint(pa)
     pa2 = OSC.ParameterSetAction("Myparam", 3)
     pa3 = OSC.ParameterSetAction("Myparam2", 3)
@@ -555,6 +572,42 @@ def testParameterSetActions():
     assert pa != pa3
 
     pa4 = OSC.ParameterSetAction.parse(pa.get_element())
+    assert pa == pa4
+
+
+def testVariableAddActions():
+    pa = OSC.VariableAddAction("Myparam", 3)
+    prettyprint(pa.get_element())
+    pa2 = OSC.VariableAddAction("Myparam", 3)
+    pa3 = OSC.VariableAddAction("Myparam", 2)
+    assert pa == pa2
+    assert pa != pa3
+
+    pa4 = OSC.VariableAddAction.parse(pa.get_element())
+    assert pa == pa4
+
+
+def testVariableMultiplyActions():
+    pa = OSC.VariableMultiplyAction("Myparam", 3)
+    prettyprint(pa)
+    pa2 = OSC.VariableMultiplyAction("Myparam", 3)
+    pa3 = OSC.VariableMultiplyAction("Myparam", 2)
+    assert pa == pa2
+    assert pa != pa3
+
+    pa4 = OSC.VariableMultiplyAction.parse(pa.get_element())
+    assert pa == pa4
+
+
+def testVariableSetActions():
+    pa = OSC.VariableSetAction("Myparam", 3)
+    prettyprint(pa)
+    pa2 = OSC.VariableSetAction("Myparam", 3)
+    pa3 = OSC.VariableSetAction("Myparam2", 3)
+    assert pa == pa2
+    assert pa != pa3
+
+    pa4 = OSC.VariableSetAction.parse(pa.get_element())
     assert pa == pa4
 
 

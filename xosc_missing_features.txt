@@ -26,14 +26,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
     ModifyRule (Changed)
 
-
-    ParameterAction (Changed)
-    ParameterAddValueRule (Changed)
-
-    ParameterModifyAction (Changed)
-    ParameterMultiplyByValueRule (Changed)
-    ParameterSetAction (Changed)
-
     Phase (Changed)
 
 
@@ -59,14 +51,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
     UserDefinedLight (Created)
-    VariableAction (Created)
-    VariableAddValueRule (Created)
-    VariableCondition (Created)
-    VariableDeclaration (Created)
-    VariableModifyAction (Created)
-    VariableModifyRule (Created)
-    VariableMultiplyByValueRule (Created)
-    VariableSetAction (Created)
 
 
     VehicleLight (Created)

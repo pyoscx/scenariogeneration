@@ -238,6 +238,7 @@ def test_relativedistancecondition():
 
 def test_parametercondition():
     cond = OSC.ParameterCondition("MyParam", 1, OSC.Rule.equalTo)
+    cond.setVersion(minor=1)
     prettyprint(cond.get_element())
     cond2 = OSC.ParameterCondition("MyParam", 1, OSC.Rule.equalTo)
     cond3 = OSC.ParameterCondition("MyParam", 1, OSC.Rule.lessThan)
@@ -245,6 +246,18 @@ def test_parametercondition():
     assert cond != cond3
 
     cond4 = OSC.ParameterCondition.parse(cond.get_element())
+    assert cond == cond4
+
+
+def test_variablecondition():
+    cond = OSC.VariableCondition("MyParam", 1, OSC.Rule.equalTo)
+    prettyprint(cond.get_element())
+    cond2 = OSC.VariableCondition("MyParam", 1, OSC.Rule.equalTo)
+    cond3 = OSC.VariableCondition("MyParam", 1, OSC.Rule.lessThan)
+    assert cond == cond2
+    assert cond != cond3
+
+    cond4 = OSC.VariableCondition.parse(cond.get_element())
     assert cond == cond4
 
 
