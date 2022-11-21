@@ -205,7 +205,7 @@ class ScenarioObject(VersionBase):
 
             entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
-            controller (CatalogReference, Controller, or list of CatalogReference/Controller): controller for the object
+            controller (CatalogReference, Controller, or list of CatalogReference/Controller): controller for the object (multiple controllers are valid since OSC V1.2)
                 Default: None
 
         """

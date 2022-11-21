@@ -5,6 +5,8 @@ UserDefinedDistribution (Created)
 
 Missing features for OpenSCENARIO V1.2.0:
 
+    Properties (Changed)
+    CustomContent (Created)
 
 
 
@@ -12,24 +14,7 @@ Missing features for OpenSCENARIO V1.2.0:
     AnimationType (Created)
 
 
-
-
-
-
-
-
-
-    CustomContent (Created)
-    GlobalAction (Changed)
-
-    ManualGear (Created)
-
-
     Phase (Changed)
-
-
-    Properties (Changed)
-
 
 
     TrafficSignalGroupState (Created)

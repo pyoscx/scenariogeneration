@@ -40,6 +40,7 @@ from .enumerations import (
     FractionalCloudCover,
     Wetness,
     Role,
+    FollowingMode,
 )
 import datetime as dt
 
@@ -656,6 +657,8 @@ class TransitionDynamics(VersionBase):
 
         value (float): the value of the dynamics (time rate or distance)
 
+        following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
+            Default: None
 
     Attributes
     ----------
@@ -664,6 +667,8 @@ class TransitionDynamics(VersionBase):
         dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
 
         value (float): the value of the dynamics (time rate or distance)
+
+        following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
 
     Methods
     -------
@@ -678,7 +683,7 @@ class TransitionDynamics(VersionBase):
 
     """
 
-    def __init__(self, shape, dimension, value: float):
+    def __init__(self, shape, dimension, value: float, following_mode = None):
         """
         Parameters
         ----------
@@ -688,6 +693,8 @@ class TransitionDynamics(VersionBase):
 
             value (float): the value of the dynamics (time rate or distance)
 
+            following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
+                Default: None
         """
         if not hasattr(DynamicsShapes, str(shape)):
             raise TypeError(shape + "; is not a valid shape.")
@@ -697,6 +704,10 @@ class TransitionDynamics(VersionBase):
             raise ValueError(dimension + " is not a valid dynamics dimension")
         self.dimension = dimension
         self.value = convert_float(value)
+
+        if following_mode is not None and not hasattr(FollowingMode, str(following_mode)):
+            raise TypeError(following_mode + " is not a valid FollowingMode." )
+        self.following_mode = following_mode
 
     def __eq__(self, other):
         if isinstance(other, TransitionDynamics):
@@ -720,16 +731,21 @@ class TransitionDynamics(VersionBase):
         shape = getattr(DynamicsShapes, element.attrib["dynamicsShape"])
         dimension = getattr(DynamicsDimension, element.attrib["dynamicsDimension"])
         value = convert_float(element.attrib["value"])
-
-        return TransitionDynamics(shape, dimension, value)
+        following_mode = None
+        if "followingMode" in element.attrib:
+            following_mode = getattr(FollowingMode, element.attrib["followingMode"])
+        return TransitionDynamics(shape, dimension, value, following_mode)
 
     def get_attributes(self):
         """returns the attributes of the TransitionDynamics as a dict"""
-        return {
+        retdict = {
             "dynamicsShape": self.shape.get_name(),
             "value": str(self.value),
             "dynamicsDimension": self.dimension.get_name(),
         }
+        if self.following_mode is not None:
+            retdict["followingMode"] = self.following_mode.get_name()
+        return retdict
 
     def get_element(self, name="TransitionDynamics"):
         """returns the elementTree of the TransitionDynamics"""

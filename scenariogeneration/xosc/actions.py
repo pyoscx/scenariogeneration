@@ -36,7 +36,7 @@ from .enumerations import (
     DynamicsShapes,
     LateralDisplacement,
     SpeedTargetValueType,
-    FollowMode,
+    FollowingMode,
     VersionBase,
     LongitudinalDisplacement,
     DynamicsShapes,
@@ -709,7 +709,7 @@ class SpeedProfileAction(_PrivateActionType):
     ----------
         speeds (list of float): the different speed entries wanted
 
-        following_mode (FollowMode): how to follow the speed changes
+        following_mode (FollowingMode): how to follow the speed changes
 
         times (list of float): optional time entries when the speed entries should be achieved
             Default: None
@@ -725,7 +725,7 @@ class SpeedProfileAction(_PrivateActionType):
 
         speeds (list of float): the different speed entries wanted
 
-        following_mode (FollowMode): how to follow the speed changes
+        following_mode (FollowingMode): how to follow the speed changes
 
         times (list of float): optional time entries when the speed entries should be achieved
 
@@ -754,7 +754,7 @@ class SpeedProfileAction(_PrivateActionType):
         ----------
             speeds (list of float): the different speed entries wanted
 
-            following_mode (FollowMode): how to follow the speed changes
+            following_mode (FollowingMode): how to follow the speed changes
 
             times (list of float): optional time entries when the speed entries should be achieved
                 Default: None
@@ -773,8 +773,8 @@ class SpeedProfileAction(_PrivateActionType):
             dynamics_constraint, DynamicsConstraints
         ):
             raise TypeError("dynamics_constraint input not of type DynamicsConstraints")
-        if not hasattr(FollowMode, str(following_mode)):
-            raise TypeError("following_mode input not of type FollowMode")
+        if not hasattr(FollowingMode, str(following_mode)):
+            raise TypeError("following_mode input not of type FollowingMode")
 
         self.dynamics_constraint = dynamics_constraint
         self.following_mode = following_mode
@@ -810,7 +810,7 @@ class SpeedProfileAction(_PrivateActionType):
 
         """
         speed_profile_element = element.find("LongitudinalAction/SpeedProfileAction")
-        followmode = getattr(FollowMode, speed_profile_element.attrib["followingMode"])
+        following_mode = getattr(FollowingMode, speed_profile_element.attrib["followingMode"])
         dynamics_constraint = None
         entity = None
 
@@ -831,7 +831,7 @@ class SpeedProfileAction(_PrivateActionType):
             speeds.append(convert_float(i.attrib["speed"]))
 
         return SpeedProfileAction(
-            speeds, followmode, times, dynamics_constraint, entity
+            speeds, following_mode, times, dynamics_constraint, entity
         )
 
     def get_attributes(self):
@@ -1787,7 +1787,7 @@ class FollowTrajectoryAction(_PrivateActionType):
     ----------
         trajectory (Trajectory, or CatalogReference): the trajectory to follow
 
-        following_mode (FollowMode): the following mode of the action
+        following_mode (FollowingMode): the following mode of the action
 
         reference_domain (ReferenceContext): how to follow
             Default: None
@@ -1833,7 +1833,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         ----------
             trajectory (Trajectory, or CatalogReference): the trajectory to follow
 
-            following_mode (FollowMode): the following mode of the action
+            following_mode (FollowingMode): the following mode of the action
 
             reference_domain (str): absolute or relative time reference (must be combined with scale and offset)
                 Default: None
@@ -1845,7 +1845,7 @@ class FollowTrajectoryAction(_PrivateActionType):
                 Default: None
 
         """
-        # if following_mode not in FollowMode:
+        # if following_mode not in FollowingMode:
         #     ValueError(str(following_mode) + ' is not a valied following mode.')
         if not (
             isinstance(trajectory, Trajectory)
@@ -1895,7 +1895,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         scale = timeref.scale
 
         tfm_element = fta_element.find("TrajectoryFollowingMode")
-        following_mode = getattr(FollowMode, tfm_element.attrib["followingMode"])
+        following_mode = getattr(FollowingMode, tfm_element.attrib["followingMode"])
 
         if fta_element.find("TrajectoryRef") != None:
             fta_element = fta_element.find("TrajectoryRef")

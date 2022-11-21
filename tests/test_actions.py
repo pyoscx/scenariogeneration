@@ -126,7 +126,7 @@ ass = OSC.AssignControllerAction(cnt)
         OSC.AssignRouteAction(route),
         OSC.FollowTrajectoryAction(
             traj,
-            OSC.FollowMode.position,
+            OSC.FollowingMode.position,
             reference_domain=ReferenceContext.absolute,
             offset=3,
             scale=4,
@@ -512,7 +512,7 @@ def test_follow_traj_action_polyline():
 
     trajact = OSC.FollowTrajectoryAction(
         traj,
-        OSC.FollowMode.position,
+        OSC.FollowingMode.position,
         reference_domain=ReferenceContext.absolute,
         offset=3,
         scale=4,
@@ -521,7 +521,7 @@ def test_follow_traj_action_polyline():
 
     trajact2 = OSC.FollowTrajectoryAction(
         traj,
-        OSC.FollowMode.position,
+        OSC.FollowingMode.position,
         reference_domain=ReferenceContext.absolute,
         offset=3,
         scale=4,
@@ -529,7 +529,7 @@ def test_follow_traj_action_polyline():
     traj2 = OSC.Trajectory("my_trajectory", True)
     traj2.add_shape(polyline)
 
-    trajact3 = OSC.FollowTrajectoryAction(traj2, OSC.FollowMode.position)
+    trajact3 = OSC.FollowTrajectoryAction(traj2, OSC.FollowingMode.position)
     assert trajact == trajact2
     assert trajact != trajact3
 
@@ -852,19 +852,19 @@ def test_lightstateaction():
 def test_speedprofileaction():
     spa = OSC.SpeedProfileAction(
         [5, 4, 3],
-        OSC.FollowMode.follow,
+        OSC.FollowingMode.follow,
         [1, 2, 3],
         OSC.DynamicsConstraints(1, 1, 1),
         "ego",
     )
     spa2 = OSC.SpeedProfileAction(
         [5, 4, 3],
-        OSC.FollowMode.follow,
+        OSC.FollowingMode.follow,
         [1, 2, 3],
         OSC.DynamicsConstraints(1, 1, 1),
         "ego",
     )
-    spa3 = OSC.SpeedProfileAction([5, 4, 3], OSC.FollowMode.follow)
+    spa3 = OSC.SpeedProfileAction([5, 4, 3], OSC.FollowingMode.follow)
     prettyprint(spa)
     prettyprint(spa3)
     assert spa == spa2

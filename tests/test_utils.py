@@ -37,15 +37,16 @@ def test_transition_dynamics(teststring):
     prettyprint(td.get_element())
 
     td2 = OSC.TransitionDynamics(OSC.DynamicsShapes.step, teststring, 1)
-    td3 = OSC.TransitionDynamics(OSC.DynamicsShapes.step, teststring, 2)
+    td3 = OSC.TransitionDynamics(OSC.DynamicsShapes.step, teststring, 2, following_mode=OSC.FollowingMode.follow)
     prettyprint(td2.get_element())
     prettyprint(td3.get_element())
     assert td == td2
     assert td != td3
 
     td4 = OSC.TransitionDynamics.parse(td.get_element())
-    td == td4
-
+    assert td == td4
+    td5 = OSC.TransitionDynamics.parse(td3.get_element())
+    assert td5 == td3
 
 @pytest.mark.parametrize(
     "testinp,results",

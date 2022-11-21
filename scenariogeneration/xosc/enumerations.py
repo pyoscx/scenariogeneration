@@ -210,8 +210,8 @@ class DynamicsShapes(metaclass=_EnumMeta):
 class FollowMode(metaclass=_EnumMeta):
     """Enum for FollowMode"""
 
-    position = _OscEnum("FollowMode", "position")
-    follow = _OscEnum("FollowMode", "follow")
+    position = _OscEnum("FollowingMode", "position")
+    follow = _OscEnum("FollowingMode", "follow")
 
 
 class MiscObjectCategory(metaclass=_EnumMeta):

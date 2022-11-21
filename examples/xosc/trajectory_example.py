@@ -120,7 +120,7 @@ traj.add_shape(polyline)
 
 
 trajact = xosc.FollowTrajectoryAction(
-    traj, xosc.FollowMode.position, xosc.ReferenceContext.relative, 1, 0
+    traj, xosc.FollowingMode.position, xosc.ReferenceContext.relative, 1, 0
 )
 
 event.add_action("newspeed", trajact)

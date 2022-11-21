@@ -70,7 +70,7 @@ ego_event.add_trigger(
     )
 )
 ego_speed_change = xosc.SpeedProfileAction(
-    [20, 30, 25, 40], xosc.FollowMode.follow, [0, 5, 10, 20]
+    [20, 30, 25, 40], xosc.FollowingMode.follow, [0, 5, 10, 20]
 )
 ego_event.add_action("ego_speed_change", ego_speed_change)
 ego_man = xosc.Maneuver("ego_speed").add_event(ego_event)
