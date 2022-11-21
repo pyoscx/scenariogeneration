@@ -24,20 +24,14 @@ Missing features for OpenSCENARIO V1.2.0:
 
     ManualGear (Created)
 
-    ModifyRule (Changed)
 
     Phase (Changed)
 
 
     Properties (Changed)
 
-    ScenarioObject (Changed)
-    SensorReference (Created)
-    SensorReferenceSet (Created)
 
 
-
-    TrafficDefinition (Changed)
     TrafficSignalGroupState (Created)
     TrafficSourceAction (Changed)
     TrafficSwarmAction (Changed)
@@ -48,9 +42,7 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
     VehicleLight (Created)
-    VehicleRoleDistribution (Created)
-    VehicleRoleDistributionEntry (Created)
-    VisibilityAction (Changed)
+
 
 
 

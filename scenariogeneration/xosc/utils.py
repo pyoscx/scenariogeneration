@@ -39,6 +39,7 @@ from .enumerations import (
     ControllerType,
     FractionalCloudCover,
     Wetness,
+    Role,
 )
 import datetime as dt
 
@@ -1624,6 +1625,8 @@ class TrafficDefinition(VersionBase):
         self.vehiclecategories = []
         self.controllerweights = []
         self.controllers = []
+        self.vehicle_roles = []
+        self.vehicle_roles_weights = []
 
     def __eq__(self, other):
         if isinstance(other, TrafficDefinition):
@@ -1633,6 +1636,8 @@ class TrafficDefinition(VersionBase):
                 and self.vehiclecategories == other.vehiclecategories
                 and self.controllerweights == other.controllerweights
                 and self.controllers == other.controllers
+                and self.vehicle_roles == other.vehicle_roles
+                and self.vehicle_roles_weights == other.vehicle_roles_weights
             ):
                 return True
         return False
@@ -1677,6 +1682,14 @@ class TrafficDefinition(VersionBase):
                 )
                 td.add_controller(catalog_reference, weight)
 
+        vehicle_role_distributions = element.find("VehicleRoleDistribution")
+        if vehicle_role_distributions is not None:
+            for entry in vehicle_role_distributions.findall(
+                "VehicleRoleDistributionEntry"
+            ):
+                td.add_vehicle_role(
+                    getattr(Role, entry.attrib["role"]), entry.attrib["weight"]
+                )
         return td
 
     def add_vehicle(self, vehiclecategory, weight):
@@ -1694,6 +1707,20 @@ class TrafficDefinition(VersionBase):
         self.vehiclecategories.append(vehiclecategory)
         self.vehicleweights.append(weight)
         return self
+
+    def add_vehicle_role(self, vehicle_role, weight):
+        """Adds a vehicle role to a distribution
+
+        Parameters
+        ----------
+            vehicle_role (Role): add a role to the vehicle role distribution
+
+            weight (float): the weight of that vehicle role
+        """
+        if not hasattr(Role, str(vehicle_role)):
+            raise TypeError("vehicle_role input is not of type Role")
+        self.vehicle_roles_weights.append(convert_float(weight))
+        self.vehicle_roles.append(vehicle_role)
 
     def add_controller(self, controller, weight):
         """Adds a controller to the traffic distribution
@@ -1750,7 +1777,21 @@ class TrafficDefinition(VersionBase):
                 attrib={"weight": str(self.controllerweights[i])},
             )
             tmp_controller.append(self.controllers[i].get_element())
-
+        if self.vehicle_roles:
+            if self.version_minor < 2:
+                raise OpenSCENARIOVersionError(
+                    "VehicleRoleDistribution was added in OSC V1.2"
+                )
+            role_element = ET.SubElement(element, "VehicleRoleDistribution")
+            for i in range(len(self.vehicle_roles)):
+                ET.SubElement(
+                    role_element,
+                    "VehicleRoleDistributionEntry",
+                    attrib={
+                        "role": self.vehicle_roles[i].get_name(),
+                        "weight": str(self.vehicle_roles_weights[i]),
+                    },
+                )
         return element
 
 

@@ -203,7 +203,7 @@ def test_scenarioobject():
     prop = OSC.Properties()
     prop.add_property("mything", "2")
     prop.add_property("theotherthing", "true")
-    cnt = OSC.Controller("mycontroler", prop)
+    cnt = OSC.Controller("mycontroller", prop)
 
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
@@ -214,15 +214,22 @@ def test_scenarioobject():
     veh.add_axle(ba)
     param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
     veh.add_parameter(param)
-
+    cnt2 = [
+        OSC.Controller("mycontroller", prop),
+        OSC.Controller("mycontroller_2", prop),
+    ]
     so = OSC.ScenarioObject("name", veh, cnt)
     so2 = OSC.ScenarioObject("name", veh, cnt)
+    so3 = OSC.ScenarioObject("name", veh, cnt2)
     prettyprint(so.get_element())
     assert so == so2
-
+    assert so != so3
+    prettyprint(so3.get_element())
     so4 = OSC.ScenarioObject.parse(so.get_element())
-    prettyprint(so4.get_element())
+
     assert so4 == so
+    so5 = OSC.ScenarioObject.parse(so3.get_element())
+    assert so5 == so3
 
 
 def test_entities():

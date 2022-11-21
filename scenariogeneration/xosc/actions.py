@@ -2372,7 +2372,7 @@ class AssignControllerAction(_PrivateActionType):
         )
 
     def get_attributes(self):
-        """returns the attributes of the VisibilityAction as a dict"""
+        """returns the attributes of the AssignControllerAction as a dict"""
         retdict = {}
 
         if self.isVersion(minor=1):
@@ -2987,6 +2987,8 @@ class VisibilityAction(_PrivateActionType):
 
         sensors (boolean): visible to sensors or not
 
+        sensor_refs (list of str): all sensor references
+
     Methods
     -------
         parse(element)
@@ -3015,10 +3017,14 @@ class VisibilityAction(_PrivateActionType):
         self.graphics = convert_bool(graphics)
         self.traffic = convert_bool(traffic)
         self.sensors = convert_bool(sensors)
+        self.sensor_refs = []
 
     def __eq__(self, other):
         if isinstance(other, VisibilityAction):
-            if self.get_attributes() == other.get_attributes():
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.sensor_refs == other.sensor_refs
+            ):
                 return True
         return False
 
@@ -3039,8 +3045,22 @@ class VisibilityAction(_PrivateActionType):
         graphics = convert_bool(va_element.attrib["graphics"])
         traffic = convert_bool(va_element.attrib["traffic"])
         sensors = convert_bool(va_element.attrib["sensors"])
+        visibility_action = VisibilityAction(graphics, traffic, sensors)
+        sensor_ref_element = va_element.find("SensorReferenceSet")
+        if sensor_ref_element is not None:
+            for sensor_element in sensor_ref_element.findall("SensorReference"):
+                visibility_action.add_sensor_reference(sensor_element.attrib["name"])
+        return visibility_action
 
-        return VisibilityAction(graphics, traffic, sensors)
+    def add_sensor_reference(self, sensor_ref):
+        """adds a sensor reference to the visibility action (Valid since OSC V1.2)
+
+        Parameters
+        ----------
+            sensor_ref (str): name of a sensor
+        """
+        self.sensor_refs.append(sensor_ref)
+        return self
 
     def get_attributes(self):
         """returns the attributes of the VisibilityAction as a dict"""
@@ -3053,7 +3073,19 @@ class VisibilityAction(_PrivateActionType):
     def get_element(self):
         """returns the elementTree of the VisibilityAction"""
         element = ET.Element("PrivateAction")
-        ET.SubElement(element, "VisibilityAction", self.get_attributes())
+        visibility_element = ET.SubElement(
+            element, "VisibilityAction", self.get_attributes()
+        )
+        if self.sensor_refs:
+            if self.version_minor < 2:
+                raise OpenSCENARIOVersionError(
+                    "VehicleRoleDistribution was added in OSC V1.2"
+                )
+            sensor_ref_element = ET.SubElement(visibility_element, "SensorReferenceSet")
+            for sensor in self.sensor_refs:
+                ET.SubElement(
+                    sensor_ref_element, "SensorReference", {"name": str(sensor)}
+                )
         return element
 
 

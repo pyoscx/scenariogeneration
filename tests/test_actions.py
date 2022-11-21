@@ -437,9 +437,11 @@ def test_override_controller():
 
 def test_visual_action():
     va = OSC.VisibilityAction(True, False, True)
+    va.add_sensor_reference("mysensor")
     prettyprint(va.get_element(), None)
     va2 = OSC.VisibilityAction(True, False, True)
-    va3 = OSC.VisibilityAction(True, False, False)
+    va2.add_sensor_reference("mysensor")
+    va3 = OSC.VisibilityAction(True, False, True)
     assert va == va2
     assert va != va3
 

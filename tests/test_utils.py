@@ -447,11 +447,15 @@ def test_trafficdefinition():
     traffic3 = OSC.TrafficDefinition("my traffic")
     traffic3.add_controller(controller, 0.5)
     traffic3.add_vehicle(OSC.VehicleCategory.car, 0.9)
+    traffic3.add_vehicle_role(OSC.Role.military, 1)
     assert traffic == traffic2
     assert traffic != traffic3
-
+    prettyprint(traffic3)
     traffic4 = OSC.TrafficDefinition.parse(traffic.get_element())
     assert traffic == traffic4
+
+    traffic5 = OSC.TrafficDefinition.parse(traffic3.get_element())
+    assert traffic3 == traffic5
 
 
 def test_weather():

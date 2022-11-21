@@ -19,8 +19,14 @@ from .utils import (
     Parameter,
     convert_float,
 )
-from .utils import EntityRef
-from .utils import ParameterDeclarations
+from .utils import (
+    EntityRef,
+    DynamicsConstraints,
+    CatalogFile,
+    CatalogReference,
+    ParameterDeclarations,
+)
+from .exceptions import OpenSCENARIOVersionError
 from .enumerations import (
     VehicleCategory,
     PedestrianCategory,
@@ -29,7 +35,7 @@ from .enumerations import (
     VersionBase,
     Role,
 )
-from .utils import DynamicsConstraints, CatalogFile, CatalogReference
+
 
 # TODO: Add functionality for lists in add_entity_byref & add_entity_bytype
 class Entities:
@@ -112,7 +118,7 @@ class Entities:
 
             entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference (V1.1)): object description
 
-            controller (CatalogReference, or Controller): controller for the object
+            controller (CatalogReference, Controller, or list of CatalogReference/Controller): controller for the object
                 Default (None)
 
         """
@@ -168,7 +174,7 @@ class ScenarioObject(VersionBase):
 
         entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
-        controller (CatalogReference, or Controller): controller for the object
+        controller (CatalogReference, Controller, or list of CatalogReference/Controller): controller for the object
 
     Attributes
     ----------
@@ -176,7 +182,7 @@ class ScenarioObject(VersionBase):
 
         entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
-        controller (CatalogReference, or Controller): controller for the object
+        controller (list of CatalogReference/Controller): controller for the object
 
     Methods
     -------
@@ -199,7 +205,7 @@ class ScenarioObject(VersionBase):
 
             entityobject (CatalogReference, Vehicle, Pedestrian, MiscObject, or ExternalObjectReference): object description
 
-            controller (CatalogReference, or Controller): controller for the object
+            controller (CatalogReference, Controller, or list of CatalogReference/Controller): controller for the object
                 Default: None
 
         """
@@ -218,15 +224,22 @@ class ScenarioObject(VersionBase):
                 "entityobject is not of type CatalogReference, Vehicle, Pedestrian, MiscObject, nor ExternalObjectReference (or to old version of openscenario)"
             )
 
-        if controller is not None and not (
-            isinstance(controller, CatalogReference)
-            or isinstance(controller, Controller)
-        ):
-            raise TypeError(
-                "controller input is not of type CatalogReference or Controller"
-            )
+        if controller is not None:
+            if not isinstance(controller, list):
+                self.controller = [controller]
+            else:
+                self.controller = controller
+
+            for cnt in self.controller:
+                if cnt is not None and not (
+                    isinstance(cnt, CatalogReference) or isinstance(cnt, Controller)
+                ):
+                    raise TypeError(
+                        "controller input is not of type CatalogReference or Controller"
+                    )
+        else:
+            self.controller = controller
         self.entityobject = entityobject
-        self.controller = controller
 
     def __eq__(self, other):
         if isinstance(other, ScenarioObject):
@@ -267,15 +280,18 @@ class ScenarioObject(VersionBase):
 
         controller = None
         if element.find("ObjectController") != None:
-            object_controller_element = element.find("ObjectController")
-            if object_controller_element.find("Controller") != None:
-                controller = Controller.parse(
-                    object_controller_element.find("Controller")
-                )
-            elif object_controller_element.find("CatalogReference") != None:
-                controller = CatalogReference.parse(
-                    object_controller_element.find("CatalogReference")
-                )
+            controller = []
+            for object_controller_element in element.findall("ObjectController"):
+                if object_controller_element.find("Controller") != None:
+                    controller.append(
+                        Controller.parse(object_controller_element.find("Controller"))
+                    )
+                elif object_controller_element.find("CatalogReference") != None:
+                    controller.append(
+                        CatalogReference.parse(
+                            object_controller_element.find("CatalogReference")
+                        )
+                    )
 
         return ScenarioObject(name, entityobject, controller)
 
@@ -289,8 +305,14 @@ class ScenarioObject(VersionBase):
 
         element.append(self.entityobject.get_element())
         if self.controller:
-            objcont = ET.SubElement(element, "ObjectController")
-            objcont.append(self.controller.get_element())
+            if self.version_minor < 2 and len(self.controller) > 1:
+                raise OpenSCENARIOVersionError(
+                    "multiple controllers were added in OSC V1.2"
+                )
+
+            for cnt in self.controller:
+                objcont = ET.SubElement(element, "ObjectController")
+                objcont.append(cnt.get_element())
 
         return element
 
