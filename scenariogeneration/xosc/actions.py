@@ -29,7 +29,14 @@ from .utils import (
     convert_int,
     get_bool_string
 )
-from .utils import Controller, _PositionType, Color, UserDefinedLight, _LightState
+from .utils import (
+    Controller,
+    _PositionType,
+    Color,
+    UserDefinedLight,
+    _LightState,
+    DirectionOfTravelDistribution,
+)
 
 from .enumerations import (
     CoordinateSystem,
@@ -52,6 +59,8 @@ from .exceptions import (
     ToManyOptionalArguments,
 )
 from .position import _PositionFactory, Route, Trajectory
+
+from .parameters import Range
 
 
 class _GlobalActionFactory:
@@ -810,7 +819,9 @@ class SpeedProfileAction(_PrivateActionType):
 
         """
         speed_profile_element = element.find("LongitudinalAction/SpeedProfileAction")
-        following_mode = getattr(FollowingMode, speed_profile_element.attrib["followingMode"])
+        following_mode = getattr(
+            FollowingMode, speed_profile_element.attrib["followingMode"]
+        )
         dynamics_constraint = None
         entity = None
 
@@ -4401,7 +4412,8 @@ class TrafficSourceAction(_ActionType):
         velocity = None
         if "velocity" in tsa_element.attrib:
             velocity = convert_float(tsa_element.attrib["velocity"])
-
+        elif "speed" in tsa_element.attrib:
+            velocity = tsa_element.attrib["speed"]
         position = _PositionFactory.parse_position(tsa_element.find("Position"))
         trafficdefinition = TrafficDefinition.parse(
             tsa_element.find("TrafficDefinition")
@@ -4417,8 +4429,10 @@ class TrafficSourceAction(_ActionType):
         retdict["rate"] = str(self.rate)
         retdict["radius"] = str(self.radius)
         if self.velocity is not None:
-            retdict["velocity"] = str(self.velocity)
-
+            if self.version_minor < 2:
+                retdict["velocity"] = str(self.velocity)
+            else:
+                retdict["speed"] = str(self.velocity)
         return retdict
 
     def get_element(self):
@@ -4583,7 +4597,7 @@ class TrafficSwarmAction(_ActionType):
 
         semiminoraxis (float): half length of minor axis of ellipsis around target
 
-        innerradius (float): radius of inner cirvle
+        innerradius (float): radius of inner circle
 
         offset (float): longitudinal offset from central entity
 
@@ -4593,11 +4607,15 @@ class TrafficSwarmAction(_ActionType):
 
         trafficdefinition (TrafficDefinition): definition of the traffic
 
-        velocity (float): optional starting velocity
+        velocity (float or Range): optional starting velocity (range is replacing velocity in OSC V1.2)
             Default: None
 
         name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
             Default: None
+
+        direction_of_travel (DirectionOfTravelDistribution): adds the DirectionOfTravelDistribution to the action(valid from OSC V1.2)
+            Default: None
+
     Attributes
     ----------
 
@@ -4619,6 +4637,8 @@ class TrafficSwarmAction(_ActionType):
             Default: None
 
         name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
+
+        direction_of_travel (DirectionOfTravelDistribution): adds the DirectionOfTravelDistribution to the action(valid from OSC V1.2)
 
     Methods
     -------
@@ -4643,6 +4663,7 @@ class TrafficSwarmAction(_ActionType):
         trafficdefinition,
         velocity=None,
         name=None,
+        direction_of_travel=None,
     ):
         """initalize the TrafficSwarmAction
 
@@ -4667,6 +4688,9 @@ class TrafficSwarmAction(_ActionType):
 
             name (str): name of the TrafficAction, can be used to stop the TrafficAction, (valid from V1.1)
                 Default: None
+
+            direction_of_travel (DirectionOfTravelDistribution): adds the DirectionOfTravelDistribution to the action(valid from OSC V1.2)
+                Default: None
         """
         self.semimajoraxis = convert_float(semimajoraxis)
         self.semiminoraxis = convert_float(semiminoraxis)
@@ -4677,8 +4701,21 @@ class TrafficSwarmAction(_ActionType):
         if not isinstance(trafficdefinition, TrafficDefinition):
             raise TypeError("trafficdefinition input is not of type TrafficDefinition")
         self.trafficdefinition = trafficdefinition
-        self.velocity = convert_float(velocity)
+        if velocity is not None:
+            if isinstance(velocity, Range):
+                self.velocity = velocity
+            else:
+                self.velocity = convert_float(velocity)
+        else:
+            self.velocity = None
         self.name = name
+        if direction_of_travel is not None and not isinstance(
+            direction_of_travel, DirectionOfTravelDistribution
+        ):
+            raise TypeError(
+                "direction_of_travel is not of type DirectionOfTravelDistribution"
+            )
+        self.direction_of_travel = direction_of_travel
 
     def __eq__(self, other):
         if isinstance(other, TrafficSwarmAction):
@@ -4719,11 +4756,17 @@ class TrafficSwarmAction(_ActionType):
         velocity = None
         if "velocity" in tsa_element.attrib:
             velocity = convert_float(tsa_element.attrib["velocity"])
+        elif tsa_element.find("InitalSpeedRange") is not None:
+            velocity = Range.parse(tsa_element.find("InitalSpeedRange"))
 
         trafficdefinition = TrafficDefinition.parse(
             tsa_element.find("TrafficDefinition")
         )
-
+        dot = None
+        if tsa_element.find("DirectionOfTravelDistribution"):
+            dot = DirectionOfTravelDistribution.parse(
+                tsa_element.find("DirectionOfTravelDistribution")
+            )
         central_element = tsa_element.find("CentralSwarmObject")
         centralobject = central_element.attrib["entityRef"]
 
@@ -4737,6 +4780,7 @@ class TrafficSwarmAction(_ActionType):
             trafficdefinition,
             velocity,
             name,
+            dot,
         )
         return tsa_object
 
@@ -4748,7 +4792,7 @@ class TrafficSwarmAction(_ActionType):
         retdict["innerRadius"] = str(self.innerradius)
         retdict["offset"] = str(self.offset)
         retdict["numberOfVehicles"] = str(self.numberofvehicles)
-        if self.velocity is not None:
+        if self.velocity is not None and not isinstance(self.velocity, Range):
             retdict["velocity"] = str(self.velocity)
         return retdict
 
@@ -4767,6 +4811,21 @@ class TrafficSwarmAction(_ActionType):
         ET.SubElement(
             swarmaction, "CentralSwarmObject", attrib={"entityRef": self.centralobject}
         )
+        if self.velocity is not None:
+            if self.version_minor > 1:
+                if isinstance(self.velocity, Range):
+                    swarmaction.append(self.velocity.get_element("InitialSpeedRange"))
+                else:
+                    raise OpenSCENARIOVersionError(
+                        "Range for TrafficSwarmAction was introduced in OSC V1.2, velocity should not be used anymore."
+                    )
+
+        if self.direction_of_travel is not None:
+            if self.version_minor < 2:
+                raise OpenSCENARIOVersionError(
+                    "DirectionOfTravelDistribution was added in OSC V1.2"
+                )
+            swarmaction.append(self.direction_of_travel.get_element())
 
         return element
 

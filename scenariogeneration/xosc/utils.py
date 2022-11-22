@@ -683,7 +683,7 @@ class TransitionDynamics(VersionBase):
 
     """
 
-    def __init__(self, shape, dimension, value: float, following_mode = None):
+    def __init__(self, shape, dimension, value: float, following_mode=None):
         """
         Parameters
         ----------
@@ -705,8 +705,10 @@ class TransitionDynamics(VersionBase):
         self.dimension = dimension
         self.value = convert_float(value)
 
-        if following_mode is not None and not hasattr(FollowingMode, str(following_mode)):
-            raise TypeError(following_mode + " is not a valid FollowingMode." )
+        if following_mode is not None and not hasattr(
+            FollowingMode, str(following_mode)
+        ):
+            raise TypeError(following_mode + " is not a valid FollowingMode.")
         self.following_mode = following_mode
 
     def __eq__(self, other):

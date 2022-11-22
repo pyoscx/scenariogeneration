@@ -302,9 +302,9 @@ class Range:
         retdict = {"lowerLimit": str(self.lower), "upperLimit": str(self.upper)}
         return retdict
 
-    def get_element(self):
+    def get_element(self, elementname="Range"):
         """returns the elementTree of the Range"""
-        element = ET.Element("Range", self.get_attributes())
+        element = ET.Element(elementname, self.get_attributes())
         return element
 
 

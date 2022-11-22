@@ -729,6 +729,7 @@ def test_trafficswarmaction():
     prop = OSC.Properties()
     prop.add_file("mycontrollerfile.xml")
     controller = OSC.Controller("mycontroller", prop)
+    dot = OSC.DirectionOfTravelDistribution(0.5, 0.5)
 
     traffic = OSC.TrafficDefinition("my traffic")
     traffic.add_controller(controller, 0.5)
@@ -743,8 +744,9 @@ def test_trafficswarmaction():
     # prettyprint(swarm_action.get_element())
 
     swarm_action2 = OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic)
+
     swarm_action3 = OSC.TrafficSwarmAction(
-        10, 20, 10, 2, 10, "Ego", traffic, 10, "Traffic_name"
+        10, 20, 10, 2, 10, "Ego", traffic, OSC.Range(10, 20), "Traffic_name", dot
     )
     prettyprint(swarm_action3.get_element())
 

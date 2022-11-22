@@ -18,9 +18,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
     TrafficSignalGroupState (Created)
-    TrafficSourceAction (Changed)
-    TrafficSwarmAction (Changed)
-    TransitionDynamics (Changed)
 
 
     UserDefinedLight (Created)
