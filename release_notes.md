@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+
+### 2022-11-23 Version 0.10.1
+- New Features
+    - generate functions now have prettyprint input, having this false saves A LOT of time when generating large batches of scenarios. Example: for generating 10000 scenarios and roads, 42 seconds with pretty print 14 seconds without.
+
+
 ### 2022-11-17 Version 0.10.0
 - New Features
     - esmini runner can now run in headless mode (without replay), with the headless input key
