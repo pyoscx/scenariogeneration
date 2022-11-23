@@ -18,13 +18,14 @@ from .helpers import printToFile
 
 
 class _generation_struct:
-    def __init__(self, data, filename):
+    def __init__(self, data, filename, prettyprint):
         self.data = data
         self.filename = filename
+        self.prettyprint = prettyprint
 
 
 def _write_xml_file(data_struct):
-    printToFile(data_struct.data, data_struct.filename, True)
+    printToFile(data_struct.data, data_struct.filename, data_struct.prettyprint)
 
 
 class ScenarioGenerator:
@@ -59,6 +60,7 @@ class ScenarioGenerator:
         self._created_roads = {}
         self._name_separator = "_"
         self.number_of_parallel_writings = 1
+        self._prettyprint = True
 
     def road(self, **kwargs):
         """Dummy method for generating an OpenDRIVE road
@@ -166,10 +168,12 @@ class ScenarioGenerator:
                     )
                 )
                 if self.number_of_parallel_writings == 1:
-                    road.write_xml(self.road_file)
+                    road.write_xml(self.road_file, prettyprint=self._prettyprint)
                 else:
                     files_to_write.append(
-                        _generation_struct(road.get_element(), self.road_file)
+                        _generation_struct(
+                            road.get_element(), self.road_file, self._prettyprint
+                        )
                     )
 
                 if self.write_relative_road_path:
@@ -185,10 +189,12 @@ class ScenarioGenerator:
                 self._generation_folder, "xosc", scenario_name + ".xosc"
             )
             if self.number_of_parallel_writings == 1:
-                sce.write_xml(scenario_file)
+                sce.write_xml(scenario_file, prettyprint=self._prettyprint)
             else:
                 files_to_write.append(
-                    _generation_struct(sce.get_element(), scenario_file)
+                    _generation_struct(
+                        sce.get_element(), scenario_file, self._prettyprint
+                    )
                 )
         return scenario_file, self.road_file, files_to_write
 
@@ -236,6 +242,7 @@ class ScenarioGenerator:
         override_parameters=None,
         write_relative_road_path=True,
         name_separator=None,
+        prettyprint=True,
     ):
         """generate_single will generate only one scenario
 
@@ -258,7 +265,11 @@ class ScenarioGenerator:
 
             name_separator (str): for generation with multiple parameters, this will change the separator between the variables
                 Default: '_'
+
+            prettyprint (bool): determins if the prettify funciton should be used while writing to xml (will take longer time)
+                Default: True
         """
+        self._prettyprint = prettyprint
         if name_separator:
             self._name_separator = name_separator
         self.write_relative_road_path = write_relative_road_path
@@ -288,6 +299,7 @@ class ScenarioGenerator:
         override_parameters=None,
         write_relative_road_path=True,
         name_separator=None,
+        prettyprint=True,
     ):
         """generate uses the xosc.Scenario defined in the method scenario and the xodr.OpenDrive (optional) in the road method
         together with the parameters attribute to generate scenarios and roads for all permutations defined and save those files
@@ -304,7 +316,11 @@ class ScenarioGenerator:
 
             name_separator (str): for generation with multiple parameters, this will change the separator between the variables
                 Default: '_'
+
+            prettyprint (bool): determins if the prettify funciton should be used while writing to xml (will take longer time)
+                Default: True
         """
+        self._prettyprint = prettyprint
         if name_separator:
             self._name_separator = name_separator
 
