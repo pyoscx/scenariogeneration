@@ -1361,6 +1361,9 @@ class Phase(VersionBase):
 
         duration (float): duration of the phase
 
+        traffic_group_state (str): state for a group of signals (valid since V1.2)
+            Default: None
+
     Attributes
     ----------
         name (str): if of the phase
@@ -1368,6 +1371,8 @@ class Phase(VersionBase):
         duration (float): duration of the phase
 
         signalstates (list of _TrafficSignalState): traffic signal states
+
+        traffic_group_state (str): state for a group of signals (valid since V1.2)
 
     Methods
     -------
@@ -1384,7 +1389,7 @@ class Phase(VersionBase):
             add a traffic signal state
     """
 
-    def __init__(self, name, duration):
+    def __init__(self, name, duration, traffic_group_state=None):
         """initalize the Phase
 
         Parameters
@@ -1393,11 +1398,15 @@ class Phase(VersionBase):
 
             duration (float): duration of the phase
 
+            traffic_group_state (str): state for a group of signals (valid since V1.2)
+                Default: None
+
         """
 
         self.name = name
         self.duration = convert_float(duration)
         self.signalstates = []
+        self.traffic_group_state = traffic_group_state
 
     def __eq__(self, other):
         if isinstance(other, Phase):
@@ -1423,13 +1432,16 @@ class Phase(VersionBase):
         """
         duration = convert_float(element.attrib["duration"])
         name = element.attrib["name"]
-        phase = Phase(name, duration)
+        group = None
+        # NOTE: Misspelling according to standard...
+        if element.find("TrafficeSignalGroupState") is not None:
+            group = element.find("TrafficeSignalGroupState").attrib["state"]
+        phase = Phase(name, duration, group)
         signalstates = element.findall("TrafficSignalState")
         if signalstates != None:
             for signalstate in signalstates:
                 traffic_signal_state = _TrafficSignalState.parse(signalstate)
                 phase.signalstates.append(traffic_signal_state)
-
         return phase
 
     def add_signal_state(self, signal_id, state):
@@ -1457,6 +1469,13 @@ class Phase(VersionBase):
         element = ET.Element("Phase", attrib=self.get_attributes())
         for s in self.signalstates:
             element.append(s.get_element())
+        if self.traffic_group_state is not None:
+            # NOTE: Misspelling according to standard...
+            ET.SubElement(
+                element,
+                "TrafficeSignalGroupState",
+                attrib={"state": self.traffic_group_state},
+            )
         return element
 
 

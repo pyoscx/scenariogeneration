@@ -14,12 +14,6 @@ Missing features for OpenSCENARIO V1.2.0:
     AnimationType (Created)
 
 
-    Phase (Changed)
-
-
-    TrafficSignalGroupState (Created)
-
-
     UserDefinedLight (Created)
 
 

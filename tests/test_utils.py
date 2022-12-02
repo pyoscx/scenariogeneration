@@ -364,16 +364,16 @@ def test_timeref():
 
 
 def test_phase():
-    p1 = OSC.Phase("myphase", 1)
+    p1 = OSC.Phase("myphase", 1, traffic_group_state="hello")
     prettyprint(p1.get_element())
     p1.add_signal_state("myid", "red")
     p1.add_signal_state("myid", "green")
     prettyprint(p1.get_element())
-    p2 = OSC.Phase("myphase", 1)
+    p2 = OSC.Phase("myphase", 1, traffic_group_state="hello")
     p2.add_signal_state("myid", "red")
     p2.add_signal_state("myid", "green")
 
-    p3 = OSC.Phase("myphase", 1)
+    p3 = OSC.Phase("myphase", 1, traffic_group_state="hello")
     p3.add_signal_state("myid", "red")
 
     assert p1 == p2
