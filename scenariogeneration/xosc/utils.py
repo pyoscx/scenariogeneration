@@ -13,7 +13,7 @@
 import os
 
 
-from .exceptions import OpenSCENARIOVersionError
+from .exceptions import OpenSCENARIOVersionError, NotAValidElement
 import xml.etree.ElementTree as ET
 from ..helpers import printToFile
 
@@ -77,7 +77,27 @@ class _EntityTriggerType(VersionBase):
 
     pass
 
+class _AnimationType(VersionBase):
+    """helper class for typesetting animations"""
+    pass
 
+
+
+
+class _AnimationTypeFactory:
+    @staticmethod
+    def parse_animationtype(element):
+        print(element)
+        if element.find("ComponentAnimation") is not None:
+            return _ComponentAnimation.parse(element.find("ComponentAnimation"))
+        elif element.find("PedestrianAnimation") is not None:
+            return PedestrianAnimation.parse(element.find("PedestrianAnimation"))
+        elif element.find("AnimationFile") is not None:
+            return AnimationFile.parse(element.find("AnimationFile"))
+        elif element.find("UserDefinedAnimation") is not None:
+            return UserDefinedAnimation.parse(element.find("UserDefinedAnimation"))
+        else:
+            raise NotAValidElement("element ", element, " is not a valid animation type")
 class ParameterDeclarations(VersionBase):
     """The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
 
@@ -4935,79 +4955,8 @@ class _LightState(VersionBase):
         return element
 
 
-class AnimationState(VersionBase):
-    """The AnimationState creates a AnimationState element used by AnimationAction
 
-    Parameters
-    ----------
-        state (float): the goal state after the animationstateaction is executed
-
-    Attributes
-    ----------
-        state (float): the goal state after the animationstateaction is executed
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and return an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-    """
-
-    def __init__(self, state):
-        """initalizes the AnimationState
-
-        Parameters
-        ----------
-            state (float): the goal state after the animationstateaction is executed
-
-        """
-        self.state = state
-
-    def __eq__(self, other):
-        if isinstance(other, AnimationState):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of a AnimationState
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): a AnimationState element
-
-        Returns
-        -------
-            AnimationState (AnimationState): an AnimationState object
-
-        """
-        state = convert_float(element.attrib["state"])
-        return AnimationState(state)
-
-    def get_attributes(self):
-        """returns the attributes of the AnimationState as a dict"""
-        retdict = {}
-        retdict["state"] = str(self.state)
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the AnimationState"""
-        if not self.isVersion(minor=2):
-            raise OpenSCENARIOVersionError(
-                "AnimationState was introduced in OpenSCENARIO V1.2"
-            )
-
-        element = ET.Element("AnimationState", attrib=self.get_attributes())
-        return element
-
-
-class AnimationFile(VersionBase):
+class AnimationFile(_AnimationType):
     """The AnimationFile creates a AnimationFile element used by AnimationType
 
     Parameters
@@ -5180,7 +5129,7 @@ class DirectionOfTravelDistribution(VersionBase):
         return element
 
 
-class UserDefinedAnimation(VersionBase):
+class UserDefinedAnimation(_AnimationType):
     """The UserDefinedAnimation creates a UserDefinedAnimation element used by AnimationType
 
     Parameters
@@ -5253,8 +5202,8 @@ class UserDefinedAnimation(VersionBase):
         return element
 
 
-class UserDefinedComponent(VersionBase):
-    """The UserDefinedComponent creates a UserDefinedComponent element used by ComponentAnimation
+class UserDefinedComponent(_AnimationType):
+    """The UserDefinedComponent creates a UserDefinedComponent as part of a ComponentAnimation
 
     Parameters
     ----------
@@ -5326,82 +5275,8 @@ class UserDefinedComponent(VersionBase):
         return element
 
 
-class PedestrianGesture(VersionBase):
-    """The PedestrianGesture creates a PedestrianGesture element used by PedestrianAnimation
 
-    Parameters
-    ----------
-        gesture (PedestrianGestureType): specific gesture of a pedestrian
-
-    Attributes
-    ----------
-
-        gesture (PedestrianGestureType): specific gesture of a pedestrian
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-    """
-
-    def __init__(self, gesture):
-        """initalizes the PedestrianGesture
-
-        Parameters
-        ----------
-        gesture (PedestrianGestureType): specific gesture of a pedestrian
-
-        """
-        if not hasattr(PedestrianGestureType, str(gesture)):
-            raise ValueError("gesture is  not a valid type.")
-        self.gesture = gesture
-
-    def __eq__(self, other):
-        if isinstance(other, PedestrianGesture):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of a PedestrianGesture
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
-
-        Returns
-        -------
-            UserDefinedAnimation (UserDefinedAnimation): a UserDefinedAnimation object
-
-        """
-        gesture = getattr(PedestrianGestureType, element.attrib["gesture"])
-        return PedestrianGesture(gesture)
-
-    def get_attributes(self):
-        """returns the attributes of the PedestrianGesture as a dict"""
-        retdict = {}
-        retdict["gesture"] = self.gesture.get_name()
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the PedestrianGesture"""
-        if not self.isVersion(minor=2):
-            raise OpenSCENARIOVersionError(
-                "PedestrianGesture was introduced in OpenSCENARIO V1.2"
-            )
-
-        element = ET.Element("PedestrianGesture", attrib=self.get_attributes())
-        return element
-
-
-class PedestrianAnimation(VersionBase):
+class PedestrianAnimation(_AnimationType):
     """The PedestrianAnimation creates a PedestrianAnimation element used by AnimationType
 
     Parameters
@@ -5417,7 +5292,7 @@ class PedestrianAnimation(VersionBase):
 
         userDefinedPedestrianAnimation (str): User defined pedestrian animation
 
-        gestures (PedestrianGesture): Gestures of a pedestrian
+        gestures (list of PedestrianGestureTpe): Gestures of a pedestrian
 
     Methods
     -------
@@ -5477,7 +5352,7 @@ class PedestrianAnimation(VersionBase):
         pa = PedestrianAnimation(motion, animation)
 
         for gesture in element.findall("PedestrianGesture"):
-            pa.add_gesture(PedestrianGesture.parse(gesture))
+            pa.add_gesture(getattr(PedestrianGestureType, gesture.attrib["gesture"]))
         return pa
 
     def add_gesture(self, gesture):
@@ -5485,11 +5360,11 @@ class PedestrianAnimation(VersionBase):
 
         Parameters
         ----------
-            gesture (PedestrianGestrure): A new gesture of the pedestrian
+            gesture (PedestrianGestureType): A new gesture of the pedestrian
 
         """
-        if not isinstance(gesture, PedestrianGesture):
-            raise TypeError("gesture input is not of type PedestrianGesture")
+        if not hasattr(PedestrianGestureType, str(gesture)):
+            raise ValueError("gesture is not a valid PedestrianGestureType.")
         self.gestures.append(gesture)
         return self
 
@@ -5509,21 +5384,21 @@ class PedestrianAnimation(VersionBase):
 
         element = ET.Element("PedestrianAnimation", attrib=self.get_attributes())
         for gesture in self.gestures:
-            element.append(gesture.get_element())
+            ET.SubElement(element,"PedestrianGesture", attrib={'gesture':gesture.get_name()})
         return element
 
 
-class VehicleComponent(VersionBase):
+class _VehicleComponent(VersionBase):
     """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
 
     Parameters
     ----------
-        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
 
     Attributes
     ----------
 
-        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
 
     Methods
     -------
@@ -5542,7 +5417,7 @@ class VehicleComponent(VersionBase):
 
         Parameters
         ----------
-        vehicleComponenetType (vehicleComponentType): Available compopnent types attached to a vehicle.
+        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
 
         """
         if not hasattr(VehicleComponentType, str(type)):
@@ -5550,7 +5425,7 @@ class VehicleComponent(VersionBase):
         self.type = type
 
     def __eq__(self, other):
-        if isinstance(other, VehicleComponent):
+        if isinstance(other, _VehicleComponent):
             if other.get_attributes() == self.get_attributes():
                 return True
         return False
@@ -5569,7 +5444,7 @@ class VehicleComponent(VersionBase):
 
         """
         type = getattr(VehicleComponentType, element.attrib["vehicleComponentType"])
-        return VehicleComponent(type)
+        return _VehicleComponent(type)
 
     def get_attributes(self):
         """returns the attributes of the VehicleComponent as a dict"""
@@ -5588,19 +5463,19 @@ class VehicleComponent(VersionBase):
         return element
 
 
-class ComponentAnimation(VersionBase):
+class _ComponentAnimation(_AnimationType):
     """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
 
     Parameters
     ----------
-        vehicleComponent (vehicleComponent): Available components types attached to a vehicle
+        vehicleComponent (_VehicleComponent): Available components types attached to a vehicle
 
         userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
 
     Attributes
     ----------
 
-        vehicleComponent (vehicleComponent): Available components types attached to a vehicle
+        vehicleComponent (_VehicleComponent): Available components types attached to a vehicle
 
         userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
 
@@ -5620,7 +5495,7 @@ class ComponentAnimation(VersionBase):
         ----------
         component (vehicleComponent or UserDefinedComponent): Either available components types attached to the vehicle or a user defined component
         """
-        if not isinstance(component, VehicleComponent) and not isinstance(
+        if not isinstance(component, _VehicleComponent) and not isinstance(
             component, UserDefinedComponent
         ):
             raise TypeError(
@@ -5629,7 +5504,7 @@ class ComponentAnimation(VersionBase):
         self.component = component
 
     def __eq__(self, other):
-        if isinstance(other, ComponentAnimation):
+        if isinstance(other, _ComponentAnimation):
             if other.component.get_attributes() == self.component.get_attributes():
                 return True
         return False
@@ -5648,10 +5523,10 @@ class ComponentAnimation(VersionBase):
 
         """
         if element.find("VehicleComponent") != None:
-            component = VehicleComponent.parse(element.find("VehicleComponent"))
+            component = _VehicleComponent.parse(element.find("VehicleComponent"))
         else:
             component = UserDefinedComponent.parse(element.find("UserDefinedComponent"))
-        return ComponentAnimation(component)
+        return _ComponentAnimation(component)
 
     def get_element(self):
         """returns the elementTree of the ComponentAnimation"""
@@ -5661,7 +5536,7 @@ class ComponentAnimation(VersionBase):
             )
 
         element = ET.Element("ComponentAnimation")
-        if isinstance(VehicleComponent, type(self.component)):
+        if isinstance(_VehicleComponent, type(self.component)):
             element.append(self.component.get_element())
         else:
             element.append(self.component.get_element())

@@ -874,3 +874,16 @@ def test_speedprofileaction():
     spa4 = OSC.SpeedProfileAction.parse(spa.get_element())
     prettyprint(spa4)
     assert spa == spa4
+
+def test_animation_action():
+    aa = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight,1,False,1)
+
+    prettyprint(aa)
+    aa2 = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight,1,False,1)
+    aa3 = OSC.AnimationAction(OSC.PedestrianAnimation(OSC.PedestrianMotionType.squatting),1,False,1)
+
+    assert aa == aa2
+    assert aa != aa3
+    aa4 = OSC.AnimationAction.parse(aa.get_element())
+    prettyprint(aa4)
+    assert aa == aa4

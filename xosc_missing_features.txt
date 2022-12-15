@@ -1,7 +1,7 @@
 Missing features for OpenSCENARIO V1.1.0:
 
 
-UserDefinedDistribution (Created)
+    UserDefinedDistribution (Created)
 
 Missing features for OpenSCENARIO V1.2.0:
 
@@ -10,17 +10,6 @@ Missing features for OpenSCENARIO V1.2.0:
 
 
 
-    AnimationAction (Created)
-    AnimationType (Created)
-
-
     UserDefinedLight (Created)
-
-
-    VehicleLight (Created)
-
-
-
-
 
 

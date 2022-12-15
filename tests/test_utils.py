@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+import xml.etree.ElementTree as ET
 import pytest
 import datetime as dt
 
@@ -836,14 +837,6 @@ def test_fileheader():
     assert fh4 == fh
 
 
-def test_animationstate():
-    ani = OSC.AnimationState(1.5)
-    ani2 = OSC.AnimationState(1.6)
-    prettyprint(ani.get_element())
-    assert ani != ani2
-    ani3 = OSC.AnimationState.parse(ani.get_element())
-    assert ani == ani3
-
 
 def test_animationfile():
     ani = OSC.AnimationFile("file_ref")
@@ -893,17 +886,6 @@ def test_userdefinedcomponent():
     assert ani == ani4
 
 
-def test_pedestriangesture():
-    pg = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeLeftHand)
-    pg2 = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeRightHand)
-    prettyprint(pg.get_element())
-    assert pg != pg2
-    pg3 = OSC.PedestrianGesture(OSC.PedestrianGestureType.coffeeLeftHand)
-    assert pg == pg3
-    pg4 = OSC.PedestrianGesture.parse(pg.get_element())
-    prettyprint(pg4.get_element())
-    assert pg4 == pg
-
 
 def test_pedestriananimation():
     pa = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
@@ -913,53 +895,70 @@ def test_pedestriananimation():
     assert pa != pa2
     assert pa != pa3
     pa4 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
-    gesture = OSC.PedestrianGesture(OSC.PedestrianGestureType.sandwichLeftHand)
-    gesture2 = OSC.PedestrianGesture(OSC.PedestrianGestureType.sandwichRightHand)
-    pa.add_gesture(gesture)
-    pa4.add_gesture(gesture2)
+    pa.add_gesture(OSC.PedestrianGestureType.sandwichLeftHand)
+    pa4.add_gesture(OSC.PedestrianGestureType.sandwichRightHand)
     assert pa != pa4
-    pa.add_gesture(gesture2)
+    pa.add_gesture(OSC.PedestrianGestureType.sandwichRightHand)
     prettyprint(pa.get_element())
     pa5 = OSC.PedestrianAnimation.parse(pa.get_element())
     assert pa5 == pa
 
 
 def test_vehiclecomponent():
-    vc = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
-    vc2 = OSC.VehicleComponent(OSC.VehicleComponentType.doorRearLeft)
+    vc = OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    vc2 = OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorRearLeft)
     prettyprint(vc.get_element())
     assert vc != vc2
-    vc3 = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    vc3 = OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
     assert vc == vc3
-    vc4 = OSC.VehicleComponent.parse(vc.get_element())
+    vc4 = OSC.utils._VehicleComponent.parse(vc.get_element())
     prettyprint(vc4.get_element())
     assert vc4 == vc
 
 
 def test_componentanimation():
-    vc = OSC.VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
-    vc2 = OSC.VehicleComponent(OSC.VehicleComponentType.doorRearRight)
+    vc = OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+    vc2 = OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorRearRight)
     udc = OSC.UserDefinedComponent("my_component")
     udc2 = OSC.UserDefinedComponent("my_component2")
     udc3 = OSC.UserDefinedComponent("doorFrontLeft")
-    ca = OSC.ComponentAnimation(vc)
+    ca = OSC.utils._ComponentAnimation(vc)
     prettyprint(ca.get_element())
-    ca2 = OSC.ComponentAnimation(vc2)
+    ca2 = OSC.utils._ComponentAnimation(vc2)
     assert ca != ca2
-    ca3 = OSC.ComponentAnimation(udc)
+    ca3 = OSC.utils._ComponentAnimation(udc)
     prettyprint(ca3.get_element())
-    ca4 = OSC.ComponentAnimation(udc3)
+    ca4 = OSC.utils._ComponentAnimation(udc3)
     prettyprint(ca4.get_element())
     assert ca != ca3
     assert ca != ca4
-    ca5 = OSC.ComponentAnimation(udc2)
+    ca5 = OSC.utils._ComponentAnimation(udc2)
     assert ca3 != ca5
 
-    ca6 = OSC.ComponentAnimation.parse(ca.get_element())
+    ca6 = OSC.utils._ComponentAnimation.parse(ca.get_element())
     prettyprint(ca6.get_element())
     assert ca6 == ca
-    ca7 = OSC.ComponentAnimation.parse(ca2.get_element())
+    ca7 = OSC.utils._ComponentAnimation.parse(ca2.get_element())
     assert ca7 == ca2
-    ca8 = OSC.ComponentAnimation.parse(ca4.get_element())
+    ca8 = OSC.utils._ComponentAnimation.parse(ca4.get_element())
     assert ca8 == ca4
     assert ca8 != ca
+
+
+@pytest.mark.parametrize(
+    "input",
+    [
+    OSC.utils._ComponentAnimation(OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)),
+    OSC.PedestrianAnimation(OSC.PedestrianMotionType.bendingDown),
+    OSC.AnimationFile('my_animation'),
+    OSC.UserDefinedAnimation("Myparam"),
+    ],
+)
+def test_global_action_factory(input):
+
+    test_element = ET.Element("AnimationType")
+    test_element.append(input.get_element())
+    factoryoutput = OSC.utils._AnimationTypeFactory.parse_animationtype(test_element)
+    prettyprint(input, None)
+    prettyprint(factoryoutput, None)
+    assert input == factoryoutput
