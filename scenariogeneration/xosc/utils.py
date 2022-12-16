@@ -2959,7 +2959,8 @@ class Controller(VersionBase):
         controller = Controller(name, properties)
 
         parameters_element = element.find("ParameterDeclarations")
-        controller.parameters = ParameterDeclarations.parse(parameters_element)
+        if parameters_element:
+            controller.parameters = ParameterDeclarations.parse(parameters_element)
 
         return controller
 
