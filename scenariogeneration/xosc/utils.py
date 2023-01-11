@@ -2021,7 +2021,7 @@ class TimeOfDay(VersionBase):
             second (int): second
 
         """
-        self.animation = animation
+        self.animation = convert_bool(animation)
         self.year = year
         self.month = month
         self.day = day
@@ -2047,7 +2047,7 @@ class TimeOfDay(VersionBase):
         -------
             timeofday (TimeOfDay): a TimeOfDay object
         """
-        animation = element.attrib["animation"]
+        animation = convert_bool(element.attrib["animation"])
         var = element.attrib["dateTime"]
         year = convert_int(var[0:4])
         month = convert_int(var[5:7])
@@ -2074,7 +2074,7 @@ class TimeOfDay(VersionBase):
             + ":"
             + "{:0>2}".format(self.second)
         )
-        return {"animation": str(self.animation), "dateTime": dt}
+        return {"animation": get_bool_string(self.animation), "dateTime": dt}
 
     def get_element(self):
         """returns the elementTree of the TimeOfDay"""

@@ -1015,7 +1015,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         """
         loa_element = element.find("LateralAction/LaneOffsetAction")
 
-        contiuous = convert_bool(loa_element.attrib["continuous"])
+        continuous = convert_bool(loa_element.attrib["continuous"])
         load_element = loa_element.find("LaneOffsetActionDynamics")
         maxacc = convert_float(load_element.attrib["maxLateralAcc"])
         dynamics = getattr(DynamicsShapes, load_element.attrib["dynamicsShape"])
@@ -1023,7 +1023,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         atlo_element = loa_element.find("LaneOffsetTarget/AbsoluteTargetLaneOffset")
         value = atlo_element.attrib["value"]
 
-        return AbsoluteLaneOffsetAction(value, dynamics, maxacc, contiuous)
+        return AbsoluteLaneOffsetAction(value, dynamics, maxacc, continuous)
 
     def get_attributes(self):
         """returns the attributes of the AbsoluteLaneOffsetAction as a dict"""
