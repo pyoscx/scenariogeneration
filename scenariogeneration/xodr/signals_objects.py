@@ -10,7 +10,8 @@
 
 """
 import xml.etree.ElementTree as ET
-from ..helpers import enum2str, convert_bool
+from ..helpers import enum2str
+from ..xosc.utils import get_bool_string
 from .enumerations import ObjectType, Orientation, Dynamic
 from .exceptions import GeneralIssueInputArguments
 
@@ -1052,9 +1053,9 @@ class Outline:
         """returns the attributes of Outline as a dict"""
         retdict = {}
         if self.closed is not None:
-            retdict["closed"] = convert_bool(self.closed)
+            retdict["closed"] = get_bool_string(self.closed)
         if self.outer is not None:
-            retdict["outer"] = convert_bool(self.outer)
+            retdict["outer"] = get_bool_string(self.outer)
         if self.fill_type is not None:
             retdict["fillType"] = enum2str(self.fill_type)
         if self.lane_type is not None:
