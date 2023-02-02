@@ -1,7 +1,7 @@
 ## scenariogeneration release notes
 
 
-### 2022-02-02 Version 0.11.0
+### 2023-02-02 Version 0.11.0
 - Most of OpenSCENARIO V1.2.0 is implemented!
     - Still missing: Some UserDefined fields
 
@@ -24,46 +24,6 @@
     - osc_minor_version is now updated to 1.2, hence all scenarios will be on OpenSCENARIO V1.2 format, to make sure your previous scenarios keep the same version set the osc_minor_version in the Scenario constructor
 
 
-
-<!--
-- Some general notes:
-    - Some extra inputs are added to the changed classes (to many to write out here), none are however removed (except the classes that has been changed, see below)
-    - "alongroute" is replaced by CoordinateSystem and a displacement
-
-- Some new features (OpenScenario V1.1.0):
-    - TrajectoryPosition
-    - GeoPosition
-    - ExternalObjectReference
-    - License
-    - Wind
-    - TargetDistanceSteadyState
-    - TargetTimeSteadyState
-    - TrafficStopAction
-    - CoordinateSystem
-    - LateralDisplacement
-    - LongitudinalDisplacement
-
-- New features (scenariogeneration)
-    - New exceptions - to take care of different versions of OpenSCENARIO (will throw exceptions if V1.0.0 is wanted but trying to use features from V1.1.0)
-    - VersionBase - new base class to handle different versions of OpenSCENARIO
-
-    - the class Scenario has a new input "osc_minor_version" which enables the user to generate both OpenSCENARIO V1.0.0 and V1.1.0 type of files (V1.1.0 is default)
-
-- Changed Classes (IMPORTANT, Interface Changed!)
-    - In order to hande some changes in V1.1.0 two classes has be changed, and the user is recommended to update accordingly. This was neccesary to handle new optional inputs.
-        - RelativeLanePosition - New input optional dsLane made ds also optional, and the order of the inputs had to be changed (updated to ds instead of s aswell)
-            - previous init: __init__(self,s,offset,lane_id,entity,orientation=Orientation()):
-            - new init: __init__(self,lane_id,entity,offset=0,ds=None,dsLane=None,orientation=Orientation())
-        - Weather - all inputs are now optional to the weather element, and new classes were created for each subelement.
-            - previous init: __init__(self,cloudstate,sun_intensity,sun_azimuth,sun_elevation,precipitation,precipitation_intensity,visual_fog_range = 100000,fog_bounding_box = None)
-            - new init: __init__(self,cloudstate=None,atmosphericPressure=None,temperature=None,sun=None,fog=None,precipitation=None,wind=None)
-            - New classes created to be used in the weather element:
-                - Fog
-                - Sun
-                - Precipitation
-                - Wind
-    - Enum is no longer used, but replaced with _OscEnum which helps with the versioning of OpenSCENARIO, main difference is that to get the enum name, use .get_name() instead of .name
- -->
 
 ### 2022-11-23 Version 0.10.1
 - New Features
