@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -132,6 +132,20 @@ ass = OSC.AssignControllerAction(cnt)
             scale=4,
         ),
         OSC.AcquirePositionAction(OSC.WorldPosition(1, 1, 0, 0, 0, 0)),
+        OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1),
+        OSC.LightStateAction(
+            OSC.VehicleLightType.brakeLights,
+            OSC.LightMode.on,
+            transition_time=0.1,
+            color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0, 0, 0)),
+        ),
+        OSC.SpeedProfileAction(
+            [5, 4, 3],
+            OSC.FollowingMode.follow,
+            [1, 2, 3],
+            OSC.DynamicsConstraints(1, 1, 1),
+            "ego",
+        ),
     ],
 )
 def test_private_action_factory(action):
@@ -875,12 +889,15 @@ def test_speedprofileaction():
     prettyprint(spa4)
     assert spa == spa4
 
+
 def test_animation_action():
-    aa = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight,1,False,1)
+    aa = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1)
 
     prettyprint(aa)
-    aa2 = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight,1,False,1)
-    aa3 = OSC.AnimationAction(OSC.PedestrianAnimation(OSC.PedestrianMotionType.squatting),1,False,1)
+    aa2 = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1)
+    aa3 = OSC.AnimationAction(
+        OSC.PedestrianAnimation(OSC.PedestrianMotionType.squatting), 1, False, 1
+    )
 
     assert aa == aa2
     assert aa != aa3

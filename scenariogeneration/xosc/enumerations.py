@@ -207,8 +207,8 @@ class DynamicsShapes(metaclass=_EnumMeta):
     step = _OscEnum("DynamicsShapes", "step")
 
 
-class FollowMode(metaclass=_EnumMeta):
-    """Enum for FollowMode"""
+class FollowingMode(metaclass=_EnumMeta):
+    """Enum for FollowingMode"""
 
     position = _OscEnum("FollowingMode", "position")
     follow = _OscEnum("FollowingMode", "follow")
@@ -513,7 +513,6 @@ class RoutingAlgorithm(metaclass=_EnumMeta):
     )
     shortest = _OscEnum("RoutingAlgorithm", "shortest", min_minor_version=2)
     undefined = _OscEnum("RoutingAlgorithm", "undefined", min_minor_version=2)
-
 
 
 class VehicleComponentType(metaclass=_EnumMeta):

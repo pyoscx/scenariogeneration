@@ -77,11 +77,11 @@ class _EntityTriggerType(VersionBase):
 
     pass
 
+
 class _AnimationType(VersionBase):
     """helper class for typesetting animations"""
+
     pass
-
-
 
 
 class _AnimationTypeFactory:
@@ -97,7 +97,11 @@ class _AnimationTypeFactory:
         elif element.find("UserDefinedAnimation") is not None:
             return UserDefinedAnimation.parse(element.find("UserDefinedAnimation"))
         else:
-            raise NotAValidElement("element ", element, " is not a valid animation type")
+            raise NotAValidElement(
+                "element ", element, " is not a valid animation type"
+            )
+
+
 class ParameterDeclarations(VersionBase):
     """The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
 
@@ -4955,7 +4959,6 @@ class _LightState(VersionBase):
         return element
 
 
-
 class AnimationFile(_AnimationType):
     """The AnimationFile creates a AnimationFile element used by AnimationType
 
@@ -5275,7 +5278,6 @@ class UserDefinedComponent(_AnimationType):
         return element
 
 
-
 class PedestrianAnimation(_AnimationType):
     """The PedestrianAnimation creates a PedestrianAnimation element used by AnimationType
 
@@ -5384,7 +5386,9 @@ class PedestrianAnimation(_AnimationType):
 
         element = ET.Element("PedestrianAnimation", attrib=self.get_attributes())
         for gesture in self.gestures:
-            ET.SubElement(element,"PedestrianGesture", attrib={'gesture':gesture.get_name()})
+            ET.SubElement(
+                element, "PedestrianGesture", attrib={"gesture": gesture.get_name()}
+            )
         return element
 
 

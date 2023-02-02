@@ -837,7 +837,6 @@ def test_fileheader():
     assert fh4 == fh
 
 
-
 def test_animationfile():
     ani = OSC.AnimationFile("file_ref")
     ani2 = OSC.AnimationFile("file_ref", 1.5)
@@ -884,7 +883,6 @@ def test_userdefinedcomponent():
     assert ani == ani3
     ani4 = OSC.UserDefinedComponent.parse(ani.get_element())
     assert ani == ani4
-
 
 
 def test_pedestriananimation():
@@ -948,10 +946,12 @@ def test_componentanimation():
 @pytest.mark.parametrize(
     "input",
     [
-    OSC.utils._ComponentAnimation(OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)),
-    OSC.PedestrianAnimation(OSC.PedestrianMotionType.bendingDown),
-    OSC.AnimationFile('my_animation'),
-    OSC.UserDefinedAnimation("Myparam"),
+        OSC.utils._ComponentAnimation(
+            OSC.utils._VehicleComponent(OSC.VehicleComponentType.doorFrontLeft)
+        ),
+        OSC.PedestrianAnimation(OSC.PedestrianMotionType.bendingDown),
+        OSC.AnimationFile("my_animation"),
+        OSC.UserDefinedAnimation("Myparam"),
     ],
 )
 def test_global_action_factory(input):

@@ -157,6 +157,12 @@ class _PrivateActionFactory:
             return FollowTrajectoryAction.parse(element)
         elif element.findall("RoutingAction/AcquirePositionAction"):
             return AcquirePositionAction.parse(element)
+        elif element.findall("AppearanceAction/AnimationAction"):
+            return AnimationAction.parse(element)
+        elif element.findall("LongitudinalAction/SpeedProfileAction"):
+            return SpeedProfileAction.parse(element)
+        elif element.findall("AppearanceAction/LightStateAction"):
+            return LightStateAction.parse(element)
         else:
             raise NotAValidElement("element ", element, "is not a valid PrivateAction")
 
@@ -2235,13 +2241,13 @@ class ActivateControllerAction(_PrivateActionType):
         """returns the attributes of the ActivateControllerAction as a dict"""
         retdict = {}
         if self.lateral is not None:
-            retdict["lateral"] = convert_bool(self.lateral)
+            retdict["lateral"] = get_bool_string(self.lateral)
         if self.longitudinal is not None:
-            retdict["longitudinal"] = convert_bool(self.longitudinal)
+            retdict["longitudinal"] = get_bool_string(self.longitudinal)
         if self.animation is not None and self.isVersion(minor=2):
-            retdict["animation"] = convert_bool(self.animation)
+            retdict["animation"] = get_bool_string(self.animation)
         if self.lighting is not None and self.isVersion(minor=2):
-            retdict["lighting"] = convert_bool(self.lighting)
+            retdict["lighting"] = get_bool_string(self.lighting)
         if self.controllerRef is not None and self.isVersion(minor=2):
             retdict["controllerRef"] = self.controllerRef
         return retdict
@@ -2928,7 +2934,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     )
         if self.steeringwheel_active != None:
             steering_dict = {
-                "active": convert_bool(self.steeringwheel_active),
+                "active": get_bool_string(self.steeringwheel_active),
                 "value": str(self.steeringwheel_value),
             }
             if self.steeringwheel_torque is not None:
@@ -3477,7 +3483,7 @@ class AnimationAction(_PrivateActionType):
     def __init__(
         self,
         animation_type,
-        duration = None,
+        duration=None,
         loop=None,
         state=None,
     ):
@@ -3497,7 +3503,10 @@ class AnimationAction(_PrivateActionType):
                 Default: None
         """
 
-        if not (isinstance(animation_type, _AnimationType) or hasattr(VehicleComponentType, str(animation_type))):
+        if not (
+            isinstance(animation_type, _AnimationType)
+            or hasattr(VehicleComponentType, str(animation_type))
+        ):
             raise TypeError("animation_type is not a valid AnimationType")
         if hasattr(VehicleComponentType, str(animation_type)):
             self.animation_type = _ComponentAnimation(_VehicleComponent(animation_type))
@@ -3544,8 +3553,10 @@ class AnimationAction(_PrivateActionType):
         animation_state = animation_element.find("AnimationState")
         state = None
         if animation_state is not None:
-            state = convert_float(animation_state.attrib['state'])
-        animation_type = _AnimationTypeFactory.parse_animationtype(animation_element.find('AnimationType'))
+            state = convert_float(animation_state.attrib["state"])
+        animation_type = _AnimationTypeFactory.parse_animationtype(
+            animation_element.find("AnimationType")
+        )
         return AnimationAction(animation_type, duration, loop, state)
 
     def get_attributes(self):
@@ -3553,9 +3564,9 @@ class AnimationAction(_PrivateActionType):
         retdict = {}
 
         if self.duration is not None:
-            retdict['animationDuration'] = str(self.duration)
+            retdict["animationDuration"] = str(self.duration)
         if self.loop is not None:
-            retdict['loop'] = convert_bool(self.loop)
+            retdict["loop"] = get_bool_string(self.loop)
 
         return retdict
 
@@ -3567,11 +3578,12 @@ class AnimationAction(_PrivateActionType):
             appear_element, "AnimationAction", self.get_attributes()
         )
 
-
         animation_type_element = ET.SubElement(animation_element, "AnimationType")
         animation_type_element.append(self.animation_type.get_element())
         if self.state is not None:
-            ET.SubElement(animation_element, "AnimationState",attrib={'state':str(self.state)} )
+            ET.SubElement(
+                animation_element, "AnimationState", attrib={"state": str(self.state)}
+            )
 
         return element
 

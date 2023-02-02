@@ -2501,12 +2501,8 @@ class RelativeClearanceCondition(_EntityTriggerType):
             opposite_lanes (bool): if lanes in opposite direction are considered
         """
 
-        if not isinstance(freespace, bool):
-            raise TypeError("freespace input not of type bool")
-        self.freespace = freespace
-        if not isinstance(opposite_lanes, bool):
-            raise TypeError("opposite_lanes input not of type bool")
-        self.opposite_lanes = opposite_lanes
+        self.freespace = convert_bool(freespace)
+        self.opposite_lanes = convert_bool(opposite_lanes)
         self.distance_backward = convert_float(distance_backward)
         self.distance_forward = convert_float(distance_forward)
 
@@ -2591,9 +2587,9 @@ class RelativeClearanceCondition(_EntityTriggerType):
     def get_attributes(self):
         """returns the attributes of the RelativeClearanceCondition as a dict"""
         basedict = {}
-        basedict["oppositeLanes"] = convert_bool(self.opposite_lanes)
+        basedict["oppositeLanes"] = get_bool_string(self.opposite_lanes)
         # TODO: wrong in the spec, should be lower case s
-        basedict["freespace"] = convert_bool(self.freespace)
+        basedict["freespace"] = get_bool_string(self.freespace)
 
         if self.distance_backward is not None:
             basedict["distanceBackward"] = str(self.distance_backward)
