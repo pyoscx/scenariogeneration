@@ -21,11 +21,11 @@ For more detailed view of the new updates, please see the [release notes](https:
 
 ## xosc
 
-The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO V 1.0.0 and most of OpenSCENARIO V 1.1.0 (except the parts related to UserDefined things). The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.
+The __xosc__ module handles the parts related to OpenSCENARIO, and covers all of OpenSCENARIO V 1.0.0 and most of OpenSCENARIO V 1.1.0 and OpenSCENARIO V 1.2.0. The module is a xml file generator which allows the user to easily generate a full OpenSCENARIO hierarchy without the need of explicity define all the levels of abstraction (if not needed). This has led to a couple of name changes compared to the standard (mostly adding Absolute or Relative to the name), in the description of the class, the OpenSCENARIO references are written for reference.
 
 The idea with this module is to create easy access to the elements of OpenSCENARIO without having to expose the user to all the xml levels that does not carry any vital information for the user. Hence, some of the xml-elements that build up OpenSCENARIO are never seen in the class structure but compressed to a level where the user can set the required data.
 
-The module can generate xmls of both V1.0.0 and V1.1.0 of OpenSCENARIO.
+The module can generate xmls of both V1.0.0, V1.1.0 and V1.2.0 of OpenSCENARIO.
 
 In general the __xosc__ module does not contain many "smart" functionality (except some default values), but the user can build up the scenario based on the classes available.
 
@@ -36,7 +36,7 @@ One of the few functionalities of the __xosc__ module is for simple scenario gen
 In short the __StoryBoard__, consists of alot of layers from the Story, down to the Actions and Triggers.
 For simple scenarios the multiple top level layers (like Story, Act or ManeuverGroup) are not needed, hence the __StoryBoard__ has multiple ways of adding sub-classes (add_story, add_act, add_maneuvergroup, add_maneuver) and will generate the top levels to make the xml correct.
 
-__NOTE:__ Do not use more than one of these calls (except add_story), because each call will create a new story, and this in most cases are not what a user would like.
+__WARNING:__ Do not use more than one of these calls (except add_story), because each call will create a new story, and this in most cases are not what a user would like.
 
 ### Generate different versions of OpenSCENARIO
 As of scenariogeneration V0.5.0, it is possible to generate different versions of the resulting OpenSCENARIO xml.
@@ -44,9 +44,9 @@ This feature is enabled by one simple input to the Scenario class as:
 ```
 sce = Scenario(... , osc_minor_version=0)
 ```
-The default is 1 (V1.1.0), but with this V1.0.0 OpenSCENARIO xmls can be generated.
+The default is 2 (V1.2.0), but with this V1.0.0 OpenSCENARIO xmls can be generated.
 
-The V1.1.0 will remove the depricated attributes, and have a pure V1.1.0 xml. If version specific elements are used together with the wrong version, a __OpenSCENARIOVersionError__ will be raised.
+The V1.2.0 will remove the depricated attributes, and have a pure V1.2.0 xml. If version specific elements are used together with the wrong version, a __OpenSCENARIOVersionError__ will be raised.
 
 NOTE: as of V0.5.0 some interfaces had to be changed in order to fulfill the V1.1.0 standard, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md) for more info.
 
@@ -72,7 +72,7 @@ The __xodr__ module is also a xml generator, similar to the __xosc__ module. How
 
 The most important automation functionality is the *adjust_roads_and_lanes* method of the *OpenDRIVE* class, which does two main things:
 
-1. **Patch all Geometries and Roads Together** This is done on two levels: the "RoadNetwork" level and the "PlanView" level. At the RoadNetwork level all defined roads are patched consecutively, and this is possible only if the "predecessor/successor" attributes of the roads have been set. This is done either by: fixing the first road added to (0,0,0) and patch all other roads to that one, or localize if any PlanView(s) created has a manually added start point (e.g. if multiple roads are not connected via predecessor/successor). At the PlanView level instead all geometries are patched together creating one continuous road, based at its start point. See the [highway_example](examples/xodr/highway_example.html) for an example showing how to work on the RoadNetwork level and [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) for the PlanView level.
+1. **Patch all Geometries and Roads Together** This is done on two levels: the "RoadNetwork" level and the "PlanView" level. At the RoadNetwork level all defined roads are patched consecutively, and this is possible only if the "predecessor/successor" attributes of the roads have been set. This is done either by: fixing the first road added to (0,0,0) and patch all other roads to that one, or localize if any PlanView(s) created has a manually added start point (e.g. if multiple roads are not connected via predecessor/successor). At the PlanView level, instead all geometries are patched together creating one continuous road, based at its start point. See the [highway_example](examples/xodr/highway_example.html) for an example showing how to work on the RoadNetwork level and [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) for the PlanView level.
 
 Note: *adjust_roads_and_lanes* will assume that the heading is continious between different geometries and roads.
 
@@ -91,7 +91,7 @@ Some example usage of this can be seen in [highway_example](examples/xodr/highwa
 The  *create_cloth_arc_cloth* function creates road with a smooth curve based on a clothoid + arc + clothoid. This is often used since the curvature of the road will change continiously (and resulting in nice steering wheel changes for a driver).
 
 #### create_3cloths
-Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using pyclothoids)
+Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using [pyclothoids](https://github.com/phillipd94/pyclothoids))
 
 
 #### LaneDef
