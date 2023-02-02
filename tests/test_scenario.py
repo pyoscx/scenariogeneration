@@ -39,7 +39,6 @@ def test_road():
 
 
 def test_catalog():
-
     catalog = OSC.Catalog()
     catalog.add_catalog("VehicleCatalog", "Catalogs/VehicleCatalogs")
     catalog.add_catalog("ControllerCatalog", "Catalogs/ControllerCatalogs")

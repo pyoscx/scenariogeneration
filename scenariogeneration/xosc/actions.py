@@ -1997,7 +1997,6 @@ class ControllerAction(_PrivateActionType):
         overrideControllerValueAction=None,
         activateControllerAction=None,
     ):
-
         """initalizes the ControllerAction
 
         Parameters
@@ -2860,7 +2859,6 @@ class OverrideControllerValueAction(_PrivateActionType):
             )
         if self.brake_active != None:
             if not self.isVersion(minor=2):
-
                 ET.SubElement(
                     overrideaction,
                     "Brake",

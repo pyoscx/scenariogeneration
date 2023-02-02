@@ -37,7 +37,6 @@ def test_simple_road():
 
 
 def test_link_road():
-
     planview = pyodrx.PlanView()
     planview.add_geometry(pyodrx.Line(100))
     lane1 = pyodrx.Lane(a=2)
@@ -101,7 +100,6 @@ def test_link_road():
     ],
 )
 def test_create_straight_road(data):
-
     road = pyodrx.generators.create_straight_road(
         data[0], length=data[1], junction=data[2], n_lanes=data[3], lane_offset=data[4]
     )

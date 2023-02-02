@@ -496,7 +496,6 @@ def test_conditiongroup():
 
 
 def test_trigger():
-
     condgr = OSC.ConditionGroup()
 
     trig1 = OSC.EntityTrigger(

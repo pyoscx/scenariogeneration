@@ -35,7 +35,6 @@ def parameter_fixture():
 
 @pytest.fixture
 def catalog_fixture():
-
     # create a vehicle
     bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)
     fa = xosc.Axle(0.523598775598, 0.8, 1.68, 2.98, 0.4)
@@ -67,7 +66,6 @@ def catalog_fixture():
 
 @pytest.fixture
 def osc_fixture():
-
     parameters = xosc.ParameterDeclarations()
     parameters.add_parameter(xosc.Parameter("param1", xosc.ParameterType.string, "hej"))
     parameters.add_parameter(xosc.Parameter("param2", xosc.ParameterType.integer, 1))
@@ -114,7 +112,6 @@ def osc_fixture():
 
 
 def test_catalog_reader_vehicle(tmpdir):
-
     tmpcatalog = os.path.join(tmpdir, "my_catalog.xosc")
     cf = xosc.CatalogFile()
     cf.create_catalog(
@@ -138,7 +135,6 @@ def test_catalog_reader_vehicle(tmpdir):
 
 
 def test_catalog_reader_pedestrian(tmpdir):
-
     tmpcatalog = os.path.join(tmpdir, "my_catalog.xosc")
     cf = xosc.CatalogFile()
     cf.create_catalog(

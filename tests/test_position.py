@@ -39,7 +39,6 @@ def test_worldposition_input():
 
 
 def test_relativeworldposition():
-
     pos = OSC.RelativeWorldPosition("Ego", 1, 2, 0)
     prettyprint(pos.get_element())
     pos2 = OSC.RelativeWorldPosition("Ego", 1, 2, 0)
@@ -58,7 +57,6 @@ def test_relativeworldposition():
 
 
 def test_relativeobjectposition():
-
     pos = OSC.RelativeObjectPosition("Ego", 1, 2, 0)
     prettyprint(pos.get_element())
     pos2 = OSC.RelativeObjectPosition("Ego", 1, 2, 0)
@@ -113,7 +111,6 @@ def test_laneposition():
 
 
 def test_relativelaneposition():
-
     pos = OSC.RelativeLanePosition(ds=1, lane_id=1, entity="Ego")
     prettyprint(pos.get_element())
     pos2 = OSC.RelativeLanePosition(ds=1, lane_id=1, entity="Ego")
@@ -241,7 +238,6 @@ route.add_waypoint(OSC.WorldPosition(1, 1, 1), OSC.RouteStrategy.shortest)
     ],
 )
 def test_position_factory(position):
-
     factoryoutput = OSC.position._PositionFactory.parse_position(position.get_element())
     prettyprint(position)
     prettyprint(factoryoutput)

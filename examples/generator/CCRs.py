@@ -49,7 +49,6 @@ class Scenario(ScenarioGenerator):
         self.parameters["offset"] = [-50, -25, 0, 25, 50]
 
     def road(self, **kwargs):
-
         road = xodr.create_road([xodr.Line(500)], id=1, left_lanes=2, right_lanes=2)
         odr = xodr.OpenDrive("myroad")
         odr.add_road(road)
@@ -57,7 +56,6 @@ class Scenario(ScenarioGenerator):
         return odr
 
     def scenario(self, **kwargs):
-
         # create empty catalog
         catalog = xosc.Catalog()
 

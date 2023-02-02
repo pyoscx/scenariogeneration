@@ -79,7 +79,6 @@ def dict_of_params():
 
 
 def test_list_of_params(list_of_params):
-
     sg = ScenarioGenerator()
     sg.parameters = list_of_params
     sg._handle_input_parameters()
@@ -87,7 +86,6 @@ def test_list_of_params(list_of_params):
 
 
 def test_dict_paramss(dict_of_params):
-
     sg = ScenarioGenerator()
     sg.parameters = dict_of_params
     print(sg.parameters)

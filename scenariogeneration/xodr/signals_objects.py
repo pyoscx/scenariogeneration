@@ -673,7 +673,6 @@ class Object(_SignalObjectBase):
         radiusStart=None,
         radiusEnd=None,
     ):
-
         self._repeats.append({})
 
         self._repeats[-1]["length"] = str(repeatLength)

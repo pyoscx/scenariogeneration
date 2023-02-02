@@ -37,7 +37,6 @@ class Scenario(ScenarioGenerator):
         self.naming = "parameter"
 
     def road(self, **kwargs):
-
         road = xodr.create_road(
             [
                 xodr.Spiral(0.0000000001, kwargs["road_curvature"], 100),

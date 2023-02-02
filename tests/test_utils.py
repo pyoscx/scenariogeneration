@@ -202,7 +202,6 @@ def test_catalogreference():
 
 
 def test_paramdeclaration():
-
     pardec = OSC.ParameterDeclarations()
     pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.int, "1"))
     pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
@@ -220,7 +219,6 @@ def test_paramdeclaration():
 
 
 def test_variabledeclaration():
-
     pardec = OSC.VariableDeclarations()
     pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.int, "1"))
     pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.double, "0.01"))
@@ -774,7 +772,6 @@ def test_colorcmyk():
 
 
 def test_color():
-
     c = OSC.Color(OSC.ColorType.black, OSC.ColorCMYK(1, 2, 3, 1))
 
     c2 = c = OSC.Color(OSC.ColorType.black, OSC.ColorCMYK(1, 2, 3, 1))
@@ -823,7 +820,6 @@ def test_lightstate():
 
 
 def test_fileheader():
-
     fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
     prettyprint(fh.get_element())
     fh2 = OSC.FileHeader("my_scenario", "Mandolin")
@@ -955,7 +951,6 @@ def test_componentanimation():
     ],
 )
 def test_global_action_factory(input):
-
     test_element = ET.Element("AnimationType")
     test_element.append(input.get_element())
     factoryoutput = OSC.utils._AnimationTypeFactory.parse_animationtype(test_element)

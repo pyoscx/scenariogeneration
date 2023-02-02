@@ -837,13 +837,10 @@ class OpenDrive:
                 count_total_adjusted_roads += 1
 
         while count_total_adjusted_roads < len(self.roads):
-
             count_adjusted_roads = 0
 
             for k in self.roads:  # Check all
-
                 if self.roads[k].planview.adjusted is False:
-
                     # check if it has a normal (road) predecessor
                     if (
                         self.roads[k].predecessor is not None
@@ -854,7 +851,6 @@ class OpenDrive:
                         ].planview.adjusted
                         is True
                     ):
-
                         # print('  Adjusting {}road {} to predecessor {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))
                         self._adjust_road_wrt_neighbour(
@@ -899,7 +895,6 @@ class OpenDrive:
                         ].planview.adjusted
                         is True
                     ):
-
                         # print('  Adjusting {}successor {} to road {}'.\
                         #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))
                         self._adjust_road_wrt_neighbour(

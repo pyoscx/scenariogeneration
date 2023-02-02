@@ -34,7 +34,6 @@ class Scenario(ScenarioGenerator):
         self.number_of_parallel_writings = 2
 
     def road(self, **kwargs):
-
         road = xodr.create_road(
             [
                 xodr.Spiral(0.0000000001, kwargs["road_curvature"], 100),

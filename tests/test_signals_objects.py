@@ -14,7 +14,6 @@ from scenariogeneration import prettyprint
 
 
 def test_signal_validity():
-
     signal = pyodrx.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
     signal.add_validity(1, 1)
     road = pyodrx.create_straight_road(0)
@@ -23,7 +22,6 @@ def test_signal_validity():
 
 
 def test_object_validity():
-
     guardrail = pyodrx.Object(
         0, 0, height=0.3, zOffset=0.4, Type=pyodrx.ObjectType.barrier, name="guardRail"
     )

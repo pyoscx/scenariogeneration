@@ -48,7 +48,6 @@ class Scenario(ScenarioGenerator):
         self.parameters["decel"] = [-2, -6]
 
     def road(self, **kwargs):
-
         road = xodr.create_road([xodr.Line(500)], id=1, left_lanes=2, right_lanes=2)
         odr = xodr.OpenDrive("myroad")
         odr.add_road(road)
@@ -56,7 +55,6 @@ class Scenario(ScenarioGenerator):
         return odr
 
     def scenario(self, **kwargs):
-
         # create empty catalog
         catalog = xosc.Catalog()
 

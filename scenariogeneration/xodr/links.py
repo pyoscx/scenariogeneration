@@ -690,7 +690,6 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         raise ValueError("The center lane (ID 0) should not be linked.")
 
     if road1.road_type == -1 and road2.road_type == -1:
-
         first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
             road1, road2
         )
@@ -745,7 +744,6 @@ def create_lane_links(road1, road2):
     elif road1.road_type != -1:
         _create_links_connecting_road(road1, road2)
     elif road2.road_type != -1:
-
         _create_links_connecting_road(road2, road1)
 
 

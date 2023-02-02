@@ -45,7 +45,6 @@ def test_link():
 
 
 def test_links():
-
     links = pyodrx.links._Links()
     prettyprint(links.get_element())
     link = pyodrx.links._Link("successor", "1")
@@ -62,7 +61,6 @@ def test_links():
 
 
 def test_lanelinker():
-
     lane = pyodrx.Lane(a=3)
     lane._set_lane_id(1)
     lane.add_link("successor", "2")
@@ -125,7 +123,6 @@ def test_junction():
 
 # road - road - road // -> - -> - ->
 def test_create_lane_links_normalroad1():
-
     planview = []
     lanec = []
     lanel = []
@@ -207,7 +204,6 @@ def test_create_lane_links_normalroad1():
 
 # road - junction - road // -> - -> - ->
 def test_create_lane_links_junction1():
-
     planview = []
     lanec = []
     lanel = []
@@ -287,7 +283,6 @@ def test_create_lane_links_junction1():
 
 # road - junction - road // <- - -> - <-
 def test_create_lane_links_junction2():
-
     planview = []
     lanec = []
     lanel = []
@@ -365,7 +360,6 @@ def test_create_lane_links_junction2():
 
 # road - junction - road // <- - -> - ->
 def test_create_lane_links_junction3():
-
     planview = []
     lanec = []
     lanel = []
@@ -443,7 +437,6 @@ def test_create_lane_links_junction3():
 
 # road - junction - road // -> - -> - <-
 def test_create_lane_links_junction4():
-
     planview = []
     lanec = []
     lanel = []

@@ -149,7 +149,6 @@ ass = OSC.AssignControllerAction(cnt)
     ],
 )
 def test_private_action_factory(action):
-
     factoryoutput = OSC.actions._PrivateActionFactory.parse_privateaction(
         action.get_element()
     )
@@ -314,7 +313,6 @@ def test_teleport():
 
 
 def test_assign_route():
-
     route = OSC.Route("myroute")
     route.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
@@ -465,7 +463,6 @@ def test_visual_action():
 
 
 def test_sync_action():
-
     asa = OSC.SynchronizeAction(
         "Ego",
         OSC.WorldPosition(0, 0, 0, 0, 0, 0),
@@ -512,7 +509,6 @@ def test_sync_action():
 
 
 def test_follow_traj_action_polyline():
-
     positionlist = []
     positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))
     positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))
@@ -679,7 +675,6 @@ def test_trafficsignalcontrolleraction():
 
 
 def test_trafficsourceaction():
-
     prop = OSC.Properties()
     prop.add_file("mycontrollerfile.xml")
     controller = OSC.Controller("mycontroller", prop)
@@ -711,7 +706,6 @@ def test_trafficsourceaction():
 
 
 def test_trafficsinkaction():
-
     prop = OSC.Properties()
     prop.add_file("mycontrollerfile.xml")
     controller = OSC.Controller("mycontroller", prop)
@@ -739,7 +733,6 @@ def test_trafficsinkaction():
 
 
 def test_trafficswarmaction():
-
     prop = OSC.Properties()
     prop.add_file("mycontrollerfile.xml")
     controller = OSC.Controller("mycontroller", prop)

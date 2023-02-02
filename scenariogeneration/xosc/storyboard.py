@@ -245,7 +245,6 @@ class StoryBoard:
                 and self.stoptrigger == other.stoptrigger
                 and self.stories == other.stories
             ):
-
                 return True
         return False
 
@@ -1105,7 +1104,6 @@ class Event(VersionBase):
 
     def __eq__(self, other):
         if isinstance(other, Event):
-
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.trigger == other.trigger

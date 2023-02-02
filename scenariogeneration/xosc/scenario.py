@@ -103,7 +103,6 @@ class Scenario:
         header_properties=None,
         variable_declaration=None,
     ):
-
         """Initalizes the Scenario class, and creates the header.
 
         Parameters

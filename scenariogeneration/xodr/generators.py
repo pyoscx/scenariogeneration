@@ -126,7 +126,6 @@ def create_lanes_merge_split(
         lsec = LaneSection(left_lane[ls].s_start, lc)
         # do the right lanes
         for i in range(max(right_lane[ls].n_lanes_start, right_lane[ls].n_lanes_end)):
-
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
             if i == max(right_lane[ls].n_lanes_start, right_lane[ls].n_lanes_end) - 1:
                 rm = STD_ROADMARK_SOLID
@@ -411,7 +410,6 @@ def create_cloth_arc_cloth(
     pv = PlanView()
     # adjust sign if angle is negative
     if cloth_angle < 0 and arc_curv > 0:
-
         cloth_angle = -cloth_angle
         arc_curv = -arc_curv
         cloth_start = -cloth_start
@@ -630,7 +628,6 @@ def create_junction_roads_standalone(
     junction_roads = []
 
     for i in range(len(angles) - 1):
-
         for j in range(1 + i, len(angles)):
             # check angle needed for junction
             an = np.sign(angles[j] - angles[i] - np.pi)
@@ -1154,7 +1151,6 @@ def _create_lane_lists(right, left, tot_length):
         left = []
 
     while present_s < tot_length:
-
         if r_it < len(right):
             # check if there is still a right LaneDef to be used, and is the next one to add
             if right[r_it].s_start == present_s:

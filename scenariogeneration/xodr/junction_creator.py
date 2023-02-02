@@ -135,7 +135,6 @@ class CommonJunctionCreator:
         self._generic_junction = True
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
-
         (
             incoming_connection,
             incoming_sign,
@@ -264,7 +263,6 @@ class CommonJunctionCreator:
             ):
                 self._create_connecting_roads_with_equal_lanes(road_one_id, road_two_id)
             else:
-
                 self._create_connecting_roads_unequal_lanes(road_one_id, road_two_id)
         elif lane_one_id is not None and lane_two_id is not None:
             if isinstance(lane_one_id, list):
@@ -948,7 +946,6 @@ class DirectJunctionCreator:
             raise AttributeError("road is not connected to this junction")
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
-
         incoming_connection, _, incoming_lane_section = _get_related_lanesection(
             incoming_road, linked_road
         )
@@ -1114,7 +1111,6 @@ class DirectJunctionCreator:
         ):
             incoming_road.pred_direct_junction[linked_road.id] = inc_lane_offset
         else:
-
             incoming_road.succ_direct_junction[linked_road.id] = inc_lane_offset
 
         if linked_road.predecessor and linked_road.predecessor.element_id == self.id:

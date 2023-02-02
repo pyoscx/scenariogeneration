@@ -30,7 +30,6 @@ trigger = OSC.EntityTrigger(
 
 
 def test_event():
-
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
 
@@ -156,7 +155,6 @@ def test_actandstory():
 
 
 def test_init():
-
     init = OSC.Init()
     TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
     egospeed = OSC.AbsoluteSpeedAction(10, TD)
@@ -264,7 +262,6 @@ def test_storyboard_story_input():
 
 
 def test_storyboard_act_input():
-
     egoname = "Ego"
     targetname = "target"
 
@@ -342,7 +339,6 @@ def test_storyboard_act_input():
 
 
 def test_storyboard_mangr_input():
-
     egoname = "Ego"
     targetname = "target"
 
@@ -410,7 +406,6 @@ def test_storyboard_mangr_input():
 
 
 def test_storyboard_man_input():
-
     egoname = "Ego"
     targetname = "target"
 
@@ -475,7 +470,6 @@ def test_storyboard_man_input():
 
 
 def test_empty_storyboard():
-
     ## create the storyboard
     sb = OSC.StoryBoard()
 

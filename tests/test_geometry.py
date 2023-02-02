@@ -311,7 +311,6 @@ def test_inverted_Line(data):
     ],
 )
 def test_inverted_Arc(data):
-
     arc = pyodrx.Arc(data[0], angle=data[1])
 
     end_x, end_y, end_h, _ = arc.get_end_data(data[2], data[3], data[4])

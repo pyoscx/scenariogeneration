@@ -270,14 +270,12 @@ class PlanView:
             self.h_end = self.present_h
 
         else:
-
             self.x_end = self.present_x
             self.y_end = self.present_y
             self.h_end = self.present_h + np.pi
 
             lengths = []
             for i in range(len(self._raw_geometries) - 1, -1, -1):
-
                 newgeom = _Geometry(
                     self.present_s,
                     self.present_x,

@@ -145,7 +145,6 @@ def test_lane_with_roadmarks():
 
 
 def test_lanesection():
-
     ls = pyodrx.LaneSection(0, pyodrx.Lane())
     prettyprint(ls.get_element())
     right_lane = pyodrx.Lane()
@@ -185,7 +184,6 @@ def test_lane_width_calc():
 
 
 def test_lanes():
-
     ls = pyodrx.LaneSection(0, pyodrx.Lane())
     lanes = pyodrx.Lanes()
     lanes.add_lanesection(ls)

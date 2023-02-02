@@ -295,7 +295,6 @@ def direct_junction_left_lane_fixture():
 
 
 def test_direct_junction_offsets_pre_suc_1_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -307,7 +306,6 @@ def test_direct_junction_offsets_pre_suc_1_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_pre_suc_2_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -319,7 +317,6 @@ def test_direct_junction_offsets_pre_suc_2_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_pre_suc_3_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -331,7 +328,6 @@ def test_direct_junction_offsets_pre_suc_3_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_suc_pre_1_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -343,7 +339,6 @@ def test_direct_junction_offsets_suc_pre_1_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_suc_pre_2_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -355,7 +350,6 @@ def test_direct_junction_offsets_suc_pre_2_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_suc_pre_3_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -367,7 +361,6 @@ def test_direct_junction_offsets_suc_pre_3_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_suc_suc_1_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -379,7 +372,6 @@ def test_direct_junction_offsets_suc_suc_1_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_suc_suc_2_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -391,7 +383,6 @@ def test_direct_junction_offsets_suc_suc_2_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_pre_pre_1_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -403,7 +394,6 @@ def test_direct_junction_offsets_pre_pre_1_left(direct_junction_left_lane_fixtur
 
 
 def test_direct_junction_offsets_pre_pre_2_left(direct_junction_left_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -427,7 +417,6 @@ def direct_junction_right_lane_fixture():
 
 
 def test_direct_junction_offsets_pre_suc_1_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -439,7 +428,6 @@ def test_direct_junction_offsets_pre_suc_1_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_pre_suc_2_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -451,7 +439,6 @@ def test_direct_junction_offsets_pre_suc_2_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_pre_suc_3_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -463,7 +450,6 @@ def test_direct_junction_offsets_pre_suc_3_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_suc_pre_1_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -475,7 +461,6 @@ def test_direct_junction_offsets_suc_pre_1_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_suc_pre_2_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -487,7 +472,6 @@ def test_direct_junction_offsets_suc_pre_2_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_suc_pre_3_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -499,7 +483,6 @@ def test_direct_junction_offsets_suc_pre_3_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_suc_suc_1_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -511,7 +494,6 @@ def test_direct_junction_offsets_suc_suc_1_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_suc_suc_2_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -523,7 +505,6 @@ def test_direct_junction_offsets_suc_suc_2_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_pre_pre_1_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -535,7 +516,6 @@ def test_direct_junction_offsets_pre_pre_1_right(direct_junction_right_lane_fixt
 
 
 def test_direct_junction_offsets_pre_pre_2_right(direct_junction_right_lane_fixture):
-
     main_road, small_road, junction_creator = direct_junction_right_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -564,7 +544,6 @@ def direct_junction_left_multi_lane_fixture():
 def test_direct_junction_offsets_pre_suc_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -578,7 +557,6 @@ def test_direct_junction_offsets_pre_suc_1_left(
 def test_direct_junction_offsets_pre_suc_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -592,7 +570,6 @@ def test_direct_junction_offsets_pre_suc_2_left(
 def test_direct_junction_offsets_suc_pre_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -606,7 +583,6 @@ def test_direct_junction_offsets_suc_pre_1_left(
 def test_direct_junction_offsets_suc_pre_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -620,7 +596,6 @@ def test_direct_junction_offsets_suc_pre_2_left(
 def test_direct_junction_offsets_suc_suc_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -634,7 +609,6 @@ def test_direct_junction_offsets_suc_suc_1_left(
 def test_direct_junction_offsets_suc_suc_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -648,7 +622,6 @@ def test_direct_junction_offsets_suc_suc_2_left(
 def test_direct_junction_offsets_pre_pre_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -662,7 +635,6 @@ def test_direct_junction_offsets_pre_pre_1_left(
 def test_direct_junction_offsets_pre_pre_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -688,7 +660,6 @@ def direct_junction_right_multi_lane_fixture():
 def test_direct_junction_offsets_pre_suc_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -702,7 +673,6 @@ def test_direct_junction_offsets_pre_suc_1_right(
 def test_direct_junction_offsets_pre_suc_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -716,7 +686,6 @@ def test_direct_junction_offsets_pre_suc_2_right(
 def test_direct_junction_offsets_suc_pre_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -730,7 +699,6 @@ def test_direct_junction_offsets_suc_pre_1_right(
 def test_direct_junction_offsets_suc_pre_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -744,7 +712,6 @@ def test_direct_junction_offsets_suc_pre_2_right(
 def test_direct_junction_offsets_suc_suc_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -758,7 +725,6 @@ def test_direct_junction_offsets_suc_suc_1_right(
 def test_direct_junction_offsets_suc_suc_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -772,7 +738,6 @@ def test_direct_junction_offsets_suc_suc_2_right(
 def test_direct_junction_offsets_pre_pre_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -786,7 +751,6 @@ def test_direct_junction_offsets_pre_pre_1_right(
 def test_direct_junction_offsets_pre_pre_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-
     main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)

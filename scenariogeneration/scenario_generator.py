@@ -333,7 +333,6 @@ class ScenarioGenerator:
         self._handle_input_parameters()
         files_to_write = []
         for p in self.all_permutations:
-
             scenario_file, road_file, writables = self._generate_road_and_scenario(p)
             scenario_files.append(scenario_file)
             road_files.append(road_file)
