@@ -6,7 +6,7 @@
     - Still missing: Some UserDefined fields
 
 - General notes:
-    - Some extra inputs has been added to changed classes, however no interfaces had to be changed (We think).
+    - Some extra inputs has been added to changed classes.
     - All ParameterActions/Condition has been replaced with VariableActions/Condition
 
 - Some of the new features (will not write all new V1.2 features, check the official documentation):
@@ -22,7 +22,7 @@
 
 - IMPORTANT!
     - osc_minor_version is now updated to 1.2, hence all scenarios will be on OpenSCENARIO V1.2 format, to make sure your previous scenarios keep the same version set the osc_minor_version in the Scenario constructor
-
+    - FollowMode is now replaced with FollowingMode
 
 
 ### 2022-11-23 Version 0.10.1
