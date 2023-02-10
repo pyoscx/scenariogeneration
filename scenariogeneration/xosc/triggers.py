@@ -2232,7 +2232,7 @@ class DistanceCondition(_EntityTriggerType):
         else:
             basedict["relativeDistanceType"] = self.relative_distance_type.get_name()
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
-        if self.isVersion(minor=2):
+        if not (self.isVersion(minor=0) or self.isVersion(minor=1)):
             basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
         return basedict
 
