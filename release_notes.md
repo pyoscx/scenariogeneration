@@ -1,6 +1,11 @@
 ## scenariogeneration release notes
 
 
+### 2023-02-10
+- Bugfixes
+    - parametersetaction can now take non float values again
+    - DistanceCondition can be created properly in V1.1 format
+
 ### 2023-02-02 Version 0.11.0
 - Most of OpenSCENARIO V1.2.0 is implemented!
     - Still missing: Some UserDefined fields
