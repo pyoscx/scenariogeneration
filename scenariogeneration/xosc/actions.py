@@ -3814,7 +3814,7 @@ class ParameterSetAction(_ActionType):
 
         """
         self.parameter_ref = parameter_ref
-        self.value = convert_float(value)
+        self.value = value
 
     def __eq__(self, other):
         if isinstance(other, ParameterSetAction):
@@ -3841,7 +3841,7 @@ class ParameterSetAction(_ActionType):
         pa_element = element.find("ParameterAction")
         parameterRef = pa_element.attrib["parameterRef"]
         psa_element = pa_element.find("SetAction")
-        value = convert_float(psa_element.attrib["value"])
+        value = psa_element.attrib["value"]
         psa = ParameterSetAction(parameterRef, value)
         psa.setVersion(minor=1)
         return psa  # ParameterSetAction(parameterRef, value)
