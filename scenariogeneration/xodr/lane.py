@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -102,9 +102,9 @@ class Lanes:
     def get_element(self):
         """returns the elementTree of Lanes"""
         element = ET.Element("lanes")
-        for l in self.lanesections:
-            element.append(l.get_element())
         for l in self.laneoffsets:
+            element.append(l.get_element())
+        for l in self.lanesections:
             element.append(l.get_element())
         return element
 
