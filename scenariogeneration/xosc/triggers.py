@@ -2664,7 +2664,7 @@ class ParameterCondition(_ValueTriggerType):
 
         """
         self.parameter = parameter
-        self.value = convert_int(value)
+        self.value = value
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
@@ -2689,7 +2689,7 @@ class ParameterCondition(_ValueTriggerType):
 
         """
         parameter = element.attrib["parameterRef"]
-        value = convert_int(element.attrib["value"])
+        value = element.attrib["value"]
         rule = getattr(Rule, element.attrib["rule"])
         return ParameterCondition(parameter, value, rule)
 
