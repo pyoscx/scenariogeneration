@@ -1,6 +1,11 @@
 ## scenariogeneration release notes
 
 
+### 2023-02-23
+- Bugfixes
+    - ParameterCondition fixed to handle all values
+
+
 ### 2023-02-10
 - Bugfixes
     - parametersetaction can now take non float values again
