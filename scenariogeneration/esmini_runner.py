@@ -160,7 +160,7 @@ def esmini(
     if timestep != None:
         additional_args += " --fixed_timestep " + str(timestep)
 
-    additional_args += " " + args + "--path " + resource_path
+    additional_args += " " + args + " --path " + resource_path
 
     # find executable based on OS
     if os.name == "posix":
