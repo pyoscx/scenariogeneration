@@ -696,7 +696,7 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
             road2, road1
         )
-        
+
         # The road links need to be reciprocal for the lane linking to succeed
         if first_linktype == None or second_linktype == None:
             raise ValueError(
