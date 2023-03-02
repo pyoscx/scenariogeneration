@@ -20,26 +20,24 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
-
 
         ### create road
         road = xosc.RoadNetwork(
             roadfile="../xodr/e6mini.xodr", scenegraph="../models/e6mini.osgb"
         )
 
-
         ### create parameters
         paramdec = xosc.ParameterDeclarations()
-
 
         ## create entities
 
@@ -66,11 +64,17 @@ class Scenario(ScenarioGenerator):
         )
 
         init.add_init_action(egoname, xosc.AbsoluteSpeedAction(30, step_time))
-        init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0)))
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0))
+        )
         init.add_init_action(redname, xosc.AbsoluteSpeedAction(40, step_time))
-        init.add_init_action(redname, xosc.TeleportAction(xosc.LanePosition(15, 0, -2, 0)))
+        init.add_init_action(
+            redname, xosc.TeleportAction(xosc.LanePosition(15, 0, -2, 0))
+        )
         init.add_init_action(yelname, xosc.AbsoluteSpeedAction(30, step_time))
-        init.add_init_action(yelname, xosc.TeleportAction(xosc.LanePosition(35, 0, -4, 0)))
+        init.add_init_action(
+            yelname, xosc.TeleportAction(xosc.LanePosition(35, 0, -4, 0))
+        )
 
         ### create an event for the red car
 
@@ -89,7 +93,6 @@ class Scenario(ScenarioGenerator):
                 ),
             ),
         )
-
 
         ## create the act for the red car
         r_man = xosc.Maneuver("red_maneuver")
@@ -110,9 +113,7 @@ class Scenario(ScenarioGenerator):
         )
         act.add_maneuver_group(r_mangr)
 
-
         ## create an event for the yellow car
-
 
         y_trigcond = xosc.TimeHeadwayCondition(redname, 0.5, xosc.Rule.greaterThan)
         y_trigger = xosc.EntityTrigger(
@@ -132,7 +133,6 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-
         ## create the act for the yellow car
         y_man = xosc.Maneuver("yellow_maneuver")
         y_man.add_event(y_event)
@@ -148,7 +148,6 @@ class Scenario(ScenarioGenerator):
         )
         # y_act = xosc.Act('my_act',y_starttrigger)
         act.add_maneuver_group(y_mangr)
-
 
         ## create the story
 
@@ -184,7 +183,7 @@ class Scenario(ScenarioGenerator):
         return sce
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())
@@ -195,4 +194,3 @@ if __name__ == '__main__':
     # uncomment the following lines to display the scenario using esmini
     # from scenariogeneration import esmini
     # esmini(sce,os.path.join('esmini'))
-

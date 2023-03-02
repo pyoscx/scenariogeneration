@@ -11,25 +11,24 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
+
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
-
 
         ### create road
         road = xosc.RoadNetwork(
             roadfile="../xodr/e6mini.xodr", scenegraph="../models/e6mini.osgb"
         )
 
-
         ### create parameters
         paramdec = xosc.ParameterDeclarations()
-
 
         ## create entities
 
@@ -43,7 +42,6 @@ class Scenario(ScenarioGenerator):
         entities.add_scenario_object(
             targetname, xosc.CatalogReference("VehicleCatalog", "car_red")
         )
-
 
         ### create init
 
@@ -62,7 +60,6 @@ class Scenario(ScenarioGenerator):
         init.add_init_action(egoname, egostart)
         init.add_init_action(targetname, targetspeed)
         init.add_init_action(targetname, targetstart)
-
 
         ### create an event
         ego_event = xosc.Event("ego_speed_change", xosc.Priority.overwrite)
@@ -105,7 +102,8 @@ class Scenario(ScenarioGenerator):
         )
         return sce
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())

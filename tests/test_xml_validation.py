@@ -24,16 +24,23 @@ import pytest
         "withcontroller",
     ],
 )
-
-
 def test_OSC_1_0(python_file):
-    sys.path.insert(1, os.path.join(os.path.split(__file__)[0],os.pardir,"examples","xosc"))
-    validator = etree.XMLSchema(etree.parse(os.path.join(os.path.split(__file__)[0],os.pardir,"schemas","OpenSCENARIO_1_0.xsd")))
+    sys.path.insert(
+        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+    )
+    validator = etree.XMLSchema(
+        etree.parse(
+            os.path.join(
+                os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_0.xsd"
+            )
+        )
+    )
     imp = importlib.import_module(python_file)
     sce = imp.Scenario()
     sce.open_scenario_version = 0
-    xosc,_ = sce.generate(".")
+    xosc, _ = sce.generate(".")
     assert validator.validate(etree.parse(xosc[0]))
+
 
 @pytest.mark.parametrize(
     "python_file",
@@ -55,13 +62,22 @@ def test_OSC_1_0(python_file):
     ],
 )
 def test_OSC_1_1(python_file):
-    sys.path.insert(1, os.path.join(os.path.split(__file__)[0],os.pardir,"examples","xosc"))
-    validator = etree.XMLSchema(etree.parse(os.path.join(os.path.split(__file__)[0],os.pardir,"schemas","OpenSCENARIO_1_1.xsd")))
+    sys.path.insert(
+        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+    )
+    validator = etree.XMLSchema(
+        etree.parse(
+            os.path.join(
+                os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_1.xsd"
+            )
+        )
+    )
     imp = importlib.import_module(python_file)
     sce = imp.Scenario()
     sce.open_scenario_version = 1
-    xosc,_ = sce.generate(".")
+    xosc, _ = sce.generate(".")
     assert validator.validate(etree.parse(xosc[0]))
+
 
 @pytest.mark.parametrize(
     "python_file",
@@ -84,10 +100,18 @@ def test_OSC_1_1(python_file):
     ],
 )
 def test_OSC_1_2(python_file):
-    sys.path.insert(1, os.path.join(os.path.split(__file__)[0],os.pardir,"examples","xosc"))
-    validator = etree.XMLSchema(etree.parse(os.path.join(os.path.split(__file__)[0],os.pardir,"schemas","OpenSCENARIO_1_2.xsd")))
+    sys.path.insert(
+        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+    )
+    validator = etree.XMLSchema(
+        etree.parse(
+            os.path.join(
+                os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_2.xsd"
+            )
+        )
+    )
     imp = importlib.import_module(python_file)
     sce = imp.Scenario()
     sce.open_scenario_version = 2
-    xosc,_ = sce.generate(".")
+    xosc, _ = sce.generate(".")
     assert validator.validate(etree.parse(xosc[0]))

@@ -21,20 +21,21 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
 
-
         ### create road
         road = xosc.RoadNetwork(
-            roadfile="../xodr/fabriksgatan.xodr", scenegraph="../models/fabriksgatan.osgb"
+            roadfile="../xodr/fabriksgatan.xodr",
+            scenegraph="../models/fabriksgatan.osgb",
         )
 
         ### create parameters
@@ -54,7 +55,9 @@ class Scenario(ScenarioGenerator):
 
         init = xosc.Init()
 
-        init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, 1, 0)))
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, 1, 0))
+        )
         init.add_init_action(
             egoname,
             xosc.AbsoluteSpeedAction(
@@ -68,13 +71,15 @@ class Scenario(ScenarioGenerator):
         # create a router
 
         ego_route = xosc.Route("ego_route")
-        ego_route.add_waypoint(xosc.LanePosition(30, 0, 1, 0), xosc.RouteStrategy.fastest)
-        ego_route.add_waypoint(xosc.LanePosition(10, 0, -1, 1), xosc.RouteStrategy.fastest)
-
+        ego_route.add_waypoint(
+            xosc.LanePosition(30, 0, 1, 0), xosc.RouteStrategy.fastest
+        )
+        ego_route.add_waypoint(
+            xosc.LanePosition(10, 0, -1, 1), xosc.RouteStrategy.fastest
+        )
 
         # create action
         ego_action = xosc.AssignRouteAction(ego_route)
-
 
         ego_event = xosc.Event("ego_event", xosc.Priority.overwrite)
         ego_event.add_action("ego_route", ego_action)
@@ -86,7 +91,6 @@ class Scenario(ScenarioGenerator):
                 xosc.SimulationTimeCondition(1, xosc.Rule.greaterThan),
             )
         )
-
 
         ## create the storyboard
         ego_man = xosc.Maneuver("ego_man")
@@ -117,7 +121,8 @@ class Scenario(ScenarioGenerator):
         )
         return sce
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())

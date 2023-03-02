@@ -32,12 +32,13 @@ speed_of_outer_car = 20
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
@@ -68,10 +69,11 @@ class Scenario(ScenarioGenerator):
 
         ### create init
 
-
         init = xosc.Init()
 
-        init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0)))
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0))
+        )
         init.add_init_action(
             egoname,
             xosc.AbsoluteSpeedAction(
@@ -83,7 +85,9 @@ class Scenario(ScenarioGenerator):
         )
 
         # change speed of this to have different outcome
-        init.add_init_action(speedyname, xosc.TeleportAction(xosc.LanePosition(10, 0, -3, 0)))
+        init.add_init_action(
+            speedyname, xosc.TeleportAction(xosc.LanePosition(10, 0, -3, 0))
+        )
         init.add_init_action(
             speedyname,
             xosc.AbsoluteSpeedAction(
@@ -94,7 +98,9 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-        init.add_init_action(targetname, xosc.TeleportAction(xosc.LanePosition(100, 0, -2, 0)))
+        init.add_init_action(
+            targetname, xosc.TeleportAction(xosc.LanePosition(100, 0, -2, 0))
+        )
         init.add_init_action(
             targetname,
             xosc.AbsoluteSpeedAction(
@@ -119,7 +125,9 @@ class Scenario(ScenarioGenerator):
         )
 
         # create two trigger conditions
-        ttc_cond = xosc.TimeToCollisionCondition(3, xosc.Rule.lessThan, entity=targetname)
+        ttc_cond = xosc.TimeToCollisionCondition(
+            3, xosc.Rule.lessThan, entity=targetname
+        )
         headway_cond = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.lessThan)
 
         headway_trigger = xosc.EntityTrigger(
@@ -150,14 +158,15 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-
         # create two separate condition groups
         headway_cond_2 = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.greaterThan)
         headway_trigger_2 = xosc.EntityTrigger(
             "trigger", 0, xosc.ConditionEdge.none, headway_cond_2, egoname
         )
 
-        ttc_cond_2 = xosc.TimeToCollisionCondition(3, xosc.Rule.lessThan, entity=targetname)
+        ttc_cond_2 = xosc.TimeToCollisionCondition(
+            3, xosc.Rule.lessThan, entity=targetname
+        )
         collision_trigger_2 = xosc.EntityTrigger(
             "trigger", 0, xosc.ConditionEdge.none, ttc_cond_2, egoname
         )
@@ -168,10 +177,8 @@ class Scenario(ScenarioGenerator):
 
         lane_change_event.add_trigger(lc_group)
 
-
         ## create the storyboard
         man = xosc.Maneuver("slow down maneuver")
-
 
         man.add_event(slowdown_event)
         man.add_event(lane_change_event)
@@ -202,7 +209,7 @@ class Scenario(ScenarioGenerator):
         return sce
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())

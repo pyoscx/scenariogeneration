@@ -25,12 +25,13 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
@@ -63,7 +64,9 @@ class Scenario(ScenarioGenerator):
 
         init = xosc.Init()
 
-        init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0)))
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0))
+        )
         init.add_init_action(
             egoname,
             xosc.AbsoluteSpeedAction(
@@ -74,7 +77,9 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-        init.add_init_action(speedyname, xosc.TeleportAction(xosc.LanePosition(10, 0, -3, 0)))
+        init.add_init_action(
+            speedyname, xosc.TeleportAction(xosc.LanePosition(10, 0, -3, 0))
+        )
         init.add_init_action(
             speedyname,
             xosc.AbsoluteSpeedAction(
@@ -85,7 +90,9 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-        init.add_init_action(targetname, xosc.TeleportAction(xosc.LanePosition(100, 0, -2, 0)))
+        init.add_init_action(
+            targetname, xosc.TeleportAction(xosc.LanePosition(100, 0, -2, 0))
+        )
         init.add_init_action(
             targetname,
             xosc.AbsoluteSpeedAction(
@@ -97,7 +104,6 @@ class Scenario(ScenarioGenerator):
         )
 
         ### create the action
-
 
         event = xosc.Event("speedchange", xosc.Priority.overwrite)
         event.add_action(
@@ -111,7 +117,9 @@ class Scenario(ScenarioGenerator):
         )
 
         # create two Conditions
-        trig_cond1 = xosc.TimeToCollisionCondition(2, xosc.Rule.lessThan, entity=targetname)
+        trig_cond1 = xosc.TimeToCollisionCondition(
+            2, xosc.Rule.lessThan, entity=targetname
+        )
         trig_cond2 = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.greaterThan)
 
         collision_trigger = xosc.EntityTrigger(
@@ -159,7 +167,7 @@ class Scenario(ScenarioGenerator):
         return sce
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())
@@ -170,4 +178,3 @@ if __name__ == '__main__':
     # uncomment the following lines to display the scenario using esmini
     # from scenariogeneration import esmini
     # esmini(sce,os.path.join('esmini'))
-

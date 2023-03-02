@@ -19,22 +19,21 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
-
 
         ### create road
         road = xosc.RoadNetwork(
             roadfile="../xodr/e6mini.xodr", scenegraph="../models/e6mini.osgb"
         )
-
 
         ### create parameters
         paramdec = xosc.ParameterDeclarations()
@@ -51,16 +50,19 @@ class Scenario(ScenarioGenerator):
         bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)
         fa = xosc.Axle(0.523598775598, 0.8, 1.68, 2.98, 0.4)
         ba = xosc.Axle(0.523598775598, 0.8, 1.68, 0, 0.4)
-        white_veh = xosc.Vehicle("car_white", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10)
+        white_veh = xosc.Vehicle(
+            "car_white", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10
+        )
 
         white_veh.add_property_file("../models/car_white.osgb")
         white_veh.add_property("model_id", "0")
 
-
         bb = xosc.BoundingBox(1.8, 4.5, 1.5, 1.3, 0, 0.8)
         fa = xosc.Axle(0.523598775598, 0.8, 1.68, 2.98, 0.4)
         ba = xosc.Axle(0.523598775598, 0.8, 1.68, 0, 0.4)
-        red_veh = xosc.Vehicle("car_red", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10)
+        red_veh = xosc.Vehicle(
+            "car_red", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10
+        )
 
         red_veh.add_property_file("../models/car_red.osgb")
         red_veh.add_property("model_id", "2")
@@ -73,7 +75,6 @@ class Scenario(ScenarioGenerator):
         entities = xosc.Entities()
         entities.add_scenario_object(egoname, white_veh)
         entities.add_scenario_object(targetname, red_veh)
-
 
         ### create init
 
@@ -93,7 +94,6 @@ class Scenario(ScenarioGenerator):
         init.add_init_action(targetname, targetspeed)
         init.add_init_action(targetname, targetstart)
 
-
         ### create an event
 
         trigcond = xosc.TimeHeadwayCondition(targetname, 0.1, xosc.Rule.greaterThan)
@@ -112,7 +112,6 @@ class Scenario(ScenarioGenerator):
             egoname, max_deceleration=3, max_speed=50, distance=-4
         )
         event.add_action("newspeed", action)
-
 
         ## create the act,
         man = xosc.Maneuver("my_maneuver")
@@ -155,7 +154,8 @@ class Scenario(ScenarioGenerator):
         )
         return sce
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())

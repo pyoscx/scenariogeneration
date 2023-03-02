@@ -23,12 +23,13 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
 
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
@@ -58,7 +59,9 @@ class Scenario(ScenarioGenerator):
 
         init = xosc.Init()
 
-        init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(10, 0, -4, 0)))
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(10, 0, -4, 0))
+        )
         init.add_init_action(
             egoname,
             xosc.AbsoluteSpeedAction(
@@ -69,7 +72,9 @@ class Scenario(ScenarioGenerator):
             ),
         )
 
-        init.add_init_action(targetname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0)))
+        init.add_init_action(
+            targetname, xosc.TeleportAction(xosc.LanePosition(50, 0, -2, 0))
+        )
         init.add_init_action(
             targetname,
             xosc.AbsoluteSpeedAction(
@@ -113,7 +118,9 @@ class Scenario(ScenarioGenerator):
             5, xosc.Rule.lessThan, xosc.RelativeDistanceType.lateral, targetname
         )
         event.add_trigger(
-            xosc.EntityTrigger("trigger", 0, xosc.ConditionEdge.none, trig_cond, egoname)
+            xosc.EntityTrigger(
+                "trigger", 0, xosc.ConditionEdge.none, trig_cond, egoname
+            )
         )
 
         man = xosc.Maneuver("mymaneuver")
@@ -146,7 +153,8 @@ class Scenario(ScenarioGenerator):
         )
         return sce
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())

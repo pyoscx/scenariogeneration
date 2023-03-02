@@ -24,18 +24,21 @@
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
+
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
         self.open_scenario_version = 2
-    def scenario(self,**kwargs):
+
+    def scenario(self, **kwargs):
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
 
         ### create road
         road = xosc.RoadNetwork(
-            roadfile="../xodr/straight_500m.xodr", scenegraph="../models/straight_500m.osgb"
+            roadfile="../xodr/straight_500m.xodr",
+            scenegraph="../models/straight_500m.osgb",
         )
 
         ### create parameters
@@ -52,7 +55,8 @@ class Scenario(ScenarioGenerator):
 
         for i in range(20):
             entities.add_scenario_object(
-                targetname + str(i), xosc.CatalogReference("VehicleCatalog", "car_yellow")
+                targetname + str(i),
+                xosc.CatalogReference("VehicleCatalog", "car_yellow"),
             )
 
             init.add_init_action(
@@ -70,13 +74,19 @@ class Scenario(ScenarioGenerator):
             )
 
             event = xosc.Event("speedchange", xosc.Priority.overwrite, maxexecution=10)
-            event.add_action("restart", xosc.TeleportAction(xosc.LanePosition(0, 0, -1, 1)))
+            event.add_action(
+                "restart", xosc.TeleportAction(xosc.LanePosition(0, 0, -1, 1))
+            )
 
             trig_cond = xosc.EndOfRoadCondition(0)
 
             event.add_trigger(
                 xosc.EntityTrigger(
-                    "trigger", 0, xosc.ConditionEdge.rising, trig_cond, targetname + str(i)
+                    "trigger",
+                    0,
+                    xosc.ConditionEdge.rising,
+                    trig_cond,
+                    targetname + str(i),
                 )
             )
 
@@ -87,7 +97,6 @@ class Scenario(ScenarioGenerator):
             mangr.add_maneuver(man)
             mangr.add_actor(targetname + str(i))
             act.add_maneuver_group(mangr)
-
 
         ## create the storyboard
         sb = xosc.StoryBoard(
@@ -115,7 +124,8 @@ class Scenario(ScenarioGenerator):
         )
         return sce
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
     prettyprint(sce.get_element())
