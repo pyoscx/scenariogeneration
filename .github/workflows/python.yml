@@ -26,7 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install pytest
-        run: python3 -m pip install pytest, lxml
+        run: python3 -m pip install pytest
+      - name: Install lxml
+        run: python3 -m pip install lxml
       - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
@@ -157,9 +159,9 @@ jobs:
         - name: trajectory_example
           if: always()
           run: python3 examples/xosc/trajectory_example.py
-        - name: withcontoller
+        - name: withcontroller
           if: always()
-          run: python3 examples/xosc/withcontoller.py
+          run: python3 examples/xosc/withconrtoller.py
 
 
   generator_examples:
