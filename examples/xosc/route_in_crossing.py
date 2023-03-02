@@ -1,13 +1,13 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
-  
+
     Simple example showing how to pick a route in a junction
 
     Some features used:
@@ -19,102 +19,117 @@
     - LanePosition
 """
 import os
-from scenariogeneration import xosc, prettyprint
-
-### create catalogs
-catalog = xosc.Catalog()
-catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
+from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
 
-### create road
-road = xosc.RoadNetwork(
-    roadfile="../xodr/fabriksgatan.xodr", scenegraph="../models/fabriksgatan.osgb"
-)
+class Scenario(ScenarioGenerator):
+    def __init__(self):
+        super().__init__()
+        self.open_scenario_version = 2
 
-### create parameters
-paramdec = xosc.ParameterDeclarations()
+    def scenario(self, **kwargs):
+        ### create catalogs
+        catalog = xosc.Catalog()
+        catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
 
-## create entities
+        ### create road
+        road = xosc.RoadNetwork(
+            roadfile="../xodr/fabriksgatan.xodr",
+            scenegraph="../models/fabriksgatan.osgb",
+        )
 
-egoname = "Ego"
-targetname = "Target"
+        ### create parameters
+        paramdec = xosc.ParameterDeclarations()
 
-entities = xosc.Entities()
-entities.add_scenario_object(
-    egoname, xosc.CatalogReference("VehicleCatalog", "car_red")
-)
+        ## create entities
 
-### create init
+        egoname = "Ego"
+        targetname = "Target"
 
-init = xosc.Init()
+        entities = xosc.Entities()
+        entities.add_scenario_object(
+            egoname, xosc.CatalogReference("VehicleCatalog", "car_red")
+        )
 
-init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, 1, 0)))
-init.add_init_action(
-    egoname,
-    xosc.AbsoluteSpeedAction(
-        10,
-        xosc.TransitionDynamics(
-            xosc.DynamicsShapes.step, xosc.DynamicsDimension.time, 1
-        ),
-    ),
-)
+        ### create init
 
-# create a router
+        init = xosc.Init()
 
-ego_route = xosc.Route("ego_route")
-ego_route.add_waypoint(xosc.LanePosition(30, 0, 1, 0), xosc.RouteStrategy.fastest)
-ego_route.add_waypoint(xosc.LanePosition(10, 0, -1, 1), xosc.RouteStrategy.fastest)
+        init.add_init_action(
+            egoname, xosc.TeleportAction(xosc.LanePosition(50, 0, 1, 0))
+        )
+        init.add_init_action(
+            egoname,
+            xosc.AbsoluteSpeedAction(
+                10,
+                xosc.TransitionDynamics(
+                    xosc.DynamicsShapes.step, xosc.DynamicsDimension.time, 1
+                ),
+            ),
+        )
+
+        # create a router
+
+        ego_route = xosc.Route("ego_route")
+        ego_route.add_waypoint(
+            xosc.LanePosition(30, 0, 1, 0), xosc.RouteStrategy.fastest
+        )
+        ego_route.add_waypoint(
+            xosc.LanePosition(10, 0, -1, 1), xosc.RouteStrategy.fastest
+        )
+
+        # create action
+        ego_action = xosc.AssignRouteAction(ego_route)
+
+        ego_event = xosc.Event("ego_event", xosc.Priority.overwrite)
+        ego_event.add_action("ego_route", ego_action)
+        ego_event.add_trigger(
+            xosc.ValueTrigger(
+                "target_start",
+                0,
+                xosc.ConditionEdge.none,
+                xosc.SimulationTimeCondition(1, xosc.Rule.greaterThan),
+            )
+        )
+
+        ## create the storyboard
+        ego_man = xosc.Maneuver("ego_man")
+        ego_man.add_event(ego_event)
+
+        sb = xosc.StoryBoard(
+            init,
+            xosc.ValueTrigger(
+                "stop_simulation",
+                0,
+                xosc.ConditionEdge.rising,
+                xosc.SimulationTimeCondition(10, xosc.Rule.greaterThan),
+                "stop",
+            ),
+        )
+        sb.add_maneuver(ego_man, egoname)
+
+        ## create the scenario
+        sce = xosc.Scenario(
+            "adaptspeed_example",
+            "User",
+            paramdec,
+            entities=entities,
+            storyboard=sb,
+            roadnetwork=road,
+            catalog=catalog,
+            osc_minor_version=self.open_scenario_version,
+        )
+        return sce
 
 
-# create action
-ego_action = xosc.AssignRouteAction(ego_route)
+if __name__ == "__main__":
+    sce = Scenario()
+    # Print the resulting xml
+    prettyprint(sce.scenario().get_element())
 
+    # write the OpenSCENARIO file as xosc using current script name
+    sce.generate(".")
 
-ego_event = xosc.Event("ego_event", xosc.Priority.overwrite)
-ego_event.add_action("ego_route", ego_action)
-ego_event.add_trigger(
-    xosc.ValueTrigger(
-        "target_start",
-        0,
-        xosc.ConditionEdge.none,
-        xosc.SimulationTimeCondition(1, xosc.Rule.greaterThan),
-    )
-)
-
-
-## create the storyboard
-ego_man = xosc.Maneuver("ego_man")
-ego_man.add_event(ego_event)
-
-sb = xosc.StoryBoard(
-    init,
-    xosc.ValueTrigger(
-        "stop_simulation",
-        0,
-        xosc.ConditionEdge.rising,
-        xosc.SimulationTimeCondition(10, xosc.Rule.greaterThan),
-        "stop",
-    ),
-)
-sb.add_maneuver(ego_man, egoname)
-
-## create the scenario
-sce = xosc.Scenario(
-    "adaptspeed_example",
-    "User",
-    paramdec,
-    entities=entities,
-    storyboard=sb,
-    roadnetwork=road,
-    catalog=catalog,
-)
-
-# Print the resulting xml
-prettyprint(sce.get_element())
-
-# write the OpenSCENARIO file as xosc using current script name
-sce.write_xml(os.path.basename(__file__).replace(".py", ".xosc"))
-
-# uncomment the following lines to display the scenario using esmini
-# from scenariogeneration import esmini
-# esmini(sce,os.path.join('esmini'))
+    # uncomment the following lines to display the scenario using esmini
+    # from scenariogeneration import esmini
+    # esmini(sce,os.path.join('esmini'))
