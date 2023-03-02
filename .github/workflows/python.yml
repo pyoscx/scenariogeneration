@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install pytest
-        run: python3 -m pip install pytest
+        run: python3 -m pip install pytest, lxml
       - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies

@@ -157,7 +157,7 @@ class Scenario(ScenarioGenerator):
 if __name__ == "__main__":
     sce = Scenario()
     # Print the resulting xml
-    prettyprint(sce.get_element())
+    prettyprint(sce.scenario().get_element())
 
     # write the OpenSCENARIO file as xosc using current script name
     sce.generate(".")
