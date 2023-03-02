@@ -8,17 +8,17 @@
 
   Copyright (c) 2022 The scenariogeneration Authors.
 
-    Simple example showing how one vehicle triggers based on the speed of another vehicle, then changes its speed
+    An example how to add a sumo controller to an object
+
 
     Some features used:
 
-    - SpeedCondition
+    - Controller
 
-    - AbsoluteSpeedAction
-
-    - RoadPosition
+    - Properties
 
 """
+
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
@@ -28,10 +28,10 @@ class Scenario(ScenarioGenerator):
         self.open_scenario_version = 2
     def scenario(self,**kwargs):
 
-
         ### create catalogs
         catalog = xosc.Catalog()
         catalog.add_catalog("VehicleCatalog", "../xosc/Catalogs/Vehicles")
+
 
         ### create road
         road = xosc.RoadNetwork(
@@ -68,14 +68,21 @@ class Scenario(ScenarioGenerator):
         red_veh.add_property_file("../models/car_red.osgb")
         red_veh.add_property("model_id", "2")
 
+
         ## create entities
 
         egoname = "Ego"
         targetname = "Target"
+        prop = xosc.Properties()
+        prop.add_property(name="esminiController", value="SumoController")
+        prop.add_file("../sumo_inputs/e6mini.sumocfg")
+        cont = xosc.Controller("mycontroler", prop)
+        # cont.dump_to_catalog('Controller.xosc','Controller','controllers','Mandolin')
+
 
         entities = xosc.Entities()
         entities.add_scenario_object(egoname, white_veh)
-        entities.add_scenario_object(targetname, red_veh)
+        entities.add_scenario_object(targetname, red_veh, cont)
 
 
         ### create init
@@ -85,56 +92,13 @@ class Scenario(ScenarioGenerator):
             xosc.DynamicsShapes.step, xosc.DynamicsDimension.time, 1
         )
 
-        egospeed = xosc.AbsoluteSpeedAction(
-            25,
-            xosc.TransitionDynamics(
-                xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 8
-            ),
-        )
+        egospeed = xosc.AbsoluteSpeedAction(10, step_time)
         egostart = xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0))
 
-        targetspeed = xosc.AbsoluteSpeedAction(15, step_time)
-        targetstart = xosc.TeleportAction(xosc.RoadPosition(30, -5, 0))
 
         init.add_init_action(egoname, egospeed)
         init.add_init_action(egoname, egostart)
-        init.add_init_action(targetname, targetspeed)
-        init.add_init_action(targetname, targetstart)
 
-
-        ### create an event
-
-        trigcond = xosc.SpeedCondition(24, xosc.Rule.greaterThan)
-
-        trigger = xosc.EntityTrigger(
-            "mytesttrigger", 0.2, xosc.ConditionEdge.none, trigcond, egoname
-        )
-
-        event = xosc.Event("myfirstevent", xosc.Priority.overwrite)
-        event.add_trigger(trigger)
-
-        sin_time = xosc.TransitionDynamics(
-            xosc.DynamicsShapes.linear, xosc.DynamicsDimension.time, 5
-        )
-        action = xosc.AbsoluteSpeedAction(30, sin_time)
-        event.add_action("newspeed", action)
-
-
-        ## create the maneuver
-        man = xosc.Maneuver("my_maneuver")
-        man.add_event(event)
-
-        mangr = xosc.ManeuverGroup("mangroup")
-        mangr.add_actor("$owner")
-        mangr.add_maneuver(man)
-        starttrigger = xosc.ValueTrigger(
-            "starttrigger",
-            0,
-            xosc.ConditionEdge.rising,
-            xosc.SimulationTimeCondition(0, xosc.Rule.greaterThan),
-        )
-        act = xosc.Act("my_act", starttrigger)
-        act.add_maneuver_group(mangr)
 
         ## create the story
         storyparam = xosc.ParameterDeclarations()
@@ -142,20 +106,10 @@ class Scenario(ScenarioGenerator):
             xosc.Parameter("$owner", xosc.ParameterType.string, targetname)
         )
         story = xosc.Story("mystory", storyparam)
-        story.add_act(act)
+
 
         ## create the storyboard
-        sb = xosc.StoryBoard(
-            init,
-            xosc.ValueTrigger(
-                "stop_simulation",
-                0,
-                xosc.ConditionEdge.rising,
-                xosc.SimulationTimeCondition(15, xosc.Rule.greaterThan),
-                "stop",
-            ),
-        )
-        sb.add_story(story)
+        sb = xosc.StoryBoard(init)
 
         ## create the scenario
         sce = xosc.Scenario(
@@ -168,7 +122,6 @@ class Scenario(ScenarioGenerator):
             catalog=catalog,
             osc_minor_version=self.open_scenario_version,
         )
-
         return sce
 
 if __name__ == '__main__':
