@@ -161,7 +161,7 @@ jobs:
           run: python3 examples/xosc/trajectory_example.py
         - name: withcontroller
           if: always()
-          run: python3 examples/xosc/withconrtoller.py
+          run: python3 examples/xosc/withcontroller.py
 
 
   generator_examples:
