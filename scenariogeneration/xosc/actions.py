@@ -4925,7 +4925,7 @@ class TrafficSwarmAction(_ActionType):
             dot = DirectionOfTravelDistribution.parse(
                 tsa_element.find("DirectionOfTravelDistribution")
             )
-        central_element = tsa_element.find("CentralSwarmObject")
+        central_element = tsa_element.find("CentralObject")
         centralobject = central_element.attrib["entityRef"]
 
         tsa_object = TrafficSwarmAction(
@@ -4967,7 +4967,7 @@ class TrafficSwarmAction(_ActionType):
         )
         swarmaction.append(self.trafficdefinition.get_element())
         ET.SubElement(
-            swarmaction, "CentralSwarmObject", attrib={"entityRef": self.centralobject}
+            swarmaction, "CentralObject", attrib={"entityRef": self.centralobject}
         )
         if self.velocity is not None:
             if self.version_minor > 1:

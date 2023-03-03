@@ -20,6 +20,8 @@ from scenariogeneration.xosc.enumerations import ReferenceContext
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
+from .xml_validator import version_validation, ValidationResponse
+
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0)
 
 tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
@@ -170,7 +172,9 @@ def test_speedaction_abs():
     action = OSC.AbsoluteSpeedAction.parse(speedaction.get_element())
     prettyprint(action)
     assert speedaction == action
-
+    assert version_validation("PrivateAction",speedaction,0)
+    assert version_validation("PrivateAction",speedaction,1)
+    assert version_validation("PrivateAction",speedaction,2)
 
 def test_speedaction_rel():
     speedaction = OSC.RelativeSpeedAction(1, "Ego", TD)
@@ -703,7 +707,9 @@ def test_trafficsourceaction():
     source_action4 = OSC.TrafficSourceAction.parse(source_action.get_element())
     prettyprint(source_action4.get_element())
     assert source_action == source_action4
-
+    assert version_validation("GlobalAction",source_action,0) == ValidationResponse.OK
+    assert version_validation("GlobalAction",source_action,1) == ValidationResponse.OK
+    assert version_validation("GlobalAction",source_action,2) == ValidationResponse.OK
 
 def test_trafficsinkaction():
     prop = OSC.Properties()
@@ -730,7 +736,9 @@ def test_trafficsinkaction():
     sink_action4 = OSC.TrafficSinkAction.parse(sink_action.get_element())
     prettyprint(sink_action4.get_element())
     assert sink_action == sink_action4
-
+    assert version_validation("GlobalAction",sink_action,0) == ValidationResponse.OK
+    assert version_validation("GlobalAction",sink_action,1) == ValidationResponse.OK
+    assert version_validation("GlobalAction",sink_action,2) == ValidationResponse.OK
 
 def test_trafficswarmaction():
     prop = OSC.Properties()
@@ -763,7 +771,9 @@ def test_trafficswarmaction():
     swarm_action4 = OSC.TrafficSwarmAction.parse(swarm_action3.get_element())
     prettyprint(swarm_action4.get_element())
     assert swarm_action3 == swarm_action4
-
+    assert version_validation("GlobalAction",swarm_action,0) == ValidationResponse.OK
+    assert version_validation("GlobalAction",swarm_action,1) == ValidationResponse.OK
+    assert version_validation("GlobalAction",swarm_action,2) == ValidationResponse.OK
 
 def test_environmentaction():
     tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
@@ -781,7 +791,9 @@ def test_environmentaction():
     ea4 = OSC.EnvironmentAction.parse(ea.get_element())
     prettyprint(ea4.get_element())
     assert ea == ea4
-
+    assert version_validation("GlobalAction",ea,0) == ValidationResponse.OSC_VERSION
+    assert version_validation("GlobalAction",ea,1) == ValidationResponse.OK
+    assert version_validation("GlobalAction",ea,2) == ValidationResponse.OK
 
 def test_trafficstopaction():
     tsa = OSC.TrafficStopAction("hej")
@@ -794,7 +806,9 @@ def test_trafficstopaction():
     tsa4 = OSC.TrafficStopAction.parse(tsa.get_element())
     prettyprint(tsa4.get_element())
     assert tsa == tsa4
-
+    assert version_validation("GlobalAction",tsa,0) == ValidationResponse.OSC_VERSION
+    assert version_validation("GlobalAction",tsa,1) == ValidationResponse.OK
+    assert version_validation("GlobalAction",tsa,2) == ValidationResponse.OK
 
 def test_customcommandaction():
     cca = OSC.CustomCommandAction("custom_command")
@@ -827,6 +841,9 @@ def test_userdefinedaction():
     uda3 = OSC.UserDefinedAction.parse(uda.get_element())
     prettyprint(uda3)
     assert uda3 == uda
+    # assert version_validation("UserDefinedAction",uda,0)
+    # assert version_validation("UserDefinedAction",uda,1)
+    # assert version_validation("UserDefinedAction",uda,2)
 
 
 def test_lightstateaction():
@@ -856,6 +873,9 @@ def test_lightstateaction():
     assert lsa4 == lsa
     lsa5 = OSC.LightStateAction.parse(lsa3.get_element())
     assert lsa5 == lsa3
+    assert version_validation("PrivateAction",lsa,0) == ValidationResponse.OSC_VERSION
+    assert version_validation("PrivateAction",lsa,1) == ValidationResponse.OSC_VERSION
+    assert version_validation("PrivateAction",lsa,2) == ValidationResponse.XSD_FAILURE
 
 
 def test_speedprofileaction():
@@ -881,7 +901,9 @@ def test_speedprofileaction():
     spa4 = OSC.SpeedProfileAction.parse(spa.get_element())
     prettyprint(spa4)
     assert spa == spa4
-
+    assert version_validation("PrivateAction",spa3,0) == ValidationResponse.OSC_VERSION
+    assert version_validation("PrivateAction",spa3,1) == ValidationResponse.OSC_VERSION
+    assert version_validation("PrivateAction",spa3,2) == ValidationResponse.OK
 
 def test_animation_action():
     aa = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1)
@@ -897,3 +919,7 @@ def test_animation_action():
     aa4 = OSC.AnimationAction.parse(aa.get_element())
     prettyprint(aa4)
     assert aa == aa4
+    assert version_validation("PrivateAction",aa,0) == ValidationResponse.OSC_VERSION
+    assert version_validation("PrivateAction",aa,1) == ValidationResponse.OSC_VERSION
+    # BUG IN XSD
+    assert version_validation("PrivateAction",aa,2) == ValidationResponse.XSD_FAILURE
