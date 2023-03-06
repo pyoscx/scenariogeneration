@@ -957,3 +957,21 @@ def test_global_action_factory(input):
     prettyprint(input, None)
     prettyprint(factoryoutput, None)
     assert input == factoryoutput
+
+def test_version_base():
+    version = OSC.VersionBase()
+    version.setVersion(minor=2)
+    assert version.isVersion(minor=2)
+    assert not version.isVersion(minor=1)
+    assert version.isVersionEqLarger(minor=1)
+    assert version.isVersionEqLarger(minor=2)
+    assert version.isVersionEqLess(minor=2)
+    assert not version.isVersionEqLess(minor=1)
+
+    version.setVersion(minor=1)
+    assert version.isVersion(minor=1)
+    assert not version.isVersion(minor=2)
+    assert not version.isVersionEqLarger(minor=2)
+    assert version.isVersionEqLarger(minor=0)
+    assert version.isVersionEqLess(minor=2)
+    assert not version.isVersionEqLess(minor=0)
