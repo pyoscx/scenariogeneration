@@ -2030,8 +2030,10 @@ class ControllerAction(_PrivateActionType):
         self.assignControllerAction = assignControllerAction
         self.overrideControllerValueAction = overrideControllerValueAction
         self.activateControllerAction = activateControllerAction
-        self.assignControllerAction._used_by_parent = True
-        self.overrideControllerValueAction._used_by_parent = True
+        if self.assignControllerAction is not None:
+            self.assignControllerAction._used_by_parent = True
+        if self.overrideControllerValueAction is not None:
+            self.overrideControllerValueAction._used_by_parent = True
 
     def __eq__(self, other):
         if isinstance(other, ControllerAction):
