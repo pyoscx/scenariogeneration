@@ -958,6 +958,7 @@ def test_global_action_factory(input):
     prettyprint(factoryoutput, None)
     assert input == factoryoutput
 
+
 def test_version_base():
     version = OSC.VersionBase()
     version.setVersion(minor=2)

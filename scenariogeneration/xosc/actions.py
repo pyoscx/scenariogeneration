@@ -2340,6 +2340,7 @@ class AssignControllerAction(_PrivateActionType):
         self.activateLighting = convert_bool(activateLighting)
         self.activateAnimation = convert_bool(activateAnimation)
         self._used_by_parent = False
+
     def __eq__(self, other):
         if isinstance(other, AssignControllerAction):
             if self.controller == other.controller:
@@ -2412,7 +2413,9 @@ class AssignControllerAction(_PrivateActionType):
     def get_element(self):
         """returns the elementTree of the AssignControllerAction"""
         if self.isVersion(minor=0) and not self._used_by_parent:
-            raise OpenSCENARIOVersionError("AssignControllerAction cannot be used alone in OSC 1.0, please add it to a ControllerAction.")
+            raise OpenSCENARIOVersionError(
+                "AssignControllerAction cannot be used alone in OSC 1.0, please add it to a ControllerAction."
+            )
         element = ET.Element("PrivateAction")
         controlleraction = ET.SubElement(element, "ControllerAction")
         assigncontrolleraction = ET.SubElement(
@@ -2831,7 +2834,9 @@ class OverrideControllerValueAction(_PrivateActionType):
     def get_element(self):
         """returns the elementTree of the OverrideControllerValueAction"""
         if self.isVersion(minor=0) and not self._used_by_parent:
-            raise OpenSCENARIOVersionError("OverrideControllerValueAction cannot be used alone in OSC 1.0, please add it to a ControllerAction")
+            raise OpenSCENARIOVersionError(
+                "OverrideControllerValueAction cannot be used alone in OSC 1.0, please add it to a ControllerAction"
+            )
         element = ET.Element("PrivateAction")
         controlleraction = ET.SubElement(element, "ControllerAction")
         overrideaction = ET.SubElement(
@@ -3107,9 +3112,7 @@ class VisibilityAction(_PrivateActionType):
         )
         if self.sensor_refs:
             if self.isVersionEqLess(minor=1):
-                raise OpenSCENARIOVersionError(
-                    "SensorReference was added in OSC V1.2"
-                )
+                raise OpenSCENARIOVersionError("SensorReference was added in OSC V1.2")
             sensor_ref_element = ET.SubElement(visibility_element, "SensorReferenceSet")
             for sensor in self.sensor_refs:
                 ET.SubElement(
