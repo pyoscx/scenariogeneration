@@ -25,7 +25,7 @@ from .xml_validator import version_validation, ValidationResponse
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0)
 
 tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
-weather = OSC.Weather(OSC.CloudState.free, 100)
+weather = OSC.Weather(OSC.FractionalCloudCover.nineOktas, 100)
 rc = OSC.RoadCondition(1)
 prop = OSC.Properties()
 prop.add_file("mycontrollerfile.xml")
@@ -871,7 +871,13 @@ def test_trafficswarmaction():
 
 def test_environmentaction():
     tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
-    weather = OSC.Weather(OSC.CloudState.free, 100)
+    weather = OSC.Weather(OSC.FractionalCloudCover.sevenOktas, 100)
+    weather2 = OSC.Weather(
+        OSC.CloudState.free,
+        precipitation=OSC.Precipitation(OSC.PrecipitationType.rain, 3),
+        fog=OSC.Fog(10, OSC.BoundingBox(1, 2, 3, 4, 5, 6)),
+        sun=OSC.Sun(1, 1, 1),
+    )
     rc = OSC.RoadCondition(1)
 
     env = OSC.Environment("Env_name", tod, weather, rc)
@@ -886,8 +892,20 @@ def test_environmentaction():
     prettyprint(ea4.get_element())
     assert ea == ea4
     assert version_validation("GlobalAction", ea, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("GlobalAction", ea, 1) == ValidationResponse.OK
+    assert version_validation("GlobalAction", ea, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("GlobalAction", ea, 2) == ValidationResponse.OK
+    weather2 = OSC.Weather(
+        OSC.CloudState.free,
+        precipitation=OSC.Precipitation(OSC.PrecipitationType.rain, 3),
+        fog=OSC.Fog(10, OSC.BoundingBox(1, 2, 3, 4, 5, 6)),
+        sun=OSC.Sun(1, 1, 1),
+    )
+    env2 = OSC.Environment("Env_name", tod, weather2, rc)
+
+    ea5 = OSC.EnvironmentAction(env2)
+    assert version_validation("GlobalAction", ea5, 0) == ValidationResponse.OK
+    assert version_validation("GlobalAction", ea5, 1) == ValidationResponse.OK
+    assert version_validation("GlobalAction", ea5, 2) == ValidationResponse.OSC_VERSION
 
 
 def test_trafficstopaction():

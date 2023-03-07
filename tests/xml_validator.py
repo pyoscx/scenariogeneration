@@ -9,20 +9,29 @@ class ValidationResponse(Enum):
 
     OK = auto()
     OSC_VERSION = auto()
+    XSD_MISSING = auto()
     XSD_FAILURE = auto()  # should not be asserted as true!
     UNKNOWN_ERROR = auto()
 
 
+schemas = []
+schemas.append(
+    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(0) + ".xsd"))
+)
+schemas.append(
+    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(1) + ".xsd"))
+)
+schemas.append(
+    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd"))
+)
+
+
 def version_validation(top_element_name, scenariogeneration_object, osc_version=2):
-    schema = xmlschema.XMLSchema(
-        os.path.join(
-            os.path.split(__file__)[0],
-            os.pardir,
-            "schemas",
-            "OpenSCENARIO_1_" + str(osc_version) + ".xsd",
-        )
-    )
-    validator = schema.create_element("Test", type=top_element_name)
+    schema = schemas[osc_version]
+    try:
+        validator = schema.create_element("Test", type=top_element_name)
+    except xmlschema.validators.exceptions.XMLSchemaParseError as e:
+        return ValidationResponse.XSD_MISSING
     scenariogeneration_object.setVersion(minor=osc_version)
     try:
         element_to_test = scenariogeneration_object.get_element()
