@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -14,6 +14,13 @@ import pytest
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.position import WorldPosition
+
+from .xml_validator import version_validation, ValidationResponse
+
+
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
 
 
 def test_worldposition_noinput():
@@ -27,6 +34,9 @@ def test_worldposition_noinput():
     assert pos != pos3
     pos4 = OSC.WorldPosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_worldposition_input():
@@ -36,6 +46,9 @@ def test_worldposition_input():
     prettyprint(p)
     pos2 = OSC.WorldPosition.parse(pos.get_element())
     assert pos == pos2
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_relativeworldposition():
@@ -54,6 +67,9 @@ def test_relativeworldposition():
     pos5 = OSC.RelativeWorldPosition.parse(pos3.get_element())
     prettyprint(pos5.get_element())
     assert pos5 == pos3
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_relativeobjectposition():
@@ -70,6 +86,9 @@ def test_relativeobjectposition():
 
     pos4 = OSC.RelativeObjectPosition.parse(pos3.get_element())
     assert pos3 == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_roadposition():
@@ -83,6 +102,9 @@ def test_roadposition():
 
     pos4 = OSC.RoadPosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_relativeroadposition():
@@ -96,6 +118,9 @@ def test_relativeroadposition():
 
     pos4 = OSC.RelativeRoadPosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_laneposition():
@@ -108,6 +133,9 @@ def test_laneposition():
 
     pos4 = OSC.LanePosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_relativelaneposition():
@@ -121,9 +149,17 @@ def test_relativelaneposition():
 
     pos4 = OSC.RelativeLanePosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OK
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
+
+    pos5 = OSC.RelativeLanePosition(dsLane=1, lane_id=2, entity="Ego")
+    assert version_validation("Position", pos5, 0) == ValidationResponse.XSD_FAILURE
+    assert version_validation("Position", pos5, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos5, 2) == ValidationResponse.OK
 
 
-def test_route_position():
+def test_route_position_entity():
     route = OSC.Route("myroute")
 
     route.add_waypoint(OSC.WorldPosition(), OSC.RouteStrategy.shortest)
@@ -140,6 +176,12 @@ def test_route_position():
     routepos4 = OSC.RoutePositionOfCurrentEntity.parse(routepos.get_element())
     assert routepos == routepos4
 
+    assert version_validation("Position", routepos, 0) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 1) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 2) == ValidationResponse.OK
+
+
+def test_route_position_road_coordinates():
     routepos = OSC.RoutePositionInRoadCoordinates(route, 1, 3)
     prettyprint(routepos.get_element())
     routepos2 = OSC.RoutePositionInRoadCoordinates(route, 1, 3)
@@ -160,6 +202,10 @@ def test_route_position():
     routepos4 = OSC.RoutePositionInLaneCoordinates.parse(routepos.get_element())
     assert routepos == routepos4
 
+    assert version_validation("Position", routepos, 0) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 1) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 2) == ValidationResponse.OK
+
 
 def test_trajectory_position():
     traj = OSC.Trajectory("my traj", False)
@@ -174,6 +220,9 @@ def test_trajectory_position():
 
     pos4 = OSC.TrajectoryPosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 def test_geo_position():
@@ -186,6 +235,9 @@ def test_geo_position():
 
     pos4 = OSC.GeoPosition.parse(pos.get_element())
     assert pos == pos4
+    assert version_validation("Position", pos, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Position", pos, 1) == ValidationResponse.OK
+    assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
 
 # some fixtures for the factory test
@@ -277,6 +329,10 @@ def test_nurbs():
     nurb5_factory = OSC.position._ShapeFactory.parse_shape(nurb.get_element())
     assert nurb5_factory == nurb
 
+    assert version_validation("Shape", nurb, 0) == ValidationResponse.OK
+    assert version_validation("Shape", nurb, 1) == ValidationResponse.OK
+    assert version_validation("Shape", nurb, 2) == ValidationResponse.OK
+
 
 def test_waypoint():
     wp = OSC.Waypoint(OSC.WorldPosition(), OSC.RouteStrategy.shortest)
@@ -288,6 +344,9 @@ def test_waypoint():
 
     wp4 = OSC.Waypoint.parse(wp.get_element())
     assert wp == wp4
+    assert version_validation("Waypoint", wp, 0) == ValidationResponse.OK
+    assert version_validation("Waypoint", wp, 1) == ValidationResponse.OK
+    assert version_validation("Waypoint", wp, 2) == ValidationResponse.OK
 
 
 def test_route():
@@ -307,12 +366,15 @@ def test_route():
 
     assert route == route2
     assert route != route3
+    assert version_validation("Route", route, 0) == ValidationResponse.OK
+    assert version_validation("Route", route, 1) == ValidationResponse.OK
+    assert version_validation("Route", route, 2) == ValidationResponse.OK
 
 
 def test_polyline():
     positionlist = []
     positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
-    positionlist.append(OSC.RelativeLanePosition(dsLane=10, lane_id=-3, entity="Ego"))
+    positionlist.append(OSC.RelativeLanePosition(ds=11, lane_id=-3, entity="Ego"))
     positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
     positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
     prettyprint(positionlist[0].get_element())
@@ -330,6 +392,9 @@ def test_polyline():
     assert polyline == polyline5
     polyline_factory = OSC.position._ShapeFactory.parse_shape(polyline.get_element())
     assert polyline == polyline_factory
+    assert version_validation("Shape", polyline, 0) == ValidationResponse.OK
+    assert version_validation("Shape", polyline, 1) == ValidationResponse.OK
+    assert version_validation("Shape", polyline, 2) == ValidationResponse.OK
 
 
 def test_clothoid():
@@ -346,6 +411,10 @@ def test_clothoid():
     assert clot3 == clot5
     clot_factory = OSC.position._ShapeFactory.parse_shape(clot.get_element())
     assert clot == clot_factory
+
+    assert version_validation("Shape", clot, 0) == ValidationResponse.OK
+    assert version_validation("Shape", clot, 1) == ValidationResponse.OK
+    assert version_validation("Shape", clot, 2) == ValidationResponse.OK
 
 
 def test_trajectory():
@@ -369,6 +438,10 @@ def test_trajectory():
     prettyprint(traj4.get_element())
     assert traj == traj4
 
+    assert version_validation("Trajectory", traj, 0) == ValidationResponse.OK
+    assert version_validation("Trajectory", traj, 1) == ValidationResponse.OK
+    assert version_validation("Trajectory", traj, 2) == ValidationResponse.OK
+
 
 def test_controlpoint():
     cp1 = OSC.ControlPoint(OSC.WorldPosition(), 1, 0.1)
@@ -379,3 +452,7 @@ def test_controlpoint():
     assert cp1 != cp3
     cp4 = OSC.ControlPoint.parse(cp1.get_element())
     assert cp1 == cp4
+
+    assert version_validation("ControlPoint", cp1, 0) == ValidationResponse.OK
+    assert version_validation("ControlPoint", cp1, 1) == ValidationResponse.OK
+    assert version_validation("ControlPoint", cp1, 2) == ValidationResponse.OK
