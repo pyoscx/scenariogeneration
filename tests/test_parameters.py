@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -13,6 +13,13 @@ import pytest
 import xml.etree.ElementTree as ET
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+
+from .xml_validator import version_validation, ValidationResponse
+
+
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
 
 
 def test_range():
@@ -25,6 +32,8 @@ def test_range():
 
     r4 = OSC.Range.parse(r1.get_element())
     assert r4 == r1
+    assert version_validation("Range", r1, 1) == ValidationResponse.OK
+    assert version_validation("Range", r1, 2) == ValidationResponse.OK
 
 
 def test_Stochastic():
@@ -46,6 +55,8 @@ def test_Stochastic():
 
     stoc4 = OSC.Stochastic.parse(stoc3.get_element())
     assert stoc4 == stoc3
+    assert version_validation("Stochastic", stoc, 1) == ValidationResponse.OK
+    assert version_validation("Stochastic", stoc, 2) == ValidationResponse.OK
 
 
 def test_normaldistribution():
@@ -60,6 +71,8 @@ def test_normaldistribution():
     assert nd4 == nd
     nd5 = OSC.NormalDistribution.parse(nd3.get_element())
     assert nd5 == nd3
+    assert version_validation("NormalDistribution", nd, 1) == ValidationResponse.OK
+    assert version_validation("NormalDistribution", nd, 2) == ValidationResponse.OK
 
 
 def test_poissondistribution():
@@ -74,6 +87,8 @@ def test_poissondistribution():
     assert pd4 == pd
     pd5 = OSC.PoissonDistribution.parse(pd3.get_element())
     assert pd5 == pd3
+    assert version_validation("PoissonDistribution", pd, 1) == ValidationResponse.OK
+    assert version_validation("PoissonDistribution", pd, 2) == ValidationResponse.OK
 
 
 def test_histogrambin():
@@ -86,6 +101,8 @@ def test_histogrambin():
 
     hb4 = OSC.parameters._HistogramBin.parse(hb.get_element())
     assert hb4 == hb
+    assert version_validation("HistogramBin", hb, 1) == ValidationResponse.OK
+    assert version_validation("HistogramBin", hb, 2) == ValidationResponse.OK
 
 
 def test_histogram():
@@ -102,6 +119,8 @@ def test_histogram():
     assert h != h3
     h4 = OSC.Histogram.parse(h3.get_element())
     assert h4 == h3
+    assert version_validation("Histogram", h, 1) == ValidationResponse.OK
+    assert version_validation("Histogram", h, 2) == ValidationResponse.OK
 
 
 def test_uniformdist():
@@ -113,6 +132,8 @@ def test_uniformdist():
     assert ud != ud3
     ud4 = OSC.UniformDistribution.parse(ud.get_element())
     assert ud == ud4
+    assert version_validation("UniformDistribution", ud, 1) == ValidationResponse.OK
+    assert version_validation("UniformDistribution", ud, 2) == ValidationResponse.OK
 
 
 def test_element():
@@ -124,6 +145,14 @@ def test_element():
     assert e != e3
     e4 = OSC.parameters._ProbabilityDistributionSetElement.parse(e.get_element())
     assert e4 == e
+    assert (
+        version_validation("ProbabilityDistributionSetElement", e, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ProbabilityDistributionSetElement", e, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_parameter_set():
@@ -140,6 +169,8 @@ def test_parameter_set():
     assert pvs != pvs3
     pvs4 = OSC.ParameterValueSet.parse(pvs3.get_element())
     assert pvs4 == pvs3
+    assert version_validation("ParameterValueSet", pvs, 1) == ValidationResponse.OK
+    assert version_validation("ParameterValueSet", pvs, 2) == ValidationResponse.OK
 
 
 def test_probabilitydistributionset():
@@ -156,6 +187,14 @@ def test_probabilitydistributionset():
     assert pds != pds3
     pds4 = OSC.ProbabilityDistributionSet.parse(pds3.get_element())
     assert pds4 == pds3
+    assert (
+        version_validation("ProbabilityDistributionSet", pds, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ProbabilityDistributionSet", pds, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_distributionrange():
@@ -169,6 +208,8 @@ def test_distributionrange():
     assert dr != dr4
     dr5 = OSC.DistributionRange.parse(dr.get_element())
     assert dr5 == dr
+    assert version_validation("DistributionRange", dr, 1) == ValidationResponse.OK
+    assert version_validation("DistributionRange", dr, 2) == ValidationResponse.OK
 
 
 def test_distributionset():
@@ -184,6 +225,9 @@ def test_distributionset():
     assert ds != ds3
     ds4 = OSC.DistributionSet.parse(ds3.get_element())
     assert ds3 == ds4
+
+    assert version_validation("DistributionSet", ds, 1) == ValidationResponse.OK
+    assert version_validation("DistributionSet", ds, 2) == ValidationResponse.OK
 
 
 def test_DeterministicMultiParameterDistribution():
@@ -207,6 +251,15 @@ def test_DeterministicMultiParameterDistribution():
     dist4 = OSC.DeterministicMultiParameterDistribution.parse(dist3.get_element())
     prettyprint(dist4, None)
     assert dist4 == dist3
+
+    assert (
+        version_validation("DeterministicMultiParameterDistribution", dist, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DeterministicMultiParameterDistribution", dist, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_deterministic():
@@ -234,6 +287,8 @@ def test_deterministic():
     assert det != det3
     det4 = OSC.Deterministic.parse(det.get_element())
     assert det4 == det
+    assert version_validation("Deterministic", det, 1) == ValidationResponse.OK
+    assert version_validation("Deterministic", det, 2) == ValidationResponse.OK
 
 
 def test_declaration_with_Stochastic():

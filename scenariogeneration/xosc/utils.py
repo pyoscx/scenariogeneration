@@ -25,7 +25,7 @@ from .enumerations import (
     ReferenceContext,
     DynamicsShapes,
     DynamicsDimension,
-    RouteStrategy,
+    _MINOR_VERSION,
     XSI,
     XMLNS,
     VehicleCategory,
@@ -1035,7 +1035,7 @@ class FileHeader(VersionBase):
         author (str): the author of the scenario
 
         revMinor (int): the minor revision of the standard
-            Default: 1
+            Default: 2
 
         license (License): license (valid from OpenSCENARIO V1.1)
             Default: None
@@ -1073,7 +1073,7 @@ class FileHeader(VersionBase):
         self,
         author,
         description,
-        revMinor=1,
+        revMinor=_MINOR_VERSION,
         license=None,
         creation_date=None,
         properties=None,
