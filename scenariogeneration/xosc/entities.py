@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -38,7 +38,7 @@ from .enumerations import (
 
 
 # TODO: Add functionality for lists in add_entity_byref & add_entity_bytype
-class Entities:
+class Entities(VersionBase):
     """The Entities class creates the entities part of OpenScenario
 
     Attributes
@@ -317,7 +317,7 @@ class ScenarioObject(VersionBase):
         return element
 
 
-class Entity:
+class Entity(VersionBase):
     """The Entity class creates an Entity of OpenScenario
     Can either use a object_type or entityref (not both)
 
@@ -417,7 +417,7 @@ class Entity:
         if members_element.find("ByType") != None:
             types = members_element.findall("ByType")
             for type in types:
-                bytypes.append(getattr(ObjectType, type.attrib["value"]))
+                bytypes.append(getattr(ObjectType, type.attrib["objectType"]))
             entity_refs = None
         elif members_element.find("EntityRef") != None:
             entities = members_element.findall("EntityRef")
@@ -441,7 +441,7 @@ class Entity:
         if self.object_type:
             for object_type in self.object_type:
                 ET.SubElement(
-                    members, "ByType", attrib={"value": object_type.get_name()}
+                    members, "ByType", attrib={"objectType": object_type.get_name()}
                 )
         return element
 
@@ -670,13 +670,21 @@ class Pedestrian(VersionBase):
         retdict = {}
         retdict["name"] = str(self.name)
         retdict["pedestrianCategory"] = self.category.get_name()
+
+        if self.isVersion(minor=0) and self.model is None:
+            raise OpenSCENARIOVersionError("model is required for OSC 1.0")
+
         if self.model is not None:
             if self.isVersion(minor=0):
                 retdict["model"] = self.model
             else:
                 retdict["model3d"] = self.model
         retdict["mass"] = str(self.mass)
-        if self.role and not self.isVersion(minor=0) and not self.isVersion(minor=1):
+        if self.role:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError(
+                    "role for Pedestrian was added in OSC V1.2"
+                )
             retdict["role"] = self.role.get_name()
         return retdict
 
@@ -1245,21 +1253,33 @@ class Vehicle(VersionBase):
         return self
 
     def get_attributes(self):
-        """returns the attributes as a dict of the Center"""
+        """returns the attributes as a dict of the Vehicle"""
         retdict = {}
         retdict["name"] = str(self.name)
         retdict["vehicleCategory"] = self.vehicle_type.get_name()
-        if self.mass and not self.isVersion(minor=0):
+        if self.mass:
+            if self.isVersion(minor=0):
+                raise OpenSCENARIOVersionError(
+                    "Mass of a vehcile was introduced in OSC 1.1"
+                )
             retdict["mass"] = str(self.mass)
-        if not self.isVersion(minor=0) and self.model3d:
+        if self.model3d:
+            if self.isVersion(minor=0):
+                raise OpenSCENARIOVersionError(
+                    "model3d of a vehcile was introduced in OSC 1.1"
+                )
             retdict["model3d"] = self.model3d
-        if self.role and not self.isVersion(minor=0) and not self.isVersion(minor=1):
+        if self.role:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError(
+                    "the role of a vehcile was introduced in OSC 1.1"
+                )
             retdict["role"] = self.role.get_name()
 
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the Center"""
+        """returns the elementTree of the Vehicle"""
         element = ET.Element("Vehicle", attrib=self.get_attributes())
         element.append(self.parameters.get_element())
         element.append(self.boundingbox.get_element())
@@ -1270,7 +1290,7 @@ class Vehicle(VersionBase):
         return element
 
 
-class Axle:
+class Axle(VersionBase):
     """the Axle describes the axle properties of a vehicle
 
     Parameters
@@ -1373,7 +1393,7 @@ class Axle:
         return ET.Element(elementname, attrib=self.get_attributes())
 
 
-class Axles:
+class Axles(VersionBase):
     """the Axles combines the different Axles to one Element
 
     Parameters
@@ -1479,7 +1499,7 @@ class Axles:
         return element
 
 
-class ExternalObjectReference:
+class ExternalObjectReference(VersionBase):
     """the ExternalObjectReference describes the EntityObject ExternalObjectReference (valid from V1.1)
 
     Parameters
