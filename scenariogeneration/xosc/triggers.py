@@ -40,6 +40,7 @@ from .exceptions import (
     OpenSCENARIOVersionError,
     ToManyOptionalArguments,
     NotAValidElement,
+    NotEnoughInputArguments,
 )
 from .position import _PositionFactory
 
@@ -862,6 +863,9 @@ class TriggeringEntities(VersionBase):
     def get_element(self):
         """returns the elementTree of the LaneOffsetAction"""
         element = ET.Element("TriggeringEntities", attrib=self.get_attributes())
+        if len(self.entity) == 0:
+            raise NotEnoughInputArguments("No TriggereingEntities has been added")
+
         for ent in self.entity:
             element.append(ent.get_element())
         return element
@@ -1580,7 +1584,7 @@ class AccelerationCondition(_EntityTriggerType):
 
             rule (Rule): condition rule of triggering
 
-            direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered)
+            direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered). Valid since OSC 1.2
         """
         self.value = convert_float(value)
         if not hasattr(Rule, str(rule)):
@@ -1622,7 +1626,9 @@ class AccelerationCondition(_EntityTriggerType):
         retdict = {}
         retdict["value"] = str(self.value)
         retdict["rule"] = self.rule.get_name()
-        if self.direction is not None and self.isVersion(minor=2):
+        if self.direction is not None:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError("Direction was introduced in OSC 1.2")
             retdict["direction"] = self.direction.get_name()
         return retdict
 
@@ -1790,7 +1796,9 @@ class SpeedCondition(_EntityTriggerType):
         basedict = {}
         basedict["value"] = str(self.value)
         basedict["rule"] = self.rule.get_name()
-        if self.directional_dimension is not None and self.isVersion(minor=2):
+        if self.directional_dimension is not None:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError("Direction was introduced in OSC 1.2")
             basedict["direction"] = self.directional_dimension.get_name()
         return basedict
         # return merge_dicts({'value':str(self.value)},self.rule.get_attributes())
@@ -1900,7 +1908,9 @@ class RelativeSpeedCondition(_EntityTriggerType):
         basedict["value"] = str(self.value)
         basedict["rule"] = self.rule.get_name()
         basedict["entityRef"] = self.entity
-        if self.directional_dimension is not None and self.isVersion(minor=2):
+        if self.directional_dimension is not None:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError("Direction was introduced in OSC 1.2")
             basedict["direction"] = self.directional_dimension.get_name()
         return basedict
         # return merge_dicts({'value':str(self.value),'entityRef':self.entity},self.rule.get_attributes())
@@ -2136,7 +2146,7 @@ class DistanceCondition(_EntityTriggerType):
         freespace=True,
         distance_type=RelativeDistanceType.longitudinal,
         coordinate_system=CoordinateSystem.road,
-        routing_algorithm=RoutingAlgorithm.undefined,
+        routing_algorithm=None,
     ):
         self.value = value
         self.alongroute = convert_bool(alongroute)
@@ -2205,7 +2215,7 @@ class DistanceCondition(_EntityTriggerType):
                 RoutingAlgorithm, condition.attrib["routingAlgorithm"]
             )
         else:
-            routing_algorithm = RoutingAlgorithm.undefined
+            routing_algorithm = None
         position = None
 
         position = _PositionFactory.parse_position(condition.find("Position"))
@@ -2232,8 +2242,13 @@ class DistanceCondition(_EntityTriggerType):
         else:
             basedict["relativeDistanceType"] = self.relative_distance_type.get_name()
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
-        if not (self.isVersion(minor=0) or self.isVersion(minor=1)):
+        if self.routing_algorithm is not None:
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError(
+                    "routing algorithm was introduced in OSC 1.2"
+                )
             basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
+
         return basedict
 
     def get_element(self):
@@ -2417,7 +2432,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         if not self.isVersion(minor=0):
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
         if self.routing_algorithm:
-            if not (self.isVersion(minor=0) or self.isVersion(minor=1)):
+            if self.isVersionEqLarger(minor=2):
                 basedict["routingAlgorithm"] = self.routing_algorithm.get_name()
             else:
                 raise OpenSCENARIOVersionError(
@@ -2589,7 +2604,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         basedict = {}
         basedict["oppositeLanes"] = get_bool_string(self.opposite_lanes)
         # TODO: wrong in the spec, should be lower case s
-        basedict["freespace"] = get_bool_string(self.freespace)
+        basedict["freeSpace"] = get_bool_string(self.freespace)
 
         if self.distance_backward is not None:
             basedict["distanceBackward"] = str(self.distance_backward)
@@ -2599,18 +2614,23 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
     def get_element(self):
         """returns the elementTree of the RelativeClearanceCondition"""
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError(
+                "RelativeClearanceCondition was added in OSC 1.2"
+            )
         element = ET.Element("EntityCondition")
         relative_clearence_element = ET.SubElement(
             element, "RelativeClearanceCondition", attrib=self.get_attributes()
         )
-        for e in self.entities:
-            relative_clearence_element.append(e.get_element())
         for r in self.lane_ranges:
             ET.SubElement(
                 relative_clearence_element,
                 "RelativeLaneRange",
                 {"from": str(r[0]), "to": str(r[1])},
             )
+        for e in self.entities:
+            relative_clearence_element.append(e.get_element())
+
         return element
 
 
@@ -2814,7 +2834,7 @@ class TimeOfDayCondition(_ValueTriggerType):
 
     """
 
-    def __init__(self, rule, datetime):
+    def __init__(self, rule, year, month, day, hour, minute, second):
         """initalize the TimeOfDayCondition
         Parameters
         ----------
@@ -2826,7 +2846,12 @@ class TimeOfDayCondition(_ValueTriggerType):
         if not hasattr(Rule, str(rule)):
             raise ValueError(rule + "; is not a valid rule.")
         self.rule = rule
-        self.datetime = datetime
+        self.year = convert_int(year)
+        self.month = convert_int(month)
+        self.day = convert_int(day)
+        self.hour = convert_int(hour)
+        self.minute = convert_int(minute)
+        self.second = convert_int(second)
 
     def __eq__(self, other):
         if isinstance(other, TimeOfDayCondition):
@@ -2847,15 +2872,34 @@ class TimeOfDayCondition(_ValueTriggerType):
             condition (TimeOfDayCondition): a TimeOfDayCondition object
 
         """
+        var = element.attrib["dateTime"]
+        year = convert_int(var[0:4])
+        month = convert_int(var[5:7])
+        day = convert_int(var[8:10])
 
-        datetime = element.attrib["datetime"]
+        hour = convert_int(var[11:13])
+        minute = convert_int(var[14:16])
+        second = convert_int(var[17:19])
         rule = getattr(Rule, element.attrib["rule"])
-        return TimeOfDayCondition(rule, datetime)
+        return TimeOfDayCondition(rule, year, month, day, hour, minute, second)
 
     def get_attributes(self):
         """returns the attributes of the TimeOfDayCondition as a dict"""
         basedict = {}
-        basedict["datetime"] = self.datetime
+        dt = (
+            str(self.year)
+            + "-"
+            + "{:0>2}".format(self.month)
+            + "-"
+            + "{:0>2}".format(self.day)
+            + "T"
+            + "{:0>2}".format(self.hour)
+            + ":"
+            + "{:0>2}".format(self.minute)
+            + ":"
+            + "{:0>2}".format(self.second)
+        )
+        basedict["dateTime"] = dt
         basedict["rule"] = self.rule.get_name()
         return basedict
 
