@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -14,6 +14,13 @@ import pytest
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from .xml_validator import version_validation, ValidationResponse
+
+
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
+
 
 TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
 speedaction = OSC.AbsoluteSpeedAction(50, TD)
@@ -55,6 +62,14 @@ def test_event():
     prettyprint(event4, None)
     assert event3 == event4
 
+    assert version_validation("Event", event, 0) == ValidationResponse.OK
+    assert version_validation("Event", event, 1) == ValidationResponse.OK
+    assert version_validation("Event", event, 2) == ValidationResponse.OK
+
+    assert version_validation("Event", event5, 0) == ValidationResponse.OK
+    assert version_validation("Event", event5, 1) == ValidationResponse.OK
+    assert version_validation("Event", event5, 2) == ValidationResponse.OK
+
 
 def test_maneuver():
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
@@ -73,6 +88,10 @@ def test_maneuver():
 
     man4 = OSC.Maneuver.parse(man3.get_element())
     assert man4 == man3
+
+    assert version_validation("Maneuver", man3, 0) == ValidationResponse.OK
+    assert version_validation("Maneuver", man3, 1) == ValidationResponse.OK
+    assert version_validation("Maneuver", man3, 2) == ValidationResponse.OK
 
 
 def test_maneuvergroup():
@@ -105,6 +124,9 @@ def test_maneuvergroup():
     mangr5 = OSC.ManeuverGroup("with catalog")
     mangr5.add_maneuver(OSC.CatalogReference("my_catalog", "cut-in"))
     prettyprint(mangr5.get_element())
+    assert version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
+    assert version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
+    assert version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
 
 
 def test_actandstory():
@@ -136,6 +158,9 @@ def test_actandstory():
     act4 = OSC.Act.parse(act3.get_element())
 
     assert act4 == act3
+    assert version_validation("Act", act3, 0) == ValidationResponse.OK
+    assert version_validation("Act", act3, 1) == ValidationResponse.OK
+    assert version_validation("Act", act3, 2) == ValidationResponse.OK
 
     story = OSC.Story("mystory")
     story.add_act(act)
@@ -152,6 +177,9 @@ def test_actandstory():
 
     story4 = OSC.Story.parse(story.get_element())
     assert story == story4
+    assert version_validation("Story", story, 0) == ValidationResponse.OK
+    assert version_validation("Story", story, 1) == ValidationResponse.OK
+    assert version_validation("Story", story, 2) == ValidationResponse.OK
 
 
 def test_init():
@@ -197,7 +225,9 @@ def test_init():
     init3.add_init_action(
         "Target_2", OSC.TeleportAction(OSC.WorldPosition(10, 2, 3, 0, 0, 0))
     )
-    init3.add_global_action(OSC.ParameterSetAction("my_param", 2))
+    init3.add_global_action(
+        OSC.AddEntityAction("target", OSC.WorldPosition(0, 0, 0, 0))
+    )
     prettyprint(init3.get_element(), None)
 
     assert init == init2
@@ -206,6 +236,10 @@ def test_init():
     init4 = OSC.Init.parse(init3.get_element())
     prettyprint(init4.get_element(), None)
     assert init3 == init4
+
+    assert version_validation("Init", init, 0) == ValidationResponse.OK
+    assert version_validation("Init", init, 1) == ValidationResponse.OK
+    assert version_validation("Init", init, 2) == ValidationResponse.OK
 
 
 def test_storyboard_story_input():
@@ -259,6 +293,10 @@ def test_storyboard_story_input():
 
     sb4 = OSC.StoryBoard.parse(sb3.get_element())
     assert sb3 == sb4
+
+    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
 
 def test_storyboard_act_input():
@@ -336,6 +374,9 @@ def test_storyboard_act_input():
 
     sb4 = OSC.StoryBoard.parse(sb3.get_element())
     assert sb3 == sb4
+    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
 
 def test_storyboard_mangr_input():
@@ -404,6 +445,10 @@ def test_storyboard_mangr_input():
     sb4 = OSC.StoryBoard.parse(sb3.get_element())
     assert sb3 == sb4
 
+    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
+
 
 def test_storyboard_man_input():
     egoname = "Ego"
@@ -467,6 +512,9 @@ def test_storyboard_man_input():
 
     sb4 = OSC.StoryBoard.parse(sb3.get_element())
     assert sb3 == sb4
+    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
 
 def test_empty_storyboard():
@@ -474,6 +522,10 @@ def test_empty_storyboard():
     sb = OSC.StoryBoard()
 
     prettyprint(sb.get_element())
+
+    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
+    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
 
 def test_actors():
@@ -494,3 +546,6 @@ def test_actors():
     actors4 = OSC.storyboard._Actors.parse(actors3.get_element())
     prettyprint(actors4, None)
     assert actors4 == actors3
+    assert version_validation("Actors", actors3, 0) == ValidationResponse.OK
+    assert version_validation("Actors", actors3, 1) == ValidationResponse.OK
+    assert version_validation("Actors", actors3, 2) == ValidationResponse.OK
