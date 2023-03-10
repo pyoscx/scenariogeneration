@@ -206,11 +206,11 @@ def test_variable():
 
     assert (
         version_validation("VariableDeclaration", param, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("VariableDeclaration", param, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("VariableDeclaration", param, 2) == ValidationResponse.OK
 
@@ -286,11 +286,11 @@ def test_variabledeclaration():
 
     assert (
         version_validation("VariableDeclarations", pardec, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("VariableDeclarations", pardec, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("VariableDeclarations", pardec, 2) == ValidationResponse.OK
@@ -743,7 +743,7 @@ def test_distancesteadystate():
 
     assert (
         version_validation("TargetDistanceSteadyState", tdss, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("TargetDistanceSteadyState", tdss, 1)
@@ -767,7 +767,7 @@ def test_timesteadystate():
     assert ttss4 == ttss
     assert (
         version_validation("TargetTimeSteadyState", ttss, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("TargetTimeSteadyState", ttss, 1) == ValidationResponse.OK
     assert version_validation("TargetTimeSteadyState", ttss, 2) == ValidationResponse.OK
@@ -784,7 +784,7 @@ def test_wind():
     w4 = OSC.Wind.parse(w.get_element())
     assert w == w4
 
-    assert version_validation("Wind", w, 0) == ValidationResponse.XSD_MISSING
+    assert version_validation("Wind", w, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("Wind", w, 1) == ValidationResponse.OK
     assert version_validation("Wind", w, 2) == ValidationResponse.OK
 
@@ -873,7 +873,7 @@ def test_license():
 
     l4 = OSC.License.parse(l.get_element())
     assert l4 == l
-    assert version_validation("License", l, 0) == ValidationResponse.XSD_MISSING
+    assert version_validation("License", l, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("License", l, 1) == ValidationResponse.OK
     assert version_validation("License", l, 2) == ValidationResponse.OK
 
@@ -940,7 +940,7 @@ def test_targetDistanceSteadyState():
 
     assert (
         version_validation("TargetDistanceSteadyState", inst, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("TargetDistanceSteadyState", inst, 1)
@@ -961,7 +961,7 @@ def test_targetTimeSteadyState():
     prettyprint(inst)
     assert (
         version_validation("TargetTimeSteadyState", inst, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("TargetTimeSteadyState", inst, 1) == ValidationResponse.OK
     assert version_validation("TargetTimeSteadyState", inst, 2) == ValidationResponse.OK
@@ -987,7 +987,7 @@ def test_value_constraint_group():
     assert vcg == vcg4
     assert (
         version_validation("ValueConstraintGroup", vcg, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("ValueConstraintGroup", vcg, 1) == ValidationResponse.OK
     assert version_validation("ValueConstraintGroup", vcg, 2) == ValidationResponse.OK
@@ -1003,7 +1003,7 @@ def test_value_constraint():
     vc4 = OSC.ValueConstraint.parse(vc.get_element())
     assert vc == vc4
     assert (
-        version_validation("ValueConstraint", vc, 0) == ValidationResponse.XSD_MISSING
+        version_validation("ValueConstraint", vc, 0) == ValidationResponse.OSC_VERSION
     )
     assert version_validation("ValueConstraint", vc, 1) == ValidationResponse.OK
     assert version_validation("ValueConstraint", vc, 2) == ValidationResponse.OK
@@ -1069,8 +1069,8 @@ def test_color():
     assert c != c3
     c4 = OSC.Color.parse(c.get_element())
     assert c == c4
-    assert version_validation("Color", c, 0) == ValidationResponse.XSD_MISSING
-    assert version_validation("Color", c, 1) == ValidationResponse.XSD_MISSING
+    assert version_validation("Color", c, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Color", c, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("Color", c, 2) == ValidationResponse.OK
 
 
@@ -1084,10 +1084,10 @@ def test_userdefinedlight():
     udl4 = OSC.UserDefinedLight.parse(udl.get_element())
     assert udl4 == udl
     assert (
-        version_validation("UserDefinedLight", udl, 0) == ValidationResponse.XSD_MISSING
+        version_validation("UserDefinedLight", udl, 0) == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("UserDefinedLight", udl, 1) == ValidationResponse.XSD_MISSING
+        version_validation("UserDefinedLight", udl, 1) == ValidationResponse.OSC_VERSION
     )
     assert version_validation("UserDefinedLight", udl, 2) == ValidationResponse.OK
 
@@ -1116,8 +1116,8 @@ def test_lightstate():
     ls4 = OSC.utils._LightState.parse(ls.get_element())
     assert ls == ls4
 
-    assert version_validation("LightState", ls, 0) == ValidationResponse.XSD_MISSING
-    assert version_validation("LightState", ls, 1) == ValidationResponse.XSD_MISSING
+    assert version_validation("LightState", ls, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("LightState", ls, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("LightState", ls, 2) == ValidationResponse.OK
 
 
@@ -1133,8 +1133,8 @@ def test_animationfile():
     prettyprint(ani4.get_element())
     assert ani4 == ani2
 
-    assert version_validation("AnimationFile", ani, 0) == ValidationResponse.XSD_MISSING
-    assert version_validation("AnimationFile", ani, 1) == ValidationResponse.XSD_MISSING
+    assert version_validation("AnimationFile", ani, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("AnimationFile", ani, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("AnimationFile", ani, 2) == ValidationResponse.OK
 
 
@@ -1151,11 +1151,11 @@ def test_directionoftraveldistribution():
     assert dotd4 == dotd
     assert (
         version_validation("DirectionOfTravelDistribution", dotd, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("DirectionOfTravelDistribution", dotd, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("DirectionOfTravelDistribution", dotd, 2)
@@ -1174,11 +1174,11 @@ def test_userdefinedanimation():
     assert ani == ani4
     assert (
         version_validation("UserDefinedAnimation", ani, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("UserDefinedAnimation", ani, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("UserDefinedAnimation", ani, 2) == ValidationResponse.OK
 
@@ -1194,11 +1194,11 @@ def test_userdefinedcomponent():
     assert ani == ani4
     assert (
         version_validation("UserDefinedComponent", ani, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("UserDefinedComponent", ani, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("UserDefinedComponent", ani, 2) == ValidationResponse.OK
 
@@ -1220,11 +1220,11 @@ def test_pedestriananimation():
     assert pa5 == pa
     assert (
         version_validation("PedestrianAnimation", pa, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("PedestrianAnimation", pa, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("PedestrianAnimation", pa, 2) == ValidationResponse.OK
     assert version_validation("PedestrianAnimation", pa4, 2) == ValidationResponse.OK
@@ -1241,10 +1241,10 @@ def test_vehiclecomponent():
     prettyprint(vc4.get_element())
     assert vc4 == vc
     assert (
-        version_validation("VehicleComponent", vc, 0) == ValidationResponse.XSD_MISSING
+        version_validation("VehicleComponent", vc, 0) == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("VehicleComponent", vc, 1) == ValidationResponse.XSD_MISSING
+        version_validation("VehicleComponent", vc, 1) == ValidationResponse.OSC_VERSION
     )
     assert version_validation("VehicleComponent", vc, 2) == ValidationResponse.OK
 

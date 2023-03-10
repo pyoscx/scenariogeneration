@@ -134,6 +134,8 @@ class _ValueConditionFactory:
     def parse_value_condition(element):
         if element.find("ParameterCondition") is not None:
             return ParameterCondition.parse(element.find("ParameterCondition"))
+        elif element.find("VariableCondition") is not None:
+            return VariableCondition.parse(element.find("VariableCondition"))
         elif element.find("TimeOfDayCondition") is not None:
             return TimeOfDayCondition.parse(element.find("TimeOfDayCondition"))
         elif element.find("SimulationTimeCondition") is not None:
@@ -2806,6 +2808,8 @@ class VariableCondition(_ValueTriggerType):
 
     def get_element(self):
         """returns the elementTree of the VariableCondition"""
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError("VariableCondition was added in OSC 1.2")
         return ET.Element("VariableCondition", attrib=self.get_attributes())
 
 

@@ -388,11 +388,11 @@ def test_variablecondition():
     assert cond == cond4
     assert (
         version_validation("VariableCondition", cond, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("VariableCondition", cond, 1)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("VariableCondition", cond, 2) == ValidationResponse.OK
 
@@ -770,6 +770,7 @@ def test_trigger():
     "valuetrigger",
     [
         OSC.ParameterCondition("asdf", 1, OSC.Rule.greaterOrEqual),
+        OSC.VariableCondition("asdf", 1, OSC.Rule.greaterOrEqual),
         OSC.TimeOfDayCondition(OSC.Rule.greaterOrEqual, 2023, 4, 5, 6, 4, 8),
         OSC.SimulationTimeCondition(2, OSC.Rule.greaterOrEqual),
         OSC.StoryboardElementStateCondition(

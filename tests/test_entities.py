@@ -404,7 +404,7 @@ def test_external_object():
     assert ext_obj == ext_obj4
     assert (
         version_validation("ExternalObjectReference", ext_obj, 0)
-        == ValidationResponse.XSD_MISSING
+        == ValidationResponse.OSC_VERSION
     )
     assert (
         version_validation("ExternalObjectReference", ext_obj, 1)

@@ -1561,4 +1561,8 @@ class ExternalObjectReference(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Axle"""
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError(
+                "ExternalObjectReference was introduced in OSC 1.1"
+            )
         return ET.Element("ExternalObjectReference", attrib=self.get_attributes())

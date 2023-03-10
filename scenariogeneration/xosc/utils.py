@@ -532,8 +532,8 @@ class Variable(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Variable"""
-        if self.version_minor < 2:
-            OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
         element = ET.Element("VariableDeclaration", attrib=self.get_attributes())
         return element
 
@@ -3059,6 +3059,8 @@ class Wind(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Wind"""
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError("Wind was introduced in OSC 1.1")
         element = ET.Element("Wind", attrib=self.get_attributes())
 
         return element
@@ -4864,6 +4866,8 @@ class UserDefinedLight(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the UserDefinedLight"""
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError("UserDefinedLight was introduced in OSC 1.2")
         element = ET.Element(
             "UserDefinedLight", attrib={"userDefinedLightType": self.type}
         )
