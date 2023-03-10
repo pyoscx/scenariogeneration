@@ -27,7 +27,13 @@ class VersionBase:
     version_minor = _MINOR_VERSION
 
     def isVersion(self, major=1, minor=_MINOR_VERSION):
+        return major == self.version_major and minor == self.version_minor
+
+    def isVersionEqLess(self, major=1, minor=_MINOR_VERSION):
         return major >= self.version_major and minor >= self.version_minor
+
+    def isVersionEqLarger(self, major=1, minor=_MINOR_VERSION):
+        return major <= self.version_major and minor <= self.version_minor
 
     def setVersion(self, major=1, minor=_MINOR_VERSION):
         VersionBase.version_major = major

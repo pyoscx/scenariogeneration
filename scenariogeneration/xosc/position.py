@@ -1572,10 +1572,24 @@ class GeoPosition(_PositionType):
 
         """
         position_element = element.find("GeoPosition")
-        longitude = convert_float(position_element.attrib["longitude"])
-        latitude = convert_float(position_element.attrib["latitude"])
+        if "longitude" in position_element.attrib:
+            longitude = convert_float(position_element.attrib["longitude"])
+        elif "longitudeDeg" in position_element.attrib:
+            longitude = convert_float(position_element.attrib["longitudeDeg"])
+        else:
+            raise KeyError("Cannot find valid longitude for GeoPosition")
+
+        if "latitude" in position_element.attrib:
+            latitude = convert_float(position_element.attrib["latitude"])
+        elif "latitudeDeg" in position_element.attrib:
+            latitude = convert_float(position_element.attrib["latitudeDeg"])
+        else:
+            raise KeyError("Cannot find valid latitude for GeoPosition")
+
         if "height" in position_element.attrib:
             height = convert_float(position_element.attrib["height"])
+        elif "altitude" in position_element.attrib:
+            height = convert_float(position_element.attrib["altitude"])
         else:
             height = None
 

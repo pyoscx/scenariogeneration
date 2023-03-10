@@ -25,7 +25,7 @@ from .enumerations import (
     ReferenceContext,
     DynamicsShapes,
     DynamicsDimension,
-    RouteStrategy,
+    _MINOR_VERSION,
     XSI,
     XMLNS,
     VehicleCategory,
@@ -399,7 +399,7 @@ class Parameter(VersionBase):
         value = element.attrib["value"]
         parameter_type = getattr(ParameterType, element.attrib["parameterType"])
         parameter = Parameter(name, parameter_type, value)
-        constraint_groups = element.findall("ValueConstraintGroup")
+        constraint_groups = element.findall("ConstraintGroup")
         for constraint_group in constraint_groups:
             parameter.add_value_constraint_group(
                 ValueConstraintGroup.parse(constraint_group)
@@ -532,8 +532,8 @@ class Variable(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Variable"""
-        if self.version_minor < 2:
-            OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
         element = ET.Element("VariableDeclaration", attrib=self.get_attributes())
         return element
 
@@ -1035,7 +1035,7 @@ class FileHeader(VersionBase):
         author (str): the author of the scenario
 
         revMinor (int): the minor revision of the standard
-            Default: 1
+            Default: 2
 
         license (License): license (valid from OpenSCENARIO V1.1)
             Default: None
@@ -1073,7 +1073,7 @@ class FileHeader(VersionBase):
         self,
         author,
         description,
-        revMinor=1,
+        revMinor=_MINOR_VERSION,
         license=None,
         creation_date=None,
         properties=None,
@@ -1166,9 +1166,19 @@ class FileHeader(VersionBase):
         """returns the elementTree of the FileHeader"""
         element = ET.Element("FileHeader", attrib=self.get_attributes())
         if self.license:
-            element.append(self.license.get_element())
-        if self.properties and self.version_minor > 1:
-            element.append(self.properties.get_element())
+            if self.isVersionEqLarger(minor=1):
+                element.append(self.license.get_element())
+            else:
+                raise OpenSCENARIOVersionError(
+                    "License in FileHeader was introduced in OSC 1.1"
+                )
+        if self.properties:
+            if self.isVersionEqLarger(minor=2):
+                element.append(self.properties.get_element())
+            else:
+                raise OpenSCENARIOVersionError(
+                    "Properties in FileHeader was introduced in OSC 1.2"
+                )
 
         return element
 
@@ -1495,6 +1505,10 @@ class Phase(VersionBase):
             element.append(s.get_element())
         if self.traffic_group_state is not None:
             # NOTE: Misspelling according to standard...
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError(
+                    "TrafficSignalGroupStage was added in OSC 1.2."
+                )
             ET.SubElement(
                 element,
                 "TrafficeSignalGroupState",
@@ -2565,7 +2579,7 @@ class Weather(VersionBase):
                 and self.sun == other.sun
                 and self.precipitation == other.precipitation
                 and self.dome_image == other.dome_image
-                and self.dome_azimuth_offset == self.dome_azimuth_offset
+                and self.dome_azimuth_offset == other.dome_azimuth_offset
             ):
                 return True
         return False
@@ -2599,6 +2613,10 @@ class Weather(VersionBase):
             atmosphericPressure = element.attrib["atmosphericPressure"]
         if "cloudState" in element.attrib:
             cloudstate = getattr(CloudState, element.attrib["cloudState"])
+        if "fractionalCloudCover" in element.attrib:
+            cloudstate = getattr(
+                FractionalCloudCover, element.attrib["fractionalCloudCover"]
+            )
         if element.find("Sun") != None:
             sun = Sun.parse(element.find("Sun"))
         if element.find("Fog") != None:
@@ -2608,10 +2626,12 @@ class Weather(VersionBase):
         if element.find("Wind") != None:
             wind = Wind.parse(element.find("Wind"))
         if element.find("DomeImage") != None:
-            dome_file = element.find("DomeImage").find("DomeFile")
+            dome_file = element.find("DomeImage").find("DomeFile").attrib["filepath"]
 
             if "azimuthOffset" in element.find("DomeImage").attrib:
-                dome_azimuth = convert_float(element.find("DomeImage").attrib)
+                dome_azimuth = convert_float(
+                    element.find("DomeImage").attrib["azimuthOffset"]
+                )
         return Weather(
             cloudstate,
             atmosphericPressure,
@@ -2628,7 +2648,18 @@ class Weather(VersionBase):
         """returns the attributes of the Weather as a dict"""
         retdict = {}
         if self.cloudstate:
-            retdict["cloudState"] = self.cloudstate.get_name()
+            if hasattr(CloudState, str(self.cloudstate)):
+                if self.isVersionEqLarger(minor=2):
+                    raise OpenSCENARIOVersionError(
+                        "Cloudstate is replaced with FractionalCloudCover for OSC versions > 1.1"
+                    )
+                retdict["cloudState"] = self.cloudstate.get_name()
+            if hasattr(FractionalCloudCover, str(self.cloudstate)):
+                if self.isVersionEqLess(minor=1):
+                    raise OpenSCENARIOVersionError(
+                        "FractionalCloudCover was introduced in OSC 1.2"
+                    )
+                retdict["fractionalCloudCover"] = self.cloudstate.get_name()
         if self.temperature is not None and not self.isVersion(minor=0):
             retdict["temperature"] = str(self.temperature)
         elif self.temperature is not None and self.isVersion(minor=0):
@@ -2645,6 +2676,19 @@ class Weather(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Weather"""
+        if self.isVersion(minor=0):
+            if self.sun == None:
+                raise OpenSCENARIOVersionError("In OpenScenario 1.0, Sun is required.")
+            if self.cloudstate == None:
+                raise OpenSCENARIOVersionError(
+                    "In OpenScenario 1.0, CloudState is required."
+                )
+            if self.fog == None:
+                raise OpenSCENARIOVersionError("In OpenScenario 1.0, Fog is required.")
+            if self.precipitation == None:
+                raise OpenSCENARIOVersionError(
+                    "In OpenScenario 1.0, Precipitation is required."
+                )
         element = ET.Element("Weather", attrib=self.get_attributes())
         if self.sun:
             element.append(self.sun.get_element())
@@ -2665,7 +2709,9 @@ class Weather(VersionBase):
             if self.dome_azimuth_offset:
                 dome_attr["azimuthOffset"] = str(self.dome_azimuth_offset)
             dome_element = ET.SubElement(element, "DomeImage", attrib=dome_attr)
-            ET.SubElement(dome_element, "File", attrib={"filepath": self.dome_image})
+            ET.SubElement(
+                dome_element, "DomeFile", attrib={"filepath": self.dome_image}
+            )
         return element
 
 
@@ -3013,6 +3059,8 @@ class Wind(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Wind"""
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError("Wind was introduced in OSC 1.1")
         element = ET.Element("Wind", attrib=self.get_attributes())
 
         return element
@@ -3065,7 +3113,7 @@ class RoadCondition(VersionBase):
             wetness (Wetness): wetness of the road
                 Default: None
         """
-        self.friction_scale_factor = friction_scale_factor
+        self.friction_scale_factor = convert_float(friction_scale_factor)
         if properties is not None and not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
@@ -3911,16 +3959,13 @@ class AbsoluteSpeed(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the AbsoluteSpeed"""
-        if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "AbsoluteSpeed was introduced in OpenSCENARIO V1.1"
-            )
+
         elementFinalSpeed = ET.Element("FinalSpeed")
         elementAbsoluteSpeed = ET.SubElement(
             elementFinalSpeed, "AbsoluteSpeed", attrib=self.get_attributes()
         )
         if self.steadyState:
-            if self.isVersion(1, 0):
+            if self.isVersion(minor=0):
                 raise OpenSCENARIOVersionError(
                     "steadyState was introduced in OpenSCENARIO V1.1"
                 )
@@ -4039,16 +4084,12 @@ class RelativeSpeedToMaster(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the RelativeSpeedToMaster"""
-        if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "RelativeSpeedToMaster was introduced in OpenSCENARIO V1.1"
-            )
         elementFinalSpeed = ET.Element("FinalSpeed")
         elementRelativeSpeed = ET.SubElement(
             elementFinalSpeed, "RelativeSpeedToMaster", attrib=self.get_attributes()
         )
         if self.steadyState:
-            if self.isVersion(1, 0):
+            if self.isVersion(minor=0):
                 raise OpenSCENARIOVersionError(
                     "steadyState was introduced in OpenSCENARIO V1.1"
                 )
@@ -4381,7 +4422,7 @@ class ValueConstraintGroup(VersionBase):
             raise OpenSCENARIOVersionError(
                 "ValueConstraintGroup was introduced in OpenSCENARIO V1.1"
             )
-        element = ET.Element("ValueConstraintGroup")
+        element = ET.Element("ConstraintGroup")
         if not self.value_constraints:
             raise ValueError("No Value Constraints in the Value Contraint Group")
         for value_constraint in self.value_constraints:
@@ -4825,6 +4866,8 @@ class UserDefinedLight(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the UserDefinedLight"""
+        if self.isVersionEqLess(minor=1):
+            raise OpenSCENARIOVersionError("UserDefinedLight was introduced in OSC 1.2")
         element = ET.Element(
             "UserDefinedLight", attrib={"userDefinedLightType": self.type}
         )
@@ -4929,8 +4972,8 @@ class _LightState(VersionBase):
         if "flashingOffDuration" in element.attrib:
             flashing_off = element.attrib["flashingOffDuration"]
 
-        if "intensity" in element.attrib:
-            intensity = convert_float(element.attrib["intensity"])
+        if "luminousIntensity" in element.attrib:
+            intensity = convert_float(element.attrib["luminousIntensity"])
 
         if element.find("Color") != None:
             color = Color.parse(element.find("Color"))
@@ -4946,7 +4989,7 @@ class _LightState(VersionBase):
         if self.flash_off_duration is not None:
             retdict["flashingOffDuration"] = str(self.flash_off_duration)
         if self.intensity is not None:
-            retdict["intensity"] = str(self.intensity)
+            retdict["luminousIntensity"] = str(self.intensity)
 
         retdict["mode"] = self.mode.get_name()
         return retdict

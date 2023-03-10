@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -25,12 +25,12 @@ from .utils import (
     TrafficSignalController,
     VariableDeclarations,
 )
-from .enumerations import VersionBase, XMLNS, XSI
+from .enumerations import VersionBase, XMLNS, XSI, _MINOR_VERSION
 from .entities import Entities
 from .storyboard import StoryBoard
 
 
-class Scenario:
+class Scenario(VersionBase):
     """The Scenario class collects all parts of OpenScenario and creates a .xml file
 
     Parameters
@@ -48,7 +48,7 @@ class Scenario:
         catalog (Catalog): the catalogs used in the scenario
 
         osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
-            Default: 1
+            Default: 2
 
         licence (License): optional license to the file header
             Default: None
@@ -97,7 +97,7 @@ class Scenario:
         storyboard,
         roadnetwork,
         catalog,
-        osc_minor_version=1,
+        osc_minor_version=_MINOR_VERSION,
         license=None,
         creation_date=None,
         header_properties=None,

@@ -1,17 +1,17 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 import xml.etree.ElementTree as ET
 
-from .enumerations import VersionBase, XMLNS, XSI
+from .enumerations import VersionBase, XMLNS, XSI, _MINOR_VERSION
 from .utils import (
     _StochasticDistributionType,
     FileHeader,
@@ -70,7 +70,7 @@ class _DeterministicFactory:
             )
 
 
-class _HistogramBin:
+class _HistogramBin(VersionBase):
     """the _HistogramBin is used by Histogram to define the bins
 
     Parameters
@@ -150,12 +150,12 @@ class _HistogramBin:
 
     def get_element(self):
         """returns the elementTree of the HistogramBin"""
-        element = ET.Element("HistogramBin", self.get_attributes())
+        element = ET.Element("Bin", self.get_attributes())
         element.append(self.range.get_element())
         return element
 
 
-class _ProbabilityDistributionSetElement:
+class _ProbabilityDistributionSetElement(VersionBase):
     """the _ProbabilityDistributionSetElement is used by ProbabilityDistributionSet to define the elements
 
     Parameters
@@ -231,7 +231,7 @@ class _ProbabilityDistributionSetElement:
         return element
 
 
-class Range:
+class Range(VersionBase):
     """the Range creates a Range used by parameter distributions
 
     Parameters
@@ -309,7 +309,7 @@ class Range:
 
 
 ## Stochastic distributions
-class Stochastic:
+class Stochastic(VersionBase):
     """Creates the Stochastic type of parameter distributions
 
     Parameters
@@ -727,7 +727,7 @@ class Histogram(_StochasticDistributionType):
 
         """
         hist = Histogram()
-        for h_element in element.findall("HistogramBin"):
+        for h_element in element.findall("Bin"):
             hist.bins.append(_HistogramBin.parse(h_element))
         return hist
 
@@ -835,7 +835,7 @@ class ProbabilityDistributionSet(_StochasticDistributionType):
 ### Deterministic
 
 
-class ParameterValueSet:
+class ParameterValueSet(VersionBase):
     """Creates the ParameterValueSet used by the DeterministicMultiParameterDistribution
 
     Parameters
@@ -916,7 +916,7 @@ class ParameterValueSet:
         return element
 
 
-class DeterministicMultiParameterDistribution:
+class DeterministicMultiParameterDistribution(VersionBase):
     """Creates the DeterministicMultiParameterDistribution type of parameter distributions
 
     Parameters
@@ -995,7 +995,7 @@ class DeterministicMultiParameterDistribution:
         return element
 
 
-class DistributionRange:
+class DistributionRange(VersionBase):
     """Creates the DistributionRange used to define a Single parameter distribution
 
     Parameters
@@ -1082,7 +1082,7 @@ class DistributionRange:
         return element
 
 
-class DistributionSet:
+class DistributionSet(VersionBase):
     """Creates the DistributionSet used to define a Single parameter distribution
 
     Parameters
@@ -1154,7 +1154,7 @@ class DistributionSet:
         return element
 
 
-class Deterministic:
+class Deterministic(VersionBase):
     """Creates the Deterministic type of parameter distributions
 
     Parameters
@@ -1319,7 +1319,7 @@ class ParameterValueDistribution(VersionBase):
         author,
         scenario_file,
         parameter_distribution,
-        osc_minor_version=1,
+        osc_minor_version=_MINOR_VERSION,
         header_properties=None,
         license=None,
     ):

@@ -33,7 +33,7 @@ from .enumerations import Priority, Rule, ConditionEdge, VersionBase
 from .actions import _GlobalActionFactory, _PrivateActionFactory
 
 
-class Init:
+class Init(VersionBase):
     """the Init class, creates the init part of the storyboard
 
     Attributes
@@ -178,7 +178,7 @@ class Init:
         return element
 
 
-class StoryBoard:
+class StoryBoard(VersionBase):
     """The StoryBoard class creates the storyboard of OpenScenario
 
     Parameters
@@ -411,7 +411,7 @@ class StoryBoard:
         return element
 
 
-class Story:
+class Story(VersionBase):
     """The Story class creates a story of the OpenScenario
 
     Parameters
@@ -525,7 +525,7 @@ class Story:
         return element
 
 
-class Act:
+class Act(VersionBase):
     """the Act class creates the Act of the OpenScenario
 
     Parameters
@@ -666,7 +666,7 @@ class Act:
         return element
 
 
-class ManeuverGroup:
+class ManeuverGroup(VersionBase):
     """the ManeuverGroup creates the ManeuverGroup of the OpenScenario
 
     Parameters
@@ -800,7 +800,7 @@ class ManeuverGroup:
         return element
 
 
-class _Actors:
+class _Actors(VersionBase):
     """_Actors is used to create the actors of a ManeuverGroup
 
     Parameters
@@ -899,7 +899,7 @@ class _Actors:
         return element
 
 
-class Maneuver:
+class Maneuver(VersionBase):
     """The Maneuver class creates the Maneuver of OpenScenario
 
     Parameters

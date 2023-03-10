@@ -17,6 +17,8 @@ from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import _TrafficSignalState, ValueConstraintGroup
 
+from .xml_validator import version_validation, ValidationResponse
+
 
 @pytest.fixture(autouse=True)
 def reset_version():
@@ -50,6 +52,9 @@ def test_transition_dynamics(teststring):
     assert td == td4
     td5 = OSC.TransitionDynamics.parse(td3.get_element())
     assert td5 == td3
+    assert version_validation("TransitionDynamics", td, 0) == ValidationResponse.OK
+    assert version_validation("TransitionDynamics", td, 1) == ValidationResponse.OK
+    assert version_validation("TransitionDynamics", td, 2) == ValidationResponse.OK
 
 
 @pytest.mark.parametrize(
@@ -66,10 +71,22 @@ def test_dynamics_constraints(testinp, results):
         max_deceleration=testinp[0], max_acceleration=testinp[1], max_speed=testinp[2]
     )
     dyncon3 = OSC.DynamicsConstraints(
-        max_deceleration=testinp[0], max_acceleration=testinp[1], max_speed=50
+        max_deceleration=testinp[0],
+        max_acceleration=testinp[1],
+        max_speed=50,
+        max_acceleration_rate=2,
+        max_deceleration_rate=3,
     )
     assert dyncon == dyncon2
     assert dyncon != dyncon3
+    assert version_validation("DynamicConstraints", dyncon, 0) == ValidationResponse.OK
+    assert version_validation("DynamicConstraints", dyncon, 1) == ValidationResponse.OK
+    assert version_validation("DynamicConstraints", dyncon, 2) == ValidationResponse.OK
+    assert version_validation("DynamicConstraints", dyncon3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DynamicConstraints", dyncon3, 1)
+        == ValidationResponse.OSC_VERSION
+    )
 
 
 @pytest.mark.parametrize(
@@ -115,6 +132,9 @@ def test_orientation(testinp, results):
     assert orientation != orientation3
     orientation4 = OSC.Orientation.parse(orientation.get_element())
     assert orientation == orientation4
+    assert version_validation("Orientation", orientation, 0) == ValidationResponse.OK
+    assert version_validation("Orientation", orientation, 1) == ValidationResponse.OK
+    assert version_validation("Orientation", orientation, 2) == ValidationResponse.OK
 
 
 @pytest.mark.parametrize(
@@ -135,17 +155,12 @@ def test_orientation_filled(testinp, results):
     assert dyncon.is_filled() == results
 
 
-# def test_orientation_failed():
-#     with pytest.raises(ValueError):
-#         OSC.Orientation(reference='hej')
-
-
 def test_parameter():
-    param = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
+    param = OSC.Parameter("stuffs", OSC.ParameterType.double, "1.0")
     prettyprint(param.get_element())
-    param2 = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
-    param3 = OSC.Parameter("stuffs", OSC.ParameterType.int, "2")
-    param4 = OSC.Parameter("stuffs", OSC.ParameterType.int, "1")
+    param2 = OSC.Parameter("stuffs", OSC.ParameterType.double, "1.0")
+    param3 = OSC.Parameter("stuffs", OSC.ParameterType.double, "2.0")
+    param4 = OSC.Parameter("stuffs", OSC.ParameterType.double, "1.0")
     assert param == param2
     assert param != param3
     param5 = OSC.Parameter.parse(param.get_element())
@@ -166,17 +181,38 @@ def test_parameter():
     param6 = OSC.Parameter.parse(param4.get_element())
     assert param4 == param6
 
+    assert version_validation("ParameterDeclaration", param, 0) == ValidationResponse.OK
+    assert version_validation("ParameterDeclaration", param, 1) == ValidationResponse.OK
+    assert version_validation("ParameterDeclaration", param, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ParameterDeclaration", param4, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("ParameterDeclaration", param4, 2) == ValidationResponse.OK
+    )
+
 
 def test_variable():
-    param = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
+    param = OSC.Variable("stuffs", OSC.ParameterType.string, "asdf")
     prettyprint(param.get_element())
-    param2 = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
-    param3 = OSC.Variable("stuffs", OSC.ParameterType.int, "2")
-    param4 = OSC.Variable("stuffs", OSC.ParameterType.int, "1")
+    param2 = OSC.Variable("stuffs", OSC.ParameterType.string, "asdf")
+    param3 = OSC.Variable("stuffs", OSC.ParameterType.boolean, "false")
+
     assert param == param2
     assert param != param3
     param5 = OSC.Variable.parse(param.get_element())
     assert param == param5
+
+    assert (
+        version_validation("VariableDeclaration", param, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("VariableDeclaration", param, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("VariableDeclaration", param, 2) == ValidationResponse.OK
 
 
 def test_catalogreference():
@@ -200,13 +236,17 @@ def test_catalogreference():
     prettyprint(catref4.get_element())
     assert catref == catref4
 
+    assert version_validation("CatalogReference", catref, 0) == ValidationResponse.OK
+    assert version_validation("CatalogReference", catref, 1) == ValidationResponse.OK
+    assert version_validation("CatalogReference", catref, 2) == ValidationResponse.OK
+
 
 def test_paramdeclaration():
     pardec = OSC.ParameterDeclarations()
-    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.int, "1"))
+    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true"))
     pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
     pardec2 = OSC.ParameterDeclarations()
-    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.int, "1"))
+    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true"))
     pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
     pardec3 = OSC.ParameterDeclarations.parse(pardec.get_element())
     prettyprint(pardec.get_element())
@@ -216,6 +256,16 @@ def test_paramdeclaration():
     pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.int, "1"))
     pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.double, "0.01"))
     assert pardec4 != pardec
+
+    assert (
+        version_validation("ParameterDeclarations", pardec, 0) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterDeclarations", pardec, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterDeclarations", pardec, 2) == ValidationResponse.OK
+    )
 
 
 def test_variabledeclaration():
@@ -234,6 +284,18 @@ def test_variabledeclaration():
     pardec4.add_variable(OSC.Variable("myparam2", OSC.ParameterType.double, "0.01"))
     assert pardec4 != pardec
 
+    assert (
+        version_validation("VariableDeclarations", pardec, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("VariableDeclarations", pardec, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("VariableDeclarations", pardec, 2) == ValidationResponse.OK
+    )
+
 
 def test_entityref():
     entref = OSC.EntityRef("ref_str")
@@ -245,6 +307,10 @@ def test_entityref():
 
     entref4 = OSC.EntityRef.parse(entref.get_element())
     assert entref == entref4
+
+    assert version_validation("EntityRef", entref, 0) == ValidationResponse.OK
+    assert version_validation("EntityRef", entref, 1) == ValidationResponse.OK
+    assert version_validation("EntityRef", entref, 2) == ValidationResponse.OK
 
 
 def test_parameterassignment():
@@ -258,6 +324,10 @@ def test_parameterassignment():
     parass4 = OSC.ParameterAssignment.parse(parass.get_element())
     assert parass4 == parass
 
+    assert version_validation("ParameterAssignment", parass, 0) == ValidationResponse.OK
+    assert version_validation("ParameterAssignment", parass, 1) == ValidationResponse.OK
+    assert version_validation("ParameterAssignment", parass, 2) == ValidationResponse.OK
+
 
 def test_boundinbox():
     bb = OSC.BoundingBox(1, 2, 1, 2, 3, 2)
@@ -268,6 +338,9 @@ def test_boundinbox():
     assert bb != bb3
     bb4 = OSC.BoundingBox.parse(bb.get_element())
     assert bb4 == bb
+    assert version_validation("BoundingBox", bb, 0) == ValidationResponse.OK
+    assert version_validation("BoundingBox", bb, 1) == ValidationResponse.OK
+    assert version_validation("BoundingBox", bb, 2) == ValidationResponse.OK
 
 
 def test_center():
@@ -279,6 +352,9 @@ def test_center():
     assert cen != cen3
     cen4 = OSC.Center.parse(cen.get_element())
     assert cen4 == cen
+    assert version_validation("Center", cen, 0) == ValidationResponse.OK
+    assert version_validation("Center", cen, 1) == ValidationResponse.OK
+    assert version_validation("Center", cen, 2) == ValidationResponse.OK
 
 
 def test_dimensions():
@@ -290,6 +366,9 @@ def test_dimensions():
     assert dim != dim3
     dim4 = OSC.Dimensions.parse(dim.get_element())
     assert dim4 == dim
+    assert version_validation("Dimensions", dim, 0) == ValidationResponse.OK
+    assert version_validation("Dimensions", dim, 1) == ValidationResponse.OK
+    assert version_validation("Dimensions", dim, 2) == ValidationResponse.OK
 
 
 def test_properties():
@@ -311,6 +390,9 @@ def test_properties():
 
     prop4 = OSC.Properties.parse(prop.get_element())
     assert prop4 == prop
+    assert version_validation("Properties", prop, 0) == ValidationResponse.OK
+    assert version_validation("Properties", prop, 1) == ValidationResponse.OK
+    assert version_validation("Properties", prop, 2) == ValidationResponse.OK
 
 
 def test_controller():
@@ -336,18 +418,37 @@ def test_controller():
     prettyprint(cnt.get_element())
     cnt4 = OSC.Controller.parse(cnt.get_element())
     assert cnt4 == cnt
+    assert version_validation("Controller", cnt3, 0) == ValidationResponse.OK
+    assert version_validation("Controller", cnt3, 1) == ValidationResponse.OK
+    assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
+    assert version_validation("Controller", cnt, 1) == ValidationResponse.OSC_VERSION
 
 
 def test_fileheader():
     fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
     prettyprint(fh.get_element())
     fh2 = OSC.FileHeader("my_scenario", "Mandolin")
-    fh3 = OSC.FileHeader("my_scenario", "Mandolin2")
+    props = OSC.Properties()
+    props.add_file("dummy")
+    fh3 = OSC.FileHeader("my_scenario", "Mandolin2", license=OSC.License("dummy"))
+
     assert fh == fh2
     assert fh != fh3
 
     fh4 = OSC.FileHeader.parse(fh.get_element())
+    fh5 = OSC.FileHeader("my_scenario", "Mandolin2", properties=props)
     assert fh4 == fh
+    assert version_validation("FileHeader", fh, 0) == ValidationResponse.OK
+    assert version_validation("FileHeader", fh, 1) == ValidationResponse.OK
+    assert version_validation("FileHeader", fh, 2) == ValidationResponse.OK
+
+    assert version_validation("FileHeader", fh3, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("FileHeader", fh3, 1) == ValidationResponse.OK
+    assert version_validation("FileHeader", fh3, 2) == ValidationResponse.OK
+
+    assert version_validation("FileHeader", fh5, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("FileHeader", fh5, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("FileHeader", fh5, 2) == ValidationResponse.OK
 
 
 def test_timeref():
@@ -360,6 +461,9 @@ def test_timeref():
 
     timeref4 = OSC.TimeReference.parse(timeref.get_element())
     assert timeref4 == timeref
+    assert version_validation("TimeReference", timeref, 0) == ValidationResponse.OK
+    assert version_validation("TimeReference", timeref, 1) == ValidationResponse.OK
+    assert version_validation("TimeReference", timeref, 2) == ValidationResponse.OK
 
 
 def test_phase():
@@ -372,7 +476,7 @@ def test_phase():
     p2.add_signal_state("myid", "red")
     p2.add_signal_state("myid", "green")
 
-    p3 = OSC.Phase("myphase", 1, traffic_group_state="hello")
+    p3 = OSC.Phase("myphase", 1)
     p3.add_signal_state("myid", "red")
 
     assert p1 == p2
@@ -380,6 +484,12 @@ def test_phase():
 
     p4 = OSC.Phase.parse(p1.get_element())
     assert p4 == p1
+
+    assert version_validation("Phase", p1, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Phase", p1, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Phase", p1, 2) == ValidationResponse.OK
+    assert version_validation("Phase", p3, 0) == ValidationResponse.OK
+    assert version_validation("Phase", p3, 1) == ValidationResponse.OK
 
 
 def test_TrafficSignalState():
@@ -392,6 +502,9 @@ def test_TrafficSignalState():
 
     tss4 = _TrafficSignalState.parse(tss.get_element())
     assert tss4 == tss
+    assert version_validation("TrafficSignalState", tss, 0) == ValidationResponse.OK
+    assert version_validation("TrafficSignalState", tss, 1) == ValidationResponse.OK
+    assert version_validation("TrafficSignalState", tss, 2) == ValidationResponse.OK
 
 
 def test_TrafficSignalController():
@@ -421,6 +534,16 @@ def test_TrafficSignalController():
 
     tsc4 = OSC.TrafficSignalController.parse(tsc.get_element())
     assert tsc4 == tsc
+
+    assert (
+        version_validation("TrafficSignalController", tsc, 0) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficSignalController", tsc, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficSignalController", tsc, 2) == ValidationResponse.OK
+    )
 
 
 def test_trafficdefinition():
@@ -460,20 +583,66 @@ def test_trafficdefinition():
     traffic5 = OSC.TrafficDefinition.parse(traffic3.get_element())
     assert traffic3 == traffic5
 
+    assert version_validation("TrafficDefinition", traffic, 0) == ValidationResponse.OK
+    assert version_validation("TrafficDefinition", traffic, 1) == ValidationResponse.OK
+    assert version_validation("TrafficDefinition", traffic, 2) == ValidationResponse.OK
+
+    assert (
+        version_validation("TrafficDefinition", traffic3, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("TrafficDefinition", traffic3, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("TrafficDefinition", traffic3, 2) == ValidationResponse.OK
+
 
 def test_weather():
     weather = OSC.Weather(
-        OSC.CloudState.free, 100, 0, dome_image="dome.jpg", dome_azimuth_offset=2
+        OSC.FractionalCloudCover.fourOktas,
+        100,
+        0,
+        dome_image="dome.jpg",
+        dome_azimuth_offset=2,
     )
     prettyprint(weather.get_element())
     weather2 = OSC.Weather(
-        OSC.CloudState.free, 100, 0, dome_image="dome.jpg", dome_azimuth_offset=2
+        OSC.FractionalCloudCover.fourOktas,
+        100,
+        0,
+        dome_image="dome.jpg",
+        dome_azimuth_offset=2,
     )
-    weather3 = OSC.Weather(OSC.CloudState.free, 100, 1)
+    weather3 = OSC.Weather(
+        OSC.FractionalCloudCover.fourOktas,
+        100,
+        0,
+        dome_image="dome.jpg",
+        dome_azimuth_offset=3,
+    )
     assert weather == weather2
     assert weather != weather3
-    weather = OSC.Weather(sun=OSC.Sun(1, 1, 1))
-    prettyprint(weather.get_element())
+    weather4 = OSC.Weather(
+        OSC.CloudState.free,
+        precipitation=OSC.Precipitation(OSC.PrecipitationType.rain, 3),
+        fog=OSC.Fog(10, OSC.BoundingBox(1, 2, 3, 4, 5, 6)),
+        sun=OSC.Sun(1, 1, 1),
+    )
+
+    weather6 = OSC.Weather.parse(weather.get_element())
+    assert weather == weather6
+    weather5 = OSC.Weather(OSC.CloudState.free, 100, 0, wind=OSC.Wind(0.3, 10))
+
+    assert version_validation("Weather", weather, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Weather", weather, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Weather", weather, 2) == ValidationResponse.OK
+
+    assert version_validation("Weather", weather4, 0) == ValidationResponse.OK
+    assert version_validation("Weather", weather4, 1) == ValidationResponse.OK
+
+    assert version_validation("Weather", weather5, 1) == ValidationResponse.OK
+    assert version_validation("Weather", weather5, 0) == ValidationResponse.OSC_VERSION
 
 
 def test_tod():
@@ -487,6 +656,10 @@ def test_tod():
     tod4 = OSC.TimeOfDay.parse(tod.get_element())
     prettyprint(tod4.get_element())
     assert tod4 == tod
+
+    assert version_validation("TimeOfDay", tod, 0) == ValidationResponse.OK
+    assert version_validation("TimeOfDay", tod, 1) == ValidationResponse.OK
+    assert version_validation("TimeOfDay", tod, 2) == ValidationResponse.OK
 
 
 def test_roadcondition():
@@ -506,11 +679,23 @@ def test_roadcondition():
 
     assert rc == rc4
 
+    assert version_validation("RoadCondition", rc, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("RoadCondition", rc, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("RoadCondition", rc, 2) == ValidationResponse.OK
+    assert version_validation("RoadCondition", rc3, 0) == ValidationResponse.OK
+    assert version_validation("RoadCondition", rc3, 1) == ValidationResponse.OK
+
 
 def test_environment():
     tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
     fog = OSC.Fog(10, OSC.BoundingBox(1, 2, 3, 4, 5, 6))
-    weather = OSC.Weather(OSC.CloudState.free, 100, fog=fog)
+    weather = OSC.Weather(OSC.FractionalCloudCover.oneOktas, 100, fog=fog)
+    weather2 = OSC.Weather(
+        OSC.CloudState.free,
+        precipitation=OSC.Precipitation(OSC.PrecipitationType.rain, 3),
+        fog=fog,
+        sun=OSC.Sun(1, 1, 1),
+    )
 
     rc = OSC.RoadCondition(1)
 
@@ -524,6 +709,14 @@ def test_environment():
     env4 = OSC.Environment.parse(env.get_element())
     prettyprint(env4.get_element())
     assert env4 == env
+    env5 = OSC.Environment("Env_name2", tod, weather2, OSC.RoadCondition(3))
+    env6 = OSC.Environment("Env_name2", roadcondition=OSC.RoadCondition(3))
+
+    assert version_validation("Environment", env, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Environment", env, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Environment", env, 2) == ValidationResponse.OK
+    assert version_validation("Environment", env5, 0) == ValidationResponse.OK
+    assert version_validation("Environment", env6, 1) == ValidationResponse.OK
 
 
 def test_oscenum():
@@ -548,6 +741,19 @@ def test_distancesteadystate():
     tdss4 = OSC.TargetDistanceSteadyState.parse(tdss.get_element())
     assert tdss4 == tdss
 
+    assert (
+        version_validation("TargetDistanceSteadyState", tdss, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("TargetDistanceSteadyState", tdss, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TargetDistanceSteadyState", tdss, 2)
+        == ValidationResponse.OK
+    )
+
 
 def test_timesteadystate():
     ttss = OSC.TargetTimeSteadyState(1)
@@ -559,6 +765,12 @@ def test_timesteadystate():
 
     ttss4 = OSC.TargetTimeSteadyState.parse(ttss.get_element())
     assert ttss4 == ttss
+    assert (
+        version_validation("TargetTimeSteadyState", ttss, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("TargetTimeSteadyState", ttss, 1) == ValidationResponse.OK
+    assert version_validation("TargetTimeSteadyState", ttss, 2) == ValidationResponse.OK
 
 
 def test_wind():
@@ -572,6 +784,10 @@ def test_wind():
     w4 = OSC.Wind.parse(w.get_element())
     assert w == w4
 
+    assert version_validation("Wind", w, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Wind", w, 1) == ValidationResponse.OK
+    assert version_validation("Wind", w, 2) == ValidationResponse.OK
+
 
 def test_precipitation():
     p = OSC.Precipitation(OSC.PrecipitationType.rain, 1)
@@ -583,6 +799,10 @@ def test_precipitation():
 
     p4 = OSC.Precipitation.parse(p.get_element())
     assert p4 == p
+
+    assert version_validation("Precipitation", p, 0) == ValidationResponse.OK
+    assert version_validation("Precipitation", p, 1) == ValidationResponse.OK
+    assert version_validation("Precipitation", p, 2) == ValidationResponse.OK
 
 
 def test_sun():
@@ -596,6 +816,9 @@ def test_sun():
 
     s4 = OSC.Sun.parse(s.get_element())
     assert s == s4
+    assert version_validation("Sun", s, 0) == ValidationResponse.OK
+    assert version_validation("Sun", s, 1) == ValidationResponse.OK
+    assert version_validation("Sun", s, 2) == ValidationResponse.OK
 
 
 def test_fog():
@@ -609,6 +832,9 @@ def test_fog():
 
     f4 = OSC.Fog.parse(f.get_element())
     assert f == f4
+    assert version_validation("Fog", f, 0) == ValidationResponse.OK
+    assert version_validation("Fog", f, 1) == ValidationResponse.OK
+    assert version_validation("Fog", f, 2) == ValidationResponse.OK
 
 
 def test_dynamicsConstraints():
@@ -622,6 +848,19 @@ def test_dynamicsConstraints():
     dc4 = OSC.DynamicsConstraints.parse(dc.get_element())
     prettyprint(dc4.get_element())
     assert dc == dc4
+    assert (
+        version_validation("DynamicConstraints", dc, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("DynamicConstraints", dc, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("DynamicConstraints", dc, 2) == ValidationResponse.OK
+
+    assert version_validation("DynamicConstraints", dc3, 0) == ValidationResponse.OK
+    assert version_validation("DynamicConstraints", dc3, 1) == ValidationResponse.OK
+    assert version_validation("DynamicConstraints", dc3, 2) == ValidationResponse.OK
 
 
 def test_license():
@@ -634,6 +873,9 @@ def test_license():
 
     l4 = OSC.License.parse(l.get_element())
     assert l4 == l
+    assert version_validation("License", l, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("License", l, 1) == ValidationResponse.OK
+    assert version_validation("License", l, 2) == ValidationResponse.OK
 
 
 def test_absoluteSpeed():
@@ -653,6 +895,14 @@ def test_absoluteSpeed():
     prettyprint(inst7.get_element())
     assert inst4 == inst7
 
+    assert version_validation("FinalSpeed", inst, 0) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst, 1) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst, 2) == ValidationResponse.OK
+
+    assert version_validation("FinalSpeed", inst4, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("FinalSpeed", inst4, 1) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst4, 2) == ValidationResponse.OK
+
 
 def test_relativeSpeedToMaster():
     inst = OSC.RelativeSpeedToMaster(1, OSC.SpeedTargetValueType.delta)
@@ -671,6 +921,14 @@ def test_relativeSpeedToMaster():
     inst6 = OSC.RelativeSpeedToMaster.parse(inst4.get_element())
     assert inst6 == inst4
 
+    assert version_validation("FinalSpeed", inst, 0) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst, 1) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst, 2) == ValidationResponse.OK
+
+    assert version_validation("FinalSpeed", inst4, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("FinalSpeed", inst4, 1) == ValidationResponse.OK
+    assert version_validation("FinalSpeed", inst4, 2) == ValidationResponse.OK
+
 
 def test_targetDistanceSteadyState():
     inst = OSC.TargetDistanceSteadyState(1)
@@ -680,6 +938,19 @@ def test_targetDistanceSteadyState():
     assert inst != inst3
     prettyprint(inst)
 
+    assert (
+        version_validation("TargetDistanceSteadyState", inst, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("TargetDistanceSteadyState", inst, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TargetDistanceSteadyState", inst, 2)
+        == ValidationResponse.OK
+    )
+
 
 def test_targetTimeSteadyState():
     inst = OSC.TargetTimeSteadyState(1)
@@ -688,6 +959,12 @@ def test_targetTimeSteadyState():
     assert inst == inst2
     assert inst != inst3
     prettyprint(inst)
+    assert (
+        version_validation("TargetTimeSteadyState", inst, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("TargetTimeSteadyState", inst, 1) == ValidationResponse.OK
+    assert version_validation("TargetTimeSteadyState", inst, 2) == ValidationResponse.OK
 
 
 def test_value_constraint_group():
@@ -708,6 +985,12 @@ def test_value_constraint_group():
     assert vcg != vcg3
     vcg4 = OSC.ValueConstraintGroup.parse(vcg.get_element())
     assert vcg == vcg4
+    assert (
+        version_validation("ValueConstraintGroup", vcg, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("ValueConstraintGroup", vcg, 1) == ValidationResponse.OK
+    assert version_validation("ValueConstraintGroup", vcg, 2) == ValidationResponse.OK
 
 
 def test_value_constraint():
@@ -719,6 +1002,11 @@ def test_value_constraint():
     assert vc != vc3
     vc4 = OSC.ValueConstraint.parse(vc.get_element())
     assert vc == vc4
+    assert (
+        version_validation("ValueConstraint", vc, 0) == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("ValueConstraint", vc, 1) == ValidationResponse.OK
+    assert version_validation("ValueConstraint", vc, 2) == ValidationResponse.OK
 
 
 def test_convert_float():
@@ -781,6 +1069,9 @@ def test_color():
     assert c != c3
     c4 = OSC.Color.parse(c.get_element())
     assert c == c4
+    assert version_validation("Color", c, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Color", c, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Color", c, 2) == ValidationResponse.OK
 
 
 def test_userdefinedlight():
@@ -792,6 +1083,13 @@ def test_userdefinedlight():
     assert udl != udl3
     udl4 = OSC.UserDefinedLight.parse(udl.get_element())
     assert udl4 == udl
+    assert (
+        version_validation("UserDefinedLight", udl, 0) == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("UserDefinedLight", udl, 1) == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("UserDefinedLight", udl, 2) == ValidationResponse.OK
 
 
 def test_lightstate():
@@ -818,19 +1116,9 @@ def test_lightstate():
     ls4 = OSC.utils._LightState.parse(ls.get_element())
     assert ls == ls4
 
-
-def test_fileheader():
-    fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
-    prettyprint(fh.get_element())
-    fh2 = OSC.FileHeader("my_scenario", "Mandolin")
-    props = OSC.Properties()
-    props.add_property("prop1", "something")
-    fh3 = OSC.FileHeader("my_scenario", "Mandolin2", properties=props)
-    assert fh == fh2
-    assert fh != fh3
-
-    fh4 = OSC.FileHeader.parse(fh.get_element())
-    assert fh4 == fh
+    assert version_validation("LightState", ls, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("LightState", ls, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("LightState", ls, 2) == ValidationResponse.OK
 
 
 def test_animationfile():
@@ -845,6 +1133,10 @@ def test_animationfile():
     prettyprint(ani4.get_element())
     assert ani4 == ani2
 
+    assert version_validation("AnimationFile", ani, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("AnimationFile", ani, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("AnimationFile", ani, 2) == ValidationResponse.OK
+
 
 def test_directionoftraveldistribution():
     dotd = OSC.DirectionOfTravelDistribution(1, 2)
@@ -857,6 +1149,18 @@ def test_directionoftraveldistribution():
     dotd4 = OSC.DirectionOfTravelDistribution.parse(dotd.get_element())
     prettyprint(dotd4.get_element())
     assert dotd4 == dotd
+    assert (
+        version_validation("DirectionOfTravelDistribution", dotd, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("DirectionOfTravelDistribution", dotd, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("DirectionOfTravelDistribution", dotd, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_userdefinedanimation():
@@ -868,6 +1172,15 @@ def test_userdefinedanimation():
     assert ani == ani3
     ani4 = OSC.UserDefinedAnimation.parse(ani.get_element())
     assert ani == ani4
+    assert (
+        version_validation("UserDefinedAnimation", ani, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("UserDefinedAnimation", ani, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("UserDefinedAnimation", ani, 2) == ValidationResponse.OK
 
 
 def test_userdefinedcomponent():
@@ -879,6 +1192,15 @@ def test_userdefinedcomponent():
     assert ani == ani3
     ani4 = OSC.UserDefinedComponent.parse(ani.get_element())
     assert ani == ani4
+    assert (
+        version_validation("UserDefinedComponent", ani, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("UserDefinedComponent", ani, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("UserDefinedComponent", ani, 2) == ValidationResponse.OK
 
 
 def test_pedestriananimation():
@@ -896,6 +1218,16 @@ def test_pedestriananimation():
     prettyprint(pa.get_element())
     pa5 = OSC.PedestrianAnimation.parse(pa.get_element())
     assert pa5 == pa
+    assert (
+        version_validation("PedestrianAnimation", pa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("PedestrianAnimation", pa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("PedestrianAnimation", pa, 2) == ValidationResponse.OK
+    assert version_validation("PedestrianAnimation", pa4, 2) == ValidationResponse.OK
 
 
 def test_vehiclecomponent():
@@ -908,6 +1240,13 @@ def test_vehiclecomponent():
     vc4 = OSC.utils._VehicleComponent.parse(vc.get_element())
     prettyprint(vc4.get_element())
     assert vc4 == vc
+    assert (
+        version_validation("VehicleComponent", vc, 0) == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("VehicleComponent", vc, 1) == ValidationResponse.OSC_VERSION
+    )
+    assert version_validation("VehicleComponent", vc, 2) == ValidationResponse.OK
 
 
 def test_componentanimation():
@@ -938,6 +1277,8 @@ def test_componentanimation():
     assert ca8 == ca4
     assert ca8 != ca
 
+    # assert version_validation("ComponentAnimation", ca, 2) == ValidationResponse.OK
+
 
 @pytest.mark.parametrize(
     "input",
@@ -957,3 +1298,22 @@ def test_global_action_factory(input):
     prettyprint(input, None)
     prettyprint(factoryoutput, None)
     assert input == factoryoutput
+
+
+def test_version_base():
+    version = OSC.VersionBase()
+    version.setVersion(minor=2)
+    assert version.isVersion(minor=2)
+    assert not version.isVersion(minor=1)
+    assert version.isVersionEqLarger(minor=1)
+    assert version.isVersionEqLarger(minor=2)
+    assert version.isVersionEqLess(minor=2)
+    assert not version.isVersionEqLess(minor=1)
+
+    version.setVersion(minor=1)
+    assert version.isVersion(minor=1)
+    assert not version.isVersion(minor=2)
+    assert not version.isVersionEqLarger(minor=2)
+    assert version.isVersionEqLarger(minor=0)
+    assert version.isVersionEqLess(minor=2)
+    assert not version.isVersionEqLess(minor=0)

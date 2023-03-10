@@ -2030,6 +2030,10 @@ class ControllerAction(_PrivateActionType):
         self.assignControllerAction = assignControllerAction
         self.overrideControllerValueAction = overrideControllerValueAction
         self.activateControllerAction = activateControllerAction
+        if self.assignControllerAction is not None:
+            self.assignControllerAction._used_by_parent = True
+        if self.overrideControllerValueAction is not None:
+            self.overrideControllerValueAction._used_by_parent = True
 
     def __eq__(self, other):
         if isinstance(other, ControllerAction):
@@ -2337,6 +2341,7 @@ class AssignControllerAction(_PrivateActionType):
         self.activateLongitudinal = convert_bool(activateLongitudinal)
         self.activateLighting = convert_bool(activateLighting)
         self.activateAnimation = convert_bool(activateAnimation)
+        self._used_by_parent = False
 
     def __eq__(self, other):
         if isinstance(other, AssignControllerAction):
@@ -2397,18 +2402,22 @@ class AssignControllerAction(_PrivateActionType):
         """returns the attributes of the AssignControllerAction as a dict"""
         retdict = {}
 
-        if self.isVersion(minor=1):
+        if self.isVersionEqLarger(minor=1):
             retdict = {
                 "activateLateral": get_bool_string(self.activateLateral),
                 "activateLongitudinal": get_bool_string(self.activateLongitudinal),
             }
-        if self.isVersion(minor=2):
+        if self.isVersionEqLarger(minor=2):
             retdict["activateLighting"] = get_bool_string(self.activateLighting)
             retdict["activateAnimation"] = get_bool_string(self.activateAnimation)
         return retdict
 
     def get_element(self):
         """returns the elementTree of the AssignControllerAction"""
+        if self.isVersion(minor=0) and not self._used_by_parent:
+            raise OpenSCENARIOVersionError(
+                "AssignControllerAction cannot be used alone in OSC 1.0, please add it to a ControllerAction."
+            )
         element = ET.Element("PrivateAction")
         controlleraction = ET.SubElement(element, "ControllerAction")
         assigncontrolleraction = ET.SubElement(
@@ -2508,6 +2517,8 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.parkingbrake_value = convert_float(0)
         self.parkingbrake_rate = None
         self.parkingbrake_force = False
+
+        self._used_by_parent = False
 
     def __eq__(self, other):
         if isinstance(other, OverrideControllerValueAction):
@@ -2824,6 +2835,10 @@ class OverrideControllerValueAction(_PrivateActionType):
 
     def get_element(self):
         """returns the elementTree of the OverrideControllerValueAction"""
+        if self.isVersion(minor=0) and not self._used_by_parent:
+            raise OpenSCENARIOVersionError(
+                "OverrideControllerValueAction cannot be used alone in OSC 1.0, please add it to a ControllerAction"
+            )
         element = ET.Element("PrivateAction")
         controlleraction = ET.SubElement(element, "ControllerAction")
         overrideaction = ET.SubElement(
@@ -2977,7 +2992,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                     ET.SubElement(
                         override_gear_action,
                         "ManualGear",
-                        {"number": str(self.gear_value)},
+                        {"number": str(int(self.gear_value))},
                     )
                 else:
                     ET.SubElement(
@@ -3098,10 +3113,8 @@ class VisibilityAction(_PrivateActionType):
             element, "VisibilityAction", self.get_attributes()
         )
         if self.sensor_refs:
-            if self.version_minor < 2:
-                raise OpenSCENARIOVersionError(
-                    "VehicleRoleDistribution was added in OSC V1.2"
-                )
+            if self.isVersionEqLess(minor=1):
+                raise OpenSCENARIOVersionError("SensorReference was added in OSC V1.2")
             sensor_ref_element = ET.SubElement(visibility_element, "SensorReferenceSet")
             for sensor in self.sensor_refs:
                 ET.SubElement(
@@ -4925,7 +4938,7 @@ class TrafficSwarmAction(_ActionType):
             dot = DirectionOfTravelDistribution.parse(
                 tsa_element.find("DirectionOfTravelDistribution")
             )
-        central_element = tsa_element.find("CentralSwarmObject")
+        central_element = tsa_element.find("CentralObject")
         centralobject = central_element.attrib["entityRef"]
 
         tsa_object = TrafficSwarmAction(
@@ -4967,7 +4980,7 @@ class TrafficSwarmAction(_ActionType):
         )
         swarmaction.append(self.trafficdefinition.get_element())
         ET.SubElement(
-            swarmaction, "CentralSwarmObject", attrib={"entityRef": self.centralobject}
+            swarmaction, "CentralObject", attrib={"entityRef": self.centralobject}
         )
         if self.velocity is not None:
             if self.version_minor > 1:

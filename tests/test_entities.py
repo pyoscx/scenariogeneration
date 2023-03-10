@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -14,6 +14,7 @@ import pytest
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import CatalogReference, EntityRef
+from .xml_validator import version_validation, ValidationResponse
 
 
 @pytest.fixture(autouse=True)
@@ -40,6 +41,10 @@ def test_properties():
     assert prop == prop2
     assert prop != prop3
 
+    assert version_validation("Properties", prop2, 0) == ValidationResponse.OK
+    assert version_validation("Properties", prop2, 1) == ValidationResponse.OK
+    assert version_validation("Properties", prop2, 2) == ValidationResponse.OK
+
 
 def test_axle():
     ba = OSC.Axle(1, 1, 2, 1, 1)
@@ -50,6 +55,9 @@ def test_axle():
     assert ba != ba3
     ba4 = OSC.Axle.parse(ba.get_element())
     assert ba == ba4
+    assert version_validation("Axle", ba2, 0) == ValidationResponse.OK
+    assert version_validation("Axle", ba, 1) == ValidationResponse.OK
+    assert version_validation("Axle", ba, 2) == ValidationResponse.OK
 
 
 def test_axles():
@@ -69,6 +77,9 @@ def test_axles():
     assert axles != axles3
     axles4 = OSC.Axles.parse(axles.get_element())
     assert axles == axles4
+    assert version_validation("Axles", axles, 0) == ValidationResponse.OK
+    assert version_validation("Axles", axles, 1) == ValidationResponse.OK
+    assert version_validation("Axles", axles, 2) == ValidationResponse.OK
 
 
 def test_vehicle():
@@ -119,6 +130,31 @@ def test_vehicle():
     prettyprint(veh5)
     assert veh5 == veh3
 
+    assert version_validation("Vehicle", veh, 0) == ValidationResponse.OK
+    assert version_validation("Vehicle", veh, 1) == ValidationResponse.OK
+    assert version_validation("Vehicle", veh, 2) == ValidationResponse.OK
+
+    assert version_validation("Vehicle", veh3, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Vehicle", veh3, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Vehicle", veh3, 2) == ValidationResponse.OK
+
+    veh6 = OSC.Vehicle(
+        "mycar",
+        OSC.VehicleCategory.car,
+        bb,
+        fa,
+        ba,
+        150,
+        10,
+        10,
+        2000,
+        "model",
+    )
+
+    assert version_validation("Vehicle", veh6, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Vehicle", veh6, 1) == ValidationResponse.OK
+    assert version_validation("Vehicle", veh6, 2) == ValidationResponse.OK
+
 
 def test_pedestrian():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
@@ -140,13 +176,23 @@ def test_pedestrian():
     ped2.add_property_file("propfile.xml")
     ped2.add_property("myprop", "12")
     ped2.add_parameter(param)
-    ped3 = OSC.Pedestrian("myped", 100, OSC.PedestrianCategory.pedestrian, bb)
+    ped3 = OSC.Pedestrian(
+        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "test_model"
+    )
 
     assert ped == ped2
     assert ped != ped3
 
     ped4 = OSC.Pedestrian.parse(ped.get_element())
     assert ped4 == ped
+
+    assert version_validation("Pedestrian", ped, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("Pedestrian", ped, 1) == ValidationResponse.OSC_VERSION
+    assert version_validation("Pedestrian", ped, 2) == ValidationResponse.OK
+
+    assert version_validation("Pedestrian", ped3, 0) == ValidationResponse.OK
+    assert version_validation("Pedestrian", ped3, 1) == ValidationResponse.OK
+    assert version_validation("Pedestrian", ped3, 2) == ValidationResponse.OK
 
 
 def test_miscobj():
@@ -179,6 +225,10 @@ def test_miscobj():
     prettyprint(veh5.get_element())
     assert veh5 == veh
 
+    assert version_validation("MiscObject", veh, 0) == ValidationResponse.OK
+    assert version_validation("MiscObject", veh, 1) == ValidationResponse.OK
+    assert version_validation("MiscObject", veh, 2) == ValidationResponse.OK
+
 
 def test_entity():
     object_type_list = [OSC.ObjectType.vehicle, OSC.ObjectType.pedestrian]
@@ -197,6 +247,10 @@ def test_entity():
     ent6 = OSC.Entity.parse(ent3.get_element())
     prettyprint(ent6.get_element())
     assert ent6 == ent3
+
+    assert version_validation("EntitySelection", ent, 0) == ValidationResponse.OK
+    assert version_validation("EntitySelection", ent, 1) == ValidationResponse.OK
+    assert version_validation("EntitySelection", ent, 2) == ValidationResponse.OK
 
 
 def test_scenarioobject():
@@ -230,6 +284,9 @@ def test_scenarioobject():
     assert so4 == so
     so5 = OSC.ScenarioObject.parse(so3.get_element())
     assert so5 == so3
+    assert version_validation("ScenarioObject", so, 0) == ValidationResponse.OK
+    assert version_validation("ScenarioObject", so, 1) == ValidationResponse.OK
+    assert version_validation("ScenarioObject", so, 2) == ValidationResponse.OK
 
 
 def test_entities():
@@ -265,6 +322,10 @@ def test_entities():
     prettyprint(entities4.get_element())
     assert entities == entities4
 
+    assert version_validation("Entities", entities, 0) == ValidationResponse.OK
+    assert version_validation("Entities", entities, 1) == ValidationResponse.OK
+    assert version_validation("Entities", entities, 2) == ValidationResponse.OK
+
 
 def test_controller():
     prop = OSC.Properties()
@@ -278,6 +339,10 @@ def test_controller():
     assert cnt == cnt2
     assert cnt != cnt3
 
+    assert version_validation("Controller", cnt, 0) == ValidationResponse.OK
+    assert version_validation("Controller", cnt, 1) == ValidationResponse.OK
+    assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
+
 
 def test_controller_in_Entities():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
@@ -290,6 +355,7 @@ def test_controller_in_Entities():
     prop.add_property("theotherthing", "true")
 
     cnt = OSC.Controller("mycontroler", prop)
+    cnt2 = OSC.Controller("mycontroler", prop)
 
     entities = OSC.Entities()
     entities.add_scenario_object("Target_1", veh, cnt)
@@ -304,6 +370,27 @@ def test_controller_in_Entities():
     assert entities == entities2
     assert entities != entities3
 
+    entities_multi_cnt = OSC.Entities()
+    entities_multi_cnt.add_scenario_object("Target_2", veh, [cnt, cnt2])
+    prettyprint(entities_multi_cnt.get_element())
+    assert entities3 != entities_multi_cnt
+
+    assert version_validation("Entities", entities, 0) == ValidationResponse.OK
+    assert version_validation("Entities", entities, 1) == ValidationResponse.OK
+    assert version_validation("Entities", entities, 2) == ValidationResponse.OK
+
+    assert (
+        version_validation("Entities", entities_multi_cnt, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Entities", entities_multi_cnt, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Entities", entities_multi_cnt, 2) == ValidationResponse.OK
+    )
+
 
 def test_external_object():
     ext_obj = OSC.ExternalObjectReference("my object")
@@ -315,3 +402,15 @@ def test_external_object():
 
     ext_obj4 = OSC.ExternalObjectReference.parse(ext_obj.get_element())
     assert ext_obj == ext_obj4
+    assert (
+        version_validation("ExternalObjectReference", ext_obj, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("ExternalObjectReference", ext_obj, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ExternalObjectReference", ext_obj, 2)
+        == ValidationResponse.OK
+    )

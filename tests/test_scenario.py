@@ -15,6 +15,12 @@ import datetime as dt
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import TrafficSignalController
+from .xml_validator import version_validation, ValidationResponse
+
+
+@pytest.fixture(autouse=True)
+def reset_version():
+    OSC.enumerations.VersionBase().setVersion(minor=2)
 
 
 def test_road():
@@ -26,16 +32,25 @@ def test_road():
     road3 = OSC.RoadNetwork(roadfile, "a")
     assert road == road2
     assert road != road3
+    road.add_traffic_signal_controller(controller)
+    assert version_validation("RoadNetwork", road, 0) == ValidationResponse.OK
+    assert version_validation("RoadNetwork", road, 1) == ValidationResponse.OK
+    assert version_validation("RoadNetwork", road, 2) == ValidationResponse.OK
+
     road.add_used_area_position(OSC.WorldPosition())
     with pytest.raises(OSC.NotEnoughInputArguments):
         road.get_element()
     road.add_used_area_position(OSC.WorldPosition(1, 1, 1))
-    road.add_traffic_signal_controller(controller)
+
     prettyprint(road.get_element(), None)
 
     road4 = OSC.RoadNetwork.parse(road.get_element())
     prettyprint(road4.get_element(), None)
     assert road4 == road
+
+    assert version_validation("RoadNetwork", road, 0) == ValidationResponse.OSC_VERSION
+    assert version_validation("RoadNetwork", road, 1) == ValidationResponse.OK
+    assert version_validation("RoadNetwork", road, 2) == ValidationResponse.OK
 
 
 def test_catalog():
@@ -57,6 +72,10 @@ def test_catalog():
     catalog4 = OSC.Catalog.parse(catalog.get_element())
     prettyprint(catalog4.get_element(), None)
     assert catalog == catalog4
+
+    assert version_validation("CatalogLocations", catalog, 0) == ValidationResponse.OK
+    assert version_validation("CatalogLocations", catalog, 1) == ValidationResponse.OK
+    assert version_validation("CatalogLocations", catalog, 2) == ValidationResponse.OK
 
 
 def test_scenario():
@@ -159,3 +178,5 @@ def test_scenario():
     sce4 = OSC.Scenario.parse(sce.get_element())
     prettyprint(sce4.get_element(), None)
     assert sce == sce4
+
+    # Versions are tested in test_xml_validation for all examples
