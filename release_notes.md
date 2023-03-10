@@ -1,12 +1,27 @@
 ## scenariogeneration release notes
 
 
-### 2023-02-23
+### 2023-03-10 Version 0.12.0
+- General Notes
+    - New tests
+        - xsd tests for each class in the xosc module, as well for all the examples.
+        - Testing xsd for OpenSCENARIO versions 1.0, 1.1, and 1.2
+    - xosc examples incapsulated in ScenarioGenerator class to make testing easier
+
+- Bugfixes
+    - Alot of small fixes based on the xsd and version tests, including
+        - typos in some elements
+        - error handling when entries not related to a specific version is wanted
+
+- IMPORTANT!
+    - Interface changed for TimeOfDayCondition, now takes: year, month, day, hour, minute, second instead of a string as input
+
+### 2023-02-23 Version 0.11.2
 - Bugfixes
     - ParameterCondition fixed to handle all values
 
 
-### 2023-02-10
+### 2023-02-10 Version 0.11.1
 - Bugfixes
     - parametersetaction can now take non float values again
     - DistanceCondition can be created properly in V1.1 format
