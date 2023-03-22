@@ -2,7 +2,7 @@
 
 
 
-### 2023-03-2 Version 0.12.1
+### 2023-03-22 Version 0.12.1
 
 - New opetions for naming and generation
     - ScenarioGenerator class now has a base name that can be changed
