@@ -47,6 +47,9 @@ class ScenarioGenerator:
 
         number_of_parallel_writings (int): parallelize the writing of the xml files
             Default: 1 (no parallelization)
+
+        basename (str): basename of the scenariofiles,
+            Default: name of file
     """
 
     def __init__(self):
@@ -61,6 +64,9 @@ class ScenarioGenerator:
         self._name_separator = "_"
         self.number_of_parallel_writings = 1
         self._prettyprint = True
+        self.basename = os.path.basename(
+            sys.modules[self.__class__.__module__].__file__
+        ).split(".")[0]
 
     def road(self, **kwargs):
         """Dummy method for generating an OpenDRIVE road
@@ -214,26 +220,27 @@ class ScenarioGenerator:
         if self.naming == "numerical":
             name_prefix = str(self._it)
             self._it += 1
-        elif self.naming == "parameter":
+        elif self.naming == "parameter" or self.naming == "parameter_no_lists":
             for key, value in permutation.items():
+                if isinstance(value, list) and self.naming == "parameter_no_lists":
+                    value_str = str(self._it)
+                    self._it += 1
+                else:
+                    value_str = str(value).replace("\\", "-").replace("/", "-")
                 name_prefix += (
                     self._name_separator
                     + key.replace("\\", "-").replace("/", "-")
                     + "-"
-                    + str(value).replace("\\", "-").replace("/", "-")
+                    + value_str
                 )
+
         else:
             raise NameError(
                 'Attribute naming, can only be "numerical" or "parameter", not '
                 + self.naming
             )
 
-        return (
-            os.path.basename(sys.modules[self.__class__.__module__].__file__).split(
-                "."
-            )[0]
-            + name_prefix
-        )
+        return self.basename + name_prefix
 
     def generate_single(
         self,
