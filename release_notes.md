@@ -1,6 +1,13 @@
 ## scenariogeneration release notes
 
 
+
+### 2023-03-2 Version 0.12.1
+
+- New opetions for naming and generation
+    - ScenarioGenerator class now has a base name that can be changed
+    - naming option now has "parameter_no_list" which will give integer increase for lists
+
 ### 2023-03-10 Version 0.12.0
 - General Notes
     - New tests

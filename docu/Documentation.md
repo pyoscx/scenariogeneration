@@ -269,6 +269,8 @@ In the init of the Scenario, some of the attributes of the ScenarioGenerator can
 
     - 'parameter' - will give the parameters and their value in the filename (this will endup in very long names if alot of parameters are used)
 
+    - 'parameter_no_lists' - will give parameter and their value, except if the value is a list, then an integrer will be set instead (like numerical)
+
 - *number_of_parallel_writings*: an integrer that will tell how many parallel processes should be used to write the xml files.
 
 # Useful Links
