@@ -41,6 +41,7 @@ from .enumerations import (
     Wetness,
     Role,
     FollowingMode,
+    _OscEnum,
 )
 import datetime as dt
 
@@ -1895,7 +1896,7 @@ class CatalogFile(VersionBase):
             Adds a new catalog
     """
 
-    def __init__(self, prettyprint=True):
+    def __init__(self, prettyprint=True, encoding="utf-8"):
         """initalize the CatalogFile class
 
         Parameters
@@ -1906,6 +1907,7 @@ class CatalogFile(VersionBase):
         self.prettyprint = prettyprint
         self.catalog_element = None
         self.filename = ""
+        self.encoding = encoding
 
     def add_to_catalog(self, obj, osc_minor_version=1):
         """add_to_catalog adds an element to the catalog
@@ -1988,7 +1990,9 @@ class CatalogFile(VersionBase):
 
     def dump(self):
         """writes the new/updated catalog file"""
-        printToFile(self.catalog_element, self.filename, self.prettyprint)
+        printToFile(
+            self.catalog_element, self.filename, self.prettyprint, self.encoding
+        )
 
 
 class Catalog(VersionBase):
@@ -4291,6 +4295,29 @@ def get_bool_string(value):
         return "true"
     else:
         return "false"
+
+
+def convert_enum(value, enumtype):
+    if isinstance(value, _OscEnum):
+        if hasattr(enumtype, str(value)):
+            return value
+        else:
+            raise TypeError(
+                value.get_name() + " is not of Enumeration type :" + str(enumtype)
+            )
+    elif isinstance(value, str):
+        if hasattr(enumtype, value):
+            return _OscEnum(enumtype.__name__, value)
+        elif "$" == value[0]:
+            return _OscEnum(enumtype.__name__, value)
+        else:
+            raise ValueError(
+                value
+                + " is not a valid string input for Enumeration type "
+                + str(enumtype)
+            )
+
+    raise TypeError(str(value) + " is not of a valid enumeration or str type.")
 
 
 def convert_float(value):
