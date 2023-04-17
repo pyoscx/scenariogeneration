@@ -366,9 +366,7 @@ class Parameter(VersionBase):
 
         """
         self.name = name
-        if not hasattr(ParameterType, str(parameter_type)):
-            raise ValueError("parameter_type not a valid type.")
-        self.parameter_type = parameter_type
+        self.parameter_type = convert_enum(parameter_type, ParameterType, False)
         if isinstance(value, bool):
             value = get_bool_string(value)
         self.value = value
@@ -398,7 +396,9 @@ class Parameter(VersionBase):
         """
         name = element.attrib["name"]
         value = element.attrib["value"]
-        parameter_type = getattr(ParameterType, element.attrib["parameterType"])
+        parameter_type = convert_enum(
+            element.attrib["parameterType"], ParameterType, False
+        )
         parameter = Parameter(name, parameter_type, value)
         constraint_groups = element.findall("ConstraintGroup")
         for constraint_group in constraint_groups:
@@ -484,9 +484,7 @@ class Variable(VersionBase):
 
         """
         self.name = name
-        if not hasattr(ParameterType, str(variable_type)):
-            raise ValueError("variable_type not a valid type.")
-        self.variable_type = variable_type
+        self.variable_type = convert_enum(variable_type, ParameterType, False)
         self.value = value
         self.constraint_groups = []
 
@@ -514,7 +512,9 @@ class Variable(VersionBase):
         """
         name = element.attrib["name"]
         value = element.attrib["value"]
-        variable_type = getattr(ParameterType, element.attrib["variableType"])
+        variable_type = convert_enum(
+            element.attrib["variableType"], ParameterType, False
+        )
         variable = Variable(name, variable_type, value)
         constraint_groups = element.findall("ValueConstraintGroup")
         for constraint_group in constraint_groups:
@@ -594,9 +594,7 @@ class Orientation(VersionBase):
         self.h = convert_float(h)
         self.p = convert_float(p)
         self.r = convert_float(r)
-        if reference is not None and not hasattr(ReferenceContext, str(reference)):
-            raise TypeError("reference input is not of type ReferenceContext")
-        self.ref = reference
+        self.ref = convert_enum(reference, ReferenceContext, True)
 
     def __eq__(self, other):
         if isinstance(other, Orientation):
@@ -629,7 +627,7 @@ class Orientation(VersionBase):
             r = convert_float(element.attrib["r"])
         if "type" in element.attrib:
             reference_str = element.attrib["type"]
-            reference = getattr(ReferenceContext, reference_str)
+            reference = convert_enum(reference_str, ReferenceContext, False)
 
         return Orientation(h, p, r, reference)
 
@@ -721,20 +719,11 @@ class TransitionDynamics(VersionBase):
             following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
                 Default: None
         """
-        if not hasattr(DynamicsShapes, str(shape)):
-            raise TypeError(shape + "; is not a valid shape.")
 
-        self.shape = shape
-        if not hasattr(DynamicsDimension, str(dimension)):
-            raise ValueError(dimension + " is not a valid dynamics dimension")
-        self.dimension = dimension
+        self.shape = convert_enum(shape, DynamicsShapes, False)
+        self.dimension = convert_enum(dimension, DynamicsDimension, False)
         self.value = convert_float(value)
-
-        if following_mode is not None and not hasattr(
-            FollowingMode, str(following_mode)
-        ):
-            raise TypeError(following_mode + " is not a valid FollowingMode.")
-        self.following_mode = following_mode
+        self.following_mode = convert_enum(following_mode, FollowingMode, True)
 
     def __eq__(self, other):
         if isinstance(other, TransitionDynamics):
@@ -755,12 +744,14 @@ class TransitionDynamics(VersionBase):
             transitiondynamics (TransitionDynamics): a TransitionDynamics object
 
         """
-        shape = getattr(DynamicsShapes, element.attrib["dynamicsShape"])
-        dimension = getattr(DynamicsDimension, element.attrib["dynamicsDimension"])
+        shape = convert_enum(element.attrib["dynamicsShape"], DynamicsShapes)
+        dimension = convert_enum(element.attrib["dynamicsDimension"], DynamicsDimension)
         value = convert_float(element.attrib["value"])
         following_mode = None
         if "followingMode" in element.attrib:
-            following_mode = getattr(FollowingMode, element.attrib["followingMode"])
+            following_mode = convert_enum(
+                element.attrib["followingMode"], FollowingMode
+            )
         return TransitionDynamics(shape, dimension, value, following_mode)
 
     def get_attributes(self):
@@ -1240,12 +1231,7 @@ class TimeReference(VersionBase):
             self._only_nones = False
         else:
             raise ValueError("missing inputs for time reference")
-        if reference_domain is not None and not hasattr(
-            ReferenceContext, str(reference_domain)
-        ):
-            raise TypeError("input reference_domain is not of type ReferenceContext")
-
-        self.reference_domain = reference_domain
+        self.reference_domain = convert_enum(reference_domain, ReferenceContext, True)
         self.scale = convert_float(scale)
         self.offset = convert_float(offset)
 
@@ -1284,8 +1270,8 @@ class TimeReference(VersionBase):
         if "scale" in timing_element.attrib:
             scale = timing_element.attrib["scale"]
         if "domainAbsoluteRelative" in timing_element.attrib:
-            reference_domain = getattr(
-                ReferenceContext, timing_element.attrib["domainAbsoluteRelative"]
+            reference_domain = convert_enum(
+                timing_element.attrib["domainAbsoluteRelative"], ReferenceContext
             )
 
         return TimeReference(reference_domain, scale, offset)
@@ -1740,7 +1726,7 @@ class TrafficDefinition(VersionBase):
         )
         for entry in vehicle_entries:
             weight = convert_float(entry.attrib["weight"])
-            category = getattr(VehicleCategory, entry.attrib["category"])
+            category = convert_enum(entry.attrib["category"], VehicleCategory)
             td.add_vehicle(category, weight)
 
         controller_distributions = element.find("ControllerDistribution")
@@ -1764,7 +1750,7 @@ class TrafficDefinition(VersionBase):
                 "VehicleRoleDistributionEntry"
             ):
                 td.add_vehicle_role(
-                    getattr(Role, entry.attrib["role"]), entry.attrib["weight"]
+                    convert_enum(entry.attrib["role"], Role), entry.attrib["weight"]
                 )
         return td
 
@@ -1778,9 +1764,7 @@ class TrafficDefinition(VersionBase):
             weight (float): the corresponding weight for the distribution of the vehicle category
 
         """
-        if not hasattr(VehicleCategory, str(vehiclecategory)):
-            raise TypeError("vehcilecategory input is not of type VehcileCategory")
-        self.vehiclecategories.append(vehiclecategory)
+        self.vehiclecategories.append(convert_enum(vehiclecategory, VehicleCategory))
         self.vehicleweights.append(weight)
         return self
 
@@ -1793,10 +1777,8 @@ class TrafficDefinition(VersionBase):
 
             weight (float): the weight of that vehicle role
         """
-        if not hasattr(Role, str(vehicle_role)):
-            raise TypeError("vehicle_role input is not of type Role")
         self.vehicle_roles_weights.append(convert_float(weight))
-        self.vehicle_roles.append(vehicle_role)
+        self.vehicle_roles.append(convert_enum(vehicle_role, Role))
 
     def add_controller(self, controller, weight):
         """Adds a controller to the traffic distribution
@@ -2764,6 +2746,8 @@ class Fog(VersionBase):
         """
 
         self.visual_range = visual_range
+        if not isinstance(bounding_box, BoundingBox):
+            raise TypeError("bounding_box not of type BoundingBox")
         self.bounding_box = bounding_box
 
     def __eq__(self, other):
@@ -3401,11 +3385,7 @@ class Controller(VersionBase):
         if not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
-
-        if controller_type == None or hasattr(ControllerType, str(controller_type)):
-            self.controller_type = controller_type
-        else:
-            raise TypeError("controller_type not a balid controller_type")
+        self.controller_type = convert_enum(controller_type, ControllerType, True)
 
     def __eq__(self, other):
         if isinstance(other, Controller):
@@ -3413,6 +3393,7 @@ class Controller(VersionBase):
                 self.properties == other.properties
                 and self.parameters == other.parameters
                 and self.name == other.name
+                and self.controller_type == other.controller_type
             ):
                 return True
         return False
@@ -3433,7 +3414,12 @@ class Controller(VersionBase):
         name = element.attrib["name"]
         properties_element = element.find("Properties")
         properties = Properties.parse(properties_element)
-        controller = Controller(name, properties)
+        cnt_type = None
+        if "controllerType" in element.attrib:
+            cnt_type = convert_enum(
+                element.attrib["controllerType"], ControllerType, False
+            )
+        controller = Controller(name, properties, cnt_type)
 
         parameters_element = element.find("ParameterDeclarations")
         if parameters_element:
@@ -4034,11 +4020,9 @@ class RelativeSpeedToMaster(VersionBase):
                     "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
                 )
         self.steadyState = steadyState
-        if not speedTargetValueType.classname == "SpeedTargetValueType":
-            raise TypeError(
-                "speedTargetValueType input is not a valid SpeedTargetValueType"
-            )
-        self.speedTargetValueType = speedTargetValueType
+        self.speedTargetValueType = convert_enum(
+            speedTargetValueType, SpeedTargetValueType
+        )
 
     def __eq__(self, other):
         if isinstance(other, RelativeSpeedToMaster):
@@ -4065,8 +4049,8 @@ class RelativeSpeedToMaster(VersionBase):
         speed_element = element.find("RelativeSpeedToMaster")
 
         value = speed_element.attrib["value"]
-        speedTargetValueType = getattr(
-            SpeedTargetValueType, speed_element.attrib["speedTargetValueType"]
+        speedTargetValueType = convert_enum(
+            speed_element.attrib["speedTargetValueType"], SpeedTargetValueType
         )
         state = None
         if speed_element.find("TargetDistanceSteadyState") != None:
@@ -4503,9 +4487,7 @@ class ValueConstraint(VersionBase):
             value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
         """
         self.value = value
-        if not hasattr(Rule, str(rule)):
-            raise TypeError(str(rule) + " is not a valid ValueConstraint type")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
         if isinstance(other, ValueConstraint):
@@ -4527,7 +4509,7 @@ class ValueConstraint(VersionBase):
 
         """
         value = element.attrib["value"]
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return ValueConstraint(rule, value)
 
     def get_attributes(self):
@@ -4793,9 +4775,7 @@ class Color(VersionBase):
             color_definition (ColorRGB or ColorCmyk): the color definition
 
         """
-        if not hasattr(ColorType, str(color_type)):
-            raise TypeError(str(color_type) + " is not a valid ColorType type")
-        self.color_type = color_type
+        self.color_type = convert_enum(color_type, ColorType, False)
         if not isinstance(color_definition, _ColorDefinition):
             raise TypeError("input is not a color definition")
         self.color_definition = color_definition
@@ -4823,7 +4803,7 @@ class Color(VersionBase):
 
         """
 
-        color_type = getattr(ColorType, element.attrib["colorType"])
+        color_type = convert_enum(element.attrib["colorType"], ColorType)
         if element.find("ColorRgb") is not None:
             color_def = ColorRGB.parse(element.find("ColorRgb"))
         elif element.find("ColorCmyk") is not None:
@@ -4954,12 +4934,9 @@ class _LightState(VersionBase):
             user_defined_type (str): type of the custom command
 
         """
-        if not hasattr(LightMode, str(mode)):
-            raise TypeError("mode input is not of type LightMode")
-
         if color and not isinstance(color, Color):
             raise TypeError("color input is not of type Color")
-        self.mode = mode
+        self.mode = convert_enum(mode, LightMode)
         self.color = color
 
         self.intensity = convert_float(intensity)
@@ -5010,7 +4987,7 @@ class _LightState(VersionBase):
 
         if element.find("Color") != None:
             color = Color.parse(element.find("Color"))
-        mode = getattr(LightMode, element.attrib["mode"])
+        mode = convert_enum(element.attrib["mode"], LightMode)
         return _LightState(mode, color, intensity, flashing_off, flashing_on)
 
     def get_attributes(self):
@@ -5397,9 +5374,7 @@ class PedestrianAnimation(_AnimationType):
         userDefinedPedestrianAnimation (str): User defined pedestrian animation
 
         """
-        if motion is not None and not hasattr(PedestrianMotionType, str(motion)):
-            raise ValueError("motion is  not a valid type.")
-        self.motion = motion
+        self.motion = convert_enum(motion, PedestrianMotionType, True)
         self.animation = animation
         self.gestures = []
 
@@ -5425,12 +5400,14 @@ class PedestrianAnimation(_AnimationType):
             PedestrianAnimation (PedestrianAnimation): a PedestrianAnimation object
 
         """
-        motion = getattr(PedestrianMotionType, element.attrib["motion"])
+        motion = convert_enum(element.attrib["motion"], PedestrianMotionType)
         animation = element.attrib["userDefinedPedestrianAnimation"]
         pa = PedestrianAnimation(motion, animation)
 
         for gesture in element.findall("PedestrianGesture"):
-            pa.add_gesture(getattr(PedestrianGestureType, gesture.attrib["gesture"]))
+            pa.add_gesture(
+                convert_enum(gesture.attrib["gesture"], PedestrianGestureType)
+            )
         return pa
 
     def add_gesture(self, gesture):
@@ -5441,9 +5418,7 @@ class PedestrianAnimation(_AnimationType):
             gesture (PedestrianGestureType): A new gesture of the pedestrian
 
         """
-        if not hasattr(PedestrianGestureType, str(gesture)):
-            raise ValueError("gesture is not a valid PedestrianGestureType.")
-        self.gestures.append(gesture)
+        self.gestures.append(convert_enum(gesture, PedestrianGestureType))
         return self
 
     def get_attributes(self):
@@ -5500,9 +5475,7 @@ class _VehicleComponent(VersionBase):
         vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
 
         """
-        if not hasattr(VehicleComponentType, str(type)):
-            raise ValueError(type + " is  not a valid type.")
-        self.type = type
+        self.type = convert_enum(type, VehicleComponentType)
 
     def __eq__(self, other):
         if isinstance(other, _VehicleComponent):
