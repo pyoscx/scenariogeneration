@@ -28,6 +28,7 @@ from .utils import (
     convert_float,
     convert_int,
     get_bool_string,
+    convert_enum,
     _AnimationType,
     _VehicleComponent,
     _ComponentAnimation,
@@ -618,14 +619,8 @@ class LongitudinalDistanceAction(_PrivateActionType):
         self.distance = convert_float(distance)
         self.timeGap = convert_float(timeGap)
 
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        if not hasattr(LongitudinalDisplacement, str(displacement)):
-            raise ValueError(
-                displacement + "; is not a valid LongitudinalDisplacement."
-            )
-        self.coordinate_system = coordinate_system
-        self.displacement = displacement
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.displacement = convert_enum(displacement, LongitudinalDisplacement)
 
     def __eq__(self, other):
         if isinstance(other, LongitudinalDistanceAction):
@@ -662,13 +657,13 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
         coordinate_system = CoordinateSystem.entity
         if "coordinateSystem" in lda_element.attrib:
-            coordinate_system = getattr(
-                CoordinateSystem, lda_element.attrib["coordinateSystem"]
+            coordinate_system = convert_enum(
+                lda_element.attrib["coordinateSystem"], CoordinateSystem, False
             )
         displacement = LongitudinalDisplacement.any
         if "displacement" in lda_element.attrib:
-            displcement = getattr(
-                LongitudinalDisplacement, lda_element.attrib["displacement"]
+            displacement = convert_enum(
+                lda_element.attrib["displacement"], LongitudinalDisplacement, False
             )
         max_acceleration = None
         max_deceleration = None

@@ -2548,13 +2548,18 @@ class Weather(VersionBase):
             dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
                 Default: None
         """
-        if cloudstate and not (
-            hasattr(CloudState, str(cloudstate))
-            or hasattr(FractionalCloudCover, str(cloudstate))
-        ):
-            raise TypeError(
-                "cloudstate input is not of type CloudState or FractionalCloudCover"
-            )
+        try:
+            self.cloudstate = convert_enum(cloudstate, CloudState, True)
+        except Exception as e:
+            self.cloudstate = convert_enum(cloudstate, FractionalCloudCover, True)
+
+        # if cloudstate and not (
+        #     hasattr(CloudState, str(cloudstate))
+        #     or hasattr(FractionalCloudCover, str(cloudstate))
+        # ):
+        #     raise TypeError(
+        #         "cloudstate input is not of type CloudState or FractionalCloudCover"
+        #     )
         if precipitation and not isinstance(precipitation, Precipitation):
             raise TypeError("precipitation input is not of type Precipitation")
         if fog and not isinstance(fog, Fog):
@@ -2564,7 +2569,7 @@ class Weather(VersionBase):
         if sun and not isinstance(sun, Sun):
             raise TypeError("sun input is not of type Sun")
 
-        self.cloudstate = cloudstate
+        # self.cloudstate = cloudstate
         self.atmosphericPressure = atmosphericPressure
         self.temperature = temperature
         self.fog = fog
@@ -2616,10 +2621,10 @@ class Weather(VersionBase):
         if "atmosphericPressure" in element.attrib:
             atmosphericPressure = element.attrib["atmosphericPressure"]
         if "cloudState" in element.attrib:
-            cloudstate = getattr(CloudState, element.attrib["cloudState"])
+            cloudstate = convert_enum(element.attrib["cloudState"], CloudState, False)
         if "fractionalCloudCover" in element.attrib:
-            cloudstate = getattr(
-                FractionalCloudCover, element.attrib["fractionalCloudCover"]
+            cloudstate = convert_enum(
+                element.attrib["fractionalCloudCover"], FractionalCloudCover
             )
         if element.find("Sun") != None:
             sun = Sun.parse(element.find("Sun"))
@@ -2658,12 +2663,17 @@ class Weather(VersionBase):
                         "Cloudstate is replaced with FractionalCloudCover for OSC versions > 1.1"
                     )
                 retdict["cloudState"] = self.cloudstate.get_name()
-            if hasattr(FractionalCloudCover, str(self.cloudstate)):
+            elif hasattr(FractionalCloudCover, str(self.cloudstate)):
                 if self.isVersionEqLess(minor=1):
                     raise OpenSCENARIOVersionError(
                         "FractionalCloudCover was introduced in OSC 1.2"
                     )
                 retdict["fractionalCloudCover"] = self.cloudstate.get_name()
+            elif str(self.cloudstate)[0] == "$":
+                if self.isVersionEqLarger(minor=2):
+                    retdict["fractionalCloudCover"] = self.cloudstate.get_name()
+                else:
+                    retdict["cloudState"] = self.cloudstate.get_name()
         if self.temperature is not None and not self.isVersion(minor=0):
             retdict["temperature"] = str(self.temperature)
         elif self.temperature is not None and self.isVersion(minor=0):
@@ -4297,9 +4307,9 @@ def get_bool_string(value):
         return "false"
 
 
-def convert_enum(value, enumtype):
+def convert_enum(value, enumtype, none_ok=False):
     if isinstance(value, _OscEnum):
-        if hasattr(enumtype, str(value)):
+        if hasattr(enumtype, str(value)) or "$" == str(value)[0]:
             return value
         else:
             raise TypeError(
@@ -4316,6 +4326,11 @@ def convert_enum(value, enumtype):
                 + " is not a valid string input for Enumeration type "
                 + str(enumtype)
             )
+    elif value == None:
+        if none_ok:
+            return None
+        else:
+            raise TypeError("None value not a valid option for: " + str(enumtype))
 
     raise TypeError(str(value) + " is not of a valid enumeration or str type.")
 
