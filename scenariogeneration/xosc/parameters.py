@@ -1422,7 +1422,7 @@ class ParameterValueDistribution(VersionBase):
 
         return element
 
-    def write_xml(self, filename, prettyprint=True, encoding= "utf-8"):
+    def write_xml(self, filename, prettyprint=True, encoding="utf-8"):
         """write_xml writes the parametervaluedistribution xml file
 
         Parameters

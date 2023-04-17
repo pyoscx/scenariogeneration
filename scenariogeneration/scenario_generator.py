@@ -26,7 +26,12 @@ class _generation_struct:
 
 
 def _write_xml_file(data_struct):
-    printToFile(data_struct.data, data_struct.filename, data_struct.prettyprint, data_struct.encoding)
+    printToFile(
+        data_struct.data,
+        data_struct.filename,
+        data_struct.prettyprint,
+        data_struct.encoding,
+    )
 
 
 class ScenarioGenerator:
@@ -183,7 +188,10 @@ class ScenarioGenerator:
                 else:
                     files_to_write.append(
                         _generation_struct(
-                            road.get_element(), self.road_file, self._prettyprint, self.encoding
+                            road.get_element(),
+                            self.road_file,
+                            self._prettyprint,
+                            self.encoding,
                         )
                     )
 
@@ -204,7 +212,10 @@ class ScenarioGenerator:
             else:
                 files_to_write.append(
                     _generation_struct(
-                        sce.get_element(), scenario_file, self._prettyprint, self.encoding
+                        sce.get_element(),
+                        scenario_file,
+                        self._prettyprint,
+                        self.encoding,
                     )
                 )
         return scenario_file, self.road_file, files_to_write

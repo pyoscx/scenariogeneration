@@ -1326,8 +1326,8 @@ def test_convert_enum():
     assert OSC.convert_enum("time", OSC.DynamicsDimension).get_name() == "time"
     assert OSC.convert_enum("$param", OSC.DynamicsDimension).get_name() == "$param"
     with pytest.raises(TypeError):
-         OSC.convert_enum(1, OSC.DynamicsDimension)
+        OSC.convert_enum(1, OSC.DynamicsDimension)
     with pytest.raises(TypeError):
-         OSC.convert_enum(OSC.DynamicsShapes.cubic, OSC.DynamicsDimension)
+        OSC.convert_enum(OSC.DynamicsShapes.cubic, OSC.DynamicsDimension)
     with pytest.raises(ValueError):
-         OSC.convert_enum("hello", OSC.DynamicsDimension)
+        OSC.convert_enum("hello", OSC.DynamicsDimension)
