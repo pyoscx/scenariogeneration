@@ -2553,13 +2553,6 @@ class Weather(VersionBase):
         except Exception as e:
             self.cloudstate = convert_enum(cloudstate, FractionalCloudCover, True)
 
-        # if cloudstate and not (
-        #     hasattr(CloudState, str(cloudstate))
-        #     or hasattr(FractionalCloudCover, str(cloudstate))
-        # ):
-        #     raise TypeError(
-        #         "cloudstate input is not of type CloudState or FractionalCloudCover"
-        #     )
         if precipitation and not isinstance(precipitation, Precipitation):
             raise TypeError("precipitation input is not of type Precipitation")
         if fog and not isinstance(fog, Fog):
@@ -2952,9 +2945,7 @@ class Precipitation(VersionBase):
             intensity (float): intensity of precipitation (0...1)
 
         """
-        if not hasattr(PrecipitationType, str(precipitation)):
-            raise TypeError("precipitation input is not of type PrecipitationType")
-        self.precipitation = precipitation
+        self.precipitation = convert_enum(precipitation, PrecipitationType, False)
         self.intensity = convert_float(intensity)
 
     def __eq__(self, other):
@@ -2981,7 +2972,9 @@ class Precipitation(VersionBase):
             intesity = element.attrib["precipitationIntensity"]
         elif "intensity" in element.attrib:
             intesity = element.attrib["intensity"]
-        precipitation = getattr(PrecipitationType, element.attrib["precipitationType"])
+        precipitation = convert_enum(
+            element.attrib["precipitationType"], PrecipitationType, False
+        )
 
         return Precipitation(precipitation, intesity)
 
@@ -3131,9 +3124,7 @@ class RoadCondition(VersionBase):
         if properties is not None and not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
-        if wetness and not hasattr(Wetness, str(wetness)):
-            raise TypeError(str(wetness) + "; is not a valid Wetness")
-        self.wetness = wetness
+        self.wetness = convert_enum(wetness, Wetness, True)
 
     def __eq__(self, other):
         if isinstance(other, RoadCondition):
@@ -3164,7 +3155,7 @@ class RoadCondition(VersionBase):
         if element.find("Properties") != None:
             properties = Properties.parse(element.find("Properties"))
         if "wetness" in element.attrib:
-            wetness = getattr(Wetness, element.attrib["wetness"])
+            wetness = convert_enum(element.attrib["wetness"], Wetness, False)
         return RoadCondition(friction_scale_factor, properties, wetness)
 
     def get_attributes(self):
