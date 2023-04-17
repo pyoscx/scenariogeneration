@@ -255,7 +255,7 @@ class Scenario(VersionBase):
                 Default: 'utf-8'
 
         """
-        printToFile(self.get_element(), filename, prettyprint)
+        printToFile(self.get_element(), filename, prettyprint, encoding)
 
 
 class RoadNetwork(VersionBase):

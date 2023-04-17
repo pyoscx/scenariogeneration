@@ -18,14 +18,15 @@ from .helpers import printToFile
 
 
 class _generation_struct:
-    def __init__(self, data, filename, prettyprint):
+    def __init__(self, data, filename, prettyprint, encoding="utf-8"):
         self.data = data
         self.filename = filename
         self.prettyprint = prettyprint
+        self.encoding = encoding
 
 
 def _write_xml_file(data_struct):
-    printToFile(data_struct.data, data_struct.filename, data_struct.prettyprint)
+    printToFile(data_struct.data, data_struct.filename, data_struct.prettyprint, data_struct.encoding)
 
 
 class ScenarioGenerator:
@@ -50,6 +51,9 @@ class ScenarioGenerator:
 
         basename (str): basename of the scenariofiles,
             Default: name of file
+
+        encoding (str): encoding of the outputs
+            Default:
     """
 
     def __init__(self):
@@ -67,6 +71,7 @@ class ScenarioGenerator:
         self.basename = os.path.basename(
             sys.modules[self.__class__.__module__].__file__
         ).split(".")[0]
+        self.encoding = "utf-8"
 
     def road(self, **kwargs):
         """Dummy method for generating an OpenDRIVE road
@@ -178,7 +183,7 @@ class ScenarioGenerator:
                 else:
                     files_to_write.append(
                         _generation_struct(
-                            road.get_element(), self.road_file, self._prettyprint
+                            road.get_element(), self.road_file, self._prettyprint, self.encoding
                         )
                     )
 
@@ -199,7 +204,7 @@ class ScenarioGenerator:
             else:
                 files_to_write.append(
                     _generation_struct(
-                        sce.get_element(), scenario_file, self._prettyprint
+                        sce.get_element(), scenario_file, self._prettyprint, self.encoding
                     )
                 )
         return scenario_file, self.road_file, files_to_write
