@@ -1,6 +1,16 @@
 ## scenariogeneration release notes
 
 
+### 2023-04-18 Version 0.13.0
+- Bugfixes
+    - encoding now works for all more options to write xmls
+- New feature
+    - xosc Enumeration handling has expanded,
+        - can now handle parameters (with a "$" as first character)
+        - input can now be strings (as long as they are the same as the enumeration name)
+        - can parse paramaters (with a "$" as first character)
+- Important!
+    - The exception types have been changed and more consistent for enumerations.
 
 ### 2023-03-22 Version 0.12.1
 
