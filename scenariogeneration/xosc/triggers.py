@@ -22,6 +22,7 @@ from .utils import (
     _ValueTriggerType,
     _EntityTriggerType,
     _TriggerType,
+    convert_enum,
 )
 from .enumerations import (
     CoordinateSystem,
@@ -500,9 +501,7 @@ class EntityTrigger(_TriggerType):
             self._triggerpoint = "StopTrigger"
 
         self.delay = convert_float(delay)
-        if not hasattr(ConditionEdge, str(conditionedge)):
-            raise ValueError("not a valid condition edge")
-        self.conditionedge = conditionedge
+        self.conditionedge = convert_enum(conditionedge, ConditionEdge)
         if not isinstance(entitycondition, _EntityTriggerType):
             raise TypeError("entitycondition is not a valid EntityCondition")
         self.entitycondition = entitycondition
@@ -560,7 +559,7 @@ class EntityTrigger(_TriggerType):
 
         name = element.attrib["name"]
         delay = convert_float(element.attrib["delay"])
-        conditionedge = getattr(ConditionEdge, element.attrib["conditionEdge"])
+        conditionedge = convert_enum(element.attrib["conditionEdge"], ConditionEdge)
         entityconditionelement = element.find("ByEntityCondition")
         triggering_entities = TriggeringEntities.parse(
             entityconditionelement.find("TriggeringEntities")
@@ -686,9 +685,7 @@ class ValueTrigger(_TriggerType):
             self._triggerpoint = "StopTrigger"
 
         self.delay = convert_float(delay)
-        if not hasattr(ConditionEdge, str(conditionedge)):
-            raise ValueError("not a valid condition edge")
-        self.conditionedge = conditionedge
+        self.conditionedge = convert_enum(conditionedge, ConditionEdge)
         if not isinstance(valuecondition, _ValueTriggerType):
             raise TypeError("entitycondition is not a valid EntityCondition")
         self.valuecondition = valuecondition
@@ -742,7 +739,7 @@ class ValueTrigger(_TriggerType):
 
         name = element.attrib["name"]
         delay = convert_float(element.attrib["delay"])
-        conditionedge = getattr(ConditionEdge, element.attrib["conditionEdge"])
+        conditionedge = convert_enum(element.attrib["conditionEdge"], ConditionEdge)
         condition = _ValueConditionFactory.parse_value_condition(
             element.find("ByValueCondition")
         )
@@ -811,10 +808,8 @@ class TriggeringEntities(VersionBase):
             triggeringrule (str): all or any
 
         """
-        if not hasattr(TriggeringEntitiesRule, str(triggeringrule)):
-            raise ValueError("not a vaild triggering rule")
         self.entity = []
-        self.triggeringrule = triggeringrule
+        self.triggeringrule = convert_enum(triggeringrule, TriggeringEntitiesRule)
 
     def __eq__(self, other):
         if isinstance(other, TriggeringEntities):
@@ -839,7 +834,9 @@ class TriggeringEntities(VersionBase):
 
         """
 
-        rule = getattr(TriggeringEntitiesRule, element.attrib["triggeringEntitiesRule"])
+        rule = convert_enum(
+            element.attrib["triggeringEntitiesRule"], TriggeringEntitiesRule
+        )
         triggeringentities = TriggeringEntities(rule)
         entrefs = element.findall("EntityRef")
         for ent in entrefs:
@@ -979,8 +976,9 @@ class CollisionCondition(_EntityTriggerType):
             entity (str or ObjectType): name of the entity to collide with
 
         """
-
         self.entity = entity
+        if not isinstance(self.entity, str):
+            self.entity = convert_enum(self.entity, ObjectType)
 
     def __eq__(self, other):
         if isinstance(other, CollisionCondition):
@@ -1004,7 +1002,7 @@ class CollisionCondition(_EntityTriggerType):
         condition = element.find("CollisionCondition")
         bytype = condition.find("ByType")
         if bytype is not None:
-            entity = getattr(ObjectType, bytype.attrib["type"])
+            entity = convert_enum(bytype.attrib["type"], ObjectType)
         else:
             entityref = EntityRef.parse(condition.find("EntityRef"))
             entity = entityref.entity
@@ -1186,18 +1184,10 @@ class TimeHeadwayCondition(_EntityTriggerType):
         self.value = convert_float(value)
         self.alongroute = convert_bool(alongroute)
         self.freespace = convert_bool(freespace)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
-        if not hasattr(RelativeDistanceType, str(distance_type)):
-            raise ValueError(distance_type + "; is not a valid RelativeDistanceType.")
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        self.relative_distance_type = distance_type
-        self.coordinate_system = coordinate_system
-        if routing_algorithm and not hasattr(RoutingAlgorithm, str(routing_algorithm)):
-            raise ValueError(routing_algorithm + "; is not a valid RoutingAlgorithm.")
-        self.routing_algorithm = routing_algorithm
+        self.rule = convert_enum(rule, Rule)
+        self.relative_distance_type = convert_enum(distance_type, RelativeDistanceType)
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
         if isinstance(other, TimeHeadwayCondition):
@@ -1229,23 +1219,23 @@ class TimeHeadwayCondition(_EntityTriggerType):
             alongroute = True
 
         if "relativeDistanceType" in condition.attrib:
-            reldisttype = getattr(
-                RelativeDistanceType, condition.attrib["relativeDistanceType"]
+            reldisttype = convert_enum(
+                condition.attrib["relativeDistanceType"], RelativeDistanceType
             )
         else:
             reldisttype = RelativeDistanceType.longitudinal
 
         if "coordinateSystem" in condition.attrib:
-            coordsystem = getattr(
-                CoordinateSystem, condition.attrib["coordinateSystem"]
+            coordsystem = convert_enum(
+                condition.attrib["coordinateSystem"], CoordinateSystem
             )
         else:
             coordsystem = CoordinateSystem.road
         freespace = convert_bool(condition.attrib["freespace"])
 
         if "routingAlgorithm" in condition.attrib:
-            routing_algorithm = getattr(
-                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            routing_algorithm = convert_enum(
+                condition.attrib["routingAlgorithm"], RoutingAlgorithm
             )
         return TimeHeadwayCondition(
             entity,
@@ -1394,9 +1384,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         self.value = convert_float(value)
         self.freespace = convert_bool(freespace)
         self.alongroute = convert_bool(alongroute)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
         self.use_entity = None
         if (entity != None) and (position != None):
             raise ToManyOptionalArguments(
@@ -1414,15 +1402,9 @@ class TimeToCollisionCondition(_EntityTriggerType):
         if self.use_entity == None:
             raise ValueError("neither position or entity was set.")
 
-        if not hasattr(RelativeDistanceType, str(distance_type)):
-            raise ValueError(distance_type + "; is not a valid RelativeDistanceType.")
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        self.relative_distance_type = distance_type
-        self.coordinate_system = coordinate_system
-        if routing_algorithm and not hasattr(RoutingAlgorithm, str(routing_algorithm)):
-            raise ValueError(routing_algorithm + "; is not a valid RoutingAlgorithm.")
-        self.routing_algorithm = routing_algorithm
+        self.relative_distance_type = convert_enum(distance_type, RelativeDistanceType)
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
         if isinstance(other, TimeToCollisionCondition):
@@ -1456,7 +1438,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         """
         condition = element.find("TimeToCollisionCondition")
         value = condition.attrib["value"]
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
         routing_algorithm = None
         if "alongRoute" in condition.attrib:
@@ -1465,15 +1447,15 @@ class TimeToCollisionCondition(_EntityTriggerType):
             alongroute = True
 
         if "relativeDistanceType" in condition.attrib:
-            reldisttype = getattr(
-                RelativeDistanceType, condition.attrib["relativeDistanceType"]
+            reldisttype = convert_enum(
+                condition.attrib["relativeDistanceType"], RelativeDistanceType
             )
         else:
             reldisttype = RelativeDistanceType.longitudinal
 
         if "coordinateSystem" in condition.attrib:
-            coordsystem = getattr(
-                CoordinateSystem, condition.attrib["coordinateSystem"]
+            coordsystem = convert_enum(
+                condition.attrib["coordinateSystem"], CoordinateSystem
             )
         else:
             coordsystem = CoordinateSystem.road
@@ -1493,8 +1475,8 @@ class TimeToCollisionCondition(_EntityTriggerType):
                 "No TimeToCollisionConditionTarget found while parsing TimeToCollisionCondition."
             )
         if "routingAlgorithm" in condition.attrib:
-            routing_algorithm = getattr(
-                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            routing_algorithm = convert_enum(
+                condition.attrib["routingAlgorithm"], RoutingAlgorithm
             )
         return TimeToCollisionCondition(
             value,
@@ -1589,12 +1571,8 @@ class AccelerationCondition(_EntityTriggerType):
             direction (DirectionalDimension) Direction of the acceleration (if not given, the total acceleration is considered). Valid since OSC 1.2
         """
         self.value = convert_float(value)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
-        if direction and not hasattr(DirectionalDimension, str(direction)):
-            raise ValueError(direction + "; is not a valid direction")
-        self.direction = direction
+        self.rule = convert_enum(rule, Rule)
+        self.direction = convert_enum(direction, DirectionalDimension, True)
 
     def __eq__(self, other):
         if isinstance(other, AccelerationCondition):
@@ -1618,9 +1596,11 @@ class AccelerationCondition(_EntityTriggerType):
         direction = None
         condition = element.find("AccelerationCondition")
         value = convert_float(condition.attrib["value"])
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         if "direction" in condition.attrib:
-            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+            direction = convert_enum(
+                condition.attrib["direction"], DirectionalDimension
+            )
         return AccelerationCondition(value, rule, direction)
 
     def get_attributes(self):
@@ -1755,16 +1735,10 @@ class SpeedCondition(_EntityTriggerType):
                 Default: None
         """
         self.value = convert_float(value)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
-        if directional_dimension and not hasattr(
-            DirectionalDimension, str(directional_dimension)
-        ):
-            raise TypeError(
-                directional_dimension + "; is not a valid DirectionalDimension."
-            )
-        self.directional_dimension = directional_dimension
+        self.rule = convert_enum(rule, Rule)
+        self.directional_dimension = convert_enum(
+            directional_dimension, DirectionalDimension, True
+        )
 
     def __eq__(self, other):
         if isinstance(other, SpeedCondition):
@@ -1787,10 +1761,12 @@ class SpeedCondition(_EntityTriggerType):
         """
         condition = element.find("SpeedCondition")
         value = convert_float(condition.attrib["value"])
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         direction = None
         if "direction" in condition.attrib:
-            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+            direction = convert_enum(
+                condition.attrib["direction"], DirectionalDimension
+            )
         return SpeedCondition(value, rule, direction)
 
     def get_attributes(self):
@@ -1864,17 +1840,11 @@ class RelativeSpeedCondition(_EntityTriggerType):
                 Default: None
         """
         self.value = convert_float(value)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
         self.entity = entity
-        if directional_dimension and not hasattr(
-            DirectionalDimension, str(directional_dimension)
-        ):
-            raise TypeError(
-                directional_dimension + "; is not a valid DirectionalDimension."
-            )
-        self.directional_dimension = directional_dimension
+        self.directional_dimension = convert_enum(
+            directional_dimension, DirectionalDimension, True
+        )
 
     def __eq__(self, other):
         if isinstance(other, RelativeSpeedCondition):
@@ -1898,10 +1868,12 @@ class RelativeSpeedCondition(_EntityTriggerType):
         condition = element.find("RelativeSpeedCondition")
         value = convert_float(condition.attrib["value"])
         entity = condition.attrib["entityRef"]
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         direction = None
         if "direction" in condition.attrib:
-            direction = getattr(DirectionalDimension, condition.attrib["direction"])
+            direction = convert_enum(
+                condition.attrib["direction"], DirectionalDimension
+            )
         return RelativeSpeedCondition(value, rule, entity, direction)
 
     def get_attributes(self):
@@ -2153,19 +2125,13 @@ class DistanceCondition(_EntityTriggerType):
         self.value = value
         self.alongroute = convert_bool(alongroute)
         self.freespace = convert_bool(freespace)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
         if not (isinstance(position, _PositionType)):
             raise TypeError("position input is not a valid Position")
         self.position = position
-        if not hasattr(RelativeDistanceType, str(distance_type)):
-            raise ValueError(distance_type + "; is not a valid RelativeDistanceType.")
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        self.relative_distance_type = distance_type
-        self.coordinate_system = coordinate_system
-        self.routing_algorithm = routing_algorithm
+        self.relative_distance_type = convert_enum(distance_type, RelativeDistanceType)
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
         if isinstance(other, DistanceCondition):
@@ -2191,7 +2157,7 @@ class DistanceCondition(_EntityTriggerType):
         """
         condition = element.find("DistanceCondition")
         value = condition.attrib["value"]
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
         if "alongRoute" in condition.attrib:
             alongroute = convert_bool(condition.attrib["alongRoute"])
@@ -2199,22 +2165,22 @@ class DistanceCondition(_EntityTriggerType):
             alongroute = True
 
         if "relativeDistanceType" in condition.attrib:
-            reldisttype = getattr(
-                RelativeDistanceType, condition.attrib["relativeDistanceType"]
+            reldisttype = convert_enum(
+                condition.attrib["relativeDistanceType"], RelativeDistanceType
             )
         else:
             reldisttype = RelativeDistanceType.longitudinal
 
         if "coordinateSystem" in condition.attrib:
-            coordsystem = getattr(
-                CoordinateSystem, condition.attrib["coordinateSystem"]
+            coordsystem = convert_enum(
+                condition.attrib["coordinateSystem"], CoordinateSystem
             )
         else:
             coordsystem = CoordinateSystem.road
 
         if "routingAlgorithm" in condition.attrib:
-            routing_algorithm = getattr(
-                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            routing_algorithm = convert_enum(
+                condition.attrib["routingAlgorithm"], RoutingAlgorithm
             )
         else:
             routing_algorithm = None
@@ -2351,17 +2317,11 @@ class RelativeDistanceCondition(_EntityTriggerType):
         self.value = value
         self.alongroute = convert_bool(alongroute)
         self.freespace = convert_bool(freespace)
-        if not hasattr(RelativeDistanceType, str(dist_type)):
-            raise TypeError("dist_type is not of type RelativeDistanceType")
-        self.dist_type = dist_type
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.dist_type = convert_enum(dist_type, RelativeDistanceType)
+        self.rule = convert_enum(rule, Rule)
         self.entity = entity
-        self.coordinate_system = coordinate_system
-        if routing_algorithm and not hasattr(RoutingAlgorithm, str(routing_algorithm)):
-            raise TypeError(str(routing_algorithm) + " is not a valid RoutingAlgorithm")
-        self.routing_algorithm = routing_algorithm
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
         if isinstance(other, RelativeDistanceCondition):
@@ -2384,7 +2344,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         """
         condition = element.find("RelativeDistanceCondition")
         value = condition.attrib["value"]
-        rule = getattr(Rule, condition.attrib["rule"])
+        rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
         entity = condition.attrib["entityRef"]
         if "alongRoute" in condition.attrib:
@@ -2393,21 +2353,21 @@ class RelativeDistanceCondition(_EntityTriggerType):
             alongroute = True
 
         if "relativeDistanceType" in condition.attrib:
-            reldisttype = getattr(
-                RelativeDistanceType, condition.attrib["relativeDistanceType"]
+            reldisttype = convert_enum(
+                condition.attrib["relativeDistanceType"], RelativeDistanceType
             )
         else:
             reldisttype = RelativeDistanceType.longitudinal
 
         if "coordinateSystem" in condition.attrib:
-            coordsystem = getattr(
-                CoordinateSystem, condition.attrib["coordinateSystem"]
+            coordsystem = convert_enum(
+                condition.attrib["coordinateSystem"], CoordinateSystem
             )
         else:
             coordsystem = CoordinateSystem.road
         if "routingAlgorithm" in condition.attrib:
-            routing_algorithm = getattr(
-                RoutingAlgorithm, condition.attrib["routingAlgorithm"]
+            routing_algorithm = convert_enum(
+                condition.attrib["routingAlgorithm"], RoutingAlgorithm
             )
         else:
             routing_algorithm = None
@@ -2687,9 +2647,7 @@ class ParameterCondition(_ValueTriggerType):
         """
         self.parameter = parameter
         self.value = value
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
         if isinstance(other, ParameterCondition):
@@ -2712,7 +2670,7 @@ class ParameterCondition(_ValueTriggerType):
         """
         parameter = element.attrib["parameterRef"]
         value = element.attrib["value"]
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return ParameterCondition(parameter, value, rule)
 
     def get_attributes(self):
@@ -2772,9 +2730,7 @@ class VariableCondition(_ValueTriggerType):
         """
         self.variable = variable
         self.value = value
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
         if isinstance(other, VariableCondition):
@@ -2797,7 +2753,7 @@ class VariableCondition(_ValueTriggerType):
         """
         variable = element.attrib["variableRef"]
         value = element.attrib["value"]
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return VariableCondition(variable, value, rule)
 
     def get_attributes(self):
@@ -2847,9 +2803,7 @@ class TimeOfDayCondition(_ValueTriggerType):
             time of day (str): datetime ??? format unknown
 
         """
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
         self.year = convert_int(year)
         self.month = convert_int(month)
         self.day = convert_int(day)
@@ -2884,7 +2838,7 @@ class TimeOfDayCondition(_ValueTriggerType):
         hour = convert_int(var[11:13])
         minute = convert_int(var[14:16])
         second = convert_int(var[17:19])
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return TimeOfDayCondition(rule, year, month, day, hour, minute, second)
 
     def get_attributes(self):
@@ -2950,9 +2904,7 @@ class SimulationTimeCondition(_ValueTriggerType):
             rule (Rule): condition rule of triggering
         """
         self.value = convert_float(value)
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
         if isinstance(other, SimulationTimeCondition):
@@ -2975,7 +2927,7 @@ class SimulationTimeCondition(_ValueTriggerType):
         """
         condition = element.find("SimulationTimeCondition")
         value = convert_float(element.attrib["value"])
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return SimulationTimeCondition(value, rule)
 
     def get_attributes(self):
@@ -3033,13 +2985,9 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
             state (StoryBoardElementState): state to trigger on
         """
-        if not hasattr(StoryboardElementType, str(element)):
-            raise TypeError("element input is not of type StoryBoardElementType")
-        if not hasattr(StoryboardElementState, str(state)):
-            raise TypeError("state input is not of type StoryBoardElementState")
-        self.element = element
+        self.element = convert_enum(element, StoryboardElementType)
         self.reference = reference
-        self.state = state
+        self.state = convert_enum(state, StoryboardElementState)
 
     def __eq__(self, other):
         if isinstance(other, StoryboardElementStateCondition):
@@ -3061,8 +3009,10 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
         """
         ref = element.attrib["storyboardElementRef"]
-        sbet = getattr(StoryboardElementType, element.attrib["storyboardElementType"])
-        state = getattr(StoryboardElementState, element.attrib["state"])
+        sbet = convert_enum(
+            element.attrib["storyboardElementType"], StoryboardElementType
+        )
+        state = convert_enum(element.attrib["state"], StoryboardElementState)
         return StoryboardElementStateCondition(sbet, ref, state)
 
     def get_attributes(self):
@@ -3125,9 +3075,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
         """
         self.name = name
         self.value = value
-        if not hasattr(Rule, str(rule)):
-            raise ValueError(rule + "; is not a valid rule.")
-        self.rule = rule
+        self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
         if isinstance(other, UserDefinedValueCondition):
@@ -3150,7 +3098,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
         """
         name = element.attrib["name"]
         value = convert_int(element.attrib["value"])
-        rule = getattr(Rule, element.attrib["rule"])
+        rule = convert_enum(element.attrib["rule"], Rule)
         return UserDefinedValueCondition(name, value, rule)
 
     def get_attributes(self):

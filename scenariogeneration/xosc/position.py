@@ -24,6 +24,7 @@ from .utils import (
     ReferenceContext,
     CatalogFile,
     Parameter,
+    convert_enum,
 )
 from .exceptions import (
     OpenSCENARIOVersionError,
@@ -2011,9 +2012,7 @@ class Waypoint(VersionBase):
         if not isinstance(position, _PositionType):
             raise TypeError("position input not a valid Position")
         self.position = position
-        if not hasattr(RouteStrategy, str(routestrategy)):
-            ValueError("not a valid RouteStrategy")
-        self.routestrategy = routestrategy
+        self.routestrategy = convert_enum(routestrategy, RouteStrategy)
 
     def __eq__(self, other):
         if isinstance(other, Waypoint):
@@ -2040,7 +2039,7 @@ class Waypoint(VersionBase):
 
         pos_element = element.find("Position")
         position = _PositionFactory.parse_position(pos_element)
-        strategy = getattr(RouteStrategy, element.attrib["routeStrategy"])
+        strategy = convert_enum(element.attrib["routeStrategy"], RouteStrategy)
         return Waypoint(position, strategy)
 
     def get_attributes(self):

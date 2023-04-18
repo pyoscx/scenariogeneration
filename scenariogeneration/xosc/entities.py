@@ -25,6 +25,7 @@ from .utils import (
     CatalogFile,
     CatalogReference,
     ParameterDeclarations,
+    convert_enum,
 )
 from .exceptions import OpenSCENARIOVersionError
 from .enumerations import (
@@ -378,12 +379,10 @@ class Entity(VersionBase):
                 self.entity.append(EntityRef(entityref))
             self.object_type = None
         else:
-            if not hasattr(ObjectType, str(object_type)):
-                ValueError("object_type input not a valid ObjectType")
             if isinstance(object_type, list):
-                self.object_type = object_type
+                self.object_type = [convert_enum(x, ObjectType) for x in object_type]
             else:
-                self.object_type.append(object_type)
+                self.object_type.append(convert_enum(object_type, ObjectType))
             self.entity = None
 
     def __eq__(self, other):
@@ -417,7 +416,7 @@ class Entity(VersionBase):
         if members_element.find("ByType") != None:
             types = members_element.findall("ByType")
             for type in types:
-                bytypes.append(getattr(ObjectType, type.attrib["objectType"]))
+                bytypes.append(convert_enum(type.attrib["objectType"], ObjectType))
             entity_refs = None
         elif members_element.find("EntityRef") != None:
             entities = members_element.findall("EntityRef")
@@ -533,18 +532,15 @@ class Pedestrian(VersionBase):
         self.name = name
         self.model = model
         self.mass = convert_float(mass)
-        if not hasattr(PedestrianCategory, str(category)):
-            ValueError(str(category) + " is not a valid pedestrian type")
+
+        self.category = convert_enum(category, PedestrianCategory)
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
 
-        self.category = category
         self.boundingbox = boundingbox
         self.parameters = ParameterDeclarations()
         self.properties = Properties()
-        if role is not None and not hasattr(Role, str(role)):
-            raise TypeError(role + " is not a valid vehicle role.")
-        self.role = role
+        self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other):
         if isinstance(other, Pedestrian):
@@ -578,7 +574,9 @@ class Pedestrian(VersionBase):
             model = element.attrib["model3d"]
         elif "model" in element.attrib:
             model = element.attrib["model"]
-        category = getattr(PedestrianCategory, element.attrib["pedestrianCategory"])
+        category = convert_enum(
+            element.attrib["pedestrianCategory"], PedestrianCategory
+        )
         if element.find("ParameterDeclarations") != None:
             parameters = ParameterDeclarations.parse(
                 element.find("ParameterDeclarations")
@@ -589,7 +587,7 @@ class Pedestrian(VersionBase):
         properties = Properties.parse(element.find("Properties"))
         role = None
         if "role" in element.attrib:
-            role = getattr(Role, element.attrib["role"])
+            role = convert_enum(element.attrib["role"], Role)
         pedestrian = Pedestrian(name, mass, category, boundingbox, model, role)
         pedestrian.parameters = parameters
         pedestrian.properties = properties
@@ -777,9 +775,7 @@ class MiscObject(VersionBase):
         """
         self.name = name
         self.mass = convert_float(mass)
-        if not hasattr(MiscObjectCategory, str(category)):
-            raise TypeError(str(category) + " is not a valid MiscObject type")
-        self.category = category
+        self.category = convert_enum(category, MiscObjectCategory)
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
         self.boundingbox = boundingbox
@@ -818,7 +814,9 @@ class MiscObject(VersionBase):
         name = element.attrib["name"]
         properties = Properties.parse(element.find("Properties"))
         boundingbox = BoundingBox.parse(element.find("BoundingBox"))
-        category = getattr(MiscObjectCategory, element.attrib["miscObjectCategory"])
+        category = convert_enum(
+            element.attrib["miscObjectCategory"], MiscObjectCategory
+        )
 
         if element.find("ParameterDeclarations") != None:
             parameters = ParameterDeclarations.parse(
@@ -1062,12 +1060,10 @@ class Vehicle(VersionBase):
                 Default: None
         """
         self.name = name
-        if not hasattr(VehicleCategory, str(vehicle_type)):
-            raise TypeError(vehicle_type + " is not a valid vehicle type.")
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
 
-        self.vehicle_type = vehicle_type
+        self.vehicle_type = convert_enum(vehicle_type, VehicleCategory)
         self.boundingbox = boundingbox
 
         self.axles = Axles(frontaxle, rearaxle)
@@ -1082,9 +1078,7 @@ class Vehicle(VersionBase):
         self.properties = Properties()
         self.mass = convert_float(mass)
         self.model3d = model3d
-        if role is not None and not hasattr(Role, str(role)):
-            raise TypeError(role + " is not a valid vehicle role.")
-        self.role = role
+        self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other):
         if isinstance(other, Vehicle):
@@ -1118,7 +1112,7 @@ class Vehicle(VersionBase):
         mass = None
         if "mass" in element.attrib:
             mass = convert_float(element.attrib["mass"])
-        vehicle_type = getattr(VehicleCategory, element.attrib["vehicleCategory"])
+        vehicle_type = convert_enum(element.attrib["vehicleCategory"], VehicleCategory)
         model3d = None
         if "model3d" in element.attrib:
             model3d = element.attrib["model3d"]
@@ -1145,7 +1139,7 @@ class Vehicle(VersionBase):
 
         role = None
         if "role" in element.attrib:
-            role = getattr(Role, element.attrib["role"])
+            role = convert_enum(element.attrib["role"], Role)
         vehicle = Vehicle(
             name,
             vehicle_type,
