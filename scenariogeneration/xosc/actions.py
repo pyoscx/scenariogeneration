@@ -28,6 +28,7 @@ from .utils import (
     convert_float,
     convert_int,
     get_bool_string,
+    convert_enum,
     _AnimationType,
     _VehicleComponent,
     _ComponentAnimation,
@@ -618,14 +619,8 @@ class LongitudinalDistanceAction(_PrivateActionType):
         self.distance = convert_float(distance)
         self.timeGap = convert_float(timeGap)
 
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        if not hasattr(LongitudinalDisplacement, str(displacement)):
-            raise ValueError(
-                displacement + "; is not a valid LongitudinalDisplacement."
-            )
-        self.coordinate_system = coordinate_system
-        self.displacement = displacement
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.displacement = convert_enum(displacement, LongitudinalDisplacement)
 
     def __eq__(self, other):
         if isinstance(other, LongitudinalDistanceAction):
@@ -662,13 +657,13 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
         coordinate_system = CoordinateSystem.entity
         if "coordinateSystem" in lda_element.attrib:
-            coordinate_system = getattr(
-                CoordinateSystem, lda_element.attrib["coordinateSystem"]
+            coordinate_system = convert_enum(
+                lda_element.attrib["coordinateSystem"], CoordinateSystem, False
             )
         displacement = LongitudinalDisplacement.any
         if "displacement" in lda_element.attrib:
-            displcement = getattr(
-                LongitudinalDisplacement, lda_element.attrib["displacement"]
+            displacement = convert_enum(
+                lda_element.attrib["displacement"], LongitudinalDisplacement, False
             )
         max_acceleration = None
         max_deceleration = None
@@ -794,11 +789,8 @@ class SpeedProfileAction(_PrivateActionType):
             dynamics_constraint, DynamicsConstraints
         ):
             raise TypeError("dynamics_constraint input not of type DynamicsConstraints")
-        if not hasattr(FollowingMode, str(following_mode)):
-            raise TypeError("following_mode input not of type FollowingMode")
-
         self.dynamics_constraint = dynamics_constraint
-        self.following_mode = following_mode
+        self.following_mode = convert_enum(following_mode, FollowingMode)
         if times:
             self.times = [convert_float(x) for x in times]
         else:
@@ -831,8 +823,8 @@ class SpeedProfileAction(_PrivateActionType):
 
         """
         speed_profile_element = element.find("LongitudinalAction/SpeedProfileAction")
-        following_mode = getattr(
-            FollowingMode, speed_profile_element.attrib["followingMode"]
+        following_mode = convert_enum(
+            speed_profile_element.attrib["followingMode"], FollowingMode
         )
         dynamics_constraint = None
         entity = None
@@ -844,7 +836,6 @@ class SpeedProfileAction(_PrivateActionType):
                 speed_profile_element.find("DynamicConstraints")
             )
 
-        td_element = element.find("LongitudinalAction/SpeedAction/SpeedActionDynamics")
         entires = speed_profile_element.findall("SpeedProfileEntry")
         speeds = []
         times = []
@@ -1178,9 +1169,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         """
         self.continuous = convert_bool(continuous)
         self.value = convert_float(value)
-        if not hasattr(DynamicsShapes, str(shape)):
-            raise ValueError(shape + "; is not a valid shape.")
-        self.dynshape = shape
+        self.dynshape = convert_enum(shape, DynamicsShapes)
         self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other):
@@ -1212,7 +1201,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         continuous = convert_bool(loa_element.attrib["continuous"])
         load_element = loa_element.find("LaneOffsetActionDynamics")
         maxacc = convert_float(load_element.attrib["maxLateralAcc"])
-        dynamics = getattr(DynamicsShapes, load_element.attrib["dynamicsShape"])
+        dynamics = convert_enum(load_element.attrib["dynamicsShape"], DynamicsShapes)
 
         atlo_element = loa_element.find("LaneOffsetTarget/AbsoluteTargetLaneOffset")
         value = atlo_element.attrib["value"]
@@ -1494,12 +1483,8 @@ class LateralDistanceAction(_PrivateActionType):
         self.dynamic_constraint = DynamicsConstraints(
             max_acceleration, max_deceleration, max_speed
         )
-        if not hasattr(CoordinateSystem, str(coordinate_system)):
-            raise ValueError(coordinate_system + "; is not a valid CoordinateSystem.")
-        if not hasattr(LateralDisplacement, str(displacement)):
-            raise ValueError(displacement + "; is not a valid LateralDisplacement.")
-        self.coordinate_system = coordinate_system
-        self.displacement = displacement
+        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem)
+        self.displacement = convert_enum(displacement, LateralDisplacement)
 
     def __eq__(self, other):
         if isinstance(other, LateralDistanceAction):
@@ -1532,13 +1517,13 @@ class LateralDistanceAction(_PrivateActionType):
             distance = lda_element.attrib["distance"]
         coordinate = None
         if "coordinateSystem" in lda_element.attrib:
-            coordinate = getattr(
-                CoordinateSystem, lda_element.attrib["coordinateSystem"]
+            coordinate = convert_enum(
+                lda_element.attrib["coordinateSystem"], CoordinateSystem
             )
         displacement = None
         if "displacement" in lda_element.attrib:
-            displacement = getattr(
-                LateralDisplacement, lda_element.attrib["displacement"]
+            displacement = convert_enum(
+                lda_element.attrib["displacement"], LateralDisplacement
             )
         constraints = None
         max_acc = None
@@ -1876,7 +1861,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         ):
             raise TypeError("route input not of type Route or CatalogReference")
         self.trajectory = trajectory
-        self.following_mode = following_mode
+        self.following_mode = convert_enum(following_mode, FollowingMode)
         # TODO: check reference_domain
         self.timeref = TimeReference(reference_domain, scale, offset)
         self.initialDistanceOffset = convert_float(initialDistanceOffset)
@@ -1918,7 +1903,9 @@ class FollowTrajectoryAction(_PrivateActionType):
         scale = timeref.scale
 
         tfm_element = fta_element.find("TrajectoryFollowingMode")
-        following_mode = getattr(FollowingMode, tfm_element.attrib["followingMode"])
+        following_mode = convert_enum(
+            tfm_element.attrib["followingMode"], FollowingMode
+        )
 
         if fta_element.find("TrajectoryRef") != None:
             fta_element = fta_element.find("TrajectoryRef")
@@ -3368,19 +3355,20 @@ class LightStateAction(_PrivateActionType):
 
             color (Color): the color of the light
         """
-
-        if not (
-            hasattr(VehicleLightType, str(light_type))
-            or isinstance(light_type, UserDefinedLight)
-        ):
-            raise TypeError(
-                "light_type input is not of type VehicleLightType or UserDefinedLight"
-            )
+        try:
+            self.light_type = convert_enum(light_type, VehicleLightType)
+        except Exception as e:
+            if not isinstance(light_type, UserDefinedLight):
+                raise TypeError(
+                    "light_type input is not of type VehicleLightType or UserDefinedLight"
+                )
+            else:
+                self.light_type = light_type
 
         self.lightstate = _LightState(
             mode, color, intensity, flashing_off_duration, flashing_on_duration
         )
-        self.light_type = light_type
+
         self.transition_time = convert_float(transition_time)
 
     def __eq__(self, other):
@@ -3415,9 +3403,9 @@ class LightStateAction(_PrivateActionType):
         if type_element.find("UserDefinedLight") is not None:
             light_type = UserDefinedLight.parse(type_element.find("UserDefinedLight"))
         else:
-            light_type = getattr(
-                VehicleLightType,
+            light_type = convert_enum(
                 type_element.find("VehicleLight").attrib["vehicleLightType"],
+                VehicleLightType,
             )
         # create with dummy mode
         light_state_action = LightStateAction(light_type, LightMode.on, transition_time)
@@ -3514,13 +3502,12 @@ class AnimationAction(_PrivateActionType):
                 Default: None
         """
 
-        if not (
-            isinstance(animation_type, _AnimationType)
-            or hasattr(VehicleComponentType, str(animation_type))
-        ):
-            raise TypeError("animation_type is not a valid AnimationType")
-        if hasattr(VehicleComponentType, str(animation_type)):
+        try:
             self.animation_type = _ComponentAnimation(_VehicleComponent(animation_type))
+        except Exception as e:
+            self.animation_type = None
+        if self.animation_type:
+            pass
         elif isinstance(animation_type, UserDefinedComponent):
             self.animation_type = _ComponentAnimation(animation_type)
         else:
@@ -3528,7 +3515,7 @@ class AnimationAction(_PrivateActionType):
         self.duration = convert_float(duration)
         if loop is not None and not isinstance(loop, bool):
             raise TypeError("loop input is not of type bool")
-        self.loop = bool
+        self.loop = loop
         self.state = convert_float(state)
 
     def __eq__(self, other):

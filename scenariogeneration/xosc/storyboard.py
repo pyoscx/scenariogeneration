@@ -28,6 +28,7 @@ from .utils import (
     convert_bool,
     convert_int,
     get_bool_string,
+    convert_enum,
 )
 from .enumerations import Priority, Rule, ConditionEdge, VersionBase
 from .actions import _GlobalActionFactory, _PrivateActionFactory
@@ -1095,9 +1096,7 @@ class Event(VersionBase):
 
     def __init__(self, name, priority, maxexecution=1):
         self.name = name
-        if not hasattr(Priority, str(priority)):
-            ValueError("Not a valid priority")
-        self.priority = priority
+        self.priority = convert_enum(priority, Priority)
         self.action = []
         self.trigger = None
         self.maxexecution = convert_int(maxexecution)

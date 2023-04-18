@@ -644,6 +644,13 @@ def test_weather():
     assert version_validation("Weather", weather5, 1) == ValidationResponse.OK
     assert version_validation("Weather", weather5, 0) == ValidationResponse.OSC_VERSION
 
+    cloud_param = OSC.Weather("$asdf")
+    cloud_param.setVersion(2)
+
+    prettyprint(cloud_param.get_element())
+    cloud_param2 = OSC.Weather.parse(cloud_param.get_element())
+    assert cloud_param == cloud_param2
+
 
 def test_tod():
     tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
@@ -1331,3 +1338,6 @@ def test_convert_enum():
         OSC.convert_enum(OSC.DynamicsShapes.cubic, OSC.DynamicsDimension)
     with pytest.raises(ValueError):
         OSC.convert_enum("hello", OSC.DynamicsDimension)
+    assert OSC.convert_enum(None, OSC.DynamicsDimension, True) == None
+    with pytest.raises(TypeError):
+        OSC.convert_enum(None, OSC.DynamicsDimension, False) == None

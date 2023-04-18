@@ -202,17 +202,25 @@ def test_longdistaction_dist():
         "Ego", max_acceleration=3, max_deceleration=2, max_speed=4, distance=1
     )
     longdist3 = OSC.LongitudinalDistanceAction(
-        "Ego", max_acceleration=3, max_deceleration=2, max_speed=4, distance=2
+        "Ego",
+        max_acceleration=3,
+        max_deceleration=2,
+        max_speed=4,
+        distance=2,
+        coordinate_system="$my_coord",
     )
     assert longdist == longdist2
     assert longdist != longdist3
-
+    prettyprint(longdist3.get_element())
     longdist4 = OSC.LongitudinalDistanceAction.parse(longdist.get_element())
+    longdist5 = OSC.LongitudinalDistanceAction.parse(longdist3.get_element())
     prettyprint(longdist4.get_element())
     assert longdist == longdist4
+    assert longdist3 == longdist5
     assert version_validation("PrivateAction", longdist, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", longdist, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", longdist, 2) == ValidationResponse.OK
+    assert version_validation("PrivateAction", longdist3, 2) == ValidationResponse.OK
 
 
 def test_longdistaction_time():
