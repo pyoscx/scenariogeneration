@@ -5496,7 +5496,9 @@ class _VehicleComponent(VersionBase):
             VehicleComponent (VehicleComponent): a VehicleComponent object
 
         """
-        type = getattr(VehicleComponentType, element.attrib["vehicleComponentType"])
+        type = convert_enum(
+            element.attrib["vehicleComponentType"], VehicleComponentType
+        )
         return _VehicleComponent(type)
 
     def get_attributes(self):
