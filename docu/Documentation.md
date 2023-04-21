@@ -2,7 +2,7 @@ Scenariogeneration is a python package created for easy creation and generation 
 
 The package can be found on [pypi](https://pypi.org/project/scenariogeneration/), and the source-code on [github](https://github.com/pyoscx/scenariogeneration).
 
-This user guide is ment for the package itself, not OpenSCENARIO nor OpenDRIVE, for more in depth documentation about the standards, please visit [ASAM](www.asam.net).
+This user guide is ment for the package itself, not OpenSCENARIO nor OpenDRIVE, for more in depth documentation about the standards, please visit [ASAM](https://www.asam.net).
 
 Please note that this is not an official implementation of either OpenSCENARIO or OpenDRIVE.
 
@@ -62,11 +62,25 @@ __ParseOpenScenario__ can read all types of OpenSCENARIO files (Scenario, Catalo
 
 NOTE: more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a __Trigger__ and __ConditionGroup__ will always be present.
 
+### Example usage of parsing and OpenSCENARIO versions
+
+Sometimes you might recive a _.xosc_ file that is in a newer version than what your simulator needs, for this the _xosc_ module can be used to convert (if possible), to a older version like this:
+
+```
+from scenariogeneration import xosc
+
+scenario = xosc.ParseOpenScenario("multiple_maneuvers_1.xosc")
+
+scenario.header.setVersion(minor=0)
+
+scenario.write_xml("multiple_maneuvers_0.xosc")
+```
+
 ## xodr
 
-The xodr module handles the part related to OpenDrive, and does not (as of now) have a full coverage of the standard, please see [coverage](https://github.com/pyoscx/scenariogeneration/blob/main/xodr_coverage.txt) for more information.
+The xodr module handles the part related to OpenDRIVE, and does not (as of now) have a full coverage of the standard, please see [coverage](https://github.com/pyoscx/scenariogeneration/blob/main/xodr_coverage.txt) for more information.
 
-The __xodr__ module is also a xml generator, similar to the __xosc__ module. However, since opendrive is more complicated to create a functional road-network, it includes a number of automation algorithms which allow the user to easily generate a correct OpenDRIVE hierarchy. As a matter of fact, the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, that to create the xml directly is quite cumbersome. Hence, it is highly recommended to use the automations and "generators" included in the package. In the examples, both "generator" level ([full_junction](examples/xodr/full_junction.html), [highway_example](examples/xodr/highway_example.html), and [simple_road_with_objects](examples/xodr/simple_road_with_objects.html)) and low level examples (as [junction_trippel_twoway](examples/xodr/junction_trippel_twoway.html), [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) and [road_merge_w_lane_merge](exampels/xodr/road_merge_w_lane_merge.html) ) are presented.
+The __xodr__ module is also a xml generator, similar to the __xosc__ module. However, since OpenDRIVE is more complicated to create a functional road-network, it includes a number of automation algorithms which allow the user to easily generate a correct OpenDRIVE hierarchy. As a matter of fact, the OpenDRIVE standard contains many geometrical dependencies, indexing, and complex structures, that to create the xml directly is quite cumbersome. Hence, it is highly recommended to use the automations and "generators" included in the package. In the examples, both "generator" level ([full_junction](examples/xodr/full_junction.html), [highway_example](examples/xodr/highway_example.html), and [simple_road_with_objects](examples/xodr/simple_road_with_objects.html)) and low level examples (as [junction_trippel_twoway](examples/xodr/junction_trippel_twoway.html), [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) and [road_merge_w_lane_merge](exampels/xodr/road_merge_w_lane_merge.html) ) are presented.
 
 ### Automatic calculation of geometries and links
 
@@ -109,10 +123,13 @@ First of all, the roads needs a predecessor or successor pointing to the junctio
 When adding a road to the junction two functions are available, *add_incoming_road_cartesian_geometry* and *add_incoming_road_circular_geometry*, both uses a local coordinate system for that junciton that will help to connect the roads together.
 - The *add_incoming_road_cartesian_geometry* uses a *x-y* coordinate system with an arbitrary origin, the incomming road is added with an *x-y-h* input, where *h* is the heading of the road __into__ the junction.
 
-![Cartesian](https://github.com/esmini/esmini/blob/master/docu/cartesian.png?raw=true "Cartesian geometry")
+![Cartesian](https://github.com/pyoscx/scenariogeneration/blob/main/docu/cartesian.png?raw=true "Cartesian geometry")
+
 - The *add_incoming_road_circular_geometry* uses a *r-h* coordinate system where the origin is in the middle of the junction and *r* is the radius and *h* the heading from the center where to connect the road.
 
-![Circular](https://github.com/esmini/esmini/blob/master/resources/circular.png?raw=true "Circular geometry")
+
+![Circular](https://github.com/pyoscx/scenariogeneration/blob/main/docu/circular.png?raw=true "Circular geometry")
+
 
 
 
