@@ -933,39 +933,36 @@ def test_trafficstopaction():
 
 
 def test_customcommandaction():
-    cca = OSC.CustomCommandAction("custom_command")
+    cca = OSC.CustomCommandAction("custom_command", "content")
     prettyprint(cca)
-    cca2 = OSC.CustomCommandAction("custom_command")
+    cca2 = OSC.CustomCommandAction("custom_command", "content")
     assert cca == cca2
-    cca3 = OSC.CustomCommandAction("another_custom_command")
+    cca3 = OSC.CustomCommandAction("another_custom_command", "content")
     assert cca != cca3
     cca4 = OSC.CustomCommandAction.parse(cca.get_element())
     prettyprint(cca4.get_element())
     assert cca == cca4
 
+    assert version_validation("CustomCommandAction", cca, 0) == ValidationResponse.OK
+    assert version_validation("CustomCommandAction", cca, 1) == ValidationResponse.OK
+    assert version_validation("CustomCommandAction", cca, 2) == ValidationResponse.OK
+
 
 def test_userdefinedaction():
-    uda = OSC.UserDefinedAction()
+    cca = OSC.CustomCommandAction("custom_command", "content")
+    cca2 = OSC.CustomCommandAction("another_custom_command", "content")
+    uda = OSC.UserDefinedAction(cca)
     prettyprint(uda)
-    uda2 = OSC.UserDefinedAction()
+    uda2 = OSC.UserDefinedAction(cca)
     assert uda == uda2
-    cca = OSC.CustomCommandAction("custom_command")
-    uda.add_custom_command_action(cca)
-    prettyprint(uda)
-    assert uda != uda2
-    uda2.add_custom_command_action(cca)
-    assert uda == uda2
-    cca2 = OSC.CustomCommandAction("another_custom_command")
-    uda.add_custom_command_action(cca2)
-    assert uda != uda2
-    uda2.add_custom_command_action(cca2)
-    assert uda == uda2
-    uda3 = OSC.UserDefinedAction.parse(uda.get_element())
-    prettyprint(uda3)
-    assert uda3 == uda
-    # assert version_validation("UserDefinedAction",uda,0)
-    # assert version_validation("UserDefinedAction",uda,1)
-    # assert version_validation("UserDefinedAction",uda,2)
+    uda3 = OSC.UserDefinedAction(cca2)
+    assert uda != uda3
+    uda4 = OSC.UserDefinedAction.parse(uda.get_element())
+    prettyprint(uda4)
+    assert uda4 == uda
+    assert version_validation("UserDefinedAction", uda, 0) == ValidationResponse.OK
+    assert version_validation("UserDefinedAction", uda, 1) == ValidationResponse.OK
+    assert version_validation("UserDefinedAction", uda, 2) == ValidationResponse.OK
 
 
 def test_lightstateaction():
