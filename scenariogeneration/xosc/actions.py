@@ -5166,37 +5166,19 @@ class UserDefinedAction(_ActionType):
             Returns the full ElementTree of the class
     """
 
-    def __init__(self):
+    def __init__(self, custom_command_action):
         """initalize the UserDefinedAction
 
         Parameters
         ----------
 
         """
-        self.custom_command_actions = []
-
-    def add_custom_command_action(self, custom_command_action):
-        """add a CustomCommandAction
-
-        Parameters
-        ----------
-            custom_command_action (CustomCommandAction): A CustomCommandAction element
-
-        """
-        self.custom_command_actions.append(custom_command_action)
-        return self
+        self.custom_command_action = custom_command_action
 
     def __eq__(self, other):
         if isinstance(other, UserDefinedAction):
-            if len(self.custom_command_actions) == len(other.custom_command_actions):
-                if all(
-                    [
-                        self.custom_command_actions[i]
-                        == other.custom_command_actions[i]
-                        for i in range(len(self.custom_command_actions))
-                    ]
-                ):
-                    return True
+            if self.custom_command_action == other.custom_command_action:
+                return True
         return False
 
     @staticmethod
@@ -5212,17 +5194,16 @@ class UserDefinedAction(_ActionType):
             userDefinedAction (UserDefinedAction): a UserDefinedAction object
 
         """
-        user_defined_action = UserDefinedAction()
-        for custom_command_element in element.findall("CustomCommandAction"):
-            custom_command_action = CustomCommandAction.parse(custom_command_element)
-            user_defined_action.add_custom_command_action(custom_command_action)
+        custom_command_action = CustomCommandAction.parse(
+            element.find("CustomCommandAction")
+        )
+        user_defined_action = UserDefinedAction(custom_command_action)
         return user_defined_action
 
     def get_element(self):
         """returns the elementTree of the UserDefinedAction"""
         element = ET.Element("UserDefinedAction")
-        for custom_command_action in self.custom_command_actions:
-            element.append(custom_command_action.get_element())
+        element.append(self.custom_command_action.get_element())
         return element
 
 
@@ -5245,15 +5226,17 @@ class CustomCommandAction(_ActionType):
 
     """
 
-    def __init__(self, type):
+    def __init__(self, type, content):
         """initalize the CustomCommandAction
 
         Parameters
         ----------
             type (str): type of the custom command
 
+            content (str): content of the custom command
         """
         self.type = type
+        self.content = content
 
     def __eq__(self, other):
         if isinstance(other, CustomCommandAction):
@@ -5283,9 +5266,11 @@ class CustomCommandAction(_ActionType):
             raise NotAValidElement(
                 'CustomCommandAction is missing required argument "type".'
             )
-        return CustomCommandAction(action_type)
+
+        return CustomCommandAction(action_type, element.text)
 
     def get_element(self):
         """returns the elementTree of the CustomCommandAction"""
         element = ET.Element("CustomCommandAction", attrib={"type": self.type})
+        element.text = self.content
         return element
