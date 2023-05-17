@@ -1,6 +1,9 @@
 ## scenariogeneration release notes
 
 
+### 2023-04-18 Version 0.13.1
+- UserDefinedAction implemented correctly
+
 ### 2023-04-18 Version 0.13.0
 - Bugfixes
     - encoding now works for all more options to write xmls
