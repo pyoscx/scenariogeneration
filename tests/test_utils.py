@@ -831,7 +831,7 @@ def test_sun():
 def test_fog():
     f = OSC.Fog(1, OSC.BoundingBox(1, 1, 1, 1, 1, 1))
     f2 = OSC.Fog(1, OSC.BoundingBox(1, 1, 1, 1, 1, 1))
-    f3 = OSC.Fog(2, OSC.BoundingBox(1, 1, 1, 1, 1, 1))
+    f3 = OSC.Fog(2)
 
     assert f == f2
     assert f != f3

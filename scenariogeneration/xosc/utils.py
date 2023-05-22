@@ -2746,7 +2746,7 @@ class Fog(VersionBase):
         """
 
         self.visual_range = visual_range
-        if not isinstance(bounding_box, BoundingBox):
+        if bounding_box and not isinstance(bounding_box, BoundingBox):
             raise TypeError("bounding_box not of type BoundingBox")
         self.bounding_box = bounding_box
 
