@@ -38,6 +38,8 @@ jobs:
   xodr_examples:
     runs-on: ubuntu-latest
     steps:
+      - name: Install lxml
+        run: python3 -m pip install lxml
       - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
@@ -111,6 +113,8 @@ jobs:
   xosc_examples:
       runs-on: ubuntu-latest
       steps:
+        - name: Install lxml
+          run: python3 -m pip install lxml
         - uses: actions/checkout@v2
         - name: Install requirements
           run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
@@ -167,6 +171,8 @@ jobs:
   generator_examples:
       runs-on: ubuntu-latest
       steps:
+        - name: Install lxml
+          run: python3 -m pip install lxml
         - uses: actions/checkout@v2
         - name: Install requirements
           run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
@@ -188,4 +194,3 @@ jobs:
         - name: generate_with_permutations
           if: always()
           run: python3 examples/generator/generate_with_permutations.py
-
