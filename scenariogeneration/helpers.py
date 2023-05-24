@@ -9,32 +9,48 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-
 import xml.etree.ElementTree as ET
-import xml.dom.minidom as mini
+from lxml import etree
 
 
-def prettify(element, encoding="utf-8"):
-    """prints the element to the commandline
+def prettify(element, encoding=None):
+    """Returns a bytes string representing a prettified version of an XML element.
 
-    Parameters
+    Parameters:
     ----------
-        element (Element, or any generation class of scenariogeneration): element to print
+        element (ET.Element): The XML element to prettify.
+        encoding (str): The encoding to use for the output, defaults to 'utf-8'.
+                        If None, then 'utf-8' will be used as default.
 
-        encoding (str): specifies the output encoding
-            Default: 'utf-8'
-
+    Returns:
+    ----------
+        bytes: The prettified XML as bytes string with 4-space indentation.
     """
     if not isinstance(element, ET.Element):
         element = element.get_element()
-    rough = (
-        ET.tostring(element, "utf-8")
-        .replace(b"\n", b"")
-        .replace(b"\t", b"")
-        .replace(b"    ", b"")
+
+    if encoding is None:
+        encoding = "utf-8"
+
+    # Define a 4-space indent string
+    indent_str = "    "
+
+    # Use the etree.Parser class from lxml to specify a custom parser
+    parser = etree.XMLParser(remove_blank_text=True)
+
+    # Convert the ElementTree element to an lxml etree form
+    lxml_element = etree.fromstring(ET.tostring(element, encoding), parser=parser)
+
+    # Now generate a 2-space indented pretty_print string (bytes type)
+    pretty_print_bytes = etree.tostring(
+        lxml_element, pretty_print=True, encoding=encoding
     )
-    reparsed = mini.parseString(rough)
-    return reparsed.toprettyxml(indent="    ", encoding=encoding)
+
+    # Decode the bytes type pretty_print string to utf-8 encoded string, then replace 2-space indents with 4 spaces
+    pretty_print_str = pretty_print_bytes.decode(encoding).replace("  ", indent_str)
+
+    # Encode the string back into bytes type and return
+    return pretty_print_str.encode(encoding)
 
 
 def prettyprint(element, encoding=None):
