@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -19,6 +19,7 @@ from .exceptions import (
     ToManyOptionalArguments,
     MixOfGeometryAddition,
 )
+from .enumerations import PRange
 from scipy.integrate import quad
 
 
@@ -780,7 +781,7 @@ class ParamPoly3:
 
             dv (float): coefficient d of the v polynomial
 
-            prange (str): "normalized" or "arcLength"
+            prange (str/PRange): "normalized" or "arcLength"
                 Default: "normalized"
 
             length (float): total length of arc, used if prange == arcLength
@@ -795,7 +796,7 @@ class ParamPoly3:
         self.cv = cv
         self.dv = dv
         self.prange = prange
-        if prange == "arcLength" and length == None:
+        if (prange == "arcLength" or prange == PRange.arcLength) and length == None:
             raise ValueError("No length was provided for Arc with arcLength option")
         if length:
             self.length = length
@@ -836,7 +837,7 @@ class ParamPoly3:
             length (float): the length of the geometry
 
         """
-        if self.prange == "normalized":
+        if self.prange == "normalized" or self.prange == PRange.normalized:
             p = 1
             I = quad(self._integrand, 0, 1)
             self.length = I[0]
@@ -873,7 +874,7 @@ class ParamPoly3:
             length (float): length of the polynomial
 
         """
-        if self.prange == "normalized":
+        if self.prange == "normalized" or self.prange == PRange.normalized:
             p = 1
             I = quad(self._integrand, 0, 1)
             self.length = I[0]
@@ -902,7 +903,10 @@ class ParamPoly3:
         retdict["bV"] = str(self.bv)
         retdict["cV"] = str(self.cv)
         retdict["dV"] = str(self.dv)
-        retdict["pRange"] = self.prange
+        if isinstance(self.prange, PRange):
+            retdict["pRange"] = self.prange.name
+        else:
+            retdict["pRange"] = self.prange
         return retdict
 
     def get_element(self):
