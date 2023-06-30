@@ -7,7 +7,7 @@ The Python scenariogeneration package is a collection of libraries for generatin
 
 This combined package (which includes the former pyoscx, pyodrx) can be used to jointly generate OpenSCENARIO based scenarios with interlinked OpenDRIVE based road network maps. Nevertheless, it is still possible to separately generate OpenSCENARIO or OpenDRIVE files by using only a subset of the provided functionality.
 
-The package consists of the __scenario_generator__ module and two  Python subpackages, __xosc__ (OpenSCENARIO) and __xodr__ (OpenDRIVE), together with some support functionality for auto generation with parametrization as well as easy viewing with [esmini](https://github.com/esmini/esmini).
+The package consists of the __scenario_generator__ module and two Python subpackages, __xosc__ (OpenSCENARIO) and __xodr__ (OpenDRIVE), together with some support functionality for auto generation with parametrization as well as easy viewing with [esmini](https://github.com/esmini/esmini).
 
 The user documentation can be found [here](https://pyoscx.github.io/), the API documentation [here](https://pyoscx.github.io/scenariogeneration/index.html) and the change log in [release_notes.md](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md)
 
@@ -23,8 +23,9 @@ For more details se xodr_coverage.txt and xosc_missing_features.txt
 
 ## Getting Started
 
+```
 pip install scenariogeneration
-
+```
 then run any of the examples provided
 
 ### Prerequisites

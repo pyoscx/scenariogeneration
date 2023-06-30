@@ -27,7 +27,7 @@ The idea with this module is to create easy access to the elements of OpenSCENAR
 
 The module can generate xmls of both V1.0.0, V1.1.0 and V1.2.0 of OpenSCENARIO.
 
-In general the __xosc__ module does not contain many "smart" functionality (except some default values), but the user can build up the scenario based on the classes available.
+In general the __xosc__ module does not contain many "smart" functionalities (except some default values), but the user can build up the scenario based on the classes available.
 
 ### Automatic generation of Story, Act, and ManeuverGroup
 
@@ -48,7 +48,7 @@ The default is 2 (V1.2.0), but with this V1.0.0 OpenSCENARIO xmls can be generat
 
 The V1.2.0 will remove the depricated attributes, and have a pure V1.2.0 xml. If version specific elements are used together with the wrong version, a __OpenSCENARIOVersionError__ will be raised.
 
-NOTE: as of V0.5.0 some interfaces had to be changed in order to fulfill the V1.1.0 standard, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md) for more info.
+NOTE: When a new versions of the standards are introduced, some interfaces might change, please see the [release notes](https://github.com/pyoscx/scenariogeneration/blob/main/release_notes.md) for more info.
 
 ### Parsing an .xosc file and get the Python object back
 As of scenariogeneration V0.7.0, the __xosc__ module supports parsing an existing .xosc file.
@@ -60,7 +60,7 @@ scenario = ParseOpenScenario('my_non_python_made_scenario.xosc')
 
 __ParseOpenScenario__ can read all types of OpenSCENARIO files (Scenario, Catalog and ParameterValueDistribution), and will return the Object related to that file type.
 
-NOTE: more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a __Trigger__ and __ConditionGroup__ will always be present.
+__NOTE:__ more layers of classes are added in some cases, that the user don't usually see/use. Eg. the __ValueTrigger__ and __EntityTrigger__ will never be returned, but a __Trigger__ and __ConditionGroup__ will always be present. Same for the __StoryBoard__ that will contain all hierarcies from __Story__ down to Actions.
 
 ### Example usage of parsing and OpenSCENARIO versions
 
@@ -88,11 +88,11 @@ The most important automation functionality is the *adjust_roads_and_lanes* meth
 
 1. **Patch all Geometries and Roads Together** This is done on two levels: the "RoadNetwork" level and the "PlanView" level. At the RoadNetwork level all defined roads are patched consecutively, and this is possible only if the "predecessor/successor" attributes of the roads have been set. This is done either by: fixing the first road added to (0,0,0) and patch all other roads to that one, or localize if any PlanView(s) created has a manually added start point (e.g. if multiple roads are not connected via predecessor/successor). At the PlanView level, instead all geometries are patched together creating one continuous road, based at its start point. See the [highway_example](examples/xodr/highway_example.html) for an example showing how to work on the RoadNetwork level and [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) for the PlanView level.
 
-Note: *adjust_roads_and_lanes* will assume that the heading is continious between different geometries and roads.
+__NOTE:__ *adjust_roads_and_lanes* will assume that the heading is continious between different geometries and roads.
 
 2. **Create Lane Linking** At this step the algorithm tries to link the lanes between roads. Normally this requires the same number of lanes in the connecting roads, but if the roads have a different amount of lanes, (should only be done in a junction!), the algorithm handles this case by adding offsets when defining the predecessor/successor attributes (see example: [highway_example](examples/xodr/highway_example.html), or [direct_junction_exit](examples/xodr/direct_junction_exit.html))
 
-__NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method, hence the resulting road might be very strange if the input is "wrong".
+__NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method, hence the resulting road might be very strange if the inputs are "wrong".
 
 ### Generators
 For most simple roads, the generators that are provided in the __xodr__ module can be used. These most often will generate the roads that can build up the network and then the user can just "patch" them together with the "successor/predecessor" attributes (see [highway_example](examples/xodr/highway_example.html))
@@ -263,14 +263,14 @@ odr.adjust_roads_and_lanes()
 ## ScenarioGenerator
 
 
-The ScenarioGenerator class can be used as a glue to parametrize and generate connected OpenSCENARIO and OpenDRIVE xmls, for large scale, parametrized simulations (Note that a similar feature is supported in the OpenSCENARIO standard since V1.1.0).
+The ScenarioGenerator class can be used as a glue to parametrize and generate connected OpenSCENARIO and OpenDRIVE xmls, for large scale, parametrized simulations (In the OpenSCENARIO standard since V1.1.0, this is included in the standard).
 
 To utilize this, let your Scenario class inherit ScenarioGenerator and initalize it.
 Some options can be used to parameterize your Scenario either by:
-- let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (Note: this grows quickly, so be careful)
+- let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (__WARBUBG:__ this grows quickly, so be careful)
 - let self.parameters be a list of dicts (same structure in each element). This will yield a scenario for each entry in the list.
 
-Then overwrite the road and/or the scenario methods where the road should return an xodr.OpenDrive object, and the scenario method should return a xosc.Scenario object.
+Then implement the road and/or the scenario methods where the road should return an xodr.OpenDrive object, and the scenario method should return a xosc.Scenario object.
 To connect the scenario and the generated road, create the RoadNetwork object in the scenario as: xosc.RoadNetwork(self.road_file).
 
 Finally the *generate* method can be used to generate all permutations of the defined parameters.
