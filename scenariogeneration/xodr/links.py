@@ -867,7 +867,7 @@ def _get_related_lanesection(road, connected_road):
         and connected_road.predecessor
         and road.predecessor.element_type == ElementType.junction
         and connected_road.predecessor.element_type == ElementType.junction
-        and road.predecessor.element_id == connected_road.predecessor.element_id
+        and road.predecessor.element_id == connected_road.id
     ):
         # predecessor - predecessor connection
         linktype = "predecessor"
@@ -879,7 +879,7 @@ def _get_related_lanesection(road, connected_road):
         and connected_road.predecessor
         and road.successor.element_type == ElementType.junction
         and connected_road.predecessor.element_type == ElementType.junction
-        and road.successor.element_id == connected_road.predecessor.element_id
+        and road.successor.element_id == connected_road.id
     ):
         # successor - predecessor connection
         linktype = "successor"
@@ -891,7 +891,7 @@ def _get_related_lanesection(road, connected_road):
         and connected_road.successor
         and road.successor.element_type == ElementType.junction
         and connected_road.successor.element_type == ElementType.junction
-        and road.successor.element_id == connected_road.successor.element_id
+        and road.successor.element_id == connected_road.id
     ):
         # successor - successor connection
         linktype = "successor"
@@ -903,7 +903,7 @@ def _get_related_lanesection(road, connected_road):
         and connected_road.successor
         and road.predecessor.element_type == ElementType.junction
         and connected_road.successor.element_type == ElementType.junction
-        and road.predecessor.element_id == connected_road.successor.element_id
+        and road.predecessor.element_id == connected_road.id
     ):
         # predecessor - successor connection
         linktype = "predecessor"
