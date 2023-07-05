@@ -796,7 +796,9 @@ class ParamPoly3:
         self.dv = dv
         self.prange = prange
         if prange == "arcLength" and length == None:
-            raise ValueError("No length was provided for Arc with arcLength option")
+            raise ValueError(
+                "No length was provided for ParamPoly3 with arcLength option"
+            )
         if length:
             self.length = length
         else:
