@@ -843,8 +843,8 @@ class OpenDrive:
                 offset_width = offset_width - (
                     lane.widths[relevant_lanesection].a
                     + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s ** 2
-                    + lane.widths[relevant_lanesection].d * relevant_s ** 3
+                    + lane.widths[relevant_lanesection].c * relevant_s**2
+                    + lane.widths[relevant_lanesection].d * relevant_s**3
                 )
         if num_lane_offsets > 0:
             for lane in (
@@ -855,8 +855,8 @@ class OpenDrive:
                 offset_width = offset_width + (
                     lane.widths[relevant_lanesection].a
                     + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s ** 2
-                    + lane.widths[relevant_lanesection].d * relevant_s ** 3
+                    + lane.widths[relevant_lanesection].c * relevant_s**2
+                    + lane.widths[relevant_lanesection].d * relevant_s**3
                 )
 
         return offset_width
