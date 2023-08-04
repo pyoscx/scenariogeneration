@@ -460,24 +460,31 @@ class Road:
             # retrieve lengths and widths of lane sections
             if idx == len(self.lanes.lanesections) - 1:
                 # last lanesection
-                lanesections_length.append(self.planview.get_total_length(
-                ) - lanesection.s)
+                lanesections_length.append(
+                    self.planview.get_total_length() - lanesection.s
+                )
 
             else:
-                lanesections_length.append(self.lanes.lanesections[idx + 1].s - lanesection.s)
+                lanesections_length.append(
+                    self.lanes.lanesections[idx + 1].s - lanesection.s
+                )
             lanesections_s.append(lanesection.s)
             if side != RoadSide.right:
                 # adding object for left side
                 road_objects[RoadSide.left] = cpy.deepcopy(road_object_prototype)
                 total_widths[RoadSide.left].append(0)
                 for lane in lanesection.leftlanes:
-                    total_widths[RoadSide.left][-1] = total_widths[RoadSide.left][-1] + lane.widths[0].a
+                    total_widths[RoadSide.left][-1] = (
+                        total_widths[RoadSide.left][-1] + lane.widths[0].a
+                    )
             if side != RoadSide.left:
                 # adding object for right side
                 road_objects[RoadSide.right] = cpy.deepcopy(road_object_prototype)
                 total_widths[RoadSide.right].append(0)
                 for lane in lanesection.rightlanes:
-                    total_widths[RoadSide.right][-1] = total_widths[RoadSide.right][-1] + lane.widths[0].a
+                    total_widths[RoadSide.right][-1] = (
+                        total_widths[RoadSide.right][-1] + lane.widths[0].a
+                    )
             # both sides are added if RoadSide.both
 
         for road_side in [RoadSide.left, RoadSide.right]:
@@ -489,23 +496,29 @@ class Road:
             hdg_factor = 1
             if road_side == RoadSide.right:
                 hdg_factor = -1
-            road_objects[road_side].t = (total_widths[road_side][0] + tOffset) * hdg_factor
+            road_objects[road_side].t = (
+                total_widths[road_side][0] + tOffset
+            ) * hdg_factor
             road_objects[road_side].hdg = np.pi * (1 + hdg_factor) / 2
             road_objects[road_side].s = sOffset
 
-            accumulated_length = 0          
+            accumulated_length = 0
             for idx, length in enumerate(lanesections_length):
-                accumulated_length += length                       
+                accumulated_length += length
                 if idx == 0:
-                    repeat_lengths[road_side].append(accumulated_length-sOffset)
+                    repeat_lengths[road_side].append(accumulated_length - sOffset)
                     repeat_s[road_side].append(sOffset)
-                    repeat_t[road_side].append((total_widths[road_side][idx] + tOffset) * hdg_factor)
+                    repeat_t[road_side].append(
+                        (total_widths[road_side][idx] + tOffset) * hdg_factor
+                    )
                 else:
-                    if total_widths[road_side][idx] != total_widths[road_side][idx-1]:
+                    if total_widths[road_side][idx] != total_widths[road_side][idx - 1]:
                         # add another repeat record only if width is changing
                         repeat_lengths[road_side].append(length)
                         repeat_s[road_side].append(lanesections_s[idx])
-                        repeat_t[road_side].append((total_widths[road_side][idx] + tOffset) * hdg_factor)
+                        repeat_t[road_side].append(
+                            (total_widths[road_side][idx] + tOffset) * hdg_factor
+                        )
                     else:
                         # otherwise add the length to existing repeat entry
                         repeat_lengths[road_side][-1] += length
@@ -515,7 +528,7 @@ class Road:
                     raise ValueError(
                         f"Calculated negative value for s-coordinate of roadside object with name "
                         f"'{road_objects[road_side].name}'. Ensure using sOffset < length of road."
-                               )
+                    )
                 road_objects[road_side].repeat(
                     repeat_length,
                     repeatDistance,
@@ -830,8 +843,8 @@ class OpenDrive:
                 offset_width = offset_width - (
                     lane.widths[relevant_lanesection].a
                     + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s**2
-                    + lane.widths[relevant_lanesection].d * relevant_s**3
+                    + lane.widths[relevant_lanesection].c * relevant_s ** 2
+                    + lane.widths[relevant_lanesection].d * relevant_s ** 3
                 )
         if num_lane_offsets > 0:
             for lane in (
@@ -842,8 +855,8 @@ class OpenDrive:
                 offset_width = offset_width + (
                     lane.widths[relevant_lanesection].a
                     + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s**2
-                    + lane.widths[relevant_lanesection].d * relevant_s**3
+                    + lane.widths[relevant_lanesection].c * relevant_s ** 2
+                    + lane.widths[relevant_lanesection].d * relevant_s ** 3
                 )
 
         return offset_width
