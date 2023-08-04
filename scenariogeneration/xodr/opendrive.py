@@ -452,6 +452,7 @@ class Road:
         road_objects = {RoadSide.right: None, RoadSide.left: None}
         repeat_lengths = {RoadSide.right: [], RoadSide.left: []}
         repeat_s = {RoadSide.right: [], RoadSide.left: []}
+        repeat_t = {RoadSide.right: [], RoadSide.left: []}
         lanesections_s = []
         lanesections_length = []
         # TODO: handle width parameters apart from a
@@ -461,7 +462,7 @@ class Road:
                 # last lanesection
                 lanesections_length.append(self.planview.get_total_length(
                 ) - lanesection.s)
-                
+
             else:
                 lanesections_length.append(self.lanes.lanesections[idx + 1].s - lanesection.s)
             lanesections_s.append(lanesection.s)
@@ -480,10 +481,10 @@ class Road:
             # both sides are added if RoadSide.both
 
         for road_side in [RoadSide.left, RoadSide.right]:
-            if road_objects[road_side] == None:
+            if road_objects[road_side] is None:
                 # no road_object is added to this roadside
                 continue
-            
+
             # initialize road objects with meaningful values
             hdg_factor = 1
             if road_side == RoadSide.right:
@@ -491,29 +492,36 @@ class Road:
             road_objects[road_side].t = (total_widths[road_side][0] + tOffset) * hdg_factor
             road_objects[road_side].hdg = np.pi * (1 + hdg_factor) / 2
             road_objects[road_side].s = sOffset
-            
+
             accumulated_length = 0          
             for idx, length in enumerate(lanesections_length):
                 accumulated_length += length                       
                 if idx == 0:
                     repeat_lengths[road_side].append(accumulated_length-sOffset)
                     repeat_s[road_side].append(sOffset)
+                    repeat_t[road_side].append((total_widths[road_side][idx] + tOffset) * hdg_factor)
                 else:
                     if total_widths[road_side][idx] != total_widths[road_side][idx-1]:
                         # add another repeat record only if width is changing
                         repeat_lengths[road_side].append(length)
                         repeat_s[road_side].append(lanesections_s[idx])
+                        repeat_t[road_side].append((total_widths[road_side][idx] + tOffset) * hdg_factor)
                     else:
                         # otherwise add the length to existing repeat entry
-                        repeat_lengths[road_side][-1]+=length
+                        repeat_lengths[road_side][-1] += length
 
-            for idx, repeat in enumerate(repeat_lengths[road_side]):
+            for idx, repeat_length in enumerate(repeat_lengths[road_side]):
+                if repeat_length < 0:
+                    raise ValueError(
+                        f"Calculated negative value for s-coordinate of roadside object with name "
+                        f"'{road_objects[road_side].name}'. Ensure using sOffset < length of road."
+                               )
                 road_objects[road_side].repeat(
-                    repeat_lengths[road_side][idx],
+                    repeat_length,
                     repeatDistance,
-                    sStart=None,
-                    tStart=(total_widths[road_side][0] + tOffset) * hdg_factor,
-                    tEnd=(total_widths[road_side][0] + tOffset) * hdg_factor,
+                    sStart=repeat_s[road_side][idx],
+                    tStart=repeat_t[road_side][idx],
+                    tEnd=repeat_t[road_side][idx],
                     widthStart=widthStart,
                     widthEnd=widthEnd,
                     lengthStart=lengthStart,
