@@ -689,45 +689,38 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
     if (0 in road1_lane_ids) or (0 in road2_lane_ids):
         raise ValueError("The center lane (ID 0) should not be linked.")
 
-    if road1.road_type == -1 and road2.road_type == -1:
-        first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
-            road1, road2
-        )
-        second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
-            road2, road1
+    first_linktype, _, first_connecting_lanesec = _get_related_lanesection(road1, road2)
+    second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
+        road2, road1
+    )
+
+    # The road links need to be reciprocal for the lane linking to succeed
+    if first_linktype == None or second_linktype == None:
+        raise ValueError(
+            "Unable to create lane links for road with ID "
+            + str(road1.id)
+            + " and road with ID "
+            + str(road2.id)
+            + " due to non reciprocal road successor/predecessor links."
         )
 
-        # The road links need to be reciprocal for the lane linking to succeed
-        if first_linktype == None or second_linktype == None:
-            raise ValueError(
-                "Unable to create lane links for road with ID "
-                + str(road1.id)
-                + " and road with ID "
-                + str(road2.id)
-                + " due to non reciprocal road successor/predecessor links."
-            )
-
-        for i in range(len(road1_lane_ids)):
-            if road1_lane_ids[i] > 0:
-                road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road1_lane_ids[i] - 1
-                ].add_link(first_linktype, road2_lane_ids[i])
-            else:
-                road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    abs(road1_lane_ids[i]) - 1
-                ].add_link(first_linktype, road2_lane_ids[i])
-            if road2_lane_ids[i] > 0:
-                road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
-                    road2_lane_ids[i] - 1
-                ].add_link(second_linktype, road1_lane_ids[i])
-            else:
-                road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
-                    abs(road2_lane_ids[i]) - 1
-                ].add_link(second_linktype, road1_lane_ids[i])
-    else:
-        raise NotImplementedError(
-            "This API currently does not support linking with junction connecting roads."
-        )
+    for i in range(len(road1_lane_ids)):
+        if road1_lane_ids[i] > 0:
+            road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
+                road1_lane_ids[i] - 1
+            ].add_link(first_linktype, road2_lane_ids[i])
+        else:
+            road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
+                abs(road1_lane_ids[i]) - 1
+            ].add_link(first_linktype, road2_lane_ids[i])
+        if road2_lane_ids[i] > 0:
+            road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
+                road2_lane_ids[i] - 1
+            ].add_link(second_linktype, road1_lane_ids[i])
+        else:
+            road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
+                abs(road2_lane_ids[i]) - 1
+            ].add_link(second_linktype, road1_lane_ids[i])
 
 
 def create_lane_links(road1, road2):
@@ -914,16 +907,20 @@ def _get_related_lanesection(road, connected_road):
         # treat connecting road in junction differently
         if connected_road.predecessor.element_id == road.id:
             if connected_road.predecessor.contact_point == ContactPoint.start:
+                linktype = "predecessor"
                 road_lanesection_id = 0
                 sign = -1
             else:
+                linktype = "successor"
                 road_lanesection_id = -1
                 sign = 1
         elif connected_road.successor.element_id == road.id:
             if connected_road.successor.contact_point == ContactPoint.start:
+                linktype = "predecessor"
                 road_lanesection_id = 0
                 sign = 1
             else:
+                linktype = "successor"
                 road_lanesection_id = -1
                 sign = -1
 
