@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -852,6 +852,7 @@ def _get_related_lanesection(road, connected_road):
         else:
             sign = -1
         road_lanesection_id = -1
+        return linktype, sign, road_lanesection_id
 
     elif road.predecessor and road.predecessor.element_id == connected_road.id:
         linktype = "predecessor"
@@ -860,6 +861,7 @@ def _get_related_lanesection(road, connected_road):
         else:
             sign = 1
         road_lanesection_id = 0
+        return linktype, sign, road_lanesection_id
 
     # treat direct junctions differently
     if (
@@ -873,6 +875,7 @@ def _get_related_lanesection(road, connected_road):
         linktype = "predecessor"
         sign = -1
         road_lanesection_id = 0
+        return linktype, sign, road_lanesection_id
 
     elif (
         road.successor
@@ -885,6 +888,7 @@ def _get_related_lanesection(road, connected_road):
         linktype = "successor"
         sign = 1
         road_lanesection_id = -1
+        return linktype, sign, road_lanesection_id
 
     elif (
         road.successor
@@ -897,6 +901,7 @@ def _get_related_lanesection(road, connected_road):
         linktype = "successor"
         sign = -1
         road_lanesection_id = -1
+        return linktype, sign, road_lanesection_id
 
     elif (
         road.predecessor
@@ -909,6 +914,7 @@ def _get_related_lanesection(road, connected_road):
         linktype = "predecessor"
         sign = 1
         road_lanesection_id = 0
+        return linktype, sign, road_lanesection_id
 
     if connected_road.road_type != -1:
         # treat connecting road in junction differently
