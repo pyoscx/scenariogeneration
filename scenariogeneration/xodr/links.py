@@ -733,7 +733,6 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
 def create_lane_links(road1, road2):
     """create_lane_links takes two roads and if they are connected, match their lanes
     and creates lane links.
-    NOTE: now only works for roads/connecting roads with the same amount of lanes
 
     Parameters
     ----------
