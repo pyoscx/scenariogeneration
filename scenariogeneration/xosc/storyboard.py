@@ -1131,8 +1131,9 @@ class Event(VersionBase):
         prio = getattr(Priority, element.attrib["priority"])
 
         event = Event(name, prio, maxexec)
-
-        event.add_trigger(Trigger.parse(element.find("StartTrigger")))
+        trigger = Trigger.parse(element.find("StartTrigger"))
+        if trigger:
+            event.add_trigger(trigger)
 
         all_actions = []
         for a in element.findall("Action"):
