@@ -1,7 +1,18 @@
 ## scenariogeneration release notes
 
 
-### 2023-04-18 Version 0.13.1
+### 2023-10-05 Version 0.13.2
+
+- Bugfixes
+    - BoundingBox error for Fog
+    - Fix so circular roads can be connected to a Junction
+    - Fix for repeat objects for multiple lane sections
+    - fixing som docstrings and error messages
+- Optimization
+    - More efficient "pretty print" when writing the xml files
+
+
+### 2023-05-17 Version 0.13.1
 - UserDefinedAction implemented correctly
 
 ### 2023-04-18 Version 0.13.0
