@@ -1,15 +1,18 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+import xml.etree.ElementTree as ET
+
 from .enumerations import ContactPoint
+from ..helpers import enum2str
 
 
 def get_lane_sec_and_s_for_lane_calc(road, contact_point):
@@ -40,3 +43,292 @@ def get_lane_sec_and_s_for_lane_calc(road, contact_point):
             relevant_s += geom.length
 
     return relevant_lanesection, relevant_s
+
+
+class _AdditionalData:
+    """Sets up addtional data for any entry of OpenDRIVE
+
+    Parameters
+    ----------
+
+    Attributes
+    ----------
+        userdata (dict[str] : (str, list of ET.element): code and value of a userdata, possible extra elements
+
+        includes (list of str): all includes (filenames)
+
+        data_quality (DataQuality): Not implemented yet
+
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+        add_userdata()
+
+    """
+
+    def __init__(self, code, value=None):
+        """initalize the UserData"""
+        self.code = code
+        self.value = value
+
+    def __eq__(self, other):
+        if isinstance(other, UserData):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """returns the attributes as a dict of the JunctionGroup"""
+        retdict = {}
+        retdict["code"] = str(self.code)
+        if self.value is not None:
+            retdict["value"] = str(self.value)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the Junction"""
+        element = ET.Element("userData", attrib=self.get_attributes())
+        return element
+
+
+class UserData:
+    """Sets up addtional data for any entry of OpenDRIVE
+
+    Parameters
+    ----------
+        code (str): code of the userdata
+
+        value (str): value of the userdata
+            Default: None
+
+    Attributes
+    ----------
+        code (str): code of the userdata
+
+        value (str): value of the userdata
+
+        user_data_content (list of ET.element): list of all extra elements added
+
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+        add_userdata_content(ET.element)
+            adds extra elements to the userdata
+
+    """
+
+    def __init__(self, code, value=None):
+        """initalize the UserData"""
+        self.code = code
+        self.value = value
+        self.userdata_content = []
+
+    def add_userdata_content(self, content):
+        """add_userdata_content adds extra elements to userdata
+
+        Parameters
+        ----------
+            content (ET.element): the element to be added
+        """
+        self.userdata_content.append(content)
+
+    def _element_equals(self, e1, e2):
+        if e1.tag != e2.tag:
+            return False
+        if e1.text != e2.text:
+            return False
+        if e1.tail != e2.tail:
+            return False
+        if e1.attrib != e2.attrib:
+            return False
+        if len(e1) != len(e2):
+            return False
+        return all(self._elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
+
+    def __eq__(self, other):
+        if isinstance(other, UserData):
+            if self.get_attributes() == other.get_attributes() and len(
+                self.userdata_content
+            ) == len(other.userdata_content):
+                for i in range(len(self.userdata_content)):
+                    if not self._element_equals(
+                        self.userdata_content[i], other.userdata_content[i]
+                    ):
+                        return False
+                return True
+        return False
+
+    def get_attributes(self):
+        """returns the attributes as a dict of the JunctionGroup"""
+        retdict = {}
+        retdict["code"] = str(self.code)
+        if self.value is not None:
+            retdict["value"] = str(self.value)
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of the Junction"""
+        element = ET.Element("userData", attrib=self.get_attributes())
+        for i in self.userdata_content:
+            element.append(i)
+        return element
+
+
+class DataQuality:
+    """Sets up DataQuality for any entry of OpenDRIVE
+
+
+    Attributes
+    ----------
+        date (str): code of the userdata
+
+        post_processing (RawDataPostProcessing): postprocessing definition
+
+        source (RawDataSource): source of the data
+
+        post_processing_comment (str): comment of the postprocessing
+
+        source_comment (str): comment of the soure
+
+        xy_abs (float): absolute xy error
+
+        xy_rel (float): relative xy error
+
+        z_abs (float): absolute z error
+
+        z_rel (float): relative z error
+
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+        add_raw_data_info(date, post_processing, source, post_processing_comment, source_comment)
+            adds raw data info
+
+        add_error(xy_abs, xy_rel, z_abs,z_rel)
+            adds error info
+    """
+
+    def __init__(self):
+        """initalize the UserData"""
+        self.date = None
+        self.post_processing = None
+        self.source = None
+        self.post_processing_comment = None
+        self.source_comment = None
+        self.xy_abs = None
+        self.xy_rel = None
+        self.z_abs = None
+        self.z_rel = None
+        self._error_added = False
+        self._raw_data_added = False
+
+    def add_raw_data_info(
+        self,
+        date,
+        post_processing,
+        source,
+        post_processing_comment=None,
+        source_comment=None,
+    ):
+        """add_raw_data_info adds data for the RawData entry
+
+        Parameters
+        ----------
+            date (str): code of the userdata
+
+            post_processing (RawDataPostProcessing): postprocessing definition
+
+            source (RawDataSource): source of the data
+
+            post_processing_comment (str): comment of the postprocessing
+                Default: None
+
+            source_comment (str): comment of the soure
+                Default: None
+        """
+
+        self.date = date
+        self.post_processing = post_processing
+        self.source = source
+        self.post_processing_comment = post_processing_comment
+        self.source_comment = source_comment
+        self._raw_data_added = True
+
+    def add_error(self, xy_abs, xy_rel, z_abs, z_rel):
+        """add_error adds data to the error element
+
+        Parameters
+        ----------
+            xy_abs (float): absolute xy error
+
+            xy_rel (float): relative xy error
+
+            z_abs (float): absolute z error
+
+            z_rel (float): relative z error
+        """
+        self.xy_abs = xy_abs
+        self.xy_rel = xy_rel
+        self.z_abs = z_abs
+        self.z_rel = z_rel
+        self._error_added = True
+
+    def __eq__(self, other):
+        if isinstance(other, DataQuality):
+            if (
+                self.date == other.date
+                and self.post_processing == other.post_processing
+                and self.source == other.source
+                and self.post_processing_comment == other.post_processing_comment
+                and self.source_comment == other.source_comment
+                and self.xy_abs == other.xy_abs
+                and self.xy_rel == other.xy_rel
+                and self.z_abs == other.z_abs
+                and self.z_rel == other.z_rel
+            ):
+                return True
+        return False
+
+    def get_element(self):
+        """returns the elementTree of the Junction"""
+        element = ET.Element("dataQuality")
+        if self._raw_data_added:
+            raw_data_attrib = {
+                "date": self.date,
+                "postProcessing": enum2str(self.post_processing),
+                "source": enum2str(self.source),
+            }
+            if self.post_processing_comment is not None:
+                raw_data_attrib["postProcessingComment"] = self.post_processing_comment
+            if self.source_comment is not None:
+                raw_data_attrib["sourceComment"] = self.source_comment
+
+            ET.SubElement(element, "rawData", attrib=raw_data_attrib)
+
+        if self._error_added:
+            ET.SubElement(
+                element,
+                "error",
+                attrib={
+                    "xyAbsolute": str(self.xy_abs),
+                    "xyRelative": str(self.xy_rel),
+                    "zAbsolute": str(self.z_rel),
+                    "zRelative": str(self.z_rel),
+                },
+            )
+        return element

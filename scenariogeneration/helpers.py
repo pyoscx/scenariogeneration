@@ -64,7 +64,7 @@ def prettyprint(element, encoding=None):
             Default: None (works best for printing in terminal on ubuntu atleast)
 
     """
-    print(prettify(element, encoding=encoding))
+    print(prettify(element, encoding=encoding).decode())
 
 
 def printToFile(element, filename, prettyprint=True, encoding="utf-8"):

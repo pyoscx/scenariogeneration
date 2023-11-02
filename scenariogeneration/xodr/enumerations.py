@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -217,3 +217,20 @@ class FillType(Enum):
     gravel = auto()
     pavement = auto()
     soil = auto()
+
+
+class RawDataPostProcessing(Enum):
+    """Enum for dataQuality RawData PostProcessing"""
+
+    cleaned = auto()
+    fused = auto()
+    property = auto()
+    raw = auto()
+
+
+class RawDataSource(Enum):
+    """Enum for dataQuality RawData PostProcessing"""
+
+    cadaster = auto()
+    custom = auto()
+    sensor = auto()
