@@ -158,7 +158,7 @@ def create_lanes_merge_split(
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
-            else:
+            elif (lane_width_end is not None) and (lane_width != lane_width_end):
                 coeff = get_coeffs_for_poly3(
                     right_lane[ls].s_end - right_lane[ls].s_start,
                     lane_width,
@@ -167,6 +167,8 @@ def create_lanes_merge_split(
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
+            else:
+                rightlane = standard_lane(lane_width, rm)
 
             lsec.add_right_lane(rightlane)
 
@@ -198,7 +200,7 @@ def create_lanes_merge_split(
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
-            else:
+            elif (lane_width_end is not None) and (lane_width != lane_width_end):
                 coeff = get_coeffs_for_poly3(
                     left_lane[ls].s_end - left_lane[ls].s_start,
                     lane_width,
@@ -207,6 +209,8 @@ def create_lanes_merge_split(
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
+            else:
+                leftlane = standard_lane(lane_width, rm)
 
             lsec.add_left_lane(leftlane)
 
