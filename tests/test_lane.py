@@ -201,4 +201,4 @@ def test_lanes():
     lanes3.add_laneoffset(pyodrx.LaneOffset(0, 2, 2, 3, 4))
     lanes3.add_userdata(pyodrx.UserData("stuffs", "valuestuffs"))
     assert lanes == lanes2
-    assert lanes == lanes3
+    assert lanes != lanes3
