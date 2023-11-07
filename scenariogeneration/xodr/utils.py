@@ -45,54 +45,71 @@ def get_lane_sec_and_s_for_lane_calc(road, contact_point):
     return relevant_lanesection, relevant_s
 
 
-class _AdditionalData:
-    """Sets up addtional data for any entry of OpenDRIVE
+class XodrBase:
+    """ Sets up common functionality for xodr generating classes by enabling userdata inputs
 
     Parameters
     ----------
 
     Attributes
     ----------
-        userdata (dict[str] : (str, list of ET.element): code and value of a userdata, possible extra elements
+        user_data (list of UserData): all userdata added
 
         includes (list of str): all includes (filenames)
 
-        data_quality (DataQuality): Not implemented yet
+        data_quality (DataQuality): All
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
 
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+        add_userdata(userdata)
+            adds a userdata to the xodr entry
 
-        add_userdata()
+        add_dataquality(dataquality)
+            adds dataquality to the xodr entry
 
     """
 
-    def __init__(self, code, value=None):
+    def __init__(self):
         """initalize the UserData"""
-        self.code = code
-        self.value = value
+        self.user_data = []
+        self.data_quality = None
 
     def __eq__(self, other):
-        if isinstance(other, UserData):
-            if self.get_attributes() == other.get_attributes():
-                return True
+        if (self.user_data == other.user_data and
+            self.data_quality == other.data_quality):
+            return True
+
         return False
 
-    def get_attributes(self):
-        """returns the attributes as a dict of the JunctionGroup"""
-        retdict = {}
-        retdict["code"] = str(self.code)
-        if self.value is not None:
-            retdict["value"] = str(self.value)
-        return retdict
+    def add_userdata(self, userdata):
+        """ Adds a userdata entry to the xodr entry
 
-    def get_element(self):
+        Parameters
+        ----------
+            userdata (Userdata): the data to be added
+        """
+        if not isinstance(userdata, UserData):
+            raise TypeError("userdata is not of type UserData.")
+        self.user_data.append(userdata)
+
+    def add_dataquality(self, dataquality):
+        """ Adds a dataquality entry to the xodr entry
+
+        Parameters
+        ----------
+            dataquality (DataQuality): the data to be added
+        """
+        if not isinstance(dataquality, DataQuality):
+            raise TypeError("dataquality is not of type DataQuality.")
+        self.data_quality = dataquality
+
+    def _add_additional_data_to_element(self, element):
         """returns the elementTree of the Junction"""
-        element = ET.Element("userData", attrib=self.get_attributes())
+        for ud in self.user_data:
+            element.append(ud.get_element())
+        if self.data_quality:
+            element.append(self.data_quality.get_element())
         return element
 
 

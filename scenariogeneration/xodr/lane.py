@@ -21,10 +21,11 @@ from .enumerations import (
     RoadMarkType,
     MarkRule,
 )
+from .utils import XodrBase
 from .links import _Links, _Link
 
 
-class Lanes:
+class Lanes(XodrBase):
     """creates the Lanes element of opendrive
 
 
@@ -45,6 +46,7 @@ class Lanes:
     """
 
     def __init__(self):
+        super().__init__()
         """initalize Lanes"""
         self.lanesections = []
         self.laneoffsets = []
@@ -102,6 +104,7 @@ class Lanes:
     def get_element(self):
         """returns the elementTree of Lanes"""
         element = ET.Element("lanes")
+        self._add_additional_data_to_element(element)
         for l in self.laneoffsets:
             element.append(l.get_element())
         for l in self.lanesections:

@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -199,5 +199,6 @@ def test_lanes():
     lanes3 = pyodrx.Lanes()
     lanes3.add_lanesection(ls3)
     lanes3.add_laneoffset(pyodrx.LaneOffset(0, 2, 2, 3, 4))
+    lanes3.add_userdata(pyodrx.UserData("stuffs", "valuestuffs"))
     assert lanes == lanes2
-    assert lanes != lanes3
+    assert lanes == lanes3
