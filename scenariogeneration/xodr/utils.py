@@ -46,7 +46,7 @@ def get_lane_sec_and_s_for_lane_calc(road, contact_point):
 
 
 class XodrBase:
-    """ Sets up common functionality for xodr generating classes by enabling userdata inputs
+    """Sets up common functionality for xodr generating classes by enabling userdata inputs
 
     Parameters
     ----------
@@ -76,14 +76,16 @@ class XodrBase:
         self.data_quality = None
 
     def __eq__(self, other):
-        if (self.user_data == other.user_data and
-            self.data_quality == other.data_quality):
+        if (
+            self.user_data == other.user_data
+            and self.data_quality == other.data_quality
+        ):
             return True
 
         return False
 
     def add_userdata(self, userdata):
-        """ Adds a userdata entry to the xodr entry
+        """Adds a userdata entry to the xodr entry
 
         Parameters
         ----------
@@ -94,7 +96,7 @@ class XodrBase:
         self.user_data.append(userdata)
 
     def add_dataquality(self, dataquality):
-        """ Adds a dataquality entry to the xodr entry
+        """Adds a dataquality entry to the xodr entry
 
         Parameters
         ----------
