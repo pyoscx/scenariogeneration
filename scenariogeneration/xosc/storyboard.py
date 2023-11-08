@@ -376,7 +376,9 @@ class StoryBoard(VersionBase):
                 Default: ParameterDeclarations()
 
         """
-        if not (isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)):
+        if not (
+            isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)
+        ):
             raise TypeError("maneuver input is not of type Maneuver")
         if isinstance(maneuver, Maneuver):
             mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
