@@ -505,7 +505,7 @@ def test_storyboard_man_input():
 
     sb3 = OSC.StoryBoard(init)
     sb3.add_maneuver(man, targetname)
-    sb3.add_maneuver(man, targetname)
+    sb3.add_maneuver(OSC.CatalogReference("mancatalog", "my_maneuver"), targetname)
 
     assert sb == sb2
     assert sb != sb3

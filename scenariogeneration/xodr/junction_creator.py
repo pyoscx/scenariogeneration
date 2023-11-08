@@ -600,26 +600,80 @@ class CommonJunctionCreator:
 
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
-        if (
-            self.incoming_roads[idx1]
-            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes
-        ):
-            lane_width = (
+
+        # below offsets take into account roads that may have lanes of different widths
+        start_offset = 0.0
+        end_offset = 0.0
+
+        if np.sign(lane_one_id) == -1:
+            for lane_iter in range((np.sign(lane_one_id) * lane_one_id) - 1):
+                start_offset += (
+                    self.incoming_roads[idx1]
+                    .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                    .rightlanes[lane_iter]
+                    .get_width(0)
+                )
+        else:
+            for lane_iter in range((np.sign(lane_one_id) * lane_one_id) - 1):
+                start_offset += (
+                    self.incoming_roads[idx1]
+                    .lanes.lanesections[self._get_connecting_lane_section(idx1)]
+                    .leftlanes[lane_iter]
+                    .get_width(0)
+                )
+
+        if np.sign(lane_two_id) == -1:
+            for lane_iter in range((np.sign(lane_two_id) * lane_two_id) - 1):
+                end_offset += (
+                    self.incoming_roads[idx2]
+                    .lanes.lanesections[self._get_connecting_lane_section(idx2)]
+                    .rightlanes[lane_iter]
+                    .get_width(0)
+                )
+        else:
+            for lane_iter in range((np.sign(lane_two_id) * lane_two_id) - 1):
+                end_offset += (
+                    self.incoming_roads[idx2]
+                    .lanes.lanesections[self._get_connecting_lane_section(idx2)]
+                    .leftlanes[lane_iter]
+                    .get_width(0)
+                )
+
+        # there may also be the case where lanes of different widths are connecting to each other
+        # connecting road needs to take this into account
+        start_width = 0.0
+        lane_one_abs = np.sign(lane_one_id) * lane_one_id
+        if np.sign(lane_one_id) == -1:
+            start_width = (
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[0]
+                .rightlanes[lane_one_abs - 1]
                 .get_width(0)
             )
         else:
-            lane_width = (
+            start_width = (
                 self.incoming_roads[idx1]
                 .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[0]
+                .leftlanes[lane_one_abs - 1]
                 .get_width(0)
             )
-        start_offset = (abs(lane_one_id) - 1) * lane_width
-        end_offset = (abs(lane_two_id) - 1) * lane_width
+
+        end_width = 0.0
+        lane_two_abs = np.sign(lane_two_id) * lane_two_id
+        if np.sign(lane_two_id) == -1:
+            end_width = (
+                self.incoming_roads[idx2]
+                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
+                .rightlanes[lane_two_abs - 1]
+                .get_width(0)
+            )
+        else:
+            end_width = (
+                self.incoming_roads[idx2]
+                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
+                .leftlanes[lane_two_abs - 1]
+                .get_width(0)
+            )
 
         if self._get_connection_type(idx1) == "successor":
             angle_offset_start = np.sign(lane_one_id) * np.pi / 2
@@ -703,8 +757,9 @@ class CommonJunctionCreator:
             self.startnum,
             left_lanes=num_left_lanes,
             right_lanes=num_right_lanes,
-            lane_width=lane_width,
+            lane_width=start_width,
             road_type=self.id,
+            lane_width_end=end_width,
         )
 
         pred_lane_offset = np.sign(lane_one_id) * (abs(lane_one_id) - 1)
