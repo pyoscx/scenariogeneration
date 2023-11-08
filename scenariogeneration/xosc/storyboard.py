@@ -362,7 +362,7 @@ class StoryBoard(VersionBase):
 
         Parameters
         ----------
-            maneuver (Maneuver): the Maneuver to add
+            maneuver (Maneuver or CatalogReference): the Maneuver to add
 
             actors (list of 'str', or 'str'): list of all actors in the maneuver or just a name of the actor
 
@@ -376,9 +376,13 @@ class StoryBoard(VersionBase):
                 Default: ParameterDeclarations()
 
         """
-        if not isinstance(maneuver, Maneuver):
+        if not (isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)):
             raise TypeError("maneuver input is not of type Maneuver")
-        mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
+        if isinstance(maneuver, Maneuver):
+            mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
+        else:
+            mangr = ManeuverGroup("maneuvuergroup_from_catalog")
+
         if actors is not None:
             if isinstance(actors, list):
                 for a in actors:
@@ -757,7 +761,7 @@ class ManeuverGroup(VersionBase):
         maneuver_group.actors = actors
         for m in element.findall("Maneuver"):
             maneuver_group.add_maneuver(Maneuver.parse(m))
-        for cr in element.findall("CatalogReferece"):
+        for cr in element.findall("CatalogReference"):
             maneuver_group.add_maneuver(CatalogReference.parse(cr))
 
         return maneuver_group
