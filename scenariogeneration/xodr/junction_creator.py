@@ -585,7 +585,9 @@ class CommonJunctionCreator:
     def _create_connecting_road_with_lane_input(
         self, road_one_id, road_two_id, lane_one_id, lane_two_id
     ):
-        """_create_connecting_road_with_lane_input is a helper method that connects two roads with one lane on each road
+        """_create_connecting_road_with_lane_input is a helper method that connects two roads with one lane on each road.
+        It allows for connecting two roads that may have lanes of different widths and creates an appropriate geometry for the
+        generated connecting road based on its start lane width and end lane width as read from the two input roads being connected
 
         Parameters
         ----------
@@ -601,7 +603,6 @@ class CommonJunctionCreator:
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
 
-        # below offsets take into account roads that may have lanes of different widths
         start_offset = 0.0
         end_offset = 0.0
 
@@ -639,8 +640,6 @@ class CommonJunctionCreator:
                     .get_width(0)
                 )
 
-        # there may also be the case where lanes of different widths are connecting to each other
-        # connecting road needs to take this into account
         start_width = 0.0
         lane_one_abs = np.sign(lane_one_id) * lane_one_id
         if np.sign(lane_one_id) == -1:

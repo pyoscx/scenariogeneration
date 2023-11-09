@@ -111,6 +111,8 @@ def create_lanes_merge_split(
 
         lane_width (float): the width of the lanes
 
+        lane_width_end (float): the end width of the lanes
+
     Return
     ------
         road (Lanes): the lanes of a road
@@ -307,6 +309,7 @@ def create_road(
 ):
     """create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken,
     except the outer lane, that will be solid.
+    The lane_width_end parameter can only be used when inputs for left_lanes and right_lanes are int
 
     Parameters
     ----------
@@ -324,7 +327,9 @@ def create_road(
 
         center_road_mark (RoadMark): roadmark for the center line
 
-        lane_width (float): the with of all lanes
+        lane_width (float): the width of all lanes
+
+        lane_width_end (float): the end width of all lanes
 
     Returns
     -------
@@ -339,6 +344,13 @@ def create_road(
     else:
         pv.add_geometry(geometry)
         raw_length += geometry.length
+
+    if (lane_width_end is not None) and (
+        (type(left_lanes) != int) or (type(right_lanes) != int)
+    ):
+        raise RuntimeError(
+            "lane_width_end can only be used when left_lanes and right_lanes are int"
+        )
 
     lanes = create_lanes_merge_split(
         right_lanes,
@@ -1258,8 +1270,8 @@ def get_coeffs_for_poly3(length, lane_offset, zero_start, lane_width_end=None):
         zero_start (bool): True; start with zero and ends with lane_offset width,
                            False; start with lane_offset and ends with zero width
 
-        lane_width_end (float): specify the ending lane width for roads that may start
-                                and end with different lane widths
+        lane_width_end (float): specify the ending lane width for lanes that may start
+                                and end with different widths
 
     Return
     ------
