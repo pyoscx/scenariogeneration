@@ -52,7 +52,7 @@ class Lanes(XodrBase):
         self.laneoffsets = []
 
     def __eq__(self, other):
-        if isinstance(other, Lanes):
+        if isinstance(other, Lanes) and super().__eq__(other):
             if (
                 self.laneoffsets == other.laneoffsets
                 and self.lanesections == other.lanesections
@@ -112,7 +112,7 @@ class Lanes(XodrBase):
         return element
 
 
-class LaneOffset:
+class LaneOffset(XodrBase):
     """the LaneOffset class defines an overall lateral offset along the road, described as a third degree polynomial
 
     Parameters
@@ -165,6 +165,7 @@ class LaneOffset:
             d (float): d coefficient of the polynomial
 
         """
+        super().__init__()
         self.s = s
         self.a = a
         self.b = b
@@ -172,7 +173,7 @@ class LaneOffset:
         self.d = d
 
     def __eq__(self, other):
-        if isinstance(other, LaneOffset):
+        if isinstance(other, LaneOffset) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -191,11 +192,11 @@ class LaneOffset:
     def get_element(self):
         """returns the elementTree of the LaneOffset"""
         element = ET.Element("laneOffset", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class LaneSection:
+class LaneSection(XodrBase):
     """Creates the LaneSection element of opendrive
 
     Parameters
@@ -238,6 +239,7 @@ class LaneSection:
 
             centerlane (Lane): the centerline of the road
         """
+        super().__init__()
         self.s = s
         self.centerlane = centerlane
         self.centerlane._set_lane_id(0)
@@ -247,7 +249,7 @@ class LaneSection:
         self._right_id = -1
 
     def __eq__(self, other):
-        if isinstance(other, LaneSection):
+        if isinstance(other, LaneSection) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.centerlane == other.centerlane
@@ -290,7 +292,7 @@ class LaneSection:
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("laneSection", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         if self.leftlanes:
             left = ET.SubElement(element, "left")
             for l in reversed(self.leftlanes):
@@ -340,7 +342,7 @@ class _poly3struct:
         return polynomialdict
 
 
-class Lane:
+class Lane(XodrBase):
     """creates a Lane of opendrive
 
     the inputs are on the following format:
@@ -428,6 +430,7 @@ class Lane:
                 Default: 0
 
         """
+        super().__init__()
         self.lane_id = None
         self.lane_type = lane_type
         self.widths = []
@@ -442,7 +445,7 @@ class Lane:
         self.links = _Links()
 
     def __eq__(self, other):
-        if isinstance(other, Lane):
+        if isinstance(other, Lane) and super().__eq__(other):
             if (
                 self.links == other.links
                 and self.get_attributes() == other.get_attributes()
@@ -567,7 +570,7 @@ class Lane:
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("lane", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         # according to standard if lane is centerlane it should
         # not have a width record and omit the link record
         if self.lane_id != 0:
@@ -590,7 +593,7 @@ class Lane:
         return element
 
 
-class RoadMark:
+class RoadMark(XodrBase):
     """creates a RoadMark of opendrive
 
     Parameters
@@ -680,6 +683,7 @@ class RoadMark:
                 Default: none
 
         """
+        super().__init__()
         # required arguments - must be provided by user
         self.marking_type = marking_type
 
@@ -747,7 +751,7 @@ class RoadMark:
         return self
 
     def __eq__(self, other):
-        if isinstance(other, RoadMark):
+        if isinstance(other, RoadMark) and super().__eq__(other):
             if (
                 self._line == other._line
                 and self.get_attributes() == other.get_attributes()
@@ -773,6 +777,7 @@ class RoadMark:
     def get_element(self):
         """returns the elementTree of the RoadMark"""
         element = ET.Element("roadMark", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         if self._line:
             typeelement = ET.SubElement(
                 element,
@@ -784,7 +789,7 @@ class RoadMark:
         return element
 
 
-class RoadLine:
+class RoadLine(XodrBase):
     """creates a Line type of to be used in roadmark
 
     Parameters
@@ -853,6 +858,7 @@ class RoadLine:
 
 
         """
+        super().__init__()
         self.length = length
         self.space = space
         self.toffset = toffset
@@ -862,7 +868,7 @@ class RoadLine:
         self.color = color
 
     def __eq__(self, other):
-        if isinstance(other, RoadLine):
+        if isinstance(other, RoadLine) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -884,4 +890,5 @@ class RoadLine:
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("line", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         return element

@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -23,7 +23,7 @@ import datetime as dt
 from itertools import combinations
 import numpy as np
 import copy as cpy
-
+from .utils import XodrBase
 
 class _Header:
     """Header creates the header of the OpenDrive file
@@ -100,7 +100,7 @@ class _Header:
         return element
 
 
-class Road:
+class Road(XodrBase):
     """Road defines the road element of OpenDrive
 
     Parameters
@@ -204,6 +204,7 @@ class Road:
             rule (TrafficRule): traffic rule (optional)
 
         """
+        super().__init__()
         self.id = road_id
         self.planview = planview
         self.lanes = lanes
@@ -226,7 +227,7 @@ class Road:
         self.lateralprofile = LateralProfile()
 
     def __eq__(self, other):
-        if isinstance(other, Road):
+        if isinstance(other, Road) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.objects == other.objects
@@ -602,6 +603,7 @@ class Road:
     def get_element(self):
         """returns the elementTree of the FileHeader"""
         element = ET.Element("road", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         element.append(self.links.get_element())
         if self.types:
             for r in self.types:
@@ -621,7 +623,7 @@ class Road:
         return element
 
 
-class OpenDrive:
+class OpenDrive(XodrBase):
     """OpenDrive is the main class of the pyodrx to generate an OpenDrive road
 
     Parameters
@@ -681,6 +683,7 @@ class OpenDrive:
         name (str): name of the road
 
         """
+        super().__init__()
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
@@ -690,7 +693,7 @@ class OpenDrive:
         # self.road_ids = []
 
     def __eq__(self, other):
-        if isinstance(other, OpenDrive):
+        if isinstance(other, OpenDrive) and super().__eq__(other):
             if (
                 self.roads == other.roads
                 and self.junctions == other.junctions
@@ -1072,6 +1075,7 @@ class OpenDrive:
     def get_element(self):
         """returns the elementTree of the FileHeader"""
         element = ET.Element("OpenDRIVE")
+        self._add_additional_data_to_element(element)
         element.append(self._header.get_element())
         for r in self.roads:
             element.append(self.roads[r].get_element())
@@ -1101,7 +1105,7 @@ class OpenDrive:
         printToFile(self.get_element(), filename, prettyprint, encoding)
 
 
-class _Type:
+class _Type(XodrBase):
     """class to generate the type element of a road, (not the Enumeration it self).
 
     Parameters
@@ -1148,6 +1152,7 @@ class _Type:
 
 
         """
+        super().__init__()
         self.road_type = road_type
         self.s = s
         self.country = country
@@ -1172,7 +1177,7 @@ class _Type:
         self.speed_unit = speed_unit
 
     def __eq__(self, other):
-        if isinstance(other, _Type):
+        if isinstance(other, _Type) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.speed == other.speed
@@ -1195,6 +1200,7 @@ class _Type:
         """returns the elementTree of the _Type"""
 
         element = ET.Element("type", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         if self.speed:
             ET.SubElement(
                 element,
