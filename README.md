@@ -54,7 +54,6 @@ from scenariogeneration import esmini
 def Scenario(ScenarioGenerator): ...
 
 
-s = Scenario()
 if __name__ == "__main__":
     s = Scenario()
 
