@@ -12,6 +12,7 @@
 import xml.etree.ElementTree as ET
 from .utils import XodrBase
 
+
 class ElevationProfile(XodrBase):
     """the ElevationProfile creates the elevationProfile element of the road in opendrive,
 
@@ -97,7 +98,6 @@ class LateralProfile(XodrBase):
 
     def __eq__(self, other):
         if isinstance(other, LateralProfile) and super().__eq__(other):
-
             if (
                 self.superelevations == other.superelevations
                 and self.shapes == other.shapes

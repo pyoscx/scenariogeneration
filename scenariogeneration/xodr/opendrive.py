@@ -25,6 +25,7 @@ import numpy as np
 import copy as cpy
 from .utils import XodrBase
 
+
 class _Header:
     """Header creates the header of the OpenDrive file
 

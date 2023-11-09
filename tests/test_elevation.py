@@ -52,7 +52,7 @@ def test_elevationprofile():
 
     elevation3 = xodr.ElevationProfile()
     elevation3.add_elevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
-    elevation3.add_userdata(xodr.UserData("stuffs","morestuffs"))
+    elevation3.add_userdata(xodr.UserData("stuffs", "morestuffs"))
     prettyprint(elevation3)
     assert elevation == elevation2
     assert elevation != elevation3
@@ -71,7 +71,7 @@ def test_lateralprofile():
     latprofile2.add_superelevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
 
     latprofile3 = xodr.LateralProfile()
-    latprofile3.add_userdata(xodr.UserData("stuffs","morestuffs"))
+    latprofile3.add_userdata(xodr.UserData("stuffs", "morestuffs"))
     latprofile3.add_shape(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0, 0))
     latprofile3.add_superelevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 3))
     prettyprint(latprofile3)

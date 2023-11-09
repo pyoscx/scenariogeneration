@@ -22,6 +22,7 @@ from .exceptions import (
 import warnings
 from .utils import XodrBase
 
+
 class _Links(XodrBase):
     """Link creates a Link element used for roadlinking in OpenDrive
 

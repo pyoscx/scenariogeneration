@@ -22,6 +22,7 @@ from .exceptions import (
 from scipy.integrate import quad
 from .utils import XodrBase
 
+
 class PlanView(XodrBase):
     """the PlanView is the geometrical description of a road,
 

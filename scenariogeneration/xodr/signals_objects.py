@@ -16,6 +16,7 @@ from .enumerations import ObjectType, Orientation, Dynamic
 from .exceptions import GeneralIssueInputArguments
 from .utils import XodrBase
 
+
 class _SignalObjectBase(XodrBase):
     """creates a common basis for Signal and Object shall not be instantiated directly
 
