@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -51,7 +51,9 @@ def test_elevationprofile():
     elevation2.add_elevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
 
     elevation3 = xodr.ElevationProfile()
-    elevation3.add_elevation(xodr.elevation._Poly3Profile(0, 0, 0, 1, 0))
+    elevation3.add_elevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
+    elevation3.add_userdata(xodr.UserData("stuffs","morestuffs"))
+    prettyprint(elevation3)
     assert elevation == elevation2
     assert elevation != elevation3
 
@@ -69,8 +71,10 @@ def test_lateralprofile():
     latprofile2.add_superelevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
 
     latprofile3 = xodr.LateralProfile()
+    latprofile3.add_userdata(xodr.UserData("stuffs","morestuffs"))
     latprofile3.add_shape(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0, 0))
     latprofile3.add_superelevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 3))
+    prettyprint(latprofile3)
 
     assert latprofile2 == latprofile
     assert latprofile != latprofile3

@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -20,7 +20,7 @@ from scenariogeneration import prettyprint
 
 def test_line():
     line = pyodrx.Line(1)
-
+    line.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
     p = line.get_element()
     prettyprint(p)
 
@@ -54,6 +54,8 @@ def test_spiral():
     prettyprint(p)
     spiral2 = pyodrx.Spiral(0, 1, 10)
     spiral3 = pyodrx.Spiral(0, 1.1, 10)
+    spiral3.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
+    prettyprint(spiral3)
     assert spiral == spiral2
     assert spiral != spiral3
 
@@ -166,6 +168,8 @@ def test_arc():
     arc2 = pyodrx.Arc(1, length=1)
     arc3 = pyodrx.Arc(2, angle=1)
 
+    arc3.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
+    prettyprint(arc3)
     p2 = arc3.get_element()
     prettyprint(p)
     assert arc == arc2
@@ -230,7 +234,9 @@ def test_polyparam():
     prettyprint(p)
 
     poly2 = pyodrx.ParamPoly3(1, 2, 3, 4, 5, 6, 7, 8)
-    poly3 = pyodrx.ParamPoly3(1, 2, 3, 4, 5, 6, 7, 9)
+    poly3 = pyodrx.ParamPoly3(1, 2, 3, 4, 5, 6, 7, 8)
+    poly3.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
+    prettyprint(poly3)
     assert poly == poly2
     assert poly != poly3
 
@@ -258,6 +264,8 @@ def test_geometry():
     prettyprint(p)
     geom2 = pyodrx.geometry._Geometry(1, 2, 3, 4, pyodrx.Line(1))
     geom3 = pyodrx.geometry._Geometry(1, 2, 3, 4, pyodrx.Line(2))
+    geom3.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
+    prettyprint(geom3)
     assert geom == geom2
     assert geom != geom3
 
@@ -397,7 +405,8 @@ def test_planview():
     planview3 = pyodrx.PlanView()
     planview3.add_geometry(Line(100))
     planview3.add_geometry(Line(10))
-
+    planview3.add_userdata(pyodrx.UserData("stuffs","morestuffs"))
+    prettyprint(planview3)
     assert planview != planview2
     assert planview != planview3
 
