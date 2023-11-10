@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -582,6 +582,23 @@ class CommonJunctionCreator:
         else:
             return "predecessor"
 
+    def _get_lane_width(self, lane_id, road_idx):
+        if np.sign(lane_id) == -1:
+            start_width = (
+                self.incoming_roads[road_idx]
+                .lanes.lanesections[self._get_connecting_lane_section(road_idx)]
+                .rightlanes[abs(lane_id) - 1]
+                .get_width(0)
+            )
+        else:
+            start_width = (
+                self.incoming_roads[road_idx]
+                .lanes.lanesections[self._get_connecting_lane_section(road_idx)]
+                .leftlanes[abs(lane_id) - 1]
+                .get_width(0)
+            )
+        return start_width
+
     def _create_connecting_road_with_lane_input(
         self, road_one_id, road_two_id, lane_one_id, lane_two_id
     ):
@@ -640,39 +657,9 @@ class CommonJunctionCreator:
                     .get_width(0)
                 )
 
-        start_width = 0.0
-        lane_one_abs = np.sign(lane_one_id) * lane_one_id
-        if np.sign(lane_one_id) == -1:
-            start_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[lane_one_abs - 1]
-                .get_width(0)
-            )
-        else:
-            start_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[lane_one_abs - 1]
-                .get_width(0)
-            )
+        start_width = self._get_lane_width(lane_one_id, idx1)
 
-        end_width = 0.0
-        lane_two_abs = np.sign(lane_two_id) * lane_two_id
-        if np.sign(lane_two_id) == -1:
-            end_width = (
-                self.incoming_roads[idx2]
-                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
-                .rightlanes[lane_two_abs - 1]
-                .get_width(0)
-            )
-        else:
-            end_width = (
-                self.incoming_roads[idx2]
-                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
-                .leftlanes[lane_two_abs - 1]
-                .get_width(0)
-            )
+        end_width = self._get_lane_width(lane_two_id, idx2)
 
         if self._get_connection_type(idx1) == "successor":
             angle_offset_start = np.sign(lane_one_id) * np.pi / 2
