@@ -157,7 +157,7 @@ class _Links:
         """returns the elementTree of the _Link"""
 
         element = ET.Element("link")
-        # sort links alphabetically by link type to ensure predecessor 
+        # sort links alphabetically by link type to ensure predecessor
         # appears before successor to comply to schema
         for l in sorted(self.links, key=lambda x: x.link_type):
             element.append(l.get_element())
