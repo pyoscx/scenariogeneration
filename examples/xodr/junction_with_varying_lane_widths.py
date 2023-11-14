@@ -1,19 +1,20 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
-  
-    Example how to create a more customized road with different widths 
+
+    Example how to create a more customized junction with different widths of lanes, using basic classes
 
     Some features used
 
-    - CommonJunctionCreator 
+    - CommonJunctionCreator
 
+    - Lane
 """
 from scenariogeneration import xodr
 import numpy as np

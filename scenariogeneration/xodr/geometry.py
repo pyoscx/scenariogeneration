@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -307,8 +307,10 @@ class PlanView:
 
     def get_total_length(self):
         """returns the total length of the planView"""
-
-        return self.present_s
+        if self.adjusted:
+            return self.present_s
+        else:
+            return sum([x.length for x in self._raw_geometries])
 
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
