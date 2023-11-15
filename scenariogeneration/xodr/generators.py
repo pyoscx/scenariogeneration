@@ -85,7 +85,12 @@ def standard_lane(offset=3, rm=STD_ROADMARK_BROKEN):
 
 
 def create_lanes_merge_split(
-    right_lane_def, left_lane_def, road_length, center_road_mark, lane_width
+    right_lane_def,
+    left_lane_def,
+    road_length,
+    center_road_mark,
+    lane_width,
+    lane_width_end,
 ):
     """create_lanes_merge_split is a generator that will create the Lanes of a road road that can contain one or more lane merges/splits
     This is a simple implementation and has some constraints:
@@ -105,6 +110,8 @@ def create_lanes_merge_split(
         center_road_mark (RoadMark): roadmark for the center line
 
         lane_width (float): the width of the lanes
+
+        lane_width_end (float): the end width of the lanes
 
     Return
     ------
@@ -153,6 +160,15 @@ def create_lanes_merge_split(
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
+            elif (lane_width_end is not None) and (lane_width != lane_width_end):
+                coeff = get_coeffs_for_poly3(
+                    right_lane[ls].s_end - right_lane[ls].s_start,
+                    lane_width,
+                    False,
+                    lane_width_end=lane_width_end,
+                )
+                rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
+                rightlane.add_roadmark(rm)
             else:
                 rightlane = standard_lane(lane_width, rm)
 
@@ -183,6 +199,15 @@ def create_lanes_merge_split(
                 # lane merge
                 coeff = get_coeffs_for_poly3(
                     left_lane[ls].s_end - left_lane[ls].s_start, lane_width, False
+                )
+                leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
+                leftlane.add_roadmark(rm)
+            elif (lane_width_end is not None) and (lane_width != lane_width_end):
+                coeff = get_coeffs_for_poly3(
+                    left_lane[ls].s_end - left_lane[ls].s_start,
+                    lane_width,
+                    False,
+                    lane_width_end=lane_width_end,
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
@@ -280,9 +305,11 @@ def create_road(
     road_type=-1,
     center_road_mark=STD_ROADMARK_SOLID,
     lane_width=3,
+    lane_width_end=None,
 ):
     """create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken,
     except the outer lane, that will be solid.
+    The lane_width_end parameter can only be used when inputs for left_lanes and right_lanes are int
 
     Parameters
     ----------
@@ -300,7 +327,9 @@ def create_road(
 
         center_road_mark (RoadMark): roadmark for the center line
 
-        lane_width (float): the with of all lanes
+        lane_width (float): the width of all lanes
+
+        lane_width_end (float): the end width of all lanes
 
     Returns
     -------
@@ -316,8 +345,20 @@ def create_road(
         pv.add_geometry(geometry)
         raw_length += geometry.length
 
+    if (lane_width_end is not None) and (
+        (type(left_lanes) != int) or (type(right_lanes) != int)
+    ):
+        raise RuntimeError(
+            "lane_width_end can only be used when left_lanes and right_lanes are int"
+        )
+
     lanes = create_lanes_merge_split(
-        right_lanes, left_lanes, raw_length, center_road_mark, lane_width
+        right_lanes,
+        left_lanes,
+        raw_length,
+        center_road_mark,
+        lane_width,
+        lane_width_end=lane_width_end,
     )
 
     road = Road(id, pv, lanes, road_type=road_type)
@@ -1215,7 +1256,7 @@ def _create_lane_lists(right, left, tot_length):
     return retlanes_right, retlanes_left
 
 
-def get_coeffs_for_poly3(length, lane_offset, zero_start):
+def get_coeffs_for_poly3(length, lane_offset, zero_start, lane_width_end=None):
     """get_coeffs_for_poly3 creates the coefficients for a third degree polynomial, can be used for all kinds of descriptions in xodr.
 
     Assuming that the derivative is 0 at the start and end of the segment.
@@ -1228,6 +1269,9 @@ def get_coeffs_for_poly3(length, lane_offset, zero_start):
 
         zero_start (bool): True; start with zero and ends with lane_offset width,
                            False; start with lane_offset and ends with zero width
+
+        lane_width_end (float): specify the ending lane width for lanes that may start
+                                and end with different widths
 
     Return
     ------
@@ -1252,5 +1296,9 @@ def get_coeffs_for_poly3(length, lane_offset, zero_start):
         B = [start_heading, end_heading, 0, lane_offset]
     else:
         B = [start_heading, end_heading, lane_offset, 0]
+
+    if lane_width_end is not None:
+        B = [start_heading, end_heading, lane_offset, lane_width_end]
+
     # calculate and return the coefficients
     return np.linalg.solve(A, B)

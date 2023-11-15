@@ -94,6 +94,8 @@ __NOTE:__ *adjust_roads_and_lanes* will assume that the heading is continious be
 
 __NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method, hence the resulting road might be very strange if the inputs are "wrong".
 
+Some limitations are sadly still in the patching and linking, and mostly when it comes to different widths of lanes. Some functionality is however automated and examples of this can be seen in [road_with_changing_lane_width](examples/xodr/road_with_changing_lane_width.html), or [junction_with_varying_lane_widths](examples/xodr/junction_with_varying_lane_widths.html))
+
 ### Generators
 For most simple roads, the generators that are provided in the __xodr__ module can be used. These most often will generate the roads that can build up the network and then the user can just "patch" them together with the "successor/predecessor" attributes (see [highway_example](examples/xodr/highway_example.html))
 
@@ -244,7 +246,7 @@ direct_junction.add_connection(
             incoming_road = first_road,
             linked_road = off_ramp,
             incoming_lane_id=-4,
-            lined_lane_id = -1)
+            linked_lane_id = -1)
 ```
 and finally adding the roads to opendrive:
 
@@ -267,7 +269,7 @@ The ScenarioGenerator class can be used as a glue to parametrize and generate co
 
 To utilize this, let your Scenario class inherit ScenarioGenerator and initalize it.
 Some options can be used to parameterize your Scenario either by:
-- let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (__WARBUBG:__ this grows quickly, so be careful)
+- let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (__WARNING:__ this grows quickly, so be careful)
 - let self.parameters be a list of dicts (same structure in each element). This will yield a scenario for each entry in the list.
 
 Then implement the road and/or the scenario methods where the road should return an xodr.OpenDrive object, and the scenario method should return a xosc.Scenario object.
