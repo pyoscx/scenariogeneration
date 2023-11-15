@@ -20,9 +20,10 @@ from .exceptions import (
     MixOfGeometryAddition,
 )
 from scipy.integrate import quad
+from .utils import XodrBase
 
 
-class PlanView:
+class PlanView(XodrBase):
     """the PlanView is the geometrical description of a road,
 
     Parameters
@@ -71,6 +72,7 @@ class PlanView:
 
 
         """
+        super().__init__()
         self.present_x = 0
         self.present_y = 0
         self.present_h = 0
@@ -101,7 +103,7 @@ class PlanView:
         self._addition_mode = None
 
     def __eq__(self, other):
-        if isinstance(other, PlanView):
+        if isinstance(other, PlanView) and super().__eq__(other):
             if self.adjusted and other.adjusted:
                 if self._adjusted_geometries == other._adjusted_geometries:
                     return True
@@ -316,12 +318,13 @@ class PlanView:
         """returns the elementTree of the WorldPostion"""
 
         element = ET.Element("planView")
+        self._add_additional_data_to_element(element)
         for geom in self._adjusted_geometries:
             element.append(geom.get_element())
         return element
 
 
-class _Geometry:
+class _Geometry(XodrBase):
     """the _Geometry describes the geometry entry of open drive
 
     Parameters
@@ -373,6 +376,7 @@ class _Geometry:
             geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
 
         """
+        super().__init__()
         self.s = s
         self.x = x
         self.y = y
@@ -382,7 +386,7 @@ class _Geometry:
         _, _, _, self.length = self.geom_type.get_end_data(self.x, self.y, self.heading)
 
     def __eq__(self, other):
-        if isinstance(other, _Geometry):
+        if isinstance(other, _Geometry) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.geom_type == other.geom_type
@@ -419,11 +423,12 @@ class _Geometry:
     def get_element(self):
         """returns the elementTree of the _Geometry"""
         element = ET.Element("geometry", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         element.append(self.geom_type.get_element())
         return element
 
 
-class Line:
+class Line(XodrBase):
     """the line class creates a line type of geometry
 
     Parameters
@@ -445,10 +450,11 @@ class Line:
     """
 
     def __init__(self, length):
+        super().__init__()
         self.length = length
 
     def __eq__(self, other):
-        return True
+        return super().__eq__(other)
 
     def get_end_data(self, x, y, h):
         """Returns the end point of the geometry
@@ -508,13 +514,13 @@ class Line:
         return start_x, start_y, start_h, self.length
 
     def get_element(self):
-        """returns the elementTree of the WorldPostion"""
+        """returns the elementTree of the Line"""
         element = ET.Element("line")
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class Arc:
+class Arc(XodrBase):
     """the Arc creates a arc type of geometry
 
     Parameters
@@ -557,7 +563,7 @@ class Arc:
             angle (float): angle of the arc (optional or use length)
 
         """
-
+        super().__init__()
         if length == None and angle == None:
             raise NotEnoughInputArguments("neither length nor angle defined, for arc")
 
@@ -581,7 +587,7 @@ class Arc:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
     def __eq__(self, other):
-        if isinstance(other, Arc):
+        if isinstance(other, Arc) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -691,11 +697,11 @@ class Arc:
     def get_element(self):
         """returns the elementTree of the Arc"""
         element = ET.Element("arc", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class ParamPoly3:
+class ParamPoly3(XodrBase):
     """the ParamPoly3 class creates a parampoly3 type of geometry, in the coordinate systeme U (along road), V (normal to the road)
 
     the polynomials are on the form
@@ -787,7 +793,7 @@ class ParamPoly3:
 
             length (float): total length of arc, used if prange == arcLength
         """
-
+        super().__init__()
         self.au = au
         self.bu = bu
         self.cu = cu
@@ -807,7 +813,7 @@ class ParamPoly3:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
     def __eq__(self, other):
-        if isinstance(other, ParamPoly3):
+        if isinstance(other, ParamPoly3) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -912,11 +918,11 @@ class ParamPoly3:
     def get_element(self):
         """returns the elementTree of the ParamPoly3"""
         element = ET.Element("paramPoly3", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class Spiral:
+class Spiral(XodrBase):
     """the Spiral (Clothoid) creates a spiral type of geometry
 
     Parameters
@@ -964,6 +970,7 @@ class Spiral:
 
             cdot (float): the curvature change of the spiral (optional, or use length, or angle)
         """
+        super().__init__()
         self.curvstart = curvstart
         self.curvend = curvend
         if length == None and angle == None and cdot == None:
@@ -981,7 +988,7 @@ class Spiral:
             self.length = length
 
     def __eq__(self, other):
-        if isinstance(other, Spiral):
+        if isinstance(other, Spiral) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -1055,5 +1062,5 @@ class Spiral:
     def get_element(self):
         """returns the elementTree of the Line"""
         element = ET.Element("spiral", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element

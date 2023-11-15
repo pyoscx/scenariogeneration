@@ -11,6 +11,7 @@
 """
 import xml.etree.ElementTree as ET
 from lxml import etree
+import os
 
 
 def prettify(element, encoding=None):
@@ -64,7 +65,7 @@ def prettyprint(element, encoding=None):
             Default: None (works best for printing in terminal on ubuntu atleast)
 
     """
-    print(prettify(element, encoding=encoding))
+    print(prettify(element, encoding=encoding).decode())
 
 
 def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
@@ -83,6 +84,8 @@ def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
     """
     if prettyprint:
         try:
+            if os.path.dirname(filename):
+                os.makedirs(os.path.dirname(filename), exist_ok=True)
             with open(filename, "wb") as file_handle:
                 file_handle.write(prettify(element, encoding=encoding))
         except LookupError:

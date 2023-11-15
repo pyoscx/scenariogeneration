@@ -1,18 +1,19 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 import xml.etree.ElementTree as ET
+from .utils import XodrBase
 
 
-class ElevationProfile:
+class ElevationProfile(XodrBase):
     """the ElevationProfile creates the elevationProfile element of the road in opendrive,
 
 
@@ -32,9 +33,10 @@ class ElevationProfile:
     def __init__(self):
         """initalize the ElevationProfile class"""
         self.elevations = []
+        super().__init__()
 
     def __eq__(self, other):
-        if isinstance(other, ElevationProfile):
+        if isinstance(other, ElevationProfile) and super().__eq__(other):
             if self.elevations == other.elevations:
                 return True
         return False
@@ -59,13 +61,14 @@ class ElevationProfile:
         """returns the elementTree of the ElevationProfile"""
 
         element = ET.Element("elevationProfile")
+        self._add_additional_data_to_element(element)
         for i in self.elevations:
             element.append(i.get_element("elevation"))
 
         return element
 
 
-class LateralProfile:
+class LateralProfile(XodrBase):
     """the LateralProfile creates the elevationProfile element of the road in opendrive,
 
 
@@ -89,11 +92,12 @@ class LateralProfile:
 
     def __init__(self):
         """initalize the LateralProfile class"""
+        super().__init__()
         self.superelevations = []
         self.shapes = []
 
     def __eq__(self, other):
-        if isinstance(other, LateralProfile):
+        if isinstance(other, LateralProfile) and super().__eq__(other):
             if (
                 self.superelevations == other.superelevations
                 and self.shapes == other.shapes
@@ -136,6 +140,7 @@ class LateralProfile:
         """returns the elementTree of the LateralProfile"""
 
         element = ET.Element("lateralProfile")
+        self._add_additional_data_to_element(element)
         for i in self.superelevations:
             element.append(i.get_element("superelevation"))
         for i in self.shapes:

@@ -109,6 +109,12 @@ jobs:
       - name: road_with_multiple_lane_widths
         if: always()
         run: python3 examples/xodr/road_with_multiple_lane_widths.py
+      - name: junction_with_varying_lane_widths
+        if: always()
+        run: python3 examples/xodr/junction_with_varying_lane_widths.py
+      - name: road_with_changing_lane_width
+        if: always()
+        run: python3 examples/xodr/road_with_changing_lane_width.py
 
   xosc_examples:
       runs-on: ubuntu-latest
