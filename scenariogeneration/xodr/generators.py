@@ -147,7 +147,10 @@ def create_lanes_merge_split(
             ):
                 # lane merge
                 coeff = get_coeffs_for_poly3(
-                    right_lane[ls].s_end - right_lane[ls].s_start, right_lane[ls].lane_start_widths[i], False, right_lane[ls].lane_end_widths[i]
+                    right_lane[ls].s_end - right_lane[ls].s_start,
+                    right_lane[ls].lane_start_widths[i],
+                    False,
+                    right_lane[ls].lane_end_widths[i],
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
@@ -157,7 +160,10 @@ def create_lanes_merge_split(
             ):
                 # lane split
                 coeff = get_coeffs_for_poly3(
-                    right_lane[ls].s_end - right_lane[ls].s_start, right_lane[ls].lane_start_widths[i], True, right_lane[ls].lane_end_widths[i]
+                    right_lane[ls].s_end - right_lane[ls].s_start,
+                    right_lane[ls].lane_start_widths[i],
+                    True,
+                    right_lane[ls].lane_end_widths[i],
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
@@ -175,7 +181,7 @@ def create_lanes_merge_split(
                     right_lane[ls].s_end - right_lane[ls].s_start,
                     right_lane[ls].lane_start_widths[i],
                     False,
-                    lane_width_end=right_lane[ls].lane_end_widths[i]
+                    lane_width_end=right_lane[ls].lane_end_widths[i],
                 )
                 rightlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 rightlane.add_roadmark(rm)
@@ -198,7 +204,10 @@ def create_lanes_merge_split(
             ):
                 # lane split
                 coeff = get_coeffs_for_poly3(
-                    left_lane[ls].s_end - left_lane[ls].s_start, left_lane[ls].lane_start_widths[i], True, left_lane[ls].lane_end_widths[i]
+                    left_lane[ls].s_end - left_lane[ls].s_start,
+                    left_lane[ls].lane_start_widths[i],
+                    True,
+                    left_lane[ls].lane_end_widths[i],
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
@@ -208,7 +217,10 @@ def create_lanes_merge_split(
             ):
                 # lane merge
                 coeff = get_coeffs_for_poly3(
-                    left_lane[ls].s_end - left_lane[ls].s_start, left_lane[ls].lane_start_widths[i], False, left_lane[ls].lane_end_widths[i]
+                    left_lane[ls].s_end - left_lane[ls].s_start,
+                    left_lane[ls].lane_start_widths[i],
+                    False,
+                    left_lane[ls].lane_end_widths[i],
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
@@ -226,7 +238,7 @@ def create_lanes_merge_split(
                     left_lane[ls].s_end - left_lane[ls].s_start,
                     left_lane[ls].lane_start_widths[i],
                     False,
-                    lane_width_end=left_lane[ls].lane_end_widths[i]
+                    lane_width_end=left_lane[ls].lane_end_widths[i],
                 )
                 leftlane = Lane(a=coeff[0], b=coeff[1], c=coeff[2], d=coeff[3])
                 leftlane.add_roadmark(rm)
@@ -364,7 +376,7 @@ def create_road(
         pv.add_geometry(geometry)
         raw_length += geometry.length
 
-    if isinstance(left_lanes,LaneDef):
+    if isinstance(left_lanes, LaneDef):
         left_lanes = [left_lanes]
     if isinstance(right_lanes, LaneDef):
         right_lanes = [right_lanes]
@@ -1209,11 +1221,15 @@ class LaneDef:
         if self.sub_lane:
             if self.lane_end_widths and len(self.lane_end_widths) < self.n_lanes_start:
                 # mergeo
-                self.lane_end_widths.insert(abs(self.sub_lane)-1,0)
-            elif self.lane_start_widths and len(self.lane_start_widths) < self.n_lanes_end:
-                #split
-                self.lane_start_widths.insert(abs(self.sub_lane)-1,0)
+                self.lane_end_widths.insert(abs(self.sub_lane) - 1, 0)
+            elif (
+                self.lane_start_widths
+                and len(self.lane_start_widths) < self.n_lanes_end
+            ):
+                # split
+                self.lane_start_widths.insert(abs(self.sub_lane) - 1, 0)
         # TODO: add some checks here?
+
 
 def _create_lane_lists(right, left, tot_length, default_lane_width):
     """_create_lane_lists is a function used by create_lanes_merge_split to expand the list of LaneDefs to be used to create stuffs
@@ -1228,10 +1244,13 @@ def _create_lane_lists(right, left, tot_length, default_lane_width):
 
         default_lane_width (float): lane_width to be used if not defined in LaneDef
     """
+
     # TODO: implement for left and right lanesection...
     def _check_lane_widths(lane):
         if lane.lane_start_widths == []:
-            lane.lane_start_widths = [default_lane_width for x in range(lane.n_lanes_start)]
+            lane.lane_start_widths = [
+                default_lane_width for x in range(lane.n_lanes_start)
+            ]
         if lane.lane_end_widths == []:
             lane.lane_end_widths = [default_lane_width for x in range(lane.n_lanes_end)]
 
@@ -1307,12 +1326,12 @@ def _create_lane_lists(right, left, tot_length, default_lane_width):
                     )
                 )
             else:
-                lane_start_widths=[default_lane_width for x in range(n_r_lanes)]
-                lane_end_widths=[default_lane_width for x in range(n_r_lanes)]
+                lane_start_widths = [default_lane_width for x in range(n_r_lanes)]
+                lane_end_widths = [default_lane_width for x in range(n_r_lanes)]
                 if r_it == len(right):
-                    if right[r_it-1].lane_end_widths:
-                        lane_start_widths=right[r_it-1].lane_end_widths.copy()
-                        lane_end_widths=right[r_it-1].lane_end_widths.copy()
+                    if right[r_it - 1].lane_end_widths:
+                        lane_start_widths = right[r_it - 1].lane_end_widths.copy()
+                        lane_end_widths = right[r_it - 1].lane_end_widths.copy()
                 elif right[r_it].lane_start_widths:
                     lane_start_widths = right[r_it].lane_start_widths.copy()
                     lane_end_widths = right[r_it].lane_start_widths.copy()
@@ -1340,27 +1359,26 @@ def _create_lane_lists(right, left, tot_length, default_lane_width):
                     )
                 )
             else:
-
-                lane_start_widths=[default_lane_width for x in range(n_l_lanes)]
-                lane_end_widths=[default_lane_width for x in range(n_l_lanes)]
+                lane_start_widths = [default_lane_width for x in range(n_l_lanes)]
+                lane_end_widths = [default_lane_width for x in range(n_l_lanes)]
                 if l_it == len(left):
-                    if left[l_it-1].lane_end_widths:
-                        lane_start_widths=left[l_it-1].lane_end_widths.copy()
-                        lane_end_widths=left[l_it-1].lane_end_widths.copy()
+                    if left[l_it - 1].lane_end_widths:
+                        lane_start_widths = left[l_it - 1].lane_end_widths.copy()
+                        lane_end_widths = left[l_it - 1].lane_end_widths.copy()
                 elif left[l_it].lane_start_widths:
                     lane_start_widths = left[l_it].lane_start_widths.copy()
                     lane_end_widths = left[l_it].lane_start_widths.copy()
 
                 retlanes_left.append(
-                        LaneDef(
-                            present_s,
-                            s_end,
-                            n_l_lanes,
-                            n_l_lanes,
-                            lane_start_widths=lane_start_widths,
-                            lane_end_widths=lane_end_widths,
-                        )
+                    LaneDef(
+                        present_s,
+                        s_end,
+                        n_l_lanes,
+                        n_l_lanes,
+                        lane_start_widths=lane_start_widths,
+                        lane_end_widths=lane_end_widths,
                     )
+                )
 
             present_s = s_end
         elif add_left and add_right:
@@ -1376,14 +1394,32 @@ def _create_lane_lists(right, left, tot_length, default_lane_width):
             # only the right lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the left
             _check_lane_widths(right[r_it])
             retlanes_right.append(right[r_it])
-            retlanes_left.append(LaneDef(present_s, right[r_it].s_end, n_l_lanes, n_l_lanes,lane_start_widths=[default_lane_width for x in range(n_l_lanes)],lane_end_widths=[default_lane_width for x in range(n_l_lanes)]))
+            retlanes_left.append(
+                LaneDef(
+                    present_s,
+                    right[r_it].s_end,
+                    n_l_lanes,
+                    n_l_lanes,
+                    lane_start_widths=[default_lane_width for x in range(n_l_lanes)],
+                    lane_end_widths=[default_lane_width for x in range(n_l_lanes)],
+                )
+            )
             present_s = right[r_it].s_end
             r_it += 1
         elif add_left:
             # only the left lane changes the amount of lanes, and add a LaneDef with the same amount of lanes to the right
             _check_lane_widths(left[l_it])
             retlanes_left.append(left[l_it])
-            retlanes_right.append(LaneDef(present_s, left[l_it].s_end, n_r_lanes, n_r_lanes,lane_start_widths=[default_lane_width for x in range(n_r_lanes)],lane_end_widths=[default_lane_width for x in range(n_r_lanes)]))
+            retlanes_right.append(
+                LaneDef(
+                    present_s,
+                    left[l_it].s_end,
+                    n_r_lanes,
+                    n_r_lanes,
+                    lane_start_widths=[default_lane_width for x in range(n_r_lanes)],
+                    lane_end_widths=[default_lane_width for x in range(n_r_lanes)],
+                )
+            )
             present_s = left[l_it].s_end
             l_it += 1
     [x._adjust_lane_widths() for x in retlanes_right]
