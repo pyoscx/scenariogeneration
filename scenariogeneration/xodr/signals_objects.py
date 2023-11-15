@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -14,9 +14,10 @@ from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
 from .enumerations import ObjectType, Orientation, Dynamic
 from .exceptions import GeneralIssueInputArguments
+from .utils import XodrBase
 
 
-class _SignalObjectBase:
+class _SignalObjectBase(XodrBase):
     """creates a common basis for Signal and Object shall not be instantiated directly
 
     Attributes
@@ -114,6 +115,7 @@ class _SignalObjectBase:
             height (float): height of Signal / Object
 
         """
+        super().__init__()
         self.s = s
         self.t = t
         self.height = height
@@ -129,7 +131,7 @@ class _SignalObjectBase:
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, _SignalObjectBase):
+        if isinstance(other, _SignalObjectBase) and super().__eq__(other):
             if self.get_common_attributes() == other.get_common_attributes():
                 return True
         return False
@@ -341,7 +343,7 @@ class Signal(_SignalObjectBase):
         self.validity = None
 
     def __eq__(self, other):
-        if isinstance(other, Signal):
+        if isinstance(other, Signal) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -369,12 +371,13 @@ class Signal(_SignalObjectBase):
 
     def get_element(self):
         element = ET.Element("signal", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         if self.validity:
             element.append(self.validity.get_element())
         return element
 
 
-class Validity:
+class Validity(XodrBase):
     """Validity is the explicit validity information for a signal
 
     Attributes
@@ -403,11 +406,12 @@ class Validity:
             toLane (int): maximum id of the lanes for which the object is valid
 
         """
+        super().__init__()
         self.fromLane = fromLane
         self.toLane = toLane
 
     def __eq__(self, other):
-        if isinstance(other, Validity):
+        if isinstance(other, Validity) and super().__eq__(other):
             if self.fromLane == other.fromLane and self.toLane == other.toLane:
                 return True
         return False
@@ -422,11 +426,11 @@ class Validity:
     def get_element(self):
         """returns the elementTree of Validity"""
         element = ET.Element("validity", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class Dependency:
+class Dependency(XodrBase):
     """
     Dependency defines the dependency element in Opendrive. It is placed within the signal element.
     Parameters
@@ -449,11 +453,12 @@ class Dependency:
     """
 
     def __init__(self, id, type):
+        super().__init__()
         self.id = id
         self.type = type
 
     def __eq__(self, other):
-        if isinstance(other, Dependency):
+        if isinstance(other, Dependency) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -464,6 +469,7 @@ class Dependency:
 
     def get_element(self):
         element = ET.Element("dependency", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         return element
 
 
@@ -646,7 +652,7 @@ class Object(_SignalObjectBase):
             pass
 
     def __eq__(self, other):
-        if isinstance(other, Object):
+        if isinstance(other, Object) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self._repeats == other._repeats
@@ -776,6 +782,7 @@ class Object(_SignalObjectBase):
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
         element = ET.Element("object", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         for _repeat in self._repeats:
             ET.SubElement(element, "repeat", attrib=_repeat)
         if self.validity:
@@ -787,7 +794,7 @@ class Object(_SignalObjectBase):
         return element
 
 
-class CornerLocal:
+class CornerLocal(XodrBase):
     """CornerLocal is one way to describe outline in for objects
 
     Parameters
@@ -840,6 +847,7 @@ class CornerLocal:
             id (int): id of the point (optional)
 
         """
+        super().__init__()
         self.u = u
         self.v = v
         self.z = z
@@ -847,7 +855,7 @@ class CornerLocal:
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, CornerLocal):
+        if isinstance(other, CornerLocal) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -866,11 +874,11 @@ class CornerLocal:
     def get_element(self):
         """returns the elementTree of cornerLocal"""
         element = ET.Element("cornerLocal", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class CornerRoad:
+class CornerRoad(XodrBase):
     """CornerRoad is one way to describe outline in for objects
 
     Parameters
@@ -922,6 +930,7 @@ class CornerRoad:
             id (int): id of the point (optional)
 
         """
+        super().__init__()
         self.s = s
         self.t = t
         self.dz = dz
@@ -929,7 +938,7 @@ class CornerRoad:
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, CornerRoad):
+        if isinstance(other, CornerRoad) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
@@ -948,11 +957,11 @@ class CornerRoad:
     def get_element(self):
         """returns the elementTree of cornerRoad"""
         element = ET.Element("cornerRoad", attrib=self.get_attributes())
-
+        self._add_additional_data_to_element(element)
         return element
 
 
-class Outline:
+class Outline(XodrBase):
     """Outline is used to wrap corners for an object in OpenDRIVE
 
     Parameters
@@ -1008,6 +1017,7 @@ class Outline:
             id (int): id of the point (optional)
 
         """
+        super().__init__()
         self.closed = closed
         self.fill_type = fill_type
         self.lane_type = lane_type
@@ -1017,7 +1027,7 @@ class Outline:
         self._corner_type = None
 
     def __eq__(self, other):
-        if isinstance(other, Outline):
+        if isinstance(other, Outline) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.corners == other.corners
@@ -1066,6 +1076,7 @@ class Outline:
     def get_element(self):
         """returns the elementTree of Outline"""
         element = ET.Element("outline", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         for corner in self.corners:
             element.append(corner.get_element())
 

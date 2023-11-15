@@ -20,9 +20,10 @@ from .exceptions import (
     GeneralIssueInputArguments,
 )
 import warnings
+from .utils import XodrBase
 
 
-class _Links:
+class _Links(XodrBase):
     """Link creates a Link element used for roadlinking in OpenDrive
 
     Parameters
@@ -44,11 +45,11 @@ class _Links:
 
     def __init__(self):
         """initalize the _Links"""
-
+        super().__init__()
         self.links = []
 
     def __eq__(self, other):
-        if isinstance(other, _Links):
+        if isinstance(other, _Links) and super().__eq__(other):
             if self.links == other.links:
                 return True
         return False
@@ -155,8 +156,8 @@ class _Links:
 
     def get_element(self):
         """returns the elementTree of the _Link"""
-
         element = ET.Element("link")
+        self._add_additional_data_to_element(element)
         # sort links alphabetically by link type to ensure predecessor
         # appears before successor to comply to schema
         for l in sorted(self.links, key=lambda x: x.link_type):
@@ -164,7 +165,7 @@ class _Links:
         return element
 
 
-class _Link:
+class _Link(XodrBase):
     """Link creates a predecessor/successor/neghbor element used for Links in OpenDrive
 
     Parameters
@@ -229,7 +230,7 @@ class _Link:
             direction (Direction): the direction of the link (used for neighbor)
                 Default: None
         """
-
+        super().__init__()
         if link_type == "neighbor":
             if direction == None:
                 raise ValueError("direction has to be defined for neighbor")
@@ -241,7 +242,7 @@ class _Link:
         self.direction = direction
 
     def __eq__(self, other):
-        if isinstance(other, _Link):
+        if isinstance(other, _Link) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.link_type == other.link_type
@@ -267,6 +268,7 @@ class _Link:
     def get_element(self):
         """returns the elementTree of the _Link"""
         element = ET.Element(self.link_type, attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         return element
 
 
@@ -319,7 +321,7 @@ class _lanelink:
         self.used = False
 
 
-class Connection:
+class Connection(XodrBase):
     """Connection creates a connection as a base of junction
 
     Parameters
@@ -369,7 +371,7 @@ class Connection:
 
             id (int): id of the junction (automated)
         """
-
+        super().__init__()
         self.incoming_road = incoming_road
         self.connecting_road = connecting_road
         self.contact_point = contact_point
@@ -377,7 +379,7 @@ class Connection:
         self.links = []
 
     def __eq__(self, other):
-        if isinstance(other, Connection):
+        if isinstance(other, Connection) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.links == other.links
@@ -435,6 +437,7 @@ class Connection:
         """
 
         element = ET.Element("connection", attrib=self.get_attributes(junctiontype))
+        self._add_additional_data_to_element(element)
         for l in sorted(self.links, key=lambda x: x[0], reverse=True):
             ET.SubElement(
                 element, "laneLink", attrib={"from": str(l[0]), "to": str(l[1])}
@@ -442,7 +445,7 @@ class Connection:
         return element
 
 
-class Junction:
+class Junction(XodrBase):
     """Junction creates a junction of OpenDRIVE
 
     Parameters
@@ -528,6 +531,7 @@ class Junction:
             mainroad (int): main road for a virtual junction
 
         """
+        super().__init__()
         self.name = name
         self.id = id
         self.connections = []
@@ -552,7 +556,7 @@ class Junction:
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, Junction):
+        if isinstance(other, Junction) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.connections == other.connections
@@ -594,6 +598,7 @@ class Junction:
     def get_element(self):
         """returns the elementTree of the Junction"""
         element = ET.Element("junction", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         for con in self.connections:
             element.append(con.get_element(self.junction_type))
         return element
@@ -1067,7 +1072,7 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
             )
 
 
-class JunctionGroup:
+class JunctionGroup(XodrBase):
     """JunctionGroup creates a JunctionGroup of OpenDRIVE
 
     Parameters
@@ -1111,13 +1116,14 @@ class JunctionGroup:
             junction_type (JunctionGroupType): type of junction
                 Default: JunctionGroupType.roundabout
         """
+        super().__init__()
         self.name = name
         self.group_id = group_id
         self.junctions = []
         self.junction_type = junction_type
 
     def __eq__(self, other):
-        if isinstance(other, JunctionGroup):
+        if isinstance(other, JunctionGroup) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.junctions == other.junctions
@@ -1147,6 +1153,7 @@ class JunctionGroup:
     def get_element(self):
         """returns the elementTree of the Junction"""
         element = ET.Element("junctionGroup", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         for j in self.junctions:
             ET.SubElement(element, "junctionReference", attrib={"junction": str(j)})
         return element
