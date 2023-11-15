@@ -309,8 +309,10 @@ class PlanView(XodrBase):
 
     def get_total_length(self):
         """returns the total length of the planView"""
-
-        return self.present_s
+        if self.adjusted:
+            return self.present_s
+        else:
+            return sum([x.length for x in self._raw_geometries])
 
     def get_element(self):
         """returns the elementTree of the WorldPostion"""

@@ -1,18 +1,23 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
 from .enumerations import JunctionType, ElementType, ContactPoint
 from .geometry import Spiral, Line
-from .generators import create_road, _get_related_lanesection, _create_junction_links
+from .generators import (
+    create_road,
+    _get_related_lanesection,
+    _create_junction_links,
+    LaneDef,
+)
 from .links import Junction, Connection
 from .exceptions import (
     NotEnoughInputArguments,
@@ -415,26 +420,7 @@ class CommonJunctionCreator:
         """
         idx1 = self._get_list_index(road_one_id)
         idx2 = self._get_list_index(road_two_id)
-        if (
-            self.incoming_roads[idx1]
-            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes
-        ):
-            lane_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[0]
-                .widths[0]
-                .a
-            )
-        else:
-            lane_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[0]
-                .widths[0]
-                .a
-            )
+
         # check if the road has _angles/radius for these roads
         if self._circular_junction:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
@@ -444,26 +430,16 @@ class CommonJunctionCreator:
             self.incoming_roads[idx1], self.incoming_roads[idx2]
         )
 
-        left_lanes = 0
-        right_lanes = 0
-        if any([x > 0 for x in first_road_lane_ids]):
-            if self._get_connection_type(idx1) == "successor":
-                left_lanes = max(first_road_lane_ids)
-            else:
-                right_lanes = max(first_road_lane_ids)
-
-        if any([x < 0 for x in first_road_lane_ids]):
-            if self._get_connection_type(idx1) == "successor":
-                right_lanes = abs(min(first_road_lane_ids))
-            else:
-                left_lanes = abs(min(first_road_lane_ids))
+        left_lane_defs, right_lane_defs = self._get_lane_defs(
+            idx1, idx2, sum([x.length for x in roadgeoms])
+        )
 
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
-            left_lanes=left_lanes,
-            right_lanes=right_lanes,
-            lane_width=lane_width,
+            left_lanes=left_lane_defs,
+            right_lanes=right_lane_defs,
+            lane_width=3,
             road_type=self.id,
         )
 
@@ -503,6 +479,130 @@ class CommonJunctionCreator:
         self.junction_roads.append(tmp_junc_road)
         self.startnum += 1
 
+    def _get_lane_defs(self, idx1, idx2, connecting_road_length):
+        def _get_lane_widths(idx, l_or_r):
+            connected_lane_section = self._get_connecting_lane_section(idx)
+            lane_widths = []
+            if l_or_r == "left":
+                lanes = (
+                    self.incoming_roads[idx]
+                    .lanes.lanesections[connected_lane_section]
+                    .leftlanes
+                )
+            elif l_or_r == "right":
+                lanes = (
+                    self.incoming_roads[idx]
+                    .lanes.lanesections[connected_lane_section]
+                    .rightlanes
+                )
+            for ll in lanes:
+                if connected_lane_section == 0:
+                    lane_widths.append(ll.get_width(0))
+                else:
+                    lane_widths.append(
+                        ll.get_width(
+                            self.incoming_roads[idx].planview.get_total_length()
+                            - self.incoming_roads[idx]
+                            .lanes.lanesections[connected_lane_section]
+                            .s
+                        )
+                    )
+            return lane_widths
+
+        incomming_connected_lane_section = self._get_connecting_lane_section(idx1)
+        outgoing_connected_lane_section = self._get_connecting_lane_section(idx2)
+
+        if incomming_connected_lane_section == -1:
+            n_l_lanes = len(
+                self.incoming_roads[idx1]
+                .lanes.lanesections[incomming_connected_lane_section]
+                .leftlanes
+            )
+            n_r_lanes = len(
+                self.incoming_roads[idx1]
+                .lanes.lanesections[incomming_connected_lane_section]
+                .rightlanes
+            )
+
+            left_start_widths = _get_lane_widths(idx1, "left")
+            right_start_widths = _get_lane_widths(idx1, "right")
+        elif incomming_connected_lane_section == 0:
+            n_r_lanes = len(
+                self.incoming_roads[idx1]
+                .lanes.lanesections[incomming_connected_lane_section]
+                .leftlanes
+            )
+            n_l_lanes = len(
+                self.incoming_roads[idx1]
+                .lanes.lanesections[incomming_connected_lane_section]
+                .rightlanes
+            )
+
+            left_start_widths = _get_lane_widths(idx1, "right")
+            right_start_widths = _get_lane_widths(idx1, "left")
+
+        if outgoing_connected_lane_section == -1:
+            left_end_widths = _get_lane_widths(idx2, "right")
+            right_end_widths = _get_lane_widths(idx2, "left")
+        elif outgoing_connected_lane_section == 0:
+            left_end_widths = _get_lane_widths(idx2, "left")
+            right_end_widths = _get_lane_widths(idx2, "right")
+
+        left_lanes = 0
+        if len(left_start_widths) == len(left_end_widths):
+            left_lanes = LaneDef(
+                0,
+                connecting_road_length,
+                n_l_lanes,
+                n_l_lanes,
+                None,
+                left_start_widths,
+                left_end_widths,
+            )
+
+        right_lanes = 0
+        if (len(right_start_widths)) == (len(right_end_widths)):
+            right_lanes = LaneDef(
+                0,
+                connecting_road_length,
+                n_r_lanes,
+                n_r_lanes,
+                None,
+                right_start_widths,
+                right_end_widths,
+            )
+        return left_lanes, right_lanes
+
+        # if incomming_connected_lane_section == -1 and outgoing_connected_lane_section == -1:
+        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
+        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
+
+        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'right'))
+        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'left'))
+
+        # elif incomming_connected_lane_section == -1 and outgoing_connected_lane_section == 0:
+        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
+        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
+
+        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'left'))
+        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'right'))
+
+        # elif incomming_connected_lane_section == 0 and outgoing_connected_lane_section == 0:
+        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
+        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
+
+        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'left'))
+        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'right'))
+
+        # elif incomming_connected_lane_section == 0 and outgoing_connected_lane_section == -1:
+        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
+        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
+
+        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'right'))
+        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'left'))
+
+        # return left_lanes, right_lanes
+
     def _create_connecting_roads_with_equal_lanes(self, road_one_id, road_two_id):
         """_create_connecting_roads_with_equal_lanes is a helper method that connects two roads that have the
         same number of left and right lanes
@@ -522,40 +622,17 @@ class CommonJunctionCreator:
             roadgeoms = self._create_geometry_from_circular(idx1, idx2)
         elif self._generic_junction:
             roadgeoms = self._create_geometry_from_carthesian(idx1, idx2)
-        if (
-            self.incoming_roads[idx1]
-            .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-            .leftlanes
-        ):
-            lane_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[0]
-                .widths[0]
-                .a
-            )
-        else:
-            lane_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[0]
-                .widths[0]
-                .a
-            )
+
+        left_lane_defs, right_lane_defs = self._get_lane_defs(
+            idx1, idx2, sum([x.length for x in roadgeoms])
+        )
+
         tmp_junc_road = create_road(
             roadgeoms,
             self.startnum,
-            left_lanes=len(
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes
-            ),
-            right_lanes=len(
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes
-            ),
-            lane_width=lane_width,
+            left_lanes=left_lane_defs,
+            right_lanes=right_lane_defs,
+            lane_width=1,
             road_type=self.id,
         )
 
@@ -581,6 +658,23 @@ class CommonJunctionCreator:
             return "successor"
         else:
             return "predecessor"
+
+    def _get_lane_width(self, lane_id, road_idx):
+        if np.sign(lane_id) == -1:
+            start_width = (
+                self.incoming_roads[road_idx]
+                .lanes.lanesections[self._get_connecting_lane_section(road_idx)]
+                .rightlanes[abs(lane_id) - 1]
+                .get_width(0)
+            )
+        else:
+            start_width = (
+                self.incoming_roads[road_idx]
+                .lanes.lanesections[self._get_connecting_lane_section(road_idx)]
+                .leftlanes[abs(lane_id) - 1]
+                .get_width(0)
+            )
+        return start_width
 
     def _create_connecting_road_with_lane_input(
         self, road_one_id, road_two_id, lane_one_id, lane_two_id
@@ -640,39 +734,9 @@ class CommonJunctionCreator:
                     .get_width(0)
                 )
 
-        start_width = 0.0
-        lane_one_abs = np.sign(lane_one_id) * lane_one_id
-        if np.sign(lane_one_id) == -1:
-            start_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .rightlanes[lane_one_abs - 1]
-                .get_width(0)
-            )
-        else:
-            start_width = (
-                self.incoming_roads[idx1]
-                .lanes.lanesections[self._get_connecting_lane_section(idx1)]
-                .leftlanes[lane_one_abs - 1]
-                .get_width(0)
-            )
+        start_width = self._get_lane_width(lane_one_id, idx1)
 
-        end_width = 0.0
-        lane_two_abs = np.sign(lane_two_id) * lane_two_id
-        if np.sign(lane_two_id) == -1:
-            end_width = (
-                self.incoming_roads[idx2]
-                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
-                .rightlanes[lane_two_abs - 1]
-                .get_width(0)
-            )
-        else:
-            end_width = (
-                self.incoming_roads[idx2]
-                .lanes.lanesections[self._get_connecting_lane_section(idx2)]
-                .leftlanes[lane_two_abs - 1]
-                .get_width(0)
-            )
+        end_width = self._get_lane_width(lane_two_id, idx2)
 
         if self._get_connection_type(idx1) == "successor":
             angle_offset_start = np.sign(lane_one_id) * np.pi / 2
