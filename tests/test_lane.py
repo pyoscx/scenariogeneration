@@ -15,6 +15,7 @@ import pytest
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
 from scenariogeneration.xodr.generators import STD_ROADMARK_BROKEN, STD_ROADMARK_SOLID
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_roadline():
@@ -33,6 +34,14 @@ def test_roadline():
     )
     assert line == line2
     assert line != line3
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_lcr_lane_roadMark_type_line",
+            line,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_roadmark():
@@ -44,6 +53,7 @@ def test_roadmark():
         1,
         1,
         1,
+        0,
         pyodrx.MarkRule.no_passing,
         pyodrx.RoadMarkColor.standard,
     )
@@ -54,6 +64,7 @@ def test_roadmark():
         1,
         1,
         1,
+        0,
         pyodrx.MarkRule.no_passing,
         pyodrx.RoadMarkColor.standard,
     )
@@ -63,6 +74,7 @@ def test_roadmark():
         1,
         1,
         2,
+        0,
         pyodrx.MarkRule.no_passing,
         pyodrx.RoadMarkColor.standard,
     )
@@ -73,6 +85,12 @@ def test_roadmark():
     mark4.add_specific_road_line(pyodrx.RoadLine(0.2, 0, 0, 0.2, 0))
     mark4.add_specific_road_line(pyodrx.RoadLine(0.2, 0, 0, 0.2, 0))
     prettyprint(mark4.get_element())
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_lcr_lane_roadMark", mark, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_poly3struct():
@@ -86,6 +104,7 @@ def test_poly3struct():
 def test_lane():
     lane = pyodrx.Lane()
     lane._set_lane_id(1)
+    lane.add_userdata(pyodrx.UserData("key", "value"))
     prettyprint(lane.get_element())
     lane = pyodrx.Lane(pyodrx.LaneType.driving, 1, 1, 1, 1, 2)
     lane._set_lane_id(1)
@@ -97,6 +116,26 @@ def test_lane():
     lane3._set_lane_id(1)
     assert lane == lane2
     assert lane != lane3
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+    lane3._set_lane_id(-1)
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_right_lane", lane3, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+    lane3._set_lane_id(0)
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_center_lane", lane3, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_lane_with_multiple_widths():
@@ -118,6 +157,12 @@ def test_lane_with_multiple_widths():
 
     assert lane == lane2
     assert lane != lane3
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_lane_with_height():
@@ -125,6 +170,12 @@ def test_lane_with_height():
     lane._set_lane_id(1)
     lane.add_height(0.15)
     prettyprint(lane.get_element())
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_lane_with_roadmarks():
@@ -142,6 +193,12 @@ def test_lane_with_roadmarks():
     prettyprint(lane3)
     assert lane == lane2
     assert lane != lane3
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_lanesection():
@@ -164,6 +221,10 @@ def test_lanesection():
 
     assert ls == ls2
     assert ls != ls3
+    assert (
+        version_validation("t_road_lanes_laneSection", ls, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_laneoffset():
@@ -174,6 +235,10 @@ def test_laneoffset():
     laneoffset3 = pyodrx.LaneOffset(0, 1, 2, 3, 4)
     assert laneoffset1 != laneoffset2
     assert laneoffset1 == laneoffset3
+    assert (
+        version_validation("t_road_lanes_laneOffset", laneoffset1, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_lane_width_calc():
@@ -202,3 +267,7 @@ def test_lanes():
     lanes3.add_userdata(pyodrx.UserData("stuffs", "valuestuffs"))
     assert lanes == lanes2
     assert lanes != lanes3
+    assert (
+        version_validation("t_road_lanes", lanes, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )

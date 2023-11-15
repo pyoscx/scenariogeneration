@@ -20,58 +20,76 @@
     - create_road
 """
 
-from scenariogeneration import xodr, esmini
+from scenariogeneration import xodr, prettyprint, ScenarioGenerator
 import numpy as np
 import os
 
-# create 4 roads going into a junction with different lanewidths
-road1 = xodr.create_road(
-    xodr.Line(100),
-    1,
-    xodr.LaneDef(0, 100, 2, 2, None, [3, 1]),
-    xodr.LaneDef(0, 100, 2, 2, None, [4, 1]),
-)
-road2 = xodr.create_road(
-    xodr.Line(100), 2, 0, [xodr.LaneDef(0, 100, 2, 2, None, [2, 2])]
-)
-road3 = xodr.create_road(
-    xodr.Line(100), 3, [xodr.LaneDef(0, 100, 2, 2, None, [4, 4])], 0
-)
-road4 = xodr.create_road(
-    xodr.Line(100),
-    4,
-    [xodr.LaneDef(0, 100, 2, 2, None, [3, 3])],
-    [xodr.LaneDef(0, 100, 2, 2, None, [4, 4])],
-)
 
-# create the connection in the junction
-jc = xodr.CommonJunctionCreator(100, "my junc")
-jc.add_incoming_road_cartesian_geometry(road1, 0, -20, -np.pi / 2 * 3, "successor")
-jc.add_incoming_road_cartesian_geometry(road4, 5, 30, -np.pi / 2 - 0.1, "successor")
-jc.add_incoming_road_cartesian_geometry(road3, -20, 0, 0, "predecessor")
-jc.add_incoming_road_cartesian_geometry(road2, 20, 0, np.pi, "predecessor")
+class Scenario(ScenarioGenerator):
+    def __init__(self):
+        super().__init__()
 
-jc.add_connection(1, 2)
-jc.add_connection(3, 1)
-jc.add_connection(1, 4, [-1, 1], [1, -1])
-jc.add_connection(2, 3)
-jc.add_connection(4, 2)
-jc.add_connection(4, 3)
+    def road(self, **kwargs):
+        # create 4 roads going into a junction with different lanewidths
+        road1 = xodr.create_road(
+            xodr.Line(100),
+            1,
+            xodr.LaneDef(0, 100, 2, 2, None, [3, 1]),
+            xodr.LaneDef(0, 100, 2, 2, None, [4, 1]),
+        )
+        road2 = xodr.create_road(
+            xodr.Line(100), 2, 0, [xodr.LaneDef(0, 100, 2, 2, None, [2, 2])]
+        )
+        road3 = xodr.create_road(
+            xodr.Line(100), 3, [xodr.LaneDef(0, 100, 2, 2, None, [4, 4])], 0
+        )
+        road4 = xodr.create_road(
+            xodr.Line(100),
+            4,
+            [xodr.LaneDef(0, 100, 2, 2, None, [3, 3])],
+            [xodr.LaneDef(0, 100, 2, 2, None, [4, 4])],
+        )
 
-# create the open drive and add the roads
-odr = xodr.OpenDrive("my test road")
-odr.add_road(road1)
-odr.add_road(road2)
-odr.add_road(road3)
-odr.add_road(road4)
-odr.add_junction_creator(jc)
+        # create the connection in the junction
+        jc = xodr.CommonJunctionCreator(100, "my junc")
+        jc.add_incoming_road_cartesian_geometry(
+            road1, 0, -20, -np.pi / 2 * 3, "successor"
+        )
+        jc.add_incoming_road_cartesian_geometry(
+            road4, 5, 30, -np.pi / 2 - 0.1, "successor"
+        )
+        jc.add_incoming_road_cartesian_geometry(road3, -20, 0, 0, "predecessor")
+        jc.add_incoming_road_cartesian_geometry(road2, 20, 0, np.pi, "predecessor")
 
-# adjust roads and lanes
-odr.adjust_roads_and_lanes()
+        jc.add_connection(1, 2)
+        jc.add_connection(3, 1)
+        jc.add_connection(1, 4, [-1, 1], [1, -1])
+        jc.add_connection(2, 3)
+        jc.add_connection(4, 2)
+        jc.add_connection(4, 3)
 
-# write the OpenDRIVE file as xodr using current script name
-odr.write_xml(os.path.basename(__file__).replace(".py", ".xodr"))
+        # create the open drive and add the roads
+        odr = xodr.OpenDrive("my test road")
+        odr.add_road(road1)
+        odr.add_road(road2)
+        odr.add_road(road3)
+        odr.add_road(road4)
+        odr.add_junction_creator(jc)
 
-# uncomment the following lines to display the road using esmini
-# from scenariogeneration import esmini
-# esmini(odr,os.path.join('esmini'))
+        # adjust roads and lanes
+        odr.adjust_roads_and_lanes()
+
+        return odr
+
+
+if __name__ == "__main__":
+    sce = Scenario()
+    # Print the resulting xml
+    prettyprint(sce.road().get_element())
+
+    # write the OpenSCENARIO file as xosc using current script name
+    sce.generate(".")
+
+    # uncomment the following lines to display the scenario using esmini
+    # from scenariogeneration import esmini
+    # esmini(sce,os.path.join('esmini'))

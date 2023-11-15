@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -13,6 +13,7 @@ from scenariogeneration.xodr.opendrive import OpenDrive
 import pytest
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_simple_road():
@@ -32,8 +33,13 @@ def test_simple_road():
     lanes.add_lanesection(lanesec)
 
     road = pyodrx.Road(1, planview, lanes)
+    road.planview.adjust_geometries()
 
     prettyprint(road.get_element())
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_link_road():
@@ -63,7 +69,7 @@ def test_link_road():
     road2.add_predecessor(pyodrx.ElementType.road, "1", pyodrx.ContactPoint.start)
 
     planview3 = pyodrx.PlanView()
-    planview3.add_geometry(pyodrx.Line(100))
+    planview3.add_geometry(pyodrx.Line(120))
     lane13 = pyodrx.Lane(a=2)
     lane13.add_roadmark(
         pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
@@ -78,14 +84,15 @@ def test_link_road():
     odr2 = pyodrx.OpenDrive("")
     odr3 = pyodrx.OpenDrive("")
     odr.add_road(road)
-    odr2.add_road(road)
-    odr3.add_road(road)
+    odr2.add_road(road2)
+    odr3.add_road(road3)
     odr.adjust_roads_and_lanes()
     odr2.adjust_roads_and_lanes()
     odr3.adjust_roads_and_lanes()
 
-    # assert odr == odr2
-    # assert odr != odr3
+    assert odr == odr2
+    assert odr != odr3
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 @pytest.mark.parametrize(
@@ -118,6 +125,7 @@ def test_create_straight_road(data):
     assert road.lanes.lanesections[0].leftlanes[0].widths[0].b == 0
     assert road.lanes.lanesections[0].leftlanes[0].widths[0].c == 0
     assert road.lanes.lanesections[0].leftlanes[0].widths[0].d == 0
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_road_type():
@@ -134,6 +142,10 @@ def test_road_type():
     rt3 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 1, "SE", speed="no limit")
     assert rt == rt2
     assert rt != rt3
+    assert (
+        version_validation("t_road_type", rt, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_road_with_road_types():
@@ -160,6 +172,7 @@ def test_road_with_road_types():
     assert road.planview != road3.planview
     assert odr == odr2
     assert odr != odr3
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_road_with_repeating_objects():
@@ -185,6 +198,7 @@ def test_road_with_repeating_objects():
     assert r1 != r3
     assert odr == odr2
     assert odr != odr3
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_header():
@@ -193,3 +207,7 @@ def test_header():
     h3 = pyodrx.opendrive._Header("hej", "1", "5")
     assert h1 == h2
     assert h1 != h3
+    assert (
+        version_validation("t_header", h1, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )

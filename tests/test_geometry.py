@@ -16,13 +16,19 @@ import numpy as np
 
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_line():
     line = pyodrx.Line(1)
+    assert (
+        version_validation("t_road_planView_geometry_line", line, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
     line.add_userdata(pyodrx.UserData("stuffs", "morestuffs"))
     p = line.get_element()
     prettyprint(p)
+    # assert version_validation("t_road_planView_geometry_line", line, wanted_schema='xodr') == ValidationResponse.OK
 
 
 @pytest.mark.parametrize(
@@ -58,6 +64,12 @@ def test_spiral():
     prettyprint(spiral3)
     assert spiral == spiral2
     assert spiral != spiral3
+    assert (
+        version_validation(
+            "t_road_planView_geometry_spiral", spiral, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_spiral_inputs():
@@ -175,6 +187,10 @@ def test_arc():
     assert arc == arc2
 
     assert arc != arc3
+    assert (
+        version_validation("t_road_planView_geometry_arc", arc, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 @pytest.mark.parametrize(
@@ -239,6 +255,12 @@ def test_polyparam():
     prettyprint(poly3)
     assert poly == poly2
     assert poly != poly3
+    assert (
+        version_validation(
+            "t_road_planView_geometry_paramPoly3", poly, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 @pytest.mark.parametrize(
@@ -268,6 +290,10 @@ def test_geometry():
     prettyprint(geom3)
     assert geom == geom2
     assert geom != geom3
+    assert (
+        version_validation("t_road_planView_geometry", geom, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 @pytest.mark.parametrize(
@@ -409,6 +435,11 @@ def test_planview():
     prettyprint(planview3)
     assert planview != planview2
     assert planview != planview3
+    planview.adjust_geometries()
+    assert (
+        version_validation("t_road_planView", planview, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 @pytest.mark.parametrize(

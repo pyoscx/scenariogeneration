@@ -1,11 +1,11 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
@@ -13,6 +13,7 @@ import pytest
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
 import numpy as np
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_link():
@@ -67,6 +68,13 @@ def test_lanelinker():
 
     prettyprint(lane.get_element())
 
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+
 
 def test_connection():
     con = pyodrx.Connection(1, 2, pyodrx.ContactPoint.start, 5)
@@ -87,6 +95,10 @@ def test_connection():
 
     assert con == con2
     assert con != con3
+    assert (
+        version_validation("t_junction_connection", con, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_junction():
@@ -119,6 +131,10 @@ def test_junction():
     junction3.add_connection(con2)
     assert junction == junction2
     assert junction != junction3
+    assert (
+        version_validation("t_junction", junction, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 # road - road - road // -> - -> - ->
@@ -200,6 +216,7 @@ def test_create_lane_links_normalroad1():
     assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
     assert int(road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 # road - junction - road // -> - -> - ->
@@ -279,6 +296,7 @@ def test_create_lane_links_junction1():
     assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 # road - junction - road // <- - -> - <-
@@ -356,6 +374,7 @@ def test_create_lane_links_junction2():
     assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 # road - junction - road // <- - -> - ->
@@ -433,6 +452,7 @@ def test_create_lane_links_junction3():
     assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 # road - junction - road // -> - -> - <-
@@ -508,6 +528,7 @@ def test_create_lane_links_junction4():
     assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
     assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_junction_group():
@@ -527,6 +548,10 @@ def test_junction_group():
 
     assert jg == jg2
     assert jg != jg3
+    assert (
+        version_validation("t_junctionGroup", jg, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_lanelinking_roads_pre_suc():
@@ -558,6 +583,7 @@ def test_lanelinking_roads_pre_suc():
     )
     assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "1"
     assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "-1"
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_lanelinking_roads_suc_suc():
@@ -588,6 +614,7 @@ def test_lanelinking_roads_suc_suc():
     )
     assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
     assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
 def test_lanelinking_roads_suc_suc():
@@ -620,3 +647,4 @@ def test_lanelinking_roads_suc_suc():
     )
     assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
     assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
+    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK

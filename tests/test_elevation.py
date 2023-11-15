@@ -12,6 +12,7 @@
 import pytest
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_poly3profile():
@@ -57,6 +58,11 @@ def test_elevationprofile():
     assert elevation == elevation2
     assert elevation != elevation3
 
+    assert (
+        version_validation("t_road_elevationProfile", elevation, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
 
 def test_lateralprofile():
     latprofile = xodr.LateralProfile()
@@ -78,3 +84,7 @@ def test_lateralprofile():
 
     assert latprofile2 == latprofile
     assert latprofile != latprofile3
+    assert (
+        version_validation("t_road_lateralProfile", latprofile, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
