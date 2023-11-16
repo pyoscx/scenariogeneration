@@ -111,7 +111,9 @@ Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a s
 
 
 #### LaneDef
-LaneDef is a helper class that enables simple lane merge/split roads to be created, this definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html)).
+LaneDef is a helper class that enables simple lane merge/split roads to be created. LaneDef can also be used to define different widths of lanes, aswell as lane widths changing. The LaneDefs definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html), and [full_junction_with_LaneDef](examples/xodr/full_junction_with_LaneDef.html)).
+
+__NOTE:__ At present, the LaneDef on both right and left side has to coincide in the s-direction.
 
 ### JunctionCreators
 
