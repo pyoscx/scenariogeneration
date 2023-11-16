@@ -601,7 +601,7 @@ class RoadMark(XodrBase):
         marking_type (RoadMarkType): the type of marking
 
         width (float): with of the line
-
+            Default: None
         length (float): length of the line
             Default: 0
         toffset (float): offset in t
@@ -779,10 +779,27 @@ class RoadMark(XodrBase):
         element = ET.Element("roadMark", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self._line:
+            attribs = {"name": enum2str(self.marking_type)}
+            if self.width is not None:
+                attribs["width"] = str(self.width)
+            else:
+                offsets = [x.toffset for x in self._line]
+
+                attribs["width"] = str(
+                    max(offsets)
+                    - min(offsets)
+                    + sum(
+                        [
+                            x.width
+                            for x in self._line
+                            if x.toffset in [max(offsets), min(offsets)]
+                        ]
+                    )
+                )
             typeelement = ET.SubElement(
                 element,
                 "type",
-                attrib={"name": enum2str(self.marking_type), "width": str(self.width)},
+                attrib=attribs,
             )
             for l in self._line:
                 typeelement.append(l.get_element())

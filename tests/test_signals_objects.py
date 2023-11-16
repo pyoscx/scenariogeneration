@@ -1,16 +1,18 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
+
+from .xml_validator import version_validation, ValidationResponse
 
 
 def test_signal_validity():
@@ -19,6 +21,10 @@ def test_signal_validity():
     road = pyodrx.create_straight_road(0)
     road.add_signal(signal)
     prettyprint(road.get_element())
+    assert (
+        version_validation("t_road_signals_signal", signal, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_object_validity():
@@ -29,6 +35,10 @@ def test_object_validity():
     road = pyodrx.create_straight_road(0)
     road.add_object(guardrail)
     prettyprint(road.get_element())
+    assert (
+        version_validation("t_road_objects_object", guardrail, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_signal():
@@ -88,6 +98,11 @@ def test_signal():
     assert signal1 == signal3
     assert signal1 != signal2
     assert signal2 != signal2_wRev
+    road.planview.adjust_geometries()
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_object():
@@ -136,6 +151,11 @@ def test_object():
     object3.id = object1.id
     assert object1 == object3
     assert object2 != object1
+    road.planview.adjust_geometries()
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_repeated_object():
@@ -196,6 +216,11 @@ def test_object_roadside():
     )
     road.add_object_roadside(object1, 50, tOffset=0.85)
     prettyprint(road.get_element())
+    road.planview.adjust_geometries()
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_corner_local():
@@ -205,6 +230,14 @@ def test_corner_local():
     assert cl == cl2
     assert cl != cl3
     prettyprint(cl)
+    assert (
+        version_validation(
+            "t_road_objects_object_outlines_outline_cornerLocal",
+            cl,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_corner_road():
@@ -214,6 +247,14 @@ def test_corner_road():
     assert cr == cr2
     assert cr != cr3
     prettyprint(cr)
+    assert (
+        version_validation(
+            "t_road_objects_object_outlines_outline_cornerRoad",
+            cr,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_outline():
@@ -236,3 +277,9 @@ def test_outline():
     assert outline == outline2
     assert outline != outline3
     assert outline != outline4
+    assert (
+        version_validation(
+            "t_road_objects_object_outlines_outline", outline, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
