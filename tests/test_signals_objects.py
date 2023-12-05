@@ -29,7 +29,12 @@ def test_signal_validity():
 
 def test_object_validity():
     guardrail = pyodrx.Object(
-        0, 0, height=0.3, zOffset=0.4, Type=pyodrx.ObjectType.barrier, name="guardRail"
+        s=0,
+        t=0,
+        height=0.3,
+        zOffset=0.4,
+        Type=pyodrx.ObjectType.barrier,
+        name="guardRail",
     )
     guardrail.add_validity(1, 1)
     road = pyodrx.create_straight_road(0)
@@ -37,6 +42,29 @@ def test_object_validity():
     prettyprint(road.get_element())
     assert (
         version_validation("t_road_objects_object", guardrail, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+
+def test_object_parking_space():
+    parking_space_object = pyodrx.Object(
+        s=0,
+        t=0,
+        length=5,
+        width=3,
+        height=0.0,
+        Type=pyodrx.ObjectType.parkingSpace,
+        name="parkingSpace",
+    )
+    parking_space = pyodrx.ParkingSpace(pyodrx.Access.all, "test string")
+    parking_space_object.add_parking_space(parking_space)
+    road = pyodrx.create_straight_road(0)
+    road.add_object(parking_space_object)
+    prettyprint(road.get_element())
+    assert (
+        version_validation(
+            "t_road_objects_object", parking_space_object, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
