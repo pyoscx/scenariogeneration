@@ -1096,7 +1096,7 @@ class Outline(XodrBase):
 
 
 class ParkingSpace(XodrBase):
-    """Outline is used to wrap corners for an object in OpenDRIVE
+    """ParkingSpace is used to define access and restrictions for objects in OpenDRIVE
 
     Parameters
     ----------
@@ -1122,7 +1122,7 @@ class ParkingSpace(XodrBase):
     """
 
     def __init__(self, access=None, restrictions=None):
-        """initalize the Outline
+        """initalize the ParkingSpace
 
         Parameters
         ----------
