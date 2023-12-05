@@ -208,7 +208,7 @@ class JunctionType(Enum):
 
 
 class FillType(Enum):
-    """Enum for JunctionType"""
+    """Enum for FillType"""
 
     asphalt = auto()
     cobble = auto()
@@ -217,6 +217,19 @@ class FillType(Enum):
     gravel = auto()
     pavement = auto()
     soil = auto()
+
+
+class Access(Enum):
+    """Enum for ParkingSpace Access"""
+
+    all = auto()
+    bus = auto()
+    car = auto()
+    electric = auto()
+    handicapped = auto()
+    residents = auto()
+    truck = auto()
+    woman = auto()
 
 
 class RawDataPostProcessing(Enum):

@@ -624,6 +624,7 @@ class Object(_SignalObjectBase):
         self._repeats = []
         self.outlines = []
         self.validity = None
+        self.parking_space = None
 
         # check if width/length combination or radius was provided and ensure working defaults
         if radius is not None and (width is not None or length is not None):
@@ -764,6 +765,15 @@ class Object(_SignalObjectBase):
         """
         self.outlines.append(outline)
 
+    def add_parking_space(self, parking_space):
+        """adds an parking space to the object
+
+        Parameters
+        ----------
+            parking_space (ParkingSpace): the outline to be added
+        """
+        self.parking_space = parking_space
+
     def get_attributes(self):
         """returns the attributes of the Object as a dict"""
         retdict = super().get_common_attributes()
@@ -787,6 +797,8 @@ class Object(_SignalObjectBase):
             ET.SubElement(element, "repeat", attrib=_repeat)
         if self.validity:
             element.append(self.validity.get_element())
+        if self.parking_space:
+            element.append(self.parking_space.get_element())
         if self.outlines:
             outlines_element = ET.SubElement(element, "outlines")
             for outline in self.outlines:
@@ -1079,5 +1091,70 @@ class Outline(XodrBase):
         self._add_additional_data_to_element(element)
         for corner in self.corners:
             element.append(corner.get_element())
+
+        return element
+
+
+class ParkingSpace(XodrBase):
+    """ParkingSpace is used to define access and restrictions for objects in OpenDRIVE
+
+    Parameters
+    ----------
+        access (Access): type of access of the parking space (optional)
+
+        restrictions (string): restrictions of the parking space (optional)
+
+
+    Attributes
+    ----------
+        access (Access): type of access of the parking space (optional)
+
+        restrictions (string): restrictions of the parking space (optional)
+
+    Methods
+    -------
+        get_element()
+            Returns the full ElementTree of the class
+
+        get_attributes()
+            Returns a dictionary of all attributes of the class
+
+    """
+
+    def __init__(self, access=None, restrictions=None):
+        """initalize the ParkingSpace
+
+        Parameters
+        ----------
+            access (Access): type of access of the parking space (optional)
+
+            restrictions (string): restrictions of the parking space (optional)
+
+
+        """
+        super().__init__()
+        self.access = access
+        self.restrictions = restrictions
+
+    def __eq__(self, other):
+        if isinstance(other, Outline) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self):
+        """returns the attributes of ParkingSpace as a dict"""
+        retdict = {}
+        if self.access is not None:
+            retdict["access"] = enum2str(self.access)
+        if self.restrictions is not None:
+            retdict["restrictions"] = self.restrictions
+
+        return retdict
+
+    def get_element(self):
+        """returns the elementTree of ParkingSpace"""
+        element = ET.Element("parkingSpace", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
 
         return element
