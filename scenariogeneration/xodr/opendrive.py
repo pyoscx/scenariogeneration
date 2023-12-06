@@ -754,6 +754,137 @@ class OpenDrive(XodrBase):
             # print('Analyzing roads', results[r][0], 'and', results[r][1] )
             create_lane_links(self.roads[results[r][0]], self.roads[results[r][1]])
 
+    def adjust_roadmarks(self):
+        """Tries to adjust broken roadmarks (if same definition) along roads and lane sections"""
+
+        adjusted_road = self.roads[list(self.roads.keys())[0]]
+        if not adjusted_road.planview.adjusted:
+            raise RoadsAndLanesNotAdjusted(
+                "Cannot adjust roadmarks if geometries are not adjusted properly first. Consider calling 'adjust_roads_and_lanes()' first."
+            )
+        adjusted_road.lanes.adjust_road_marks_from_start(
+            adjusted_road.planview.get_total_length()
+        )
+
+        count_total_adjusted_roads = 1
+
+        while count_total_adjusted_roads < len(self.roads):
+            for r in self.roads.keys():
+                if not self.roads[r].planview.adjusted:
+                    raise RoadsAndLanesNotAdjusted(
+                        "Cannot adjust roadmarks if geometries are not adjusted properly first. Consider calling 'adjust_roads_and_lanes()' first."
+                    )
+                if self.roads[r].lanes.roadmarks_adjusted:
+                    if self.roads[r].successor:
+                        if self.roads[r].successor.element_type == ElementType.road:
+                            if (
+                                self.roads[r].successor.contact_point
+                                == ContactPoint.start
+                            ):
+                                self.roads[
+                                    str(self.roads[r].successor.element_id)
+                                ].lanes.adjust_road_marks_from_start(
+                                    self.roads[
+                                        str(self.roads[r].successor.element_id)
+                                    ].planview.get_total_length(),
+                                    self.roads[r].lanes.lanesections[-1],
+                                    ContactPoint.end,
+                                )
+                                count_total_adjusted_roads += 1
+                            else:
+                                self.roads[
+                                    str(self.roads[r].successor.element_id)
+                                ].lanes.adjust_road_marks_from_end(
+                                    self.roads[
+                                        str(self.roads[r].successor.element_id)
+                                    ].planview.get_total_length(),
+                                    self.roads[r].lanes.lanesections[-1],
+                                    ContactPoint.end,
+                                )
+                                count_total_adjusted_roads += 1
+                        else:
+                            for j in self.junctions:
+                                if j.id == self.roads[r].successor.element_id:
+                                    junction = j
+                                    break
+
+                            for conn in junction.connections:
+                                if str(conn.incoming_road) == r:
+                                    if conn.contact_point == ContactPoint.start:
+                                        self.roads[
+                                            str(conn.connecting_road)
+                                        ].lanes.adjust_road_marks_from_start(
+                                            self.roads[
+                                                str(conn.connecting_road)
+                                            ].planview.get_total_length(),
+                                            self.roads[r].lanes.lanesections[0],
+                                            ContactPoint.start,
+                                        )
+                                    else:
+                                        self.roads[
+                                            str(conn.connecting_road)
+                                        ].lanes.adjust_road_marks_from_end(
+                                            self.roads[
+                                                str(conn.connecting_road)
+                                            ].planview.get_total_length(),
+                                            self.roads[r].lanes.lanesections[0],
+                                            ContactPoint.start,
+                                        )
+
+                                    count_total_adjusted_roads += 1
+
+                    if self.roads[r].predecessor:
+                        if self.roads[r].predecessor.element_type == ElementType.road:
+                            if (
+                                self.roads[r].predecessor.contact_point
+                                == ContactPoint.start
+                            ):
+                                self.roads[
+                                    str(self.roads[r].predecessor.element_id)
+                                ].lanes.adjust_road_marks_from_start(
+                                    self.roads[
+                                        str(self.roads[r].predecessor.element_id)
+                                    ].planview.get_total_length(),
+                                    self.roads[r].lanes.lanesections[0],
+                                    ContactPoint.start,
+                                )
+                                count_total_adjusted_roads += 1
+                            else:
+                                self.roads[
+                                    str(self.roads[r].predecessor.element_id)
+                                ].lanes.adjust_road_marks_from_end(
+                                    self.roads[
+                                        str(self.roads[r].predecessor.element_id)
+                                    ].planview.get_total_length(),
+                                    self.roads[r].lanes.lanesections[0],
+                                    ContactPoint.start,
+                                )
+                                count_total_adjusted_roads += 1
+                        else:
+                            for conn in self.junctions[0].connections:
+                                if str(conn.incoming_road) == r:
+                                    if conn.contact_point == ContactPoint.start:
+                                        self.roads[
+                                            str(conn.connecting_road)
+                                        ].lanes.adjust_road_marks_from_start(
+                                            self.roads[
+                                                str(conn.connecting_road)
+                                            ].planview.get_total_length(),
+                                            self.roads[r].lanes.lanesections[-1],
+                                            ContactPoint.end,
+                                        )
+                                    else:
+                                        self.roads[
+                                            str(conn.connecting_road)
+                                        ].lanes.adjust_road_marks_from_end(
+                                            self.roads[
+                                                str(conn.connecting_road)
+                                            ].planview.get_total_length(),
+                                            self.roads[r].lanes.lanesections[-1],
+                                            ContactPoint.end,
+                                        )
+                                    count_total_adjusted_roads += 1
+
     def _adjust_road_wrt_neighbour(
         self, road_id, neighbour_id, contact_point, neighbour_type
     ):
