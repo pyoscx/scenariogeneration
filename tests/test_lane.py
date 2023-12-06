@@ -35,17 +35,18 @@ def test_roadline():
     assert line == line2
     assert line != line3
 
+
 def test_roadline_offset_calcs():
-    line = xodr.RoadLine(1,3,3,0,0)
+    line = xodr.RoadLine(1, 3, 3, 0, 0)
     line.adjust_remainder(10)
     assert line._remainder == 1
-    line.adjust_remainder(10,1)
+    line.adjust_remainder(10, 1)
     assert line._remainder == 0
 
     line._remainder = 0
     line.adjust_soffset(10)
     assert line.soffset == 1
-    line.adjust_soffset(10,1)
+    line.adjust_soffset(10, 1)
     assert line.soffset == 0
     assert (
         version_validation(
@@ -55,20 +56,16 @@ def test_roadline_offset_calcs():
         )
         == ValidationResponse.OK
     )
+
+
 def test_explicit_roadline():
     line = xodr.ExplicitRoadLine()
 
     prettyprint(line.get_element())
-    line = xodr.ExplicitRoadLine(
-        1, 2, 5, 1, xodr.MarkRule.no_passing
-    )
+    line = xodr.ExplicitRoadLine(1, 2, 5, 1, xodr.MarkRule.no_passing)
     prettyprint(line.get_element())
-    line2 = xodr.ExplicitRoadLine(
-        1, 2, 5, 1, xodr.MarkRule.no_passing
-    )
-    line3 = xodr.RoadLine(
-        1, 2, 5, 1, xodr.MarkRule.none
-    )
+    line2 = xodr.ExplicitRoadLine(1, 2, 5, 1, xodr.MarkRule.no_passing)
+    line3 = xodr.RoadLine(1, 2, 5, 1, xodr.MarkRule.none)
     assert line == line2
     assert line != line3
     assert (
@@ -94,7 +91,7 @@ def test_roadmark():
         xodr.MarkRule.no_passing,
         xodr.RoadMarkColor.standard,
     )
-    mark.add_explicit_road_line(xodr.ExplicitRoadLine(1,2,3,4))
+    mark.add_explicit_road_line(xodr.ExplicitRoadLine(1, 2, 3, 4))
     prettyprint(mark.get_element())
     mark2 = xodr.RoadMark(
         xodr.RoadMarkType.solid,
@@ -106,7 +103,7 @@ def test_roadmark():
         xodr.MarkRule.no_passing,
         xodr.RoadMarkColor.standard,
     )
-    mark2.add_explicit_road_line(xodr.ExplicitRoadLine(1,2,3,4))
+    mark2.add_explicit_road_line(xodr.ExplicitRoadLine(1, 2, 3, 4))
     mark3 = xodr.RoadMark(
         xodr.RoadMarkType.solid,
         0.2,
@@ -117,7 +114,7 @@ def test_roadmark():
         xodr.MarkRule.no_passing,
         xodr.RoadMarkColor.standard,
     )
-    mark3.add_explicit_road_line(xodr.ExplicitRoadLine(1,2,3,4))
+    mark3.add_explicit_road_line(xodr.ExplicitRoadLine(1, 2, 3, 4))
     assert mark == mark2
     assert mark != mark3
 
@@ -132,7 +129,6 @@ def test_roadmark():
         )
         == ValidationResponse.OK
     )
-
 
 
 def test_poly3struct():
@@ -315,17 +311,16 @@ def test_lanes():
     )
 
 
-
-
 ## tests for adjusting roadmarks
+
 
 def create_new_lane():
     lane = xodr.Lane()
     lane.add_roadmark(xodr.std_roadmark_broken_tight())
     return lane
 
-def test_adjust_lanes_one_lanesection_no_connection():
 
+def test_adjust_lanes_one_lanesection_no_connection():
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
@@ -340,8 +335,8 @@ def test_adjust_lanes_one_lanesection_no_connection():
     assert ls.centerlane.roadmark[0]._line[0]._remainder == 2
     assert ls.centerlane.roadmark[0]._line[0].soffset == 0
 
-def test_adjust_lanes_one_lanesection_end_connection():
 
+def test_adjust_lanes_one_lanesection_end_connection():
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
@@ -356,7 +351,9 @@ def test_adjust_lanes_one_lanesection_end_connection():
     connecting_lanes.add_lanesection(connecting_lane_section)
     connecting_lanes.adjust_road_marks_from_start(10)
 
-    lanes.adjust_road_marks_from_start(11,connecting_lane_section,xodr.ContactPoint.end)
+    lanes.adjust_road_marks_from_start(
+        11, connecting_lane_section, xodr.ContactPoint.end
+    )
 
     assert ls.rightlanes[0].roadmark[0]._line[0].soffset == 2
     assert ls.rightlanes[0].roadmark[0]._line[0]._remainder == 0
@@ -366,16 +363,12 @@ def test_adjust_lanes_one_lanesection_end_connection():
     assert ls.centerlane.roadmark[0]._line[0]._remainder == 0
 
 
-
 def test_adjust_lanes_one_lanesection_start_connection():
-
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
     lanes = xodr.Lanes()
     lanes.add_lanesection(ls)
-
-
 
     connecting_lane_section = xodr.LaneSection(0, create_new_lane())
     connecting_lane_section.add_left_lane(create_new_lane())
@@ -385,7 +378,9 @@ def test_adjust_lanes_one_lanesection_start_connection():
     connecting_lanes.add_lanesection(connecting_lane_section)
     connecting_lanes.adjust_road_marks_from_start(11)
 
-    lanes.adjust_road_marks_from_start(13,connecting_lane_section,xodr.ContactPoint.start)
+    lanes.adjust_road_marks_from_start(
+        13, connecting_lane_section, xodr.ContactPoint.start
+    )
 
     assert ls.rightlanes[0].roadmark[0]._line[0].soffset == 3
     assert ls.rightlanes[0].roadmark[0]._line[0]._remainder == 1
@@ -396,7 +391,6 @@ def test_adjust_lanes_one_lanesection_start_connection():
 
 
 def test_adjust_lanes_multi_lanesection_no_connection():
-
     ls1 = xodr.LaneSection(0, create_new_lane())
     ls1.add_left_lane(create_new_lane())
     ls1.add_right_lane(create_new_lane())
@@ -413,7 +407,6 @@ def test_adjust_lanes_multi_lanesection_no_connection():
     lanes.add_lanesection(ls1)
     lanes.add_lanesection(ls2)
     lanes.add_lanesection(ls3)
-
 
     lanes.adjust_road_marks_from_start(30)
 
@@ -439,9 +432,7 @@ def test_adjust_lanes_multi_lanesection_no_connection():
     assert ls3.centerlane.roadmark[0]._line[0]._remainder == 3
 
 
-
 def test_adjust_lanes_end_one_lanesection_no_connection():
-
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
@@ -458,7 +449,6 @@ def test_adjust_lanes_end_one_lanesection_no_connection():
 
 
 def test_adjust_lanes_end_one_lanesection_end_connection():
-
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
@@ -473,7 +463,7 @@ def test_adjust_lanes_end_one_lanesection_end_connection():
     connecting_lanes.add_lanesection(connecting_lane_section)
     connecting_lanes.adjust_road_marks_from_start(10)
 
-    lanes.adjust_road_marks_from_end(11,connecting_lane_section,xodr.ContactPoint.end)
+    lanes.adjust_road_marks_from_end(11, connecting_lane_section, xodr.ContactPoint.end)
 
     assert ls.rightlanes[0].roadmark[0]._line[0].soffset == 0
     assert ls.rightlanes[0].roadmark[0]._line[0]._remainder == 2
@@ -483,16 +473,12 @@ def test_adjust_lanes_end_one_lanesection_end_connection():
     assert ls.centerlane.roadmark[0]._line[0]._remainder == 2
 
 
-
 def test_adjust_lanes_end_one_lanesection_start_connection():
-
     ls = xodr.LaneSection(0, create_new_lane())
     ls.add_left_lane(create_new_lane())
     ls.add_right_lane(create_new_lane())
     lanes = xodr.Lanes()
     lanes.add_lanesection(ls)
-
-
 
     connecting_lane_section = xodr.LaneSection(0, create_new_lane())
     connecting_lane_section.add_left_lane(create_new_lane())
@@ -502,7 +488,9 @@ def test_adjust_lanes_end_one_lanesection_start_connection():
     connecting_lanes.add_lanesection(connecting_lane_section)
     connecting_lanes.adjust_road_marks_from_start(11)
 
-    lanes.adjust_road_marks_from_end(13,connecting_lane_section,xodr.ContactPoint.start)
+    lanes.adjust_road_marks_from_end(
+        13, connecting_lane_section, xodr.ContactPoint.start
+    )
 
     assert ls.rightlanes[0].roadmark[0]._line[0].soffset == 1
     assert ls.rightlanes[0].roadmark[0]._line[0]._remainder == 3
@@ -513,7 +501,6 @@ def test_adjust_lanes_end_one_lanesection_start_connection():
 
 
 def test_adjust_lanes_end_multi_lanesection_no_connection():
-
     ls1 = xodr.LaneSection(0, create_new_lane())
     ls1.add_left_lane(create_new_lane())
     ls1.add_right_lane(create_new_lane())
@@ -530,7 +517,6 @@ def test_adjust_lanes_end_multi_lanesection_no_connection():
     lanes.add_lanesection(ls1)
     lanes.add_lanesection(ls2)
     lanes.add_lanesection(ls3)
-
 
     lanes.adjust_road_marks_from_end(30)
 
@@ -554,4 +540,3 @@ def test_adjust_lanes_end_multi_lanesection_no_connection():
     assert ls2.centerlane.roadmark[0]._line[0]._remainder == 2
     assert ls3.centerlane.roadmark[0]._line[0].soffset == 1
     assert ls3.centerlane.roadmark[0]._line[0]._remainder == 0
-
