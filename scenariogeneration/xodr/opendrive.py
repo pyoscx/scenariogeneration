@@ -395,6 +395,20 @@ class Road(XodrBase):
             self.objects.append(road_object)
         return self
 
+    def add_tunnel(self, tunnel):
+        """Adds a tunnel or list of tunnels to a road
+
+        Parameters
+        ----------
+            tunnel (Tunnel/list(Tunnel)): tunnel(s) to be added to road
+
+        """
+        if isinstance(tunnel, list):
+            self.objects.extend(tunnel)
+        else:
+            self.objects.append(tunnel)
+        return self
+
     def add_object_roadside(
         self,
         road_object_prototype,
