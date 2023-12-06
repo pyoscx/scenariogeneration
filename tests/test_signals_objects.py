@@ -10,7 +10,7 @@
 
 """
 from scenariogeneration import xodr as pyodrx
-from scenariogeneration import prettyprint
+from scenariogeneration import prettyprint, prettify
 
 from .xml_validator import version_validation, ValidationResponse
 
@@ -184,6 +184,79 @@ def test_object():
         version_validation("t_road", road, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+
+def test_tunnel():
+    tunnel1 = pyodrx.Tunnel(
+        s=10.0,
+        length=10.0,
+        tunnel_type=pyodrx.TunnelType.standard,
+        id="1",
+        name="Tunnel 1",
+        daylight=0.79,
+        lighting=0.34,
+    )
+    prettyprint(tunnel1)
+
+    tunnel1_copy = pyodrx.Tunnel(
+        s=10.0,
+        length=10.0,
+        tunnel_type=pyodrx.TunnelType.standard,
+        id="1",
+        name="Tunnel 1",
+        daylight=0.79,
+        lighting=0.34,
+    )
+    assert tunnel1 == tunnel1_copy
+
+    tunnel2 = pyodrx.Tunnel(
+        s=50.0,
+        length=20.0,
+        tunnel_type=pyodrx.TunnelType.standard,
+        id="2",
+        name="Tunnel 2",
+        daylight=0.79,
+        lighting=0.34,
+    )
+    assert tunnel1 != tunnel2
+
+    assert (
+        version_validation("t_road_objects_tunnel", tunnel1, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+    road = pyodrx.create_straight_road(0, length=100)
+    road.add_tunnel([tunnel1, tunnel2])
+    road.planview.adjust_geometries()
+    prettyprint(road)
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+    assert _is_sub_element_written(tunnel1, road)
+    assert _is_sub_element_written(tunnel2, road)
+
+    tunnel1.id = 999
+    assert _is_sub_element_written(tunnel1, road)
+
+    new_tunnel = pyodrx.Tunnel(
+        s=1.0,
+        length=19.0,
+        tunnel_type=pyodrx.TunnelType.standard,
+        id="777",
+        name="Tunnel",
+        daylight=0.79,
+        lighting=0.34,
+    )
+    assert not _is_sub_element_written(new_tunnel, road)
+
+    road.add_tunnel(new_tunnel)
+    assert _is_sub_element_written(new_tunnel, road)
+
+
+def _is_sub_element_written(sub_element, element):
+    return prettify(sub_element.get_element()) in prettify(element.get_element())
 
 
 def test_repeated_object():

@@ -177,6 +177,13 @@ class ObjectType(Enum):
     roadMark = auto()
 
 
+class TunnelType(Enum):
+    """Enum for TunnelType"""
+
+    standard = auto()
+    underpass = auto()
+
+
 class Dynamic(Enum):
     """Enum for Dynamic"""
 
