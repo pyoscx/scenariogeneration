@@ -1,5 +1,21 @@
 ## scenariogeneration release notes
 
+### 2023-12-07 Version 0.14.0
+
+- Bugfixes
+  - DirectJunctionCreator can now handle successor-successor relations and predecessor-predecessor relations
+  - Catalog references can be added directly to storyboard
+- New feature
+  - UserData implemented for xodr
+  - Road linkage with different lane widths
+  - LaneDef can generate lanes with individual lane widths
+  - ParkingSpace type for OpenDRIVE object implemented
+  - SignalReference element for OpenDRIVE implemented
+  - Tunnel object for OpenDRIVE implemented
+  - RoadMarkAdjustment new method in xodr module for adjusting broken lanemark (see example: xodr/road_with_lane_adjustment.py) 
+- Tests
+  - all xodr classes and examples are validated against OpenDRIVE 1.7. Links and lane were updated to pass validation.
+
 
 ### 2023-10-05 Version 0.13.2
 
@@ -22,13 +38,13 @@
     - xosc Enumeration handling has expanded,
         - can now handle parameters (with a "$" as first character)
         - input can now be strings (as long as they are the same as the enumeration name)
-        - can parse paramaters (with a "$" as first character)
+        - can parse parameters (with a "$" as first character)
 - Important!
     - The exception types have been changed and more consistent for enumerations.
 
 ### 2023-03-22 Version 0.12.1
 
-- New opetions for naming and generation
+- New options for naming and generation
     - ScenarioGenerator class now has a base name that can be changed
     - naming option now has "parameter_no_list" which will give integer increase for lists
 
@@ -37,10 +53,10 @@
     - New tests
         - xsd tests for each class in the xosc module, as well for all the examples.
         - Testing xsd for OpenSCENARIO versions 1.0, 1.1, and 1.2
-    - xosc examples incapsulated in ScenarioGenerator class to make testing easier
+    - xosc examples encapsulated in ScenarioGenerator class to make testing easier
 
 - Bugfixes
-    - Alot of small fixes based on the xsd and version tests, including
+    - A lot of small fixes based on the xsd and version tests, including
         - typos in some elements
         - error handling when entries not related to a specific version is wanted
 
@@ -90,8 +106,8 @@
 - New Features
     - esmini runner can now run in headless mode (without replay), with the headless input key
     - countryRevision added for Signals
-    - __getitem__ introduced for xosc enums (Follomode['position'] now works)
-    - parallelization of writing the xml files for ScenarioGenerator (usefull for large generations)
+    - __getitem__ introduced for xosc enums (Followmode['position'] now works)
+    - parallelization of writing the xml files for ScenarioGenerator (useful for large generations)
 - Bug Fixes
     - boolean checks updated so that parameterstrings on the format "$my_boolean_parameter" can be used in all xosc classes
 
@@ -106,7 +122,7 @@
 ### 2022-09-08 Version 0.9.1
 - Bug Fixes
     - removal of non mandatory inputs to ActivateControllerAction
-    - removal of unneccesary library
+    - removal of unnecessary library
 
 ### 2022-07-01 Version 0.9.0
 - New Features
