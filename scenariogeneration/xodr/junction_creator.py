@@ -1115,15 +1115,15 @@ class DirectJunctionCreator:
             sign < 0
         ):  # incoming_connection == "successor" and linked_connection == "successor" or incoming_connection == "predecessor" and linked_connection == "predecessor":
             self._incoming_lane_ids.extend(
-                [x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
+                [-x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
             )
             self._linked_lane_ids.extend(
-                [-x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
+                [x for x in range(-min(incoming_left_lanes, linked_right_lanes), 0, 1)]
             )
 
             self._incoming_lane_ids.extend(
                 [
-                    x
+                    -x
                     for x in range(
                         1, min(incoming_right_lanes, linked_left_lanes) + 1, 1
                     )
@@ -1131,7 +1131,7 @@ class DirectJunctionCreator:
             )
             self._linked_lane_ids.extend(
                 [
-                    -x
+                    x
                     for x in range(
                         1, min(incoming_right_lanes, linked_left_lanes) + 1, 1
                     )
