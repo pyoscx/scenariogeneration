@@ -20,7 +20,7 @@
 """
 import numpy as np
 import pyclothoids as pcloth
-
+import copy
 from .lane import Lane, RoadMark, LaneSection, Lanes, RoadLine
 from .enumerations import (
     JunctionType,
@@ -41,30 +41,69 @@ from .exceptions import (
 )
 
 
-STD_ROADMARK_SOLID = RoadMark(RoadMarkType.solid, 0.2)
+def std_roadmark_solid():
+    return RoadMark(RoadMarkType.solid, 0.2)
 
-STD_ROADMARK_BROKEN = RoadMark(RoadMarkType.broken, 0.2)
 
-STD_ROADMARK_BROKEN_BROKEN = RoadMark(RoadMarkType.broken_broken)
-STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
-STD_ROADMARK_BROKEN_BROKEN.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
+def std_roadmark_broken():
+    roadmark = RoadMark(RoadMarkType.broken, 0.2)
+    roadmark.add_specific_road_line(RoadLine(0.15, 3, 9, 0, 0))
+    return roadmark
 
-STD_ROADMARK_SOLID_SOLID = RoadMark(RoadMarkType.solid_solid)
-STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
-STD_ROADMARK_SOLID_SOLID.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
 
-STD_ROADMARK_SOLID_BROKEN = RoadMark(RoadMarkType.solid_broken)
-STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
-STD_ROADMARK_SOLID_BROKEN.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
+def std_roadmark_broken_long_line():
+    roadmark = RoadMark(RoadMarkType.broken, 0.2)
+    roadmark.add_specific_road_line(RoadLine(0.15, 9, 3, 0, 0))
+    return roadmark
 
-STD_ROADMARK_BROKEN_SOLID = RoadMark(RoadMarkType.broken_solid)
-STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
-STD_ROADMARK_BROKEN_SOLID.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
+
+def std_roadmark_broken_tight():
+    roadmark = RoadMark(RoadMarkType.broken, 0.2)
+    roadmark.add_specific_road_line(RoadLine(0.15, 3, 3, 0, 0))
+    return roadmark
+
+
+def std_roadmark_broken_broken():
+    roadmark = RoadMark(RoadMarkType.broken_broken)
+    roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
+    roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
+    return roadmark
+
+
+def std_roadmark_solid_solid():
+    roadmark = RoadMark(RoadMarkType.solid_solid)
+    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
+    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
+    return roadmark
+
+
+def std_roadmark_solid_broken():
+    roadmark = RoadMark(RoadMarkType.solid_broken)
+    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
+    roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
+    return roadmark
+
+
+def std_roadmark_broken_solid():
+    roadmark = RoadMark(RoadMarkType.broken_solid)
+    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
+    roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
+    return roadmark
+
+
+STD_ROADMARK_SOLID = std_roadmark_broken()
+STD_ROADMARK_BROKEN = std_roadmark_broken()
+STD_ROADMARK_BROKEN_TIGHT = std_roadmark_broken_tight()
+STD_ROADMARK_BROKEN_BROKEN = std_roadmark_broken_broken()
+STD_ROADMARK_SOLID_SOLID = std_roadmark_solid_solid()
+STD_ROADMARK_SOLID_BROKEN = std_roadmark_solid_broken()
+STD_ROADMARK_BROKEN_SOLID = std_roadmark_broken_solid()
+
 
 STD_START_CLOTH = 1 / 1000000000
 
 
-def standard_lane(offset=3, rm=STD_ROADMARK_BROKEN):
+def standard_lane(offset=3, rm=std_roadmark_broken()):
     """standard_lane creates a simple lane with an offset an a roadmark
 
     Parameters
@@ -125,20 +164,18 @@ def create_lanes_merge_split(
         right_lane_def, left_lane_def, road_length, lane_width
     )
 
-    # create centerlane
-    lc = Lane(a=0)
-    lc.add_roadmark(center_road_mark)
-
     # create the lanesections needed
     for ls in range(len(left_lane)):
+        lc = Lane(a=0)
+        lc.add_roadmark(copy.deepcopy(center_road_mark))
         lsec = LaneSection(left_lane[ls].s_start, lc)
         # do the right lanes
         for i in range(max(right_lane[ls].n_lanes_start, right_lane[ls].n_lanes_end)):
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
             if i == max(right_lane[ls].n_lanes_start, right_lane[ls].n_lanes_end) - 1:
-                rm = STD_ROADMARK_SOLID
+                rm = std_roadmark_solid()
             else:
-                rm = STD_ROADMARK_BROKEN
+                rm = std_roadmark_broken()
 
             # check if the number of lanes should change or not
             if (
@@ -193,9 +230,9 @@ def create_lanes_merge_split(
         for i in range(max(left_lane[ls].n_lanes_start, left_lane[ls].n_lanes_end)):
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
             if i == max(left_lane[ls].n_lanes_start, left_lane[ls].n_lanes_end) - 1:
-                rm = STD_ROADMARK_SOLID
+                rm = std_roadmark_solid()
             else:
-                rm = STD_ROADMARK_BROKEN
+                rm = std_roadmark_broken()
 
             # check if the number of lanes should change or not
             if (
@@ -334,7 +371,7 @@ def create_road(
     left_lanes=1,
     right_lanes=1,
     road_type=-1,
-    center_road_mark=STD_ROADMARK_SOLID,
+    center_road_mark=std_roadmark_solid(),
     lane_width=3,
     lane_width_end=None,
 ):
@@ -404,26 +441,26 @@ def create_road(
 
 def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
     """creates a standard straight road with two lanes
+    STD_ROADMARK_SOLID
+        Parameters
+        ----------
+            road_id (int): id of the road to create
 
-    Parameters
-    ----------
-        road_id (int): id of the road to create
+            length (float): length of the road
+                default: 100
 
-        length (float): length of the road
-            default: 100
+            junction (int): if the road belongs to a junction or not
+                default: -1
 
-        junction (int): if the road belongs to a junction or not
-            default: -1
+            n_lanes (int): number of lanes
+                default: 1
 
-        n_lanes (int): number of lanes
-            default: 1
+            lane_offset (int): width of the road
+                default: 3
 
-        lane_offset (int): width of the road
-            default: 3
-
-    Returns
-    -------
-        road (Road): a straight road
+        Returns
+        -------
+            road (Road): a straight road
     """
     # create geometry
     line1 = Line(length)
@@ -527,7 +564,7 @@ def create_3cloths(
     junction=1,
     n_lanes=1,
     lane_offset=3,
-    road_marks=STD_ROADMARK_BROKEN,
+    road_marks=std_roadmark_broken(),
 ):
     """creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
 
@@ -865,7 +902,7 @@ def create_junction_roads(
     arc_part=1 / 3,
     startnum=100,
     inner_road_marks=None,
-    outer_road_marks=STD_ROADMARK_SOLID,
+    outer_road_marks=std_roadmark_solid(),
 ):
     """creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
     R is value to the the radius of the whole junction (meaning R = distance between the center of the junction and any external road attached to the junction)
