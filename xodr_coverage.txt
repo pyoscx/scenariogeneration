@@ -1,13 +1,13 @@
-COVERAGE OPEN DRIVE 1.5: 
+COVERAGE OPEN DRIVE 1.5:
 
 
 OpenDRIVE                           YES
-|-header                            YES    
+|-header                            YES
 | |-geoReference                    NO
 | |-offset                          NO
 |-road                              YES
-| |-link                            YES    
-| | |-predecessor                   YES    
+| |-link                            YES
+| | |-predecessor                   YES
 | | |-successor                     YES
 | | |-neighbor                      YES
 | |-type                            YES
@@ -21,7 +21,7 @@ OpenDRIVE                           YES
 | | | |-paramPoly3                  YES
 | |-elevationProfile                YES
 | | |-elevation                     YES
-| |-lateralProfile                  YES       
+| |-lateralProfile                  YES
 | | |-superelevation                YES
 | | |-crossfall                     NO
 | | |-shape                         YES
@@ -39,13 +39,13 @@ OpenDRIVE                           YES
 | | | | | | | -sway                 NO
 | | | | | | | -type                 YES
 | | | | | | | | -line               YES
-| | | | | | | -explicit             NO
-| | | | | | | | -line               NO
+| | | | | | | -explicit             YES
+| | | | | | | | -line               YES
 | | | | | |-material                NO
 | | | | | |-visibility              NO
 | | | | | |-speed                   NO
 | | | | | |-access                  NO
-| | | | | |-height                  NO
+| | | | | |-height                  YES
 | | | | | |-rule                    NO
 | | | |-center                      YES
 | | | | |-lane                      YES
@@ -54,10 +54,10 @@ OpenDRIVE                           YES
 | | | | | | |-successor             YES
 | | | | | |-roadMark                YES
 | | | | | | | -sway                 NO
-| | | | | | | -type                 YES        
+| | | | | | | -type                 YES
 | | | | | | | | -line               YES
-| | | | | | | -explicit             NO
-| | | | | | | | -line               NO
+| | | | | | | -explicit             YES
+| | | | | | | | -line               YES
 | | | |-right                       YES
 | | | | |-lane                      YES
 | | | | | |-link                    YES
@@ -69,34 +69,34 @@ OpenDRIVE                           YES
 | | | | | | | -sway                 NO
 | | | | | | | -type                 YES
 | | | | | | | | -line               YES
-| | | | | | | -explicit             NO
-| | | | | | | | -line               NO
+| | | | | | | -explicit             YES
+| | | | | | | | -line               YES
 | | | | | |-material                NO
 | | | | | |-visibility              NO
 | | | | | |-speed                   NO
 | | | | | |-access                  NO
-| | | | | |-height                  NO
+| | | | | |-height                  YES
 | | | | | |-rule                    NO
 | |-objects                         YES
 | | |-object                        YES
-| | | |-repeat                      YES  
-| | | |-outlines                    NO
-| | | | |-outline                   NO
-| | | | | |-cornerRoad              NO    
-| | | | | |-cornerLocal             NO
+| | | |-repeat                      YES
+| | | |-outlines                    YES
+| | | | |-outline                   YES
+| | | | | |-cornerRoad              YES
+| | | | | |-cornerLocal             YES
 | | | |-material                    NO
 | | | |-validity                    YES
-| | | |-parkingSpace                NO
+| | | |-parkingSpace                YES
 | | | |-markings                    NO
 | | | | |-marking                   NO
-| | | | | |-cornerReference         NO    
+| | | | | |-cornerReference         NO
 | | | |-borders                     NO
 | | | | |-border                    NO
 | | | | | |-cornerReference         NO
 | | |-objectReference               NO
 | | | |-validity                    NO
-| | |-tunnel                        NO
-| | | |-validity                    NO
+| | |-tunnel                        YES
+| | | |-validity                    YES
 | | |-bridge                        NO
 | | | |-validity                    NO
 | |-signals                         YES
@@ -105,9 +105,9 @@ OpenDRIVE                           YES
 | | | |-dependency                  NO
 | | | |-reference                   NO
 | | | |-positionRoad                NO
-| | | |-positionInertial            NO    
-| | |-signalReference               NO
-| | | |-validity                    NO
+| | | |-positionInertial            NO
+| | |-signalReference               YES
+| | | |-validity                    YES
 | |-surface                         NO
 | | |-CRG                           NO
 | |-railroad                        NO
@@ -117,7 +117,7 @@ OpenDRIVE                           YES
 | | | |-partner                     NO
 |-controller                        NO
 | |-control                         NO
-|-junction                          YES    
+|-junction                          YES
 | |-connection                      YES
 | | |-predecessor                   YES
 | | |-successor                     YES
@@ -126,8 +126,8 @@ OpenDRIVE                           YES
 | |-controller                      NO
 | |-surface                         NO
 | | |-CRG                           NO
-|-junctionGroup                     NO                 
-| |-junctionReference               NO
+|-junctionGroup                     YES
+| |-junctionReference               YES
 |-station                           NO
 | |-platform                        NO
-| | |-segment                       NO 
+| | |-segment                       NO

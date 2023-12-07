@@ -88,13 +88,21 @@ The most important automation functionality is the *adjust_roads_and_lanes* meth
 
 1. **Patch all Geometries and Roads Together** This is done on two levels: the "RoadNetwork" level and the "PlanView" level. At the RoadNetwork level all defined roads are patched consecutively, and this is possible only if the "predecessor/successor" attributes of the roads have been set. This is done either by: fixing the first road added to (0,0,0) and patch all other roads to that one, or localize if any PlanView(s) created has a manually added start point (e.g. if multiple roads are not connected via predecessor/successor). At the PlanView level, instead all geometries are patched together creating one continuous road, based at its start point. See the [highway_example](examples/xodr/highway_example.html) for an example showing how to work on the RoadNetwork level and [multiple_geometries_one_road](examples/xodr/multiple_geometries_one_road.html) for the PlanView level.
 
-__NOTE:__ *adjust_roads_and_lanes* will assume that the heading is continious between different geometries and roads.
+__NOTE:__ *adjust_roads_and_lanes* will assume that the heading is continuous between different geometries and roads.
 
 2. **Create Lane Linking** At this step the algorithm tries to link the lanes between roads. Normally this requires the same number of lanes in the connecting roads, but if the roads have a different amount of lanes, (should only be done in a junction!), the algorithm handles this case by adding offsets when defining the predecessor/successor attributes (see example: [highway_example](examples/xodr/highway_example.html), or [direct_junction_exit](examples/xodr/direct_junction_exit.html))
 
 __NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method, hence the resulting road might be very strange if the inputs are "wrong".
 
-Some limitations are sadly still in the patching and linking, and mostly when it comes to different widths of lanes. Some functionality is however automated and examples of this can be seen in [road_with_changing_lane_width](examples/xodr/road_with_changing_lane_width.html), or [junction_with_varying_lane_widths](examples/xodr/junction_with_varying_lane_widths.html))
+In some cases the patching might be wrong when different lane widths are preset, however some functionality is however automated and examples of this can be seen in [road_with_changing_lane_width](examples/xodr/road_with_changing_lane_width.html), or [junction_with_varying_lane_widths](examples/xodr/junction_with_varying_lane_widths.html))
+
+### Automatic adjustment of roadmarks
+When patching a number of roads together, either directly or via junctions, the roadmarks (if of type broken) has to be adjusted in order to have roadmarks with the same distance. This can be done with the *adjust_roadmark* method.
+The *adjust_roadmark* method will adjust the first road added to the *OpenDrive* object first, then adjust all roads according to the lane markings based on that road.
+
+This is done by adding a new *soffset* to all roadmarks, and if a roadmark is cut between lanesections an explicit line will be added to fill the gap in the beginning of a lanesection making it complete.
+
+__NOTE:__ All roads has to be fixed (using *adjust_roads_and_lanes*) before the roadmarks can be adjusted.
 
 ### Generators
 For most simple roads, the generators that are provided in the __xodr__ module can be used. These most often will generate the roads that can build up the network and then the user can just "patch" them together with the "successor/predecessor" attributes (see [highway_example](examples/xodr/highway_example.html))
