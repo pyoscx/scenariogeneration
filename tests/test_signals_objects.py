@@ -133,6 +133,47 @@ def test_signal():
     )
 
 
+def test_signal_reference():
+    signal1 = pyodrx.SignalReference(
+        s=10.0,
+        t=-2,
+        orientation=pyodrx.Orientation.positive,
+    )
+
+    signal2 = pyodrx.SignalReference(
+        s=20.0,
+        t=-2,
+        orientation=pyodrx.Orientation.positive,
+    )
+
+    signal2_wRev = pyodrx.SignalReference(
+        s=20.0,
+        t=-2,
+        orientation=pyodrx.Orientation.positive,
+    )
+
+    road = pyodrx.create_straight_road(0)
+    road.add_signal(signal1)
+    road.add_signal(signal2)
+    road.add_signal(signal2_wRev)
+    prettyprint(road.get_element())
+    signal3 = pyodrx.SignalReference(
+        s=10.0,
+        t=-2,
+        orientation=pyodrx.Orientation.positive,
+    )
+    # unique fixer
+    signal3.id = signal1.id
+    assert signal1 == signal3
+    assert signal1 != signal2
+    assert signal2 != signal2_wRev
+    road.planview.adjust_geometries()
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+
 def test_object():
     object1 = pyodrx.Object(
         s=10.0,
