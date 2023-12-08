@@ -374,7 +374,7 @@ class StoryBoard(VersionBase):
                 Default: EmptyTrigger('stop')
 
             parameters (ParameterDeclarations): the parameters of the story (optional)
-                Default: ParameterDeclarations()
+                Default: None
 
         """
         if not (
@@ -525,7 +525,8 @@ class Story(VersionBase):
     def get_element(self):
         """returns the elementTree of the Story"""
         element = ET.Element("Story", attrib=self.get_attributes())
-        element.append(self.parameter.get_element())
+        if self.parameter.get_element():
+            element.append(self.parameter.get_element())
         if not self.acts:
             raise ValueError("no acts added to the story")
         for a in self.acts:
@@ -957,7 +958,8 @@ class Maneuver(_BaseCatalog):
         super().__init__()
         if parameters is not None and not isinstance(parameters, ParameterDeclarations):
             raise TypeError("parameters is not of type ParameterDeclarations")
-        self.parameters = parameters
+        if parameters is not None:
+            self.parameters = parameters
         self.name = name
         self.events = []
 
@@ -1019,8 +1021,7 @@ class Maneuver(_BaseCatalog):
             raise ValueError("no events added to the maneuver")
 
         element = ET.Element("Maneuver", attrib=self.get_attributes())
-        if self.parameters:
-            element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         for event in self.events:
             element.append(event.get_element())
 

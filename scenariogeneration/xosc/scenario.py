@@ -231,7 +231,8 @@ class Scenario(VersionBase):
             },
         )
         element.append(self.header.get_element())
-        element.append(self.parameters.get_element())
+        if self.parameters.get_element():
+            element.append(self.parameters.get_element())
         element.append(self.catalog.get_element())
         element.append(self.roadnetwork.get_element())
         element.append(self.entities.get_element())

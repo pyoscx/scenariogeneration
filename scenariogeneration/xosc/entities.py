@@ -540,7 +540,6 @@ class Pedestrian(_BaseCatalog):
             raise TypeError("boundingbox input is not of type BoundingBox")
 
         self.boundingbox = boundingbox
-        self.parameters = ParameterDeclarations()
         self.properties = Properties()
         self.role = convert_enum(role, Role, True)
 
@@ -596,19 +595,6 @@ class Pedestrian(_BaseCatalog):
 
         return pedestrian
 
-    def add_parameter(self, parameter):
-        """adds a parameter declaration to the pedestrian
-
-        Parameters
-        ----------
-            parameter (Parameter): A new parameter declaration for the pedestrian
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def add_property(self, name, value):
         """adds a single property to the pedestrian
 
@@ -659,7 +645,7 @@ class Pedestrian(_BaseCatalog):
     def get_element(self):
         """returns the elementTree of the pedestrian"""
         element = ET.Element("Pedestrian", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
         element.append(self.properties.get_element())
 
@@ -750,7 +736,6 @@ class MiscObject(_BaseCatalog):
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
         self.boundingbox = boundingbox
-        self.parameters = ParameterDeclarations()
         self.properties = Properties()
         self.model3d = model3d
 
@@ -801,19 +786,6 @@ class MiscObject(_BaseCatalog):
         object.properties = properties
         return object
 
-    def add_parameter(self, parameter):
-        """adds a parameter declaration to the MiscObject
-
-        Parameters
-        ----------
-            parameter (Parameter): A new parameter declaration for the MiscObject
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def add_property(self, name, value):
         """adds a single property to the MiscObject
 
@@ -851,7 +823,7 @@ class MiscObject(_BaseCatalog):
     def get_element(self):
         """returns the elementTree of the MiscObject"""
         element = ET.Element("MiscObject", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
         element.append(self.properties.get_element())
 
@@ -1014,7 +986,6 @@ class Vehicle(_BaseCatalog):
             max_acceleration_rate,
             max_deceleration_rate,
         )
-        self.parameters = ParameterDeclarations()
         self.properties = Properties()
         self.mass = convert_float(mass)
         self.model3d = model3d
@@ -1117,19 +1088,6 @@ class Vehicle(_BaseCatalog):
         self.axles.add_axle(axle)
         return self
 
-    def add_parameter(self, parameter):
-        """adds a parameter declaration to the vehicle
-
-        Parameters
-        ----------
-            parameter (Parameter): A new parameter declaration for the vehicle
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def add_property(self, name, value):
         """adds a single property to the vehicle
 
@@ -1183,7 +1141,7 @@ class Vehicle(_BaseCatalog):
     def get_element(self):
         """returns the elementTree of the Vehicle"""
         element = ET.Element("Vehicle", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
         element.append(self.dynamics.get_element("Performance"))
         element.append(self.axles.get_element())

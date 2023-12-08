@@ -169,10 +169,11 @@ class ParameterDeclarations(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the ParameterDeclarations"""
-        element = ET.Element("ParameterDeclarations")
-        for p in self.parameters:
-            element.append(p.get_element())
-        return element
+        if self.parameters:
+            element = ET.Element("ParameterDeclarations")
+            for p in self.parameters:
+                element.append(p.get_element())
+            return element
 
 
 class VariableDeclarations(VersionBase):
@@ -1982,6 +1983,26 @@ class _BaseCatalog(VersionBase):
 
     def __init__(self):
         super().__init__()
+        self.parameters = ParameterDeclarations()
+
+    def add_parameter(self, parameter):
+        """adds a parameter to the Trajectory
+
+        Parameters
+        ----------
+            parameter (Parameter): the parameter to add
+
+        """
+        if not isinstance(parameter, Parameter):
+            raise TypeError("input parameter is not of type Parameter")
+        self.parameters.add_parameter(parameter)
+        return self
+
+    def add_parameters_to_element(self, element):
+        """adds the parameterdeclaration to the element"""
+        param_element = self.parameters.get_element()
+        if param_element:
+            element.append(param_element)
 
     def dump_to_catalog(self, filename, catalogtype, description, author):
         """dump_to_catalog creates a new catalog and adds the element to it
@@ -3272,7 +3293,8 @@ class Environment(_BaseCatalog):
         self.timeofday = timeofday
         self.weather = weather
         self.roadcondition = roadcondition
-        self.parameters = parameters
+        if parameters is not None:
+            self.parameters = parameters
 
     def __eq__(self, other):
         if isinstance(other, Environment):
@@ -3329,8 +3351,7 @@ class Environment(_BaseCatalog):
             element.append(self.weather.get_element())
         if self.roadcondition:
             element.append(self.roadcondition.get_element())
-        if self.parameters:
-            element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         return element
 
 
@@ -3390,7 +3411,6 @@ class Controller(_BaseCatalog):
         super().__init__()
         self.name = name
 
-        self.parameters = ParameterDeclarations()
         if not isinstance(properties, Properties):
             raise TypeError("properties input is not of type Properties")
         self.properties = properties
@@ -3436,19 +3456,6 @@ class Controller(_BaseCatalog):
 
         return controller
 
-    def add_parameter(self, parameter):
-        """adds a parameter declaration to the Controller
-
-        Parameters
-        ----------
-            parameter (Parameter): A new parameter declaration for the Controller
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def get_attributes(self):
         """returns the attributes of the Controller as a dict"""
         retdict = {"name": self.name}
@@ -3465,7 +3472,7 @@ class Controller(_BaseCatalog):
     def get_element(self):
         """returns the elementTree of the Controller"""
         element = ET.Element("Controller", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         element.append(self.properties.get_element())
 
         return element

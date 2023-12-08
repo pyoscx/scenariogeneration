@@ -2111,7 +2111,6 @@ class Route(_BaseCatalog):
         self.name = name
         self.closed = convert_bool(closed)
         self.waypoints = []
-        self.parameters = ParameterDeclarations()
 
     def __eq__(self, other):
         if isinstance(other, Route):
@@ -2145,19 +2144,6 @@ class Route(_BaseCatalog):
             route.waypoints.append(waypoint)
         return route
 
-    def add_parameter(self, parameter):
-        """adds a parameter to the Route
-
-        Parameters
-        ----------
-            parameter (Parameter): the parameter to add
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def add_waypoint(self, position, routestrategy):
         """adds a waypoint to the Route
 
@@ -2184,7 +2170,7 @@ class Route(_BaseCatalog):
         if len(self.waypoints) < 2:
             ValueError("Too few waypoints")
         element = ET.Element("Route", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         for w in self.waypoints:
             element.append(w.get_element())
         return element
@@ -2247,7 +2233,6 @@ class Trajectory(_BaseCatalog):
         super().__init__()
         self.name = name
         self.closed = convert_bool(closed)
-        self.parameters = ParameterDeclarations()
         self.shapes = None
 
     def __eq__(self, other):
@@ -2298,19 +2283,6 @@ class Trajectory(_BaseCatalog):
         self.shapes = shape
         return self
 
-    def add_parameter(self, parameter):
-        """adds a parameter to the Trajectory
-
-        Parameters
-        ----------
-            parameter (Parameter): the parameter to add
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("input parameter is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def get_attributes(self):
         """returns the attributes of the Trajectory as a dict"""
         retdict = {}
@@ -2321,7 +2293,7 @@ class Trajectory(_BaseCatalog):
     def get_element(self):
         """returns the elementTree of the Trajectory"""
         element = ET.Element("Trajectory", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         if self.shapes:
             element.append(self.shapes.get_element())
         else:
