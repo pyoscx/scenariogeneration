@@ -21,6 +21,7 @@ from .utils import (
     _TriggerType,
     _EntityTriggerType,
     _ValueTriggerType,
+    _BaseCatalog,
 )
 from .utils import (
     ParameterDeclarations,
@@ -906,7 +907,7 @@ class _Actors(VersionBase):
         return element
 
 
-class Maneuver(VersionBase):
+class Maneuver(_BaseCatalog):
     """The Maneuver class creates the Maneuver of OpenScenario
 
     Parameters
@@ -953,6 +954,7 @@ class Maneuver(VersionBase):
             name (str): name of the Maneuver
 
         """
+        super().__init__()
         if parameters is not None and not isinstance(parameters, ParameterDeclarations):
             raise TypeError("parameters is not of type ParameterDeclarations")
         self.parameters = parameters
@@ -993,38 +995,6 @@ class Maneuver(VersionBase):
         for e in element.findall("Event"):
             man.add_event(Event.parse(e))
         return man
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_event(self, event):
         """adds an event to the Maneuver

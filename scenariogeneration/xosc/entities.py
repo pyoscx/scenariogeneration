@@ -18,6 +18,7 @@ from .utils import (
     Properties,
     Parameter,
     convert_float,
+    _BaseCatalog,
 )
 from .utils import (
     EntityRef,
@@ -445,7 +446,7 @@ class Entity(VersionBase):
         return element
 
 
-class Pedestrian(VersionBase):
+class Pedestrian(_BaseCatalog):
     """the Pedestrian class creates a pedestrian type entity of openscenario
 
     Parameters
@@ -529,6 +530,7 @@ class Pedestrian(VersionBase):
             role (Role): the role of the Vehicle
                 Default: None
         """
+        super().__init__()
         self.name = name
         self.model = model
         self.mass = convert_float(mass)
@@ -593,38 +595,6 @@ class Pedestrian(VersionBase):
         pedestrian.properties = properties
 
         return pedestrian
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Pedestrian to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Pedestrian to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_parameter(self, parameter):
         """adds a parameter declaration to the pedestrian
@@ -696,7 +666,7 @@ class Pedestrian(VersionBase):
         return element
 
 
-class MiscObject(VersionBase):
+class MiscObject(_BaseCatalog):
     """the MiscObject Class creates a MiscObject for openscenario
 
     Parameters
@@ -773,6 +743,7 @@ class MiscObject(VersionBase):
             model3d (str): path to model file (valid from V1.1)
                 Default: None
         """
+        super().__init__()
         self.name = name
         self.mass = convert_float(mass)
         self.category = convert_enum(category, MiscObjectCategory)
@@ -829,38 +800,6 @@ class MiscObject(VersionBase):
         object.parameters = parameters
         object.properties = properties
         return object
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the MiscObject to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the MiscObject to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_parameter(self, parameter):
         """adds a parameter declaration to the MiscObject
@@ -919,7 +858,7 @@ class MiscObject(VersionBase):
         return element
 
 
-class Vehicle(VersionBase):
+class Vehicle(_BaseCatalog):
     """the Vehicle Class creates a Vehicle for openscenario
 
     Parameters
@@ -1059,6 +998,7 @@ class Vehicle(VersionBase):
             role (Role): the role of the Vehicle
                 Default: None
         """
+        super().__init__()
         self.name = name
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
@@ -1164,38 +1104,6 @@ class Vehicle(VersionBase):
                 vehicle.axles.add_axle(Axle.parse(axle))
 
         return vehicle
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the vehicle to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the vehicle to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_axle(self, axle):
         """adds an additional axle to the vehicle

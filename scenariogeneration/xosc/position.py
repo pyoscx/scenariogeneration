@@ -25,6 +25,7 @@ from .utils import (
     CatalogFile,
     Parameter,
     convert_enum,
+    _BaseCatalog,
 )
 from .exceptions import (
     OpenSCENARIOVersionError,
@@ -2053,7 +2054,7 @@ class Waypoint(VersionBase):
         return element
 
 
-class Route(VersionBase):
+class Route(_BaseCatalog):
     """the Route class creates a route, needs atleast two waypoints to be valid
 
     Parameters
@@ -2106,6 +2107,7 @@ class Route(VersionBase):
                 Default: False
 
         """
+        super().__init__()
         self.name = name
         self.closed = convert_bool(closed)
         self.waypoints = []
@@ -2142,38 +2144,6 @@ class Route(VersionBase):
             waypoint = Waypoint.parse(wp)
             route.waypoints.append(waypoint)
         return route
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_parameter(self, parameter):
         """adds a parameter to the Route
@@ -2220,7 +2190,7 @@ class Route(VersionBase):
         return element
 
 
-class Trajectory(VersionBase):
+class Trajectory(_BaseCatalog):
     """the Trajectory class creates a Trajectory,
 
     Parameters
@@ -2274,7 +2244,7 @@ class Trajectory(VersionBase):
         closed (boolean): if the trajectory is closed at the end
 
         """
-
+        super().__init__()
         self.name = name
         self.closed = convert_bool(closed)
         self.parameters = ParameterDeclarations()
@@ -2310,38 +2280,6 @@ class Trajectory(VersionBase):
         trajectory = Trajectory(name, closed)
         trajectory.add_shape(shape)
         return trajectory
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_shape(self, shape):
         """adds a shape to the trajectory (only the same shape can be used)

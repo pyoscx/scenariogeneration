@@ -1891,7 +1891,7 @@ class CatalogFile(VersionBase):
         self.filename = ""
         self.encoding = encoding
 
-    def add_to_catalog(self, obj, osc_minor_version=1):
+    def add_to_catalog(self, obj, osc_minor_version=_MINOR_VERSION):
         """add_to_catalog adds an element to the catalog
 
         Parameters
@@ -1899,7 +1899,7 @@ class CatalogFile(VersionBase):
             obj (*pyoscx): any pyoscx object (should be matching with the catalog)
 
             osc_minor_version (int): the minor version of OpenSCENARIO to write to the catalog
-                Default: 1
+                Default: same as package
         """
         if self.catalog_element == None:
             OSError("No file has been created or opened")
@@ -1975,6 +1975,45 @@ class CatalogFile(VersionBase):
         printToFile(
             self.catalog_element, self.filename, self.prettyprint, self.encoding
         )
+
+
+class _BaseCatalog(VersionBase):
+    """the _BaseCatalog should be inherited by other classes that should be able to create catalogs from their elements"""
+
+    def __init__(self):
+        super().__init__()
+
+    def dump_to_catalog(self, filename, catalogtype, description, author):
+        """dump_to_catalog creates a new catalog and adds the element to it
+
+        Parameters
+        ----------
+            filename (str): path of the new catalog file
+
+            catalogtype (str): name of the catalog
+
+            description (str): description of the catalog
+
+            author (str): author of the catalog
+
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename, catalogtype, description, author)
+        cf.add_to_catalog(self)
+        cf.dump()
+
+    def append_to_catalog(self, filename):
+        """adds the the element to an existing catalog
+
+        Parameters
+        ----------
+            filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
 
 
 class Catalog(VersionBase):
@@ -3158,7 +3197,7 @@ class RoadCondition(VersionBase):
 
 
 # TODO: add name (string)
-class Environment(VersionBase):
+class Environment(_BaseCatalog):
     """The Environment class creates a environment used by Environment
 
     Parameters
@@ -3220,6 +3259,7 @@ class Environment(VersionBase):
             parameters (ParameterDeclarations): the parameters to be used in the scenario
                 Default: None
         """
+        super().__init__()
         self.name = name
         if timeofday is not None and not isinstance(timeofday, TimeOfDay):
             raise TypeError("timeofday input is not of type TimeOfDay")
@@ -3276,38 +3316,6 @@ class Environment(VersionBase):
 
         return Environment(name, timeofday, weather, roadcondition, parameters)
 
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the environment to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the environment to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
-
     def get_attributes(self):
         """returns the attributes of the Environment as a dict"""
         return {"name": str(self.name)}
@@ -3326,7 +3334,7 @@ class Environment(VersionBase):
         return element
 
 
-class Controller(VersionBase):
+class Controller(_BaseCatalog):
     """the Controller class creates a controller of openScenario
 
     Parameters
@@ -3379,6 +3387,7 @@ class Controller(VersionBase):
             controller_type (ControllerType): controller type (valid from V1.2)
                 Default: None
         """
+        super().__init__()
         self.name = name
 
         self.parameters = ParameterDeclarations()
@@ -3426,38 +3435,6 @@ class Controller(VersionBase):
             controller.parameters = ParameterDeclarations.parse(parameters_element)
 
         return controller
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
 
     def add_parameter(self, parameter):
         """adds a parameter declaration to the Controller
