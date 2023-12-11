@@ -12,6 +12,7 @@
 import xml.etree.ElementTree as ET
 import pytest
 import datetime as dt
+import os
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
@@ -395,7 +396,7 @@ def test_properties():
     assert version_validation("Properties", prop, 2) == ValidationResponse.OK
 
 
-def test_controller():
+def test_controller(tmpdir):
     prop = OSC.Properties()
     prop.add_property("mything", "2")
     prop.add_property("theotherthing", "true")
@@ -422,6 +423,12 @@ def test_controller():
     assert version_validation("Controller", cnt3, 1) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 1) == ValidationResponse.OSC_VERSION
+    cnt.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "ControllerCatalog",
+        "test catalog",
+        "Mandolin",
+    )
 
 
 def test_fileheader():
@@ -693,7 +700,7 @@ def test_roadcondition():
     assert version_validation("RoadCondition", rc3, 1) == ValidationResponse.OK
 
 
-def test_environment():
+def test_environment(tmpdir):
     tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
     fog = OSC.Fog(10, OSC.BoundingBox(1, 2, 3, 4, 5, 6))
     weather = OSC.Weather(OSC.FractionalCloudCover.oneOktas, 100, fog=fog)
@@ -724,6 +731,12 @@ def test_environment():
     assert version_validation("Environment", env, 2) == ValidationResponse.OK
     assert version_validation("Environment", env5, 0) == ValidationResponse.OK
     assert version_validation("Environment", env6, 1) == ValidationResponse.OK
+    env.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "EnvironmentCatalog",
+        "test catalog",
+        "Mandolin",
+    )
 
 
 def test_oscenum():

@@ -15,6 +15,7 @@ from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from scenariogeneration.xosc.utils import CatalogReference, EntityRef
 from .xml_validator import version_validation, ValidationResponse
+import os
 
 
 @pytest.fixture(autouse=True)
@@ -82,7 +83,7 @@ def test_axles():
     assert version_validation("Axles", axles, 2) == ValidationResponse.OK
 
 
-def test_vehicle():
+def test_vehicle(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
@@ -155,8 +156,15 @@ def test_vehicle():
     assert version_validation("Vehicle", veh6, 1) == ValidationResponse.OK
     assert version_validation("Vehicle", veh6, 2) == ValidationResponse.OK
 
+    veh.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "VehicleCatalog",
+        "test catalog",
+        "Mandolin",
+    )
 
-def test_pedestrian():
+
+def test_pedestrian(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     ped = OSC.Pedestrian(
         "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", OSC.Role.police
@@ -185,7 +193,12 @@ def test_pedestrian():
 
     ped4 = OSC.Pedestrian.parse(ped.get_element())
     assert ped4 == ped
-
+    ped.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "PedestrianCatalog",
+        "test catalog",
+        "Mandolin",
+    )
     assert version_validation("Pedestrian", ped, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("Pedestrian", ped, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("Pedestrian", ped, 2) == ValidationResponse.OK
@@ -195,7 +208,7 @@ def test_pedestrian():
     assert version_validation("Pedestrian", ped3, 2) == ValidationResponse.OK
 
 
-def test_miscobj():
+def test_miscobj(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     veh = OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, bb)
 
@@ -224,7 +237,12 @@ def test_miscobj():
     veh5 = OSC.MiscObject.parse(veh.get_element())
     prettyprint(veh5.get_element())
     assert veh5 == veh
-
+    veh.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "MiscObjectCatalog",
+        "test catalog",
+        "Mandolin",
+    )
     assert version_validation("MiscObject", veh, 0) == ValidationResponse.OK
     assert version_validation("MiscObject", veh, 1) == ValidationResponse.OK
     assert version_validation("MiscObject", veh, 2) == ValidationResponse.OK

@@ -21,6 +21,7 @@ from .utils import (
     _TriggerType,
     _EntityTriggerType,
     _ValueTriggerType,
+    _BaseCatalog,
 )
 from .utils import (
     ParameterDeclarations,
@@ -373,7 +374,7 @@ class StoryBoard(VersionBase):
                 Default: EmptyTrigger('stop')
 
             parameters (ParameterDeclarations): the parameters of the story (optional)
-                Default: ParameterDeclarations()
+                Default: None
 
         """
         if not (
@@ -524,7 +525,8 @@ class Story(VersionBase):
     def get_element(self):
         """returns the elementTree of the Story"""
         element = ET.Element("Story", attrib=self.get_attributes())
-        element.append(self.parameter.get_element())
+        if self.parameter.get_element():
+            element.append(self.parameter.get_element())
         if not self.acts:
             raise ValueError("no acts added to the story")
         for a in self.acts:
@@ -906,7 +908,7 @@ class _Actors(VersionBase):
         return element
 
 
-class Maneuver(VersionBase):
+class Maneuver(_BaseCatalog):
     """The Maneuver class creates the Maneuver of OpenScenario
 
     Parameters
@@ -953,9 +955,11 @@ class Maneuver(VersionBase):
             name (str): name of the Maneuver
 
         """
+        super().__init__()
         if parameters is not None and not isinstance(parameters, ParameterDeclarations):
             raise TypeError("parameters is not of type ParameterDeclarations")
-        self.parameters = parameters
+        if parameters is not None:
+            self.parameters = parameters
         self.name = name
         self.events = []
 
@@ -994,38 +998,6 @@ class Maneuver(VersionBase):
             man.add_event(Event.parse(e))
         return man
 
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
-
     def add_event(self, event):
         """adds an event to the Maneuver
 
@@ -1049,8 +1021,7 @@ class Maneuver(VersionBase):
             raise ValueError("no events added to the maneuver")
 
         element = ET.Element("Maneuver", attrib=self.get_attributes())
-        if self.parameters:
-            element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         for event in self.events:
             element.append(event.get_element())
 

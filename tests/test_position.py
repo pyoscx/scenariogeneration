@@ -16,6 +16,7 @@ from scenariogeneration import prettyprint
 from scenariogeneration.xosc.position import WorldPosition
 
 from .xml_validator import version_validation, ValidationResponse
+import os
 
 
 @pytest.fixture(autouse=True)
@@ -349,7 +350,7 @@ def test_waypoint():
     assert version_validation("Waypoint", wp, 2) == ValidationResponse.OK
 
 
-def test_route():
+def test_route(tmpdir):
     route = OSC.Route("myroute")
     route.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
     route.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
@@ -363,7 +364,12 @@ def test_route():
     route3 = OSC.Route("myroute")
     route3.add_waypoint(OSC.WorldPosition(0, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
     route3.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-
+    route.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "RouteCatalog",
+        "test catalog",
+        "Mandolin",
+    )
     assert route == route2
     assert route != route3
     assert version_validation("Route", route, 0) == ValidationResponse.OK
@@ -417,7 +423,7 @@ def test_clothoid():
     assert version_validation("Shape", clot, 2) == ValidationResponse.OK
 
 
-def test_trajectory():
+def test_trajectory(tmpdir):
     positionlist = []
     # positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
     # positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
@@ -441,6 +447,12 @@ def test_trajectory():
     assert version_validation("Trajectory", traj, 0) == ValidationResponse.OK
     assert version_validation("Trajectory", traj, 1) == ValidationResponse.OK
     assert version_validation("Trajectory", traj, 2) == ValidationResponse.OK
+    traj.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "TrajectoryCatalog",
+        "test catalog",
+        "Mandolin",
+    )
 
 
 def test_controlpoint():

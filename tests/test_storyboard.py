@@ -15,6 +15,7 @@ import pytest
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
 from .xml_validator import version_validation, ValidationResponse
+import os
 
 
 @pytest.fixture(autouse=True)
@@ -71,7 +72,7 @@ def test_event():
     assert version_validation("Event", event5, 2) == ValidationResponse.OK
 
 
-def test_maneuver():
+def test_maneuver(tmpdir):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action("newspeed", speedaction)
@@ -92,6 +93,12 @@ def test_maneuver():
     assert version_validation("Maneuver", man3, 0) == ValidationResponse.OK
     assert version_validation("Maneuver", man3, 1) == ValidationResponse.OK
     assert version_validation("Maneuver", man3, 2) == ValidationResponse.OK
+    man.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "ManeuverCatalog",
+        "test catalog",
+        "Mandolin",
+    )
 
 
 def test_maneuvergroup():

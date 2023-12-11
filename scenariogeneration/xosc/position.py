@@ -25,6 +25,7 @@ from .utils import (
     CatalogFile,
     Parameter,
     convert_enum,
+    _BaseCatalog,
 )
 from .exceptions import (
     OpenSCENARIOVersionError,
@@ -2053,7 +2054,7 @@ class Waypoint(VersionBase):
         return element
 
 
-class Route(VersionBase):
+class Route(_BaseCatalog):
     """the Route class creates a route, needs atleast two waypoints to be valid
 
     Parameters
@@ -2106,10 +2107,10 @@ class Route(VersionBase):
                 Default: False
 
         """
+        super().__init__()
         self.name = name
         self.closed = convert_bool(closed)
         self.waypoints = []
-        self.parameters = ParameterDeclarations()
 
     def __eq__(self, other):
         if isinstance(other, Route):
@@ -2143,51 +2144,6 @@ class Route(VersionBase):
             route.waypoints.append(waypoint)
         return route
 
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def add_parameter(self, parameter):
-        """adds a parameter to the Route
-
-        Parameters
-        ----------
-            parameter (Parameter): the parameter to add
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def add_waypoint(self, position, routestrategy):
         """adds a waypoint to the Route
 
@@ -2214,13 +2170,13 @@ class Route(VersionBase):
         if len(self.waypoints) < 2:
             ValueError("Too few waypoints")
         element = ET.Element("Route", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         for w in self.waypoints:
             element.append(w.get_element())
         return element
 
 
-class Trajectory(VersionBase):
+class Trajectory(_BaseCatalog):
     """the Trajectory class creates a Trajectory,
 
     Parameters
@@ -2274,10 +2230,9 @@ class Trajectory(VersionBase):
         closed (boolean): if the trajectory is closed at the end
 
         """
-
+        super().__init__()
         self.name = name
         self.closed = convert_bool(closed)
-        self.parameters = ParameterDeclarations()
         self.shapes = None
 
     def __eq__(self, other):
@@ -2311,38 +2266,6 @@ class Trajectory(VersionBase):
         trajectory.add_shape(shape)
         return trajectory
 
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the Controller to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the Controller to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
-
     def add_shape(self, shape):
         """adds a shape to the trajectory (only the same shape can be used)
 
@@ -2360,19 +2283,6 @@ class Trajectory(VersionBase):
         self.shapes = shape
         return self
 
-    def add_parameter(self, parameter):
-        """adds a parameter to the Trajectory
-
-        Parameters
-        ----------
-            parameter (Parameter): the parameter to add
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("input parameter is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
     def get_attributes(self):
         """returns the attributes of the Trajectory as a dict"""
         retdict = {}
@@ -2383,7 +2293,7 @@ class Trajectory(VersionBase):
     def get_element(self):
         """returns the elementTree of the Trajectory"""
         element = ET.Element("Trajectory", attrib=self.get_attributes())
-        element.append(self.parameters.get_element())
+        self.add_parameters_to_element(element)
         if self.shapes:
             element.append(self.shapes.get_element())
         else:
