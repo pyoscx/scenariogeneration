@@ -130,7 +130,7 @@ def esmini(
             filetype = " --odr "
             additional_args += " --density " + str(car_density)
             additional_args += " --window " + window_size
-            filename = road_file
+            filename = os.path.join(generation_path, 'xodr', os.path.split(road_file)[1])
         else:
             executable = "esmini"
             filetype = " --osc "
