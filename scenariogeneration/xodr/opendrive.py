@@ -1040,8 +1040,11 @@ class OpenDrive(XodrBase):
         # If no roads are fixed, select the first road is selected as the pivot-road
         if len(self.roads) > 0:
             if fixed_road is False:
-                self.roads[list(self.roads.keys())[0]].planview.adjust_geometries()
-                # print('Selecting and adjusting the first road {}'.format(self.roads[list(self.roads.keys())[0] ].id))
+                for key in self.roads.keys():
+                    # make sure it is not a connecting road, patching algorithm can't handle that
+                    if self.roads[key].road_type == -1:
+                        self.roads[key].planview.adjust_geometries()
+                        break
                 count_total_adjusted_roads += 1
 
         while count_total_adjusted_roads < len(self.roads):
