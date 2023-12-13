@@ -115,7 +115,7 @@ class LateralProfile(XodrBase):
         """
         if not isinstance(superelevation, _Poly3Profile):
             raise TypeError(
-                "add_elevation requires an _Elevation as input, not "
+                "add_elevation requires an _Poly3Profile as input, not "
                 + str(type(superelevation))
             )
         self.superelevations.append(superelevation)
@@ -131,7 +131,8 @@ class LateralProfile(XodrBase):
         """
         if not isinstance(shape, _Poly3Profile):
             raise TypeError(
-                "add_elevation requires an _Elevation as input, not " + str(type(shape))
+                "add_elevation requires an _Poly3Profile as input, not "
+                + str(type(shape))
             )
         self.shapes.append(shape)
         return self

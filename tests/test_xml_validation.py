@@ -141,6 +141,7 @@ def test_OSC_1_2(tmpdir, python_file):
         "two_roads",
         "junction_with_varying_lane_widths",
         "road_with_lane_adjustment",
+        "clothoid_generation",
     ],
 )
 def test_ODR(tmpdir, python_file):

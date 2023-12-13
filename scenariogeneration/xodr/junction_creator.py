@@ -979,7 +979,7 @@ class CommonJunctionCreator:
             an1 = -(2 * np.pi - an1)
 
         if np.sign(an1) == 0:
-            roadgeoms = Line(self._radie[idx1] + self._radie[idx2])
+            roadgeoms = [Line(self._radie[idx1] + self._radie[idx2])]
         else:
             clothoids = pcloth.SolveG2(
                 -self._radie[idx1],

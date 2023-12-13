@@ -26,43 +26,42 @@ class Scenario(ScenarioGenerator):
     def road(self, **kwargs):
         roads = []
         incoming_roads = 4
-        angles = []
+        nlanes = 1
+        # setup junction creator
+        junction_creator = xodr.CommonJunctionCreator(100, "my junction")
+
+        # create roads and connections
         for i in range(incoming_roads):
-            roads.append(xodr.create_straight_road(i))
-            # use this instead to change the number of lanes in the crossing
-            # roads.append(xodr.generators.create_straight_road(i, length=100, junction=-1, n_lanes=2, lane_offset=3))
-            angles.append(i * 2 * np.pi / incoming_roads)
-            if angles[-1] == 0:
-                roads[-1].add_signal(
-                    xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+            roads.append(
+                xodr.create_road(
+                    [xodr.Line(100)],
+                    i,
+                    center_road_mark=xodr.STD_ROADMARK_BROKEN,
+                    left_lanes=nlanes,
+                    right_lanes=nlanes,
                 )
-            else:
-                roads[-1].add_signal(
-                    xodr.Signal(
-                        s=2.0,
-                        t=4,
-                        country="USA",
-                        Type="R1",
-                        subtype="1",
-                        orientation=xodr.Orientation.negative,
-                    )
-                )
+            )
+            roads[-1].add_signal(
+                xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+            )
 
-        # use this for a T-crossing instead
-        # angles = [0,np.pi/2, 3*np.pi/2]
+            # add road to junciton
+            junction_creator.add_incoming_road_circular_geometry(
+                roads[i], 20, i * 2 * np.pi / incoming_roads, "successor"
+            )
 
-        # print(roads)
-        junc = xodr.create_junction_roads(roads, angles, [8])
+            # add connection to all previous roads
+            for j in range(i):
+                junction_creator.add_connection(j, i)
+
         odr = xodr.OpenDrive("myroad")
-        junction = xodr.create_junction(junc, 1, roads)
 
-        odr.add_junction(junction)
         for r in roads:
             odr.add_road(r)
-        for j in junc:
-            odr.add_road(j)
+        odr.add_junction_creator(junction_creator)
 
         odr.adjust_roads_and_lanes()
+
         return odr
 
 

@@ -9,16 +9,16 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from scenariogeneration import xodr as pyodrx
+from scenariogeneration import xodr
 from scenariogeneration import prettyprint, prettify
 
 from .xml_validator import version_validation, ValidationResponse
 
 
 def test_signal_validity():
-    signal = pyodrx.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+    signal = xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
     signal.add_validity(1, 1)
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_signal(signal)
     prettyprint(road.get_element())
     assert (
@@ -28,16 +28,16 @@ def test_signal_validity():
 
 
 def test_object_validity():
-    guardrail = pyodrx.Object(
+    guardrail = xodr.Object(
         s=0,
         t=0,
         height=0.3,
         zOffset=0.4,
-        Type=pyodrx.ObjectType.barrier,
+        Type=xodr.ObjectType.barrier,
         name="guardRail",
     )
     guardrail.add_validity(1, 1)
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_object(guardrail)
     prettyprint(road.get_element())
     assert (
@@ -47,18 +47,18 @@ def test_object_validity():
 
 
 def test_object_parking_space():
-    parking_space_object = pyodrx.Object(
+    parking_space_object = xodr.Object(
         s=0,
         t=0,
         length=5,
         width=3,
         height=0.0,
-        Type=pyodrx.ObjectType.parkingSpace,
+        Type=xodr.ObjectType.parkingSpace,
         name="parkingSpace",
     )
-    parking_space = pyodrx.ParkingSpace(pyodrx.Access.all, "test string")
+    parking_space = xodr.ParkingSpace(xodr.Access.all, "test string")
     parking_space_object.add_parking_space(parking_space)
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_object(parking_space_object)
     prettyprint(road.get_element())
     assert (
@@ -70,22 +70,22 @@ def test_object_parking_space():
 
 
 def test_signal():
-    signal1 = pyodrx.Signal(
+    signal1 = xodr.Signal(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         country="US",
         Type="R1",
         subtype="1",
     )
 
-    signal2 = pyodrx.Signal(
+    signal2 = xodr.Signal(
         s=20.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         country="DEU",
         Type="274",
         subtype="120",
@@ -93,11 +93,11 @@ def test_signal():
         unit="km/h",
     )
 
-    signal2_wRev = pyodrx.Signal(
+    signal2_wRev = xodr.Signal(
         s=20.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         country="DEU",
         countryRevision="2017",
         Type="274",
@@ -106,16 +106,16 @@ def test_signal():
         unit="km/h",
     )
 
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_signal(signal1)
     road.add_signal(signal2)
     road.add_signal(signal2_wRev)
     prettyprint(road.get_element())
-    signal3 = pyodrx.Signal(
+    signal3 = xodr.Signal(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         country="US",
         Type="R1",
@@ -134,33 +134,33 @@ def test_signal():
 
 
 def test_signal_reference():
-    signal1 = pyodrx.SignalReference(
+    signal1 = xodr.SignalReference(
         s=10.0,
         t=-2,
-        orientation=pyodrx.Orientation.positive,
+        orientation=xodr.Orientation.positive,
     )
 
-    signal2 = pyodrx.SignalReference(
+    signal2 = xodr.SignalReference(
         s=20.0,
         t=-2,
-        orientation=pyodrx.Orientation.positive,
+        orientation=xodr.Orientation.positive,
     )
 
-    signal2_wRev = pyodrx.SignalReference(
+    signal2_wRev = xodr.SignalReference(
         s=20.0,
         t=-2,
-        orientation=pyodrx.Orientation.positive,
+        orientation=xodr.Orientation.positive,
     )
 
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_signal(signal1)
     road.add_signal(signal2)
     road.add_signal(signal2_wRev)
     prettyprint(road.get_element())
-    signal3 = pyodrx.SignalReference(
+    signal3 = xodr.SignalReference(
         s=10.0,
         t=-2,
-        orientation=pyodrx.Orientation.positive,
+        orientation=xodr.Orientation.positive,
     )
     # unique fixer
     signal3.id = signal1.id
@@ -175,46 +175,46 @@ def test_signal_reference():
 
 
 def test_object():
-    object1 = pyodrx.Object(
+    object1 = xodr.Object(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
 
     # same chosen ID should cause warning and be resolved automatically
-    object2 = pyodrx.Object(
+    object2 = xodr.Object(
         s=20.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         height=10,
         id="1",
-        Type=pyodrx.ObjectType.streetLamp,
+        Type=xodr.ObjectType.streetLamp,
     )
 
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_object([object1, object2])
     prettyprint(road.get_element())
-    object3 = pyodrx.Object(
+    object3 = xodr.Object(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
 
-    outline = pyodrx.Outline()
-    outline.add_corner(pyodrx.CornerLocal(1, 2, 3, 4))
-    outline.add_corner(pyodrx.CornerLocal(1, 2, 3, 5))
+    outline = xodr.Outline()
+    outline.add_corner(xodr.CornerLocal(1, 2, 3, 4))
+    outline.add_corner(xodr.CornerLocal(1, 2, 3, 5))
     object2.add_outline(outline)
     prettyprint(object2)
     object3.id = object1.id
@@ -228,10 +228,10 @@ def test_object():
 
 
 def test_tunnel():
-    tunnel1 = pyodrx.Tunnel(
+    tunnel1 = xodr.Tunnel(
         s=10.0,
         length=10.0,
-        tunnel_type=pyodrx.TunnelType.standard,
+        tunnel_type=xodr.TunnelType.standard,
         id="1",
         name="Tunnel 1",
         daylight=0.79,
@@ -239,10 +239,10 @@ def test_tunnel():
     )
     prettyprint(tunnel1)
 
-    tunnel1_copy = pyodrx.Tunnel(
+    tunnel1_copy = xodr.Tunnel(
         s=10.0,
         length=10.0,
-        tunnel_type=pyodrx.TunnelType.standard,
+        tunnel_type=xodr.TunnelType.standard,
         id="1",
         name="Tunnel 1",
         daylight=0.79,
@@ -250,10 +250,10 @@ def test_tunnel():
     )
     assert tunnel1 == tunnel1_copy
 
-    tunnel2 = pyodrx.Tunnel(
+    tunnel2 = xodr.Tunnel(
         s=50.0,
         length=20.0,
-        tunnel_type=pyodrx.TunnelType.standard,
+        tunnel_type=xodr.TunnelType.standard,
         id="2",
         name="Tunnel 2",
         daylight=0.79,
@@ -266,7 +266,7 @@ def test_tunnel():
         == ValidationResponse.OK
     )
 
-    road = pyodrx.create_straight_road(0, length=100)
+    road = xodr.create_straight_road(0)
     road.add_tunnel([tunnel1, tunnel2])
     road.planview.adjust_geometries()
     prettyprint(road)
@@ -281,10 +281,10 @@ def test_tunnel():
     tunnel1.id = 999
     assert _is_sub_element_written(tunnel1, road)
 
-    new_tunnel = pyodrx.Tunnel(
+    new_tunnel = xodr.Tunnel(
         s=1.0,
         length=19.0,
-        tunnel_type=pyodrx.TunnelType.standard,
+        tunnel_type=xodr.TunnelType.standard,
         id="777",
         name="Tunnel",
         daylight=0.79,
@@ -301,39 +301,39 @@ def _is_sub_element_written(sub_element, element):
 
 
 def test_repeated_object():
-    object1 = pyodrx.Object(
+    object1 = xodr.Object(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
     object1.repeat(100, 50)
-    road = pyodrx.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_object(object1)
     prettyprint(road.get_element())
 
-    object2 = pyodrx.Object(
+    object2 = xodr.Object(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
     object2.repeat(100, 50)
 
-    object3 = pyodrx.Object(
+    object3 = xodr.Object(
         s=10.0,
         t=-2,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
     object3.repeat(100, 50)
 
@@ -343,18 +343,18 @@ def test_repeated_object():
 
 
 def test_object_roadside():
-    road = pyodrx.create_straight_road(0)
-    odr = pyodrx.OpenDrive("myroad")
+    road = xodr.create_road(xodr.Line(100), 0)
+    odr = xodr.OpenDrive("myroad")
     odr.add_road(road)
     odr.adjust_roads_and_lanes()
-    object1 = pyodrx.Object(
+    object1 = xodr.Object(
         s=0,
         t=0,
-        dynamic=pyodrx.Dynamic.no,
-        orientation=pyodrx.Orientation.positive,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
         zOffset=0.00,
         height=1.0,
-        Type=pyodrx.ObjectType.pole,
+        Type=xodr.ObjectType.pole,
     )
     road.add_object_roadside(object1, 50, tOffset=0.85)
     prettyprint(road.get_element())
@@ -366,9 +366,9 @@ def test_object_roadside():
 
 
 def test_corner_local():
-    cl = pyodrx.CornerLocal(1, 2, 3, 4)
-    cl2 = pyodrx.CornerLocal(1, 2, 3, 4)
-    cl3 = pyodrx.CornerLocal(1, 2, 3, 3)
+    cl = xodr.CornerLocal(1, 2, 3, 4)
+    cl2 = xodr.CornerLocal(1, 2, 3, 4)
+    cl3 = xodr.CornerLocal(1, 2, 3, 3)
     assert cl == cl2
     assert cl != cl3
     prettyprint(cl)
@@ -383,9 +383,9 @@ def test_corner_local():
 
 
 def test_corner_road():
-    cr = pyodrx.CornerRoad(1, 2, 3, 4)
-    cr2 = pyodrx.CornerRoad(1, 2, 3, 4)
-    cr3 = pyodrx.CornerRoad(1, 2, 3, 3)
+    cr = xodr.CornerRoad(1, 2, 3, 4)
+    cr2 = xodr.CornerRoad(1, 2, 3, 4)
+    cr3 = xodr.CornerRoad(1, 2, 3, 3)
     assert cr == cr2
     assert cr != cr3
     prettyprint(cr)
@@ -400,18 +400,18 @@ def test_corner_road():
 
 
 def test_outline():
-    cr = pyodrx.CornerRoad(1, 2, 3, 4)
-    cr2 = pyodrx.CornerLocal(1, 2, 3, 4)
+    cr = xodr.CornerRoad(1, 2, 3, 4)
+    cr2 = xodr.CornerLocal(1, 2, 3, 4)
 
-    outline = pyodrx.Outline()
+    outline = xodr.Outline()
     outline.add_corner(cr)
-    outline2 = pyodrx.Outline()
+    outline2 = xodr.Outline()
     outline2.add_corner(cr)
 
-    outline3 = pyodrx.Outline()
+    outline3 = xodr.Outline()
     outline3.add_corner(cr2)
-    outline4 = pyodrx.Outline(
-        True, pyodrx.FillType.asphalt, pyodrx.LaneType.bidirectional, False, 1
+    outline4 = xodr.Outline(
+        True, xodr.FillType.asphalt, xodr.LaneType.bidirectional, False, 1
     )
     outline4.add_corner(cr2)
     prettyprint(outline)
