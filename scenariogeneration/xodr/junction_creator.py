@@ -23,6 +23,7 @@ from .exceptions import (
     NotEnoughInputArguments,
     UndefinedRoadNetwork,
     NotSameAmountOfLanesError,
+    MixingDrivingDirection,
 )
 import pyclothoids as pcloth
 
@@ -431,7 +432,7 @@ class CommonJunctionCreator:
         )
 
         left_lane_defs, right_lane_defs = self._get_lane_defs(
-            idx1, idx2, sum([x.length for x in roadgeoms])
+            idx1, idx2, sum([x.length for x in roadgeoms]), True
         )
 
         tmp_junc_road = create_road(
@@ -479,7 +480,9 @@ class CommonJunctionCreator:
         self.junction_roads.append(tmp_junc_road)
         self.startnum += 1
 
-    def _get_lane_defs(self, idx1, idx2, connecting_road_length):
+    def _get_lane_defs(
+        self, idx1, idx2, connecting_road_length, allow_empty_lane=False
+    ):
         def _get_lane_widths(idx, l_or_r):
             connected_lane_section = self._get_connecting_lane_section(idx)
             lane_widths = []
@@ -559,6 +562,17 @@ class CommonJunctionCreator:
                 left_start_widths,
                 left_end_widths,
             )
+        elif allow_empty_lane:
+            num_lanes_to_connect = min(len(left_start_widths), len(left_end_widths))
+            left_lanes = LaneDef(
+                0,
+                connecting_road_length,
+                num_lanes_to_connect,
+                num_lanes_to_connect,
+                None,
+                left_start_widths[0:num_lanes_to_connect],
+                left_end_widths[0:num_lanes_to_connect],
+            )
 
         right_lanes = 0
         if (len(right_start_widths)) == (len(right_end_widths)):
@@ -571,37 +585,18 @@ class CommonJunctionCreator:
                 right_start_widths,
                 right_end_widths,
             )
+        elif allow_empty_lane:
+            num_lanes_to_connect = min(len(right_start_widths), len(right_end_widths))
+            right_lanes = LaneDef(
+                0,
+                connecting_road_length,
+                num_lanes_to_connect,
+                num_lanes_to_connect,
+                None,
+                right_start_widths[0:num_lanes_to_connect],
+                right_end_widths[0:num_lanes_to_connect],
+            )
         return left_lanes, right_lanes
-
-        # if incomming_connected_lane_section == -1 and outgoing_connected_lane_section == -1:
-        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
-        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
-
-        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'right'))
-        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'left'))
-
-        # elif incomming_connected_lane_section == -1 and outgoing_connected_lane_section == 0:
-        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
-        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
-
-        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'left'))
-        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'right'))
-
-        # elif incomming_connected_lane_section == 0 and outgoing_connected_lane_section == 0:
-        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
-        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
-
-        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'left'))
-        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'right'))
-
-        # elif incomming_connected_lane_section == 0 and outgoing_connected_lane_section == -1:
-        #     n_r_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].leftlanes)
-        #     n_l_lanes = len(self.incoming_roads[idx1].lanes.lanesections[incomming_connected_lane_section].rightlanes)
-
-        #     left_lanes = LaneDef(0,connecting_road_length,n_l_lanes,n_l_lanes,None,_get_lane_widths(idx1,'right'),_get_lane_widths(idx2,'right'))
-        #     right_lanes = LaneDef(0,connecting_road_length,n_r_lanes,n_r_lanes,None,_get_lane_widths(idx1,'left'),_get_lane_widths(idx2,'left'))
-
-        # return left_lanes, right_lanes
 
     def _create_connecting_roads_with_equal_lanes(self, road_one_id, road_two_id):
         """_create_connecting_roads_with_equal_lanes is a helper method that connects two roads that have the
@@ -699,7 +694,19 @@ class CommonJunctionCreator:
 
         start_offset = 0.0
         end_offset = 0.0
-
+        if (
+            self._get_connection_type(idx2) == self._get_connection_type(idx1)
+            and np.sign(lane_one_id) == np.sign(lane_two_id)
+        ) or (
+            self._get_connection_type(idx2) != self._get_connection_type(idx1)
+            and np.sign(lane_one_id) != np.sign(lane_two_id)
+        ):
+            raise MixingDrivingDirection(
+                "driving direction not consistent when trying to make connection between roads:"
+                + str(road_one_id)
+                + " and "
+                + str(road_two_id)
+            )
         if np.sign(lane_one_id) == -1:
             for lane_iter in range((np.sign(lane_one_id) * lane_one_id) - 1):
                 start_offset += (
@@ -752,14 +759,6 @@ class CommonJunctionCreator:
             # adjust angle if multiple of pi
             if an1 > np.pi:
                 an1 = -(2 * np.pi - an1)
-            # -self._radie[idx1],
-            #     0,
-            #     0,
-            #     STD_START_CLOTH,
-            #     self._radie[idx2] * np.cos(an1),
-            #     self._radie[idx2] * np.sin(an1),
-            #     an1,
-            #     STD_START_CLOTH,
             start_x = -self._radie[idx1]
             start_y = start_offset
             start_h = 0
@@ -1044,25 +1043,6 @@ class DirectJunctionCreator:
         self._incoming_lane_ids = []
         self._linked_lane_ids = []
 
-    def _get_connecting_lane_section(self, idx):
-        """_get_connecting_lane_section is a helper method to get the connected
-
-        Parameters
-        ----------
-            idx (int): the road index
-
-        """
-        incoming_road = self.incoming_roads[idx]
-        if incoming_road.successor and incoming_road.successor.element_id == self.id:
-            return -1
-        elif (
-            incoming_road.predecessor
-            and incoming_road.predecessor.element_id == self.id
-        ):
-            return 0
-        else:
-            raise AttributeError("road is not connected to this junction")
-
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
         incoming_connection, _, incoming_lane_section = _get_related_lanesection(
             incoming_road, linked_road
@@ -1199,6 +1179,30 @@ class DirectJunctionCreator:
                 self._linked_lane_ids = linked_lane_ids
                 if min([abs(x) for x in self._linked_lane_ids]) == 1:
                     incoming_main_road = True
+            # sanity check
+            for i in range(len(self._incoming_lane_ids)):
+                if self._get_contact_point_linked_road(
+                    incoming_road
+                ) == self._get_contact_point_linked_road(linked_road):
+                    if np.sign(self._incoming_lane_ids[i]) == np.sign(
+                        self._linked_lane_ids[i]
+                    ):
+                        raise MixingDrivingDirection(
+                            "driving direction not consistent when trying to make connection between roads:"
+                            + str(incoming_road.id)
+                            + " and "
+                            + str(linked_road.id)
+                        )
+                else:
+                    if np.sign(self._incoming_lane_ids[i]) != np.sign(
+                        self._linked_lane_ids[i]
+                    ):
+                        raise MixingDrivingDirection(
+                            "driving direction not consistent when trying to make connection between roads:"
+                            + str(incoming_road.id)
+                            + " and "
+                            + str(linked_road.id)
+                        )
             if len(self._linked_lane_ids) != len(self._linked_lane_ids):
                 raise NotSameAmountOfLanesError(
                     "the incoming_lane_ids and linked_lane_ids are not the same length"
