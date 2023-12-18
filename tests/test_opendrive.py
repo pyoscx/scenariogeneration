@@ -14,6 +14,7 @@ import pytest
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint
 from .xml_validator import version_validation, ValidationResponse
+import numpy as np
 
 
 def test_simple_road():
@@ -210,3 +211,58 @@ def test_header():
         version_validation("t_header", h1, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+
+def test_odr_road_patching_connection_types():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+    road3 = xodr.create_road(xodr.Line(100), 3, 1, 1)
+    road4 = xodr.create_road(xodr.Line(100), 4, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    road3.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 3, xodr.ContactPoint.end)
+    road3.add_predecessor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+    road4.add_predecessor(xodr.ElementType.road, 3, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.add_road(road4)
+    odr.adjust_roads_and_lanes()
+    assert road1.planview.get_start_point() == (0, 0, 0)
+    assert road2.planview.get_start_point() == (100.0, 0, 0)
+    assert road3.planview.get_start_point() == (300.0, 0, np.pi)
+    assert road4.planview.get_start_point() == (300.0, 0, 0)
+
+
+def test_odr_road_patching_connection_types_wrong_types_successor():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
+        odr.adjust_roads_and_lanes()
+
+
+def test_odr_road_patching_connection_types_wrong_types_predecessor():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
+        odr.adjust_roads_and_lanes()
