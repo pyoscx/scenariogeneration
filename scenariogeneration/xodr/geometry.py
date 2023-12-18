@@ -27,6 +27,7 @@ def wrap_pi(angle):
     return angle % (2 * np.pi)
 
 
+<<<<<<< HEAD
 class AdjustablePlanview:
     """AdjustablePlanview can be used to fit a geometry between two fixed roads.
     Especially useful when connecting larger networks with Spiral geometries included.
@@ -49,6 +50,8 @@ class AdjustablePlanview:
         self.lane_width_end = lane_width_end
 
 
+=======
+>>>>>>> c6fa950 (more tests to opendrive module, adding some sanity checks for contactpoints when patching geometries)
 class PlanView(XodrBase):
     """the PlanView is the geometrical description of a road,
 

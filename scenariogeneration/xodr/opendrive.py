@@ -28,6 +28,14 @@ from .elevation import (
     _Poly3Profile,
     ElevationCalculator,
 )
+from .exceptions import (
+    UndefinedRoadNetwork,
+    RoadsAndLanesNotAdjusted,
+    IdAlreadyExists,
+    MixingDrivingDirection,
+    GeneralIssueInputArguments,
+)
+
 from .utils import get_lane_sec_and_s_for_lane_calc
 from .geometry import AdjustablePlanview, Spiral, PlanView
 from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
