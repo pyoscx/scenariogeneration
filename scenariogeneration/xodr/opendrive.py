@@ -1693,7 +1693,8 @@ class OpenDrive(XodrBase):
                         ]
                     elif (
                         self.roads[k].predecessor is not None
-                        and self.roads[k].predecessor.element_type == ElementType.junction
+                        and self.roads[k].predecessor.element_type
+                        == ElementType.junction
                         and not self.roads[k].pred_direct_junction
                     ):
                         for key in self.roads:
@@ -1712,7 +1713,8 @@ class OpenDrive(XodrBase):
                                     break
                     elif (
                         self.roads[k].predecessor is not None
-                        and self.roads[k].predecessor.element_type == ElementType.junction
+                        and self.roads[k].predecessor.element_type
+                        == ElementType.junction
                         and self.roads[k].pred_direct_junction
                     ):
                         for key in self.roads[k].pred_direct_junction.keys():
