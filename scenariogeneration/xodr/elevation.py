@@ -11,6 +11,8 @@
 """
 import xml.etree.ElementTree as ET
 from .utils import XodrBase
+from .enumerations import ContactPoint, ElementType
+import numpy as np
 
 
 class ElevationProfile(XodrBase):
@@ -40,6 +42,16 @@ class ElevationProfile(XodrBase):
             if self.elevations == other.elevations:
                 return True
         return False
+
+    def eval_at_s(self, s):
+        return self.elevations[
+            [i for i, x in enumerate(self.elevations) if x.s <= s][-1]
+        ].eval_at_s(s)
+
+    def eval_derivative_at_s(self, s):
+        return self.elevations[
+            [i for i, x in enumerate(self.elevations) if x.s <= s][-1]
+        ].eval_derivative_at_s(s)
 
     def add_elevation(self, elevation):
         """adds an elevation to the ElevationProfile
@@ -229,6 +241,21 @@ class _Poly3Profile:
                 return True
         return False
 
+    def eval_at_s(self, s):
+        if s < self.s:
+            raise ValueError("when evaluating elevation, s must be larger than s_start")
+        return (
+            self.a
+            + self.b * (s - self.s)
+            + self.c * (s - self.s) ** 2
+            + self.d * (s - self.s) ** 3
+        )
+
+    def eval_derivative_at_s(self, s):
+        if s < self.s:
+            raise ValueError("when evaluating elevation, s must be larger than s_start")
+        return self.b + 2 * self.c * (s - self.s) + 3 * self.d * (s - self.s) ** 2
+
     def get_attributes(self):
         """returns the attributes of the Elevetion"""
 
@@ -257,3 +284,120 @@ class _Poly3Profile:
         element = ET.Element(elementname, attrib=self.get_attributes())
 
         return element
+
+
+class ElevationCalculator:
+    """ElevationCalculator is a helper class to add elevation profiles to a road based on its neighbors
+    elevations.
+
+    Parameters
+    ----------
+        main_road (Road): the road that an elevation should be added to
+
+    Methods
+    -------
+        add_successor (Road): adds a successor road to the main_road with an elevation profile
+
+        add_predecessor (Road): adds a predecessor road to the main_road with an elevation profile
+    """
+
+    def __init__(self, main_road):
+        self.main_road = main_road
+        self.successor_road = None
+        self.predecessor_road = None
+        self.predecessor_cp = None
+        self.successor_cp = None
+
+    def add_successor(self, successor_road):
+        if successor_road._elevation_adjusted:
+            self.successor_road = successor_road
+            if (
+                self.successor_road.predecessor is not None
+                and self.successor_road.predecessor.element_id == self.main_road.id
+            ):
+                self.successor_cp = ContactPoint.start
+            elif (
+                self.successor_road.successor is not None
+                and self.successor_road.successor.element_id == self.main_road.id
+            ):
+                self.successor_cp = ContactPoint.end
+
+    def add_predecessor(self, predecessor_road):
+        if predecessor_road._elevation_adjusted:
+            self.predecessor_road = predecessor_road
+
+            if (
+                self.predecessor_road.predecessor is not None
+                and self.predecessor_road.predecessor.element_id == self.main_road.id
+            ):
+                self.predecessor_cp = ContactPoint.start
+            elif (
+                self.predecessor_road.successor is not None
+                and self.predecessor_road.successor.element_id == self.main_road.id
+            ):
+                self.predecessor_cp = ContactPoint.end
+
+    def _create_elevation(self):
+        if self.successor_road and self.predecessor_road:
+            if self.predecessor_cp == ContactPoint.start:
+                pre_s = 0
+                pre_sign = -1
+            else:
+                pre_s = self.predecessor_road.planview.get_total_length()
+                pre_sign = 1
+            if self.successor_cp == ContactPoint.start:
+                suc_s = 0
+                suc_sign = 1
+            else:
+                suc_s = self.successor_road.planview.get_total_length()
+                suc_sign = -1
+            main_s = self.main_road.planview.get_total_length()
+            A = np.array(
+                [
+                    [1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [1, main_s, main_s**2, main_s**3],
+                    [0, 1, 2 * main_s, 3 * main_s**2],
+                ]
+            )
+            B = np.array(
+                [
+                    self.predecessor_road.elevationprofile.eval_at_s(pre_s),
+                    pre_sign
+                    * self.predecessor_road.elevationprofile.eval_derivative_at_s(
+                        pre_s
+                    ),
+                    self.successor_road.elevationprofile.eval_at_s(suc_s),
+                    suc_sign
+                    * self.successor_road.elevationprofile.eval_derivative_at_s(suc_s),
+                ]
+            )
+            coeffs = np.linalg.solve(A, B)
+            self.main_road.add_elevation(0, coeffs[0], coeffs[1], coeffs[2], coeffs[3])
+
+        elif self.successor_road or self.predecessor_road:
+            if self.successor_road:
+                main_s = self.main_road.planview.get_total_length()
+                related_road = self.successor_road
+                if self.successor_cp == ContactPoint.start:
+                    neighbor_s = 0
+                    sign = 1
+                else:
+                    neighbor_s = related_road.planview.get_total_length()
+                    sign = -1
+            else:
+                main_s = 0
+                related_road = self.predecessor_road
+                if self.predecessor_cp == ContactPoint.start:
+                    neighbor_s = 0
+                    sign = -1
+                else:
+                    neighbor_s = related_road.planview.get_total_length()
+                    sign = 1
+
+            b = sign * related_road.elevationprofile.eval_derivative_at_s(neighbor_s)
+            a = related_road.elevationprofile.eval_at_s(neighbor_s) - b * main_s
+            self.main_road.add_elevation(0, a, b, 0, 0)
+
+    def create_elevation_profiles(self):
+        self._create_elevation()
