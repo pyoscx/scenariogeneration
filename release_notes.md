@@ -1,5 +1,22 @@
 ## scenariogeneration release notes
 
+### 2023-12-20 Version 0.14.1
+
+- Bugfixes
+  - esmini_runner can now handle only odr from a ScenarioGenerator inherited class
+  - bug fixed when using adjust_roads_and_lanes if a connecting road was the first added would fail,
+  - JunctionCreator with circular geometry can now create straight lines again (introduced in 0.14.0)
+- New feature
+  - Some sanity checks for driving direction added. Both for connecting roads and in junctions, will throw a MixingDrivingDirection exception.
+- Code structure
+    - Catalog writing and ParameterDeclarations moved to _BaseCatalog superclass (all relevant classes updated)
+- Tests
+  - generators: more testing in creating lane merges and splits
+  - JunctionCreators: a lot more tests covering more of the different ways of creating both common and direct junctions
+  - OpenDrive class tested more for patching and when wrong input is given.
+- Important!
+  - Deprecation warnings added on old generation functions, such as create_straight_road, and old junction generation functions. All will be removed in a future release. Exampels are updated with no deprecated functions and new exampels for cases not covered in previous exampels.
+
 ### 2023-12-07 Version 0.14.0
 
 - Bugfixes
@@ -12,7 +29,7 @@
   - ParkingSpace type for OpenDRIVE object implemented
   - SignalReference element for OpenDRIVE implemented
   - Tunnel object for OpenDRIVE implemented
-  - RoadMarkAdjustment new method in xodr module for adjusting broken lanemark (see example: xodr/road_with_lane_adjustment.py) 
+  - RoadMarkAdjustment new method in xodr module for adjusting broken lanemark (see example: xodr/road_with_lane_adjustment.py)
 - Tests
   - all xodr classes and examples are validated against OpenDRIVE 1.7. Links and lane were updated to pass validation.
 
