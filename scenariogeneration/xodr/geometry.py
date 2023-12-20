@@ -23,6 +23,10 @@ from scipy.integrate import quad
 from .utils import XodrBase
 
 
+def wrap_pi(angle):
+    return angle % (2 * np.pi)
+
+
 class PlanView(XodrBase):
     """the PlanView is the geometrical description of a road,
 
@@ -269,7 +273,7 @@ class PlanView(XodrBase):
                 self._adjusted_geometries.append(newgeom)
             self.x_end = self.present_x
             self.y_end = self.present_y
-            self.h_end = self.present_h
+            self.h_end = wrap_pi(self.present_h)
 
         else:
             self.x_end = self.present_x
@@ -296,7 +300,7 @@ class PlanView(XodrBase):
 
             self.x_start = self.present_x
             self.y_start = self.present_y
-            self.h_start = self.present_h + np.pi
+            self.h_start = wrap_pi(self.present_h + np.pi)
 
             length = sum(lengths)
             self.present_s = 0
@@ -305,6 +309,8 @@ class PlanView(XodrBase):
                 self._adjusted_geometries[i].set_s(self.present_s)
                 self.present_s += lengths[i]
             self._adjusted_geometries.reverse()
+        self.h_start = wrap_pi(self.h_start)
+        self.h_end = wrap_pi(self.h_end)
         self.adjusted = True
 
     def get_total_length(self):

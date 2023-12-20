@@ -15,7 +15,13 @@ import xml.etree.ElementTree as ET
 from ..helpers import printToFile, enum2str
 from .links import _Link, _Links, create_lane_links
 from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule, JunctionType
-from .exceptions import UndefinedRoadNetwork, RoadsAndLanesNotAdjusted, IdAlreadyExists
+from .exceptions import (
+    UndefinedRoadNetwork,
+    RoadsAndLanesNotAdjusted,
+    IdAlreadyExists,
+    MixingDrivingDirection,
+    GeneralIssueInputArguments,
+)
 from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
 from .utils import get_lane_sec_and_s_for_lane_calc
 
@@ -1010,6 +1016,68 @@ class OpenDrive(XodrBase):
 
         return offset_width
 
+    def _connection_sanity_check(self, road_id, connection_type):
+        """_connection_sanity_check checks if a connection and input makes sence, ie. checking that
+        all predecessor and contact points are done correctly.
+
+        Parameters
+        ----------
+            road_id (str): id of the road of interest
+
+            connection_type (str): if the predecessor or successor should be checked
+        """
+        road_id = str(road_id)
+        if connection_type == "predecessor":
+            contact_point = self.roads[road_id].predecessor.contact_point
+            neighbor_id = str(self.roads[road_id].predecessor.element_id)
+        elif connection_type == "successor":
+            contact_point = self.roads[road_id].successor.contact_point
+            neighbor_id = str(self.roads[road_id].successor.element_id)
+        else:
+            raise GeneralIssueInputArguments(
+                "connection_type: " + connection_type + " is unknown."
+            )
+        if self.roads[road_id].road_type == -1:
+            if not (
+                (
+                    contact_point == ContactPoint.start
+                    and self.roads[neighbor_id].predecessor is not None
+                    and self.roads[neighbor_id].predecessor.element_id == int(road_id)
+                )
+                or (
+                    contact_point == ContactPoint.end
+                    and self.roads[neighbor_id].successor is not None
+                    and self.roads[neighbor_id].successor.element_id == int(road_id)
+                )
+            ):
+                raise MixingDrivingDirection(
+                    "road "
+                    + road_id
+                    + " and road "
+                    + neighbor_id
+                    + " have a mismatch in connections, please check predecessors/sucessors and contact points."
+                )
+        else:
+            if not (
+                (
+                    contact_point == ContactPoint.start
+                    and self.roads[neighbor_id].predecessor is not None
+                    and self.roads[neighbor_id].predecessor.element_id
+                    == self.roads[road_id].road_type
+                )
+                or contact_point == ContactPoint.end
+                and self.roads[neighbor_id].successor is not None
+                and self.roads[neighbor_id].successor.element_id
+                == self.roads[road_id].road_type
+            ):
+                raise MixingDrivingDirection(
+                    "road "
+                    + road_id
+                    + " and road "
+                    + neighbor_id
+                    + " have a mismatch in connections, please check predecessors/sucessors and contact points."
+                )
+
     def adjust_startpoints(self):
         """Adjust starting position of all geoemtries of all roads
 
@@ -1040,8 +1108,11 @@ class OpenDrive(XodrBase):
         # If no roads are fixed, select the first road is selected as the pivot-road
         if len(self.roads) > 0:
             if fixed_road is False:
-                self.roads[list(self.roads.keys())[0]].planview.adjust_geometries()
-                # print('Selecting and adjusting the first road {}'.format(self.roads[list(self.roads.keys())[0] ].id))
+                for key in self.roads.keys():
+                    # make sure it is not a connecting road, patching algorithm can't handle that
+                    if self.roads[key].road_type == -1:
+                        self.roads[key].planview.adjust_geometries()
+                        break
                 count_total_adjusted_roads += 1
 
         while count_total_adjusted_roads < len(self.roads):
@@ -1059,8 +1130,7 @@ class OpenDrive(XodrBase):
                         ].planview.adjusted
                         is True
                     ):
-                        # print('  Adjusting {}road {} to predecessor {}'.\
-                        #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].predecessor.element_id))
+                        self._connection_sanity_check(k, "predecessor")
                         self._adjust_road_wrt_neighbour(
                             k,
                             self.roads[k].predecessor.element_id,
@@ -1078,8 +1148,6 @@ class OpenDrive(XodrBase):
                             is False
                         ):
                             succ_id = self.roads[k].successor.element_id
-                            # print('    Adjusting successor connecting road {} in junction {} to road {} '.\
-                            #     format(succ_id, self.roads[k].road_type, self.roads[k].id))
                             if (
                                 self.roads[k].successor.contact_point
                                 == ContactPoint.start
@@ -1103,8 +1171,7 @@ class OpenDrive(XodrBase):
                         ].planview.adjusted
                         is True
                     ):
-                        # print('  Adjusting {}successor {} to road {}'.\
-                        #     format('' if self.roads[k].road_type == -1 else 'connecting ', self.roads[k].id, self.roads[k].successor.element_id))
+                        self._connection_sanity_check(k, "successor")
                         self._adjust_road_wrt_neighbour(
                             k,
                             self.roads[k].successor.element_id,
@@ -1122,8 +1189,6 @@ class OpenDrive(XodrBase):
                             is False
                         ):
                             pred_id = self.roads[k].predecessor.element_id
-                            # print('    Adjusting predecessor connecting road {} in junction {} to road {} '.\
-                            #     format(pred_id, self.roads[k].road_type, self.roads[k].id))
                             if (
                                 self.roads[k].predecessor.contact_point
                                 == ContactPoint.start

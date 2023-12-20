@@ -111,12 +111,8 @@ For most simple roads, the generators that are provided in the __xodr__ module c
 The *create_road* function is very useful to create rather simple roads with either fixed amount of lanes or simple lane-merge/splits.
 Some example usage of this can be seen in [highway_example](examples/xodr/highway_example.html).
 
-#### create_cloth_arc_cloth
-The  *create_cloth_arc_cloth* function creates road with a smooth curve based on a clothoid + arc + clothoid. This is often used since the curvature of the road will change continiously (and resulting in nice steering wheel changes for a driver).
-
 #### create_3cloths
-Similarly to *create_cloth_arc_cloth*, the *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using [pyclothoids](https://github.com/phillipd94/pyclothoids))
-
+The *create_3cloths* function creates a smooth curve based on 3 consecutive spiral geoemtries (using [pyclothoids](https://github.com/phillipd94/pyclothoids))
 
 #### LaneDef
 LaneDef is a helper class that enables simple lane merge/split roads to be created. LaneDef can also be used to define different widths of lanes, aswell as lane widths changing. The LaneDefs definition can be used together with the create_road generator (see [highway_example_with_merge_and_split](examples/xodr/highway_example_with_merge_and_split.html), and [full_junction_with_LaneDef](examples/xodr/full_junction_with_LaneDef.html)).

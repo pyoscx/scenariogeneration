@@ -40,6 +40,8 @@ from .exceptions import (
     RemovedFunctionality,
 )
 
+from warnings import warn
+
 
 def std_roadmark_solid():
     return RoadMark(RoadMarkType.solid, 0.2)
@@ -180,7 +182,7 @@ def create_lanes_merge_split(
             # check if the number of lanes should change or not
             if (
                 right_lane[ls].n_lanes_start > right_lane[ls].n_lanes_end
-                and i == -right_lane[ls].sub_lane - 1
+                and i == np.abs(right_lane[ls].sub_lane) - 1
             ):
                 # lane merge
                 coeff = get_coeffs_for_poly3(
@@ -193,7 +195,7 @@ def create_lanes_merge_split(
                 rightlane.add_roadmark(rm)
             elif (
                 right_lane[ls].n_lanes_start < right_lane[ls].n_lanes_end
-                and i == -right_lane[ls].sub_lane - 1
+                and i == np.abs(right_lane[ls].sub_lane) - 1
             ):
                 # lane split
                 coeff = get_coeffs_for_poly3(
@@ -227,6 +229,7 @@ def create_lanes_merge_split(
 
             lsec.add_right_lane(rightlane)
 
+        # do the left lanes
         for i in range(max(left_lane[ls].n_lanes_start, left_lane[ls].n_lanes_end)):
             # add broken roadmarks for all lanes, except for the outer lane where a solid line is added
             if i == max(left_lane[ls].n_lanes_start, left_lane[ls].n_lanes_end) - 1:
@@ -462,6 +465,11 @@ def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offse
         -------
             road (Road): a straight road
     """
+    warn(
+        "create_straight_road should not be used anymore, please use the create_road function instead",
+        DeprecationWarning,
+        2,
+    )
     # create geometry
     line1 = Line(length)
 
@@ -520,7 +528,11 @@ def create_cloth_arc_cloth(
     -------
         road (Road): a road built up of a Spiral-Arc-Spiral
     """
-
+    warn(
+        "create_cloth_arc_cloth should not be used anymore, please use the create_road (see exampels/xodr/clothoid_generation.py) function instead",
+        DeprecationWarning,
+        2,
+    )
     pv = PlanView()
     # adjust sign if angle is negative
     if cloth_angle < 0 and arc_curv > 0:
@@ -605,7 +617,11 @@ def create_3cloths(
     -------
         road (Road): a road built up of a Spiral-Spiral-Spiral
     """
-
+    warn(
+        "create_cloth_arc_cloth should not be used anymore, please use the create_road (see exampels/xodr/clothoid_generation.py) function instead",
+        DeprecationWarning,
+        2,
+    )
     pv = PlanView()
 
     # create geometries
@@ -654,6 +670,7 @@ def get_lanes_offset(road1, road2, contactpoint):
 
         lane_offset (int):
     """
+
     # now we always look at lanesection[0] to take the number of lanes
     # TO DO - understand if the roads are connect through end or start and then take the relative lane section
     if contactpoint == ContactPoint.end:
@@ -722,6 +739,11 @@ def create_junction_roads_standalone(
         junction_roads (list of Road): a list of all roads in a junction without connections added
 
     """
+    warn(
+        "create_junction_roads_standalone should not be used anymore, please use the CommonJunctionCreator function instead",
+        DeprecationWarning,
+        2,
+    )
     angle = np.pi / 2
     angle_cloth = angle * spiral_part
     spiral_length = 2 * abs(angle_cloth * r)
@@ -813,7 +835,11 @@ def create_junction_roads_from_arc(
     -------
         junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
     """
-
+    warn(
+        "create_junction_roads_from_arc should not be used anymore, please use the CommonJunctionCreator function instead",
+        DeprecationWarning,
+        2,
+    )
     # arc_part = 1 - 2*spiral_part
     spiral_part = (1 - arc_part) / 2
 
@@ -935,7 +961,11 @@ def create_junction_roads(
     -------
         junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
     """
-
+    warn(
+        "create_junction_roads_from_arc should not be used anymore, please use the CommonJunctionCreator function instead",
+        DeprecationWarning,
+        2,
+    )
     if len(roads) is not len(angles):
         raise GeneralIssueInputArguments("roads and angles do not have the same size.")
 

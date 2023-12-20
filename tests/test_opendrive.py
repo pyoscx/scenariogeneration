@@ -11,28 +11,27 @@
 """
 from scenariogeneration.xodr.opendrive import OpenDrive
 import pytest
-from scenariogeneration import xodr as pyodrx
+from scenariogeneration import xodr
 from scenariogeneration import prettyprint
 from .xml_validator import version_validation, ValidationResponse
+import numpy as np
 
 
 def test_simple_road():
-    line1 = pyodrx.Line(100)
-    planview = pyodrx.PlanView()
+    line1 = xodr.Line(100)
+    planview = xodr.PlanView()
     planview.add_geometry(line1)
 
-    rm = pyodrx.RoadMark(
-        pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
-    )
+    rm = xodr.RoadMark(xodr.RoadMarkType.solid, 0.2, rule=xodr.MarkRule.no_passing)
 
-    lane1 = pyodrx.Lane(a=2)
+    lane1 = xodr.Lane(a=2)
     lane1.add_roadmark(rm)
-    lanesec = pyodrx.LaneSection(0, lane1)
+    lanesec = xodr.LaneSection(0, lane1)
 
-    lanes = pyodrx.Lanes()
+    lanes = xodr.Lanes()
     lanes.add_lanesection(lanesec)
 
-    road = pyodrx.Road(1, planview, lanes)
+    road = xodr.Road(1, planview, lanes)
     road.planview.adjust_geometries()
 
     prettyprint(road.get_element())
@@ -43,46 +42,46 @@ def test_simple_road():
 
 
 def test_link_road():
-    planview = pyodrx.PlanView()
-    planview.add_geometry(pyodrx.Line(100))
-    lane1 = pyodrx.Lane(a=2)
+    planview = xodr.PlanView()
+    planview.add_geometry(xodr.Line(100))
+    lane1 = xodr.Lane(a=2)
     lane1.add_roadmark(
-        pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
+        xodr.RoadMark(xodr.RoadMarkType.solid, 0.2, rule=xodr.MarkRule.no_passing)
     )
-    lanes = pyodrx.Lanes()
-    lanes.add_lanesection(pyodrx.LaneSection(0, lane1))
+    lanes = xodr.Lanes()
+    lanes.add_lanesection(xodr.LaneSection(0, lane1))
 
-    road = pyodrx.Road(1, planview, lanes)
-    road.add_predecessor(pyodrx.ElementType.road, "1", pyodrx.ContactPoint.start)
+    road = xodr.Road(1, planview, lanes)
+    road.add_predecessor(xodr.ElementType.road, "1", xodr.ContactPoint.start)
     prettyprint(road.get_element())
 
-    planview2 = pyodrx.PlanView()
-    planview2.add_geometry(pyodrx.Line(100))
-    lane12 = pyodrx.Lane(a=2)
+    planview2 = xodr.PlanView()
+    planview2.add_geometry(xodr.Line(100))
+    lane12 = xodr.Lane(a=2)
     lane12.add_roadmark(
-        pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
+        xodr.RoadMark(xodr.RoadMarkType.solid, 0.2, rule=xodr.MarkRule.no_passing)
     )
-    lanes2 = pyodrx.Lanes()
-    lanes2.add_lanesection(pyodrx.LaneSection(0, lane12))
+    lanes2 = xodr.Lanes()
+    lanes2.add_lanesection(xodr.LaneSection(0, lane12))
 
-    road2 = pyodrx.Road(1, planview2, lanes2)
-    road2.add_predecessor(pyodrx.ElementType.road, "1", pyodrx.ContactPoint.start)
+    road2 = xodr.Road(1, planview2, lanes2)
+    road2.add_predecessor(xodr.ElementType.road, "1", xodr.ContactPoint.start)
 
-    planview3 = pyodrx.PlanView()
-    planview3.add_geometry(pyodrx.Line(120))
-    lane13 = pyodrx.Lane(a=2)
+    planview3 = xodr.PlanView()
+    planview3.add_geometry(xodr.Line(120))
+    lane13 = xodr.Lane(a=2)
     lane13.add_roadmark(
-        pyodrx.RoadMark(pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing)
+        xodr.RoadMark(xodr.RoadMarkType.solid, 0.2, rule=xodr.MarkRule.no_passing)
     )
-    lanes3 = pyodrx.Lanes()
-    lanes3.add_lanesection(pyodrx.LaneSection(0, lane13))
+    lanes3 = xodr.Lanes()
+    lanes3.add_lanesection(xodr.LaneSection(0, lane13))
 
-    road3 = pyodrx.Road(2, planview3, lanes3)
-    road3.add_predecessor(pyodrx.ElementType.road, "1", pyodrx.ContactPoint.start)
+    road3 = xodr.Road(2, planview3, lanes3)
+    road3.add_predecessor(xodr.ElementType.road, "1", xodr.ContactPoint.start)
 
-    odr = pyodrx.OpenDrive("")
-    odr2 = pyodrx.OpenDrive("")
-    odr3 = pyodrx.OpenDrive("")
+    odr = xodr.OpenDrive("")
+    odr2 = xodr.OpenDrive("")
+    odr3 = xodr.OpenDrive("")
     odr.add_road(road)
     odr2.add_road(road2)
     odr3.add_road(road3)
@@ -100,17 +99,17 @@ def test_link_road():
     [
         ([10, 100, -1, 1, 3]),
         ([10, 50, -1, 1, 3]),
-        ([10, 100, 1, 1, 3]),
+        ([10, 100, -1, 1, 3]),
         ([10, 100, -1, 2, 3]),
         ([10, 100, -1, 10, 3]),
         ([10, 100, -1, 10, 5]),
     ],
 )
 def test_create_straight_road(data):
-    road = pyodrx.generators.create_straight_road(
-        data[0], length=data[1], junction=data[2], n_lanes=data[3], lane_offset=data[4]
+    road = xodr.create_road(
+        [xodr.Line(data[1])], data[0], data[3], data[3], data[2], lane_width=data[4]
     )
-    odr = pyodrx.OpenDrive("myroad")
+    odr = xodr.OpenDrive("myroad")
     odr.add_road(road)
     odr.adjust_roads_and_lanes()
 
@@ -129,17 +128,17 @@ def test_create_straight_road(data):
 
 
 def test_road_type():
-    rt = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 0, "SE")
+    rt = xodr.opendrive._Type(xodr.RoadType.motorway, 0, "SE")
     prettyprint(rt.get_element())
-    rt2 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 0, "SE")
-    rt3 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 0, "DE")
+    rt2 = xodr.opendrive._Type(xodr.RoadType.motorway, 0, "SE")
+    rt3 = xodr.opendrive._Type(xodr.RoadType.motorway, 0, "DE")
     assert rt == rt2
     assert rt != rt3
 
-    rt = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 0, "SE", speed="no limit")
+    rt = xodr.opendrive._Type(xodr.RoadType.motorway, 0, "SE", speed="no limit")
     prettyprint(rt.get_element())
-    rt2 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 0, "SE", speed="no limit")
-    rt3 = pyodrx.opendrive._Type(pyodrx.RoadType.motorway, 1, "SE", speed="no limit")
+    rt2 = xodr.opendrive._Type(xodr.RoadType.motorway, 0, "SE", speed="no limit")
+    rt3 = xodr.opendrive._Type(xodr.RoadType.motorway, 1, "SE", speed="no limit")
     assert rt == rt2
     assert rt != rt3
     assert (
@@ -149,18 +148,19 @@ def test_road_type():
 
 
 def test_road_with_road_types():
-    road = pyodrx.create_straight_road(0)
-    road.add_type(pyodrx.RoadType.motorway, 0)
+    xodr.create_road(xodr.Line(100), 0)
+    road = xodr.create_road(xodr.Line(100), 0)
+    road.add_type(xodr.RoadType.motorway, 0)
     prettyprint(road.get_element())
 
-    road2 = pyodrx.create_straight_road(0)
-    road2.add_type(pyodrx.RoadType.motorway, 0)
-    road3 = pyodrx.create_straight_road(0, 50)
-    road3.add_type(pyodrx.RoadType.motorway, 0)
+    road2 = xodr.create_road(xodr.Line(100), 0)
+    road2.add_type(xodr.RoadType.motorway, 0)
+    road3 = xodr.create_road(xodr.Line(50), 0)
+    road3.add_type(xodr.RoadType.motorway, 0)
 
-    odr = pyodrx.OpenDrive("")
-    odr2 = pyodrx.OpenDrive("")
-    odr3 = pyodrx.OpenDrive("")
+    odr = xodr.OpenDrive("")
+    odr2 = xodr.OpenDrive("")
+    odr3 = xodr.OpenDrive("")
     odr.add_road(road)
     odr2.add_road(road2)
     odr3.add_road(road3)
@@ -176,22 +176,22 @@ def test_road_with_road_types():
 
 
 def test_road_with_repeating_objects():
-    r1 = pyodrx.create_straight_road(0)
-    r2 = pyodrx.create_straight_road(0)
-    r3 = pyodrx.create_straight_road(0)
-    guardrail = pyodrx.Object(
-        0, 0, height=2.0, zOffset=0, Type=pyodrx.ObjectType.barrier, name="railing"
+    r1 = xodr.create_road(xodr.Line(100), 1)
+    r2 = xodr.create_road(xodr.Line(100), 1)
+    r3 = xodr.create_road(xodr.Line(100), 1)
+    guardrail = xodr.Object(
+        0, 0, height=2.0, zOffset=0, Type=xodr.ObjectType.barrier, name="railing"
     )
-    odr = pyodrx.OpenDrive("")
-    odr2 = pyodrx.OpenDrive("")
-    odr3 = pyodrx.OpenDrive("")
+    odr = xodr.OpenDrive("")
+    odr2 = xodr.OpenDrive("")
+    odr3 = xodr.OpenDrive("")
     odr.add_road(r1)
     odr2.add_road(r2)
     odr3.add_road(r3)
     odr.adjust_roads_and_lanes()
     odr2.adjust_roads_and_lanes()
     odr3.adjust_roads_and_lanes()
-    r3.add_object_roadside(guardrail, 4, 0, 0, pyodrx.RoadSide.both, 1, 0.1, 4, 1, 4, 1)
+    r3.add_object_roadside(guardrail, 4, 0, 0, xodr.RoadSide.both, 1, 0.1, 4, 1, 4, 1)
     prettyprint(odr3.get_element())
 
     assert r1 == r2
@@ -202,12 +202,67 @@ def test_road_with_repeating_objects():
 
 
 def test_header():
-    h1 = pyodrx.opendrive._Header("hej", "1", "4")
-    h2 = pyodrx.opendrive._Header("hej", "1", "4")
-    h3 = pyodrx.opendrive._Header("hej", "1", "5")
+    h1 = xodr.opendrive._Header("hej", "1", "4")
+    h2 = xodr.opendrive._Header("hej", "1", "4")
+    h3 = xodr.opendrive._Header("hej", "1", "5")
     assert h1 == h2
     assert h1 != h3
     assert (
         version_validation("t_header", h1, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+
+def test_odr_road_patching_connection_types():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+    road3 = xodr.create_road(xodr.Line(100), 3, 1, 1)
+    road4 = xodr.create_road(xodr.Line(100), 4, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    road3.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 3, xodr.ContactPoint.end)
+    road3.add_predecessor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+    road4.add_predecessor(xodr.ElementType.road, 3, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.add_road(road4)
+    odr.adjust_roads_and_lanes()
+    assert road1.planview.get_start_point() == (0, 0, 0)
+    assert road2.planview.get_start_point() == (100.0, 0, 0)
+    assert road3.planview.get_start_point() == (300.0, 0, np.pi)
+    assert road4.planview.get_start_point() == (300.0, 0, 0)
+
+
+def test_odr_road_patching_connection_types_wrong_types_successor():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
+        odr.adjust_roads_and_lanes()
+
+
+def test_odr_road_patching_connection_types_wrong_types_predecessor():
+    road1 = xodr.create_road(xodr.Line(100), 1, 1, 1)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my_road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
+        odr.adjust_roads_and_lanes()
