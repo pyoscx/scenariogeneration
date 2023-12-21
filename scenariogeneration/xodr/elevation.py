@@ -133,6 +133,23 @@ class LateralProfile(XodrBase):
         self.superelevations.append(superelevation)
         return self
 
+    def eval_superelevation_at_s(self, s):
+        return self.superelevations[
+            [i for i, x in enumerate(self.superelevations) if x.s <= s][-1]
+        ].eval_at_s(s)
+
+    def eval_t_superelevation_at_s(self, s,t):
+        return self.superelevations[
+            [i for i, x in enumerate(self.superelevations) if x.s <= s][-1]
+        ].eval_t_at_s(s,t)
+
+
+    def eval_superelevation_derivative_at_s(self, s):
+        return self.superelevations[
+            [i for i, x in enumerate(self.superelevations) if x.s <= s][-1]
+        ].eval_derivative_at_s(s)
+
+
     def add_shape(self, shape):
         """adds an elevation to the LateralProfile
 
@@ -208,7 +225,7 @@ class _Poly3Profile:
 
     """
 
-    def __init__(self, s, a, b, c, d, t=None):
+    def __init__(self, s, a, b, c, d, t=None, elevation_type = "elevation"):
         """initalize the Elevation class
 
         Parameters
@@ -226,6 +243,8 @@ class _Poly3Profile:
             t (float): t variable (used only for shape)
                 Default: None
 
+            elevation_type (str): describing type of elevation for t value evaluations
+                Default: elevation
 
         """
         self.s = s
@@ -234,6 +253,12 @@ class _Poly3Profile:
         self.c = c
         self.d = d
         self.t = t
+        if elevation_type not in ['elevation', 'superelevation', 'shape']:
+            raise ValueError(
+                "elevation_type can only be: geometry, elevation, superelevation, or shape , not "
+                + elevation_type
+            )
+        self.elevation_type = elevation_type
 
     def __eq__(self, other):
         if isinstance(other, _Poly3Profile):
@@ -251,6 +276,18 @@ class _Poly3Profile:
             + self.d * (s - self.s) ** 3
         )
 
+    def eval_t_at_s(self, s, t):
+        if self.elevation_type == "elevation":
+            return self.eval_at_s(s)
+        elif self.elevation_type == "superelevation":
+            return t*np.sin(self.eval_at_s(s))
+        elif self.elevation_type == "shape":
+            raise NotImplementedError("t calculations for shape is not implemented yet.")
+        else:
+            raise ValueError(
+                "elevation_type can only be: geometry, elevation, superelevation, or shape , not "
+                + self.elevation_type
+            )
     def eval_derivative_at_s(self, s):
         if s < self.s:
             raise ValueError("when evaluating elevation, s must be larger than s_start")
@@ -269,13 +306,17 @@ class _Poly3Profile:
         retdict["d"] = str(self.d)
         return retdict
 
-    def get_element(self, elementname):
+    def get_element(self, elementname=None):
         """returns the elementTree of the Elevation
 
         Parameters
         ----------
             elementname (str): name of the element, can be elevation, superelevation or shape
+                Default: same as elevation_type
         """
+        if elementname is None:
+            elementname = self.elevation_type
+
         if elementname == "shape" and self.t == None:
             raise ValueError("When shape is used, the t value has to be set.")
         elif elementname != "shape" and self.t != None:
@@ -301,65 +342,82 @@ class ElevationCalculator:
         add_predecessor (Road): adds a predecessor road to the main_road with an elevation profile
     """
 
-    def __init__(self, main_road):
+
+    ## TODO: This should be rewritten.. the loop in opendrive could just be fixed and made easier.
+    # For superelevation cases, add multiple successors/predecessors. and a flag that extra elevation is needed if junctions are involved.. This will be fun...
+
+    def __init__(self, main_road, domain = "elevation"):
         self.main_road = main_road
         self.successor_road = None
         self.predecessor_road = None
         self.predecessor_cp = None
         self.successor_cp = None
+        self._successor_lateral_offset = 0
+        self._predecessor_lateral_offset = 0
+        if domain not in ["elevation", "superelevation", "shape"]:
+            raise ValueError(
+                "domain can only be: geometry, elevation, superelevation, or shape , not "
+                + domain
+            )
+        self.domain = domain
+
+
 
     def add_successor(self, successor_road):
-        if successor_road._elevation_adjusted:
+        if successor_road.is_adjusted(self.domain):
             self.successor_road = successor_road
-            if (
-                self.successor_road.predecessor is not None
-                and self.successor_road.predecessor.element_id == self.main_road.id
-            ):
+            if self.successor_road.predecessor is not None and (self.successor_road.predecessor.element_type == ElementType.road and self.successor_road.predecessor.element_id == self.main_road.id or self.successor_road.predecessor.element_type == ElementType.junction and self.successor_road.pred_direct_junction and self.main_road.id in list(self.successor_road.pred_direct_junction.keys()) or self.successor_road.predecessor.element_type == ElementType.junction and not self.successor_road.pred_direct_junction and self.main_road.road_type == self.successor_road.predecessor.element_id):
                 self.successor_cp = ContactPoint.start
-            elif (
-                self.successor_road.successor is not None
-                and self.successor_road.successor.element_id == self.main_road.id
-            ):
+                if self.domain == "elevation":
+                    if self.successor_road.predecessor.element_type == ElementType.junction:
+                        if self.successor_road.pred_direct_junction:
+                            lane_offsets = self.successor_road.pred_direct_junction[self.main_road.id]
+                            if lane_offsets < 0:
+                                tvalue = 0
+                                for lane_iter in range(abs(lane_offsets)):
+                                    tvalue += (
+                                        self.main_road
+                                        .lanes.lanesections[0]
+                                        .rightlanes[lane_iter]
+                                        .get_width(0)
+                                    )
+                            self._successor_lateral_offset = self.main_road.lateralprofile.eval_t_superelevation_at_s(0, tvalue)
+                        else:
+                            pass
+            elif (self.successor_road.successor is not None and (self.successor_road.successor.element_type == ElementType.road and self.successor_road.successor.element_id == self.main_road.id or self.successor_road.successor.element_type == ElementType.junction and self.successor_road.succ_direct_junction and self.main_road.id in list(self.successor_road.succ_direct_junction.keys()) or self.successor_road.successor.element_type == ElementType.junction and not self.successor_road.succ_direct_junction and self.main_road.road_type == self.successor_road.successor.element_id)):
                 self.successor_cp = ContactPoint.end
+                if self.successor_road.predecessor.element_type == ElementType.junction:
+                    pass
+            else:
+                raise ValueError("could not figure out the contact point")
 
     def add_predecessor(self, predecessor_road):
-        if predecessor_road._elevation_adjusted:
+        if predecessor_road.is_adjusted(self.domain):
             self.predecessor_road = predecessor_road
 
-            if (
-                self.predecessor_road.predecessor is not None
-                and self.predecessor_road.predecessor.element_id == self.main_road.id
-            ):
+            if self.predecessor_road.predecessor is not None and (self.predecessor_road.predecessor.element_type == ElementType.road and self.predecessor_road.predecessor.element_id == self.main_road.id or self.predecessor_road.predecessor.element_type == ElementType.junction and self.predecessor_road.pred_direct_junction and self.main_road.id in list(self.predecessor_road.pred_direct_junction.keys()) or self.predecessor_road.predecessor.element_type == ElementType.junction and not self.predecessor_road.pred_direct_junction and self.main_road.road_type == self.predecessor_road.predecessor.element_id):
                 self.predecessor_cp = ContactPoint.start
-            elif (
-                self.predecessor_road.successor is not None
-                and self.predecessor_road.successor.element_id == self.main_road.id
-            ):
+                if self.predecessor_road.predecessor.element_type == ElementType.junction:
+                    pass
+
+            elif (self.predecessor_road.successor is not None and (self.predecessor_road.successor.element_type == ElementType.road and self.predecessor_road.successor.element_id == self.main_road.id or self.predecessor_road.successor.element_type == ElementType.junction and self.predecessor_road.succ_direct_junction and self.main_road.id in list(self.predecessor_road.succ_direct_junction.keys()) or self.predecessor_road.successor.element_type == ElementType.junction and not self.predecessor_road.succ_direct_junction and self.main_road.road_type == self.predecessor_road.successor.element_id)):
                 self.predecessor_cp = ContactPoint.end
+                if self.predecessor_road.successor.element_type == ElementType.junction:
+                    pass
+            else:
+                raise ValueError("could not figure out the contact point")
+
 
     def _create_elevation(self):
         if self.successor_road and self.predecessor_road:
-            if self.predecessor_cp == ContactPoint.start:
-                pre_s = 0
-                pre_sign = -1
-            else:
-                pre_s = self.predecessor_road.planview.get_total_length()
-                pre_sign = 1
-            if self.successor_cp == ContactPoint.start:
-                suc_s = 0
-                suc_sign = 1
-            else:
-                suc_s = self.successor_road.planview.get_total_length()
-                suc_sign = -1
-            main_s = self.main_road.planview.get_total_length()
-            A = np.array(
-                [
-                    [1, 0, 0, 0],
-                    [0, 1, 0, 0],
-                    [1, main_s, main_s**2, main_s**3],
-                    [0, 1, 2 * main_s, 3 * main_s**2],
-                ]
-            )
+            (
+                pre_s,
+                pre_sign,
+                suc_s,
+                suc_sign,
+                A,
+            ) = self._get_related_data_for_double_connection()
+
             B = np.array(
                 [
                     self.predecessor_road.elevationprofile.eval_at_s(pre_s),
@@ -376,28 +434,133 @@ class ElevationCalculator:
             self.main_road.add_elevation(0, coeffs[0], coeffs[1], coeffs[2], coeffs[3])
 
         elif self.successor_road or self.predecessor_road:
-            if self.successor_road:
-                main_s = self.main_road.planview.get_total_length()
-                related_road = self.successor_road
-                if self.successor_cp == ContactPoint.start:
-                    neighbor_s = 0
-                    sign = 1
-                else:
-                    neighbor_s = related_road.planview.get_total_length()
-                    sign = -1
-            else:
-                main_s = 0
-                related_road = self.predecessor_road
-                if self.predecessor_cp == ContactPoint.start:
-                    neighbor_s = 0
-                    sign = -1
-                else:
-                    neighbor_s = related_road.planview.get_total_length()
-                    sign = 1
-
+            (
+                related_road,
+                neighbor_s,
+                sign,
+                main_s,
+            ) = self._get_related_data_for_single_connection()
             b = sign * related_road.elevationprofile.eval_derivative_at_s(neighbor_s)
-            a = related_road.elevationprofile.eval_at_s(neighbor_s) - b * main_s
+            a = related_road.elevationprofile.eval_at_s(neighbor_s) - b * main_s + self._successor_lateral_offset
             self.main_road.add_elevation(0, a, b, 0, 0)
 
-    def create_elevation_profiles(self):
-        self._create_elevation()
+    def _get_related_data_for_single_connection(self):
+        """common functionality for both elevation and superelevation
+        For a road that has elevations on one side to adjust to
+
+        Returns
+        -------
+            related_road - the road to adjust to
+            neighbor_s - s value to be used on the related_road
+            sign - sign switch
+            main_s - s to be used on the main_road
+        """
+        if self.successor_road:
+            main_s = self.main_road.planview.get_total_length()
+            related_road = self.successor_road
+            if self.successor_cp == ContactPoint.start:
+                neighbor_s = 0
+                sign = 1
+            else:
+                neighbor_s = related_road.planview.get_total_length()
+                sign = -1
+        else:
+            main_s = 0
+            related_road = self.predecessor_road
+            if self.predecessor_cp == ContactPoint.start:
+                neighbor_s = 0
+                sign = -1
+            else:
+                neighbor_s = related_road.planview.get_total_length()
+                sign = 1
+        return related_road, neighbor_s, sign, main_s
+
+    def _get_related_data_for_double_connection(self):
+        """common functionality for both elevation and superelevation
+        For a road that has elevations on both sides to adjust to
+
+        Returns
+        -------
+        pre_s - s of the predecessor
+        pre_sign - sign switch of predecessor
+        suc_s - s of the successor
+        suc_sign - sign switch of successor
+        A - Matrix for solving continuous derivative and value
+
+        """
+        if self.predecessor_cp == ContactPoint.start:
+            pre_s = 0
+            pre_sign = -1
+        else:
+            pre_s = self.predecessor_road.planview.get_total_length()
+            pre_sign = 1
+        if self.successor_cp == ContactPoint.start:
+            suc_s = 0
+            suc_sign = 1
+        else:
+            suc_s = self.successor_road.planview.get_total_length()
+            suc_sign = -1
+        main_s = self.main_road.planview.get_total_length()
+        A = np.array(
+            [
+                [1, 0, 0, 0],
+                [0, 1, 0, 0],
+                [1, main_s, main_s**2, main_s**3],
+                [0, 1, 2 * main_s, 3 * main_s**2],
+            ]
+        )
+        return pre_s, pre_sign, suc_s, suc_sign, A
+
+    def _create_super_elevation(self):
+        if self.successor_road and self.predecessor_road:
+            (
+                pre_s,
+                pre_sign,
+                suc_s,
+                suc_sign,
+                A,
+            ) = self._get_related_data_for_double_connection()
+
+            B = np.array(
+                [
+                    pre_sign
+                    * self.predecessor_road.lateralprofile.eval_superelevation_at_s(
+                        pre_s
+                    ),
+                    self.predecessor_road.lateralprofile.eval_superelevation_derivative_at_s(
+                        pre_s
+                    ),
+                    suc_sign
+                    * self.successor_road.lateralprofile.eval_superelevation_at_s(
+                        suc_s
+                    ),
+                    self.successor_road.lateralprofile.eval_superelevation_derivative_at_s(
+                        suc_s
+                    ),
+                ]
+            )
+            coeffs = np.linalg.solve(A, B)
+            self.main_road.add_superelevation(
+                0, coeffs[0], coeffs[1], coeffs[2], coeffs[3]
+            )
+
+        elif self.successor_road or self.predecessor_road:
+            (
+                related_road,
+                neighbor_s,
+                sign,
+                _,
+            ) = self._get_related_data_for_single_connection()
+
+            a = sign * related_road.lateralprofile.eval_superelevation_at_s(neighbor_s)
+            self.main_road.add_superelevation(0, a, 0, 0, 0)
+
+    def create_profile(self):#, domain="elevation"):
+        if self.domain == "elevation":
+            self._create_elevation()
+        elif self.domain == "superelevation":
+            self._create_super_elevation()
+        elif self.domain == "shape":
+            raise NotImplementedError("shape adjustment is not implemented yet")
+
+
