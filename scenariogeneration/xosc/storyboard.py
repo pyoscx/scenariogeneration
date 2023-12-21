@@ -1128,11 +1128,11 @@ class Event(VersionBase):
         if not isinstance(trigger, _TriggerType):
             if isinstance(trigger, _ValueTriggerType):
                 raise TypeError(
-                    "trigger input is a value trigger condition, please add to a ValueTrigger."
+                    "trigger input is a value trigger condition, please add it to a ValueTrigger."
                 )
-            elif isinstance(_EntityTriggerType):
+            elif isinstance(trigger, _EntityTriggerType):
                 raise TypeError(
-                    "trigger input is a entity trigger condition, please add to a EntityTrigger."
+                    "trigger input is an entity trigger condition, please add it to an EntityTrigger."
                 )
             raise TypeError("trigger input is not a valid trigger")
         self.trigger = trigger
