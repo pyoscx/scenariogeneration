@@ -295,7 +295,7 @@ class CommonJunctionCreator:
             road_connection (str): the connection type (predecessor or successor)
 
         """
-
+        # if isinstance(road.planview, AdjustablePlanview):
         if road_connection is not None:
             if road_connection == "successor":
                 road.add_successor(ElementType.junction, self.id)
@@ -342,9 +342,9 @@ class CommonJunctionCreator:
             index (int)
 
         """
-        return [
-            self.incoming_roads.index(x) for x in self.incoming_roads if x.id == id
-        ][0]
+        for i in range(len(self.incoming_roads)):
+            if self.incoming_roads[i].id == id:
+                return i
 
     def _set_offset_for_incoming_road(self, road_idx, connecting_road_id, offset):
         """_set_offset_for_incoming_road is a helper function to set the correct offsets for a incoming road

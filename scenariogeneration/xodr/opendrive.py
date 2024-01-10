@@ -24,7 +24,9 @@ from .exceptions import (
 )
 from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
 from .utils import get_lane_sec_and_s_for_lane_calc
-
+from .geometry import AdjustablePlanview, Spiral, PlanView
+from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
+import pyclothoids as pcloth
 import datetime as dt
 from itertools import combinations
 import numpy as np
@@ -1078,6 +1080,240 @@ class OpenDrive(XodrBase):
                     + " have a mismatch in connections, please check predecessors/sucessors and contact points."
                 )
 
+    def _create_adjustable_planview(
+        self,
+        road_id,
+        predecessor_id,
+        predecessor_contact_point,
+        successor_id,
+        successor_contact_point,
+    ):
+        def recalculate_xy(
+            lane_offset, road, lanesection, x, y, h, common_direct_signs=1
+        ):
+            dist = 0
+            start_offset = 0
+            if lanesection == -1:
+                dist = road.planview.get_total_length()
+            if np.sign(lane_offset) == -1:
+                angle_addition = -common_direct_signs * np.pi / 2
+                for lane_iter in range((np.sign(lane_offset) * lane_offset)):
+                    start_offset += (
+                        road.lanes.lanesections[lanesection]
+                        .rightlanes[lane_iter]
+                        .get_width(dist)
+                    )
+            else:
+                angle_addition = common_direct_signs * np.pi / 2
+                for lane_iter in range((np.sign(lane_offset) * lane_offset)):
+                    start_offset += (
+                        road.lanes.lanesections[lanesection]
+                        .leftlanes[lane_iter]
+                        .get_width(dist)
+                    )
+            new_x = x + start_offset * np.cos(h + angle_addition)
+            new_y = y + start_offset * np.sin(h + angle_addition)
+            return new_x, new_y
+
+        if predecessor_contact_point == ContactPoint.start:
+            start_x, start_y, start_h = self.roads[
+                predecessor_id
+            ].planview.get_start_point()
+            start_lane_section = 0
+            start_h = start_h - np.pi
+            flip_start = True
+
+        elif predecessor_contact_point == ContactPoint.end:
+            start_x, start_y, start_h = self.roads[
+                predecessor_id
+            ].planview.get_end_point()
+            start_lane_section = -1
+            flip_start = False
+
+        if (
+            self.roads[road_id].pred_direct_junction
+            and int(predecessor_id) in self.roads[road_id].pred_direct_junction
+        ):
+            start_x, start_y = recalculate_xy(
+                self.roads[road_id].pred_direct_junction[int(predecessor_id)],
+                self.roads[predecessor_id],
+                start_lane_section,
+                start_x,
+                start_y,
+                start_h,
+            )
+
+        if (
+            self.roads[road_id].lane_offset_pred
+            and predecessor_id in self.roads[road_id].lane_offset_pred
+            and self.roads[road_id].lane_offset_pred[predecessor_id] != 0
+        ):
+            start_x, start_y = recalculate_xy(
+                self.roads[road_id].lane_offset_pred[predecessor_id],
+                self.roads[predecessor_id],
+                start_lane_section,
+                start_x,
+                start_y,
+                start_h,
+                -1,
+            )
+
+        if successor_contact_point == ContactPoint.start:
+            end_x, end_y, end_h = self.roads[successor_id].planview.get_start_point()
+            end_lane_section = 0
+            flip_end = False
+
+        elif successor_contact_point == ContactPoint.end:
+            end_x, end_y, end_h = self.roads[successor_id].planview.get_end_point()
+            end_lane_section = -1
+            end_h = end_h - np.pi
+            flip_end = True
+
+        if (
+            self.roads[road_id].succ_direct_junction
+            and int(successor_id) in self.roads[road_id].succ_direct_junction
+        ):
+            end_x, end_y = recalculate_xy(
+                self.roads[road_id].succ_direct_junction[int(successor_id)],
+                self.roads[successor_id],
+                end_lane_section,
+                end_x,
+                end_y,
+                end_h,
+            )
+
+        clothoids = pcloth.SolveG2(
+            start_x,
+            start_y,
+            start_h,
+            1 / 1000000000,
+            end_x,
+            end_y,
+            end_h,
+            1 / 1000000000,
+        )
+        pv = PlanView(start_x, start_y, start_h)
+
+        [
+            pv.add_geometry(Spiral(x.KappaStart, x.KappaEnd, length=x.length))
+            for x in clothoids
+        ]
+        pv.adjust_geometries()
+
+        s_start = 0
+        s_end = 0
+        if start_lane_section == -1:
+            s_start = self.roads[predecessor_id].planview.get_total_length()
+        if end_lane_section == -1:
+            s_end = self.roads[successor_id].planview.get_total_length()
+
+        if (
+            self.roads[road_id].planview.right_lane_defs is None
+            and self.roads[road_id].planview.left_lane_defs is None
+        ):
+            if flip_start:
+                right_lanes_start = [
+                    ll.get_width(s_start)
+                    for ll in self.roads[predecessor_id]
+                    .lanes.lanesections[start_lane_section]
+                    .leftlanes
+                ]
+                left_lanes_start = [
+                    rl.get_width(s_start)
+                    for rl in self.roads[predecessor_id]
+                    .lanes.lanesections[start_lane_section]
+                    .rightlanes
+                ]
+            else:
+                left_lanes_start = [
+                    ll.get_width(s_start)
+                    for ll in self.roads[predecessor_id]
+                    .lanes.lanesections[start_lane_section]
+                    .leftlanes
+                ]
+                right_lanes_start = [
+                    rl.get_width(s_start)
+                    for rl in self.roads[predecessor_id]
+                    .lanes.lanesections[start_lane_section]
+                    .rightlanes
+                ]
+
+            if flip_end:
+                right_lanes_end = [
+                    ll.get_width(s_end)
+                    for ll in self.roads[successor_id]
+                    .lanes.lanesections[end_lane_section]
+                    .leftlanes
+                ]
+                left_lanes_end = [
+                    rl.get_width(s_end)
+                    for rl in self.roads[successor_id]
+                    .lanes.lanesections[end_lane_section]
+                    .rightlanes
+                ]
+            else:
+                left_lanes_end = [
+                    ll.get_width(s_end)
+                    for ll in self.roads[successor_id]
+                    .lanes.lanesections[end_lane_section]
+                    .leftlanes
+                ]
+                right_lanes_end = [
+                    rl.get_width(s_end)
+                    for rl in self.roads[successor_id]
+                    .lanes.lanesections[end_lane_section]
+                    .rightlanes
+                ]
+            if self.roads[road_id].planview.center_road_mark is None:
+                center_road_mark = (
+                    self.roads[predecessor_id]
+                    .lanes.lanesections[start_lane_section]
+                    .centerlane.roadmark[0]
+                )
+            else:
+                center_road_mark = self.roads[road_id].planview.center_road_mark
+
+            lanes = create_lanes_merge_split(
+                [
+                    LaneDef(
+                        0,
+                        pv.get_total_length(),
+                        len(right_lanes_start),
+                        len(right_lanes_end),
+                        None,
+                        right_lanes_start,
+                        right_lanes_end,
+                    )
+                ],
+                [
+                    LaneDef(
+                        0,
+                        pv.get_total_length(),
+                        len(left_lanes_start),
+                        len(left_lanes_end),
+                        None,
+                        left_lanes_start,
+                        left_lanes_end,
+                    )
+                ],
+                pv.get_total_length(),
+                center_road_mark,
+                None,
+                lane_width_end=None,
+            )
+
+        else:
+            lanes = create_lanes_merge_split(
+                self.roads[road_id].planview.right_lane_defs,
+                self.roads[road_id].planview.left_lane_defs,
+                pv.get_total_length(),
+                self.roads[road_id].planview.center_road_mark,
+                self.roads[road_id].planview.lane_width,
+                lane_width_end=self.roads[road_id].planview.lane_width_end,
+            )
+        self.roads[road_id].planview = pv
+        self.roads[road_id].lanes = lanes
+
     def adjust_startpoints(self):
         """Adjust starting position of all geoemtries of all roads
 
@@ -1110,7 +1346,9 @@ class OpenDrive(XodrBase):
             if fixed_road is False:
                 for key in self.roads.keys():
                     # make sure it is not a connecting road, patching algorithm can't handle that
-                    if self.roads[key].road_type == -1:
+                    if self.roads[key].road_type == -1 and not isinstance(
+                        self.roads[key].planview, AdjustablePlanview
+                    ):
                         self.roads[key].planview.adjust_geometries()
                         break
                 count_total_adjusted_roads += 1
@@ -1120,8 +1358,115 @@ class OpenDrive(XodrBase):
 
             for k in self.roads:  # Check all
                 if self.roads[k].planview.adjusted is False:
+                    # check if road is a adjustable planview
+                    if isinstance(self.roads[k].planview, AdjustablePlanview):
+                        predecessor = None
+                        successor = None
+
+                        if (
+                            self.roads[k].predecessor is None
+                            or self.roads[k].successor is None
+                        ):
+                            raise UndefinedRoadNetwork(
+                                "An AdjustablePlanview needs both a predecessor and a successor."
+                            )
+
+                        if self.roads[k].successor.element_type == ElementType.junction:
+                            if self.roads[k].succ_direct_junction:
+                                for key, value in self.roads[
+                                    k
+                                ].succ_direct_junction.items():
+                                    if self.roads[str(key)].planview.adjusted:
+                                        successor = str(key)
+                                        if (
+                                            self.roads[str(key)].successor
+                                            and self.roads[
+                                                str(key)
+                                            ].successor.element_type
+                                            == ElementType.junction
+                                            and self.roads[
+                                                str(key)
+                                            ].successor.element_id
+                                            == self.roads[k].successor.element_id
+                                        ):
+                                            suc_contact_point = ContactPoint.end
+                                        else:
+                                            suc_contact_point = ContactPoint.start
+                                        break
+                            else:
+                                raise UndefinedRoadNetwork(
+                                    "cannot handle successor connection to a junction with an AdjustablePlanView"
+                                )
+                        else:
+                            if self.roads[
+                                str(self.roads[k].successor.element_id)
+                            ].planview.adjusted:
+                                successor = str(self.roads[k].successor.element_id)
+                                suc_contact_point = self.roads[
+                                    k
+                                ].successor.contact_point
+
+                        if (
+                            self.roads[k].predecessor.element_type
+                            == ElementType.junction
+                        ):
+                            if self.roads[k].pred_direct_junction:
+                                for key, value in self.roads[
+                                    k
+                                ].pred_direct_junction.items():
+                                    if self.roads[str(key)].planview.adjusted:
+                                        predecessor = str(key)
+                                        if (
+                                            self.roads[str(key)].successor
+                                            and self.roads[
+                                                str(key)
+                                            ].successor.element_type
+                                            == ElementType.junction
+                                            and self.roads[
+                                                str(key)
+                                            ].successor.element_id
+                                            == self.roads[k].predecessor.element_id
+                                        ):
+                                            pred_contact_point = ContactPoint.end
+                                        else:
+                                            pred_contact_point = ContactPoint.start
+                                        break
+                            else:
+                                for r_id, r in self.roads.items():
+                                    if (
+                                        r.road_type
+                                        == self.roads[k].predecessor.element_id
+                                        and r.planview.adjusted
+                                    ):
+                                        if r.predecessor.element_id == int(k):
+                                            pred_contact_point = ContactPoint.start
+                                            predecessor = r_id
+                                            break
+                                        elif r.successor.element_id == int(k):
+                                            pred_contact_point = ContactPoint.end
+                                            predecessor = r_id
+                                            break
+
+                        else:
+                            if self.roads[
+                                str(self.roads[k].predecessor.element_id)
+                            ].planview.adjusted:
+                                predecessor = str(self.roads[k].predecessor.element_id)
+                                pred_contact_point = self.roads[
+                                    k
+                                ].predecessor.contact_point
+                        if successor and predecessor:
+                            self._create_adjustable_planview(
+                                k,
+                                predecessor,
+                                pred_contact_point,
+                                successor,
+                                suc_contact_point,
+                            )
+                            count_adjusted_roads += 1
+
                     # check if it has a normal (road) predecessor
-                    if (
+                    elif (
                         self.roads[k].predecessor is not None
                         and self.roads[k].predecessor.element_type
                         is not ElementType.junction
@@ -1146,6 +1491,12 @@ class OpenDrive(XodrBase):
                                 str(self.roads[k].successor.element_id)
                             ].planview.adjusted
                             is False
+                            and not isinstance(
+                                self.roads[
+                                    str(self.roads[k].successor.element_id)
+                                ].planview,
+                                AdjustablePlanview,
+                            )
                         ):
                             succ_id = self.roads[k].successor.element_id
                             if (
@@ -1187,6 +1538,12 @@ class OpenDrive(XodrBase):
                                 str(self.roads[k].predecessor.element_id)
                             ].planview.adjusted
                             is False
+                            and not isinstance(
+                                self.roads[
+                                    str(self.roads[k].successor.element_id)
+                                ].planview,
+                                AdjustablePlanview,
+                            )
                         ):
                             pred_id = self.roads[k].predecessor.element_id
                             if (
