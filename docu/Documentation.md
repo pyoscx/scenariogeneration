@@ -96,6 +96,15 @@ __NOTE:__ No real sanity check is made with the *adjust_roads_and_lanes* method,
 
 In some cases the patching might be wrong when different lane widths are preset, however some functionality is however automated and examples of this can be seen in [road_with_changing_lane_width](examples/xodr/road_with_changing_lane_width.html), or [junction_with_varying_lane_widths](examples/xodr/junction_with_varying_lane_widths.html))
 
+#### AdjustablePlanview
+
+When a complex geometry needs to be put together in a loop, it might be very difficult to determine the exact geometry of one of the geometries (especially if any geometry contains a Spiral). For this purpose the AdjustablePlanview is implemented and can be used (via pyclothoids) to create a nice road connecting two other roads.
+
+An example of this can be seen in [adjustable_planview](exampels/xodr/adjustable_planview.html)
+
+__NOTE:__ If the adjustable_geometry is connected to a common junction, the junction has to be a predecessor of the road with the AdjustablePlanview.
+
+
 ### Automatic adjustment of roadmarks
 When patching a number of roads together, either directly or via junctions, the roadmarks (if of type broken) has to be adjusted in order to have roadmarks with the same distance. This can be done with the *adjust_roadmark* method.
 The *adjust_roadmark* method will adjust the first road added to the *OpenDrive* object first, then adjust all roads according to the lane markings based on that road.

@@ -28,7 +28,9 @@ def wrap_pi(angle):
 
 
 class AdjustablePlanview:
-    """AdjustablePlanview can be used to fit a geometry between two fixed roads."""
+    """AdjustablePlanview can be used to fit a geometry between two fixed roads.
+    Especially useful when connecting larger networks with Spiral geometries included.
+    """
 
     def __init__(
         self,

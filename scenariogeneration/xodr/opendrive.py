@@ -624,7 +624,7 @@ class Road(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the FileHeader"""
+        """returns the elementTree of the road"""
         element = ET.Element("road", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         element.append(self.links.get_element())
@@ -1088,9 +1088,41 @@ class OpenDrive(XodrBase):
         successor_id,
         successor_contact_point,
     ):
+        """method used to create the geometry of a AdjustablePlanview type of planview. note
+        Both the predecessor and the successor of that road has to be fixed/adjusted for this to work.
+
+
+        Parameters
+        ----------
+            road_id (str): id of the road with a AdjustablePlanview
+
+            predecessor_id (str): id of the predecessor road
+
+            predecessor_contact_point (ContactPoint): the contact point of the predecessor
+
+            successor_id (str): id of the successor road
+
+            successor_contact_point (ContactPoint): the contact point of the successor
+
+        """
+
         def recalculate_xy(
             lane_offset, road, lanesection, x, y, h, common_direct_signs=1
         ):
+            """helper funciton to recalculate x and y if an offset (in junctions) is present
+
+            Parameters
+            ----------
+                lane_offset (int): lane offset of the road
+
+                road (Road): the connected road
+
+                x (float): the reference line x coordinate of the connected road
+
+                y (float): the reference line y coordinate  of the connected road
+
+                h (float): the heading of the connected road
+            """
             dist = 0
             start_offset = 0
             if lanesection == -1:
@@ -1395,7 +1427,7 @@ class OpenDrive(XodrBase):
                                         break
                             else:
                                 raise UndefinedRoadNetwork(
-                                    "cannot handle successor connection to a junction with an AdjustablePlanView"
+                                    "cannot handle a successor connection to a junction with an AdjustablePlanView"
                                 )
                         else:
                             if self.roads[
