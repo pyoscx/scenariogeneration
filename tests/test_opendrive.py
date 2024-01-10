@@ -267,6 +267,9 @@ def test_odr_road_patching_connection_types_wrong_types_predecessor():
     with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
         odr.adjust_roads_and_lanes()
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 609b2c4 (modifying adjust start point algorithm for adjustable geometry)
 
 
 def test_adjustable_geometry_road_connection_pre_suc():
@@ -531,5 +534,8 @@ def test_adjustable_geometry_common_junction_offsets(data):
     assert pytest.approx(x, 0.01) == 300
     assert pytest.approx(y, 0.01) == 50
     assert pytest.approx(h, 0.01) == 0
+<<<<<<< HEAD
 =======
 >>>>>>> c6fa950 (more tests to opendrive module, adding some sanity checks for contactpoints when patching geometries)
+=======
+>>>>>>> 609b2c4 (modifying adjust start point algorithm for adjustable geometry)

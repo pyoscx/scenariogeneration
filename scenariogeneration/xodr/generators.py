@@ -55,12 +55,16 @@ from .exceptions import (
 from warnings import warn
 
 
+<<<<<<< HEAD
 warn(
     "STD_ROADMARK_<RoadMarkType> is deprecated and will be removed in a few releases! Use std_roadmark_<RoadMarkType> functions instead.",
     DeprecationWarning,
     5,
 )
 STD_ROADMARK_SOLID = std_roadmark_solid()
+=======
+STD_ROADMARK_SOLID = std_roadmark_broken()
+>>>>>>> 609b2c4 (modifying adjust start point algorithm for adjustable geometry)
 STD_ROADMARK_BROKEN = std_roadmark_broken()
 STD_ROADMARK_BROKEN_TIGHT = std_roadmark_broken_tight()
 STD_ROADMARK_BROKEN_BROKEN = std_roadmark_broken_broken()
