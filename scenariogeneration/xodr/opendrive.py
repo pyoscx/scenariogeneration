@@ -387,7 +387,9 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.elevationprofile.add_elevation(_Poly3Profile(s, a, b, c, d,elevation_type="elevation"))
+        self.elevationprofile.add_elevation(
+            _Poly3Profile(s, a, b, c, d, elevation_type="elevation")
+        )
         self._elevation_adjusted = True
         return self
 
@@ -406,7 +408,9 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.lateralprofile.add_superelevation(_Poly3Profile(s, a, b, c, d,elevation_type="superelevation"))
+        self.lateralprofile.add_superelevation(
+            _Poly3Profile(s, a, b, c, d, elevation_type="superelevation")
+        )
         self._superelevation_adjusted = True
         return self
 
@@ -427,7 +431,9 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.lateralprofile.add_shape(_Poly3Profile(s, a, b, c, d, t,elevation_type="shape"))
+        self.lateralprofile.add_shape(
+            _Poly3Profile(s, a, b, c, d, t, elevation_type="shape")
+        )
         self._shape_adjusted = True
         return self
 
@@ -1704,30 +1710,35 @@ class OpenDrive(XodrBase):
                     "Roads are either missing successor, or predecessor to connect to the roads, \n if the roads are disconnected, please add a start position for one of the planviews."
                 )
 
-
     def adjust_elevations(self):
         elevation_calculators = []
         for k in self.roads:
             ec = ElevationCalculator(self.roads[k])
-            if (self.roads[k].predecessor is not None
-                and self.roads[k].predecessor.element_type
-                == ElementType.road):
-                ec.add_predecessor(self.roads[str(self.roads[k].predecessor.element_id)])
-            elif (self.roads[k].predecessor is not None
-                and self.roads[k].predecessor.element_type
-                == ElementType.junction):
+            if (
+                self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type == ElementType.road
+            ):
+                ec.add_predecessor(
+                    self.roads[str(self.roads[k].predecessor.element_id)]
+                )
+            elif (
+                self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type == ElementType.junction
+            ):
                 if self.roads[k].pred_direct_junction:
                     for key in self.roads[k].pred_direct_junction:
                         ec.add_predecessor(self.roads[str(key)])
 
                 # normal junctions
-            if (self.roads[k].successor is not None
-                and self.roads[k].successor.element_type
-                == ElementType.road):
+            if (
+                self.roads[k].successor is not None
+                and self.roads[k].successor.element_type == ElementType.road
+            ):
                 ec.add_successor(self.roads[str(self.roads[k].successor.element_id)])
-            elif (self.roads[k].successor is not None
-                and self.roads[k].successor.element_type
-                == ElementType.junction):
+            elif (
+                self.roads[k].successor is not None
+                and self.roads[k].successor.element_type == ElementType.junction
+            ):
                 if self.roads[k].succ_direct_junction:
                     for key in self.roads[k].succ_direct_junction:
                         ec.add_successor(self.roads[str(key)])
@@ -1748,7 +1759,7 @@ class OpenDrive(XodrBase):
                     [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
                 )
                 if new_count == count_total_adjusted_roads:
-                    Warning('cannot adjust ' + elevation_type + " more.")
+                    Warning("cannot adjust " + elevation_type + " more.")
                     break
                 count_total_adjusted_roads = new_count
 

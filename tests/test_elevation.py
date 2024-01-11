@@ -15,6 +15,7 @@ from scenariogeneration import prettyprint
 from .xml_validator import version_validation, ValidationResponse
 import numpy as np
 
+
 def test_poly3profile():
     profile = xodr.elevation._Poly3Profile(0, 0, 0, 0, 0)
 
@@ -42,7 +43,6 @@ def test_poly3profile_eval():
 
 
 
-
 def test_poly3profile_eval():
     profile = xodr.elevation._Poly3Profile(0, 1, 1, 0, 0)
     assert profile.eval_at_s(3) == 4
@@ -53,12 +53,16 @@ def test_poly3profile_eval():
     assert profile.eval_derivative_at_s(8) == 1
 
     profile.elevation_type = "elevation"
-    assert profile.eval_t_at_s(8,1) == 4
+    assert profile.eval_t_at_s(8, 1) == 4
 
-    profile = xodr.elevation._Poly3Profile(0, np.pi/4, 0, 0, 0, elevation_type="superelevation")
+    profile = xodr.elevation._Poly3Profile(
+        0, np.pi / 4, 0, 0, 0, elevation_type="superelevation"
+    )
 
-    assert profile.eval_t_at_s(3,1) == pytest.approx(1/np.sqrt(2))
-    assert profile.eval_t_at_s(3,-1) == pytest.approx(-1/np.sqrt(2))
+    assert profile.eval_t_at_s(3, 1) == pytest.approx(1 / np.sqrt(2))
+    assert profile.eval_t_at_s(3, -1) == pytest.approx(-1 / np.sqrt(2))
+
+
 def test_poly3profileshape():
     profile = xodr.elevation._Poly3Profile(0, 0, 0, 0, 0, 0)
 
@@ -274,7 +278,6 @@ def test_elevation_calculator_single_pre_suc_junction_connection():
     assert main_road.elevationprofile.elevations[0].b == 1
 
 
-
 def test_elevation_calculator_single_suc_pre_dir_junc():
     main_road = xodr.create_road(xodr.Line(10), 1)
     connected_road = xodr.create_road(xodr.Line(10), 2)
@@ -335,11 +338,6 @@ def test_elevation_calculator_single_pre_pre_dir_junc():
     assert main_road.elevationprofile.elevations[0].b == -1
 
 
-
-
-
-
-
 def test_superelevation_calculator_single_suc_pre():
     main_road = xodr.create_road(xodr.Line(10), 1)
     connected_road = xodr.create_road(xodr.Line(10), 2)
@@ -351,7 +349,6 @@ def test_superelevation_calculator_single_suc_pre():
     ec.add_successor(connected_road)
     ec._create_super_elevation()
     assert main_road.lateralprofile.superelevations[0].a == 1
-
 
 
 def test_superelevation_calculator_single_suc_suc():
@@ -367,7 +364,6 @@ def test_superelevation_calculator_single_suc_suc():
     assert main_road.lateralprofile.superelevations[0].a == -1
 
 
-
 def test_superelevation_calculator_single_pre_suc():
     main_road = xodr.create_road(xodr.Line(10), 1)
     connected_road = xodr.create_road(xodr.Line(10), 2)
@@ -379,7 +375,6 @@ def test_superelevation_calculator_single_pre_suc():
     ec.add_predecessor(connected_road)
     ec._create_super_elevation()
     assert main_road.lateralprofile.superelevations[0].a == 1
-
 
 
 def test_superelevation_calculator_single_pre_pre():
