@@ -16,7 +16,7 @@ setuptools.setup(
     download_url="https://github.com/pyoscx/scenariogeneration/archive/v0.14.1.tar.gz",
     packages=setuptools.find_packages(),
     keywords=["OpenDRIVE", "OpenSCENARIO", "xml"],
-    install_requires=["numpy", "scipy", "pyclothoids", "xmlschema", "lxml"],
+    install_requires=["numpy", "scipy", "pyclothoids", "xmlschema==2.5.1", "lxml"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
