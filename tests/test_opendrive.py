@@ -266,3 +266,267 @@ def test_odr_road_patching_connection_types_wrong_types_predecessor():
 
     with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
         odr.adjust_roads_and_lanes()
+
+
+def test_adjustable_geometry_road_connection_pre_suc():
+    road1 = xodr.create_road(
+        xodr.Line(100), 1, 2, 2, center_road_mark=xodr.std_roadmark_broken_broken()
+    )
+    road1.planview.set_start_point(0, 0, 0)
+    road2 = xodr.create_road(
+        xodr.AdjustablePlanview(), 2, None, None, center_road_mark=None
+    )
+
+    road3 = xodr.create_road(xodr.Line(100), 3, 2, 2)
+    road3.planview.set_start_point(300, 50, 0.3)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 3, xodr.ContactPoint.start)
+    road3.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road2.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 100
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road2.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 300
+    assert pytest.approx(y, 0.01) == 50
+    assert pytest.approx(h, 0.01) == 0.3
+
+
+def test_adjustable_geometry_road_connection_pre_pre_suc_suc():
+    road1 = xodr.create_road(
+        xodr.Line(100), 1, 2, 2, center_road_mark=xodr.std_roadmark_broken_broken()
+    )
+    road1.planview.set_start_point(0, 0, 0.5)
+    road2 = xodr.create_road(
+        xodr.AdjustablePlanview(), 2, None, None, center_road_mark=None
+    )
+
+    road3 = xodr.create_road(xodr.Line(100), 3, 2, 2)
+    road3.planview.set_start_point(300, 50, 0)
+
+    road1.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    road2.add_successor(xodr.ElementType.road, 3, xodr.ContactPoint.end)
+    road3.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road2.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 0
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 3.64
+
+    x, y, h = road2.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 400
+    assert pytest.approx(y, 0.01) == 50
+    assert pytest.approx(h, 0.01) == 3.14
+
+
+def test_adjustable_geometry_direct_junction_centered():
+    road1 = xodr.create_road(
+        xodr.Line(100), 1, 2, 2, center_road_mark=xodr.std_roadmark_broken_broken()
+    )
+    road1.planview.set_start_point(0, 0, 0)
+    road2 = xodr.create_road(xodr.AdjustablePlanview(), 2, 2, 2)
+
+    road3 = xodr.create_road(xodr.Line(100), 3, 2, 1)
+    road3.planview.set_start_point(200, 0, 0)
+
+    road4 = xodr.create_road(xodr.Arc(-0.01, angle=3.14 / 2), 4, 0, 1)
+
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.junction, 100)
+    road3.add_predecessor(xodr.ElementType.junction, 100)
+    road4.add_predecessor(xodr.ElementType.junction, 100)
+
+    jc = xodr.DirectJunctionCreator(100, "my exit")
+    jc.add_connection(road2, road3)
+    jc.add_connection(road2, road4, -2, -1)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.add_road(road4)
+    odr.add_junction_creator(jc)
+
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road2.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 100
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road2.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 200
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 0
+
+
+def test_adjustable_geometry_direct_junction_offsets():
+    road1 = xodr.create_road(
+        xodr.Line(100),
+        1,
+        2,
+        2,
+        center_road_mark=xodr.std_roadmark_broken_broken(),
+        lane_width=4,
+    )
+    road1.planview.set_start_point(0, 0, 0)
+    road2 = xodr.create_road(xodr.Line(100), 2, 1, 1)
+
+    road3 = xodr.create_road(xodr.AdjustablePlanview(), 3, 0, 1)
+    road4 = xodr.create_road(xodr.Line(50), 4, 0, 1)
+    road4.planview.set_start_point(140, -20, 0)
+
+    road5 = xodr.create_road(xodr.AdjustablePlanview(), 5, 0, 1)
+    road6 = xodr.create_road(xodr.Line(50), 6, 0, 1)
+    road6.planview.set_start_point(200, 30, 3.14)
+
+    road1.add_successor(xodr.ElementType.junction, 100)
+    road2.add_predecessor(xodr.ElementType.junction, 100)
+    road3.add_predecessor(xodr.ElementType.junction, 100)
+    road3.add_successor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+    road4.add_predecessor(xodr.ElementType.road, 3, xodr.ContactPoint.end)
+    road5.add_successor(xodr.ElementType.junction, 100)
+    road5.add_predecessor(xodr.ElementType.road, 6, xodr.ContactPoint.end)
+    road6.add_successor(xodr.ElementType.road, 5, xodr.ContactPoint.start)
+
+    jc = xodr.DirectJunctionCreator(100, "my exit")
+    jc.add_connection(road1, road2)
+    jc.add_connection(road1, road3, -2, -1)
+    jc.add_connection(road1, road5, 2, -1)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.add_road(road4)
+    odr.add_road(road5)
+    odr.add_road(road6)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road3.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 100
+    assert pytest.approx(y, 0.01) == -4
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road3.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 140
+    assert pytest.approx(y, 0.01) == -20
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road5.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 150
+    assert pytest.approx(y, 0.01) == 30
+    assert pytest.approx(h, 0.01) == 3.14
+
+    x, y, h = road5.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 100
+    assert pytest.approx(y, 0.01) == 4
+    assert pytest.approx(h, 0.01) == 3.14
+
+
+def test_adjustable_geometry_common_junction_centered():
+    road1 = xodr.create_road(
+        xodr.Line(100), 1, 2, 2, center_road_mark=xodr.std_roadmark_broken_broken()
+    )
+    road1.planview.set_start_point(0, 0, 0)
+    road2 = xodr.create_road(xodr.AdjustablePlanview(), 2, 2, 2)
+    road3 = xodr.create_road(xodr.Line(100), 3, 2, 2)
+
+    road4 = xodr.create_road(xodr.Line(100), 4, 2, 2)
+    road4.planview.set_start_point(300, 50, 0)
+
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0, "successor")
+    jc.add_incoming_road_cartesian_geometry(road2, 30, 0, -np.pi, "predecessor")
+    jc.add_incoming_road_cartesian_geometry(road3, 15, 15, -np.pi / 2, "successor")
+
+    jc.add_connection(1, 2)
+    jc.add_connection(3, 2)
+    jc.add_connection(3, 1)
+    road4.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road3)
+    odr.add_road(road4)
+    odr.add_junction_creator(jc)
+
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road2.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 130
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road2.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 300
+    assert pytest.approx(y, 0.01) == 50
+    assert pytest.approx(h, 0.01) == 0
+
+
+@pytest.mark.parametrize(
+    "data",
+    [
+        (2),
+        (-2),
+    ],
+)
+def test_adjustable_geometry_common_junction_offsets(data):
+    road1 = xodr.create_road(
+        xodr.Line(100), 1, 2, 2, center_road_mark=xodr.std_roadmark_broken_broken()
+    )
+    road1.planview.set_start_point(0, 0, 0)
+    road2 = xodr.create_road(xodr.AdjustablePlanview(), 2, 2, 2)
+
+    road4 = xodr.create_road(xodr.Line(100), 4, 2, 2)
+    road4.planview.set_start_point(300, 50, 0)
+
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0, "successor")
+    jc.add_incoming_road_cartesian_geometry(road2, 30, 0, -np.pi, "predecessor")
+
+    jc.add_connection(1, 2, data, data)
+
+    road4.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    odr.add_road(road4)
+    odr.add_junction_creator(jc)
+
+    odr.adjust_roads_and_lanes()
+
+    x, y, h = road2.planview.get_start_point()
+    assert pytest.approx(x, 0.01) == 130
+    assert pytest.approx(y, 0.01) == 0
+    assert pytest.approx(h, 0.01) == 0
+
+    x, y, h = road2.planview.get_end_point()
+    assert pytest.approx(x, 0.01) == 300
+    assert pytest.approx(y, 0.01) == 50
+    assert pytest.approx(h, 0.01) == 0

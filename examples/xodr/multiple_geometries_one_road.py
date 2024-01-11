@@ -100,7 +100,7 @@ if __name__ == "__main__":
     # Print the resulting xml
     prettyprint(sce.road().get_element())
 
-    # write the OpenSCENARIO file as xosc using current script name
+    # write the OpenDRIVE file as xosc using current script name
     sce.generate(".")
 
     # uncomment the following lines to display the scenario using esmini

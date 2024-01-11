@@ -12,3 +12,4 @@ from .signals_objects import *
 from .elevation import *
 from .junction_creator import *
 from .utils import *
+from .lane_def import *
