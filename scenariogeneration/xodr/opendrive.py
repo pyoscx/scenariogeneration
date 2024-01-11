@@ -1704,10 +1704,36 @@ class OpenDrive(XodrBase):
                     "Roads are either missing successor, or predecessor to connect to the roads, \n if the roads are disconnected, please add a start position for one of the planviews."
                 )
 
-    def adjust_elevations(self):
-        """tries to make  (if at least one road has an elevation)"""
 
-        # elevations has to be adjusted in order
+    def adjust_elevations(self):
+        elevation_calculators = []
+        for k in self.roads:
+            ec = ElevationCalculator(self.roads[k])
+            if (self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type
+                == ElementType.road):
+                ec.add_predecessor(self.roads[str(self.roads[k].predecessor.element_id)])
+            elif (self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type
+                == ElementType.junction):
+                if self.roads[k].pred_direct_junction:
+                    for key in self.roads[k].pred_direct_junction:
+                        ec.add_predecessor(self.roads[str(key)])
+
+                # normal junctions
+            if (self.roads[k].successor is not None
+                and self.roads[k].successor.element_type
+                == ElementType.road):
+                ec.add_successor(self.roads[str(self.roads[k].successor.element_id)])
+            elif (self.roads[k].successor is not None
+                and self.roads[k].successor.element_type
+                == ElementType.junction):
+                if self.roads[k].succ_direct_junction:
+                    for key in self.roads[k].succ_direct_junction:
+                        ec.add_successor(self.roads[str(key)])
+
+                # normal junctions
+            elevation_calculators.append(ec)
         for elevation_type in ["superelevation", "elevation"]:
             count_total_adjusted_roads = sum(
                 [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
@@ -1715,106 +1741,128 @@ class OpenDrive(XodrBase):
             if count_total_adjusted_roads == 0:
                 continue
             while count_total_adjusted_roads < len(self.roads):
-                for k in self.roads:
-                    if not self.roads[k].is_adjusted(elevation_type):
-                        # check if road has adjusted predecessor
-                        # add junction checks
-                        pred_road = None
-                        suc_road = None
-                        if (
-                            self.roads[k].predecessor is not None
-                            and self.roads[k].predecessor.element_type
-                            == ElementType.road
-                            and self.roads[
-                                str(self.roads[k].predecessor.element_id)
-                            ].is_adjusted(elevation_type)
-                        ):
-                            pred_road = self.roads[
-                                str(self.roads[k].predecessor.element_id)
-                            ]
-                        elif (
-                            self.roads[k].predecessor is not None
-                            and self.roads[k].predecessor.element_type
-                            == ElementType.junction
-                            and not self.roads[k].pred_direct_junction
-                        ):
-                            for key in self.roads:
-                                if (
-                                    self.roads[key].is_adjusted(elevation_type)
-                                    and self.roads[key].road_type
-                                    == self.roads[k].predecessor.element_id
-                                ):
-                                    if (
-                                        self.roads[key].predecessor is not None
-                                        and self.roads[key].predecessor.element_id
-                                        == int(k)
-                                        or self.roads[key].successor is not None
-                                        and self.roads[key].successor.element_id
-                                        == int(k)
-                                    ):
-                                        pred_road = self.roads[key]
-                                        break
-                        elif (
-                            self.roads[k].predecessor is not None
-                            and self.roads[k].predecessor.element_type
-                            == ElementType.junction
-                            and self.roads[k].pred_direct_junction
-                        ):
-                            for key in self.roads[k].pred_direct_junction.keys():
-                                if self.roads[str(key)].is_adjusted(elevation_type):
-                                    pred_road = self.roads[str(key)]
-                                    break
-                        if (
-                            self.roads[k].successor is not None
-                            and self.roads[k].successor.element_type == ElementType.road
-                            and self.roads[
-                                str(self.roads[k].successor.element_id)
-                            ].is_adjusted(elevation_type)
-                        ):
-                            suc_road = self.roads[
-                                str(self.roads[k].successor.element_id)
-                            ]
-                        elif (
-                            self.roads[k].successor is not None
-                            and self.roads[k].successor.element_type
-                            == ElementType.junction
-                            and not self.roads[k].succ_direct_junction
-                        ):
-                            for key in self.roads:
-                                if (
-                                    self.roads[key].is_adjusted(elevation_type)
-                                    and self.roads[key].road_type
-                                    == self.roads[k].successor.element_id
-                                ):
-                                    if (
-                                        self.roads[key].predecessor is not None
-                                        and self.roads[key].predecessor.element_id
-                                        == int(k)
-                                        or self.roads[key].successor is not None
-                                        and self.roads[key].successor.element_id
-                                        == int(k)
-                                    ):
-                                        suc_road = self.roads[key]
-                                        break
-                        elif (
-                            self.roads[k].successor is not None
-                            and self.roads[k].successor.element_type
-                            == ElementType.junction
-                            and self.roads[k].succ_direct_junction
-                        ):
-                            for key in self.roads[k].succ_direct_junction.keys():
-                                if self.roads[str(key)].is_adjusted(elevation_type):
-                                    suc_road = self.roads[str(key)]
-                                    break
+                for ec in elevation_calculators:
+                    ec.create_profile(elevation_type)
 
-                        if pred_road or suc_road:
-                            ec = ElevationCalculator(self.roads[k], elevation_type)
-                            count_total_adjusted_roads += 1
-                            if pred_road:
-                                ec.add_predecessor(pred_road)
-                            if suc_road:
-                                ec.add_successor(suc_road)
-                            ec.create_profile()
+                new_count = sum(
+                    [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+                )
+                if new_count == count_total_adjusted_roads:
+                    Warning('cannot adjust ' + elevation_type + " more.")
+                    break
+                count_total_adjusted_roads = new_count
+
+    # def adjust_elevations(self):
+    #     """tries to make  (if at least one road has an elevation)"""
+
+    #     # elevations has to be adjusted in order
+    #     for elevation_type in ["superelevation", "elevation"]:
+    #         count_total_adjusted_roads = sum(
+    #             [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+    #         )
+    #         if count_total_adjusted_roads == 0:
+    #             continue
+    #         while count_total_adjusted_roads < len(self.roads):
+    #             for k in self.roads:
+    #                 if not self.roads[k].is_adjusted(elevation_type):
+    #                     # check if road has adjusted predecessor
+    #                     # add junction checks
+    #                     pred_road = None
+    #                     suc_road = None
+    #                     if (
+    #                         self.roads[k].predecessor is not None
+    #                         and self.roads[k].predecessor.element_type
+    #                         == ElementType.road
+    #                         and self.roads[
+    #                             str(self.roads[k].predecessor.element_id)
+    #                         ].is_adjusted(elevation_type)
+    #                     ):
+    #                         pred_road = self.roads[
+    #                             str(self.roads[k].predecessor.element_id)
+    #                         ]
+    #                     elif (
+    #                         self.roads[k].predecessor is not None
+    #                         and self.roads[k].predecessor.element_type
+    #                         == ElementType.junction
+    #                         and not self.roads[k].pred_direct_junction
+    #                     ):
+    #                         for key in self.roads:
+    #                             if (
+    #                                 self.roads[key].is_adjusted(elevation_type)
+    #                                 and self.roads[key].road_type
+    #                                 == self.roads[k].predecessor.element_id
+    #                             ):
+    #                                 if (
+    #                                     self.roads[key].predecessor is not None
+    #                                     and self.roads[key].predecessor.element_id
+    #                                     == int(k)
+    #                                     or self.roads[key].successor is not None
+    #                                     and self.roads[key].successor.element_id
+    #                                     == int(k)
+    #                                 ):
+    #                                     pred_road = self.roads[key]
+    #                                     break
+    #                     elif (
+    #                         self.roads[k].predecessor is not None
+    #                         and self.roads[k].predecessor.element_type
+    #                         == ElementType.junction
+    #                         and self.roads[k].pred_direct_junction
+    #                     ):
+    #                         for key in self.roads[k].pred_direct_junction.keys():
+    #                             if self.roads[str(key)].is_adjusted(elevation_type):
+    #                                 pred_road = self.roads[str(key)]
+    #                                 break
+    #                     if (
+    #                         self.roads[k].successor is not None
+    #                         and self.roads[k].successor.element_type == ElementType.road
+    #                         and self.roads[
+    #                             str(self.roads[k].successor.element_id)
+    #                         ].is_adjusted(elevation_type)
+    #                     ):
+    #                         suc_road = self.roads[
+    #                             str(self.roads[k].successor.element_id)
+    #                         ]
+    #                     elif (
+    #                         self.roads[k].successor is not None
+    #                         and self.roads[k].successor.element_type
+    #                         == ElementType.junction
+    #                         and not self.roads[k].succ_direct_junction
+    #                     ):
+    #                         for key in self.roads:
+    #                             if (
+    #                                 self.roads[key].is_adjusted(elevation_type)
+    #                                 and self.roads[key].road_type
+    #                                 == self.roads[k].successor.element_id
+    #                             ):
+    #                                 if (
+    #                                     self.roads[key].predecessor is not None
+    #                                     and self.roads[key].predecessor.element_id
+    #                                     == int(k)
+    #                                     or self.roads[key].successor is not None
+    #                                     and self.roads[key].successor.element_id
+    #                                     == int(k)
+    #                                 ):
+    #                                     suc_road = self.roads[key]
+    #                                     break
+    #                     elif (
+    #                         self.roads[k].successor is not None
+    #                         and self.roads[k].successor.element_type
+    #                         == ElementType.junction
+    #                         and self.roads[k].succ_direct_junction
+    #                     ):
+    #                         for key in self.roads[k].succ_direct_junction.keys():
+    #                             if self.roads[str(key)].is_adjusted(elevation_type):
+    #                                 suc_road = self.roads[str(key)]
+    #                                 break
+
+    #                     if pred_road or suc_road:
+    #                         ec = ElevationCalculator(self.roads[k], elevation_type)
+    #                         count_total_adjusted_roads += 1
+    #                         if pred_road:
+    #                             ec.add_predecessor(pred_road)
+    #                         if suc_road:
+    #                             ec.add_successor(suc_road)
+    #                         ec.create_profile()
 
     def add_junction(self, junction):
         """Adds a junction to the opendrive
