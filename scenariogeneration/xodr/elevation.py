@@ -366,7 +366,7 @@ class ElevationCalculator:
         self.predecessors = []
         self._super_elevation_needed = not self.main_road.is_adjusted("superelevation")
         self._elevation_needed = not self.main_road.is_adjusted("elevation")
-
+        self._extra_elevation_needed = False
         self._reset_active_roads()
 
     def _reset_active_roads(self):
@@ -377,40 +377,101 @@ class ElevationCalculator:
         self._successor_lateral_offset = 0
         self._predecessor_lateral_offset = 0
 
+    def set_zero_elevation(self):
+        self.main_road.add_elevation(0, 0, 0, 0, 0)
+        self._elevation_needed = False
+
     def _calculate_lateral_offset(self, road, lanesection, offsets):
         s_value = 0
         tvalue = 0
+        if offsets == 0:
+            return 0
+        sign = 1
+        if offsets < 0 and len(
+            road.road.lanes.lanesections[lanesection].rightlanes
+        ) < abs(offsets):
+            road = self.main_road
+            offsets = -offsets
+        elif offsets > 0 and len(
+            road.road.lanes.lanesections[lanesection].leftlanes
+        ) < abs(offsets):
+            road = self.main_road
+            offsets = -offsets
+        else:
+            road = road.road
         if lanesection == -1:
             s_value = road.planview.get_total_length()
         if offsets < 0:
             for lane_iter in range(abs(offsets)):
                 tvalue += (
-                    self.main_road.lanes.lanesections[lanesection]
+                    road.lanes.lanesections[lanesection]
                     .rightlanes[lane_iter]
                     .get_width(s_value)
                 )
-        return tvalue
+        else:
+            for lane_iter in range(abs(offsets)):
+                tvalue -= (
+                    road.lanes.lanesections[lanesection]
+                    .leftlanes[lane_iter]
+                    .get_width(s_value)
+                )
+        if tvalue != 0:
+            self._extra_elevation_needed = True
+        return road.lateralprofile.eval_t_superelevation_at_s(s_value, tvalue)
 
     def _calculate_lateral_offsets_based_on_superelevation(self):
         for successor_road in self.successors:
             if (
                 successor_road.road.predecessor
                 and successor_road.road.predecessor.element_type == ElementType.junction
+                and self.main_road.id
+                in list(successor_road.road.pred_direct_junction.keys())
             ):
-                if successor_road.road.pred_direct_junction:
-                    lane_offsets = successor_road.road.pred_direct_junction[
-                        self.main_road.id
-                    ]
-                    successor_road.lateral_offset = (
-                        self.main_road.lateralprofile.eval_t_superelevation_at_s(
-                            0,
-                            self._calculate_lateral_offset(
-                                successor_road, 0, lane_offsets
-                            ),
-                        )
-                    )
-                else:
-                    pass
+                lane_offsets = successor_road.road.pred_direct_junction[
+                    self.main_road.id
+                ]
+                successor_road.lateral_offset = self._calculate_lateral_offset(
+                    successor_road, 0, lane_offsets
+                )
+
+            elif (
+                successor_road.road.successor
+                and successor_road.road.successor.element_type == ElementType.junction
+                and self.main_road.id
+                in list(successor_road.road.succ_direct_junction.keys())
+            ):
+                lane_offsets = successor_road.road.succ_direct_junction[
+                    self.main_road.id
+                ]
+                successor_road.lateral_offset = self._calculate_lateral_offset(
+                    successor_road, -1, lane_offsets
+                )
+        for predecessor_road in self.predecessors:
+            if (
+                predecessor_road.road.successor
+                and predecessor_road.road.successor.element_type == ElementType.junction
+                and self.main_road.id
+                in list(predecessor_road.road.succ_direct_junction.keys())
+            ):
+                lane_offsets = predecessor_road.road.succ_direct_junction[
+                    self.main_road.id
+                ]
+                predecessor_road.lateral_offset = self._calculate_lateral_offset(
+                    predecessor_road, -1, lane_offsets
+                )
+            elif (
+                predecessor_road.road.predecessor
+                and predecessor_road.road.predecessor.element_type
+                == ElementType.junction
+                and self.main_road.id
+                in list(predecessor_road.road.pred_direct_junction.keys())
+            ):
+                lane_offsets = predecessor_road.road.pred_direct_junction[
+                    self.main_road.id
+                ]
+                predecessor_road.lateral_offset = self._calculate_lateral_offset(
+                    predecessor_road, -1, lane_offsets
+                )
 
     def add_successor(self, successor_road):
         successor_lateral_offset = 0
@@ -484,6 +545,7 @@ class ElevationCalculator:
                 predecessor_lateral_offset,
             )
         )
+        self._calculate_lateral_offsets_based_on_superelevation()
 
     def _set_active_roads(self, domain):
         for successor in self.successors:
@@ -499,6 +561,7 @@ class ElevationCalculator:
                 self._predecessor_lateral_offset = predecessor.lateral_offset
 
     def _create_elevation(self):
+        self._calculate_lateral_offsets_based_on_superelevation()
         self._set_active_roads("elevation")
         if self._successor_road and self._predecessor_road:
             (
@@ -511,12 +574,14 @@ class ElevationCalculator:
 
             B = np.array(
                 [
-                    self._predecessor_road.elevationprofile.eval_at_s(pre_s),
+                    self._predecessor_road.elevationprofile.eval_at_s(pre_s)
+                    + self._predecessor_lateral_offset,
                     pre_sign
                     * self._predecessor_road.elevationprofile.eval_derivative_at_s(
                         pre_s
                     ),
-                    self._successor_road.elevationprofile.eval_at_s(suc_s),
+                    self._successor_road.elevationprofile.eval_at_s(suc_s)
+                    + self._successor_lateral_offset,
                     suc_sign
                     * self._successor_road.elevationprofile.eval_derivative_at_s(suc_s),
                 ]
@@ -536,6 +601,7 @@ class ElevationCalculator:
                 related_road.elevationprofile.eval_at_s(neighbor_s)
                 - b * main_s
                 + self._successor_lateral_offset
+                + self._predecessor_lateral_offset
             )
             self.main_road.add_elevation(0, a, b, 0, 0)
             self._elevation_needed = False
