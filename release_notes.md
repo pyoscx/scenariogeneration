@@ -1,5 +1,16 @@
 ## scenariogeneration release notes
 
+### 2024-01-16 Version 0.14.2
+
+- Bugfixes
+  - STD_ROADMARK_SOLID now references solid RoadMarkType instead of broken
+  - temporary fix: xmlschema pip package downgraded to version 2.5.1 due to unknown xsd validation failure
+- New feature
+  - Adjustable planview: can fit geometry between one predecessor and one successor road
+- IMPORTANT!
+  - Deprecation warning added for STD_ROADMARK_\<RoadMarkType\>, since only the functions std_roadmark_\<RoadMarkType\> will be supported in a future version. Please replace all references of constants to their function counterparts.
+
+
 ### 2023-12-20 Version 0.14.1
 
 - Bugfixes
