@@ -55,14 +55,18 @@ from .exceptions import (
 from warnings import warn
 
 
-STD_ROADMARK_SOLID = std_roadmark_broken()
+warn(
+    "STD_ROADMARK_<RoadMarkType> is deprecated and will be removed in a few releases! Use std_roadmark_<RoadMarkType> functions instead.",
+    DeprecationWarning,
+    5,
+)
+STD_ROADMARK_SOLID = std_roadmark_solid()
 STD_ROADMARK_BROKEN = std_roadmark_broken()
 STD_ROADMARK_BROKEN_TIGHT = std_roadmark_broken_tight()
 STD_ROADMARK_BROKEN_BROKEN = std_roadmark_broken_broken()
 STD_ROADMARK_SOLID_SOLID = std_roadmark_solid_solid()
 STD_ROADMARK_SOLID_BROKEN = std_roadmark_solid_broken()
 STD_ROADMARK_BROKEN_SOLID = std_roadmark_broken_solid()
-
 
 STD_START_CLOTH = 1 / 1000000000
 
