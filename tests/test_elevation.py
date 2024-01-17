@@ -32,6 +32,7 @@ def test_poly3profile():
     assert profile != profile3
     assert profile != profile1
 
+
 def test_poly3profile_eval():
     profile = xodr.elevation._Poly3Profile(0, 1, 1, 0, 0)
     assert profile.eval_at_s(3) == 4
@@ -40,7 +41,6 @@ def test_poly3profile_eval():
     profile = xodr.elevation._Poly3Profile(5, 1, 1, 0, 0)
     assert profile.eval_at_s(8) == 4
     assert profile.eval_derivative_at_s(8) == 1
-
 
 
 def test_poly3profile_eval():
@@ -93,11 +93,13 @@ def test_elevationprofile():
         version_validation("t_road_elevationProfile", elevation, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+
 def test_elevationprofile_evaluation():
     elevation = xodr.ElevationProfile()
-    elevation.add_elevation(xodr.elevation._Poly3Profile(0,0,0,0,0))
-    elevation.add_elevation(xodr.elevation._Poly3Profile(10,0,1,0,0))
-    elevation.add_elevation(xodr.elevation._Poly3Profile(20,10,2,0,0))
+    elevation.add_elevation(xodr.elevation._Poly3Profile(0, 0, 0, 0, 0))
+    elevation.add_elevation(xodr.elevation._Poly3Profile(10, 0, 1, 0, 0))
+    elevation.add_elevation(xodr.elevation._Poly3Profile(20, 10, 2, 0, 0))
     assert elevation.eval_at_s(3) == 0
     assert elevation.eval_derivative_at_s(3) == 0
     assert elevation.eval_at_s(10) == 0
@@ -106,6 +108,7 @@ def test_elevationprofile_evaluation():
     assert elevation.eval_derivative_at_s(11) == 1
     assert elevation.eval_at_s(21) == 12
     assert elevation.eval_derivative_at_s(21) == 2
+
 
 def test_elevationprofile_evaluation():
     elevation = xodr.ElevationProfile()
