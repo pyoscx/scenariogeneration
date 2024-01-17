@@ -32,6 +32,10 @@ class AdjustablePlanview:
     Especially useful when connecting larger networks with Spiral geometries included.
     """
 
+
+class AdjustablePlanview:
+    """AdjustablePlanview can be used to fit a geometry between two fixed roads."""
+
     def __init__(
         self,
         left_lane_defs=None,

@@ -266,7 +266,7 @@ def test_tunnel():
         == ValidationResponse.OK
     )
 
-    road = xodr.create_straight_road(0)
+    road = xodr.create_road(xodr.Line(100), 0)
     road.add_tunnel([tunnel1, tunnel2])
     road.planview.adjust_geometries()
     prettyprint(road)

@@ -22,7 +22,20 @@ from .exceptions import (
     MixingDrivingDirection,
     GeneralIssueInputArguments,
 )
-from .elevation import LateralProfile, ElevationProfile, _Poly3Profile
+from .elevation import (
+    LateralProfile,
+    ElevationProfile,
+    _Poly3Profile,
+    ElevationCalculator,
+)
+from .exceptions import (
+    UndefinedRoadNetwork,
+    RoadsAndLanesNotAdjusted,
+    IdAlreadyExists,
+    MixingDrivingDirection,
+    GeneralIssueInputArguments,
+)
+
 from .utils import get_lane_sec_and_s_for_lane_calc
 from .geometry import AdjustablePlanview, Spiral, PlanView
 from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
@@ -228,12 +241,15 @@ class Road(XodrBase):
         self.lane_offset_pred = {}
         self.succ_direct_junction = {}
         self.pred_direct_junction = {}
-        self.adjusted = False
+
         self.objects = []
         self.signals = []
         self.types = []
         self.elevationprofile = ElevationProfile()
         self.lateralprofile = LateralProfile()
+        self._elevation_adjusted = False
+        self._superelevation_adjusted = False
+        self._shape_adjusted = False
 
     def __eq__(self, other):
         if isinstance(other, Road) and super().__eq__(other):
@@ -256,6 +272,32 @@ class Road(XodrBase):
             ):
                 return True
         return False
+
+    def is_adjusted(self, domain="planview"):
+        """help method to check if the road has been properly defined in the domain
+
+        Parameters
+        ----------
+            domain (str): the domain to check, ok values: planview, elevation, superelevation, or shape
+                Default: planview
+
+        Returns
+        -------
+            boolean
+        """
+        if domain == "planview":
+            return self.planview.adjusted
+        elif domain == "elevation":
+            return self._elevation_adjusted
+        elif domain == "superelevation":
+            return self._superelevation_adjusted
+        elif domain == "shape":
+            return self._shape_adjusted
+        else:
+            raise ValueError(
+                "domain can only be: geometry, elevation, superelevation, or shape , not "
+                + domain
+            )
 
     def add_successor(
         self,
@@ -345,7 +387,10 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.elevationprofile.add_elevation(_Poly3Profile(s, a, b, c, d))
+        self.elevationprofile.add_elevation(
+            _Poly3Profile(s, a, b, c, d, elevation_type="elevation")
+        )
+        self._elevation_adjusted = True
         return self
 
     def add_superelevation(self, s, a, b, c, d):
@@ -363,7 +408,10 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.lateralprofile.add_superelevation(_Poly3Profile(s, a, b, c, d))
+        self.lateralprofile.add_superelevation(
+            _Poly3Profile(s, a, b, c, d, elevation_type="superelevation")
+        )
+        self._superelevation_adjusted = True
         return self
 
     def add_shape(self, s, t, a, b, c, d):
@@ -383,7 +431,10 @@ class Road(XodrBase):
 
             d (float): d coefficient of the polynomial
         """
-        self.lateralprofile.add_shape(_Poly3Profile(s, a, b, c, d, t))
+        self.lateralprofile.add_shape(
+            _Poly3Profile(s, a, b, c, d, t, elevation_type="shape")
+        )
+        self._shape_adjusted = True
         return self
 
     def add_object(self, road_object):
@@ -467,7 +518,7 @@ class Road(XodrBase):
             radiusEnd (float) : radius of object at end-coordinate (if not equal to radiusStart, automatic linear radius adapted over distance)
                 Default: None
         """
-        if not self.planview.adjusted:
+        if not self.is_adjusted("planview"):
             raise RoadsAndLanesNotAdjusted(
                 "Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'."
             )
@@ -780,7 +831,7 @@ class OpenDrive(XodrBase):
         """Tries to adjust broken roadmarks (if same definition) along roads and lane sections"""
 
         adjusted_road = self.roads[list(self.roads.keys())[0]]
-        if not adjusted_road.planview.adjusted:
+        if not adjusted_road.is_adjusted("planview"):
             raise RoadsAndLanesNotAdjusted(
                 "Cannot adjust roadmarks if geometries are not adjusted properly first. Consider calling 'adjust_roads_and_lanes()' first."
             )
@@ -792,7 +843,7 @@ class OpenDrive(XodrBase):
 
         while count_total_adjusted_roads < len(self.roads):
             for r in self.roads.keys():
-                if not self.roads[r].planview.adjusted:
+                if not self.roads[r].is_adjusted("planview"):
                     raise RoadsAndLanesNotAdjusted(
                         "Cannot adjust roadmarks if geometries are not adjusted properly first. Consider calling 'adjust_roads_and_lanes()' first."
                     )
@@ -850,7 +901,7 @@ class OpenDrive(XodrBase):
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
                                             self.roads[r].lanes.lanesections[0],
-                                            ContactPoint.start,
+                                            ContactPoint.end,
                                         )
 
                                     count_total_adjusted_roads += 1
@@ -1364,12 +1415,14 @@ class OpenDrive(XodrBase):
         count_total_adjusted_roads = 0
         fixed_road = False
         for k in self.roads:
-            if self.roads[k].planview.fixed and not self.roads[k].planview.adjusted:
+            if self.roads[k].planview.fixed and not self.roads[k].is_adjusted(
+                "planview"
+            ):
                 self.roads[k].planview.adjust_geometries()
                 # print('Fixing Road: ' + k)
                 count_total_adjusted_roads += 1
                 fixed_road = True
-            elif self.roads[k].planview.adjusted:
+            elif self.roads[k].is_adjusted("planview"):
                 fixed_road = True
                 count_total_adjusted_roads += 1
 
@@ -1504,7 +1557,7 @@ class OpenDrive(XodrBase):
                         is not ElementType.junction
                         and self.roads[
                             str(self.roads[k].predecessor.element_id)
-                        ].planview.adjusted
+                        ].is_adjusted("planview")
                         is True
                     ):
                         self._connection_sanity_check(k, "predecessor")
@@ -1521,7 +1574,7 @@ class OpenDrive(XodrBase):
                             and self.roads[k].successor is not None
                             and self.roads[
                                 str(self.roads[k].successor.element_id)
-                            ].planview.adjusted
+                            ].is_adjusted("planview")
                             is False
                             and not isinstance(
                                 self.roads[
@@ -1551,7 +1604,7 @@ class OpenDrive(XodrBase):
                         is not ElementType.junction
                         and self.roads[
                             str(self.roads[k].successor.element_id)
-                        ].planview.adjusted
+                        ].is_adjusted("planview")
                         is True
                     ):
                         self._connection_sanity_check(k, "successor")
@@ -1568,7 +1621,7 @@ class OpenDrive(XodrBase):
                             and self.roads[k].predecessor is not None
                             and self.roads[
                                 str(self.roads[k].predecessor.element_id)
-                            ].planview.adjusted
+                            ].is_adjusted("planview")
                             is False
                             and not isinstance(
                                 self.roads[
@@ -1601,7 +1654,7 @@ class OpenDrive(XodrBase):
                             is ElementType.junction
                         ):
                             for dr in self.roads[k].succ_direct_junction:
-                                if self.roads[str(dr)].planview.adjusted is True:
+                                if self.roads[str(dr)].is_adjusted("planview") is True:
                                     if (
                                         int(k)
                                         in self.roads[str(dr)].succ_direct_junction
@@ -1627,7 +1680,7 @@ class OpenDrive(XodrBase):
                             is ElementType.junction
                         ):
                             for dr in self.roads[k].pred_direct_junction:
-                                if self.roads[str(dr)].planview.adjusted is True:
+                                if self.roads[str(dr)].is_adjusted("planview") is True:
                                     if (
                                         int(k)
                                         in self.roads[str(dr)].succ_direct_junction
@@ -1656,6 +1709,83 @@ class OpenDrive(XodrBase):
                 raise UndefinedRoadNetwork(
                     "Roads are either missing successor, or predecessor to connect to the roads, \n if the roads are disconnected, please add a start position for one of the planviews."
                 )
+
+    def adjust_elevations(self):
+        elevation_calculators = []
+        for k in self.roads:
+            ec = ElevationCalculator(self.roads[k])
+            if (
+                self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type == ElementType.road
+            ):
+                ec.add_predecessor(
+                    self.roads[str(self.roads[k].predecessor.element_id)]
+                )
+            elif (
+                self.roads[k].predecessor is not None
+                and self.roads[k].predecessor.element_type == ElementType.junction
+            ):
+                if self.roads[k].pred_direct_junction:
+                    for key in self.roads[k].pred_direct_junction:
+                        ec.add_predecessor(self.roads[str(key)])
+
+                else:
+                    for key in self.roads:
+                        if self.roads[key].road_type == self.roads[
+                            k
+                        ].predecessor.element_id and self.roads[k].id in [
+                            self.roads[key].successor.element_id,
+                            self.roads[key].predecessor.element_id,
+                        ]:
+                            ec.add_predecessor(self.roads[str(key)])
+
+            if (
+                self.roads[k].successor is not None
+                and self.roads[k].successor.element_type == ElementType.road
+            ):
+                ec.add_successor(self.roads[str(self.roads[k].successor.element_id)])
+            elif (
+                self.roads[k].successor is not None
+                and self.roads[k].successor.element_type == ElementType.junction
+            ):
+                if self.roads[k].succ_direct_junction:
+                    for key in self.roads[k].succ_direct_junction:
+                        ec.add_successor(self.roads[str(key)])
+
+                else:
+                    for key in self.roads:
+                        if self.roads[key].road_type == self.roads[
+                            k
+                        ].successor.element_id and self.roads[k].id in [
+                            self.roads[key].successor.element_id,
+                            self.roads[key].predecessor.element_id,
+                        ]:
+                            ec.add_successor(self.roads[str(key)])
+
+            elevation_calculators.append(ec)
+        for elevation_type in ["superelevation", "elevation"]:
+            count_total_adjusted_roads = sum(
+                [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+            )
+            if (
+                any([x._extra_elevation_needed for x in elevation_calculators])
+                and count_total_adjusted_roads == 0
+            ):
+                elevation_calculators[0].set_zero_elevation()
+                count_total_adjusted_roads = 1
+            if count_total_adjusted_roads == 0:
+                continue
+            while count_total_adjusted_roads < len(self.roads):
+                for ec in elevation_calculators:
+                    ec.create_profile(elevation_type)
+
+                new_count = sum(
+                    [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+                )
+                if new_count == count_total_adjusted_roads:
+                    Warning("cannot adjust " + elevation_type + " more.")
+                    break
+                count_total_adjusted_roads = new_count
 
     def add_junction(self, junction):
         """Adds a junction to the opendrive

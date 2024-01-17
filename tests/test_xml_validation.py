@@ -142,6 +142,8 @@ def test_OSC_1_2(tmpdir, python_file):
         "junction_with_varying_lane_widths",
         "road_with_lane_adjustment",
         "clothoid_generation",
+        "adjustable_planview",
+        "super_elevation_automation_example",
     ],
 )
 def test_ODR(tmpdir, python_file):
