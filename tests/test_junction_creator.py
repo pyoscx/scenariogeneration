@@ -512,6 +512,34 @@ def test_connection_with_laneinput_rightlanes_pred_pred_wrong_input():
         jc.add_connection(1, 2, 1, 1)
 
 
+def test_elevation_before_road_creation():
+    road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=2, right_lanes=2)
+    road2 = xodr.create_road(xodr.Line(100), 2, left_lanes=2, right_lanes=1)
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+    jc.add_constant_elevation(1)
+    jc.add_incoming_road_circular_geometry(road1, 10, 0, "predecessor")
+    jc.add_incoming_road_circular_geometry(road2, 10, np.pi, "predecessor")
+    jc.add_connection(1, 2, -1, 1)
+    conn_road = jc.junction_roads[0]
+    assert conn_road.planview.get_total_length() == 20
+
+    assert conn_road.elevationprofile.elevations[0].a == 1
+
+
+def test_elevation_after_road_creation():
+    road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=2, right_lanes=2)
+    road2 = xodr.create_road(xodr.Line(100), 2, left_lanes=2, right_lanes=1)
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+
+    jc.add_incoming_road_circular_geometry(road1, 10, 0, "predecessor")
+    jc.add_incoming_road_circular_geometry(road2, 10, np.pi, "predecessor")
+    jc.add_connection(1, 2, -1, 1)
+    jc.add_constant_elevation(1.0)
+    conn_road = jc.junction_roads[0]
+
+    assert conn_road.elevationprofile.elevations[0].a == 1.0
+
+
 @pytest.fixture
 def direct_junction_left_lane_fixture():
     junction_creator_direct = xodr.DirectJunctionCreator(

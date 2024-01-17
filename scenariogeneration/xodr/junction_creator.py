@@ -84,6 +84,7 @@ class CommonJunctionCreator:
         self.junction = Junction(name, id, junction_type=JunctionType.default)
         self._circular_junction = False
         self._generic_junction = False
+        self._height = None
 
     def add_incoming_road_circular_geometry(
         self, road, radius, angle, road_connection=None
@@ -139,6 +140,17 @@ class CommonJunctionCreator:
         self._y.append(y)
         self._h.append(heading)
         self._generic_junction = True
+
+    def add_constant_elevation(self, height):
+        """adds a constant elevation to all connecting roads, both elevation profile and a zero superelevation
+
+        Parameters
+        ----------
+            height (float): the height of the junction and all roads
+        """
+        self._height = height
+        for r in self.junction_roads:
+            r.add_elevation(0, self._height, 0, 0, 0)
 
     def _get_minimum_lanes_to_connect(self, incoming_road, linked_road):
         (
@@ -443,7 +455,9 @@ class CommonJunctionCreator:
             lane_width=3,
             road_type=self.id,
         )
-
+        if self._height is not None:
+            tmp_junc_road.add_elevation(0, self._height, 0, 0, 0)
+            tmp_junc_road.add_superelevation(0, 0, 0, 0, 0)
         tmp_junc_road.add_predecessor(
             ElementType.road,
             road_one_id,
@@ -630,7 +644,9 @@ class CommonJunctionCreator:
             lane_width=1,
             road_type=self.id,
         )
-
+        if self._height is not None:
+            tmp_junc_road.add_elevation(0, self._height, 0, 0, 0)
+            tmp_junc_road.add_superelevation(0, 0, 0, 0, 0)
         tmp_junc_road.add_predecessor(
             ElementType.road,
             road_one_id,
@@ -823,7 +839,9 @@ class CommonJunctionCreator:
             road_type=self.id,
             lane_width_end=end_width,
         )
-
+        if self._height is not None:
+            tmp_junc_road.add_elevation(0, self._height, 0, 0, 0)
+            tmp_junc_road.add_superelevation(0, 0, 0, 0, 0)
         pred_lane_offset = np.sign(lane_one_id) * (abs(lane_one_id) - 1)
         if self._get_connection_type(idx1) == "predecessor":
             pred_lane_offset = -pred_lane_offset
