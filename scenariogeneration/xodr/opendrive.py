@@ -891,7 +891,7 @@ class OpenDrive(XodrBase):
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
                                             self.roads[r].lanes.lanesections[0],
-                                            ContactPoint.start,
+                                            ContactPoint.end,
                                         )
                                     else:
                                         self.roads[
@@ -944,7 +944,7 @@ class OpenDrive(XodrBase):
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
                                             self.roads[r].lanes.lanesections[-1],
-                                            ContactPoint.end,
+                                            ContactPoint.start,
                                         )
                                     else:
                                         self.roads[
@@ -954,7 +954,7 @@ class OpenDrive(XodrBase):
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
                                             self.roads[r].lanes.lanesections[-1],
-                                            ContactPoint.end,
+                                            ContactPoint.start,
                                         )
                                     count_total_adjusted_roads += 1
 

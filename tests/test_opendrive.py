@@ -530,3 +530,239 @@ def test_adjustable_geometry_common_junction_offsets(data):
     assert pytest.approx(x, 0.01) == 300
     assert pytest.approx(y, 0.01) == 50
     assert pytest.approx(h, 0.01) == 0
+
+
+def test_roadmark_adjustment_suc_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 4.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 4.0
+
+
+def test_roadmark_adjustment_pre_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 8.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 8.0
+
+
+def test_roadmark_adjustment_pre_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    road2.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 9.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 9.0
+
+
+def test_roadmark_adjustment_suc_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
+    road2.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 1.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 1.0
+
+
+def test_roadmark_adjustment_direct_junction_pre_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.junction, 100)
+    road2.add_successor(xodr.ElementType.junction, 100)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.DirectJunctionCreator(100, "my_junc")
+    jc.add_connection(road1, road2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 8.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 8.0
+
+
+def test_roadmark_adjustment_direct_junction_suc_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.junction, 100)
+    road2.add_predecessor(xodr.ElementType.junction, 100)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.DirectJunctionCreator(100, "my_junc")
+    jc.add_connection(road1, road2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 4.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 4.0
+
+
+def test_roadmark_adjustment_direct_junction_pre_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.junction, 100)
+    road2.add_predecessor(xodr.ElementType.junction, 100)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.DirectJunctionCreator(100, "my_junc")
+    jc.add_connection(road1, road2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 9.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 9.0
+
+
+def test_roadmark_adjustment_direct_junction_suc_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.junction, 100)
+    road2.add_successor(xodr.ElementType.junction, 100)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    jc = xodr.DirectJunctionCreator(100, "my_junc")
+    jc.add_connection(road1, road2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[0].soffset == 1.0
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[0].soffset == 1.0
+
+
+def test_roadmark_adjustment_common_junction_pre_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.junction, 100)
+    road2.add_successor(xodr.ElementType.junction, 100)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0)
+    jc.add_incoming_road_cartesian_geometry(road2, 24, 0, np.pi)
+    jc.add_connection(1, 2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(8.0, 0.001)
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(8.0, 0.001)
+
+
+def test_roadmark_adjustment_common_junction_suc_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.junction, 100)
+    road2.add_predecessor(xodr.ElementType.junction, 100)
+
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0)
+    jc.add_incoming_road_cartesian_geometry(road2, 24, 0, np.pi)
+    jc.add_connection(1, 2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(4.0, 0.001)
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(4.0, 0.001)
+
+
+def test_roadmark_adjustment_common_junction_pre_pre():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_predecessor(xodr.ElementType.junction, 100)
+    road2.add_predecessor(xodr.ElementType.junction, 100)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0)
+    jc.add_incoming_road_cartesian_geometry(road2, 24, 0, np.pi)
+    jc.add_connection(1, 2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(9.0, 0.001)
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(9.0, 0.001)
+
+
+def test_roadmark_adjustment_common_junction_suc_suc():
+    road1 = xodr.create_road(xodr.Line(20), 1, 2, 2)
+    road2 = xodr.create_road(xodr.Line(20), 2, 2, 2)
+    road1.add_successor(xodr.ElementType.junction, 100)
+    road2.add_successor(xodr.ElementType.junction, 100)
+    odr = xodr.OpenDrive("my road")
+    odr.add_road(road1)
+    odr.add_road(road2)
+
+    jc = xodr.CommonJunctionCreator(100, "my junc")
+    jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0)
+    jc.add_incoming_road_cartesian_geometry(road2, 24, 0, np.pi)
+    jc.add_connection(1, 2)
+    odr.add_junction_creator(jc)
+    odr.adjust_roads_and_lanes()
+    odr.adjust_roadmarks()
+
+    assert road2.lanes.lanesections[0].leftlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(1.0, 0.001)
+    assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[
+        0
+    ].soffset == pytest.approx(1.0, 0.001)
