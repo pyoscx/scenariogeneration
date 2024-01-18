@@ -294,6 +294,8 @@ def test_geometry():
         version_validation("t_road_planView_geometry", geom, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        pyodrx.geometry._Geometry(1, 2, 3, 4, "dummy")
 
 
 @pytest.mark.parametrize(
@@ -440,6 +442,9 @@ def test_planview():
         version_validation("t_road_planView", planview, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+    with pytest.raises(TypeError):
+        planview.add_geometry("dummy")
 
 
 @pytest.mark.parametrize(

@@ -21,10 +21,11 @@ from .enumerations import (
     RoadMarkType,
     MarkRule,
     ContactPoint,
+    enumchecker,
 )
 from .exceptions import ToManyOptionalArguments
 from .utils import XodrBase
-from .links import _Links, _Link
+from .links import _Links, _Link, LaneLinker
 import numpy as np
 
 
@@ -74,11 +75,15 @@ class Lanes(XodrBase):
             lanelink (LaneLinker): (optional) a LaneLink to add
 
         """
+        if not isinstance(lanesection, LaneSection):
+            raise TypeError("input lanesection is not of type LaneSection")
         # add links to the lanes
         if lanelinks:
             # loop over all links
             if not isinstance(lanelinks, list):
                 lanelinks = [lanelinks]
+            if any([not isinstance(x, LaneLinker) for x in lanelinks]):
+                raise TypeError("lanelinks contains a none LaneLinker type")
             for lanelink in lanelinks:
                 for link in lanelink.links:
                     # check if link already added
@@ -369,6 +374,11 @@ class Lanes(XodrBase):
             contact_point (ContactPoint)
                 Default: ContactPoint.end
         """
+        contact_point = enumchecker(contact_point, ContactPoint)
+        if connected_lane_section and not isinstance(
+            connected_lane_section, LaneSection
+        ):
+            raise TypeError("connected_lane_section is not of type LaneSection")
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -499,6 +509,11 @@ class Lanes(XodrBase):
             contact_point (ContactPoint)
                 Default: ContactPoint.end
         """
+        contact_point = enumchecker(contact_point, ContactPoint)
+        if connected_lane_section and not isinstance(
+            connected_lane_section, LaneSection
+        ):
+            raise TypeError("connected_lane_section is not of type LaneSection")
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -759,6 +774,8 @@ class LaneSection(XodrBase):
         """
         super().__init__()
         self.s = s
+        if not isinstance(centerlane, Lane):
+            raise TypeError("centerlane input is not of type Lane")
         self.centerlane = centerlane
         self.centerlane._set_lane_id(0)
         self.leftlanes = []
@@ -784,6 +801,8 @@ class LaneSection(XodrBase):
         ----------
             lane (Lane): the lane to add
         """
+        if not isinstance(lane, Lane):
+            raise TypeError("lane input is not of type Lane")
         lane._set_lane_id(self._left_id)
         self._left_id += 1
         self.leftlanes.append(lane)
@@ -796,6 +815,8 @@ class LaneSection(XodrBase):
         ----------
             lane (Lane): the lane to add
         """
+        if not isinstance(lane, Lane):
+            raise TypeError("lane input is not of type Lane")
         lane._set_lane_id(self._right_id)
         self._right_id -= 1
         self.rightlanes.append(lane)
@@ -950,7 +971,7 @@ class Lane(XodrBase):
         """
         super().__init__()
         self.lane_id = None
-        self.lane_type = lane_type
+        self.lane_type = enumchecker(lane_type, LaneType)
         self.widths = []
         self.add_lane_width(a, b, c, d, soffset)
 
@@ -1058,6 +1079,8 @@ class Lane(XodrBase):
             roadmark (RoadMark): roadmark of the lane
 
         """
+        if not isinstance(roadmark, RoadMark):
+            raise TypeError("roadmark input is not of type RoadMark")
         if roadmark is not None:
             self.roadmark.append(roadmark)
         return self
@@ -1215,14 +1238,14 @@ class RoadMark(XodrBase):
         """
         super().__init__()
         # required arguments - must be provided by user
-        self.marking_type = marking_type
+        self.marking_type = enumchecker(marking_type, RoadMarkType)
 
         # required arguments - must be provided by user or taken from defaults
-        self.marking_weight = marking_weight
-        self.color = color
+        self.marking_weight = enumchecker(marking_weight, RoadMarkWeight)
+        self.color = enumchecker(color, RoadMarkColor, True)
         self.soffset = soffset
         self.height = height
-        self.laneChange = laneChange
+        self.laneChange = enumchecker(laneChange, LaneChange, True)
 
         # optional arguments - roadmark is valid without them being defined
         self.width = width
@@ -1270,28 +1293,6 @@ class RoadMark(XodrBase):
                 )
             )
 
-    def add_specific_road_line(self, line):
-        """function to add your own roadline to the RoadMark, to use for multi line type of roadmarks,
-
-        Parameters
-        ----------
-            line (RoadLine): the roadline to add
-
-        """
-        self._line.append(line)
-        return self
-
-    def add_explicit_road_line(self, line):
-        """function to add a explicit roadline to the RoadMark,
-
-        Parameters
-        ----------
-            line (RoadLine): the roadline to add
-
-        """
-        self._explicit_line.append(line)
-        return self
-
     def __eq__(self, other):
         if isinstance(other, RoadMark) and super().__eq__(other):
             if (
@@ -1302,6 +1303,32 @@ class RoadMark(XodrBase):
             ):
                 return True
         return False
+
+    def add_specific_road_line(self, line):
+        """function to add your own roadline to the RoadMark, to use for multi line type of roadmarks,
+
+        Parameters
+        ----------
+            line (RoadLine): the roadline to add
+
+        """
+        if not isinstance(line, RoadLine):
+            raise TypeError("line input is not of type RoadLine")
+        self._line.append(line)
+        return self
+
+    def add_explicit_road_line(self, line):
+        """function to add a explicit roadline to the RoadMark,
+
+        Parameters
+        ----------
+            line (ExplicitRoadLine): the roadline to add
+
+        """
+        if not isinstance(line, ExplicitRoadLine):
+            raise TypeError("line input is not of type RoadLine")
+        self._explicit_line.append(line)
+        return self
 
     def get_attributes(self):
         """returns the attributes of the RoadMark as a dict"""
@@ -1429,10 +1456,10 @@ class RoadLine(XodrBase):
         self.length = length
         self.space = space
         self.toffset = toffset
-        self.rule = rule
+        self.rule = enumchecker(rule, MarkRule, True)
         self.soffset = soffset
         self.width = width
-        self.color = color
+        self.color = enumchecker(color, RoadMarkColor, True)
         self._remainder = 0
 
     def __eq__(self, other):
@@ -1578,7 +1605,7 @@ class ExplicitRoadLine(XodrBase):
         super().__init__()
         self.length = length
         self.toffset = toffset
-        self.rule = rule
+        self.rule = enumchecker(rule, MarkRule, True)
         self.soffset = soffset
         self.width = width
         self._remainder = 0

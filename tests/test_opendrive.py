@@ -94,6 +94,40 @@ def test_link_road():
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
+def test_road_type_errors():
+    with pytest.raises(TypeError):
+        xodr.Road(5, "dummy", xodr.Lanes())
+    with pytest.raises(TypeError):
+        xodr.Road(1, xodr.AdjustablePlanview(), "dummy")
+    with pytest.raises(TypeError):
+        xodr.Road(1, xodr.AdjustablePlanview(), xodr.Lanes(), rule="dummy")
+    road = xodr.Road(1, xodr.AdjustablePlanview(), xodr.Lanes())
+
+    with pytest.raises(TypeError):
+        road.add_object("dummy")
+    with pytest.raises(TypeError):
+        road.add_signal(["dummy"])
+    with pytest.raises(TypeError):
+        road.add_tunnel("dummy")
+    with pytest.raises(TypeError):
+        road.add_shape("dummy")
+    with pytest.raises(TypeError):
+        road.add_predecessor("dummy", 1, xodr.ContactPoint.end)
+    with pytest.raises(TypeError):
+        road.add_predecessor(xodr.ElementType.road, 1, "dummy")
+    with pytest.raises(TypeError):
+        road.add_successor("dummy", 1, xodr.ContactPoint.end)
+    with pytest.raises(TypeError):
+        road.add_successor(xodr.ElementType.road, 1, "dummy")
+    with pytest.raises(TypeError):
+        road.add_predecessor(None, 1, "end")
+    with pytest.raises(TypeError):
+        road.add_successor(None, 1, xodr.ContactPoint.end)
+
+    with pytest.raises(TypeError):
+        road.add_type("dummy")
+
+
 @pytest.mark.parametrize(
     "data",
     [
@@ -211,6 +245,14 @@ def test_header():
         version_validation("t_header", h1, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+
+def test_odr_type_checks():
+    odr = xodr.OpenDrive("my odr")
+    with pytest.raises(TypeError):
+        odr.add_road("dummy")
+    with pytest.raises(TypeError):
+        odr.add_junction("dummy")
 
 
 def test_odr_road_patching_connection_types():
