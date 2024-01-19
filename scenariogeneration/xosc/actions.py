@@ -34,6 +34,9 @@ from .utils import (
     _ComponentAnimation,
     UserDefinedComponent,
     _AnimationTypeFactory,
+    AnimationFile,
+    PedestrianAnimation,
+    UserDefinedAnimation,
 )
 from .utils import (
     Controller,
@@ -530,6 +533,12 @@ class LongitudinalDistanceAction(_PrivateActionType):
         displacement (LongitudinalDisplacement): type of displacement wanted
             Default LongitudinalDisplacement.any
 
+        max_acceleration_rate (float): max jerk in accleration (Valid from OpenSCENARIO 1.2)
+            Default: None
+
+        max_deceleration_rate (float): max jerk in deceleration (Valid from OpenSCENARIO 1.2)
+            Default: None
+
     Attributes
     ----------
         entity (str): the target name
@@ -546,6 +555,9 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
         displacement (LongitudinalDisplacement): type of displacement wanted
 
+        max_acceleration_rate (float): max jerk in accleration (Valid from OpenSCENARIO 1.2)
+
+        max_deceleration_rate (float): max jerk in deceleration (Valid from OpenSCENARIO 1.2)
     Methods
     -------
         parse(element)
@@ -571,6 +583,8 @@ class LongitudinalDistanceAction(_PrivateActionType):
         timeGap=None,
         coordinate_system=CoordinateSystem.entity,
         displacement=LongitudinalDisplacement.any,
+        max_acceleration_rate=None,
+        max_deceleration_rate=None,
     ):
         """initalize the LongitudinalDistanceAction
 
@@ -602,12 +616,22 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
             displacement (LongitudinalDisplacement): type of displacement wanted
                 Default LongitudinalDisplacement.any
+
+            max_acceleration_rate (float): max jerk in accleration (Valid from OpenSCENARIO 1.2)
+                Default: None
+
+            max_deceleration_rate (float): max jerk in deceleration (Valid from OpenSCENARIO 1.2)
+                Default: None
         """
         self.target = entity
         self.freespace = convert_bool(freespace)
         self.continuous = convert_bool(continuous)
         self.dynamic_constraint = DynamicsConstraints(
-            max_acceleration, max_deceleration, max_speed
+            max_acceleration,
+            max_deceleration,
+            max_speed,
+            max_acceleration_rate,
+            max_deceleration_rate,
         )
 
         if distance is not None and timeGap is not None:
@@ -3501,17 +3525,18 @@ class AnimationAction(_PrivateActionType):
             state (float): what state the animation should be put to
                 Default: None
         """
-
-        try:
-            self.animation_type = _ComponentAnimation(_VehicleComponent(animation_type))
-        except Exception as e:
-            self.animation_type = None
-        if self.animation_type:
-            pass
-        elif isinstance(animation_type, UserDefinedComponent):
+        if isinstance(animation_type, UserDefinedComponent):
             self.animation_type = _ComponentAnimation(animation_type)
-        else:
+        elif (
+            isinstance(animation_type, PedestrianAnimation)
+            or isinstance(animation_type, AnimationFile)
+            or isinstance(animation_type, UserDefinedAnimation)
+            or isinstance(animation_type, _ComponentAnimation)
+        ):
             self.animation_type = animation_type
+        else:
+            self.animation_type = _ComponentAnimation(_VehicleComponent(animation_type))
+
         self.duration = convert_float(duration)
         if loop is not None and not isinstance(loop, bool):
             raise TypeError("loop input is not of type bool")
@@ -4253,6 +4278,8 @@ class AddEntityAction(_ActionType):
         """
 
         self.entityref = entityref
+        if not isinstance(position, _PositionType):
+            raise TypeError("position input is not of a known _PositionType")
         self.position = position
 
     def __eq__(self, other):
@@ -5096,8 +5123,6 @@ class EnvironmentAction(_ActionType):
 
         Parameters
         ----------
-            name (str): name of the action
-
             environment (Environment or CatalogReference): the environment to change to
 
         """

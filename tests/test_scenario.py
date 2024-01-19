@@ -52,6 +52,11 @@ def test_road():
     assert version_validation("RoadNetwork", road, 1) == ValidationResponse.OK
     assert version_validation("RoadNetwork", road, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        road.add_traffic_signal_controller("dummy")
+    with pytest.raises(TypeError):
+        road.add_used_area_position("dummy")
+
 
 def test_catalog():
     catalog = OSC.Catalog()
@@ -180,3 +185,54 @@ def test_scenario():
     assert sce == sce4
 
     # Versions are tested in test_xml_validation for all examples
+
+    with pytest.raises(TypeError):
+        sce = OSC.Scenario(
+            "myscenario",
+            "Mandolin",
+            "dummy",
+            entities=entities,
+            storyboard=sb,
+            roadnetwork=road,
+            catalog=catalog,
+        )
+    with pytest.raises(TypeError):
+        sce = OSC.Scenario(
+            "myscenario",
+            "Mandolin",
+            OSC.ParameterDeclarations(),
+            entities="dummy",
+            storyboard=sb,
+            roadnetwork=road,
+            catalog=catalog,
+        )
+    with pytest.raises(TypeError):
+        sce = OSC.Scenario(
+            "myscenario",
+            "Mandolin",
+            OSC.ParameterDeclarations(),
+            entities=entities,
+            storyboard="dummy",
+            roadnetwork=road,
+            catalog=catalog,
+        )
+    with pytest.raises(TypeError):
+        sce = OSC.Scenario(
+            "myscenario",
+            "Mandolin",
+            OSC.ParameterDeclarations(),
+            entities=entities,
+            storyboard=sb,
+            roadnetwork="dummy",
+            catalog=catalog,
+        )
+    with pytest.raises(TypeError):
+        sce = OSC.Scenario(
+            "myscenario",
+            "Mandolin",
+            OSC.ParameterDeclarations(),
+            entities=entities,
+            storyboard=sb,
+            roadnetwork=road,
+            catalog="dummy",
+        )

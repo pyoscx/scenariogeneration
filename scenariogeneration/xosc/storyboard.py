@@ -12,7 +12,7 @@
 import xml.etree.ElementTree as ET
 
 
-from .actions import _Action, _ActionType, _PrivateActionType
+from .actions import _Action, _ActionType, _PrivateActionType, CustomCommandAction
 
 from .triggers import EmptyTrigger, ValueTrigger, SimulationTimeCondition, Trigger
 from .utils import (
@@ -154,7 +154,8 @@ class Init(VersionBase):
             action (CustomCommandAction): a custom command action (NOTE: a very crude implementation see actions.py)
 
         """
-        # NOTE: since this is not really implemented no checkes are done here.
+        if not isinstance(action, CustomCommandAction):
+            raise TypeError("action is not of type CustomCommandAction")
         self.user_defined_actions.append(action)
         return self
 
@@ -337,11 +338,14 @@ class StoryBoard(VersionBase):
                 ConditionEdge.rising,
                 SimulationTimeCondition(0, Rule.greaterThan),
             )
+        elif not isinstance(starttrigger, _TriggerType):
+            raise TypeError("starttrigger is not a Trigger type")
         elif starttrigger._triggerpoint == "StopTrigger":
             raise ValueError(
                 "the starttrigger provided does not have start as the triggeringpoint"
             )
-
+        if not isinstance(stoptrigger, _TriggerType):
+            raise TypeError("stoptrigger is not a Trigger type")
         if stoptrigger._triggerpoint == "StartTrigger":
             raise ValueError("the stoptrigger provided is not of type StopTrigger")
         newact = Act("act_" + maneuvergroup.name, starttrigger, stoptrigger)
@@ -595,6 +599,8 @@ class Act(VersionBase):
                 ConditionEdge.none,
                 SimulationTimeCondition(0, Rule.greaterThan),
             )
+        elif not isinstance(starttrigger, _TriggerType):
+            raise TypeError("starttrigger is not a valid TriggerType")
         elif starttrigger._triggerpoint == "StopTrigger":
             raise ValueError(
                 "the starttrigger provided does not have start as the triggeringpoint"
@@ -604,6 +610,8 @@ class Act(VersionBase):
 
         if stoptrigger == None:
             self.stoptrigger = EmptyTrigger("stop")
+        elif not isinstance(stoptrigger, _TriggerType):
+            raise TypeError("stoptrigger is not a valid TriggerType")
         elif stoptrigger._triggerpoint == "StartTrigger":
             raise ValueError("the stoptrigger provided is not of type StopTrigger")
         else:

@@ -71,6 +71,17 @@ def test_event():
     assert version_validation("Event", event5, 1) == ValidationResponse.OK
     assert version_validation("Event", event5, 2) == ValidationResponse.OK
 
+    with pytest.raises(ValueError):
+        OSC.Event("name", "dummy")
+    with pytest.raises(TypeError):
+        event.add_action("dummy")
+    with pytest.raises(TypeError):
+        event.add_trigger("dummy")
+    with pytest.raises(TypeError):
+        event.add_trigger(OSC.SimulationTimeCondition(3, OSC.Rule.equalTo))
+    with pytest.raises(TypeError):
+        event.add_trigger(OSC.SpeedCondition(5, OSC.Rule.greaterOrEqual))
+
 
 def test_maneuver(tmpdir):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
@@ -99,6 +110,12 @@ def test_maneuver(tmpdir):
         "test catalog",
         "Mandolin",
     )
+    with pytest.raises(TypeError):
+        OSC.Maneuver("my man", "dummy")
+    with pytest.raises(TypeError):
+        man.add_event("dummy")
+    with pytest.raises(TypeError):
+        man.add_parameter("dummy")
 
 
 def test_maneuvergroup():
@@ -134,6 +151,8 @@ def test_maneuvergroup():
     assert version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
     assert version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
     assert version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        mangr.add_maneuver("dummy")
 
 
 def test_actandstory():
@@ -169,6 +188,13 @@ def test_actandstory():
     assert version_validation("Act", act3, 1) == ValidationResponse.OK
     assert version_validation("Act", act3, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.Act("act", "dummy")
+    with pytest.raises(TypeError):
+        OSC.Act("act", trigger, "dummy")
+    with pytest.raises(TypeError):
+        act.add_maneuver_group("dummy")
+
     story = OSC.Story("mystory")
     story.add_act(act)
     prettyprint(story.get_element())
@@ -187,6 +213,11 @@ def test_actandstory():
     assert version_validation("Story", story, 0) == ValidationResponse.OK
     assert version_validation("Story", story, 1) == ValidationResponse.OK
     assert version_validation("Story", story, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.Story("name", "dummy")
+    with pytest.raises(TypeError):
+        story.add_act("dummy")
 
 
 def test_init():
@@ -248,6 +279,13 @@ def test_init():
     assert version_validation("Init", init, 1) == ValidationResponse.OK
     assert version_validation("Init", init, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        init.add_init_action("asdf", "dummy")
+    with pytest.raises(TypeError):
+        init.add_global_action("dummy")
+    with pytest.raises(TypeError):
+        init.add_user_defined_action("dummy")
+
 
 def test_storyboard_story_input():
     init = OSC.Init()
@@ -304,6 +342,9 @@ def test_storyboard_story_input():
     assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        sb.add_story("dummy")
 
 
 def test_storyboard_act_input():
@@ -385,6 +426,11 @@ def test_storyboard_act_input():
     assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        sb.add_act("dummy")
+    with pytest.raises(TypeError):
+        sb.add_act(act, "dummy")
+
 
 def test_storyboard_mangr_input():
     egoname = "Ego"
@@ -456,6 +502,15 @@ def test_storyboard_mangr_input():
     assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        sb.add_maneuver_group("dummy")
+    with pytest.raises(TypeError):
+        sb.add_maneuver_group(mangr, "dummy")
+    with pytest.raises(TypeError):
+        sb.add_maneuver_group(mangr, stoptrigger="dummy")
+    with pytest.raises(TypeError):
+        sb.add_maneuver_group(mangr, parameters="dummy")
+
 
 def test_storyboard_man_input():
     egoname = "Ego"
@@ -522,6 +577,9 @@ def test_storyboard_man_input():
     assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
     assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        sb.add_maneuver("dummy", "actor")
 
 
 def test_empty_storyboard():

@@ -175,6 +175,8 @@ def test_speedaction_abs():
     assert version_validation("PrivateAction", speedaction, 0)
     assert version_validation("PrivateAction", speedaction, 1)
     assert version_validation("PrivateAction", speedaction, 2)
+    with pytest.raises(TypeError):
+        OSC.AbsoluteSpeedAction(50, "dummy")
 
 
 def test_speedaction_rel():
@@ -191,6 +193,8 @@ def test_speedaction_rel():
     assert version_validation("PrivateAction", speedaction, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", speedaction, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", speedaction, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RelativeSpeedAction(50, "Ego", "dummy")
 
 
 def test_longdistaction_dist():
@@ -222,6 +226,11 @@ def test_longdistaction_dist():
     assert version_validation("PrivateAction", longdist, 2) == ValidationResponse.OK
     assert version_validation("PrivateAction", longdist3, 2) == ValidationResponse.OK
 
+    with pytest.raises(ValueError):
+        OSC.LongitudinalDistanceAction("ego", distance=1, coordinate_system="dummy")
+    with pytest.raises(ValueError):
+        OSC.LongitudinalDistanceAction("ego", distance=1, displacement="dummy")
+
 
 def test_longdistaction_time():
     longdist = OSC.LongitudinalDistanceAction("Ego", max_acceleration=1, timeGap=2)
@@ -252,6 +261,8 @@ def test_lanechange_abs():
     assert version_validation("PrivateAction", lanechange, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", lanechange, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", lanechange, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.AbsoluteLaneChangeAction(1, "dummy")
 
 
 def test_lanechange_rel():
@@ -268,6 +279,8 @@ def test_lanechange_rel():
     assert version_validation("PrivateAction", lanechange, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", lanechange, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", lanechange, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RelativeLaneChangeAction(1, "Ego", "dummy", 0.2)
 
 
 def test_laneoffset_abs():
@@ -285,6 +298,8 @@ def test_laneoffset_abs():
     assert version_validation("PrivateAction", laneoffset, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", laneoffset, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", laneoffset, 2) == ValidationResponse.OK
+    with pytest.raises(ValueError):
+        OSC.AbsoluteLaneOffsetAction(1, "dummy")
 
 
 def test_laneoffset_rel():
@@ -307,6 +322,8 @@ def test_laneoffset_rel():
     assert version_validation("PrivateAction", laneoffset, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", laneoffset, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", laneoffset, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RelativeLaneOffsetAction(1, "ego", "dummy")
 
 
 def test_lateraldistance_noconst():
@@ -323,6 +340,10 @@ def test_lateraldistance_noconst():
     assert version_validation("PrivateAction", latdist, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", latdist, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", latdist, 2) == ValidationResponse.OK
+    with pytest.raises(ValueError):
+        OSC.LateralDistanceAction("Ego", 1, coordinate_system="dummy")
+    with pytest.raises(ValueError):
+        OSC.LateralDistanceAction("Ego", 1, displacement="dummy")
 
 
 def test_lateraldistance_const():
@@ -376,6 +397,9 @@ def test_assign_route():
     assert version_validation("PrivateAction", ara, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", ara, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.AssignRouteAction("dummy")
+
 
 def test_aqcuire_position_route():
     ara = OSC.AcquirePositionAction(OSC.WorldPosition(1, 1, 0, 0, 0, 0))
@@ -391,6 +415,9 @@ def test_aqcuire_position_route():
     assert version_validation("PrivateAction", ara, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", ara, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", ara, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.AcquirePositionAction("dummy")
 
 
 def test_controller_action():
@@ -412,6 +439,12 @@ def test_controller_action():
     assert version_validation("PrivateAction", aca, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.ControllerAction(assignControllerAction="dummy")
+    with pytest.raises(TypeError):
+        OSC.ControllerAction(activateControllerAction="dummy")
+    with pytest.raises(TypeError):
+        OSC.ControllerAction(overrideControllerValueAction="dummy")
 
 
 def test_activate_controller_action():
@@ -471,6 +504,9 @@ def test_assign_controller_action():
     assert version_validation("PrivateAction", aca, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.AssignControllerAction("dummy")
 
 
 def test_override_controller():
@@ -577,6 +613,18 @@ def test_sync_action():
     assert version_validation("PrivateAction", asa, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", asa, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.SynchronizeAction("ego", "dummy", OSC.WorldPosition(0, 0, 0, 0, 0, 0))
+    with pytest.raises(TypeError):
+        OSC.SynchronizeAction("ego", OSC.WorldPosition(0, 0, 0, 0, 0, 0), "dummy")
+    with pytest.raises(TypeError):
+        OSC.SynchronizeAction(
+            "ego",
+            OSC.WorldPosition(0, 0, 0, 0, 0, 0),
+            OSC.WorldPosition(0, 0, 0, 0, 0, 0),
+            final_speed=10,
+        )
+
 
 def test_follow_traj_action_polyline():
     positionlist = []
@@ -619,6 +667,13 @@ def test_follow_traj_action_polyline():
     assert version_validation("PrivateAction", trajact, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", trajact, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", trajact, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.FollowTrajectoryAction("dummy", OSC.FollowingMode.follow)
+    with pytest.raises(ValueError):
+        OSC.FollowTrajectoryAction(traj, "dummy")
+    with pytest.raises(ValueError):
+        OSC.FollowTrajectoryAction(traj, OSC.FollowingMode.follow, "dummy")
 
 
 def testParameterAddActions():
@@ -744,6 +799,8 @@ def test_addEntity():
     assert version_validation("GlobalAction", ent, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", ent, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", ent, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.AddEntityAction("ego", "dummy")
 
 
 def test_deleteEntity():
@@ -810,6 +867,11 @@ def test_trafficsourceaction():
     assert version_validation("GlobalAction", source_action, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", source_action, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.TrafficSourceAction(10, 10, "dummy", traffic)
+    with pytest.raises(TypeError):
+        OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), "dummy")
+
 
 def test_trafficsinkaction():
     prop = OSC.Properties()
@@ -839,6 +901,11 @@ def test_trafficsinkaction():
     assert version_validation("GlobalAction", sink_action, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", sink_action, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", sink_action, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.TrafficSinkAction(10, "dummy", traffic)
+    with pytest.raises(TypeError):
+        OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
 
 
 def test_trafficswarmaction():
@@ -875,6 +942,12 @@ def test_trafficswarmaction():
     assert version_validation("GlobalAction", swarm_action, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", swarm_action, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", swarm_action, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.TrafficSwarmAction(1, 1, 1, 1, 1, "ego", "dummy")
+    with pytest.raises(TypeError):
+        OSC.TrafficSwarmAction(
+            1, 1, 1, 1, 1, "ego", traffic, direction_of_travel="dummy"
+        )
 
 
 def test_environmentaction():
@@ -914,6 +987,9 @@ def test_environmentaction():
     assert version_validation("GlobalAction", ea5, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", ea5, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", ea5, 2) == ValidationResponse.OSC_VERSION
+
+    with pytest.raises(TypeError):
+        OSC.EnvironmentAction("dummy")
 
 
 def test_trafficstopaction():
@@ -996,6 +1072,15 @@ def test_lightstateaction():
     assert version_validation("PrivateAction", lsa, 1) == ValidationResponse.OSC_VERSION
     assert version_validation("PrivateAction", lsa, 2) == ValidationResponse.XSD_FAILURE
 
+    with pytest.raises(TypeError):
+        OSC.LightStateAction("dummy", OSC.LightMode.flashing)
+    with pytest.raises(ValueError):
+        OSC.LightStateAction(OSC.VehicleLightType.fogLights, "dummy")
+    with pytest.raises(TypeError):
+        OSC.LightStateAction(
+            OSC.VehicleLightType.fogLights, OSC.LightMode.flashing, color="dummy"
+        )
+
 
 def test_speedprofileaction():
     spa = OSC.SpeedProfileAction(
@@ -1027,6 +1112,12 @@ def test_speedprofileaction():
         version_validation("PrivateAction", spa3, 1) == ValidationResponse.OSC_VERSION
     )
     assert version_validation("PrivateAction", spa3, 2) == ValidationResponse.OK
+    with pytest.raises(ValueError):
+        OSC.SpeedProfileAction([1, 1, 1], "dummy")
+    with pytest.raises(TypeError):
+        OSC.SpeedProfileAction(
+            [1, 1, 1], OSC.FollowingMode.follow, dynamics_constraint="dummy"
+        )
 
 
 def test_animation_action():
@@ -1047,3 +1138,5 @@ def test_animation_action():
     assert version_validation("PrivateAction", aa, 1) == ValidationResponse.OSC_VERSION
     # BUG IN XSD
     assert version_validation("PrivateAction", aa, 2) == ValidationResponse.XSD_FAILURE
+    with pytest.raises(ValueError):
+        OSC.AnimationAction("dummy")
