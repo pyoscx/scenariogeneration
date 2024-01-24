@@ -15,6 +15,34 @@
 from enum import Enum, auto
 
 
+def enumchecker(value, enum_type, none_ok=False):
+    """checks if a enum is correct, and if input is a string, tries to convert it to the enum"""
+    if value is None:
+        if none_ok:
+            return value
+        else:
+            raise TypeError("None is not a valid enumeration")
+    if isinstance(value, Enum):
+        if hasattr(enum_type, value.name):
+            return value
+        else:
+            raise TypeError(
+                value.get_name() + " is not of Enumeration type :" + str(enum_type)
+            )
+
+    elif isinstance(value, str):
+        if hasattr(enum_type, value):
+            return enum_type[value]
+        else:
+            raise TypeError(
+                value
+                + " is not a valid string input for Enumeration type "
+                + str(enum_type)
+            )
+    else:
+        raise TypeError("Type: " + type(enum_type) + " is not a valid input for Enums.")
+
+
 class TrafficRule(Enum):
     """Enum for MarkRule"""
 

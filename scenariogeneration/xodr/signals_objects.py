@@ -12,7 +12,16 @@
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
-from .enumerations import ObjectType, TunnelType, Orientation, Dynamic
+from .enumerations import (
+    ObjectType,
+    TunnelType,
+    Orientation,
+    Dynamic,
+    enumchecker,
+    FillType,
+    LaneType,
+    Access,
+)
 from .exceptions import GeneralIssueInputArguments
 from .utils import XodrBase
 
@@ -120,11 +129,11 @@ class _SignalObjectBase(XodrBase):
         self.t = t
         self.height = height
         self.Type = Type
-        self.dynamic = dynamic
+        self.dynamic = enumchecker(dynamic, Dynamic)
         self.name = name
         self.zOffset = zOffset
         self.subtype = subtype
-        self.orientation = orientation
+        self.orientation = enumchecker(orientation, Orientation)
         self.pitch = pitch
         self.roll = roll
         self.width = width
@@ -547,7 +556,7 @@ class SignalReference(XodrBase):
         super().__init__()
         self.s = s
         self.t = t
-        self.orientation = orientation
+        self.orientation = enumchecker(orientation, Orientation)
         self.validity = None
         self.id = id
 
@@ -1008,7 +1017,7 @@ class Tunnel(XodrBase):
         self.length = length
         self.id = id
         self.name = name
-        self.tunnel_type = tunnel_type
+        self.tunnel_type = enumchecker(tunnel_type, TunnelType)
         self.daylight = daylight
         self.lighting = lighting
 
@@ -1261,8 +1270,8 @@ class Outline(XodrBase):
         """
         super().__init__()
         self.closed = closed
-        self.fill_type = fill_type
-        self.lane_type = lane_type
+        self.fill_type = enumchecker(fill_type, FillType, True)
+        self.lane_type = enumchecker(lane_type, LaneType, True)
         self.outer = outer
         self.id = id
         self.corners = []
@@ -1363,7 +1372,7 @@ class ParkingSpace(XodrBase):
 
         """
         super().__init__()
-        self.access = access
+        self.access = enumchecker(access, Access)
         self.restrictions = restrictions
 
     def __eq__(self, other):

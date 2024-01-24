@@ -81,6 +81,12 @@ def test_axles():
     assert version_validation("Axles", axles, 0) == ValidationResponse.OK
     assert version_validation("Axles", axles, 1) == ValidationResponse.OK
     assert version_validation("Axles", axles, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.Axles("dummy", ra)
+    with pytest.raises(TypeError):
+        OSC.Axles(fa, "dummy")
+    with pytest.raises(TypeError):
+        axles.add_axle("dummy")
 
 
 def test_vehicle(tmpdir):
@@ -163,6 +169,23 @@ def test_vehicle(tmpdir):
         "Mandolin",
     )
 
+    with pytest.raises(ValueError):
+        OSC.Vehicle("car", "dummy", bb, fa, ba, 150, 10, 10)
+    with pytest.raises(TypeError):
+        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, "dummy", fa, ba, 150, 10, 10)
+    with pytest.raises(TypeError):
+        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, bb, "dummy", ba, 150, 10, 10)
+    with pytest.raises(TypeError):
+        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, bb, fa, "dummy", 150, 10, 10)
+    with pytest.raises(ValueError):
+        OSC.Vehicle(
+            "car", OSC.VehicleCategory.bicycle, bb, fa, ba, 150, 10, 10, role="dummy"
+        )
+    with pytest.raises(TypeError):
+        veh.add_parameter("dummy")
+    with pytest.raises(TypeError):
+        veh.add_axle("dummy")
+
 
 def test_pedestrian(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
@@ -207,6 +230,24 @@ def test_pedestrian(tmpdir):
     assert version_validation("Pedestrian", ped3, 1) == ValidationResponse.OK
     assert version_validation("Pedestrian", ped3, 2) == ValidationResponse.OK
 
+    with pytest.raises(ValueError):
+        OSC.Pedestrian("myped", 100, "dummy", bb, "ped", OSC.Role.police)
+    with pytest.raises(TypeError):
+        OSC.Pedestrian(
+            "myped",
+            100,
+            OSC.PedestrianCategory.pedestrian,
+            "dummy",
+            "ped",
+            OSC.Role.police,
+        )
+    with pytest.raises(ValueError):
+        OSC.Pedestrian(
+            "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", "dummy"
+        )
+    with pytest.raises(TypeError):
+        ped.add_parameter("dummy")
+
 
 def test_miscobj(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
@@ -246,6 +287,10 @@ def test_miscobj(tmpdir):
     assert version_validation("MiscObject", veh, 0) == ValidationResponse.OK
     assert version_validation("MiscObject", veh, 1) == ValidationResponse.OK
     assert version_validation("MiscObject", veh, 2) == ValidationResponse.OK
+    with pytest.raises(ValueError):
+        OSC.MiscObject("mycar", 100, "dummy", bb)
+    with pytest.raises(TypeError):
+        OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, "dummy")
 
 
 def test_entity():
@@ -269,6 +314,11 @@ def test_entity():
     assert version_validation("EntitySelection", ent, 0) == ValidationResponse.OK
     assert version_validation("EntitySelection", ent, 1) == ValidationResponse.OK
     assert version_validation("EntitySelection", ent, 2) == ValidationResponse.OK
+
+    with pytest.raises(ValueError):
+        OSC.Entity("ego", object_type="dummy")
+    with pytest.raises(ValueError):
+        OSC.Entity("ego", object_type=["dummy", OSC.ObjectType.pedestrian])
 
 
 def test_scenarioobject():
@@ -305,6 +355,11 @@ def test_scenarioobject():
     assert version_validation("ScenarioObject", so, 0) == ValidationResponse.OK
     assert version_validation("ScenarioObject", so, 1) == ValidationResponse.OK
     assert version_validation("ScenarioObject", so, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.ScenarioObject("my car", "dummy")
+    with pytest.raises(TypeError):
+        OSC.ScenarioObject("my car", veh, "dummy")
 
 
 def test_entities():
@@ -344,8 +399,15 @@ def test_entities():
     assert version_validation("Entities", entities, 1) == ValidationResponse.OK
     assert version_validation("Entities", entities, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        entities.add_scenario_object("asdf", "dummy")
+    with pytest.raises(TypeError):
+        entities.add_scenario_object("asdf", veh, "dummy")
+    with pytest.raises(ValueError):
+        entities.add_entity_bytype("qwer", "dummy")
 
-def test_controller():
+
+def test_controller(tmpdir):
     prop = OSC.Properties()
     prop.add_property("mything", "2")
     prop.add_property("theotherthing", "true")
@@ -360,6 +422,18 @@ def test_controller():
     assert version_validation("Controller", cnt, 0) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 1) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
+
+    cnt.dump_to_catalog(
+        os.path.join(tmpdir, "my_catalog.xosc"),
+        "ControllerCatalog",
+        "test catalog",
+        "Mandolin",
+    )
+
+    with pytest.raises(TypeError):
+        OSC.Controller("my cnt", "dummy")
+    with pytest.raises(TypeError):
+        cnt.add_parameter("dummy")
 
 
 def test_controller_in_Entities():
@@ -408,6 +482,8 @@ def test_controller_in_Entities():
     assert (
         version_validation("Entities", entities_multi_cnt, 2) == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        entities_multi_cnt.add_scenario_object("tar", veh, [cnt, "dummy"])
 
 
 def test_external_object():

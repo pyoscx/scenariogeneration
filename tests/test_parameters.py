@@ -58,6 +58,9 @@ def test_Stochastic():
     assert version_validation("Stochastic", stoc, 1) == ValidationResponse.OK
     assert version_validation("Stochastic", stoc, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        stoc.add_distribution("param", "dummy")
+
 
 def test_normaldistribution():
     nd = OSC.NormalDistribution(0, 1)
@@ -73,6 +76,8 @@ def test_normaldistribution():
     assert nd5 == nd3
     assert version_validation("NormalDistribution", nd, 1) == ValidationResponse.OK
     assert version_validation("NormalDistribution", nd, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.NormalDistribution(1, 2, "dummy")
 
 
 def test_poissondistribution():
@@ -89,6 +94,8 @@ def test_poissondistribution():
     assert pd5 == pd3
     assert version_validation("PoissonDistribution", pd, 1) == ValidationResponse.OK
     assert version_validation("PoissonDistribution", pd, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.PoissonDistribution(1, "dummy")
 
 
 def test_histogrambin():
@@ -103,6 +110,8 @@ def test_histogrambin():
     assert hb4 == hb
     assert version_validation("HistogramBin", hb, 1) == ValidationResponse.OK
     assert version_validation("HistogramBin", hb, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.parameters._HistogramBin(1, "dummy")
 
 
 def test_histogram():
@@ -122,6 +131,9 @@ def test_histogram():
     assert version_validation("Histogram", h, 1) == ValidationResponse.OK
     assert version_validation("Histogram", h, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        h.add_bin(1, "dummy")
+
 
 def test_uniformdist():
     ud = OSC.UniformDistribution(OSC.Range(0, 1))
@@ -134,6 +146,8 @@ def test_uniformdist():
     assert ud == ud4
     assert version_validation("UniformDistribution", ud, 1) == ValidationResponse.OK
     assert version_validation("UniformDistribution", ud, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.UniformDistribution("dummy")
 
 
 def test_element():
@@ -210,6 +224,8 @@ def test_distributionrange():
     assert dr5 == dr
     assert version_validation("DistributionRange", dr, 1) == ValidationResponse.OK
     assert version_validation("DistributionRange", dr, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.DistributionRange(1, "dummy")
 
 
 def test_distributionset():
@@ -260,6 +276,8 @@ def test_DeterministicMultiParameterDistribution():
         version_validation("DeterministicMultiParameterDistribution", dist, 2)
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        dist.add_value_set("dummy")
 
 
 def test_deterministic():
@@ -289,6 +307,10 @@ def test_deterministic():
     assert det4 == det
     assert version_validation("Deterministic", det, 1) == ValidationResponse.OK
     assert version_validation("Deterministic", det, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        det.add_multi_distribution("dummy")
+    with pytest.raises(TypeError):
+        det.add_single_distribution("asdf", "dummy")
 
 
 def test_declaration_with_Stochastic():
@@ -319,6 +341,12 @@ def test_declaration_with_Stochastic():
 
     pvd5 = OSC.ParameterValueDistribution.parse(pvd.get_element())
     assert pvd == pvd5
+    with pytest.raises(TypeError):
+        OSC.ParameterValueDistribution(
+            "asdf",
+            "Mandolin",
+            "file.xosc",
+        )
 
 
 def test_declaration_with_deterministic():

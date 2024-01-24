@@ -13,6 +13,7 @@ from scenariogeneration import xodr
 from scenariogeneration import prettyprint, prettify
 
 from .xml_validator import version_validation, ValidationResponse
+import pytest
 
 
 def test_signal_validity():
@@ -25,6 +26,10 @@ def test_signal_validity():
         version_validation("t_road_signals_signal", signal, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        xodr.Signal(0, 0, "US", "R1", dynamic="dummy")
+    with pytest.raises(TypeError):
+        xodr.Signal(0, 0, "US", "R1", orientation="dummy")
 
 
 def test_object_validity():
@@ -67,6 +72,9 @@ def test_object_parking_space():
         )
         == ValidationResponse.OK
     )
+
+    with pytest.raises(TypeError):
+        xodr.ParkingSpace("dummy", "test")
 
 
 def test_signal():
@@ -172,6 +180,9 @@ def test_signal_reference():
         version_validation("t_road", road, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+
+    with pytest.raises(TypeError):
+        xodr.SignalReference(1, 1, 1, "dummy")
 
 
 def test_object():
@@ -294,6 +305,9 @@ def test_tunnel():
 
     road.add_tunnel(new_tunnel)
     assert _is_sub_element_written(new_tunnel, road)
+
+    with pytest.raises(TypeError):
+        xodr.Tunnel(1, 1, 1, "", tunnel_type="dummy")
 
 
 def _is_sub_element_written(sub_element, element):

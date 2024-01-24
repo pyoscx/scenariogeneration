@@ -59,6 +59,8 @@ def test_links():
     links3.add_link(pyodrx.links._Link("predecessor", "2"))
     assert links == links2
     assert links != links3
+    with pytest.raises(TypeError):
+        links.add_link("dummy")
 
 
 def test_lanelinker():
@@ -99,6 +101,8 @@ def test_connection():
         version_validation("t_junction_connection", con, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        pyodrx.Connection(1, 2, "dummy")
 
 
 def test_junction():
@@ -135,6 +139,10 @@ def test_junction():
         version_validation("t_junction", junction, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        pyodrx.Junction("asdf", 1, "dummy")
+    with pytest.raises(TypeError):
+        junction.add_connection("dummy")
 
 
 # road - road - road // -> - -> - ->

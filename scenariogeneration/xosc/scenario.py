@@ -10,7 +10,7 @@
 
 """
 
-from .position import _PositionFactory
+from .position import _PositionFactory, _PositionType
 from .exceptions import OpenSCENARIOVersionError, NotEnoughInputArguments
 
 import xml.etree.ElementTree as ET
@@ -378,6 +378,8 @@ class RoadNetwork(VersionBase):
             position (*Position): any position to determine the used area
 
         """
+        if not isinstance(position, _PositionType):
+            raise TypeError("position input is not a valid position Type")
         self.used_area_positions.append(position)
         return self
 

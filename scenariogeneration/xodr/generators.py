@@ -185,7 +185,7 @@ def create_road(
             lane_width_end=lane_width_end,
         )
     else:
-        lanes = None
+        lanes = Lanes()
 
     road = Road(id, pv, lanes, road_type=road_type)
 

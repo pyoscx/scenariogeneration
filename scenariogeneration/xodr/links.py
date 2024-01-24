@@ -11,7 +11,15 @@
 """
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
-from .enumerations import ElementType, JunctionGroupType, JunctionType, Orientation
+from .enumerations import (
+    ElementType,
+    JunctionGroupType,
+    JunctionType,
+    Orientation,
+    enumchecker,
+    ContactPoint,
+    Direction,
+)
 import numpy as np
 
 from .exceptions import (
@@ -62,6 +70,9 @@ class _Links(XodrBase):
             link (_Link): a link to be added to the Links
 
         """
+        if not isinstance(link, _Link):
+            raise TypeError("link input is not of type _Link")
+
         if link in self.links:
             warnings.warn(
                 "Multiple identical links is detected, this might cause problems. Using the first one created. ",
@@ -236,10 +247,11 @@ class _Link(XodrBase):
                 raise ValueError("direction has to be defined for neighbor")
 
         self.link_type = link_type
-        self.element_type = element_type
+
+        self.element_type = enumchecker(element_type, ElementType, True)
         self.element_id = element_id
-        self.contact_point = contact_point
-        self.direction = direction
+        self.contact_point = enumchecker(contact_point, ContactPoint, True)
+        self.direction = enumchecker(direction, Direction, True)
 
     def __eq__(self, other):
         if isinstance(other, _Link) and super().__eq__(other):
@@ -374,7 +386,7 @@ class Connection(XodrBase):
         super().__init__()
         self.incoming_road = incoming_road
         self.connecting_road = connecting_road
-        self.contact_point = contact_point
+        self.contact_point = enumchecker(contact_point, ContactPoint, True)
         self.id = id
         self.links = []
 
@@ -536,10 +548,8 @@ class Junction(XodrBase):
         self.id = id
         self.connections = []
         self._id_counter = 0
-        if not isinstance(junction_type, JunctionType):
-            raise TypeError("Not a valid junction type")
 
-        self.junction_type = junction_type
+        self.junction_type = enumchecker(junction_type, JunctionType)
         if junction_type == JunctionType.virtual:
             if not (
                 sstart is not None
@@ -553,7 +563,7 @@ class Junction(XodrBase):
         self.sstart = sstart
         self.send = send
         self.mainroad = mainroad
-        self.orientation = orientation
+        self.orientation = enumchecker(orientation, Orientation, True)
 
     def __eq__(self, other):
         if isinstance(other, Junction) and super().__eq__(other):
@@ -572,6 +582,8 @@ class Junction(XodrBase):
             connection (Connection): adds a connection to the junction
 
         """
+        if not isinstance(connection, Connection):
+            raise TypeError("connection is not of type Connection")
         connection._set_id(self._id_counter)
         self._id_counter += 1
         self.connections.append(connection)
@@ -1120,7 +1132,7 @@ class JunctionGroup(XodrBase):
         self.name = name
         self.group_id = group_id
         self.junctions = []
-        self.junction_type = junction_type
+        self.junction_type = enumchecker(junction_type, JunctionGroupType)
 
     def __eq__(self, other):
         if isinstance(other, JunctionGroup) and super().__eq__(other):

@@ -72,6 +72,9 @@ def test_relativeworldposition():
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.RelativeWorldPosition("ego", 1, 1, 1, "dummy")
+
 
 def test_relativeobjectposition():
     pos = OSC.RelativeObjectPosition("Ego", 1, 2, 0)
@@ -91,6 +94,9 @@ def test_relativeobjectposition():
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.RelativeObjectPosition("ego", 1, 1, 1, "dummy")
+
 
 def test_roadposition():
     pos = OSC.RoadPosition(1, 2, reference_id="1")
@@ -106,6 +112,8 @@ def test_roadposition():
     assert version_validation("Position", pos, 0) == ValidationResponse.OK
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RoadPosition(1, 1, "2", "dummy")
 
 
 def test_relativeroadposition():
@@ -122,6 +130,8 @@ def test_relativeroadposition():
     assert version_validation("Position", pos, 0) == ValidationResponse.OK
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RelativeRoadPosition(1, 1, "ego", "dummy")
 
 
 def test_laneposition():
@@ -137,6 +147,8 @@ def test_laneposition():
     assert version_validation("Position", pos, 0) == ValidationResponse.OK
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.LanePosition(1, 1, 1, 1, "dummy")
 
 
 def test_relativelaneposition():
@@ -158,6 +170,12 @@ def test_relativelaneposition():
     assert version_validation("Position", pos5, 0) == ValidationResponse.XSD_FAILURE
     assert version_validation("Position", pos5, 1) == ValidationResponse.OK
     assert version_validation("Position", pos5, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.RelativeLanePosition(1, "1", 1, 3, orientation="dummy")
+    with pytest.raises(OSC.NotEnoughInputArguments):
+        OSC.RelativeLanePosition(1, "ego", 0)
+    with pytest.raises(OSC.ToManyOptionalArguments):
+        OSC.RelativeLanePosition(1, "ego", 0, 0, 0)
 
 
 def test_route_position_entity():
@@ -181,6 +199,11 @@ def test_route_position_entity():
     assert version_validation("Position", routepos, 1) == ValidationResponse.OK
     assert version_validation("Position", routepos, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.RoutePositionOfCurrentEntity("dummy")
+    with pytest.raises(TypeError):
+        OSC.RoutePositionOfCurrentEntity(route, "eog", "dummy")
+
 
 def test_route_position_road_coordinates():
     routepos = OSC.RoutePositionInRoadCoordinates(route, 1, 3)
@@ -193,6 +216,17 @@ def test_route_position_road_coordinates():
     routepos4 = OSC.RoutePositionInRoadCoordinates.parse(routepos.get_element())
     assert routepos == routepos4
 
+    assert version_validation("Position", routepos, 0) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 1) == ValidationResponse.OK
+    assert version_validation("Position", routepos, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.RoutePositionInRoadCoordinates("dummy", 1, 1)
+    with pytest.raises(TypeError):
+        OSC.RoutePositionInRoadCoordinates(route, 1, 1, "dummy")
+
+
+def test_route_position_lane_coordinates():
     routepos = OSC.RoutePositionInLaneCoordinates(route, 1, -1, 2)
     routepos2 = OSC.RoutePositionInLaneCoordinates(route, 1, -1, 2)
     routepos3 = OSC.RoutePositionInLaneCoordinates(route, 1, 1, 2)
@@ -206,6 +240,11 @@ def test_route_position_road_coordinates():
     assert version_validation("Position", routepos, 0) == ValidationResponse.OK
     assert version_validation("Position", routepos, 1) == ValidationResponse.OK
     assert version_validation("Position", routepos, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.RoutePositionInLaneCoordinates("dummy", 1, 1, 1)
+    with pytest.raises(TypeError):
+        OSC.RoutePositionInLaneCoordinates(route, 1, 1, 1, "dummy")
 
 
 def test_trajectory_position():
@@ -225,6 +264,11 @@ def test_trajectory_position():
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.TrajectoryPosition("dummy", 0)
+    with pytest.raises(TypeError):
+        OSC.TrajectoryPosition(traj, 0, 0, "dummy")
+
 
 def test_geo_position():
     pos = OSC.GeoPosition(1, 1)
@@ -239,6 +283,9 @@ def test_geo_position():
     assert version_validation("Position", pos, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.GeoPosition(1, 1, 1, "dummy")
 
 
 # some fixtures for the factory test
@@ -334,6 +381,9 @@ def test_nurbs():
     assert version_validation("Shape", nurb, 1) == ValidationResponse.OK
     assert version_validation("Shape", nurb, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        nurb.add_control_point("dummy")
+
 
 def test_waypoint():
     wp = OSC.Waypoint(OSC.WorldPosition(), OSC.RouteStrategy.shortest)
@@ -348,6 +398,10 @@ def test_waypoint():
     assert version_validation("Waypoint", wp, 0) == ValidationResponse.OK
     assert version_validation("Waypoint", wp, 1) == ValidationResponse.OK
     assert version_validation("Waypoint", wp, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.Waypoint("dummy")
+    with pytest.raises(ValueError):
+        OSC.Waypoint(OSC.WorldPosition(), "dummy")
 
 
 def test_route(tmpdir):
@@ -376,6 +430,11 @@ def test_route(tmpdir):
     assert version_validation("Route", route, 1) == ValidationResponse.OK
     assert version_validation("Route", route, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        route.add_waypoint("dummy", OSC.RouteStrategy.shortest)
+    with pytest.raises(ValueError):
+        route.add_waypoint(OSC.WorldPosition(), "dummy")
+
 
 def test_polyline():
     positionlist = []
@@ -402,6 +461,9 @@ def test_polyline():
     assert version_validation("Shape", polyline, 1) == ValidationResponse.OK
     assert version_validation("Shape", polyline, 2) == ValidationResponse.OK
 
+    with pytest.raises(TypeError):
+        OSC.Polyline([], [OSC.WorldPosition(), "dummy"])
+
 
 def test_clothoid():
     clot = OSC.Clothoid(1, 0.1, 10, OSC.WorldPosition(), 0, 1)
@@ -421,6 +483,9 @@ def test_clothoid():
     assert version_validation("Shape", clot, 0) == ValidationResponse.OK
     assert version_validation("Shape", clot, 1) == ValidationResponse.OK
     assert version_validation("Shape", clot, 2) == ValidationResponse.OK
+
+    with pytest.raises(TypeError):
+        OSC.Clothoid(0, 0, 0, "dummy")
 
 
 def test_trajectory(tmpdir):
@@ -453,6 +518,13 @@ def test_trajectory(tmpdir):
         "test catalog",
         "Mandolin",
     )
+    with pytest.raises(TypeError):
+        traj.add_parameter("dummy")
+    with pytest.raises(TypeError):
+        traj.add_shape("dummy")
+    with pytest.raises(OSC.NotEnoughInputArguments):
+        traj = OSC.Trajectory("my_traj", False)
+        traj.get_element()
 
 
 def test_controlpoint():
@@ -468,3 +540,5 @@ def test_controlpoint():
     assert version_validation("ControlPoint", cp1, 0) == ValidationResponse.OK
     assert version_validation("ControlPoint", cp1, 1) == ValidationResponse.OK
     assert version_validation("ControlPoint", cp1, 2) == ValidationResponse.OK
+    with pytest.raises(TypeError):
+        OSC.ControlPoint("dummy")

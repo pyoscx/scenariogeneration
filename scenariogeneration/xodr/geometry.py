@@ -27,10 +27,11 @@ def wrap_pi(angle):
     return angle % (2 * np.pi)
 
 
-class AdjustablePlanview:
-    """AdjustablePlanview can be used to fit a geometry between two fixed roads.
-    Especially useful when connecting larger networks with Spiral geometries included.
-    """
+class _BaseGeometry(XodrBase):
+    """base class for geometries"""
+
+    def __init__(self):
+        super().__init__()
 
 
 class AdjustablePlanview:
@@ -154,7 +155,7 @@ class PlanView(XodrBase):
 
         Parameters
         ----------
-            geom (Line, Spiral, ParamPoly3, or Arc): the type of geometry
+            geom (_BaseGeometry): the type of geometry
 
             heading (float): override the previous heading (optional), not recommended
                 if used, use for ALL geometries
@@ -167,6 +168,8 @@ class PlanView(XodrBase):
 
         if heading is not None:
             self._overridden_headings.append(heading)
+        if not isinstance(geom, _BaseGeometry):
+            raise TypeError("geom_type is not of type _BaseGeometry.")
         self._raw_geometries.append(geom)
         self._addition_mode = "add_geometry"
         return self
@@ -405,7 +408,7 @@ class _Geometry(XodrBase):
 
             heading (float): heading of the geometry
 
-            geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
+            geom_type (_BaseGeometry): the type of geometry
 
         """
         super().__init__()
@@ -414,6 +417,8 @@ class _Geometry(XodrBase):
         self.y = y
 
         self.heading = heading
+        if not isinstance(geom_type, _BaseGeometry):
+            raise TypeError("geom_type is not of type _BaseGeometry.")
         self.geom_type = geom_type
         _, _, _, self.length = self.geom_type.get_end_data(self.x, self.y, self.heading)
 
@@ -460,7 +465,7 @@ class _Geometry(XodrBase):
         return element
 
 
-class Line(XodrBase):
+class Line(_BaseGeometry):
     """the line class creates a line type of geometry
 
     Parameters
@@ -552,7 +557,7 @@ class Line(XodrBase):
         return element
 
 
-class Arc(XodrBase):
+class Arc(_BaseGeometry):
     """the Arc creates a arc type of geometry
 
     Parameters
@@ -733,7 +738,7 @@ class Arc(XodrBase):
         return element
 
 
-class ParamPoly3(XodrBase):
+class ParamPoly3(_BaseGeometry):
     """the ParamPoly3 class creates a parampoly3 type of geometry, in the coordinate systeme U (along road), V (normal to the road)
 
     the polynomials are on the form
@@ -954,7 +959,7 @@ class ParamPoly3(XodrBase):
         return element
 
 
-class Spiral(XodrBase):
+class Spiral(_BaseGeometry):
     """the Spiral (Clothoid) creates a spiral type of geometry
 
     Parameters

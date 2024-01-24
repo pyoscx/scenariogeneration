@@ -34,6 +34,11 @@ def test_roadline():
     )
     assert line == line2
     assert line != line3
+    with pytest.raises(TypeError):
+        xodr.RoadLine(rule="dummy")
+
+    with pytest.raises(TypeError):
+        xodr.RoadLine(color="dummy")
 
 
 def test_roadline_offset_calcs():
@@ -76,6 +81,8 @@ def test_explicit_roadline():
         )
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        xodr.ExplicitRoadLine(rule="dummy")
 
 
 def test_roadmark():
@@ -130,6 +137,18 @@ def test_roadmark():
         == ValidationResponse.OK
     )
 
+    with pytest.raises(TypeError):
+        xodr.RoadMark("dummy")
+
+    with pytest.raises(TypeError):
+        xodr.RoadMark("solid", color="dummy")
+
+    with pytest.raises(TypeError):
+        xodr.RoadMark("solid", marking_weight="dummy")
+
+    with pytest.raises(TypeError):
+        xodr.RoadMark("solid", laneChange="dummy")
+
 
 def test_poly3struct():
     ps1 = xodr.lane._poly3struct(1, 2, 3, 4, 5)
@@ -174,6 +193,12 @@ def test_lane():
         )
         == ValidationResponse.OK
     )
+
+    with pytest.raises(TypeError):
+        xodr.Lane("dummy")
+
+    with pytest.raises(TypeError):
+        lane.add_roadmark("dummy")
 
 
 def test_lane_with_multiple_widths():
@@ -263,6 +288,12 @@ def test_lanesection():
         version_validation("t_road_lanes_laneSection", ls, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        xodr.LaneSection(0, "dummy")
+    with pytest.raises(TypeError):
+        ls.add_left_lane("dummy")
+    with pytest.raises(TypeError):
+        ls.add_right_lane("dummy")
 
 
 def test_laneoffset():
@@ -309,6 +340,10 @@ def test_lanes():
         version_validation("t_road_lanes", lanes, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(TypeError):
+        lanes.add_laneoffset("dummy")
+    with pytest.raises(TypeError):
+        lanes.add_lanesection("dummy")
 
 
 ## tests for adjusting roadmarks

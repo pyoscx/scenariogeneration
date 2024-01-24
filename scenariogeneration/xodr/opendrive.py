@@ -13,8 +13,16 @@ import xml.etree.ElementTree as ET
 
 
 from ..helpers import printToFile, enum2str
-from .links import _Link, _Links, create_lane_links
-from .enumerations import ElementType, ContactPoint, RoadSide, TrafficRule, JunctionType
+from .links import _Link, _Links, create_lane_links, Junction
+from .enumerations import (
+    ElementType,
+    ContactPoint,
+    RoadSide,
+    TrafficRule,
+    JunctionType,
+    enumchecker,
+    RoadType,
+)
 from .exceptions import (
     UndefinedRoadNetwork,
     RoadsAndLanesNotAdjusted,
@@ -35,7 +43,8 @@ from .exceptions import (
     MixingDrivingDirection,
     GeneralIssueInputArguments,
 )
-
+from .lane import Lanes
+from .signals_objects import Object, Signal, Tunnel, SignalReference
 from .utils import get_lane_sec_and_s_for_lane_calc
 from .geometry import AdjustablePlanview, Spiral, PlanView
 from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
@@ -228,11 +237,21 @@ class Road(XodrBase):
         """
         super().__init__()
         self.id = road_id
+        if not (
+            isinstance(planview, PlanView) or isinstance(planview, AdjustablePlanview)
+        ):
+            raise TypeError(
+                "planview input is not of type PlanView or AdjustablePlanview"
+            )
         self.planview = planview
+        if not isinstance(lanes, Lanes):
+            raise TypeError(
+                "planview input is not of type PlanView or AdjustablePlanview"
+            )
         self.lanes = lanes
         self.road_type = road_type
         self.name = name
-        self.rule = rule
+        self.rule = enumchecker(rule, TrafficRule)
         self.links = _Links()
         self._neighbor_added = 0
         self.successor = None
@@ -319,9 +338,15 @@ class Road(XodrBase):
             direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
 
         """
+
         if self.successor:
             raise ValueError("only one successor is allowed")
-        self.successor = _Link("successor", element_id, element_type, contact_point)
+        self.successor = _Link(
+            "successor",
+            element_id,
+            enumchecker(element_type, ElementType),
+            contact_point,
+        )
         self.links.add_link(self.successor)
         self.lane_offset_suc[str(element_id)] = lane_offset
         return self
@@ -348,7 +373,12 @@ class Road(XodrBase):
         """
         if self.predecessor:
             raise ValueError("only one predecessor is allowed")
-        self.predecessor = _Link("predecessor", element_id, element_type, contact_point)
+        self.predecessor = _Link(
+            "predecessor",
+            element_id,
+            enumchecker(element_type, ElementType),
+            contact_point,
+        )
         self.links.add_link(self.predecessor)
         self.lane_offset_pred[str(element_id)] = lane_offset
         return self
@@ -447,9 +477,16 @@ class Road(XodrBase):
         """
         if isinstance(road_object, list):
             for single_object in road_object:
+                if not isinstance(single_object, Object):
+                    raise TypeError(
+                        "road_object contains elements that are not of type Object"
+                    )
                 single_object._update_id()
+
             self.objects = self.objects + road_object
         else:
+            if not isinstance(road_object, Object):
+                raise TypeError("road_object is not of type Object")
             road_object._update_id()
             self.objects.append(road_object)
         return self
@@ -463,8 +500,12 @@ class Road(XodrBase):
 
         """
         if isinstance(tunnel, list):
+            if any([not isinstance(x, Tunnel) for x in tunnel]):
+                raise TypeError("tunnel contains elements that are not of type Tunnel")
             self.objects.extend(tunnel)
         else:
+            if not isinstance(tunnel, Tunnel):
+                raise TypeError("tunnel is not of type Tunnel")
             self.objects.append(tunnel)
         return self
 
@@ -522,6 +563,9 @@ class Road(XodrBase):
             raise RoadsAndLanesNotAdjusted(
                 "Could not add roadside object because roads and lanes need to be adjusted first. Consider calling 'adjust_roads_and_lanes()'."
             )
+        if not isinstance(road_object_prototype, Object):
+            raise TypeError("road_object_prototype is not of type Object")
+        side = enumchecker(side, RoadSide)
 
         total_widths = {RoadSide.right: [], RoadSide.left: []}
         road_objects = {RoadSide.right: None, RoadSide.left: None}
@@ -623,10 +667,19 @@ class Road(XodrBase):
     def add_signal(self, signal):
         """add_signal adds a signal to a road"""
         if isinstance(signal, list):
+            if any(
+                [
+                    not any(isinstance(x, Signal) or isinstance(x, SignalReference))
+                    for x in signal
+                ]
+            ):
+                raise TypeError("signal contains elements that are not of type Signal")
             for single_signal in signal:
                 single_signal._update_id()
             self.signals = self.signals + signal
         else:
+            if not (isinstance(signal, Signal) or isinstance(signal, SignalReference)):
+                raise TypeError("signal is not of type Signal")
             signal._update_id()
             self.signals.append(signal)
         return self
@@ -784,6 +837,8 @@ class OpenDrive(XodrBase):
             road (Road): the road to add
 
         """
+        if not isinstance(road, Road):
+            raise TypeError("input road is not of type Road")
         if (len(self.roads) == 0) and road.predecessor:
             ValueError(
                 "No road was added and the added road has a predecessor, please add the predecessor first"
@@ -801,7 +856,7 @@ class OpenDrive(XodrBase):
 
         Parameters
         ----------
-            road (CommonJunctionCreator/DirectJunctionCreator): the junction creator
+            junction_creator (CommonJunctionCreator/DirectJunctionCreator): the junction creator
 
         """
         if junction_creator.junction.junction_type == JunctionType.default:
@@ -1795,6 +1850,8 @@ class OpenDrive(XodrBase):
             junction (Junction): the junction to add
 
         """
+        if not isinstance(junction, Junction):
+            raise TypeError("junction input is not of type Junction")
         if any([junction.id == x.id for x in self.junctions]):
             raise IdAlreadyExists(
                 "Junction with id " + str(junction.id) + " has already been added. "
@@ -1883,7 +1940,7 @@ class _Type(XodrBase):
 
         """
         super().__init__()
-        self.road_type = road_type
+        self.road_type = enumchecker(road_type, RoadType)
         self.s = s
         self.country = country
         if (
