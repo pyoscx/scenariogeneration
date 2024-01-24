@@ -113,6 +113,15 @@ This is done by adding a new *soffset* to all roadmarks, and if a roadmark is cu
 
 __NOTE:__ All roads has to be fixed (using *adjust_roads_and_lanes*) before the roadmarks can be adjusted.
 
+### Automatic creation of elevations
+If some roads has a defined elevation or superelevation profile, the rest can be automaically be calculated based on the ones that have an elevation. This is done by first calculating superelevation and after that elevations (since superelevations might give rise to elevations). This is enabled by the method *adjust_elevations*.
+
+__NOTE:__ This functionality tries to fit elevations if the neighboring roads have elevations, if only one has, it will copy it. This means that depending on the road network the solution is dependent on the order roads are added.
+
+__NOTE:__ For common junctions it will try to create elevations, however this will yeild very strange crossings, so please set the elevation in your crossings beforehand. (This is solved in OpenDRIVE 1.8 but not implemented in scenariogeneration)
+
+An example of elevation automation can be seen in [super_elevation_automation_example](exampels/xodr/super_elevation_automation_example.html)
+
 ### Generators
 For most simple roads, the generators that are provided in the __xodr__ module can be used. These most often will generate the roads that can build up the network and then the user can just "patch" them together with the "successor/predecessor" attributes (see [highway_example](examples/xodr/highway_example.html))
 
