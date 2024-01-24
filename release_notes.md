@@ -1,5 +1,20 @@
 ## scenariogeneration release notes
 
+
+### 2024-01-24 Version 0.14.3
+
+- New features
+    - *adjust_elevation* tries to create fitted elevation profiles for roads without elevations.
+    - type checks in xodr module (where applicable)
+    - new base class for geometries in xodr module
+- Bugfixes
+    - LongitudinalDistanceAction now takes accelerationRate and decelerationRate as inputs
+    - Type checks for AnimationAction fixed
+    - Error in contact points for adjust_roadmarks fixed
+- Tests
+    - Tests for Exceptions for type errors added (both in xodr and xosc modules)
+    - more tests for roadmark adjustment
+
 ### 2024-01-16 Version 0.14.2
 
 - Bugfixes
