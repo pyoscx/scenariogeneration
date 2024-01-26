@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import itertools
 import os
 import numpy as np

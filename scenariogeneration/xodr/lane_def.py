@@ -12,6 +12,7 @@
     This is a collection methods and classes not related to OpenDRIVE, but relates to automation of lane creations
 
 """
+
 import copy
 import numpy as np
 

@@ -28,7 +28,6 @@
     - LaneLinker
 """
 
-
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator
 import os
 

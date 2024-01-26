@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 from scenariogeneration.xodr.opendrive import OpenDrive
 import pytest
 from scenariogeneration import xodr

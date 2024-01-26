@@ -22,6 +22,7 @@
 
 
 """
+
 from scenariogeneration import xosc, prettyprint
 import numpy as np
 import os

@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint, prettify
 

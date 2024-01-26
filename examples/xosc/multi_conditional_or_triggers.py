@@ -23,6 +23,7 @@
     - AbsoluteSpeedAction
 
 """
+
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 import os
 

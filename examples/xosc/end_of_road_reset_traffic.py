@@ -21,6 +21,7 @@
         - LanePosition
 
 """
+
 import os
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 

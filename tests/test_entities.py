@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import pytest
 
 from scenariogeneration import xosc as OSC

@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import xml.etree.ElementTree as ET
 import pytest
 import datetime as dt
