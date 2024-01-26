@@ -139,6 +139,9 @@ def test_signal():
         version_validation("t_road", road, wanted_schema="xodr")
         == ValidationResponse.OK
     )
+    with pytest.raises(xodr.NotEnoughInputArguments):
+        sig = xodr.Signal(100, 2, "se", "c", "31", value="10")
+        sig.get_attributes()
 
 
 def test_signal_reference():

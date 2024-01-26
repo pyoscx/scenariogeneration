@@ -144,6 +144,7 @@ def test_OSC_1_2(tmpdir, python_file):
         "clothoid_generation",
         "adjustable_planview",
         "super_elevation_automation_example",
+        "road_with_speed_signs",
     ],
 )
 def test_ODR(tmpdir, python_file):
