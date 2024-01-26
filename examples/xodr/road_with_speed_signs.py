@@ -128,9 +128,8 @@ if __name__ == "__main__":
     prettyprint(sce.road().get_element())
 
     # write the OpenDRIVE file as xosc using current script name
-    # sce.generate(".")
+    sce.generate(".")
 
     # uncomment the following lines to display the scenario using esmini
-    from scenariogeneration import esmini
-
-    esmini(sce, os.path.join("/home/mander76/local/scenario_creation/esmini"))
+    # from scenariogeneration import esmini
+    # esmini(sce, os.path.join("esmini"))
