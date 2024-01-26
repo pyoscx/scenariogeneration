@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
@@ -22,7 +23,7 @@ from .enumerations import (
     LaneType,
     Access,
 )
-from .exceptions import GeneralIssueInputArguments
+from .exceptions import GeneralIssueInputArguments, NotEnoughInputArguments
 from .utils import XodrBase
 
 
@@ -369,9 +370,12 @@ class Signal(_SignalObjectBase):
             retdict["countryRevision"] = str(self.countryRevision)
         if self.hOffset is not None:
             retdict["hOffset"] = str(self.hOffset)
-        # TODO check if value is supplied --> unit is mandatory in that case
         if self.value is not None:
             retdict["value"] = str(self.value)
+            if self.unit is None:
+                raise NotEnoughInputArguments(
+                    "If value is set for a signal, unit has to be added aswell"
+                )
             retdict["unit"] = str(self.unit)
         return retdict
 

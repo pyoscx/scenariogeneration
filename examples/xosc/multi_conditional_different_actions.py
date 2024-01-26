@@ -26,6 +26,7 @@
     - Rule
 
 """
+
 # change this to have different Ego behaviors (use 20 or 30)
 speed_of_outer_car = 20
 

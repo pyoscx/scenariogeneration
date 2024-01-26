@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import xml.etree.ElementTree as ET
 import numpy as np
 

@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import os
 
 from .scenario_generator import ScenarioGenerator

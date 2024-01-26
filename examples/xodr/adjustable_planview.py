@@ -19,7 +19,6 @@
 
 """
 
-
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator
 
 

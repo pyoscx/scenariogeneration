@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import xml.etree.ElementTree as ET
 from ..helpers import enum2str
 from .enumerations import (

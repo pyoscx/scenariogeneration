@@ -21,6 +21,7 @@
     - Histogram
 
 """
+
 import os
 from scenariogeneration import xosc, prettyprint
 

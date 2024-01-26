@@ -21,7 +21,6 @@
     - CommonJunctionCreator
 """
 
-
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator
 import numpy as np
 

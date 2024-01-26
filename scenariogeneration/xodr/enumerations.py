@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 """ the enumerations module contains the enumerations of OpenDRIVE
 
 """

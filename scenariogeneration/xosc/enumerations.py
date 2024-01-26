@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 XMLNS = "http://www.w3.org/2001/XMLSchema-instance"
 XSI = "OpenScenario.xsd"
 

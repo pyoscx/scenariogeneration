@@ -9,6 +9,7 @@
   Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import pytest
 import xml.etree.ElementTree as ET
 from scenariogeneration import xosc as OSC
