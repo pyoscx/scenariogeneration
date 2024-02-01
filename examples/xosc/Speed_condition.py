@@ -157,8 +157,7 @@ class Scenario(ScenarioGenerator):
         )
         sb.add_story(story)
 
-        ## create the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "adapt_speed_example",
             "Mandolin",
             paramdec,
@@ -168,8 +167,6 @@ class Scenario(ScenarioGenerator):
             catalog=catalog,
             osc_minor_version=self.open_scenario_version,
         )
-
-        return sce
 
 
 if __name__ == "__main__":

@@ -41,10 +41,13 @@ class ElevationProfile(XodrBase):
         super().__init__()
 
     def __eq__(self, other):
-        if isinstance(other, ElevationProfile) and super().__eq__(other):
-            if self.elevations == other.elevations:
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, ElevationProfile)
+                and super().__eq__(other)
+                and self.elevations == other.elevations
+            )
+        )
 
     def eval_at_s(self, s):
         return self.elevations[
@@ -112,13 +115,16 @@ class LateralProfile(XodrBase):
         self.shapes = []
 
     def __eq__(self, other):
-        if isinstance(other, LateralProfile) and super().__eq__(other):
-            if (
-                self.superelevations == other.superelevations
-                and self.shapes == other.shapes
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, LateralProfile)
+                and super().__eq__(other)
+                and (
+                    self.superelevations == other.superelevations
+                    and self.shapes == other.shapes
+                )
+            )
+        )
 
     def add_superelevation(self, superelevation):
         """adds an elevation to the LateralProfile
@@ -268,10 +274,10 @@ class _Poly3Profile:
         self.elevation_type = elevation_type
 
     def __eq__(self, other):
-        if isinstance(other, _Poly3Profile):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, _Poly3Profile)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     def eval_at_s(self, s):
         if s < self.s:
@@ -306,8 +312,7 @@ class _Poly3Profile:
     def get_attributes(self):
         """returns the attributes of the Elevetion"""
 
-        retdict = {}
-        retdict["s"] = str(self.s)
+        retdict = {"s": str(self.s)}
         if self.t != None:
             retdict["t"] = str(self.t)
         retdict["a"] = str(self.a)
@@ -327,14 +332,12 @@ class _Poly3Profile:
         if elementname is None:
             elementname = self.elevation_type
 
-        if elementname == "shape" and self.t == None:
+        if elementname == "shape" and self.t is None:
             raise ValueError("When shape is used, the t value has to be set.")
         elif elementname != "shape" and self.t != None:
             raise ValueError("When shape is not used, the t value should not be set.")
 
-        element = ET.Element(elementname, attrib=self.get_attributes())
-
-        return element
+        return ET.Element(elementname, attrib=self.get_attributes())
 
 
 class _ElevationConnectionHelper:
@@ -409,7 +412,6 @@ class ElevationCalculator:
         returns
             float: the elevation offset
         """
-        s_value = 0
         tvalue = 0
         if offsets == 0:
             return 0
@@ -430,8 +432,7 @@ class ElevationCalculator:
         else:
             road = road.road
 
-        if lanesection == -1:
-            s_value = road.planview.get_total_length()
+        s_value = road.planview.get_total_length() if lanesection == -1 else 0
         if offsets < 0:
             for lane_iter in range(abs(offsets)):
                 tvalue += (
@@ -571,9 +572,6 @@ class ElevationCalculator:
             and self.main_road.road_type == predecessor_road.predecessor.element_id
         ):
             predecessor_cp = ContactPoint.start
-            if predecessor_road.predecessor.element_type == ElementType.junction:
-                pass
-
         elif predecessor_road.successor is not None and (
             predecessor_road.successor.element_type == ElementType.road
             and predecessor_road.successor.element_id == self.main_road.id
@@ -585,8 +583,6 @@ class ElevationCalculator:
             and self.main_road.road_type == predecessor_road.successor.element_id
         ):
             predecessor_cp = ContactPoint.end
-            if predecessor_road.successor.element_type == ElementType.junction:
-                pass
         else:
             raise ValueError("could not figure out the contact point")
         self.predecessors.append(

@@ -136,14 +136,10 @@ class ScenarioGenerator:
         if override_parameters:
             self.parameters = override_parameters
         self._handle_input_parameters()
-        it = 0
-        for p in self.all_permutations:
-            print("Permutation: " + str(it))
-            printstr = ""
-            for key, value in p.items():
-                printstr += key + ": " + str(value) + ", "
+        for it, p in enumerate(self.all_permutations):
+            print(f"Permutation: {str(it)}")
+            printstr = "".join(f"{key}: {str(value)}, " for key, value in p.items())
             print(printstr)
-            it += 1
 
     def _handle_input_parameters(self):
         """_handle_input_parameters takes care of different types of parameters inputs, such as list of dicts or a dict of lists"""
@@ -169,8 +165,7 @@ class ScenarioGenerator:
         self.road_file = ""
         scenario_file = ""
         files_to_write = []
-        road = self.road(**permutation)
-        if road:
+        if road := self.road(**permutation):
             new_unique_road = True
             if not self.generate_all_roads:
                 for previous_road in self._created_roads:
@@ -181,7 +176,7 @@ class ScenarioGenerator:
             if new_unique_road:
                 self.road_file = os.path.abspath(
                     os.path.join(
-                        self._generation_folder, "xodr", scenario_name + ".xodr"
+                        self._generation_folder, "xodr", f"{scenario_name}.xodr"
                     )
                 )
                 if self.number_of_parallel_writings == 1:
@@ -203,10 +198,9 @@ class ScenarioGenerator:
 
                 self._created_roads[self.road_file] = road
 
-        sce = self.scenario(**permutation)
-        if sce:
+        if sce := self.scenario(**permutation):
             scenario_file = os.path.join(
-                self._generation_folder, "xosc", scenario_name + ".xosc"
+                self._generation_folder, "xosc", f"{scenario_name}.xosc"
             )
             if self.number_of_parallel_writings == 1:
                 sce.write_xml(scenario_file, prettyprint=self._prettyprint)
@@ -237,7 +231,7 @@ class ScenarioGenerator:
         if self.naming == "numerical":
             name_prefix = str(self._it)
             self._it += 1
-        elif self.naming == "parameter" or self.naming == "parameter_no_lists":
+        elif self.naming in ["parameter", "parameter_no_lists"]:
             for key, value in permutation.items():
                 if isinstance(value, list) and self.naming == "parameter_no_lists":
                     value_str = str(self._it)
@@ -375,15 +369,10 @@ class ScenarioGenerator:
         -------
             scenario_files (list of str): all scenenario files generated
         """
-        parameterlist = []
-        for key in self.parameters:
-            parameterlist.append(self.parameters[key])
-
+        parameterlist = [self.parameters[key] for key in self.parameters]
         available_permutations = list(itertools.product(*parameterlist))
         self.all_permutations = []
         keys = list(self.parameters.keys())
         for p in available_permutations:
-            inputdict = {}
-            for i in range(len(self.parameters)):
-                inputdict[keys[i]] = p[i]
+            inputdict = {keys[i]: p[i] for i in range(len(self.parameters))}
             self.all_permutations.append(inputdict)

@@ -71,12 +71,12 @@ class EmptyTrigger(_TriggerType):
             triggeringpoint (str): start or stop
 
         """
-        if triggeringpoint not in ["start", "stop"]:
-            raise ValueError("not a valid triggering point, valid start or stop")
-        if triggeringpoint == "start":
-            self._triggerpoint = "StartTrigger"
+        if triggeringpoint in ["start", "stop"]:
+            self._triggerpoint = (
+                "StartTrigger" if triggeringpoint == "start" else "StopTrigger"
+            )
         else:
-            self._triggerpoint = "StopTrigger"
+            raise ValueError("not a valid triggering point, valid start or stop")
 
     def __eq__(self, other):
         if isinstance(other, EmptyTrigger):
@@ -222,23 +222,21 @@ class Trigger(_TriggerType):
                 and self._triggerpoint == other._triggerpoint
             ):
                 return True
-        elif isinstance(other, EntityTrigger) or isinstance(other, ValueTrigger):
+        elif isinstance(other, (EntityTrigger, ValueTrigger)):
             if (
                 len(self.conditiongroups) == 1
                 and len(self.conditiongroups[0].conditions) == 1
+            ) and (
+                self._triggerpoint == other._triggerpoint
+                and self.conditiongroups[0].conditions[0] == other
             ):
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and self.conditiongroups[0].conditions[0] == other
-                ):
-                    return True
+                return True
         elif isinstance(other, ConditionGroup):
-            if len(self.conditiongroups) == 1:
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and self.conditiongroups[0] == other
-                ):
-                    return True
+            if len(self.conditiongroups) == 1 and (
+                self._triggerpoint == other._triggerpoint
+                and self.conditiongroups[0] == other
+            ):
+                return True
         elif isinstance(other, EmptyTrigger):
             if (
                 len(self.conditiongroups) == 0
@@ -343,19 +341,17 @@ class ConditionGroup(_TriggerType):
             ):
                 return True
         elif isinstance(other, Trigger):
-            if len(other.conditiongroups) == 1:
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and other.conditiongroups[0] == self
-                ):
-                    return True
-        elif isinstance(other, EntityTrigger) or isinstance(other, ValueTrigger):
-            if len(self.conditions) == 1:
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and self.conditions[0] == other
-                ):
-                    return True
+            if len(other.conditiongroups) == 1 and (
+                self._triggerpoint == other._triggerpoint
+                and other.conditiongroups[0] == self
+            ):
+                return True
+        elif isinstance(other, (EntityTrigger, ValueTrigger)):
+            if len(self.conditions) == 1 and (
+                self._triggerpoint == other._triggerpoint
+                and self.conditions[0] == other
+            ):
+                return True
 
         return False
 
@@ -389,9 +385,7 @@ class ConditionGroup(_TriggerType):
             condition (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
 
         """
-        if not (
-            isinstance(condition, EntityTrigger) or isinstance(condition, ValueTrigger)
-        ):
+        if not (isinstance(condition, (EntityTrigger, ValueTrigger))):
             raise TypeError("condition input not of type EntityTrigger or ValueTrigger")
         condition._set_used_by_parent()
         self.conditions.append(condition)
@@ -413,11 +407,10 @@ class ConditionGroup(_TriggerType):
 
         if self._used_by_parent:
             return condgroup
-        else:
-            # could create a new Trigger here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            element.append(condgroup)
-            return element
+        # could create a new Trigger here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        element.append(condgroup)
+        return element
 
 
 class EntityTrigger(_TriggerType):
@@ -523,19 +516,17 @@ class EntityTrigger(_TriggerType):
             if (
                 len(other.conditiongroups) == 1
                 and len(other.conditiongroups[0].conditions) == 1
+            ) and (
+                self._triggerpoint == other._triggerpoint
+                and other.conditiongroups[0].conditions[0] == self
             ):
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and other.conditiongroups[0].conditions[0] == self
-                ):
-                    return True
+                return True
         elif isinstance(other, ConditionGroup):
-            if len(other.conditions) == 1:
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and other.conditions[0] == self
-                ):
-                    return True
+            if len(other.conditions) == 1 and (
+                self._triggerpoint == other._triggerpoint
+                and other.conditions[0] == self
+            ):
+                return True
         return False
 
     @staticmethod
@@ -603,12 +594,11 @@ class EntityTrigger(_TriggerType):
 
         if self._used_by_parent:
             return condition
-        else:
-            # could create a new Trigger ConditionGroup here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            condgroup = ET.SubElement(element, "ConditionGroup")
-            condgroup.append(condition)
-            return element
+        # could create a new Trigger ConditionGroup here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        condgroup = ET.SubElement(element, "ConditionGroup")
+        condgroup.append(condition)
+        return element
 
 
 class ValueTrigger(_TriggerType):
@@ -703,19 +693,17 @@ class ValueTrigger(_TriggerType):
             if (
                 len(other.conditiongroups) == 1
                 and len(other.conditiongroups[0].conditions) == 1
+            ) and (
+                self._triggerpoint == other._triggerpoint
+                and other.conditiongroups[0].conditions[0] == self
             ):
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and other.conditiongroups[0].conditions[0] == self
-                ):
-                    return True
+                return True
         elif isinstance(other, ConditionGroup):
-            if len(other.conditions) == 1:
-                if (
-                    self._triggerpoint == other._triggerpoint
-                    and other.conditions[0] == self
-                ):
-                    return True
+            if len(other.conditions) == 1 and (
+                self._triggerpoint == other._triggerpoint
+                and other.conditions[0] == self
+            ):
+                return True
         return False
 
     @staticmethod
@@ -764,12 +752,11 @@ class ValueTrigger(_TriggerType):
         byvalue.append(self.valuecondition.get_element())
         if self._used_by_parent:
             return condition
-        else:
-            # could create a new Trigger ConditionGroup here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            condgroup = ET.SubElement(element, "ConditionGroup")
-            condgroup.append(condition)
-            return element
+        # could create a new Trigger ConditionGroup here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        condgroup = ET.SubElement(element, "ConditionGroup")
+        condgroup.append(condition)
+        return element
 
 
 class TriggeringEntities(VersionBase):
@@ -812,13 +799,10 @@ class TriggeringEntities(VersionBase):
         self.triggeringrule = convert_enum(triggeringrule, TriggeringEntitiesRule)
 
     def __eq__(self, other):
-        if isinstance(other, TriggeringEntities):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.entity == other.entity
-            ):
-                return True
-        return False
+        return isinstance(other, TriggeringEntities) and (
+            self.get_attributes() == other.get_attributes()
+            and self.entity == other.entity
+        )
 
     @staticmethod
     def parse(element):
@@ -911,10 +895,10 @@ class EndOfRoadCondition(_EntityTriggerType):
         self.duration = convert_float(duration)
 
     def __eq__(self, other):
-        if isinstance(other, EndOfRoadCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, EndOfRoadCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -981,10 +965,7 @@ class CollisionCondition(_EntityTriggerType):
             self.entity = convert_enum(self.entity, ObjectType)
 
     def __eq__(self, other):
-        if isinstance(other, CollisionCondition):
-            if self.entity == other.entity:
-                return True
-        return False
+        return isinstance(other, CollisionCondition) and self.entity == other.entity
 
     @staticmethod
     def parse(element):
@@ -1054,10 +1035,10 @@ class OffroadCondition(_EntityTriggerType):
         self.duration = convert_float(duration)
 
     def __eq__(self, other):
-        if isinstance(other, OffroadCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, OffroadCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1190,10 +1171,10 @@ class TimeHeadwayCondition(_EntityTriggerType):
         self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
-        if isinstance(other, TimeHeadwayCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TimeHeadwayCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1250,9 +1231,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the TimeHeadwayCondition as a dict"""
-        basedict = {}
-        basedict["entityRef"] = self.entity
-        basedict["value"] = str(self.value)
+        basedict = {"entityRef": self.entity, "value": str(self.value)}
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
@@ -1399,7 +1378,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
             self.position = position
             self.use_entity = False
 
-        if self.use_entity == None:
+        if self.use_entity is None:
             raise ValueError("neither position or entity was set.")
 
         self.relative_distance_type = convert_enum(distance_type, RelativeDistanceType)
@@ -1407,21 +1386,26 @@ class TimeToCollisionCondition(_EntityTriggerType):
         self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
-        if isinstance(other, TimeToCollisionCondition):
-            if self.get_attributes() == other.get_attributes():
-                if (
-                    self.use_entity
-                    and other.use_entity
-                    and self.entity
-                    and other.entity
-                ) or (
-                    not self.use_entity
-                    and not other.use_entity
-                    and self.position
-                    and other.position
-                ):
-                    return True
-        return False
+        return bool(
+            (
+                isinstance(other, TimeToCollisionCondition)
+                and self.get_attributes() == other.get_attributes()
+                and (
+                    (
+                        self.use_entity
+                        and other.use_entity
+                        and self.entity
+                        and other.entity
+                    )
+                    or (
+                        not self.use_entity
+                        and not other.use_entity
+                        and self.position
+                        and other.position
+                    )
+                )
+            )
+        )
 
     @staticmethod
     def parse(element):
@@ -1492,8 +1476,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the TimeToCollisionCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
+        basedict = {"value": str(self.value)}
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
@@ -1575,10 +1558,10 @@ class AccelerationCondition(_EntityTriggerType):
         self.direction = convert_enum(direction, DirectionalDimension, True)
 
     def __eq__(self, other):
-        if isinstance(other, AccelerationCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, AccelerationCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1605,9 +1588,7 @@ class AccelerationCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the AccelerationCondition as a dict"""
-        retdict = {}
-        retdict["value"] = str(self.value)
-        retdict["rule"] = self.rule.get_name()
+        retdict = {"value": str(self.value), "rule": self.rule.get_name()}
         if self.direction is not None:
             if self.isVersionEqLess(minor=1):
                 raise OpenSCENARIOVersionError("Direction was introduced in OSC 1.2")
@@ -1656,10 +1637,10 @@ class StandStillCondition(_EntityTriggerType):
         self.duration = convert_float(duration)
 
     def __eq__(self, other):
-        if isinstance(other, StandStillCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, StandStillCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1741,10 +1722,10 @@ class SpeedCondition(_EntityTriggerType):
         )
 
     def __eq__(self, other):
-        if isinstance(other, SpeedCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, SpeedCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1771,9 +1752,7 @@ class SpeedCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the SpeedCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
-        basedict["rule"] = self.rule.get_name()
+        basedict = {"value": str(self.value), "rule": self.rule.get_name()}
         if self.directional_dimension is not None:
             if self.isVersionEqLess(minor=1):
                 raise OpenSCENARIOVersionError("Direction was introduced in OSC 1.2")
@@ -1847,10 +1826,10 @@ class RelativeSpeedCondition(_EntityTriggerType):
         )
 
     def __eq__(self, other):
-        if isinstance(other, RelativeSpeedCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, RelativeSpeedCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1878,9 +1857,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeSpeedCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
-        basedict["rule"] = self.rule.get_name()
+        basedict = {"value": str(self.value), "rule": self.rule.get_name()}
         basedict["entityRef"] = self.entity
         if self.directional_dimension is not None:
             if self.isVersionEqLess(minor=1):
@@ -1931,10 +1908,10 @@ class TraveledDistanceCondition(_EntityTriggerType):
         self.value = convert_float(value)
 
     def __eq__(self, other):
-        if isinstance(other, TraveledDistanceCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TraveledDistanceCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2010,13 +1987,10 @@ class ReachPositionCondition(_EntityTriggerType):
         self.tolerance = convert_float(tolerance)
 
     def __eq__(self, other):
-        if isinstance(other, ReachPositionCondition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-            ):
-                return True
-        return False
+        return isinstance(other, ReachPositionCondition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -2134,13 +2108,10 @@ class DistanceCondition(_EntityTriggerType):
         self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
-        if isinstance(other, DistanceCondition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-            ):
-                return True
-        return False
+        return isinstance(other, DistanceCondition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -2200,10 +2171,10 @@ class DistanceCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the DistanceCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
-
-        basedict["freespace"] = get_bool_string(self.freespace)
+        basedict = {
+            "value": str(self.value),
+            "freespace": get_bool_string(self.freespace),
+        }
         basedict["rule"] = self.rule.get_name()
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
@@ -2324,10 +2295,10 @@ class RelativeDistanceCondition(_EntityTriggerType):
         self.routing_algorithm = convert_enum(routing_algorithm, RoutingAlgorithm, True)
 
     def __eq__(self, other):
-        if isinstance(other, RelativeDistanceCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, RelativeDistanceCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2385,9 +2356,10 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeDistanceCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
-        basedict["freespace"] = get_bool_string(self.freespace)
+        basedict = {
+            "value": str(self.value),
+            "freespace": get_bool_string(self.freespace),
+        }
         basedict["entityRef"] = self.entity
         basedict["rule"] = self.rule.get_name()
         basedict["relativeDistanceType"] = self.dist_type.get_name()
@@ -2487,14 +2459,11 @@ class RelativeClearanceCondition(_EntityTriggerType):
         self.lane_ranges = []
 
     def __eq__(self, other):
-        if isinstance(other, RelativeClearanceCondition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.entities == other.entities
-                and self.lane_ranges == other.lane_ranges
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeClearanceCondition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.entities == other.entities
+            and self.lane_ranges == other.lane_ranges
+        )
 
     @staticmethod
     def parse(element):
@@ -2563,8 +2532,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeClearanceCondition as a dict"""
-        basedict = {}
-        basedict["oppositeLanes"] = get_bool_string(self.opposite_lanes)
+        basedict = {"oppositeLanes": get_bool_string(self.opposite_lanes)}
         # TODO: wrong in the spec, should be lower case s
         basedict["freeSpace"] = get_bool_string(self.freespace)
 
@@ -2650,10 +2618,10 @@ class ParameterCondition(_ValueTriggerType):
         self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
-        if isinstance(other, ParameterCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ParameterCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2675,9 +2643,11 @@ class ParameterCondition(_ValueTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the ParameterCondition as a dict"""
-        basedict = {"parameterRef": self.parameter, "value": str(self.value)}
-        basedict["rule"] = self.rule.get_name()
-        return basedict
+        return {
+            "parameterRef": self.parameter,
+            "value": str(self.value),
+            "rule": self.rule.get_name(),
+        }
 
     def get_element(self):
         """returns the elementTree of the ParameterCondition"""
@@ -2733,10 +2703,10 @@ class VariableCondition(_ValueTriggerType):
         self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
-        if isinstance(other, VariableCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, VariableCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2758,9 +2728,11 @@ class VariableCondition(_ValueTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the VariableCondition as a dict"""
-        basedict = {"variableRef": self.variable, "value": str(self.value)}
-        basedict["rule"] = self.rule.get_name()
-        return basedict
+        return {
+            "variableRef": self.variable,
+            "value": str(self.value),
+            "rule": self.rule.get_name(),
+        }
 
     def get_element(self):
         """returns the elementTree of the VariableCondition"""
@@ -2812,10 +2784,10 @@ class TimeOfDayCondition(_ValueTriggerType):
         self.second = convert_int(second)
 
     def __eq__(self, other):
-        if isinstance(other, TimeOfDayCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TimeOfDayCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2831,7 +2803,7 @@ class TimeOfDayCondition(_ValueTriggerType):
 
         """
         var = element.attrib["dateTime"]
-        year = convert_int(var[0:4])
+        year = convert_int(var[:4])
         month = convert_int(var[5:7])
         day = convert_int(var[8:10])
 
@@ -2843,10 +2815,8 @@ class TimeOfDayCondition(_ValueTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the TimeOfDayCondition as a dict"""
-        basedict = {}
         dt = (
-            str(self.year)
-            + "-"
+            f"{str(self.year)}-"
             + "{:0>2}".format(self.month)
             + "-"
             + "{:0>2}".format(self.day)
@@ -2857,9 +2827,7 @@ class TimeOfDayCondition(_ValueTriggerType):
             + ":"
             + "{:0>2}".format(self.second)
         )
-        basedict["dateTime"] = dt
-        basedict["rule"] = self.rule.get_name()
-        return basedict
+        return {"dateTime": dt, "rule": self.rule.get_name()}
 
     def get_element(self):
         """returns the elementTree of the TimeOfDayCondition"""
@@ -2907,10 +2875,10 @@ class SimulationTimeCondition(_ValueTriggerType):
         self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
-        if isinstance(other, SimulationTimeCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, SimulationTimeCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2932,10 +2900,7 @@ class SimulationTimeCondition(_ValueTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the SimulationTimeCondition as a dict"""
-        basedict = {}
-        basedict["value"] = str(self.value)
-        basedict["rule"] = self.rule.get_name()
-        return basedict
+        return {"value": str(self.value), "rule": self.rule.get_name()}
 
     def get_element(self):
         """returns the elementTree of the SimulationTimeCondition"""
@@ -2990,10 +2955,10 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         self.state = convert_enum(state, StoryboardElementState)
 
     def __eq__(self, other):
-        if isinstance(other, StoryboardElementStateCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, StoryboardElementStateCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -3078,10 +3043,10 @@ class UserDefinedValueCondition(_ValueTriggerType):
         self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
-        if isinstance(other, UserDefinedValueCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, UserDefinedValueCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -3103,9 +3068,11 @@ class UserDefinedValueCondition(_ValueTriggerType):
 
     def get_attributes(self):
         """returns the attributes of the UserDefinedValueCondition as a dict"""
-        basedict = {"name": self.name, "value": str(self.value)}
-        basedict["rule"] = self.rule.get_name()
-        return basedict
+        return {
+            "name": self.name,
+            "value": str(self.value),
+            "rule": self.rule.get_name(),
+        }
 
     def get_element(self):
         """returns the elementTree of the UserDefinedValueCondition"""
@@ -3154,10 +3121,10 @@ class TrafficSignalCondition(_ValueTriggerType):
         self.state = state
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSignalCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TrafficSignalCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -3228,10 +3195,10 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
         self.phase = phase
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSignalControllerCondition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TrafficSignalControllerCondition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):

@@ -101,7 +101,7 @@ class Scenario(ScenarioGenerator):
             ),
         )
         sb.add_maneuver(man, egoname)
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "my scenario",
             "Mandolin",
             xosc.ParameterDeclarations(),
@@ -111,16 +111,11 @@ class Scenario(ScenarioGenerator):
             catalog,
         )
 
-        return sce
-
 
 if __name__ == "__main__":
     s = Scenario()
 
-    parameters = {}
-    parameters["road_curvature"] = [0.001, 0.002, 0.003]
-    parameters["speed"] = [10, 20, 30]
-
+    parameters = {"road_curvature": [0.001, 0.002, 0.003], "speed": [10, 20, 30]}
     s.print_permutations(parameters)
 
     s.generate("my_scenarios", parameters)

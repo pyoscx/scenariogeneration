@@ -77,13 +77,10 @@ class Entities(VersionBase):
         self.entities = []
 
     def __eq__(self, other):
-        if isinstance(other, Entities):
-            if (
-                self.scenario_objects == other.scenario_objects
-                and self.entities == other.entities
-            ):
-                return True
-        return False
+        return isinstance(other, Entities) and (
+            self.scenario_objects == other.scenario_objects
+            and self.entities == other.entities
+        )
 
     @staticmethod
     def parse(element):
@@ -102,12 +99,14 @@ class Entities(VersionBase):
         scenario_objects = []
         entity_selections = []
         if element.find("ScenarioObject") != None:
-            for object in element.findall("ScenarioObject"):
-                scenario_objects.append(ScenarioObject.parse(object))
+            scenario_objects.extend(
+                ScenarioObject.parse(object)
+                for object in element.findall("ScenarioObject")
+            )
         if element.find("EntitySelection") != None:
-            for entity in element.findall("EntitySelection"):
-                entity_selections.append(Entity.parse(entity))
-
+            entity_selections.extend(
+                Entity.parse(entity) for entity in element.findall("EntitySelection")
+            )
         ent_ret.entities = entity_selections
         ent_ret.scenario_objects = scenario_objects
         return ent_ret
@@ -214,10 +213,9 @@ class ScenarioObject(VersionBase):
         """
         self.name = name
         if not (
-            isinstance(entityobject, CatalogReference)
-            or isinstance(entityobject, Vehicle)
-            or isinstance(entityobject, Pedestrian)
-            or isinstance(entityobject, MiscObject)
+            isinstance(
+                entityobject, (CatalogReference, Vehicle, Pedestrian, MiscObject)
+            )
             or (
                 not self.isVersion(minor=0)
                 and isinstance(entityobject, ExternalObjectReference)
@@ -228,14 +226,12 @@ class ScenarioObject(VersionBase):
             )
 
         if controller is not None:
-            if not isinstance(controller, list):
-                self.controller = [controller]
-            else:
-                self.controller = controller
-
+            self.controller = (
+                controller if isinstance(controller, list) else [controller]
+            )
             for cnt in self.controller:
                 if cnt is not None and not (
-                    isinstance(cnt, CatalogReference) or isinstance(cnt, Controller)
+                    isinstance(cnt, (CatalogReference, Controller))
                 ):
                     raise TypeError(
                         "controller input is not of type CatalogReference or Controller"
@@ -245,14 +241,11 @@ class ScenarioObject(VersionBase):
         self.entityobject = entityobject
 
     def __eq__(self, other):
-        if isinstance(other, ScenarioObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.controller == other.controller
-                and self.entityobject == other.entityobject
-            ):
-                return True
-        return False
+        return isinstance(other, ScenarioObject) and (
+            self.get_attributes() == other.get_attributes()
+            and self.controller == other.controller
+            and self.entityobject == other.entityobject
+        )
 
     @staticmethod
     def parse(element):
@@ -372,7 +365,7 @@ class Entity(VersionBase):
         self.entity = []
         if (object_type != None) and (entityref != None):
             raise KeyError("only one of objecttype or entityref are alowed")
-        if (object_type == None) and (entityref == None):
+        if object_type is None and entityref is None:
             raise KeyError("either objecttype or entityref is requiered")
         if entityref:
             if isinstance(entityref, list):
@@ -388,14 +381,11 @@ class Entity(VersionBase):
             self.entity = None
 
     def __eq__(self, other):
-        if isinstance(other, Entity):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.object_type == other.object_type
-                and self.entity == other.entity
-            ):
-                return True
-        return False
+        return isinstance(other, Entity) and (
+            self.get_attributes() == other.get_attributes()
+            and self.object_type == other.object_type
+            and self.entity == other.entity
+        )
 
     @staticmethod
     def parse(element):
@@ -417,8 +407,9 @@ class Entity(VersionBase):
         members_element = element.find("Members")
         if members_element.find("ByType") != None:
             types = members_element.findall("ByType")
-            for type in types:
-                bytypes.append(convert_enum(type.attrib["objectType"], ObjectType))
+            bytypes.extend(
+                convert_enum(type.attrib["objectType"], ObjectType) for type in types
+            )
             entity_refs = None
         elif members_element.find("EntityRef") != None:
             entities = members_element.findall("EntityRef")
@@ -545,16 +536,13 @@ class Pedestrian(_BaseCatalog):
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other):
-        if isinstance(other, Pedestrian):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
-                and self.role == other.role
-            ):
-                return True
-        return False
+        return isinstance(other, Pedestrian) and (
+            self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+            and self.role == other.role
+        )
 
     @staticmethod
     def parse(element):
@@ -579,12 +567,12 @@ class Pedestrian(_BaseCatalog):
         category = convert_enum(
             element.attrib["pedestrianCategory"], PedestrianCategory
         )
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is None:
+            parameters = ParameterDeclarations()
+        else:
             parameters = ParameterDeclarations.parse(
                 element.find("ParameterDeclarations")
             )
-        else:
-            parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find("BoundingBox"))
         properties = Properties.parse(element.find("Properties"))
         role = None
@@ -622,10 +610,10 @@ class Pedestrian(_BaseCatalog):
 
     def get_attributes(self):
         """returns the attributes as a dict of the pedestrian"""
-        retdict = {}
-        retdict["name"] = str(self.name)
-        retdict["pedestrianCategory"] = self.category.get_name()
-
+        retdict = {
+            "name": str(self.name),
+            "pedestrianCategory": self.category.get_name(),
+        }
         if self.isVersion(minor=0) and self.model is None:
             raise OpenSCENARIOVersionError("model is required for OSC 1.0")
 
@@ -741,15 +729,12 @@ class MiscObject(_BaseCatalog):
         self.model3d = model3d
 
     def __eq__(self, other):
-        if isinstance(other, MiscObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
-            ):
-                return True
-        return False
+        return isinstance(other, MiscObject) and (
+            self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+        )
 
     @staticmethod
     def parse(element):
@@ -764,9 +749,7 @@ class MiscObject(_BaseCatalog):
             object (MiscObject): a MiscObject object
 
         """
-        model3d = None
-        if "model3d" in element.attrib:
-            model3d = element.attrib["model3d"]
+        model3d = element.attrib["model3d"] if "model3d" in element.attrib else None
         mass = convert_float(element.attrib["mass"])
         name = element.attrib["name"]
         properties = Properties.parse(element.find("Properties"))
@@ -813,9 +796,10 @@ class MiscObject(_BaseCatalog):
 
     def get_attributes(self):
         """returns the attributes as a dict of the MiscObject"""
-        retdict = {}
-        retdict["name"] = str(self.name)
-        retdict["miscObjectCategory"] = self.category.get_name()
+        retdict = {
+            "name": str(self.name),
+            "miscObjectCategory": self.category.get_name(),
+        }
         retdict["mass"] = str(self.mass)
         if not self.isVersion(minor=0) and self.model3d:
             retdict["model3d"] = self.model3d
@@ -993,19 +977,16 @@ class Vehicle(_BaseCatalog):
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other):
-        if isinstance(other, Vehicle):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.axles == other.axles
-                and self.dynamics == other.dynamics
-                and self.parameters == other.parameters
-                and self.mass == other.mass
-                and self.role == other.role
-            ):
-                return True
-        return False
+        return isinstance(other, Vehicle) and (
+            self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.axles == other.axles
+            and self.dynamics == other.dynamics
+            and self.parameters == other.parameters
+            and self.mass == other.mass
+            and self.role == other.role
+        )
 
     @staticmethod
     def parse(element):
@@ -1025,16 +1006,14 @@ class Vehicle(_BaseCatalog):
         if "mass" in element.attrib:
             mass = convert_float(element.attrib["mass"])
         vehicle_type = convert_enum(element.attrib["vehicleCategory"], VehicleCategory)
-        model3d = None
-        if "model3d" in element.attrib:
-            model3d = element.attrib["model3d"]
+        model3d = element.attrib["model3d"] if "model3d" in element.attrib else None
         # if element.find('ParameterDeclarations'):
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is None:
+            parameters = ParameterDeclarations()
+        else:
             parameters = ParameterDeclarations.parse(
                 element.find("ParameterDeclarations")
             )
-        else:
-            parameters = ParameterDeclarations()
         boundingbox = BoundingBox.parse(element.find("BoundingBox"))
         properties = Properties.parse(element.find("Properties"))
 
@@ -1115,9 +1094,10 @@ class Vehicle(_BaseCatalog):
 
     def get_attributes(self):
         """returns the attributes as a dict of the Vehicle"""
-        retdict = {}
-        retdict["name"] = str(self.name)
-        retdict["vehicleCategory"] = self.vehicle_type.get_name()
+        retdict = {
+            "name": str(self.name),
+            "vehicleCategory": self.vehicle_type.get_name(),
+        }
         if self.mass:
             if self.isVersion(minor=0):
                 raise OpenSCENARIOVersionError(
@@ -1234,10 +1214,10 @@ class Axle(VersionBase):
         return Axle(maxsteer, wheeldia, track_width, xpos, zpos)
 
     def __eq__(self, other):
-        if isinstance(other, Axle):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Axle)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     def get_attributes(self):
         """returns the attributes of the Axle as a dict"""
@@ -1305,14 +1285,11 @@ class Axles(VersionBase):
         self.additionals = []
 
     def __eq__(self, other):
-        if isinstance(other, Axles):
-            if (
-                self.frontaxle == other.frontaxle
-                and self.rearaxle == other.rearaxle
-                and self.additionals == other.additionals
-            ):
-                return True
-        return False
+        return isinstance(other, Axles) and (
+            self.frontaxle == other.frontaxle
+            and self.rearaxle == other.rearaxle
+            and self.additionals == other.additionals
+        )
 
     @staticmethod
     def parse(element):
@@ -1395,10 +1372,10 @@ class ExternalObjectReference(VersionBase):
         self.name = name
 
     def __eq__(self, other):
-        if isinstance(other, ExternalObjectReference):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ExternalObjectReference)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):

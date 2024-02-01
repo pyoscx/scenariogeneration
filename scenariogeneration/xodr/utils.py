@@ -37,9 +37,7 @@ def get_lane_sec_and_s_for_lane_calc(road, contact_point):
     if contact_point == ContactPoint.start:
         relevant_lanesection = 0  # since we are at the start the first lane section is relevant for determining widths for lane offset
     elif contact_point == ContactPoint.end:
-        relevant_lanesection = (
-            -1
-        )  # since we are at the end the last lane section is relevant for determining widths for lane offset
+        relevant_lanesection = -1  # since we are at the end the last lane section is relevant for determining widths for lane offset
 
         for geom in road.planview._raw_geometries:
             relevant_s += geom.length
@@ -126,13 +124,10 @@ class XodrBase:
         self.data_quality = None
 
     def __eq__(self, other):
-        if (
+        return (
             self.user_data == other.user_data
             and self.data_quality == other.data_quality
-        ):
-            return True
-
-        return False
+        )
 
     def add_userdata(self, userdata):
         """Adds a userdata entry to the xodr entry
@@ -225,22 +220,21 @@ class UserData:
         return all(self._elements_equal(c1, c2) for c1, c2 in zip(e1, e2))
 
     def __eq__(self, other):
-        if isinstance(other, UserData):
-            if self.get_attributes() == other.get_attributes() and len(
-                self.userdata_content
-            ) == len(other.userdata_content):
-                for i in range(len(self.userdata_content)):
-                    if not self._element_equals(
-                        self.userdata_content[i], other.userdata_content[i]
-                    ):
-                        return False
-                return True
+        if isinstance(other, UserData) and (
+            self.get_attributes() == other.get_attributes()
+            and len(self.userdata_content) == len(other.userdata_content)
+        ):
+            return all(
+                self._element_equals(
+                    self.userdata_content[i], other.userdata_content[i]
+                )
+                for i in range(len(self.userdata_content))
+            )
         return False
 
     def get_attributes(self):
         """returns the attributes as a dict of the JunctionGroup"""
-        retdict = {}
-        retdict["code"] = str(self.code)
+        retdict = {"code": str(self.code)}
         if self.value is not None:
             retdict["value"] = str(self.value)
         return retdict
@@ -358,20 +352,17 @@ class DataQuality:
         self._error_added = True
 
     def __eq__(self, other):
-        if isinstance(other, DataQuality):
-            if (
-                self.date == other.date
-                and self.post_processing == other.post_processing
-                and self.source == other.source
-                and self.post_processing_comment == other.post_processing_comment
-                and self.source_comment == other.source_comment
-                and self.xy_abs == other.xy_abs
-                and self.xy_rel == other.xy_rel
-                and self.z_abs == other.z_abs
-                and self.z_rel == other.z_rel
-            ):
-                return True
-        return False
+        return isinstance(other, DataQuality) and (
+            self.date == other.date
+            and self.post_processing == other.post_processing
+            and self.source == other.source
+            and self.post_processing_comment == other.post_processing_comment
+            and self.source_comment == other.source_comment
+            and self.xy_abs == other.xy_abs
+            and self.xy_rel == other.xy_rel
+            and self.z_abs == other.z_abs
+            and self.z_rel == other.z_rel
+        )
 
     def get_element(self):
         """returns the elementTree of the Junction"""

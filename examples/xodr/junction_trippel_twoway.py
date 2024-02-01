@@ -29,8 +29,7 @@ class Scenario(ScenarioGenerator):
 
         # create geometries
 
-        geoms = []
-        geoms.append(xodr.Line(100))
+        geoms = [xodr.Line(100)]
         geoms.append(xodr.Spiral(0.001, 0.019, 30))
         geoms.append(xodr.Line(100))
         geoms.append(xodr.Spiral(-0.001, -0.1, 30))
@@ -48,7 +47,7 @@ class Scenario(ScenarioGenerator):
 
         # create centerlanes
         lanecenters = []
-        for i in range(numberofroads):
+        for _ in range(numberofroads):
             lc = xodr.Lane(a=3)
             lc.add_roadmark(rm)
             lanecenters.append(lc)
@@ -56,7 +55,7 @@ class Scenario(ScenarioGenerator):
         # create lanes
         rightlanes = []
         leftlanes = []
-        for i in range(numberofroads):
+        for _ in range(numberofroads):
             right = xodr.Lane(a=3)
             right.add_roadmark(rm)
             rightlanes.append(right)
@@ -79,12 +78,11 @@ class Scenario(ScenarioGenerator):
             lanes1.add_lanesection(l)
             lanes.append(lanes1)
 
-        # finally create the roads
-        roads = []
         roadtypes = [-1, 1, -1, 1, -1, 1, -1]
-        for i in range(numberofroads):
-            roads.append(xodr.Road(i, planviews[i], lanes[i], road_type=roadtypes[i]))
-
+        roads = [
+            xodr.Road(i, planviews[i], lanes[i], road_type=roadtypes[i])
+            for i in range(numberofroads)
+        ]
         roads[0].add_successor(xodr.ElementType.junction, 1)
 
         roads[1].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)

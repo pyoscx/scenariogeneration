@@ -162,8 +162,7 @@ class Scenario(ScenarioGenerator):
         )
         sb.add_maneuver(man, egoname)
 
-        ## create the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "adaptspeed_example",
             "User",
             paramdec,
@@ -173,7 +172,6 @@ class Scenario(ScenarioGenerator):
             catalog=catalog,
             osc_minor_version=self.open_scenario_version,
         )
-        return sce
 
 
 if __name__ == "__main__":

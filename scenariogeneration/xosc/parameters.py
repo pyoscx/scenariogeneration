@@ -115,13 +115,10 @@ class _HistogramBin(VersionBase):
         self.range = range
 
     def __eq__(self, other):
-        if isinstance(other, _HistogramBin):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.range == other.range
-            ):
-                return True
-        return False
+        return isinstance(other, _HistogramBin) and (
+            self.get_attributes() == other.get_attributes()
+            and self.range == other.range
+        )
 
     @staticmethod
     def parse(element):
@@ -137,17 +134,12 @@ class _HistogramBin(VersionBase):
 
         """
         range_element = element.find("Range")
-        if range_element is not None:
-            range = Range.parse(range_element)
-        else:
-            range = None
-
+        range = Range.parse(range_element) if range_element is not None else None
         return _HistogramBin(convert_float(element.attrib["weight"]), range)
 
     def get_attributes(self):
         """returns the attributes of the HistogramBin as a dict"""
-        retdict = {"weight": str(self.weight)}
-        return retdict
+        return {"weight": str(self.weight)}
 
     def get_element(self):
         """returns the elementTree of the HistogramBin"""
@@ -198,10 +190,10 @@ class _ProbabilityDistributionSetElement(VersionBase):
         self.weight = convert_float(weight)
 
     def __eq__(self, other):
-        if isinstance(other, _ProbabilityDistributionSetElement):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, _ProbabilityDistributionSetElement)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -223,13 +215,11 @@ class _ProbabilityDistributionSetElement(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the _ProbabilityDistributionSetElement as a dict"""
-        retdict = {"value": self.value, "weight": str(self.weight)}
-        return retdict
+        return {"value": self.value, "weight": str(self.weight)}
 
     def get_element(self):
         """returns the elementTree of the _ProbabilityDistributionSetElement"""
-        element = ET.Element("Element", self.get_attributes())
-        return element
+        return ET.Element("Element", self.get_attributes())
 
 
 class Range(VersionBase):
@@ -274,10 +264,10 @@ class Range(VersionBase):
         self.upper = convert_float(upper)
 
     def __eq__(self, other):
-        if isinstance(other, Range):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Range)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -300,13 +290,11 @@ class Range(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Range as a dict"""
-        retdict = {"lowerLimit": str(self.lower), "upperLimit": str(self.upper)}
-        return retdict
+        return {"lowerLimit": str(self.lower), "upperLimit": str(self.upper)}
 
     def get_element(self, elementname="Range"):
         """returns the elementTree of the Range"""
-        element = ET.Element(elementname, self.get_attributes())
-        return element
+        return ET.Element(elementname, self.get_attributes())
 
 
 ## Stochastic distributions
@@ -360,13 +348,10 @@ class Stochastic(VersionBase):
         self.distributions = {}
 
     def __eq__(self, other):
-        if isinstance(other, Stochastic):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.distributions == other.distributions
-            ):
-                return True
-        return False
+        return isinstance(other, Stochastic) and (
+            self.get_attributes() == other.get_attributes()
+            and self.distributions == other.distributions
+        )
 
     @staticmethod
     def parse(element):
@@ -382,10 +367,7 @@ class Stochastic(VersionBase):
 
         """
 
-        if "randomSeed" in element.attrib:
-            seed = element.attrib["randomSeed"]
-        else:
-            seed = None
+        seed = element.attrib["randomSeed"] if "randomSeed" in element.attrib else None
         stoc = Stochastic(element.attrib["numberOfTestRuns"], seed)
         for dist_element in element.findall("StochasticDistribution"):
             name = dist_element.attrib["parameterName"]
@@ -410,8 +392,7 @@ class Stochastic(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Stochastic as a dict"""
-        retdict = {}
-        retdict["numberOfTestRuns"] = str(self.number_of_tests)
+        retdict = {"numberOfTestRuns": str(self.number_of_tests)}
         if self.random_seed is not None:
             retdict["randomSeed"] = str(self.random_seed)
 
@@ -485,13 +466,10 @@ class NormalDistribution(_StochasticDistributionType):
         self.range = range
 
     def __eq__(self, other):
-        if isinstance(other, NormalDistribution):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.range == other.range
-            ):
-                return True
-        return False
+        return isinstance(other, NormalDistribution) and (
+            self.get_attributes() == other.get_attributes()
+            and self.range == other.range
+        )
 
     @staticmethod
     def parse(element):
@@ -510,18 +488,16 @@ class NormalDistribution(_StochasticDistributionType):
             range = Range.parse(element.find("Range"))
         else:
             range = None
-        nd = NormalDistribution(
+        return NormalDistribution(
             element.attrib["expectedValue"], element.attrib["variance"], range
         )
-        return nd
 
     def get_attributes(self):
         """returns the attributes of the NormalDistribution as a dict"""
-        retdict = {
+        return {
             "expectedValue": str(self.expected_value),
             "variance": str(self.variance),
         }
-        return retdict
 
     def get_element(self):
         """returns the elementTree of the NormalDistribution"""
@@ -566,10 +542,7 @@ class UniformDistribution(_StochasticDistributionType):
         self.range = range
 
     def __eq__(self, other):
-        if isinstance(other, UniformDistribution):
-            if self.range == other.range:
-                return True
-        return False
+        return isinstance(other, UniformDistribution) and self.range == other.range
 
     @staticmethod
     def parse(element):
@@ -640,13 +613,10 @@ class PoissonDistribution(_StochasticDistributionType):
         self.range = range
 
     def __eq__(self, other):
-        if isinstance(other, PoissonDistribution):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.range == other.range
-            ):
-                return True
-        return False
+        return isinstance(other, PoissonDistribution) and (
+            self.get_attributes() == other.get_attributes()
+            and self.range == other.range
+        )
 
     @staticmethod
     def parse(element):
@@ -665,13 +635,11 @@ class PoissonDistribution(_StochasticDistributionType):
             range = Range.parse(element.find("Range"))
         else:
             range = None
-        pd = PoissonDistribution(element.attrib["expectedValue"], range)
-        return pd
+        return PoissonDistribution(element.attrib["expectedValue"], range)
 
     def get_attributes(self):
         """returns the attributes of the PoissonDistribution as a dict"""
-        retdict = {"expectedValue": str(self.expected_value)}
-        return retdict
+        return {"expectedValue": str(self.expected_value)}
 
     def get_element(self):
         """returns the elementTree of the PoissonDistribution"""
@@ -709,10 +677,7 @@ class Histogram(_StochasticDistributionType):
         self.bins = []
 
     def __eq__(self, other):
-        if isinstance(other, Histogram):
-            if self.bins == other.bins:
-                return True
-        return False
+        return isinstance(other, Histogram) and self.bins == other.bins
 
     @staticmethod
     def parse(element):
@@ -785,10 +750,10 @@ class ProbabilityDistributionSet(_StochasticDistributionType):
         self.sets = []
 
     def __eq__(self, other):
-        if isinstance(other, ProbabilityDistributionSet):
-            if self.sets == other.sets:
-                return True
-        return False
+        return (
+            isinstance(other, ProbabilityDistributionSet)
+            and self.sets == other.sets
+        )
 
     @staticmethod
     def parse(element):
@@ -867,10 +832,7 @@ class ParameterValueSet(VersionBase):
         self.sets = []
 
     def __eq__(self, other):
-        if isinstance(other, ParameterValueSet):
-            if self.sets == other.sets:
-                return True
-        return False
+        return isinstance(other, ParameterValueSet) and self.sets == other.sets
 
     @staticmethod
     def parse(element):
@@ -948,10 +910,10 @@ class DeterministicMultiParameterDistribution(VersionBase):
         self.sets = []
 
     def __eq__(self, other):
-        if isinstance(other, DeterministicMultiParameterDistribution):
-            if self.sets == other.sets:
-                return True
-        return False
+        return (
+            isinstance(other, DeterministicMultiParameterDistribution)
+            and self.sets == other.sets
+        )
 
     @staticmethod
     def parse(element):
@@ -1043,13 +1005,10 @@ class DistributionRange(VersionBase):
         self.range = range
 
     def __eq__(self, other):
-        if isinstance(other, DistributionRange):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.range == other.range
-            ):
-                return True
-        return False
+        return isinstance(other, DistributionRange) and (
+            self.get_attributes() == other.get_attributes()
+            and self.range == other.range
+        )
 
     @staticmethod
     def parse(element):
@@ -1065,15 +1024,13 @@ class DistributionRange(VersionBase):
 
         """
 
-        distribution_range = DistributionRange(
+        return DistributionRange(
             element.attrib["stepWidth"], Range.parse(element.find("Range"))
         )
-        return distribution_range
 
     def get_attributes(self):
         """returns the attributes of the DistributionRange as a dict"""
-        retdict = {"stepWidth": str(self.step_width)}
-        return retdict
+        return {"stepWidth": str(self.step_width)}
 
     def get_element(self):
         """returns the elementTree of the DistributionRange"""
@@ -1109,10 +1066,10 @@ class DistributionSet(VersionBase):
         self.value_elements = []
 
     def __eq__(self, other):
-        if isinstance(other, DistributionSet):
-            if self.value_elements == other.value_elements:
-                return True
-        return False
+        return (
+            isinstance(other, DistributionSet)
+            and self.value_elements == other.value_elements
+        )
 
     @staticmethod
     def parse(element):
@@ -1192,13 +1149,10 @@ class Deterministic(VersionBase):
         self.single_distributions = {}
 
     def __eq__(self, other):
-        if isinstance(other, Deterministic):
-            if (
-                self.multi_distributions == other.multi_distributions
-                and self.single_distributions == other.single_distributions
-            ):
-                return True
-        return False
+        return isinstance(other, Deterministic) and (
+            self.multi_distributions == other.multi_distributions
+            and self.single_distributions == other.single_distributions
+        )
 
     @staticmethod
     def parse(element):
@@ -1250,10 +1204,7 @@ class Deterministic(VersionBase):
             distribution (DistributionSet or DistributionRange): the distribution of that parameter
 
         """
-        if not (
-            isinstance(distribution, DistributionSet)
-            or isinstance(distribution, DistributionRange)
-        ):
+        if not (isinstance(distribution, (DistributionSet, DistributionRange))):
             raise TypeError(
                 "distribution input is not of type DeterministicMultiParameterDistribution"
             )
@@ -1361,14 +1312,11 @@ class ParameterValueDistribution(VersionBase):
         self.parameter_distribution = parameter_distribution
 
     def __eq__(self, other):
-        if isinstance(other, ParameterValueDistribution):
-            if (
-                self.header == other.header
-                and self.scenario_file == other.scenario_file
-                and self.parameter_distribution == other.parameter_distribution
-            ):
-                return True
-        return False
+        return isinstance(other, ParameterValueDistribution) and (
+            self.header == other.header
+            and self.scenario_file == other.scenario_file
+            and self.parameter_distribution == other.parameter_distribution
+        )
 
     @staticmethod
     def parse(element):

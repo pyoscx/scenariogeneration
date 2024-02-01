@@ -227,13 +227,10 @@ class _Action(VersionBase):
         self.action = action
 
     def __eq__(self, other):
-        if isinstance(other, _Action):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.action == other.action
-            ):
-                return True
-        return False
+        return isinstance(other, _Action) and (
+            self.get_attributes() == other.get_attributes()
+            and self.action == other.action
+        )
 
     @staticmethod
     def parse(element):
@@ -323,13 +320,10 @@ class AbsoluteSpeedAction(_PrivateActionType):
         self.transition_dynamics = transition_dynamics
 
     def __eq__(self, other):
-        if isinstance(other, AbsoluteSpeedAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.transition_dynamics == other.transition_dynamics
-            ):
-                return True
-        return False
+        return isinstance(other, AbsoluteSpeedAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.transition_dynamics == other.transition_dynamics
+        )
 
     @staticmethod
     def parse(element):
@@ -445,13 +439,10 @@ class RelativeSpeedAction(_PrivateActionType):
         self.continuous = convert_bool(continuous)
 
     def __eq__(self, other):
-        if isinstance(other, RelativeSpeedAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.transition_dynamics == other.transition_dynamics
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeSpeedAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.transition_dynamics == other.transition_dynamics
+        )
 
     @staticmethod
     def parse(element):
@@ -647,13 +638,10 @@ class LongitudinalDistanceAction(_PrivateActionType):
         self.displacement = convert_enum(displacement, LongitudinalDisplacement)
 
     def __eq__(self, other):
-        if isinstance(other, LongitudinalDistanceAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.dynamic_constraint == other.dynamic_constraint
-            ):
-                return True
-        return False
+        return isinstance(other, LongitudinalDistanceAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.dynamic_constraint == other.dynamic_constraint
+        )
 
     @staticmethod
     def parse(element):
@@ -716,9 +704,10 @@ class LongitudinalDistanceAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the LongitudinalDistanceAction as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.target
-        retdict["freespace"] = get_bool_string(self.freespace)
+        retdict = {
+            "entityRef": self.target,
+            "freespace": get_bool_string(self.freespace),
+        }
         retdict["continuous"] = get_bool_string(self.continuous)
         if self.distance != None:
             retdict["distance"] = str(self.distance)
@@ -815,23 +804,17 @@ class SpeedProfileAction(_PrivateActionType):
             raise TypeError("dynamics_constraint input not of type DynamicsConstraints")
         self.dynamics_constraint = dynamics_constraint
         self.following_mode = convert_enum(following_mode, FollowingMode)
-        if times:
-            self.times = [convert_float(x) for x in times]
-        else:
-            self.times = times
+        self.times = [convert_float(x) for x in times] if times else times
         self.entity = entity
 
     def __eq__(self, other):
-        if isinstance(other, SpeedProfileAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.dynamics_constraint == other.dynamics_constraint
-                and self.entity == other.entity
-                and self.speeds == other.speeds
-                and self.times == other.times
-            ):
-                return True
-        return False
+        return isinstance(other, SpeedProfileAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.dynamics_constraint == other.dynamics_constraint
+            and self.entity == other.entity
+            and self.speeds == other.speeds
+            and self.times == other.times
+        )
 
     @staticmethod
     def parse(element):
@@ -956,14 +939,11 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         self.transition_dynamics = transition_dynamics
 
     def __eq__(self, other):
-        if isinstance(other, AbsoluteLaneChangeAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.transition_dynamics == other.transition_dynamics
-                and self.target_lane_offset == other.target_lane_offset
-            ):
-                return True
-        return False
+        return isinstance(other, AbsoluteLaneChangeAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.transition_dynamics == other.transition_dynamics
+            and self.target_lane_offset == other.target_lane_offset
+        )
 
     @staticmethod
     def parse(element):
@@ -992,9 +972,7 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the AbsoluteLaneChangeAction as a dict"""
-        retdict = {}
-        retdict["value"] = str(self.lane)
-        return retdict
+        return {"value": str(self.lane)}
 
     def get_element(self):
         """returns the elementTree of the AbsoluteLaneChangeAction"""
@@ -1077,14 +1055,11 @@ class RelativeLaneChangeAction(_PrivateActionType):
         self.transition_dynamics = transition_dynamics
 
     def __eq__(self, other):
-        if isinstance(other, RelativeLaneChangeAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.transition_dynamics == other.transition_dynamics
-                and self.target_lane_offset == other.target_lane_offset
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeLaneChangeAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.transition_dynamics == other.transition_dynamics
+            and self.target_lane_offset == other.target_lane_offset
+        )
 
     @staticmethod
     def parse(element):
@@ -1114,10 +1089,7 @@ class RelativeLaneChangeAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeLaneChangeAction as a dict"""
-        retdict = {}
-        retdict["value"] = str(self.lane)
-        retdict["entityRef"] = self.target
-        return retdict
+        return {"value": str(self.lane), "entityRef": self.target}
 
     def get_element(self):
         """returns the elementTree of the RelativeLaneChangeAction"""
@@ -1197,15 +1169,12 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other):
-        if isinstance(other, AbsoluteLaneOffsetAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.dynshape == other.dynshape
-                and self.maxlatacc == other.maxlatacc
-                and self.continuous == other.continuous
-            ):
-                return True
-        return False
+        return isinstance(other, AbsoluteLaneOffsetAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.dynshape == other.dynshape
+            and self.maxlatacc == other.maxlatacc
+            and self.continuous == other.continuous
+        )
 
     @staticmethod
     def parse(element):
@@ -1234,9 +1203,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the AbsoluteLaneOffsetAction as a dict"""
-        retdict = {}
-        retdict["value"] = str(self.value)
-        return retdict
+        return {"value": str(self.value)}
 
     def get_element(self):
         """returns the elementTree of the AbsoluteLaneOffsetAction"""
@@ -1322,21 +1289,18 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         self.value = convert_float(value)
         self.target = entity
         if not hasattr(DynamicsShapes, str(shape)):
-            raise ValueError(shape + "; is not a valid shape.")
+            raise ValueError(f"{shape}; is not a valid shape.")
         self.dynshape = shape
         self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other):
-        if isinstance(other, RelativeLaneOffsetAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.dynshape == other.dynshape
-                and self.maxlatacc == other.maxlatacc
-                and self.continuous == other.continuous
-                and self.target == other.target
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeLaneOffsetAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.dynshape == other.dynshape
+            and self.maxlatacc == other.maxlatacc
+            and self.continuous == other.continuous
+            and self.target == other.target
+        )
 
     @staticmethod
     def parse(element):
@@ -1366,10 +1330,7 @@ class RelativeLaneOffsetAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeLaneOffsetAction as a dict"""
-        retdict = {}
-        retdict["value"] = str(self.value)
-        retdict["entityRef"] = self.target
-        return retdict
+        return {"value": str(self.value), "entityRef": self.target}
 
     def get_element(self):
         """returns the elementTree of the RelativeLaneOffsetAction"""
@@ -1511,13 +1472,10 @@ class LateralDistanceAction(_PrivateActionType):
         self.displacement = convert_enum(displacement, LateralDisplacement)
 
     def __eq__(self, other):
-        if isinstance(other, LateralDistanceAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.dynamic_constraint == other.dynamic_constraint
-            ):
-                return True
-        return False
+        return isinstance(other, LateralDistanceAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.dynamic_constraint == other.dynamic_constraint
+        )
 
     @staticmethod
     def parse(element):
@@ -1575,9 +1533,10 @@ class LateralDistanceAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the LateralDistanceAction as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.target
-        retdict["freespace"] = get_bool_string(self.freespace)
+        retdict = {
+            "entityRef": self.target,
+            "freespace": get_bool_string(self.freespace),
+        }
         retdict["continuous"] = get_bool_string(self.continuous)
         if self.distance != None:
             retdict["distance"] = str(self.distance)
@@ -1636,10 +1595,7 @@ class TeleportAction(_PrivateActionType):
         self.position = position
 
     def __eq__(self, other):
-        if isinstance(other, TeleportAction):
-            if self.position == other.position:
-                return True
-        return False
+        return isinstance(other, TeleportAction) and self.position == other.position
 
     @staticmethod
     def parse(element):
@@ -1700,16 +1656,13 @@ class AssignRouteAction(_PrivateActionType):
             route (Route, or CatalogReference): the route to follow
 
         """
-        if not (isinstance(route, Route) or isinstance(route, CatalogReference)):
+        if not (isinstance(route, (Route, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
 
         self.route = route
 
     def __eq__(self, other):
-        if isinstance(other, AssignRouteAction):
-            if self.route == other.route:
-                return True
-        return False
+        return isinstance(other, AssignRouteAction) and self.route == other.route
 
     @staticmethod
     def parse(element):
@@ -1778,10 +1731,10 @@ class AcquirePositionAction(_PrivateActionType):
         self.position = position
 
     def __eq__(self, other):
-        if isinstance(other, AcquirePositionAction):
-            if self.position == other.position:
-                return True
-        return False
+        return (
+            isinstance(other, AcquirePositionAction)
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -1879,10 +1832,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         """
         # if following_mode not in FollowingMode:
         #     ValueError(str(following_mode) + ' is not a valied following mode.')
-        if not (
-            isinstance(trajectory, Trajectory)
-            or isinstance(trajectory, CatalogReference)
-        ):
+        if not (isinstance(trajectory, (Trajectory, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
         self.trajectory = trajectory
         self.following_mode = convert_enum(following_mode, FollowingMode)
@@ -1891,15 +1841,12 @@ class FollowTrajectoryAction(_PrivateActionType):
         self.initialDistanceOffset = convert_float(initialDistanceOffset)
 
     def __eq__(self, other):
-        if isinstance(other, FollowTrajectoryAction):
-            if (
-                self.timeref == other.timeref
-                and self.get_attributes() == other.get_attributes()
-                and self.trajectory == other.trajectory
-                and self.following_mode == other.following_mode
-            ):
-                return True
-        return False
+        return isinstance(other, FollowTrajectoryAction) and (
+            self.timeref == other.timeref
+            and self.get_attributes() == other.get_attributes()
+            and self.trajectory == other.trajectory
+            and self.following_mode == other.following_mode
+        )
 
     @staticmethod
     def parse(element):
@@ -2047,25 +1994,27 @@ class ControllerAction(_PrivateActionType):
             self.overrideControllerValueAction._used_by_parent = True
 
     def __eq__(self, other):
-        if isinstance(other, ControllerAction):
-            if (
-                self.activateControllerAction == other.activateControllerAction
-                and self.overrideControllerValueAction
-                == other.overrideControllerValueAction
-                and self.assignControllerAction == other.assignControllerAction
-            ):
-                return True
-        if isinstance(other, AssignControllerAction):
-            if self.assignControllerAction == other:
-                return True
-        if isinstance(other, OverrideControllerValueAction):
-            if self.overrideControllerValueAction == other:
-                return True
-        if isinstance(other, ActivateControllerAction):
-            if self.activateControllerAction == other:
-                return True
-
-        return False
+        if isinstance(other, ControllerAction) and (
+            self.activateControllerAction == other.activateControllerAction
+            and self.overrideControllerValueAction
+            == other.overrideControllerValueAction
+            and self.assignControllerAction == other.assignControllerAction
+        ):
+            return True
+        if (
+            isinstance(other, AssignControllerAction)
+            and self.assignControllerAction == other
+        ):
+            return True
+        if (
+            isinstance(other, OverrideControllerValueAction)
+            and self.overrideControllerValueAction == other
+        ):
+            return True
+        return (
+            isinstance(other, ActivateControllerAction)
+            and self.activateControllerAction == other
+        )
 
     @staticmethod
     def parse(element):
@@ -2081,19 +2030,20 @@ class ControllerAction(_PrivateActionType):
 
         """
 
-        activateControllerAction = None
-        overrideControllerValueAction = None
-        assignControllerAction = None
-
         ca_element = element.find("ControllerAction")
 
-        if ca_element.find("ActivateControllerAction") != None:
+        if ca_element.find("ActivateControllerAction") is None:
+            activateControllerAction = None
+        else:
             activateControllerAction = ActivateControllerAction.parse(element)
-        if ca_element.find("OverrideControllerValueAction") != None:
+        if ca_element.find("OverrideControllerValueAction") is None:
+            overrideControllerValueAction = None
+        else:
             overrideControllerValueAction = OverrideControllerValueAction.parse(element)
-        if ca_element.find("AssignControllerAction") != None:
+        if ca_element.find("AssignControllerAction") is None:
+            assignControllerAction = None
+        else:
             assignControllerAction = AssignControllerAction.parse(element)
-
         return ControllerAction(
             assignControllerAction,
             overrideControllerValueAction,
@@ -2342,10 +2292,7 @@ class AssignControllerAction(_PrivateActionType):
             activateLongitudinal (bool): if the longitudinal control should be activated (valid from V1.1)
                 Default: True
         """
-        if not (
-            isinstance(controller, Controller)
-            or isinstance(controller, CatalogReference)
-        ):
+        if not (isinstance(controller, (Controller, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
         self.controller = controller
         self.activateLateral = convert_bool(activateLateral)
@@ -2535,7 +2482,6 @@ class OverrideControllerValueAction(_PrivateActionType):
         if isinstance(other, OverrideControllerValueAction):
             if (
                 self.throttle_value == other.throttle_value
-                and self.throttle_value == other.throttle_value
                 and self.throttle_rate == other.throttle_rate
                 and self.brake_active == other.brake_active
                 and self.brake_value == other.brake_value
@@ -2559,8 +2505,6 @@ class OverrideControllerValueAction(_PrivateActionType):
         elif isinstance(other, ControllerAction):
             if (
                 self.throttle_value
-                == other.overrideControllerValueAction.throttle_value
-                and self.throttle_value
                 == other.overrideControllerValueAction.throttle_value
                 and self.throttle_rate
                 == other.overrideControllerValueAction.throttle_rate
@@ -2857,12 +2801,12 @@ class OverrideControllerValueAction(_PrivateActionType):
         )
 
         if (
-            self.throttle_active == None
-            and self.brake_active == None
-            and self.clutch_active == None
-            and self.parkingbrake_active == None
-            and self.steeringwheel_active == None
-            and self.gear_active == None
+            self.throttle_active is None
+            and self.brake_active is None
+            and self.clutch_active is None
+            and self.parkingbrake_active is None
+            and self.steeringwheel_active is None
+            and self.gear_active is None
         ):
             raise NoActionsDefinedError(
                 "No actions were added to the OverrideControllerValueAction"
@@ -3067,13 +3011,10 @@ class VisibilityAction(_PrivateActionType):
         self.sensor_refs = []
 
     def __eq__(self, other):
-        if isinstance(other, VisibilityAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.sensor_refs == other.sensor_refs
-            ):
-                return True
-        return False
+        return isinstance(other, VisibilityAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.sensor_refs == other.sensor_refs
+        )
 
     @staticmethod
     def parse(element):
@@ -3220,8 +3161,7 @@ class SynchronizeAction(_PrivateActionType):
         self.target_tolerance_master = convert_float(target_tolerance_master)
         self.target_tolerance = convert_float(target_tolerance)
         if final_speed and not (
-            isinstance(final_speed, AbsoluteSpeed)
-            or isinstance(final_speed, RelativeSpeedToMaster)
+            isinstance(final_speed, (AbsoluteSpeed, RelativeSpeedToMaster))
         ):
             raise TypeError(
                 "final_speed input is not AbsoluteSpeed or RelativeSpeedToMaster type"
@@ -3230,15 +3170,12 @@ class SynchronizeAction(_PrivateActionType):
             self.final_speed = final_speed
 
     def __eq__(self, other):
-        if isinstance(other, SynchronizeAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.entity_PositionType == other.entity_PositionType
-                and self.target_PositionType == other.target_PositionType
-                and self.final_speed == other.final_speed
-            ):
-                return True
-        return False
+        return isinstance(other, SynchronizeAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.entity_PositionType == other.entity_PositionType
+            and self.target_PositionType == other.target_PositionType
+            and self.final_speed == other.final_speed
+        )
 
     @staticmethod
     def parse(element):
@@ -3289,7 +3226,6 @@ class SynchronizeAction(_PrivateActionType):
             target_tolerance,
             finalSpeed,
         )
-        _
 
     def get_attributes(self):
         """returns the attributes of the AbsoluteSynchronizeAction as a dict"""
@@ -3297,9 +3233,9 @@ class SynchronizeAction(_PrivateActionType):
         if self.isVersion(1, 0):
             return attr
         if self.target_tolerance_master is not None:
-            attr.update({"targetToleranceMaster": str(self.target_tolerance_master)})
+            attr["targetToleranceMaster"] = str(self.target_tolerance_master)
         if self.target_tolerance is not None:
-            attr.update({"targetTolerance": str(self.target_tolerance)})
+            attr["targetTolerance"] = str(self.target_tolerance)
         return attr
 
     def get_element(self):
@@ -3385,7 +3321,7 @@ class LightStateAction(_PrivateActionType):
             if not isinstance(light_type, UserDefinedLight):
                 raise TypeError(
                     "light_type input is not of type VehicleLightType or UserDefinedLight"
-                )
+                ) from e
             else:
                 self.light_type = light_type
 
@@ -3396,14 +3332,11 @@ class LightStateAction(_PrivateActionType):
         self.transition_time = convert_float(transition_time)
 
     def __eq__(self, other):
-        if isinstance(other, LightStateAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.light_type == other.light_type
-                and self.lightstate == other.lightstate
-            ):
-                return True
-        return False
+        return isinstance(other, LightStateAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.light_type == other.light_type
+            and self.lightstate == other.lightstate
+        )
 
     @staticmethod
     def parse(element):
@@ -3438,8 +3371,7 @@ class LightStateAction(_PrivateActionType):
 
     def get_attributes(self):
         """returns the attributes of the LightStateAction as a dict"""
-        attr = {"transitionTime": str(self.transition_time)}
-        return attr
+        return {"transitionTime": str(self.transition_time)}
 
     def get_element(self):
         """returns the elementTree of the LightStateAction"""
@@ -3527,11 +3459,14 @@ class AnimationAction(_PrivateActionType):
         """
         if isinstance(animation_type, UserDefinedComponent):
             self.animation_type = _ComponentAnimation(animation_type)
-        elif (
-            isinstance(animation_type, PedestrianAnimation)
-            or isinstance(animation_type, AnimationFile)
-            or isinstance(animation_type, UserDefinedAnimation)
-            or isinstance(animation_type, _ComponentAnimation)
+        elif isinstance(
+            animation_type,
+            (
+                PedestrianAnimation,
+                AnimationFile,
+                UserDefinedAnimation,
+                _ComponentAnimation,
+            ),
         ):
             self.animation_type = animation_type
         else:
@@ -3544,14 +3479,11 @@ class AnimationAction(_PrivateActionType):
         self.state = convert_float(state)
 
     def __eq__(self, other):
-        if isinstance(other, AnimationAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.animation_type == other.animation_type
-                and self.state == other.state
-            ):
-                return True
-        return False
+        return isinstance(other, AnimationAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.animation_type == other.animation_type
+            and self.state == other.state
+        )
 
     @staticmethod
     def parse(element):
@@ -3654,13 +3586,10 @@ class ParameterAddAction(_ActionType):
         self.value = convert_float(value)
 
     def __eq__(self, other):
-        if isinstance(other, ParameterAddAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameter_ref == other.parameter_ref
-            ):
-                return True
-        return False
+        return isinstance(other, ParameterAddAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameter_ref == other.parameter_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -3748,13 +3677,10 @@ class ParameterMultiplyAction(_ActionType):
         self.value = convert_float(value)
 
     def __eq__(self, other):
-        if isinstance(other, ParameterMultiplyAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameter_ref == other.parameter_ref
-            ):
-                return True
-        return False
+        return isinstance(other, ParameterMultiplyAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameter_ref == other.parameter_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -3842,13 +3768,10 @@ class ParameterSetAction(_ActionType):
         self.value = value
 
     def __eq__(self, other):
-        if isinstance(other, ParameterSetAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameter_ref == other.parameter_ref
-            ):
-                return True
-        return False
+        return isinstance(other, ParameterSetAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameter_ref == other.parameter_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -3932,13 +3855,10 @@ class VariableAddAction(_ActionType):
         self.value = value
 
     def __eq__(self, other):
-        if isinstance(other, VariableAddAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.variable_ref == other.variable_ref
-            ):
-                return True
-        return False
+        return isinstance(other, VariableAddAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.variable_ref == other.variable_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -4024,13 +3944,10 @@ class VariableMultiplyAction(_ActionType):
         self.value = value
 
     def __eq__(self, other):
-        if isinstance(other, VariableMultiplyAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.variable_ref == other.variable_ref
-            ):
-                return True
-        return False
+        return isinstance(other, VariableMultiplyAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.variable_ref == other.variable_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -4116,13 +4033,10 @@ class VariableSetAction(_ActionType):
         self.value = value
 
     def __eq__(self, other):
-        if isinstance(other, VariableSetAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.variable_ref == other.variable_ref
-            ):
-                return True
-        return False
+        return isinstance(other, VariableSetAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.variable_ref == other.variable_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -4202,10 +4116,10 @@ class TrafficSignalStateAction(_ActionType):
         self.state = state
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSignalStateAction):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TrafficSignalStateAction)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4283,13 +4197,10 @@ class AddEntityAction(_ActionType):
         self.position = position
 
     def __eq__(self, other):
-        if isinstance(other, AddEntityAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-            ):
-                return True
-        return False
+        return isinstance(other, AddEntityAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -4361,10 +4272,10 @@ class DeleteEntityAction(_ActionType):
         self.entityref = entityref
 
     def __eq__(self, other):
-        if isinstance(other, DeleteEntityAction):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, DeleteEntityAction)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4438,10 +4349,10 @@ class TrafficSignalControllerAction(_ActionType):
         self.traffic_signalcontroller_ref = traffic_signalcontroller_ref
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSignalControllerAction):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TrafficSignalControllerAction)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4563,15 +4474,12 @@ class TrafficSourceAction(_ActionType):
         self.name = name
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSourceAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-                and self.trafficdefinition == other.trafficdefinition
-                and self.name == other.name
-            ):
-                return True
-        return False
+        return isinstance(other, TrafficSourceAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+            and self.trafficdefinition == other.trafficdefinition
+            and self.name == other.name
+        )
 
     @staticmethod
     def parse(element):
@@ -4610,9 +4518,7 @@ class TrafficSourceAction(_ActionType):
 
     def get_attributes(self):
         """returns the attributes of the TrafficSourceAction as a dict"""
-        retdict = {}
-        retdict["rate"] = str(self.rate)
-        retdict["radius"] = str(self.radius)
+        retdict = {"rate": str(self.rate), "radius": str(self.radius)}
         if self.velocity is not None:
             if self.version_minor < 2:
                 retdict["velocity"] = str(self.velocity)
@@ -4706,14 +4612,11 @@ class TrafficSinkAction(_ActionType):
         self.name = name
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSinkAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-                and self.trafficdefinition == other.trafficdefinition
-            ):
-                return True
-        return False
+        return isinstance(other, TrafficSinkAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+            and self.trafficdefinition == other.trafficdefinition
+        )
 
     @staticmethod
     def parse(element):
@@ -4750,11 +4653,7 @@ class TrafficSinkAction(_ActionType):
 
     def get_attributes(self):
         """returns the attributes of the TrafficSinkAction as a dict"""
-        retdict = {}
-
-        retdict["rate"] = str(self.rate)
-        retdict["radius"] = str(self.radius)
-        return retdict
+        return {"rate": str(self.rate), "radius": str(self.radius)}
 
     def get_element(self):
         """returns the elementTree of the TrafficSinkAction"""
@@ -4886,13 +4785,12 @@ class TrafficSwarmAction(_ActionType):
         if not isinstance(trafficdefinition, TrafficDefinition):
             raise TypeError("trafficdefinition input is not of type TrafficDefinition")
         self.trafficdefinition = trafficdefinition
-        if velocity is not None:
-            if isinstance(velocity, Range):
-                self.velocity = velocity
-            else:
-                self.velocity = convert_float(velocity)
-        else:
+        if velocity is None:
             self.velocity = None
+        elif isinstance(velocity, Range):
+            self.velocity = velocity
+        else:
+            self.velocity = convert_float(velocity)
         self.name = name
         if direction_of_travel is not None and not isinstance(
             direction_of_travel, DirectionOfTravelDistribution
@@ -4903,15 +4801,12 @@ class TrafficSwarmAction(_ActionType):
         self.direction_of_travel = direction_of_travel
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSwarmAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.centralobject == other.centralobject
-                and self.trafficdefinition == other.trafficdefinition
-                and self.name == other.name
-            ):
-                return True
-        return False
+        return isinstance(other, TrafficSwarmAction) and (
+            self.get_attributes() == other.get_attributes()
+            and self.centralobject == other.centralobject
+            and self.trafficdefinition == other.trafficdefinition
+            and self.name == other.name
+        )
 
     @staticmethod
     def parse(element):
@@ -4955,7 +4850,7 @@ class TrafficSwarmAction(_ActionType):
         central_element = tsa_element.find("CentralObject")
         centralobject = central_element.attrib["entityRef"]
 
-        tsa_object = TrafficSwarmAction(
+        return TrafficSwarmAction(
             semimajoraxis,
             semiminoraxis,
             innerradius,
@@ -4967,16 +4862,16 @@ class TrafficSwarmAction(_ActionType):
             name,
             dot,
         )
-        return tsa_object
 
     def get_attributes(self):
         """returns the attributes of the TrafficSwarmAction as a dict"""
-        retdict = {}
-        retdict["semiMajorAxis"] = str(self.semimajoraxis)
-        retdict["semiMinorAxis"] = str(self.semiminoraxis)
-        retdict["innerRadius"] = str(self.innerradius)
-        retdict["offset"] = str(self.offset)
-        retdict["numberOfVehicles"] = str(self.numberofvehicles)
+        retdict = {
+            "semiMajorAxis": str(self.semimajoraxis),
+            "semiMinorAxis": str(self.semiminoraxis),
+            "innerRadius": str(self.innerradius),
+            "offset": str(self.offset),
+            "numberOfVehicles": str(self.numberofvehicles),
+        }
         if self.velocity is not None and not isinstance(self.velocity, Range):
             retdict["velocity"] = str(self.velocity)
         return retdict
@@ -4996,14 +4891,13 @@ class TrafficSwarmAction(_ActionType):
         ET.SubElement(
             swarmaction, "CentralObject", attrib={"entityRef": self.centralobject}
         )
-        if self.velocity is not None:
-            if self.version_minor > 1:
-                if isinstance(self.velocity, Range):
-                    swarmaction.append(self.velocity.get_element("InitialSpeedRange"))
-                else:
-                    raise OpenSCENARIOVersionError(
-                        "Range for TrafficSwarmAction was introduced in OSC V1.2, velocity should not be used anymore."
-                    )
+        if self.velocity is not None and self.version_minor > 1:
+            if isinstance(self.velocity, Range):
+                swarmaction.append(self.velocity.get_element("InitialSpeedRange"))
+            else:
+                raise OpenSCENARIOVersionError(
+                    "Range for TrafficSwarmAction was introduced in OSC V1.2, velocity should not be used anymore."
+                )
 
         if self.direction_of_travel is not None:
             if self.version_minor < 2:
@@ -5051,10 +4945,10 @@ class TrafficStopAction(_ActionType):
         self.name = name
 
     def __eq__(self, other):
-        if isinstance(other, TrafficStopAction):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TrafficStopAction)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5126,20 +5020,17 @@ class EnvironmentAction(_ActionType):
             environment (Environment or CatalogReference): the environment to change to
 
         """
-        if not (
-            isinstance(environment, Environment)
-            or isinstance(environment, CatalogReference)
-        ):
+        if not (isinstance(environment, (Environment, CatalogReference))):
             raise TypeError(
                 "environment input not of type Environment or CatalogReference"
             )
         self.environment = environment
 
     def __eq__(self, other):
-        if isinstance(other, EnvironmentAction):
-            if self.environment == other.environment:
-                return True
-        return False
+        return (
+            isinstance(other, EnvironmentAction)
+            and self.environment == other.environment
+        )
 
     @staticmethod
     def parse(element):
@@ -5201,10 +5092,10 @@ class UserDefinedAction(_ActionType):
         self.custom_command_action = custom_command_action
 
     def __eq__(self, other):
-        if isinstance(other, UserDefinedAction):
-            if self.custom_command_action == other.custom_command_action:
-                return True
-        return False
+        return (
+            isinstance(other, UserDefinedAction)
+            and self.custom_command_action == other.custom_command_action
+        )
 
     @staticmethod
     def parse(element):
@@ -5222,8 +5113,7 @@ class UserDefinedAction(_ActionType):
         custom_command_action = CustomCommandAction.parse(
             element.find("CustomCommandAction")
         )
-        user_defined_action = UserDefinedAction(custom_command_action)
-        return user_defined_action
+        return UserDefinedAction(custom_command_action)
 
     def get_element(self):
         """returns the elementTree of the UserDefinedAction"""
@@ -5264,10 +5154,7 @@ class CustomCommandAction(_ActionType):
         self.content = content
 
     def __eq__(self, other):
-        if isinstance(other, CustomCommandAction):
-            if other.type == self.type:
-                return True
-        return False
+        return isinstance(other, CustomCommandAction) and other.type == self.type
 
     @staticmethod
     def parse(element):
@@ -5287,7 +5174,7 @@ class CustomCommandAction(_ActionType):
                 f'Expected "CustomCommandAction" element, received "{element.tag}".'
             )
         action_type = element.attrib.get("type", None)
-        if action_type == None:
+        if action_type is None:
             raise NotAValidElement(
                 'CustomCommandAction is missing required argument "type".'
             )

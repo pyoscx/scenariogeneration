@@ -141,10 +141,13 @@ class _SignalObjectBase(XodrBase):
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, _SignalObjectBase) and super().__eq__(other):
-            if self.get_common_attributes() == other.get_common_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, _SignalObjectBase)
+                and super().__eq__(other)
+                and self.get_common_attributes() == other.get_common_attributes()
+            )
+        )
 
     def _update_id(self):
         # ensure unique IDs
@@ -162,7 +165,7 @@ class _SignalObjectBase(XodrBase):
             self._usedIDs[self.__class__.__name__] = []
             self._IDCounter[self.__class__.__name__] = 0
 
-        if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
+        if self.id is None or str(self.id) in self._usedIDs[self.__class__.__name__]:
             while (
                 str(self._IDCounter[self.__class__.__name__])
                 in self._usedIDs[self.__class__.__name__]
@@ -174,12 +177,13 @@ class _SignalObjectBase(XodrBase):
 
     def get_common_attributes(self):
         """returns common attributes of Signal and Object as a dict"""
-        retdict = {}
-        retdict["id"] = str(self.id)
-        retdict["s"] = str(self.s)
-        retdict["t"] = str(self.t)
-        retdict["subtype"] = str(self.subtype)
-        retdict["dynamic"] = enum2str(self.dynamic)
+        retdict = {
+            "id": str(self.id),
+            "s": str(self.s),
+            "t": str(self.t),
+            "subtype": str(self.subtype),
+            "dynamic": enum2str(self.dynamic),
+        }
         retdict["zOffset"] = str(self.zOffset)
         if self.pitch is not None:
             retdict["pitch"] = str(self.pitch)
@@ -356,10 +360,13 @@ class Signal(_SignalObjectBase):
         self.validity = None
 
     def __eq__(self, other):
-        if isinstance(other, Signal) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Signal)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
         retdict = super().get_common_attributes()
@@ -427,17 +434,19 @@ class Validity(XodrBase):
         self.toLane = toLane
 
     def __eq__(self, other):
-        if isinstance(other, Validity) and super().__eq__(other):
-            if self.fromLane == other.fromLane and self.toLane == other.toLane:
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Validity)
+                and super().__eq__(other)
+                and (
+                    self.fromLane == other.fromLane and self.toLane == other.toLane
+                )
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes of Validity as a dict"""
-        retdict = {}
-        retdict["fromLane"] = str(self.fromLane)
-        retdict["toLane"] = str(self.toLane)
-        return retdict
+        return {"fromLane": str(self.fromLane), "toLane": str(self.toLane)}
 
     def get_element(self):
         """returns the elementTree of Validity"""
@@ -474,14 +483,16 @@ class Dependency(XodrBase):
         self.type = type
 
     def __eq__(self, other):
-        if isinstance(other, Dependency) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Dependency)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
-        retdict = {"id": str(self.id), "type": str(self.type)}
-        return retdict
+        return {"id": str(self.id), "type": str(self.type)}
 
     def get_element(self):
         element = ET.Element("dependency", attrib=self.get_attributes())
@@ -565,10 +576,13 @@ class SignalReference(XodrBase):
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, SignalReference) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, SignalReference)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def _update_id(self):
         # ensure unique IDs
@@ -586,7 +600,7 @@ class SignalReference(XodrBase):
             self._usedIDs[self.__class__.__name__] = []
             self._IDCounter[self.__class__.__name__] = 0
 
-        if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
+        if self.id is None or str(self.id) in self._usedIDs[self.__class__.__name__]:
             while (
                 str(self._IDCounter[self.__class__.__name__])
                 in self._usedIDs[self.__class__.__name__]
@@ -598,10 +612,7 @@ class SignalReference(XodrBase):
 
     def get_attributes(self):
         """returns attributes of SignalReference as a dict"""
-        retdict = {}
-        retdict["id"] = str(self.id)
-        retdict["s"] = str(self.s)
-        retdict["t"] = str(self.t)
+        retdict = {"id": str(self.id), "s": str(self.s), "t": str(self.t)}
         if self.orientation == Orientation.positive:
             retdict["orientation"] = "+"
         elif self.orientation == Orientation.negative:
@@ -801,18 +812,19 @@ class Object(_SignalObjectBase):
                 "was provided with length, but width is missing. Using 0 as fallback.",
             )
             self.width = 0
-        else:
-            pass
 
     def __eq__(self, other):
-        if isinstance(other, Object) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self._repeats == other._repeats
-                and self.outlines == other.outlines
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Object)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self._repeats == other._repeats
+                    and self.outlines == other.outlines
+                )
+            )
+        )
 
     def repeat(
         self,
@@ -843,37 +855,37 @@ class Object(_SignalObjectBase):
 
         # ensuring that all attributes that are required according to OpenDRIVE 1.6 are filled - for convenience the ones of the parent object are used
         # if not provided specifically
-        if sStart == None:
+        if sStart is None:
             self._repeats[-1]["s"] = str(self.s)
             infoFallback(self.id, "s")
         else:
             self._repeats[-1]["s"] = str(sStart)
-        if tStart == None:
+        if tStart is None:
             self._repeats[-1]["tStart"] = str(self.t)
             infoFallback(self.id, "tStart")
         else:
             self._repeats[-1]["tStart"] = str(tStart)
-        if tEnd == None:
+        if tEnd is None:
             self._repeats[-1]["tEnd"] = str(self.t)
             infoFallback(self.id, "tEnd")
         else:
             self._repeats[-1]["tEnd"] = str(tEnd)
-        if heightStart == None and self.height != None:
+        if heightStart is None and self.height != None:
             self._repeats[-1]["heightStart"] = str(self.height)
             infoFallback(self.id, "heightStart")
         else:
             self._repeats[-1]["heightStart"] = str(heightStart)
-        if heightEnd == None and self.height != None:
+        if heightEnd is None and self.height != None:
             self._repeats[-1]["heightEnd"] = str(self.height)
             infoFallback(self.id, "heightEnd")
         else:
             self._repeats[-1]["heightEnd"] = str(heightEnd)
-        if zOffsetStart == None:
+        if zOffsetStart is None:
             self._repeats[-1]["zOffsetStart"] = str(self.zOffset)
             infoFallback(self.id, "zOffsetStart")
         else:
             self._repeats[-1]["zOffsetStart"] = str(zOffsetStart)
-        if zOffsetEnd == None:
+        if zOffsetEnd is None:
             self._repeats[-1]["zOffsetEnd"] = str(self.zOffset)
             infoFallback(self.id, "zOffsetEnd")
         else:
@@ -1026,27 +1038,30 @@ class Tunnel(XodrBase):
         self.lighting = lighting
 
     def __eq__(self, other):
-        if isinstance(other, Tunnel) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Tunnel)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
         """Return a dictionary of all xml attributes"""
-        retdict = {}
-        retdict["s"] = str(self.s)
-        retdict["length"] = str(self.length)
-        retdict["id"] = str(self.id)
-        retdict["name"] = str(self.name)
-        retdict["type"] = enum2str(self.tunnel_type)
+        retdict = {
+            "s": str(self.s),
+            "length": str(self.length),
+            "id": str(self.id),
+            "name": str(self.name),
+            "type": enum2str(self.tunnel_type),
+        }
         retdict["daylight"] = str(self.daylight)
         retdict["lighting"] = str(self.lighting)
         return retdict
 
     def get_element(self):
         """Return the elementTree of the Tunnel"""
-        element = ET.Element("tunnel", attrib=self.get_attributes())
-        return element
+        return ET.Element("tunnel", attrib=self.get_attributes())
 
 
 class CornerLocal(XodrBase):
@@ -1110,18 +1125,22 @@ class CornerLocal(XodrBase):
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, CornerLocal) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, CornerLocal)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes of cornerLocal as a dict"""
-        retdict = {}
-        retdict["u"] = str(self.u)
-        retdict["v"] = str(self.v)
-        retdict["z"] = str(self.z)
-        retdict["height"] = str(self.height)
+        retdict = {
+            "u": str(self.u),
+            "v": str(self.v),
+            "z": str(self.z),
+            "height": str(self.height),
+        }
         if self.id is not None:
             retdict["id"] = str(self.id)
         return retdict
@@ -1193,18 +1212,22 @@ class CornerRoad(XodrBase):
         self.id = id
 
     def __eq__(self, other):
-        if isinstance(other, CornerRoad) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, CornerRoad)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes of cornerRoad as a dict"""
-        retdict = {}
-        retdict["s"] = str(self.s)
-        retdict["t"] = str(self.t)
-        retdict["dz"] = str(self.dz)
-        retdict["height"] = str(self.height)
+        retdict = {
+            "s": str(self.s),
+            "t": str(self.t),
+            "dz": str(self.dz),
+            "height": str(self.height),
+        }
         if self.id is not None:
             retdict["id"] = str(self.id)
         return retdict
@@ -1282,13 +1305,16 @@ class Outline(XodrBase):
         self._corner_type = None
 
     def __eq__(self, other):
-        if isinstance(other, Outline) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.corners == other.corners
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Outline)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.corners == other.corners
+                )
+            )
+        )
 
     def add_corner(self, corner):
         """add_corner adds a corner to the outline
@@ -1299,13 +1325,10 @@ class Outline(XodrBase):
         ----------
             corner (CornerRoad, CornerLocal)
         """
-        if not (isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)):
+        if not (isinstance(corner, (CornerLocal, CornerRoad))):
             raise TypeError("Not a valid corner.")
         if len(self.corners) == 0:
-            if isinstance(corner, CornerLocal):
-                self._corner_type = "local"
-            else:
-                self._corner_type = "road"
+            self._corner_type = "local" if isinstance(corner, CornerLocal) else "road"
         if (isinstance(corner, CornerLocal) and self._corner_type == "local") or (
             isinstance(corner, CornerRoad) and self._corner_type == "road"
         ):
@@ -1380,10 +1403,13 @@ class ParkingSpace(XodrBase):
         self.restrictions = restrictions
 
     def __eq__(self, other):
-        if isinstance(other, Outline) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Outline)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes of ParkingSpace as a dict"""
