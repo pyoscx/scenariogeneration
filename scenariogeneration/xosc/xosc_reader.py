@@ -60,11 +60,11 @@ class CatalogLoader:
         """
         if isinstance(catalog_reference, CatalogReference):
             fullpath = os.path.join(
-                catalog_path, catalog_reference.catalogname + ".xosc"
+                catalog_path, f"{catalog_reference.catalogname}.xosc"
             )
             name_ref = catalog_reference.catalogname
         else:
-            fullpath = os.path.join(catalog_path, catalog_reference + ".xosc")
+            fullpath = os.path.join(catalog_path, f"{catalog_reference}.xosc")
             name_ref = catalog_reference
 
         with open(fullpath, "r") as f:
@@ -83,9 +83,9 @@ class CatalogLoader:
             The catalog entry
 
         """
-        if not catalog_reference.catalogname in self.all_catalogs:
+        if catalog_reference.catalogname not in self.all_catalogs:
             raise NoCatalogFoundError(
-                "Catalog " + catalog_reference.catalogname + " is not loaded yet."
+                f"Catalog {catalog_reference.catalogname} is not loaded yet."
             )
         catalog = self.all_catalogs[catalog_reference.catalogname]
         for entry in catalog:
@@ -153,7 +153,7 @@ def CatalogReader(catalog_reference, catalog_path):
     loaded_catalog = catalog_reference.catalogname
 
     with open(
-        os.path.join(catalog_path, catalog_reference.catalogname + ".xosc"), "r"
+        os.path.join(catalog_path, f"{catalog_reference.catalogname}.xosc"), "r"
     ) as f:
         loaded_catalog = ET.parse(f)
 

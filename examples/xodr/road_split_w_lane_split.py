@@ -29,7 +29,6 @@
 """
 
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator
-import os
 
 
 class Scenario(ScenarioGenerator):
@@ -37,9 +36,6 @@ class Scenario(ScenarioGenerator):
         super().__init__()
 
     def road(self, **kwargs):
-        # create some simple roads
-        roads = []
-
         # create the planview and the geometry
         planview = xodr.PlanView()
         planview.add_geometry(xodr.Line(200))
@@ -106,36 +102,25 @@ class Scenario(ScenarioGenerator):
         lanes.add_lanesection(lanesec2, lanelinker)
         lanes.add_lanesection(lanesec3, lanelinker)
 
-        # create the road
-        roads.append(xodr.Road(0, planview, lanes))
-
-        # create the other roads
-        roads.append(
-            xodr.create_road(xodr.Line(100), id=1, left_lanes=0, right_lanes=2)
-        )
-        roads.append(
-            xodr.create_road(xodr.Line(100), id=2, left_lanes=0, right_lanes=1)
-        )
-        # create the junction roads
-        roads.append(
+        roads = [
+            xodr.Road(0, planview, lanes),
+            xodr.create_road(xodr.Line(100), id=1, left_lanes=0, right_lanes=2),
+            xodr.create_road(xodr.Line(100), id=2, left_lanes=0, right_lanes=1),
             xodr.create_road(
                 xodr.Spiral(0.001, 0.02, 30),
                 id=3,
                 left_lanes=0,
                 right_lanes=2,
                 road_type=1,
-            )
-        )
-        roads.append(
+            ),
             xodr.create_road(
                 xodr.Spiral(-0.001, -0.02, 30),
                 id=4,
                 left_lanes=0,
                 right_lanes=1,
                 road_type=1,
-            )
-        )
-
+            ),
+        ]
         # add predecessors and succesors to the non junction roads
         roads[0].add_successor(xodr.ElementType.junction, 1)
         roads[1].add_predecessor(xodr.ElementType.junction, 1)
@@ -152,7 +137,7 @@ class Scenario(ScenarioGenerator):
         roads[4].add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
 
         # create the junction struct
-        junction = xodr.create_junction(roads[3:], 1, roads[0:3])
+        junction = xodr.create_junction(roads[3:], 1, roads[:3])
 
         # create the opendrive
         odr = xodr.OpenDrive("myroad")

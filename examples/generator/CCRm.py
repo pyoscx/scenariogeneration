@@ -46,7 +46,7 @@ class Scenario(ScenarioGenerator):
         self.generate_all_roads = False
 
         # parameters for the scenario
-        self.parameters["ego_speedvalue"] = [x for x in range(30, 85, 5)]
+        self.parameters["ego_speedvalue"] = list(range(30, 85, 5))
         self.parameters["offset"] = [-50, -25, 0, 25, 50]
 
     def road(self, **kwargs):
@@ -205,8 +205,7 @@ class Scenario(ScenarioGenerator):
         )
         sb.add_story(story)
 
-        ## create and return the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "CCRm_v: "
             + str(kwargs["ego_speedvalue"])
             + ", offset: "
@@ -218,7 +217,6 @@ class Scenario(ScenarioGenerator):
             roadnetwork=road,
             catalog=catalog,
         )
-        return sce
 
 
 if __name__ == "__main__":

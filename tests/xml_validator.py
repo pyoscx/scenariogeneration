@@ -13,16 +13,9 @@ class ValidationResponse(Enum):
     UNKNOWN_ERROR = auto()
 
 
-schemas = []
-schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(0) + ".xsd"))
-)
-schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(1) + ".xsd"))
-)
-schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd"))
-)
+schemas = [xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_0.xsd"))]
+schemas.append(xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_1.xsd")))
+schemas.append(xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_2.xsd")))
 
 xodr_schema = xmlschema.XMLSchema(os.path.join("schemas", "opendrive_17_core.xsd"))
 

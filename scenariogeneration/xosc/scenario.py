@@ -168,18 +168,15 @@ class Scenario(VersionBase):
         )
 
     def __eq__(self, other):
-        if isinstance(other, Scenario):
-            if (
-                self.entities == other.entities
-                and self.storyboard == other.storyboard
-                and self.roadnetwork == other.roadnetwork
-                and self.catalog == other.catalog
-                and self.header == other.header
-                and self.parameters == other.parameters
-                and self.variable_declaration == other.variable_declaration
-            ):
-                return True
-        return False
+        return isinstance(other, Scenario) and (
+            self.entities == other.entities
+            and self.storyboard == other.storyboard
+            and self.roadnetwork == other.roadnetwork
+            and self.catalog == other.catalog
+            and self.header == other.header
+            and self.parameters == other.parameters
+            and self.variable_declaration == other.variable_declaration
+        )
 
     @staticmethod
     def parse(element):
@@ -306,15 +303,12 @@ class RoadNetwork(VersionBase):
         self.used_area_positions = []
 
     def __eq__(self, other):
-        if isinstance(other, RoadNetwork):
-            if (
-                self.road_file == other.road_file
-                and self.scene == other.scene
-                and self.traffic_signals == other.traffic_signals
-                and self.used_area_positions == other.used_area_positions
-            ):
-                return True
-        return False
+        return isinstance(other, RoadNetwork) and (
+            self.road_file == other.road_file
+            and self.scene == other.scene
+            and self.traffic_signals == other.traffic_signals
+            and self.used_area_positions == other.used_area_positions
+        )
 
     @staticmethod
     def parse(element):

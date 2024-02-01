@@ -28,10 +28,9 @@ def parameter_fixture():
     det = xosc.Deterministic()
     det.add_multi_distribution(dist)
 
-    pvd = xosc.ParameterValueDistribution(
+    return xosc.ParameterValueDistribution(
         "my_parametrization", "Mandolin", "my_test.xosc", det
     )
-    return pvd
 
 
 @pytest.fixture

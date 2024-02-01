@@ -30,10 +30,7 @@ class Scenario(ScenarioGenerator):
 
     def road(self, **kwargs):
         # create some simple roads
-        roads = []
-        roads.append(
-            xodr.create_road(xodr.Line(100), id=0, left_lanes=0, right_lanes=2)
-        )
+        roads = [xodr.create_road(xodr.Line(100), id=0, left_lanes=0, right_lanes=2)]
         roads.append(
             xodr.create_road(xodr.Line(100), id=1, left_lanes=0, right_lanes=1)
         )
@@ -75,7 +72,7 @@ class Scenario(ScenarioGenerator):
         roads[4].add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
 
         # create the junction struct
-        junction = xodr.create_junction(roads[3:], 1, roads[0:3])
+        junction = xodr.create_junction(roads[3:], 1, roads[:3])
 
         # create the opendrive
         odr = xodr.OpenDrive("myroad")

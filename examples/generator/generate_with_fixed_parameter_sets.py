@@ -23,17 +23,9 @@ from scenariogeneration import ScenarioGenerator
 class Scenario(ScenarioGenerator):
     def __init__(self):
         ScenarioGenerator.__init__(self)
-        self.parameters = []
-        d1 = {}
-        d1["road_curvature"] = 0.001
-        d1["speed"] = 10
-
-        d2 = {}
-        d2["road_curvature"] = 0.002
-        d2["speed"] = 20
-
-        self.parameters.append(d1)
-        self.parameters.append(d2)
+        d1 = {"road_curvature": 0.001, "speed": 10}
+        d2 = {"road_curvature": 0.002, "speed": 20}
+        self.parameters = [d1, d2]
         self.naming = "parameter"
 
     def road(self, **kwargs):
@@ -112,7 +104,7 @@ class Scenario(ScenarioGenerator):
             ),
         )
         sb.add_maneuver(man, egoname)
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "my scenario",
             "Mandolin",
             xosc.ParameterDeclarations(),
@@ -121,8 +113,6 @@ class Scenario(ScenarioGenerator):
             road,
             catalog,
         )
-
-        return sce
 
 
 if __name__ == "__main__":

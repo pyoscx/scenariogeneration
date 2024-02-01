@@ -103,33 +103,28 @@ class _Header:
         self.revMinor = revMinor
 
     def __eq__(self, other):
-        if isinstance(other, _Header):
-            if (
-                self.name == other.name
-                and self.revMajor == other.revMajor
-                and self.revMinor == other.revMinor
-            ):
-                return True
-        return False
+        return isinstance(other, _Header) and (
+            self.name == other.name
+            and self.revMajor == other.revMajor
+            and self.revMinor == other.revMinor
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the FileHeader"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["revMajor"] = str(self.revMajor)
-        retdict["revMinor"] = str(self.revMinor)
-        retdict["date"] = str(dt.datetime.now())
-        retdict["north"] = "0.0"
-        retdict["south"] = "0.0"
-        retdict["east"] = "0.0"
-        retdict["west"] = "0.0"
-        return retdict
+        return {
+            "name": self.name,
+            "revMajor": str(self.revMajor),
+            "revMinor": str(self.revMinor),
+            "date": str(dt.datetime.now()),
+            "north": "0.0",
+            "south": "0.0",
+            "east": "0.0",
+            "west": "0.0",
+        }
 
     def get_element(self):
         """returns the elementTree of the FileHeader"""
-        element = ET.Element("header", attrib=self.get_attributes())
-
-        return element
+        return ET.Element("header", attrib=self.get_attributes())
 
 
 class Road(XodrBase):
@@ -238,9 +233,7 @@ class Road(XodrBase):
         """
         super().__init__()
         self.id = road_id
-        if not (
-            isinstance(planview, PlanView) or isinstance(planview, AdjustablePlanview)
-        ):
+        if not (isinstance(planview, (PlanView, AdjustablePlanview))):
             raise TypeError(
                 "planview input is not of type PlanView or AdjustablePlanview"
             )
@@ -272,8 +265,10 @@ class Road(XodrBase):
         self._shape_adjusted = False
 
     def __eq__(self, other):
-        if isinstance(other, Road) and super().__eq__(other):
-            if (
+        return bool(
+            isinstance(other, Road)
+            and super().__eq__(other)
+            and (
                 self.get_attributes() == other.get_attributes()
                 and self.objects == other.objects
                 and self.signals == other.signals
@@ -289,9 +284,8 @@ class Road(XodrBase):
                 and self.lane_offset_pred == other.lane_offset_pred
                 and self.pred_direct_junction == other.pred_direct_junction
                 and self.succ_direct_junction == other.succ_direct_junction
-            ):
-                return True
-        return False
+            )
+        )
 
     def is_adjusted(self, domain="planview"):
         """help method to check if the road has been properly defined in the domain
@@ -501,13 +495,13 @@ class Road(XodrBase):
 
         """
         if isinstance(tunnel, list):
-            if any([not isinstance(x, Tunnel) for x in tunnel]):
+            if any(not isinstance(x, Tunnel) for x in tunnel):
                 raise TypeError("tunnel contains elements that are not of type Tunnel")
             self.objects.extend(tunnel)
-        else:
-            if not isinstance(tunnel, Tunnel):
-                raise TypeError("tunnel is not of type Tunnel")
+        elif isinstance(tunnel, Tunnel):
             self.objects.append(tunnel)
+        else:
+            raise TypeError("tunnel is not of type Tunnel")
         return self
 
     def add_object_roadside(
@@ -631,18 +625,17 @@ class Road(XodrBase):
                     repeat_t[road_side].append(
                         (total_widths[road_side][idx] + tOffset) * hdg_factor
                     )
-                else:
-                    if total_widths[road_side][idx] != total_widths[road_side][idx - 1]:
-                        # add another repeat record only if width is changing
-                        repeat_lengths[road_side].append(length)
-                        repeat_s[road_side].append(lanesections_s[idx])
-                        repeat_t[road_side].append(
-                            (total_widths[road_side][idx] + tOffset) * hdg_factor
-                        )
-                    else:
-                        # otherwise add the length to existing repeat entry
-                        repeat_lengths[road_side][-1] += length
+                elif total_widths[road_side][idx] == total_widths[road_side][idx - 1]:
+                    # otherwise add the length to existing repeat entry
+                    repeat_lengths[road_side][-1] += length
 
+                else:
+                    # add another repeat record only if width is changing
+                    repeat_lengths[road_side].append(length)
+                    repeat_s[road_side].append(lanesections_s[idx])
+                    repeat_t[road_side].append(
+                        (total_widths[road_side][idx] + tOffset) * hdg_factor
+                    )
             for idx, repeat_length in enumerate(repeat_lengths[road_side]):
                 if repeat_length < 0:
                     raise ValueError(
@@ -668,18 +661,13 @@ class Road(XodrBase):
     def add_signal(self, signal):
         """add_signal adds a signal to a road"""
         if isinstance(signal, list):
-            if any(
-                [
-                    not any(isinstance(x, Signal) or isinstance(x, SignalReference))
-                    for x in signal
-                ]
-            ):
+            if any(not any(isinstance(x, (Signal, SignalReference))) for x in signal):
                 raise TypeError("signal contains elements that are not of type Signal")
             for single_signal in signal:
                 single_signal._update_id()
             self.signals = self.signals + signal
         else:
-            if not (isinstance(signal, Signal) or isinstance(signal, SignalReference)):
+            if not (isinstance(signal, (Signal, SignalReference))):
                 raise TypeError("signal is not of type Signal")
             signal._update_id()
             self.signals.append(signal)
@@ -821,14 +809,15 @@ class OpenDrive(XodrBase):
         # self.road_ids = []
 
     def __eq__(self, other):
-        if isinstance(other, OpenDrive) and super().__eq__(other):
-            if (
+        return bool(
+            isinstance(other, OpenDrive)
+            and super().__eq__(other)
+            and (
                 self.roads == other.roads
                 and self.junctions == other.junctions
                 and self._header == other._header
-            ):
-                return True
-        return False
+            )
+        )
 
     def add_road(self, road):
         """Adds a new road to the opendrive
@@ -845,9 +834,7 @@ class OpenDrive(XodrBase):
                 "No road was added and the added road has a predecessor, please add the predecessor first"
             )
         if str(road.id) in self.roads:
-            raise IdAlreadyExists(
-                "Road id " + str(road.id) + " has already been added. "
-            )
+            raise IdAlreadyExists(f"Road id {str(road.id)} has already been added. ")
         self.roads[str(road.id)] = road
         return self
 
@@ -879,9 +866,9 @@ class OpenDrive(XodrBase):
 
         results = list(combinations(self.roads, 2))
 
-        for r in range(len(results)):
+        for result in results:
             # print('Analyzing roads', results[r][0], 'and', results[r][1] )
-            create_lane_links(self.roads[results[r][0]], self.roads[results[r][1]])
+            create_lane_links(self.roads[result[0]], self.roads[result[1]])
 
     def adjust_roadmarks(self):
         """Tries to adjust broken roadmarks (if same definition) along roads and lane sections"""
@@ -919,7 +906,6 @@ class OpenDrive(XodrBase):
                                     self.roads[r].lanes.lanesections[-1],
                                     ContactPoint.end,
                                 )
-                                count_total_adjusted_roads += 1
                             else:
                                 self.roads[
                                     str(self.roads[r].successor.element_id)
@@ -930,7 +916,7 @@ class OpenDrive(XodrBase):
                                     self.roads[r].lanes.lanesections[-1],
                                     ContactPoint.end,
                                 )
-                                count_total_adjusted_roads += 1
+                            count_total_adjusted_roads += 1
                         else:
                             for j in self.junctions:
                                 if j.id == self.roads[r].successor.element_id:
@@ -977,7 +963,6 @@ class OpenDrive(XodrBase):
                                     self.roads[r].lanes.lanesections[0],
                                     ContactPoint.start,
                                 )
-                                count_total_adjusted_roads += 1
                             else:
                                 self.roads[
                                     str(self.roads[r].predecessor.element_id)
@@ -988,7 +973,7 @@ class OpenDrive(XodrBase):
                                     self.roads[r].lanes.lanesections[0],
                                     ContactPoint.start,
                                 )
-                                count_total_adjusted_roads += 1
+                            count_total_adjusted_roads += 1
                         else:
                             for conn in self.junctions[0].connections:
                                 if str(conn.incoming_road) == r:
@@ -1102,7 +1087,7 @@ class OpenDrive(XodrBase):
             for lane in (
                 self.roads[str(neighbour_id)]
                 .lanes.lanesections[relevant_lanesection]
-                .rightlanes[0 : -1 * num_lane_offsets]
+                .rightlanes[: -1 * num_lane_offsets]
             ):
                 offset_width = offset_width - (
                     lane.widths[relevant_lanesection].a
@@ -1114,7 +1099,7 @@ class OpenDrive(XodrBase):
             for lane in (
                 self.roads[str(neighbour_id)]
                 .lanes.lanesections[relevant_lanesection]
-                .leftlanes[0:num_lane_offsets]
+                .leftlanes[:num_lane_offsets]
             ):
                 offset_width = offset_width + (
                     lane.widths[relevant_lanesection].a
@@ -1144,7 +1129,7 @@ class OpenDrive(XodrBase):
             neighbor_id = str(self.roads[road_id].successor.element_id)
         else:
             raise GeneralIssueInputArguments(
-                "connection_type: " + connection_type + " is unknown."
+                f"connection_type: {connection_type} is unknown."
             )
         if self.roads[road_id].road_type == -1:
             if not (
@@ -1166,26 +1151,25 @@ class OpenDrive(XodrBase):
                     + neighbor_id
                     + " have a mismatch in connections, please check predecessors/sucessors and contact points."
                 )
-        else:
-            if not (
-                (
-                    contact_point == ContactPoint.start
-                    and self.roads[neighbor_id].predecessor is not None
-                    and self.roads[neighbor_id].predecessor.element_id
-                    == self.roads[road_id].road_type
-                )
-                or contact_point == ContactPoint.end
-                and self.roads[neighbor_id].successor is not None
-                and self.roads[neighbor_id].successor.element_id
+        elif not (
+            (
+                contact_point == ContactPoint.start
+                and self.roads[neighbor_id].predecessor is not None
+                and self.roads[neighbor_id].predecessor.element_id
                 == self.roads[road_id].road_type
-            ):
-                raise MixingDrivingDirection(
-                    "road "
-                    + road_id
-                    + " and road "
-                    + neighbor_id
-                    + " have a mismatch in connections, please check predecessors/sucessors and contact points."
-                )
+            )
+            or contact_point == ContactPoint.end
+            and self.roads[neighbor_id].successor is not None
+            and self.roads[neighbor_id].successor.element_id
+            == self.roads[road_id].road_type
+        ):
+            raise MixingDrivingDirection(
+                "road "
+                + road_id
+                + " and road "
+                + neighbor_id
+                + " have a mismatch in connections, please check predecessors/sucessors and contact points."
+            )
 
     def _create_adjustable_planview(
         self,
@@ -1482,17 +1466,15 @@ class OpenDrive(XodrBase):
                 fixed_road = True
                 count_total_adjusted_roads += 1
 
-        # If no roads are fixed, select the first road is selected as the pivot-road
-        if len(self.roads) > 0:
-            if fixed_road is False:
-                for key in self.roads.keys():
-                    # make sure it is not a connecting road, patching algorithm can't handle that
-                    if self.roads[key].road_type == -1 and not isinstance(
-                        self.roads[key].planview, AdjustablePlanview
-                    ):
-                        self.roads[key].planview.adjust_geometries()
-                        break
-                count_total_adjusted_roads += 1
+        if fixed_road is False and len(self.roads) > 0:
+            for key in self.roads.keys():
+                # make sure it is not a connecting road, patching algorithm can't handle that
+                if self.roads[key].road_type == -1 and not isinstance(
+                    self.roads[key].planview, AdjustablePlanview
+                ):
+                    self.roads[key].planview.adjust_geometries()
+                    break
+            count_total_adjusted_roads += 1
 
         while count_total_adjusted_roads < len(self.roads):
             count_adjusted_roads = 0
@@ -1513,12 +1495,17 @@ class OpenDrive(XodrBase):
                             )
 
                         if self.roads[k].successor.element_type == ElementType.junction:
-                            if self.roads[k].succ_direct_junction:
-                                for key, value in self.roads[
-                                    k
-                                ].succ_direct_junction.items():
-                                    if self.roads[str(key)].planview.adjusted:
-                                        successor = str(key)
+                            if not self.roads[k].succ_direct_junction:
+                                raise UndefinedRoadNetwork(
+                                    "cannot handle a successor connection to a junction with an AdjustablePlanView"
+                                )
+                            for key, value in self.roads[
+                                k
+                            ].succ_direct_junction.items():
+                                if self.roads[str(key)].planview.adjusted:
+                                    successor = str(key)
+                                    suc_contact_point = (
+                                        ContactPoint.end
                                         if (
                                             self.roads[str(key)].successor
                                             and self.roads[
@@ -1529,23 +1516,15 @@ class OpenDrive(XodrBase):
                                                 str(key)
                                             ].successor.element_id
                                             == self.roads[k].successor.element_id
-                                        ):
-                                            suc_contact_point = ContactPoint.end
-                                        else:
-                                            suc_contact_point = ContactPoint.start
-                                        break
-                            else:
-                                raise UndefinedRoadNetwork(
-                                    "cannot handle a successor connection to a junction with an AdjustablePlanView"
-                                )
-                        else:
-                            if self.roads[
-                                str(self.roads[k].successor.element_id)
-                            ].planview.adjusted:
-                                successor = str(self.roads[k].successor.element_id)
-                                suc_contact_point = self.roads[
-                                    k
-                                ].successor.contact_point
+                                        )
+                                        else ContactPoint.start
+                                    )
+                                    break
+                        elif self.roads[
+                            str(self.roads[k].successor.element_id)
+                        ].planview.adjusted:
+                            successor = str(self.roads[k].successor.element_id)
+                            suc_contact_point = self.roads[k].successor.contact_point
 
                         if (
                             self.roads[k].predecessor.element_type
@@ -1557,20 +1536,21 @@ class OpenDrive(XodrBase):
                                 ].pred_direct_junction.items():
                                     if self.roads[str(key)].planview.adjusted:
                                         predecessor = str(key)
-                                        if (
-                                            self.roads[str(key)].successor
-                                            and self.roads[
-                                                str(key)
-                                            ].successor.element_type
-                                            == ElementType.junction
-                                            and self.roads[
-                                                str(key)
-                                            ].successor.element_id
-                                            == self.roads[k].predecessor.element_id
-                                        ):
-                                            pred_contact_point = ContactPoint.end
-                                        else:
-                                            pred_contact_point = ContactPoint.start
+                                        pred_contact_point = (
+                                            ContactPoint.end
+                                            if (
+                                                self.roads[str(key)].successor
+                                                and self.roads[
+                                                    str(key)
+                                                ].successor.element_type
+                                                == ElementType.junction
+                                                and self.roads[
+                                                    str(key)
+                                                ].successor.element_id
+                                                == self.roads[k].predecessor.element_id
+                                            )
+                                            else ContactPoint.start
+                                        )
                                         break
                             else:
                                 for r_id, r in self.roads.items():
@@ -1588,14 +1568,11 @@ class OpenDrive(XodrBase):
                                             predecessor = r_id
                                             break
 
-                        else:
-                            if self.roads[
-                                str(self.roads[k].predecessor.element_id)
-                            ].planview.adjusted:
-                                predecessor = str(self.roads[k].predecessor.element_id)
-                                pred_contact_point = self.roads[
-                                    k
-                                ].predecessor.contact_point
+                        elif self.roads[
+                            str(self.roads[k].predecessor.element_id)
+                        ].planview.adjusted:
+                            predecessor = str(self.roads[k].predecessor.element_id)
+                            pred_contact_point = self.roads[k].predecessor.contact_point
                         if successor and predecessor:
                             self._create_adjustable_planview(
                                 k,
@@ -1606,7 +1583,6 @@ class OpenDrive(XodrBase):
                             )
                             count_adjusted_roads += 1
 
-                    # check if it has a normal (road) predecessor
                     elif (
                         self.roads[k].predecessor is not None
                         and self.roads[k].predecessor.element_type
@@ -1653,7 +1629,6 @@ class OpenDrive(XodrBase):
                                 )
                             count_adjusted_roads += 1
 
-                    # check if geometry has a normal (road) successor
                     elif (
                         self.roads[k].successor is not None
                         and self.roads[k].successor.element_type
@@ -1699,7 +1674,6 @@ class OpenDrive(XodrBase):
                                     pred_id, k, ContactPoint.start, "successor"
                                 )
                             count_adjusted_roads += 1
-                    # do special check for direct junctions
                     elif (
                         self.roads[k].succ_direct_junction
                         or self.roads[k].pred_direct_junction
@@ -1821,10 +1795,10 @@ class OpenDrive(XodrBase):
             elevation_calculators.append(ec)
         for elevation_type in ["superelevation", "elevation"]:
             count_total_adjusted_roads = sum(
-                [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+                x.is_adjusted(elevation_type) for _, x in self.roads.items()
             )
             if (
-                any([x._extra_elevation_needed for x in elevation_calculators])
+                any(x._extra_elevation_needed for x in elevation_calculators)
                 and count_total_adjusted_roads == 0
             ):
                 elevation_calculators[0].set_zero_elevation()
@@ -1836,10 +1810,10 @@ class OpenDrive(XodrBase):
                     ec.create_profile(elevation_type)
 
                 new_count = sum(
-                    [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+                    x.is_adjusted(elevation_type) for _, x in self.roads.items()
                 )
                 if new_count == count_total_adjusted_roads:
-                    Warning("cannot adjust " + elevation_type + " more.")
+                    Warning(f"cannot adjust {elevation_type} more.")
                     break
                 count_total_adjusted_roads = new_count
 
@@ -1853,9 +1827,9 @@ class OpenDrive(XodrBase):
         """
         if not isinstance(junction, Junction):
             raise TypeError("junction input is not of type Junction")
-        if any([junction.id == x.id for x in self.junctions]):
+        if any(junction.id == x.id for x in self.junctions):
             raise IdAlreadyExists(
-                "Junction with id " + str(junction.id) + " has already been added. "
+                f"Junction with id {str(junction.id)} has already been added. "
             )
         self.junctions.append(junction)
         return self
@@ -1888,8 +1862,8 @@ class OpenDrive(XodrBase):
                 Default: 'utf-8'
 
         """
-        if filename == None:
-            filename = self.name + ".xodr"
+        if filename is None:
+            filename = f"{self.name}.xodr"
         printToFile(self.get_element(), filename, prettyprint, encoding)
 
 
@@ -1945,41 +1919,38 @@ class _Type(XodrBase):
         self.s = s
         self.country = country
         if (
-            isinstance(speed, float)
-            or isinstance(speed, int)
+            isinstance(speed, (float, int))
             or speed in ["no limit", "undefined"]
-            or speed == None
+            or speed is None
         ):
             self.speed = speed
-        else:
-            if isinstance(speed, str):
-                raise ValueError(
-                    'speed can only be numerical or "no limit" and "undefined", not: '
-                    + str(speed_unit)
-                )
+        elif isinstance(speed, str):
+            raise ValueError(
+                'speed can only be numerical or "no limit" and "undefined", not: '
+                + str(speed_unit)
+            )
 
         if speed_unit not in ["m/s", "mph", "kph"]:
             raise ValueError(
-                "speed_unit can only be m/s, mph, or kph, not: " + speed_unit
+                f"speed_unit can only be m/s, mph, or kph, not: {speed_unit}"
             )
         self.speed_unit = speed_unit
 
     def __eq__(self, other):
-        if isinstance(other, _Type) and super().__eq__(other):
-            if (
+        return bool(
+            isinstance(other, _Type)
+            and super().__eq__(other)
+            and (
                 self.get_attributes() == other.get_attributes()
                 and self.speed == other.speed
                 and self.speed_unit == other.speed_unit
-            ):
-                return True
-        return False
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the _Type"""
-        retdict = {}
+        retdict = {"s": str(self.s), "type": enum2str(self.road_type)}
 
-        retdict["s"] = str(self.s)
-        retdict["type"] = enum2str(self.road_type)
         if self.country:
             retdict["country"] = self.country
         return retdict

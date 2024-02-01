@@ -148,10 +148,10 @@ class ParameterDeclarations(VersionBase):
         return parameter_declarations
 
     def __eq__(self, other):
-        if isinstance(other, ParameterDeclarations):
-            if self.parameters == other.parameters:
-                return True
-        return False
+        return (
+            isinstance(other, ParameterDeclarations)
+            and self.parameters == other.parameters
+        )
 
     def add_parameter(self, parameter):
         """add_parameter adds a Parameter to the ParameterDeclarations
@@ -221,10 +221,10 @@ class VariableDeclarations(VersionBase):
         return variable_declarations
 
     def __eq__(self, other):
-        if isinstance(other, VariableDeclarations):
-            if self.variables == other.variables:
-                return True
-        return False
+        return (
+            isinstance(other, VariableDeclarations)
+            and self.variables == other.variables
+        )
 
     def add_variable(self, variable):
         """add_variable adds a Variable to the VariableDeclarations
@@ -301,10 +301,7 @@ class EntityRef(VersionBase):
         return EntityRef(entity)
 
     def __eq__(self, other):
-        if isinstance(other, EntityRef):
-            if self.entity == other.entity:
-                return True
-        return False
+        return isinstance(other, EntityRef) and self.entity == other.entity
 
     def get_attributes(self):
         """returns the attributes of the EntityRef as a dict"""
@@ -374,13 +371,10 @@ class Parameter(VersionBase):
         self.constraint_groups = []
 
     def __eq__(self, other):
-        if isinstance(other, Parameter):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.constraint_groups == other.constraint_groups
-            ):
-                return True
-        return False
+        return isinstance(other, Parameter) and (
+            self.get_attributes() == other.get_attributes()
+            and self.constraint_groups == other.constraint_groups
+        )
 
     @staticmethod
     def parse(element):
@@ -490,13 +484,10 @@ class Variable(VersionBase):
         self.constraint_groups = []
 
     def __eq__(self, other):
-        if isinstance(other, Variable):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.constraint_groups == other.constraint_groups
-            ):
-                return True
-        return False
+        return isinstance(other, Variable) and (
+            self.get_attributes() == other.get_attributes()
+            and self.constraint_groups == other.constraint_groups
+        )
 
     @staticmethod
     def parse(element):
@@ -536,8 +527,7 @@ class Variable(VersionBase):
         """returns the elementTree of the Variable"""
         if self.isVersionEqLess(minor=1):
             raise OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
-        element = ET.Element("VariableDeclaration", attrib=self.get_attributes())
-        return element
+        return ET.Element("VariableDeclaration", attrib=self.get_attributes())
 
 
 class Orientation(VersionBase):
@@ -598,10 +588,10 @@ class Orientation(VersionBase):
         self.ref = convert_enum(reference, ReferenceContext, True)
 
     def __eq__(self, other):
-        if isinstance(other, Orientation):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Orientation)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -616,16 +606,10 @@ class Orientation(VersionBase):
             orientation (Orientation): a Orientation object
 
         """
-        h = None
-        p = None
-        r = None
         reference = None
-        if "h" in element.attrib:
-            h = convert_float(element.attrib["h"])
-        if "p" in element.attrib:
-            p = convert_float(element.attrib["p"])
-        if "r" in element.attrib:
-            r = convert_float(element.attrib["r"])
+        h = convert_float(element.attrib["h"]) if "h" in element.attrib else None
+        p = convert_float(element.attrib["p"]) if "p" in element.attrib else None
+        r = convert_float(element.attrib["r"]) if "r" in element.attrib else None
         if "type" in element.attrib:
             reference_str = element.attrib["type"]
             reference = convert_enum(reference_str, ReferenceContext, False)
@@ -638,15 +622,12 @@ class Orientation(VersionBase):
         Returns: boolean
 
         """
-        if (
+        return (
             self.h is not None
             or self.p is not None
             or self.r is not None
             or self.ref is not None
-        ):
-            return True
-        else:
-            return False
+        )
 
     def get_attributes(self):
         """returns the attributes of the Orientation as a dict"""
@@ -727,10 +708,10 @@ class TransitionDynamics(VersionBase):
         self.following_mode = convert_enum(following_mode, FollowingMode, True)
 
     def __eq__(self, other):
-        if isinstance(other, TransitionDynamics):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TransitionDynamics)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -869,10 +850,10 @@ class DynamicsConstraints(VersionBase):
         )
 
     def __eq__(self, other):
-        if isinstance(other, DynamicsConstraints):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, DynamicsConstraints)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     def is_filled(self):
         """is_filled check is any constraints are set
@@ -881,10 +862,7 @@ class DynamicsConstraints(VersionBase):
 
         """
 
-        if self.max_acceleration or self.max_deceleration or self.max_speed:
-            return True
-        else:
-            return False
+        return bool(self.max_acceleration or self.max_deceleration or self.max_speed)
 
     def get_attributes(self):
         """returns the attributes of the DynamicsConstrains as a dict"""
@@ -967,10 +945,10 @@ class License(VersionBase):
         self.spdxId = spdxId
 
     def __eq__(self, other):
-        if isinstance(other, License):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, License)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     # TODO: Check Class License test string 0..1 The full license
 
@@ -988,19 +966,13 @@ class License(VersionBase):
 
         """
         name = element.attrib["name"]
-        resource = None
-        if "resource" in element.attrib:
-            resource = element.attrib["resource"]
-        spdxId = None
-        if "spdxId" in element.attrib:
-            spdxId = element.attrib["spdxId"]
-
+        resource = element.attrib["resource"] if "resource" in element.attrib else None
+        spdxId = element.attrib["spdxId"] if "spdxId" in element.attrib else None
         return License(name, resource, spdxId)
 
     def get_attributes(self):
         """returns the attributes as a dict of the License"""
-        retdict = {}
-        retdict["name"] = self.name
+        retdict = {"name": self.name}
         if self.resource:
             retdict["resource"] = self.resource
         if self.spdxId:
@@ -1013,9 +985,7 @@ class License(VersionBase):
             raise OpenSCENARIOVersionError(
                 "License was introduced in OpenSCENARIO V1.1"
             )
-        element = ET.Element("License", attrib=self.get_attributes())
-
-        return element
+        return ET.Element("License", attrib=self.get_attributes())
 
 
 class FileHeader(VersionBase):
@@ -1104,17 +1074,13 @@ class FileHeader(VersionBase):
         self.properties = properties
 
     def __eq__(self, other):
-        if isinstance(other, FileHeader):
-            if (
-                self.description == other.description
-                and self.author == other.author
-                and self._revMajor == other._revMajor
-                and self._revMinor == other._revMinor
-                and self.properties == other.properties
-            ):
-                # will not compare date, since this will never be the same
-                return True
-        return False
+        return isinstance(other, FileHeader) and (
+            self.description == other.description
+            and self.author == other.author
+            and self._revMajor == other._revMajor
+            and self._revMinor == other._revMinor
+            and self.properties == other.properties
+        )
 
     # TODO: License handling add_license ???
 
@@ -1143,17 +1109,17 @@ class FileHeader(VersionBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the FileHeader"""
-        retdict = {
+        return {
             "description": self.description,
             "author": self.author,
             "revMajor": str(self.version_major),
             "revMinor": str(self.version_minor),
+            "date": (
+                self.creation_date.isoformat()
+                if self.creation_date != None
+                else dt.datetime.now().isoformat()
+            ),
         }
-        if self.creation_date != None:
-            retdict["date"] = self.creation_date.isoformat()
-        else:
-            retdict["date"] = dt.datetime.now().isoformat()
-        return retdict
 
     def get_element(self):
         """returns the elementTree of the FileHeader"""
@@ -1225,7 +1191,7 @@ class TimeReference(VersionBase):
             Default: None
 
         """
-        nones = [reference_domain == None, scale == None, offset == None]
+        nones = [reference_domain is None, scale is None, offset is None]
         if sum(nones) == 3:
             self._only_nones = True
         elif sum(nones) == 0:
@@ -1279,8 +1245,7 @@ class TimeReference(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the TimeReference as a dict"""
-        retdict = {}
-        retdict["domainAbsoluteRelative"] = self.reference_domain.get_name()
+        retdict = {"domainAbsoluteRelative": self.reference_domain.get_name()}
         retdict["scale"] = str(self.scale)
         retdict["offset"] = str(self.offset)
         return retdict
@@ -1340,10 +1305,10 @@ class _TrafficSignalState(VersionBase):
         self.state = state
 
     def __eq__(self, other):
-        if isinstance(other, _TrafficSignalState):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, _TrafficSignalState)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -1364,10 +1329,7 @@ class _TrafficSignalState(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the _TrafficSignalState"""
-        retdict = {}
-        retdict["trafficSignalId"] = self.signal_id
-        retdict["state"] = self.state
-        return retdict
+        return {"trafficSignalId": self.signal_id, "state": self.state}
 
     def get_element(self):
         """returns the elementTree of the _TrafficSignalState"""
@@ -1431,13 +1393,10 @@ class Phase(VersionBase):
         self.traffic_group_state = traffic_group_state
 
     def __eq__(self, other):
-        if isinstance(other, Phase):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.signalstates == other.signalstates
-            ):
-                return True
-        return False
+        return isinstance(other, Phase) and (
+            self.get_attributes() == other.get_attributes()
+            and self.signalstates == other.signalstates
+        )
 
     @staticmethod
     def parse(element):
@@ -1481,10 +1440,7 @@ class Phase(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the TrafficSignalController"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["duration"] = str(self.duration)
-        return retdict
+        return {"name": self.name, "duration": str(self.duration)}
 
     def get_element(self):
         """returns the elementTree of the Polyline"""
@@ -1563,13 +1519,10 @@ class TrafficSignalController(VersionBase):
         self.phases = []
 
     def __eq__(self, other):
-        if isinstance(other, TrafficSignalController):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.phases == other.phases
-            ):
-                return True
-        return False
+        return isinstance(other, TrafficSignalController) and (
+            self.get_attributes() == other.get_attributes()
+            and self.phases == other.phases
+        )
 
     @staticmethod
     def parse(element):
@@ -1586,10 +1539,7 @@ class TrafficSignalController(VersionBase):
         """
         name = element.attrib["name"]
 
-        delay = None
-        if "delay" in element.attrib:
-            delay = element.attrib["delay"]
-
+        delay = element.attrib["delay"] if "delay" in element.attrib else None
         reference = None
         if "reference" in element.attrib:
             reference = element.attrib["reference"]
@@ -1618,8 +1568,7 @@ class TrafficSignalController(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the TrafficSignalController"""
-        retdict = {}
-        retdict["name"] = self.name
+        retdict = {"name": self.name}
         if self.delay is not None:
             retdict["delay"] = str(self.delay)
         if self.reference:
@@ -1692,18 +1641,15 @@ class TrafficDefinition(VersionBase):
         self.vehicle_roles_weights = []
 
     def __eq__(self, other):
-        if isinstance(other, TrafficDefinition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.vehicleweights == other.vehicleweights
-                and self.vehiclecategories == other.vehiclecategories
-                and self.controllerweights == other.controllerweights
-                and self.controllers == other.controllers
-                and self.vehicle_roles == other.vehicle_roles
-                and self.vehicle_roles_weights == other.vehicle_roles_weights
-            ):
-                return True
-        return False
+        return isinstance(other, TrafficDefinition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.vehicleweights == other.vehicleweights
+            and self.vehiclecategories == other.vehiclecategories
+            and self.controllerweights == other.controllerweights
+            and self.controllers == other.controllers
+            and self.vehicle_roles == other.vehicle_roles
+            and self.vehicle_roles_weights == other.vehicle_roles_weights
+        )
 
     @staticmethod
     def parse(element):
@@ -1791,10 +1737,7 @@ class TrafficDefinition(VersionBase):
             weight (float): the corresponding weight for the controller
 
         """
-        if not (
-            isinstance(controller, Controller)
-            or isinstance(controller, CatalogReference)
-        ):
+        if not (isinstance(controller, (Controller, CatalogReference))):
             raise TypeError(
                 "controller input not of type Controller or CatalogReference"
             )
@@ -1804,9 +1747,7 @@ class TrafficDefinition(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the TrafficDefinition"""
-        retdict = {}
-        retdict["name"] = self.name
-        return retdict
+        return {"name": self.name}
 
     def get_element(self):
         """returns the elementTree of the TrafficDefinition"""
@@ -1902,7 +1843,7 @@ class CatalogFile(VersionBase):
             osc_minor_version (int): the minor version of OpenSCENARIO to write to the catalog
                 Default: same as package
         """
-        if self.catalog_element == None:
+        if self.catalog_element is None:
             OSError("No file has been created or opened")
         fileheader = self.catalog_element.find("FileHeader")
         self.version_minor = osc_minor_version
@@ -1961,7 +1902,7 @@ class CatalogFile(VersionBase):
             "OpenSCENARIO",
             attrib={
                 "xmlns:xsi": XMLNS,
-                "xsi:noNamespaceSchemaLocation": "../../" + XSI,
+                "xsi:noNamespaceSchemaLocation": f"../../{XSI}",
             },
         )
         #         header = FileHeader(description, author)
@@ -2000,8 +1941,7 @@ class _BaseCatalog(VersionBase):
 
     def add_parameters_to_element(self, element):
         """adds the parameterdeclaration to the element"""
-        param_element = self.parameters.get_element()
-        if param_element:
+        if param_element := self.parameters.get_element():
             element.append(param_element)
 
     def dump_to_catalog(self, filename, catalogtype, description, author):
@@ -2074,10 +2014,7 @@ class Catalog(VersionBase):
         self.catalogs = {}
 
     def __eq__(self, other):
-        if isinstance(other, Catalog):
-            if self.catalogs == other.catalogs:
-                return True
-        return False
+        return isinstance(other, Catalog) and self.catalogs == other.catalogs
 
     @staticmethod
     def parse(element):
@@ -2214,13 +2151,10 @@ class CatalogReference(VersionBase):
         self.parameterassignments = []
 
     def __eq__(self, other):
-        if isinstance(other, CatalogReference):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameterassignments == other.parameterassignments
-            ):
-                return True
-        return False
+        return isinstance(other, CatalogReference) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameterassignments == other.parameterassignments
+        )
 
     # TODO: CatalogElement???
 
@@ -2319,10 +2253,10 @@ class ParameterAssignment(VersionBase):
         self.value = value
 
     def __eq__(self, other):
-        if isinstance(other, ParameterAssignment):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ParameterAssignment)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2345,10 +2279,7 @@ class ParameterAssignment(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the ParameterAssignment as a dict"""
-        retdict = {}
-        retdict["parameterRef"] = self.parameterref
-        retdict["value"] = str(self.value)
-        return retdict
+        return {"parameterRef": self.parameterref, "value": str(self.value)}
 
     def get_element(self):
         """returns the elementTree of the ParameterAssignment"""
@@ -2432,10 +2363,10 @@ class TimeOfDay(VersionBase):
         self.second = second
 
     def __eq__(self, other):
-        if isinstance(other, TimeOfDay):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TimeOfDay)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2451,7 +2382,7 @@ class TimeOfDay(VersionBase):
         """
         animation = convert_bool(element.attrib["animation"])
         var = element.attrib["dateTime"]
-        year = convert_int(var[0:4])
+        year = convert_int(var[:4])
         month = convert_int(var[5:7])
         day = convert_int(var[8:10])
 
@@ -2615,18 +2546,15 @@ class Weather(VersionBase):
         self.dome_azimuth_offset = convert_float(dome_azimuth_offset)
 
     def __eq__(self, other):
-        if isinstance(other, Weather):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.fog == other.fog
-                and self.wind == other.wind
-                and self.sun == other.sun
-                and self.precipitation == other.precipitation
-                and self.dome_image == other.dome_image
-                and self.dome_azimuth_offset == other.dome_azimuth_offset
-            ):
-                return True
-        return False
+        return isinstance(other, Weather) and (
+            self.get_attributes() == other.get_attributes()
+            and self.fog == other.fog
+            and self.wind == other.wind
+            and self.sun == other.sun
+            and self.precipitation == other.precipitation
+            and self.dome_image == other.dome_image
+            and self.dome_azimuth_offset == other.dome_azimuth_offset
+        )
 
     @staticmethod
     def parse(element):
@@ -2644,10 +2572,6 @@ class Weather(VersionBase):
         temperature = None
         atmosphericPressure = None
         cloudstate = None
-        fog = None
-        sun = None
-        wind = None
-        precipitation = None
         dome_file = None
         dome_azimuth = None
 
@@ -2661,13 +2585,15 @@ class Weather(VersionBase):
             cloudstate = convert_enum(
                 element.attrib["fractionalCloudCover"], FractionalCloudCover
             )
-        if element.find("Sun") != None:
-            sun = Sun.parse(element.find("Sun"))
-        if element.find("Fog") != None:
-            fog = Fog.parse(element.find("Fog"))
-        if element.find("Precipitation") != None:
+        sun = Sun.parse(element.find("Sun")) if element.find("Sun") != None else None
+        fog = Fog.parse(element.find("Fog")) if element.find("Fog") != None else None
+        if element.find("Precipitation") is None:
+            precipitation = None
+        else:
             precipitation = Precipitation.parse(element.find("Precipitation"))
-        if element.find("Wind") != None:
+        if element.find("Wind") is None:
+            wind = None
+        else:
             wind = Wind.parse(element.find("Wind"))
         if element.find("DomeImage") != None:
             dome_file = element.find("DomeImage").find("DomeFile").attrib["filepath"]
@@ -2709,32 +2635,34 @@ class Weather(VersionBase):
                     retdict["fractionalCloudCover"] = self.cloudstate.get_name()
                 else:
                     retdict["cloudState"] = self.cloudstate.get_name()
-        if self.temperature is not None and not self.isVersion(minor=0):
-            retdict["temperature"] = str(self.temperature)
-        elif self.temperature is not None and self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "temperature was introduced in OpenSCENARIO V1.1"
-            )
-        if self.atmosphericPressure is not None and not self.isVersion(minor=0):
-            retdict["atmosphericPressure"] = str(self.atmosphericPressure)
-        elif self.atmosphericPressure is not None and self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "atmosphericPressure was introduced in OpenSCENARIO V1.1"
-            )
+        if self.temperature is not None:
+            if not self.isVersion(minor=0):
+                retdict["temperature"] = str(self.temperature)
+            elif self.isVersion(minor=0):
+                raise OpenSCENARIOVersionError(
+                    "temperature was introduced in OpenSCENARIO V1.1"
+                )
+        if self.atmosphericPressure is not None:
+            if not self.isVersion(minor=0):
+                retdict["atmosphericPressure"] = str(self.atmosphericPressure)
+            elif self.isVersion(minor=0):
+                raise OpenSCENARIOVersionError(
+                    "atmosphericPressure was introduced in OpenSCENARIO V1.1"
+                )
         return retdict
 
     def get_element(self):
         """returns the elementTree of the Weather"""
         if self.isVersion(minor=0):
-            if self.sun == None:
+            if self.sun is None:
                 raise OpenSCENARIOVersionError("In OpenScenario 1.0, Sun is required.")
-            if self.cloudstate == None:
+            if self.cloudstate is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, CloudState is required."
                 )
-            if self.fog == None:
+            if self.fog is None:
                 raise OpenSCENARIOVersionError("In OpenScenario 1.0, Fog is required.")
-            if self.precipitation == None:
+            if self.precipitation is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, Precipitation is required."
                 )
@@ -2811,13 +2739,10 @@ class Fog(VersionBase):
         self.bounding_box = bounding_box
 
     def __eq__(self, other):
-        if isinstance(other, Fog):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.bounding_box == other.bounding_box
-            ):
-                return True
-        return False
+        return isinstance(other, Fog) and (
+            self.get_attributes() == other.get_attributes()
+            and self.bounding_box == other.bounding_box
+        )
 
     @staticmethod
     def parse(element):
@@ -2834,18 +2759,15 @@ class Fog(VersionBase):
         """
 
         visual_range = element.attrib["visualRange"]
-        bounding_box = None
-        if element.find("BoundingBox") != None:
+        if element.find("BoundingBox") is None:
+            bounding_box = None
+        else:
             bounding_box = BoundingBox.parse(element.find("BoundingBox"))
-
         return Fog(visual_range, bounding_box)
 
     def get_attributes(self):
         """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["visualRange"] = str(self.visual_range)
-
-        return retdict
+        return {"visualRange": str(self.visual_range)}
 
     def get_element(self):
         """returns the elementTree of the Fog"""
@@ -2906,10 +2828,9 @@ class Sun(VersionBase):
         self.elevation = elevation
 
     def __eq__(self, other):
-        if isinstance(other, Sun):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Sun) and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -2935,8 +2856,7 @@ class Sun(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["azimuth"] = str(self.azimuth)
+        retdict = {"azimuth": str(self.azimuth)}
         if self.isVersion(minor=2):
             retdict["illuminance"] = str(self.intensity)
         else:
@@ -2946,9 +2866,7 @@ class Sun(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Sun"""
-        element = ET.Element("Sun", attrib=self.get_attributes())
-
-        return element
+        return ET.Element("Sun", attrib=self.get_attributes())
 
 
 class Precipitation(VersionBase):
@@ -2993,10 +2911,10 @@ class Precipitation(VersionBase):
         self.intensity = convert_float(intensity)
 
     def __eq__(self, other):
-        if isinstance(other, Precipitation):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Precipitation)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -3024,8 +2942,7 @@ class Precipitation(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["precipitationType"] = self.precipitation.get_name()
+        retdict = {"precipitationType": self.precipitation.get_name()}
         if self.isVersion(minor=0):
             retdict["intensity"] = str(self.intensity)
         else:
@@ -3034,9 +2951,7 @@ class Precipitation(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Precipitation"""
-        element = ET.Element("Precipitation", attrib=self.get_attributes())
-
-        return element
+        return ET.Element("Precipitation", attrib=self.get_attributes())
 
 
 class Wind(VersionBase):
@@ -3081,10 +2996,9 @@ class Wind(VersionBase):
         self.speed = speed
 
     def __eq__(self, other):
-        if isinstance(other, Wind):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Wind) and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -3112,9 +3026,7 @@ class Wind(VersionBase):
         """returns the elementTree of the Wind"""
         if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError("Wind was introduced in OSC 1.1")
-        element = ET.Element("Wind", attrib=self.get_attributes())
-
-        return element
+        return ET.Element("Wind", attrib=self.get_attributes())
 
 
 class RoadCondition(VersionBase):
@@ -3171,13 +3083,10 @@ class RoadCondition(VersionBase):
         self.wetness = convert_enum(wetness, Wetness, True)
 
     def __eq__(self, other):
-        if isinstance(other, RoadCondition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.properties == other.properties
-            ):
-                return True
-        return False
+        return isinstance(other, RoadCondition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.properties == other.properties
+        )
 
     @staticmethod
     def parse(element):
@@ -3194,10 +3103,11 @@ class RoadCondition(VersionBase):
         """
         friction_scale_factor = element.attrib["frictionScaleFactor"]
 
-        properties = None
-        wetness = None
-        if element.find("Properties") != None:
+        if element.find("Properties") is None:
+            properties = None
+        else:
             properties = Properties.parse(element.find("Properties"))
+        wetness = None
         if "wetness" in element.attrib:
             wetness = convert_enum(element.attrib["wetness"], Wetness, False)
         return RoadCondition(friction_scale_factor, properties, wetness)
@@ -3297,16 +3207,13 @@ class Environment(_BaseCatalog):
             self.parameters = parameters
 
     def __eq__(self, other):
-        if isinstance(other, Environment):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.timeofday == other.timeofday
-                and self.weather == other.weather
-                and self.roadcondition == other.roadcondition
-                and self.parameters == other.parameters
-            ):
-                return True
-        return False
+        return isinstance(other, Environment) and (
+            self.get_attributes() == other.get_attributes()
+            and self.timeofday == other.timeofday
+            and self.weather == other.weather
+            and self.roadcondition == other.roadcondition
+            and self.parameters == other.parameters
+        )
 
     @staticmethod
     def parse(element):
@@ -3322,20 +3229,22 @@ class Environment(_BaseCatalog):
 
         """
         name = element.attrib["name"]
-        parameters = None
-        weather = None
-        timeofday = None
-        roadcondition = None
-
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is None:
+            parameters = None
+        else:
             parameters = ParameterAssignment.parse(element.find("ParamterDeclarations"))
-        if element.find("TimeOfDay") != None:
+        if element.find("TimeOfDay") is None:
+            timeofday = None
+        else:
             timeofday = TimeOfDay.parse(element.find("TimeOfDay"))
-        if element.find("Weather") != None:
+        if element.find("Weather") is None:
+            weather = None
+        else:
             weather = Weather.parse(element.find("Weather"))
-        if element.find("RoadCondition") != None:
+        if element.find("RoadCondition") is None:
+            roadcondition = None
+        else:
             roadcondition = RoadCondition.parse(element.find("RoadCondition"))
-
         return Environment(name, timeofday, weather, roadcondition, parameters)
 
     def get_attributes(self):
@@ -3417,15 +3326,12 @@ class Controller(_BaseCatalog):
         self.controller_type = convert_enum(controller_type, ControllerType, True)
 
     def __eq__(self, other):
-        if isinstance(other, Controller):
-            if (
-                self.properties == other.properties
-                and self.parameters == other.parameters
-                and self.name == other.name
-                and self.controller_type == other.controller_type
-            ):
-                return True
-        return False
+        return isinstance(other, Controller) and (
+            self.properties == other.properties
+            and self.parameters == other.parameters
+            and self.name == other.name
+            and self.controller_type == other.controller_type
+        )
 
     @staticmethod
     def parse(element):
@@ -3450,8 +3356,7 @@ class Controller(_BaseCatalog):
             )
         controller = Controller(name, properties, cnt_type)
 
-        parameters_element = element.find("ParameterDeclarations")
-        if parameters_element:
+        if parameters_element := element.find("ParameterDeclarations"):
             controller.parameters = ParameterDeclarations.parse(parameters_element)
 
         return controller
@@ -3535,10 +3440,9 @@ class BoundingBox(VersionBase):
         self.center = Center(x_center, y_center, z_center)
 
     def __eq__(self, other):
-        if isinstance(other, BoundingBox):
-            if self.boundingbox == other.boundingbox and self.center == other.center:
-                return True
-        return False
+        return isinstance(other, BoundingBox) and (
+            self.boundingbox == other.boundingbox and self.center == other.center
+        )
 
     def get_element(self):
         """returns the elementTree of the Dimensions"""
@@ -3642,10 +3546,10 @@ class Center(VersionBase):
         return Center(x, y, z)
 
     def __eq__(self, other):
-        if isinstance(other, Center):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Center)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the Center"""
@@ -3653,8 +3557,7 @@ class Center(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Center"""
-        element = ET.Element("Center", attrib=self.get_attributes())
-        return element
+        return ET.Element("Center", attrib=self.get_attributes())
 
 
 class Dimensions(VersionBase):
@@ -3725,10 +3628,10 @@ class Dimensions(VersionBase):
         return Dimensions(width, length, height)
 
     def __eq__(self, other):
-        if isinstance(other, Dimensions):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, Dimensions)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the Dimensions"""
@@ -3740,8 +3643,7 @@ class Dimensions(VersionBase):
 
     def get_element(self):
         """returns the elementTree of the Dimensions"""
-        element = ET.Element("Dimensions", attrib=self.get_attributes())
-        return element
+        return ET.Element("Dimensions", attrib=self.get_attributes())
 
 
 class Properties(VersionBase):
@@ -3776,10 +3678,9 @@ class Properties(VersionBase):
         self.properties = []
 
     def __eq__(self, other):
-        if isinstance(other, Properties):
-            if self.files == other.files and self.properties == other.properties:
-                return True
-        return False
+        return isinstance(other, Properties) and (
+            self.files == other.files and self.properties == other.properties
+        )
 
     @staticmethod
     def parse(element):
@@ -3881,24 +3782,19 @@ class AbsoluteSpeed(VersionBase):
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState) Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
         """
         self.value = value
-        if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
-            ):
-                raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
-                )
+        if steadyState and not (
+            isinstance(steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState))
+        ):
+            raise TypeError(
+                "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+            )
         self.steadyState = steadyState
 
     def __eq__(self, other):
-        if isinstance(other, AbsoluteSpeed):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.steadyState == other.steadyState
-            ):
-                return True
-        return False
+        return isinstance(other, AbsoluteSpeed) and (
+            self.get_attributes() == other.get_attributes()
+            and self.steadyState == other.steadyState
+        )
 
     @staticmethod
     def parse(element):
@@ -3995,27 +3891,22 @@ class RelativeSpeedToMaster(VersionBase):
             steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
         """
         self.value = value
-        if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
-            ):
-                raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
-                )
+        if steadyState and not (
+            isinstance(steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState))
+        ):
+            raise TypeError(
+                "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+            )
         self.steadyState = steadyState
         self.speedTargetValueType = convert_enum(
             speedTargetValueType, SpeedTargetValueType
         )
 
     def __eq__(self, other):
-        if isinstance(other, RelativeSpeedToMaster):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.steadyState == other.steadyState
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeSpeedToMaster) and (
+            self.get_attributes() == other.get_attributes()
+            and self.steadyState == other.steadyState
+        )
 
     @staticmethod
     def parse(element):
@@ -4107,10 +3998,10 @@ class TargetDistanceSteadyState(VersionBase):
         self.distance = distance
 
     def __eq__(self, other):
-        if isinstance(other, TargetDistanceSteadyState):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TargetDistanceSteadyState)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4178,10 +4069,10 @@ class TargetTimeSteadyState(VersionBase):
         self.time_gap = time_gap
 
     def __eq__(self, other):
-        if isinstance(other, TargetTimeSteadyState):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, TargetTimeSteadyState)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4220,7 +4111,7 @@ def merge_dicts(*dict_args):
     """Funciton to merge dicts"""
     retdict = {}
     for d in dict_args:
-        retdict.update(d)
+        retdict |= d
 
     return retdict
 
@@ -4237,9 +4128,9 @@ def convert_bool(value):
         boolean (str)
     """
     if isinstance(value, str):
-        if value == "true" or value == "1":
+        if value in ["true", "1"]:
             return True
-        elif value == "false" or value == "0":
+        elif value in ["false", "0"]:
             return False
         elif value[0] == "$":
             return value
@@ -4251,7 +4142,7 @@ def convert_bool(value):
 
     if value:
         return True
-    elif value == None:
+    elif value is None:
         return None
     else:
         return False
@@ -4268,16 +4159,14 @@ def get_bool_string(value):
 
 def convert_enum(value, enumtype, none_ok=False):
     if isinstance(value, _OscEnum):
-        if hasattr(enumtype, str(value)) or "$" == str(value)[0]:
+        if hasattr(enumtype, str(value)) or str(value)[0] == "$":
             return value
         else:
             raise TypeError(
-                value.get_name() + " is not of Enumeration type :" + str(enumtype)
+                f"{value.get_name()} is not of Enumeration type :{str(enumtype)}"
             )
     elif isinstance(value, str):
-        if hasattr(enumtype, value):
-            return _OscEnum(enumtype.__name__, value)
-        elif "$" == value[0]:
+        if hasattr(enumtype, value) or value[0] == "$":
             return _OscEnum(enumtype.__name__, value)
         else:
             raise ValueError(
@@ -4285,13 +4174,13 @@ def convert_enum(value, enumtype, none_ok=False):
                 + " is not a valid string input for Enumeration type "
                 + str(enumtype)
             )
-    elif value == None:
+    elif value is None:
         if none_ok:
             return None
         else:
-            raise TypeError("None value not a valid option for: " + str(enumtype))
+            raise TypeError(f"None value not a valid option for: {str(enumtype)}")
 
-    raise TypeError(str(value) + " is not of a valid enumeration or str type.")
+    raise TypeError(f"{str(value)} is not of a valid enumeration or str type.")
 
 
 def convert_float(value):
@@ -4310,16 +4199,13 @@ def convert_float(value):
             return value
         try:
             float(value)
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
                 value
                 + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
-            )
+            ) from e
 
-    if value is not None:
-        return float(value)
-    else:
-        return None
+    return float(value) if value is not None else None
 
 
 def convert_int(value):
@@ -4338,16 +4224,13 @@ def convert_int(value):
             return value
         try:
             int(value)
-        except ValueError:
+        except ValueError as e:
             raise ValueError(
                 value
                 + "is not a valid type of int input to openscenario, if a string is used as a int value (parameter or expression), it should have a $ as the first char."
-            )
+            ) from e
 
-    if value is not None:
-        return int(value)
-    else:
-        return None
+    return int(value) if value is not None else None
 
 
 class ValueConstraintGroup(VersionBase):
@@ -4379,10 +4262,10 @@ class ValueConstraintGroup(VersionBase):
         self.value_constraints = []
 
     def __eq__(self, other):
-        if isinstance(other, ValueConstraintGroup):
-            if self.value_constraints == other.value_constraints:
-                return True
-        return False
+        return (
+            isinstance(other, ValueConstraintGroup)
+            and self.value_constraints == other.value_constraints
+        )
 
     def add_value_constraint(self, value_constraint):
         """adds a value constraint to the value constraint group
@@ -4474,10 +4357,10 @@ class ValueConstraint(VersionBase):
         self.rule = convert_enum(rule, Rule)
 
     def __eq__(self, other):
-        if isinstance(other, ValueConstraint):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ValueConstraint)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4498,8 +4381,7 @@ class ValueConstraint(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the ValueConstraint as a dict"""
-        retdict = {}
-        retdict["rule"] = self.rule.get_name()
+        retdict = {"rule": self.rule.get_name()}
         retdict["value"] = str(self.value)
         return retdict
 
@@ -4509,8 +4391,7 @@ class ValueConstraint(VersionBase):
             raise OpenSCENARIOVersionError(
                 "ValueConstraint was introduced in OpenSCENARIO V1.1"
             )
-        element = ET.Element("ValueConstraint", attrib=self.get_attributes())
-        return element
+        return ET.Element("ValueConstraint", attrib=self.get_attributes())
 
 
 class _ColorDefinition(VersionBase):
@@ -4572,10 +4453,10 @@ class ColorRGB(_ColorDefinition):
         self.blue = blue
 
     def __eq__(self, other):
-        if isinstance(other, ColorRGB):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ColorRGB)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4598,11 +4479,7 @@ class ColorRGB(_ColorDefinition):
 
     def get_attributes(self):
         """returns the attributes of the ValueConstraint as a dict"""
-        retdict = {}
-        retdict["red"] = str(self.red)
-        retdict["green"] = str(self.green)
-        retdict["blue"] = str(self.blue)
-        return retdict
+        return {"red": str(self.red), "green": str(self.green), "blue": str(self.blue)}
 
     def get_element(self):
         """returns the elementTree of the ValueConstraint"""
@@ -4610,8 +4487,7 @@ class ColorRGB(_ColorDefinition):
             raise OpenSCENARIOVersionError(
                 "ColorRGB was introduced in OpenSCENARIO V1.2"
             )
-        element = ET.Element("ColorRgb", attrib=self.get_attributes())
-        return element
+        return ET.Element("ColorRgb", attrib=self.get_attributes())
 
 
 class ColorCMYK(_ColorDefinition):
@@ -4677,10 +4553,10 @@ class ColorCMYK(_ColorDefinition):
         self.key = key
 
     def __eq__(self, other):
-        if isinstance(other, ColorCMYK):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, ColorCMYK)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -4704,12 +4580,12 @@ class ColorCMYK(_ColorDefinition):
 
     def get_attributes(self):
         """returns the attributes of the ColorCMYK as a dict"""
-        retdict = {}
-        retdict["cyan"] = str(self.cyan)
-        retdict["magenta"] = str(self.magenta)
-        retdict["yellow"] = str(self.yellow)
-        retdict["key"] = str(self.key)
-        return retdict
+        return {
+            "cyan": str(self.cyan),
+            "magenta": str(self.magenta),
+            "yellow": str(self.yellow),
+            "key": str(self.key),
+        }
 
     def get_element(self):
         """returns the elementTree of the ColorCMYK"""
@@ -4717,8 +4593,7 @@ class ColorCMYK(_ColorDefinition):
             raise OpenSCENARIOVersionError(
                 "ColorCMYK was introduced in OpenSCENARIO V1.2"
             )
-        element = ET.Element("ColorCmyk", attrib=self.get_attributes())
-        return element
+        return ET.Element("ColorCmyk", attrib=self.get_attributes())
 
 
 class Color(VersionBase):
@@ -4765,13 +4640,10 @@ class Color(VersionBase):
         self.color_definition = color_definition
 
     def __eq__(self, other):
-        if isinstance(other, Color):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.color_definition == other.color_definition
-            ):
-                return True
-        return False
+        return isinstance(other, Color) and (
+            self.get_attributes() == other.get_attributes()
+            and self.color_definition == other.color_definition
+        )
 
     @staticmethod
     def parse(element):
@@ -4796,9 +4668,7 @@ class Color(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the Color as a dict"""
-        retdict = {}
-        retdict["colorType"] = self.color_type.get_name()
-        return retdict
+        return {"colorType": self.color_type.get_name()}
 
     def get_element(self):
         """returns the elementTree of the Color"""
@@ -4840,10 +4710,7 @@ class UserDefinedLight(VersionBase):
         self.type = user_defined_type
 
     def __eq__(self, other):
-        if isinstance(other, UserDefinedLight):
-            if other.type == self.type:
-                return True
-        return False
+        return isinstance(other, UserDefinedLight) and other.type == self.type
 
     @staticmethod
     def parse(element):
@@ -4865,10 +4732,9 @@ class UserDefinedLight(VersionBase):
         """returns the elementTree of the UserDefinedLight"""
         if self.isVersionEqLess(minor=1):
             raise OpenSCENARIOVersionError("UserDefinedLight was introduced in OSC 1.2")
-        element = ET.Element(
+        return ET.Element(
             "UserDefinedLight", attrib={"userDefinedLightType": self.type}
         )
-        return element
 
 
 class _LightState(VersionBase):
@@ -4927,20 +4793,17 @@ class _LightState(VersionBase):
         self.flash_on_duration = convert_float(flashing_on_duration)
         self.flash_off_duration = convert_float(flashing_off_duration)
 
-        if flashing_on_duration == None and self.mode == LightMode.flashing:
+        if flashing_on_duration is None and self.mode == LightMode.flashing:
             self.flash_on_duration = 0.5
 
-        if flashing_off_duration == None and self.mode == LightMode.flashing:
+        if flashing_off_duration is None and self.mode == LightMode.flashing:
             self.flash_off_duration = 0.5
 
     def __eq__(self, other):
-        if isinstance(other, _LightState):
-            if (
-                other.get_attributes() == self.get_attributes()
-                and other.color == self.color
-            ):
-                return True
-        return False
+        return isinstance(other, _LightState) and (
+            other.get_attributes() == self.get_attributes()
+            and other.color == self.color
+        )
 
     @staticmethod
     def parse(element):
@@ -4958,8 +4821,6 @@ class _LightState(VersionBase):
         flashing_on = None
         flashing_off = None
         intensity = None
-        color = None
-
         if "flashingOnDuration" in element.attrib:
             flashing_on = element.attrib["flashingOnDuration"]
 
@@ -4969,7 +4830,9 @@ class _LightState(VersionBase):
         if "luminousIntensity" in element.attrib:
             intensity = convert_float(element.attrib["luminousIntensity"])
 
-        if element.find("Color") != None:
+        if element.find("Color") is None:
+            color = None
+        else:
             color = Color.parse(element.find("Color"))
         mode = convert_enum(element.attrib["mode"], LightMode)
         return _LightState(mode, color, intensity, flashing_off, flashing_on)
@@ -5036,13 +4899,9 @@ class AnimationFile(_AnimationType):
         self.timeOffset = convert_float(timeOffset)
 
     def __eq__(self, other):
-        if isinstance(other, AnimationFile):
-            if (
-                other.get_attributes() == self.get_attributes()
-                and other.file == self.file
-            ):
-                return True
-        return False
+        return isinstance(other, AnimationFile) and (
+            other.get_attributes() == self.get_attributes() and other.file == self.file
+        )
 
     @staticmethod
     def parse(element):
@@ -5127,10 +4986,10 @@ class DirectionOfTravelDistribution(VersionBase):
         self.same = convert_float(same)
 
     def __eq__(self, other):
-        if isinstance(other, DirectionOfTravelDistribution):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, DirectionOfTravelDistribution)
+            and other.get_attributes() == self.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5153,8 +5012,7 @@ class DirectionOfTravelDistribution(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the DirectionOfTravelDistribution as a dict"""
-        retdict = {"opposite": str(self.opposite), "same": str(self.same)}
-        return retdict
+        return {"opposite": str(self.opposite), "same": str(self.same)}
 
     def get_element(self):
         """returns the elementTree of the DirectionOfTravelDistribution"""
@@ -5163,10 +5021,7 @@ class DirectionOfTravelDistribution(VersionBase):
                 "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element(
-            "DirectionOfTravelDistribution", attrib=self.get_attributes()
-        )
-        return element
+        return ET.Element("DirectionOfTravelDistribution", attrib=self.get_attributes())
 
 
 class UserDefinedAnimation(_AnimationType):
@@ -5204,10 +5059,10 @@ class UserDefinedAnimation(_AnimationType):
         self.type = type
 
     def __eq__(self, other):
-        if isinstance(other, UserDefinedAnimation):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, UserDefinedAnimation)
+            and other.get_attributes() == self.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5227,9 +5082,7 @@ class UserDefinedAnimation(_AnimationType):
 
     def get_attributes(self):
         """returns the attributes of the UserDefinedAnimation as a dict"""
-        retdict = {}
-        retdict["userDefinedAnimationType"] = self.type
-        return retdict
+        return {"userDefinedAnimationType": self.type}
 
     def get_element(self):
         """returns the elementTree of the UserDefinedAnimation"""
@@ -5238,8 +5091,7 @@ class UserDefinedAnimation(_AnimationType):
                 "UserDefinedAnimation was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("UserDefinedAnimation", attrib=self.get_attributes())
-        return element
+        return ET.Element("UserDefinedAnimation", attrib=self.get_attributes())
 
 
 class UserDefinedComponent(_AnimationType):
@@ -5277,10 +5129,10 @@ class UserDefinedComponent(_AnimationType):
         self.type = type
 
     def __eq__(self, other):
-        if isinstance(other, UserDefinedComponent):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, UserDefinedComponent)
+            and other.get_attributes() == self.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5300,9 +5152,7 @@ class UserDefinedComponent(_AnimationType):
 
     def get_attributes(self):
         """returns the attributes of the UserDefinedComponent as a dict"""
-        retdict = {}
-        retdict["userDefinedComponentType"] = self.type
-        return retdict
+        return {"userDefinedComponentType": self.type}
 
     def get_element(self):
         """returns the elementTree of the UserDefinedComponent"""
@@ -5311,8 +5161,7 @@ class UserDefinedComponent(_AnimationType):
                 "UserDefinedComponent was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("UserDefinedComponent", attrib=self.get_attributes())
-        return element
+        return ET.Element("UserDefinedComponent", attrib=self.get_attributes())
 
 
 class PedestrianAnimation(_AnimationType):
@@ -5363,13 +5212,10 @@ class PedestrianAnimation(_AnimationType):
         self.gestures = []
 
     def __eq__(self, other):
-        if isinstance(other, PedestrianAnimation):
-            if (
-                other.get_attributes() == self.get_attributes()
-                and other.gestures == self.gestures
-            ):
-                return True
-        return False
+        return isinstance(other, PedestrianAnimation) and (
+            other.get_attributes() == self.get_attributes()
+            and other.gestures == self.gestures
+        )
 
     @staticmethod
     def parse(element):
@@ -5407,8 +5253,7 @@ class PedestrianAnimation(_AnimationType):
 
     def get_attributes(self):
         """returns the attributes of the PedestrianAnimation as a dict"""
-        retdict = {}
-        retdict["motion"] = self.motion.get_name()
+        retdict = {"motion": self.motion.get_name()}
         retdict["userDefinedPedestrianAnimation"] = str(self.animation)
         return retdict
 
@@ -5462,10 +5307,10 @@ class _VehicleComponent(VersionBase):
         self.type = convert_enum(type, VehicleComponentType)
 
     def __eq__(self, other):
-        if isinstance(other, _VehicleComponent):
-            if other.get_attributes() == self.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, _VehicleComponent)
+            and other.get_attributes() == self.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5487,9 +5332,7 @@ class _VehicleComponent(VersionBase):
 
     def get_attributes(self):
         """returns the attributes of the VehicleComponent as a dict"""
-        retdict = {}
-        retdict["vehicleComponentType"] = self.type.get_name()
-        return retdict
+        return {"vehicleComponentType": self.type.get_name()}
 
     def get_element(self):
         """returns the elementTree of the VehicleComponent"""
@@ -5498,8 +5341,7 @@ class _VehicleComponent(VersionBase):
                 "VehicleComponent was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("VehicleComponent", attrib=self.get_attributes())
-        return element
+        return ET.Element("VehicleComponent", attrib=self.get_attributes())
 
 
 class _ComponentAnimation(_AnimationType):
@@ -5534,19 +5376,18 @@ class _ComponentAnimation(_AnimationType):
         ----------
         component (vehicleComponent or UserDefinedComponent): Either available components types attached to the vehicle or a user defined component
         """
-        if not isinstance(component, _VehicleComponent) and not isinstance(
-            component, UserDefinedComponent
-        ):
+        if isinstance(component, (_VehicleComponent, UserDefinedComponent)):
+            self.component = component
+        else:
             raise TypeError(
-                component + " is not of type VehicleComponent or UserDefinedComponent"
+                f"{component} is not of type VehicleComponent or UserDefinedComponent"
             )
-        self.component = component
 
     def __eq__(self, other):
-        if isinstance(other, _ComponentAnimation):
-            if other.component.get_attributes() == self.component.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, _ComponentAnimation)
+            and other.component.get_attributes() == self.component.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -5561,10 +5402,10 @@ class _ComponentAnimation(_AnimationType):
             ComponentAnimation (ComponentAnimation): a ComponentAnimation object
 
         """
-        if element.find("VehicleComponent") != None:
-            component = _VehicleComponent.parse(element.find("VehicleComponent"))
-        else:
+        if element.find("VehicleComponent") is None:
             component = UserDefinedComponent.parse(element.find("UserDefinedComponent"))
+        else:
+            component = _VehicleComponent.parse(element.find("VehicleComponent"))
         return _ComponentAnimation(component)
 
     def get_element(self):
@@ -5575,9 +5416,5 @@ class _ComponentAnimation(_AnimationType):
             )
 
         element = ET.Element("ComponentAnimation")
-        if isinstance(_VehicleComponent, type(self.component)):
-            element.append(self.component.get_element())
-        else:
-            element.append(self.component.get_element())
-
+        element.append(self.component.get_element())
         return element

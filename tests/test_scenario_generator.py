@@ -62,21 +62,14 @@ class ClassBoth(ScenarioGenerator):
 
 @pytest.fixture
 def list_of_params():
-    d1 = {}
-    d1["road_curvature"] = 0.001
-    d1["speed"] = 10
-    d2 = {}
-    d2["road_curvature"] = 0.002
-    d2["speed"] = 20
+    d1 = {"road_curvature": 0.001, "speed": 10}
+    d2 = {"road_curvature": 0.002, "speed": 20}
     return [d1, d2]
 
 
 @pytest.fixture
 def dict_of_params():
-    retdict = {}
-    retdict["parameter1"] = [1, 2, 3]
-    retdict["parameter2"] = [1, 2]
-    return retdict
+    return {"parameter1": [1, 2, 3], "parameter2": [1, 2]}
 
 
 def test_list_of_params(list_of_params):
@@ -130,12 +123,8 @@ def test_parameter_naming_basename(list_of_params):
 
 def test_parameter_naming_no_lists(list_of_params):
     sg = ScenarioGenerator()
-    sg.parameters = []
-    d1 = {}
-    d1["road_curvature"] = 0.001
-    d1["speed"] = [10, 20, 30]
-    sg.parameters.append(d1)
-
+    d1 = {"road_curvature": 0.001, "speed": [10, 20, 30]}
+    sg.parameters = [d1]
     sg.naming = "parameter_no_lists"
     name = sg._get_scenario_name(sg.parameters[0])
     assert name == "scenario_generator_road_curvature-0.001_speed-0"

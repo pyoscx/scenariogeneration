@@ -109,9 +109,9 @@ class PlanView(XodrBase):
         self.present_h = 0
         self.present_s = 0
         self.fixed = False
-        if all([x_start != None, y_start != None, h_start != None]):
+        if all([x_start is not None, y_start is not None, h_start is not None]):
             self.set_start_point(x_start, y_start, h_start)
-        elif any([x_start != None, y_start != None, h_start != None]):
+        elif any([x_start is not None, y_start is not None, h_start is not None]):
             raise NotEnoughInputArguments(
                 "If a start position is wanted for the PlanView, all inputs must be used."
             )
@@ -201,11 +201,7 @@ class PlanView(XodrBase):
                 "A geometry has already been added with add_geometry, please use either add_geometry, or add_fixed_geometry not both"
             )
 
-        if s != None:
-            pres_s = s
-        else:
-            pres_s = self.present_s
-
+        pres_s = s if s is not None else self.present_s
         if not self.fixed:
             self.x_start = x_start
             self.y_start = y_start
@@ -275,7 +271,7 @@ class PlanView(XodrBase):
         from_end ([optional]bool): states if (self.present_x, self.present_y, self.present_h) are being interpreted as starting point or ending point of the geometry
 
         """
-        if from_end == False:
+        if from_end is False:
             self.x_start = self.present_x
             self.y_start = self.present_y
             self.h_start = self.present_h
@@ -347,7 +343,7 @@ class PlanView(XodrBase):
         if self.adjusted:
             return self.present_s
         else:
-            return sum([x.length for x in self._raw_geometries])
+            return sum(x.length for x in self._raw_geometries)
 
     def get_element(self):
         """returns the elementTree of the WorldPostion"""
@@ -423,13 +419,16 @@ class _Geometry(XodrBase):
         _, _, _, self.length = self.geom_type.get_end_data(self.x, self.y, self.heading)
 
     def __eq__(self, other):
-        if isinstance(other, _Geometry) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.geom_type == other.geom_type
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, _Geometry)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.geom_type == other.geom_type
+                )
+            )
+        )
 
     def get_end_data(self):
         return self.geom_type.get_end_data(self.x, self.y, self.heading)
@@ -449,13 +448,13 @@ class _Geometry(XodrBase):
 
     def get_attributes(self):
         """returns the attributes of the _Geometry as a dict"""
-        retdict = {}
-        retdict["s"] = str(self.s)
-        retdict["x"] = str(self.x)
-        retdict["y"] = str(self.y)
-        retdict["hdg"] = str(self.heading)
-        retdict["length"] = str(self.length)
-        return retdict
+        return {
+            "s": str(self.s),
+            "x": str(self.x),
+            "y": str(self.y),
+            "hdg": str(self.heading),
+            "length": str(self.length),
+        }
 
     def get_element(self):
         """returns the elementTree of the _Geometry"""
@@ -601,10 +600,10 @@ class Arc(_BaseGeometry):
 
         """
         super().__init__()
-        if length == None and angle == None:
+        if length is None and angle is None:
             raise NotEnoughInputArguments("neither length nor angle defined, for arc")
 
-        if length != None and angle != None:
+        if length is not None and angle is not None:
             raise ToManyOptionalArguments(
                 "both length and angle set, only one is requiered"
             )
@@ -624,10 +623,13 @@ class Arc(_BaseGeometry):
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
     def __eq__(self, other):
-        if isinstance(other, Arc) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Arc)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_end_data(self, x, y, h):
         """Returns information about the end point of the geometry
@@ -653,15 +655,9 @@ class Arc(_BaseGeometry):
 
         """
         radius = 1 / np.abs(self.curvature)
-        if self.curvature < 0:
-            phi_0 = h + np.pi / 2
-            x_0 = x - np.cos(phi_0) * radius
-            y_0 = y - np.sin(phi_0) * radius
-
-        else:
-            phi_0 = h - np.pi / 2
-            x_0 = x - np.cos(phi_0) * radius
-            y_0 = y - np.sin(phi_0) * radius
+        phi_0 = h + np.pi / 2 if self.curvature < 0 else h - np.pi / 2
+        x_0 = x - np.cos(phi_0) * radius
+        y_0 = y - np.sin(phi_0) * radius
 
         if self.length:
             self.angle = self.length * self.curvature
@@ -705,15 +701,9 @@ class Arc(_BaseGeometry):
         h = end_h
         inv_curv = -self.curvature
         radius = 1 / np.abs(inv_curv)
-        if inv_curv < 0:
-            phi_0 = h + np.pi / 2
-            x_0 = x - np.cos(phi_0) * radius
-            y_0 = y - np.sin(phi_0) * radius
-
-        else:
-            phi_0 = h - np.pi / 2
-            x_0 = x - np.cos(phi_0) * radius
-            y_0 = y - np.sin(phi_0) * radius
+        phi_0 = h + np.pi / 2 if inv_curv < 0 else h - np.pi / 2
+        x_0 = x - np.cos(phi_0) * radius
+        y_0 = y - np.sin(phi_0) * radius
 
         if self.length:
             self.angle = self.length * inv_curv
@@ -840,7 +830,7 @@ class ParamPoly3(_BaseGeometry):
         self.cv = cv
         self.dv = dv
         self.prange = prange
-        if prange == "arcLength" and length == None:
+        if prange == "arcLength" and length is None:
             raise ValueError(
                 "No length was provided for ParamPoly3 with arcLength option"
             )
@@ -850,10 +840,13 @@ class ParamPoly3(_BaseGeometry):
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
     def __eq__(self, other):
-        if isinstance(other, ParamPoly3) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, ParamPoly3)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def _integrand(self, p):
         """integral function to calulate length of polynomial,
@@ -885,8 +878,8 @@ class ParamPoly3(_BaseGeometry):
         """
         if self.prange == "normalized":
             p = 1
-            I = quad(self._integrand, 0, 1)
-            self.length = I[0]
+            k_I = quad(self._integrand, 0, 1)
+            self.length = k_I[0]
         else:
             p = self.length
         newu = self.au + self.bu * p + self.cu * p**2 + self.du * p**3
@@ -922,8 +915,8 @@ class ParamPoly3(_BaseGeometry):
         """
         if self.prange == "normalized":
             p = 1
-            I = quad(self._integrand, 0, 1)
-            self.length = I[0]
+            k_I = quad(self._integrand, 0, 1)
+            self.length = k_I[0]
         else:
             p = self.length
         newu = self.au + self.bu * p + self.cu * p**2 + self.du * p**3
@@ -940,17 +933,17 @@ class ParamPoly3(_BaseGeometry):
 
     def get_attributes(self):
         """returns the attributes of the ParamPoly3 as a dict"""
-        retdict = {}
-        retdict["aU"] = str(self.au)
-        retdict["bU"] = str(self.bu)
-        retdict["cU"] = str(self.cu)
-        retdict["dU"] = str(self.du)
-        retdict["aV"] = str(self.av)
-        retdict["bV"] = str(self.bv)
-        retdict["cV"] = str(self.cv)
-        retdict["dV"] = str(self.dv)
-        retdict["pRange"] = self.prange
-        return retdict
+        return {
+            "aU": str(self.au),
+            "bU": str(self.bu),
+            "cU": str(self.cu),
+            "dU": str(self.du),
+            "aV": str(self.av),
+            "bV": str(self.bv),
+            "cV": str(self.cv),
+            "dV": str(self.dv),
+            "pRange": self.prange,
+        }
 
     def get_element(self):
         """returns the elementTree of the ParamPoly3"""
@@ -1010,9 +1003,9 @@ class Spiral(_BaseGeometry):
         super().__init__()
         self.curvstart = curvstart
         self.curvend = curvend
-        if length == None and angle == None and cdot == None:
+        if length is None and angle is None and cdot is None:
             raise NotEnoughInputArguments("Spiral is underdefined")
-        if sum([x != None for x in [length, angle, cdot]]) > 1:
+        if sum(x is not None for x in [length, angle, cdot]) > 1:
             raise ToManyOptionalArguments(
                 "Spiral is overdefined, please use only one of the optional inputs"
             )
@@ -1025,10 +1018,13 @@ class Spiral(_BaseGeometry):
             self.length = length
 
     def __eq__(self, other):
-        if isinstance(other, Spiral) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Spiral)
+                and super().__eq__(other)
+                and self.get_attributes() == other.get_attributes()
+            )
+        )
 
     def get_end_data(self, x, y, h):
         """Returns the end point of the geometry

@@ -1483,6 +1483,6 @@ def test_convert_enum():
         OSC.convert_enum(OSC.DynamicsShapes.cubic, OSC.DynamicsDimension)
     with pytest.raises(ValueError):
         OSC.convert_enum("hello", OSC.DynamicsDimension)
-    assert OSC.convert_enum(None, OSC.DynamicsDimension, True) == None
+    assert OSC.convert_enum(None, OSC.DynamicsDimension, True) is None
     with pytest.raises(TypeError):
-        OSC.convert_enum(None, OSC.DynamicsDimension, False) == None
+        OSC.convert_enum(None, OSC.DynamicsDimension, False) is None

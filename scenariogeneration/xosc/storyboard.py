@@ -70,14 +70,11 @@ class Init(VersionBase):
         self.user_defined_actions = []
 
     def __eq__(self, other):
-        if isinstance(other, Init):
-            if (
-                self.initactions == other.initactions
-                and self.global_actions == other.global_actions
-                and self.user_defined_actions == other.user_defined_actions
-            ):
-                return True
-        return False
+        return isinstance(other, Init) and (
+            self.initactions == other.initactions
+            and self.global_actions == other.global_actions
+            and self.user_defined_actions == other.user_defined_actions
+        )
 
     @staticmethod
     def parse(element):
@@ -243,14 +240,11 @@ class StoryBoard(VersionBase):
         self.stories = []
 
     def __eq__(self, other):
-        if isinstance(other, StoryBoard):
-            if (
-                self.init == other.init
-                and self.stoptrigger == other.stoptrigger
-                and self.stories == other.stories
-            ):
-                return True
-        return False
+        return isinstance(other, StoryBoard) and (
+            self.init == other.init
+            and self.stoptrigger == other.stoptrigger
+            and self.stories == other.stories
+        )
 
     @staticmethod
     def parse(element):
@@ -300,7 +294,7 @@ class StoryBoard(VersionBase):
         """
         if not isinstance(act, Act):
             raise TypeError("act input is not of type Act")
-        newstory = Story("story_" + act.name, parameters)
+        newstory = Story(f"story_{act.name}", parameters)
         newstory.add_act(act)
         self.stories.append(newstory)
         return self
@@ -332,7 +326,7 @@ class StoryBoard(VersionBase):
         """
         if not isinstance(maneuvergroup, ManeuverGroup):
             raise TypeError("maneuvergroup input is not of type ManeuverGroup")
-        if starttrigger == None:
+        if starttrigger is None:
             starttrigger = ValueTrigger(
                 "act_start",
                 0,
@@ -349,7 +343,7 @@ class StoryBoard(VersionBase):
             raise TypeError("stoptrigger is not a Trigger type")
         if stoptrigger._triggerpoint == "StartTrigger":
             raise ValueError("the stoptrigger provided is not of type StopTrigger")
-        newact = Act("act_" + maneuvergroup.name, starttrigger, stoptrigger)
+        newact = Act(f"act_{maneuvergroup.name}", starttrigger, stoptrigger)
         newact.add_maneuver_group(maneuvergroup)
         self.add_act(newact, parameters)
         return self
@@ -382,12 +376,10 @@ class StoryBoard(VersionBase):
                 Default: None
 
         """
-        if not (
-            isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)
-        ):
+        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
             raise TypeError("maneuver input is not of type Maneuver")
         if isinstance(maneuver, Maneuver):
-            mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
+            mangr = ManeuverGroup(f"maneuvuergroup_{maneuver.name}")
         else:
             mangr = ManeuverGroup("maneuvuergroup_from_catalog")
 
@@ -476,14 +468,11 @@ class Story(VersionBase):
         self.parameter = parameters
 
     def __eq__(self, other):
-        if isinstance(other, Story):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameter == other.parameter
-                and self.acts == other.acts
-            ):
-                return True
-        return False
+        return isinstance(other, Story) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameter == other.parameter
+            and self.acts == other.acts
+        )
 
     @staticmethod
     def parse(element):
@@ -499,12 +488,12 @@ class Story(VersionBase):
 
         """
         name = element.attrib["name"]
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is None:
+            parameters = ParameterDeclarations()
+        else:
             parameters = ParameterDeclarations.parse(
                 element.find("ParameterDeclarations")
             )
-        else:
-            parameters = ParameterDeclarations()
         story = Story(name, parameters)
         for a in element.findall("Act"):
             story.add_act(Act.parse(a))
@@ -593,7 +582,7 @@ class Act(VersionBase):
         """
 
         self.name = name
-        if starttrigger == None:
+        if starttrigger is None:
             self.starttrigger = starttrigger = ValueTrigger(
                 "act_start",
                 0,
@@ -609,7 +598,7 @@ class Act(VersionBase):
         else:
             self.starttrigger = starttrigger
 
-        if stoptrigger == None:
+        if stoptrigger is None:
             self.stoptrigger = EmptyTrigger("stop")
         elif not isinstance(stoptrigger, _TriggerType):
             raise TypeError("stoptrigger is not a valid TriggerType")
@@ -621,14 +610,11 @@ class Act(VersionBase):
         self.maneuvergroup = []
 
     def __eq__(self, other):
-        if isinstance(other, Act):
-            if (
-                self.starttrigger == other.starttrigger
-                and self.stoptrigger == other.stoptrigger
-                and self.maneuvergroup == other.maneuvergroup
-            ):
-                return True
-        return False
+        return isinstance(other, Act) and (
+            self.starttrigger == other.starttrigger
+            and self.stoptrigger == other.stoptrigger
+            and self.maneuvergroup == other.maneuvergroup
+        )
 
     @staticmethod
     def parse(element):
@@ -744,14 +730,11 @@ class ManeuverGroup(VersionBase):
         self.maneuvers = []
 
     def __eq__(self, other):
-        if isinstance(other, ManeuverGroup):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.actors == other.actors
-                and self.maneuvers == other.maneuvers
-            ):
-                return True
-        return False
+        return isinstance(other, ManeuverGroup) and (
+            self.get_attributes() == other.get_attributes()
+            and self.actors == other.actors
+            and self.maneuvers == other.maneuvers
+        )
 
     @staticmethod
     def parse(element):
@@ -787,9 +770,7 @@ class ManeuverGroup(VersionBase):
             maneuver (Maneuver, or CatalogReference): maneuver to add
 
         """
-        if not (
-            isinstance(maneuver, Maneuver) or isinstance(maneuver, CatalogReference)
-        ):
+        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
             raise TypeError("maneuver input is not of type Maneuver")
         self.maneuvers.append(maneuver)
         return self
@@ -861,13 +842,10 @@ class _Actors(VersionBase):
         self.select = convert_bool(selectTriggeringEntities)
 
     def __eq__(self, other):
-        if isinstance(other, _Actors):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.actors == other.actors
-            ):
-                return True
-        return False
+        return isinstance(other, _Actors) and (
+            self.get_attributes() == other.get_attributes()
+            and self.actors == other.actors
+        )
 
     @staticmethod
     def parse(element):
@@ -973,14 +951,11 @@ class Maneuver(_BaseCatalog):
         self.events = []
 
     def __eq__(self, other):
-        if isinstance(other, Maneuver):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameters == other.parameters
-                and self.events == other.events
-            ):
-                return True
-        return False
+        return isinstance(other, Maneuver) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameters == other.parameters
+            and self.events == other.events
+        )
 
     @staticmethod
     def parse(element):
@@ -1088,14 +1063,11 @@ class Event(VersionBase):
         self.maxexecution = convert_int(maxexecution)
 
     def __eq__(self, other):
-        if isinstance(other, Event):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.trigger == other.trigger
-                and self.action == other.action
-            ):
-                return True
-        return False
+        return isinstance(other, Event) and (
+            self.get_attributes() == other.get_attributes()
+            and self.trigger == other.trigger
+            and self.action == other.action
+        )
 
     @staticmethod
     def parse(element):

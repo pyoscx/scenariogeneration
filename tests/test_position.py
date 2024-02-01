@@ -438,8 +438,7 @@ def test_route(tmpdir):
 
 
 def test_polyline():
-    positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
+    positionlist = [OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego")]
     positionlist.append(OSC.RelativeLanePosition(ds=11, lane_id=-3, entity="Ego"))
     positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
     positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
@@ -490,11 +489,7 @@ def test_clothoid():
 
 
 def test_trajectory(tmpdir):
-    positionlist = []
-    # positionlist.append(OSC.RelativeLanePosition(10,0.5,-3,'Ego'))
-    # positionlist.append(OSC.RelativeLanePosition(10,1,-3,'Ego'))
-
-    positionlist.append(OSC.WorldPosition())
+    positionlist = [OSC.WorldPosition()]
     positionlist.append(OSC.WorldPosition(1))
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0, 0.5], positionlist)

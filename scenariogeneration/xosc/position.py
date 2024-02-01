@@ -151,10 +151,10 @@ class WorldPosition(_PositionType):
         self.r = convert_float(r)
 
     def __eq__(self, other):
-        if isinstance(other, WorldPosition):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
+        return (
+            isinstance(other, WorldPosition)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element):
@@ -280,13 +280,10 @@ class RelativeWorldPosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RelativeWorldPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeWorldPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -315,12 +312,12 @@ class RelativeWorldPosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeWorldPosition as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.target
-        retdict["dx"] = str(self.dx)
-        retdict["dy"] = str(self.dy)
-        retdict["dz"] = str(self.dz)
-        return retdict
+        return {
+            "entityRef": self.target,
+            "dx": str(self.dx),
+            "dy": str(self.dy),
+            "dz": str(self.dz),
+        }
 
     def get_element(self, elementname="Position"):
         """returns the elementTree of the RelativeWorldPosition
@@ -409,13 +406,10 @@ class RelativeObjectPosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RelativeObjectPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeObjectPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -447,10 +441,7 @@ class RelativeObjectPosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeObjectPosition as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.target
-        retdict["dx"] = str(self.dx)
-        retdict["dy"] = str(self.dy)
+        retdict = {"entityRef": self.target, "dx": str(self.dx), "dy": str(self.dy)}
         if self.dz != None:
             retdict["dz"] = str(self.dz)
         return retdict
@@ -534,13 +525,10 @@ class RoadPosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RoadPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, RoadPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -568,11 +556,7 @@ class RoadPosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the RoadPosition as a dict"""
-        retdict = {}
-        retdict["roadId"] = str(self.id)
-        retdict["s"] = str(self.s)
-        retdict["t"] = str(self.t)
-        return retdict
+        return {"roadId": str(self.id), "s": str(self.s), "t": str(self.t)}
 
     def get_element(self, elementname="Position"):
         """returns the elementTree of the RoadPosition
@@ -651,13 +635,10 @@ class RelativeRoadPosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RelativeRoadPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeRoadPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -686,11 +667,7 @@ class RelativeRoadPosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeRoadPosition as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.target
-        retdict["ds"] = str(self.ds)
-        retdict["dt"] = str(self.dt)
-        return retdict
+        return {"entityRef": self.target, "ds": str(self.ds), "dt": str(self.dt)}
 
     def get_element(self, elementname="Position"):
         """returns the elementTree of the RelativeRoadPosition
@@ -778,13 +755,10 @@ class LanePosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, LanePosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, LanePosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -813,13 +787,12 @@ class LanePosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the LanePosition as a dict"""
-        retdict = {}
-        retdict["roadId"] = str(self.road_id)
-        retdict["laneId"] = str(self.lane_id)
-        retdict["s"] = str(self.s)
-        retdict["offset"] = str(self.offset)
-
-        return retdict
+        return {
+            "roadId": str(self.road_id),
+            "laneId": str(self.lane_id),
+            "s": str(self.s),
+            "offset": str(self.offset),
+        }
 
     def get_element(self, elementname="Position"):
         """returns the elementTree of the LanePosition
@@ -912,7 +885,7 @@ class RelativeLanePosition(_PositionType):
         """
         if ds != None and dsLane != None:
             raise ToManyOptionalArguments("Not both of ds and dsLane can be used.")
-        if ds == None and dsLane == None:
+        if ds is None and dsLane is None:
             raise NotEnoughInputArguments("Either ds or dsLane is needed as input.")
         self.ds = convert_float(ds)
         self.dsLane = convert_float(dsLane)
@@ -925,13 +898,10 @@ class RelativeLanePosition(_PositionType):
         self.orient = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RelativeLanePosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orient == other.orient
-            ):
-                return True
-        return False
+        return isinstance(other, RelativeLanePosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orient == other.orient
+        )
 
     @staticmethod
     def parse(element):
@@ -967,16 +937,16 @@ class RelativeLanePosition(_PositionType):
 
     def get_attributes(self):
         """returns the attributes of the RelativeLanePosition as a dict"""
-        retdict = {}
-        retdict["entityRef"] = self.entity
+        retdict = {"entityRef": self.entity}
         if self.ds is not None:
             retdict["ds"] = str(self.ds)
-        if self.dsLane is not None and not self.isVersion(minor=0):
-            retdict["dsLane"] = str(self.dsLane)
-        elif self.dsLane is not None and self.isVersion(minor=0):
-            OpenSCENARIOVersionError(
-                "dsLane was introduced in OpenSCENARIO V1.1, not in 1.0"
-            )
+        if self.dsLane is not None:
+            if not self.isVersion(minor=0):
+                retdict["dsLane"] = str(self.dsLane)
+            elif self.isVersion(minor=0):
+                OpenSCENARIOVersionError(
+                    "dsLane was introduced in OpenSCENARIO V1.1, not in 1.0"
+                )
         retdict["offset"] = str(self.offset)
         retdict["dLane"] = str(self.lane_id)
         return retdict
@@ -1041,9 +1011,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             orientation (Orientation): Oritation of the entity
                 Default: Orientation()
         """
-        if not (
-            isinstance(route_ref, Route) or isinstance(route_ref, CatalogReference)
-        ):
+        if not (isinstance(route_ref, (Route, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
         self.route_ref = route_ref
         self.entity = entity
@@ -1052,14 +1020,11 @@ class RoutePositionOfCurrentEntity(_PositionType):
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RoutePositionOfCurrentEntity):
-            if (
-                self.entity == other.entity
-                and self.orientation == other.orientation
-                and self.route_ref == other.route_ref
-            ):
-                return True
-        return False
+        return isinstance(other, RoutePositionOfCurrentEntity) and (
+            self.entity == other.entity
+            and self.orientation == other.orientation
+            and self.route_ref == other.route_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -1075,18 +1040,18 @@ class RoutePositionOfCurrentEntity(_PositionType):
 
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
-            orientation = Orientation.parse(position_element.find("Orientation"))
-        else:
+        if position_element.find("Orientation") is None:
             orientation = Orientation()
+        else:
+            orientation = Orientation.parse(position_element.find("Orientation"))
         entityelement = position_element.find("InRoutePosition/FromCurrentEntity")
         entity = entityelement.attrib["entityRef"]
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
-            routeref = Route.parse(route_element.find("Route"))
-        else:
+        if route_element.find("Route") is None:
             routeref = CatalogReference.parse(route_element.find("CatalogReference"))
 
+        else:
+            routeref = Route.parse(route_element.find("Route"))
         return RoutePositionOfCurrentEntity(routeref, entity, orientation)
 
     def get_element(self, elementname="Position"):
@@ -1149,9 +1114,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
             orientation (Orientation): Oritation of the entity
                 Default: Orientation()
         """
-        if not (
-            isinstance(route_ref, Route) or isinstance(route_ref, CatalogReference)
-        ):
+        if not (isinstance(route_ref, (Route, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
         self.route_ref = route_ref
         self.s = convert_float(s)
@@ -1161,15 +1124,12 @@ class RoutePositionInRoadCoordinates(_PositionType):
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RoutePositionInRoadCoordinates):
-            if (
-                self.s == other.s
-                and self.t == other.t
-                and self.orientation == other.orientation
-                and self.route_ref == other.route_ref
-            ):
-                return True
-        return False
+        return isinstance(other, RoutePositionInRoadCoordinates) and (
+            self.s == other.s
+            and self.t == other.t
+            and self.orientation == other.orientation
+            and self.route_ref == other.route_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -1185,21 +1145,21 @@ class RoutePositionInRoadCoordinates(_PositionType):
 
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
-            orientation = Orientation.parse(position_element.find("Orientation"))
-        else:
+        if position_element.find("Orientation") is None:
             orientation = Orientation()
+        else:
+            orientation = Orientation.parse(position_element.find("Orientation"))
         road_coord_element = position_element.find(
             "InRoutePosition/FromRoadCoordinates"
         )
         s = convert_float(road_coord_element.attrib["pathS"])
         t = convert_float(road_coord_element.attrib["t"])
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
-            routeref = Route.parse(route_element.find("Route"))
-        else:
+        if route_element.find("Route") is None:
             routeref = CatalogReference.parse(route_element.find("CatalogReference"))
 
+        else:
+            routeref = Route.parse(route_element.find("Route"))
         return RoutePositionInRoadCoordinates(routeref, s, t, orientation)
 
     def get_element(self, elementname="Position"):
@@ -1275,9 +1235,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
             orientation (Orientation): Oritation of the entity
                 Default: Orientation()
         """
-        if not (
-            isinstance(route_ref, Route) or isinstance(route_ref, CatalogReference)
-        ):
+        if not (isinstance(route_ref, (Route, CatalogReference))):
             raise TypeError("route input not of type Route or CatalogReference")
         self.route_ref = route_ref
         self.s = convert_float(s)
@@ -1288,16 +1246,13 @@ class RoutePositionInLaneCoordinates(_PositionType):
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, RoutePositionInLaneCoordinates):
-            if (
-                self.s == other.s
-                and self.laneid == other.laneid
-                and self.offset == other.offset
-                and self.orientation == other.orientation
-                and self.route_ref == other.route_ref
-            ):
-                return True
-        return False
+        return isinstance(other, RoutePositionInLaneCoordinates) and (
+            self.s == other.s
+            and self.laneid == other.laneid
+            and self.offset == other.offset
+            and self.orientation == other.orientation
+            and self.route_ref == other.route_ref
+        )
 
     @staticmethod
     def parse(element):
@@ -1313,10 +1268,10 @@ class RoutePositionInLaneCoordinates(_PositionType):
 
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
-            orientation = Orientation.parse(position_element.find("Orientation"))
-        else:
+        if position_element.find("Orientation") is None:
             orientation = Orientation()
+        else:
+            orientation = Orientation.parse(position_element.find("Orientation"))
         lane_coord_element = position_element.find(
             "InRoutePosition/FromLaneCoordinates"
         )
@@ -1327,11 +1282,11 @@ class RoutePositionInLaneCoordinates(_PositionType):
         except KeyError:
             offset = 0
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
-            routeref = Route.parse(route_element.find("Route"))
-        else:
+        if route_element.find("Route") is None:
             routeref = CatalogReference.parse(route_element.find("CatalogReference"))
 
+        else:
+            routeref = Route.parse(route_element.find("Route"))
         return RoutePositionInLaneCoordinates(routeref, s, lane_id, offset, orientation)
 
     def get_element(self, elementname="Position"):
@@ -1405,10 +1360,7 @@ class TrajectoryPosition(_PositionType):
             orientation (Orientation): Oritation of the entity
                 Default: Orientation()
         """
-        if not (
-            isinstance(trajectory, Trajectory)
-            or isinstance(trajectory, CatalogReference)
-        ):
+        if not (isinstance(trajectory, (Trajectory, CatalogReference))):
             raise TypeError(
                 "trajectory input not of type Trajectory or CatalogReference"
             )
@@ -1420,14 +1372,11 @@ class TrajectoryPosition(_PositionType):
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, TrajectoryPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orientation == other.orientation
-                and self.trajectory == other.trajectory
-            ):
-                return True
-        return False
+        return isinstance(other, TrajectoryPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orientation == other.orientation
+            and self.trajectory == other.trajectory
+        )
 
     @staticmethod
     def parse(element):
@@ -1443,30 +1392,29 @@ class TrajectoryPosition(_PositionType):
 
         """
         position_element = element.find("TrajectoryPosition")
-        if position_element.find("Orientation") != None:
-            orientation = Orientation.parse(position_element.find("Orientation"))
-        else:
+        if position_element.find("Orientation") is None:
             orientation = Orientation()
 
+        else:
+            orientation = Orientation.parse(position_element.find("Orientation"))
         s = position_element.attrib["s"]
         t = None
         if "t" in position_element:
             s = position_element.attrib["s"]
 
         trajectory_element = position_element.find("TrajectoryRef")
-        if trajectory_element.find("Trajectory") != None:
-            trajectory = Trajectory.parse(trajectory_element.find("Trajectory"))
-        else:
+        if trajectory_element.find("Trajectory") is None:
             trajectory = CatalogReference.parse(
                 trajectory_element.find("CatalogReference")
             )
 
+        else:
+            trajectory = Trajectory.parse(trajectory_element.find("Trajectory"))
         return TrajectoryPosition(trajectory, s, t, orientation)
 
     def get_attributes(self):
         """returns the attributes of the TrajectoryPosition as a dict"""
-        retdict = {}
-        retdict["s"] = str(self.s)
+        retdict = {"s": str(self.s)}
         if self.t is not None:
             retdict["t"] = str(self.t)
         return retdict
@@ -1554,15 +1502,12 @@ class GeoPosition(_PositionType):
         self.orientation = orientation
 
     def __eq__(self, other):
-        if isinstance(other, GeoPosition):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.orientation == other.orientation
-            ):
-                return True
-        return False
+        return isinstance(other, GeoPosition) and (
+            self.get_attributes() == other.get_attributes()
+            and self.orientation == other.orientation
+        )
 
-    def parse(element):
+    def parse(self):
         """Parses the xml element of GeoPosition
 
         Parameters
@@ -1574,7 +1519,7 @@ class GeoPosition(_PositionType):
             position (GeoPosition): a GeoPosition object
 
         """
-        position_element = element.find("GeoPosition")
+        position_element = self.find("GeoPosition")
         if "longitude" in position_element.attrib:
             longitude = convert_float(position_element.attrib["longitude"])
         elif "longitudeDeg" in position_element.attrib:
@@ -1676,10 +1621,9 @@ class Polyline(VersionBase):
         self.time = [convert_float(x) for x in time]
 
     def __eq__(self, other):
-        if isinstance(other, Polyline):
-            if self.time == other.time and self.positions == other.positions:
-                return True
-        return False
+        return isinstance(other, Polyline) and (
+            self.time == other.time and self.positions == other.positions
+        )
 
     @staticmethod
     def parse(element):
@@ -1796,19 +1740,19 @@ class Clothoid(VersionBase):
 
         self.starttime = convert_float(starttime)
         self.stoptime = convert_float(stoptime)
-        if (self.starttime == None and self.stoptime != None) or (
-            self.starttime != None and self.stoptime == None
+        if (
+            self.starttime is None
+            and self.stoptime != None
+            or self.starttime != None
+            and self.stoptime is None
         ):
             raise ValueError("Both start and stoptime has to be set, or none of them")
 
     def __eq__(self, other):
-        if isinstance(other, Clothoid):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.startposition == other.startposition
-            ):
-                return True
-        return False
+        return isinstance(other, Clothoid) and (
+            self.get_attributes() == other.get_attributes()
+            and self.startposition == other.startposition
+        )
 
     @staticmethod
     def parse(element):
@@ -1848,8 +1792,7 @@ class Clothoid(VersionBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the Clothoid"""
-        retdict = {}
-        retdict["curvature"] = str(self.curvature)
+        retdict = {"curvature": str(self.curvature)}
         if self.isVersion(minor=0):
             retdict["curvatureDot"] = str(self.curvature_change)
         else:
@@ -1928,13 +1871,10 @@ class ControlPoint(VersionBase):
         self.weight = convert_float(weight)
 
     def __eq__(self, other):
-        if isinstance(other, ControlPoint):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-            ):
-                return True
-        return False
+        return isinstance(other, ControlPoint) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -2017,13 +1957,10 @@ class Waypoint(VersionBase):
         self.routestrategy = convert_enum(routestrategy, RouteStrategy)
 
     def __eq__(self, other):
-        if isinstance(other, Waypoint):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-            ):
-                return True
-        return False
+        return isinstance(other, Waypoint) and (
+            self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+        )
 
     @staticmethod
     def parse(element):
@@ -2114,14 +2051,11 @@ class Route(_BaseCatalog):
         self.waypoints = []
 
     def __eq__(self, other):
-        if isinstance(other, Route):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameters == other.parameters
-                and self.waypoints == other.waypoints
-            ):
-                return True
-        return False
+        return isinstance(other, Route) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameters == other.parameters
+            and self.waypoints == other.waypoints
+        )
 
     @staticmethod
     def parse(element):
@@ -2161,10 +2095,7 @@ class Route(_BaseCatalog):
 
     def get_attributes(self):
         """returns the attributes of the Route as a dict"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["closed"] = get_bool_string(self.closed)
-        return retdict
+        return {"name": self.name, "closed": get_bool_string(self.closed)}
 
     def get_element(self):
         """returns the elementTree of the Route"""
@@ -2237,14 +2168,11 @@ class Trajectory(_BaseCatalog):
         self.shapes = None
 
     def __eq__(self, other):
-        if isinstance(other, Trajectory):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameters == other.parameters
-                and self.shapes == other.shapes
-            ):
-                return True
-        return False
+        return isinstance(other, Trajectory) and (
+            self.get_attributes() == other.get_attributes()
+            and self.parameters == other.parameters
+            and self.shapes == other.shapes
+        )
 
     @staticmethod
     def parse(element):
@@ -2275,21 +2203,14 @@ class Trajectory(_BaseCatalog):
         shape (Polyline, Clothoid, or Nurbs): the shape to be added to the trajectory
 
         """
-        if not (
-            isinstance(shape, Polyline)
-            or isinstance(shape, Clothoid)
-            or isinstance(shape, Nurbs)
-        ):
+        if not (isinstance(shape, (Polyline, Clothoid, Nurbs))):
             raise TypeError("shape input neither of type Polyline, Clothoid, or Nurbs")
         self.shapes = shape
         return self
 
     def get_attributes(self):
         """returns the attributes of the Trajectory as a dict"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["closed"] = get_bool_string(self.closed)
-        return retdict
+        return {"name": self.name, "closed": get_bool_string(self.closed)}
 
     def get_element(self):
         """returns the elementTree of the Trajectory"""
@@ -2350,14 +2271,11 @@ class Nurbs(VersionBase):
         self.knots = []
 
     def __eq__(self, other):
-        if isinstance(other, Nurbs):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.controlpoints == other.controlpoints
-                and self.knots == other.knots
-            ):
-                return True
-        return False
+        return isinstance(other, Nurbs) and (
+            self.get_attributes() == other.get_attributes()
+            and self.controlpoints == other.controlpoints
+            and self.knots == other.knots
+        )
 
     @staticmethod
     def parse(element):
@@ -2413,9 +2331,7 @@ class Nurbs(VersionBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the Nurbs"""
-        retdict = {}
-        retdict["order"] = str(self.order)
-        return retdict
+        return {"order": str(self.order)}
 
     def get_element(self):
         """returns the elementTree of the Nurbs"""
