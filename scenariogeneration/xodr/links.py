@@ -58,10 +58,13 @@ class _Links(XodrBase):
         self.links = []
 
     def __eq__(self, other):
-        if isinstance(other, _Links) and super().__eq__(other):
-            if self.links == other.links:
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, _Links)
+                and super().__eq__(other)
+                and self.links == other.links
+            )
+        )
 
     def add_link(self, link):
         """Adds a _Link
@@ -79,7 +82,7 @@ class _Links(XodrBase):
                 "Multiple identical links is detected, this might cause problems. Using the first one created. ",
                 UserWarning,
             )
-        elif any([link.link_type == x.link_type for x in self.links]):
+        elif any(link.link_type == x.link_type for x in self.links):
             warnings.warn(
                 "Multiple links of the same link_type: "
                 + link.link_type
@@ -243,9 +246,8 @@ class _Link(XodrBase):
                 Default: None
         """
         super().__init__()
-        if link_type == "neighbor":
-            if direction == None:
-                raise ValueError("direction has to be defined for neighbor")
+        if link_type == "neighbor" and direction is None:
+            raise ValueError("direction has to be defined for neighbor")
 
         self.link_type = link_type
 
@@ -255,18 +257,21 @@ class _Link(XodrBase):
         self.direction = enumchecker(direction, Direction, True)
 
     def __eq__(self, other):
-        if isinstance(other, _Link) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.link_type == other.link_type
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, _Link)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.link_type == other.link_type
+                )
+            )
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the _Link"""
         retdict = {}
-        if self.element_type == None:
+        if self.element_type is None:
             retdict["id"] = str(self.element_id)
         else:
             retdict["elementType"] = enum2str(self.element_type)
@@ -392,13 +397,16 @@ class Connection(XodrBase):
         self.links = []
 
     def __eq__(self, other):
-        if isinstance(other, Connection) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.links == other.links
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Connection)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.links == other.links
+                )
+            )
+        )
 
     def _set_id(self, id):
         """id is set
@@ -407,7 +415,7 @@ class Connection(XodrBase):
         ----------
             id (int): the id of the connection
         """
-        if self.id == None:
+        if self.id is None:
             self.id = id
 
     def add_lanelink(self, in_lane, out_lane):
@@ -430,10 +438,11 @@ class Connection(XodrBase):
             junctiontype (JunctionType): type of junction created (connections will be different)
 
         """
-        retdict = {}
-        retdict["incomingRoad"] = str(self.incoming_road)
-        retdict["id"] = str(self.id)
-        retdict["contactPoint"] = enum2str(self.contact_point)
+        retdict = {
+            "incomingRoad": str(self.incoming_road),
+            "id": str(self.id),
+            "contactPoint": enum2str(self.contact_point),
+        }
         if junctiontype == JunctionType.direct:
             retdict["linkedRoad"] = str(self.connecting_road)
         else:
@@ -547,33 +556,32 @@ class Junction(XodrBase):
         super().__init__()
         self.name = name
         self.id = id
-        self.connections = []
         self._id_counter = 0
 
+        self.connections = []
         self.junction_type = enumchecker(junction_type, JunctionType)
-        if junction_type == JunctionType.virtual:
-            if not (
-                sstart is not None
-                and send is not None
-                and mainroad is not None
-                and orientation is not None
-            ):
-                raise NotEnoughInputArguments(
-                    "For virtual junctions sstart, send, orientation, and mainroad has to be added"
-                )
+        if junction_type == JunctionType.virtual and (
+            sstart is None or send is None or mainroad is None or orientation is None
+        ):
+            raise NotEnoughInputArguments(
+                "For virtual junctions sstart, send, orientation, and mainroad has to be added"
+            )
         self.sstart = sstart
         self.send = send
         self.mainroad = mainroad
         self.orientation = enumchecker(orientation, Orientation, True)
 
     def __eq__(self, other):
-        if isinstance(other, Junction) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.connections == other.connections
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, Junction)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.connections == other.connections
+                )
+            )
+        )
 
     def add_connection(self, connection):
         """Adds a new link to the Junction
@@ -592,11 +600,11 @@ class Junction(XodrBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the Junction"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["id"] = str(self.id)
-        retdict["type"] = self.junction_type.name
-
+        retdict = {
+            "name": self.name,
+            "id": str(self.id),
+            "type": self.junction_type.name,
+        }
         # these are only used for virtual junctions
         if self.junction_type == JunctionType.virtual:
             if self.orientation == Orientation.positive:
@@ -634,18 +642,16 @@ def are_roads_consecutive(road1, road2):
         bool
     """
 
-    if road1.successor is not None and road2.predecessor is not None:
-        if (
-            road1.successor.element_type == ElementType.road
-            and road2.predecessor.element_type == ElementType.road
-        ):
-            if (
-                road1.successor.element_id == road2.id
-                and road2.predecessor.element_id == road1.id
-            ):
-                return True
-
-    return False
+    return (
+        road1.successor is not None
+        and road2.predecessor is not None
+        and road1.successor.element_type == ElementType.road
+        and road2.predecessor.element_type == ElementType.road
+        and (
+            road1.successor.element_id == road2.id
+            and road2.predecessor.element_id == road1.id
+        )
+    )
 
 
 def are_roads_connected(road1, road2):
@@ -660,26 +666,32 @@ def are_roads_connected(road1, road2):
     -------
         bool, str (successor or predecessor)
     """
-    if road1.successor is not None and road2.successor is not None:
-        if (
+    if (
+        road1.successor is not None
+        and road2.successor is not None
+        and (
             road1.successor.element_type == ElementType.road
             and road2.successor.element_type == ElementType.road
-        ):
-            if (
-                road1.successor.element_id == road2.id
-                and road2.successor.element_id == road1.id
-            ):
-                return True, "successor"
-    if road1.predecessor is not None and road2.predecessor is not None:
-        if (
+        )
+        and (
+            road1.successor.element_id == road2.id
+            and road2.successor.element_id == road1.id
+        )
+    ):
+        return True, "successor"
+    if (
+        road1.predecessor is not None
+        and road2.predecessor is not None
+        and (
             road1.predecessor.element_type == ElementType.road
             and road2.predecessor.element_type == ElementType.road
-        ):
-            if (
-                road1.predecessor.element_id == road2.id
-                and road2.predecessor.element_id == road1.id
-            ):
-                return True, "predecessor"
+        )
+        and (
+            road1.predecessor.element_id == road2.id
+            and road2.predecessor.element_id == road1.id
+        )
+    ):
+        return True, "predecessor"
     return False, ""
 
 
@@ -709,45 +721,38 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
     if (0 in road1_lane_ids) or (0 in road2_lane_ids):
         raise ValueError("The center lane (ID 0) should not be linked.")
 
-    if road1.road_type == -1 and road2.road_type == -1:
-        first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
-            road1, road2
-        )
-        second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
-            road2, road1
-        )
-
-        # The road links need to be reciprocal for the lane linking to succeed
-        if first_linktype == None or second_linktype == None:
-            raise ValueError(
-                "Unable to create lane links for road with ID "
-                + str(road1.id)
-                + " and road with ID "
-                + str(road2.id)
-                + " due to non reciprocal road successor/predecessor links."
-            )
-
-        for i in range(len(road1_lane_ids)):
-            if road1_lane_ids[i] > 0:
-                road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
-                    road1_lane_ids[i] - 1
-                ].add_link(first_linktype, road2_lane_ids[i])
-            else:
-                road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
-                    abs(road1_lane_ids[i]) - 1
-                ].add_link(first_linktype, road2_lane_ids[i])
-            if road2_lane_ids[i] > 0:
-                road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
-                    road2_lane_ids[i] - 1
-                ].add_link(second_linktype, road1_lane_ids[i])
-            else:
-                road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
-                    abs(road2_lane_ids[i]) - 1
-                ].add_link(second_linktype, road1_lane_ids[i])
-    else:
+    if road1.road_type != -1 or road2.road_type != -1:
         raise NotImplementedError(
             "This API currently does not support linking with junction connecting roads."
         )
+    first_linktype, _, first_connecting_lanesec = _get_related_lanesection(road1, road2)
+    second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
+        road2, road1
+    )
+
+    # The road links need to be reciprocal for the lane linking to succeed
+    if first_linktype is None or second_linktype is None:
+        raise ValueError(
+            f"Unable to create lane links for road with ID {str(road1.id)} and road with ID {str(road2.id)} due to non reciprocal road successor/predecessor links."
+        )
+
+    for i in range(len(road1_lane_ids)):
+        if road1_lane_ids[i] > 0:
+            road1.lanes.lanesections[first_connecting_lanesec].leftlanes[
+                road1_lane_ids[i] - 1
+            ].add_link(first_linktype, road2_lane_ids[i])
+        else:
+            road1.lanes.lanesections[first_connecting_lanesec].rightlanes[
+                abs(road1_lane_ids[i]) - 1
+            ].add_link(first_linktype, road2_lane_ids[i])
+        if road2_lane_ids[i] > 0:
+            road2.lanes.lanesections[second_connecting_lanesec].leftlanes[
+                road2_lane_ids[i] - 1
+            ].add_link(second_linktype, road1_lane_ids[i])
+        else:
+            road2.lanes.lanesections[second_connecting_lanesec].rightlanes[
+                abs(road2_lane_ids[i]) - 1
+            ].add_link(second_linktype, road1_lane_ids[i])
 
 
 def create_lane_links(road1, road2):
@@ -773,7 +778,7 @@ def create_lane_links(road1, road2):
 
     elif road1.road_type != -1:
         _create_links_connecting_road(road1, road2)
-    elif road2.road_type != -1:
+    else:
         _create_links_connecting_road(road2, road1)
 
 
@@ -807,11 +812,10 @@ def _create_links_connecting_road(connecting, road):
                         linkid += np.sign(linkid) * abs(
                             connecting.lane_offset_pred[str(road.id)]
                         )
-                else:
-                    if str(road.id) in connecting.lane_offset_suc:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_suc[str(road.id)]
-                        )
+                elif str(road.id) in connecting.lane_offset_suc:
+                    linkid += np.sign(linkid) * abs(
+                        connecting.lane_offset_suc[str(road.id)]
+                    )
                 connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(
                     linktype, linkid
                 )
@@ -832,11 +836,10 @@ def _create_links_connecting_road(connecting, road):
                         linkid += np.sign(linkid) * abs(
                             connecting.lane_offset_pred[str(road.id)]
                         )
-                else:
-                    if str(road.id) in connecting.lane_offset_suc:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_suc[str(road.id)]
-                        )
+                elif str(road.id) in connecting.lane_offset_suc:
+                    linkid += np.sign(linkid) * abs(
+                        connecting.lane_offset_suc[str(road.id)]
+                    )
                 connecting.lanes.lanesections[connecting_lanesec].rightlanes[
                     i
                 ].add_link(linktype, linkid)
@@ -866,19 +869,13 @@ def _get_related_lanesection(road, connected_road):
 
     if road.successor and road.successor.element_id == connected_road.id:
         linktype = "successor"
-        if road.successor.contact_point == ContactPoint.start:
-            sign = 1
-        else:
-            sign = -1
+        sign = 1 if road.successor.contact_point == ContactPoint.start else -1
         road_lanesection_id = -1
         return linktype, sign, road_lanesection_id
 
     elif road.predecessor and road.predecessor.element_id == connected_road.id:
         linktype = "predecessor"
-        if road.predecessor.contact_point == ContactPoint.start:
-            sign = -1
-        else:
-            sign = 1
+        sign = -1 if road.predecessor.contact_point == ContactPoint.start else 1
         road_lanesection_id = 0
         return linktype, sign, road_lanesection_id
 
@@ -935,21 +932,17 @@ def _get_related_lanesection(road, connected_road):
         road_lanesection_id = 0
         return linktype, sign, road_lanesection_id
 
-    if connected_road.road_type != -1:
         # treat connecting road in junction differently
-        if (
-            connected_road.predecessor
-            and connected_road.predecessor.element_id == road.id
-        ):
+    if connected_road.predecessor and connected_road.predecessor.element_id == road.id:
+        if connected_road.road_type != -1:
             if connected_road.predecessor.contact_point == ContactPoint.start:
                 road_lanesection_id = 0
                 sign = -1
             else:
                 road_lanesection_id = -1
                 sign = 1
-        elif (
-            connected_road.successor and connected_road.successor.element_id == road.id
-        ):
+    elif connected_road.successor and connected_road.successor.element_id == road.id:
+        if connected_road.road_type != -1:
             if connected_road.successor.contact_point == ContactPoint.start:
                 road_lanesection_id = 0
                 sign = 1
@@ -973,57 +966,37 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
 
     """
     if same_type != "":
-        if same_type == "successor":
-            lane_sec_pos = -1
-        else:
-            lane_sec_pos = 0
-
-        if len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes) == len(
+        lane_sec_pos = -1 if same_type == "successor" else 0
+        if len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes) != len(
             suc_road.lanes.lanesections[lane_sec_pos].rightlanes
         ):
-            for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes)):
-                linkid = pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].lane_id
-                pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
-                    same_type, linkid * -1
-                )
-                suc_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
-                    same_type, linkid
-                )
-        else:
             raise NotSameAmountOfLanesError(
-                "Road "
-                + str(pre_road.id)
-                + " and road "
-                + str(suc_road.id)
-                + " does not have the same number of right and left lanes, to connect as "
-                + same_type
-                + "/"
-                + same_type
+                f"Road {str(pre_road.id)} and road {str(suc_road.id)} does not have the same number of right and left lanes, to connect as {same_type}/{same_type}"
             )
 
-        if len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes) == len(
+        for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes)):
+            linkid = pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].lane_id
+            pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
+                same_type, linkid * -1
+            )
+            suc_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
+                same_type, linkid
+            )
+        if len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes) != len(
             suc_road.lanes.lanesections[-1].leftlanes
         ):
-            for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes)):
-                linkid = pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].lane_id
-                pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
-                    same_type, linkid * -1
-                )
-                suc_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
-                    same_type, linkid
-                )
-        else:
             raise NotSameAmountOfLanesError(
-                "Road "
-                + str(pre_road.id)
-                + " and road "
-                + str(suc_road.id)
-                + " does not have the same number of right and left lanes, to connect as "
-                + same_type
-                + "/"
-                + same_type
+                f"Road {str(pre_road.id)} and road {str(suc_road.id)} does not have the same number of right and left lanes, to connect as {same_type}/{same_type}"
             )
 
+        for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes)):
+            linkid = pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].lane_id
+            pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
+                same_type, linkid * -1
+            )
+            suc_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
+                same_type, linkid
+            )
     else:
         pre_linktype, pre_sign, pre_connecting_lanesec = _get_related_lanesection(
             pre_road, suc_road
@@ -1031,33 +1004,26 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
         suc_linktype, _, suc_connecting_lanesec = _get_related_lanesection(
             suc_road, pre_road
         )
-        if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(
+        if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) != len(
             suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes
         ):
-            for i in range(
-                len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)
-            ):
-                linkid = (
-                    pre_road.lanes.lanesections[pre_connecting_lanesec]
-                    .leftlanes[i]
-                    .lane_id
-                    * pre_sign
-                )
-                pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[
-                    i
-                ].add_link(pre_linktype, linkid)
-                suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes[
-                    i
-                ].add_link(suc_linktype, linkid * pre_sign)
-        else:
             raise NotSameAmountOfLanesError(
-                "Road "
-                + str(pre_road.id)
-                + " and road "
-                + str(suc_road.id)
-                + " does not have the same number of right lanes."
+                f"Road {str(pre_road.id)} and road {str(suc_road.id)} does not have the same number of right lanes."
             )
 
+        for i in range(
+            len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)
+        ):
+            linkid = (
+                pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].lane_id
+                * pre_sign
+            )
+            pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes[i].add_link(
+                pre_linktype, linkid
+            )
+            suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes[i].add_link(
+                suc_linktype, linkid * pre_sign
+            )
         if len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes) == len(
             suc_road.lanes.lanesections[suc_connecting_lanesec].rightlanes
         ):
@@ -1077,11 +1043,7 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
                 ].add_link(suc_linktype, linkid)
         else:
             raise NotSameAmountOfLanesError(
-                "Road "
-                + str(pre_road.id)
-                + " and road "
-                + str(suc_road.id)
-                + " does not have the same number of right lanes."
+                f"Road {str(pre_road.id)} and road {str(suc_road.id)} does not have the same number of right lanes."
             )
 
 
@@ -1136,13 +1098,16 @@ class JunctionGroup(XodrBase):
         self.junction_type = enumchecker(junction_type, JunctionGroupType)
 
     def __eq__(self, other):
-        if isinstance(other, JunctionGroup) and super().__eq__(other):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.junctions == other.junctions
-            ):
-                return True
-        return False
+        return bool(
+            (
+                isinstance(other, JunctionGroup)
+                and super().__eq__(other)
+                and (
+                    self.get_attributes() == other.get_attributes()
+                    and self.junctions == other.junctions
+                )
+            )
+        )
 
     def add_junction(self, junction_id):
         """Adds a new link to the JunctionGroup
@@ -1157,11 +1122,11 @@ class JunctionGroup(XodrBase):
 
     def get_attributes(self):
         """returns the attributes as a dict of the JunctionGroup"""
-        retdict = {}
-        retdict["name"] = self.name
-        retdict["id"] = str(self.group_id)
-        retdict["type"] = enum2str(self.junction_type)
-        return retdict
+        return {
+            "name": self.name,
+            "id": str(self.group_id),
+            "type": enum2str(self.junction_type),
+        }
 
     def get_element(self):
         """returns the elementTree of the Junction"""

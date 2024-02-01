@@ -220,8 +220,7 @@ class Scenario(ScenarioGenerator):
         )
         sb.add_story(story)
 
-        ## create and return the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "CCRb, distance: "
             + str(kwargs["distance"])
             + ", decelleration: "
@@ -233,7 +232,6 @@ class Scenario(ScenarioGenerator):
             roadnetwork=road,
             catalog=catalog,
         )
-        return sce
 
 
 if __name__ == "__main__":

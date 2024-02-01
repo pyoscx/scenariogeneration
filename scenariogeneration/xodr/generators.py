@@ -154,11 +154,11 @@ def create_road(
         if isinstance(left_lanes, list) and any(
             isinstance(x, LaneDef) for x in left_lanes
         ):
-            raw_length = max(raw_length, max([x.s_end for x in left_lanes]))
+            raw_length = max(raw_length, max(x.s_end for x in left_lanes))
         if isinstance(right_lanes, list) and any(
             isinstance(x, LaneDef) for x in right_lanes
         ):
-            raw_length = max(raw_length, max([x.s_end for x in right_lanes]))
+            raw_length = max(raw_length, max(x.s_end for x in right_lanes))
         if raw_length == 0:
             raw_length = 100  # just a dummy value
     else:
@@ -187,9 +187,7 @@ def create_road(
     else:
         lanes = Lanes()
 
-    road = Road(id, pv, lanes, road_type=road_type)
-
-    return road
+    return Road(id, pv, lanes, road_type=road_type)
 
 
 def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
@@ -229,7 +227,7 @@ def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offse
 
     # create lanesections
     lanesec1 = LaneSection(0, standard_lane())
-    for i in range(1, n_lanes + 1, 1):
+    for _ in range(1, n_lanes + 1):
         lanesec1.add_right_lane(standard_lane(lane_offset))
         lanesec1.add_left_lane(standard_lane(lane_offset))
 
@@ -302,7 +300,7 @@ def create_cloth_arc_cloth(
 
     # create lanes
     lsec = LaneSection(0, standard_lane())
-    for i in range(1, n_lanes + 1, 1):
+    for _ in range(1, n_lanes + 1):
         lsec.add_right_lane(standard_lane(lane_offset))
         lsec.add_left_lane(standard_lane(lane_offset))
     lanes = Lanes()
@@ -389,7 +387,7 @@ def create_3cloths(
         center_lane.add_roadmark(road_marks)
     lsec = LaneSection(0, center_lane)
 
-    for i in range(1, n_lanes + 1, 1):
+    for _ in range(1, n_lanes + 1):
         rl = Lane(a=lane_offset)
         ll = Lane(a=lane_offset)
         if road_marks:
@@ -423,18 +421,12 @@ def get_lanes_offset(road1, road2, contactpoint):
 
     # now we always look at lanesection[0] to take the number of lanes
     # TO DO - understand if the roads are connect through end or start and then take the relative lane section
-    if contactpoint == ContactPoint.end:
-        n_lanesection = 0
-    else:
-        n_lanesection = -1
-    if len(road1.lanes.lanesections[n_lanesection].leftlanes) == len(
+    n_lanesection = 0 if contactpoint == ContactPoint.end else -1
+    if len(road1.lanes.lanesections[n_lanesection].leftlanes) != len(
         road2.lanes.lanesections[0].leftlanes
-    ) and len(road1.lanes.lanesections[n_lanesection].rightlanes) == len(
+    ) or len(road1.lanes.lanesections[n_lanesection].rightlanes) != len(
         road2.lanes.lanesections[0].rightlanes
     ):
-        n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes)
-        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].widths[0].a
-    else:
         raise NotSameAmountOfLanesError(
             "Incoming road ",
             road1.id,
@@ -443,6 +435,8 @@ def get_lanes_offset(road1, road2, contactpoint):
             "do not have the same number of left lanes.",
         )
 
+    n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes)
+    lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].widths[0].a
     return n_lanes, lane_offset
 
 
@@ -716,12 +710,12 @@ def create_junction_roads(
         DeprecationWarning,
         2,
     )
-    if len(roads) is not len(angles):
+    if len(roads) != len(angles):
         raise GeneralIssueInputArguments("roads and angles do not have the same size.")
 
     if len(R) == 1:
         R = R * np.ones(len(roads))
-    elif len(R) > 1 and len(R) is not len(roads):
+    elif len(R) > 1 and len(R) != len(roads):
         raise GeneralIssueInputArguments("roads and R do not have the same size.")
 
     # linelength = 2*R
@@ -768,7 +762,7 @@ def create_junction_roads(
                     ] = inner_road_marks
                 if len(roads) == 3:
                     # not sure all will be needed since angles have to be in increasing order, but it "should work"
-                    k = [x for x in [0, 1, 2] if x != j and x != i][0]
+                    k = [x for x in [0, 1, 2] if x not in [j, i]][0]
                     if (angles[i] > angles[j]) and (
                         (angles[k] > angles[j]) or (angles[k] < angles[i])
                     ):
@@ -860,7 +854,7 @@ def _create_junction_links(
         to_offset (int): if there is an offset in the end of the road
             Default: 0
     """
-    for i in range(1, nlanes + 1, 1):
+    for i in range(1, nlanes + 1):
         connection.add_lanelink(r_or_l * i + from_offset, r_or_l * sign * i + to_offset)
 
 

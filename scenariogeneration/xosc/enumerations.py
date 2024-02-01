@@ -104,10 +104,9 @@ class _OscEnum(VersionBase):
         self.replacement = replacement
 
     def __eq__(self, other):
-        if isinstance(other, _OscEnum):
-            if self.name == other.name and self.classname == other.classname:
-                return True
-        return False
+        return isinstance(other, _OscEnum) and (
+            self.name == other.name and self.classname == other.classname
+        )
 
     def get_name(self):
         """method that should be used when using the _OscEnum to get the string, will check version of the enum to see if it is used correctly with the used version

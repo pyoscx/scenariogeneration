@@ -159,8 +159,7 @@ def test_create_lane_links_normalroad1():
         pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
     )
 
-    geom = []
-    geom.append(pyodrx.Line(50))
+    geom = [pyodrx.Line(50)]
     geom.append(pyodrx.Arc(0.01, angle=np.pi / 2))
     geom.append(pyodrx.Line(50))
 
@@ -169,7 +168,7 @@ def test_create_lane_links_normalroad1():
         planview.append(pyodrx.PlanView())
         planview[i].add_geometry(geom[i])
     # create centerlanes
-    for i in range(len(geom)):
+    for _ in geom:
         lanec.append(pyodrx.Lane(a=3))
         lanel.append(pyodrx.Lane(a=3))
         laner.append(pyodrx.Lane(a=3))
@@ -207,9 +206,9 @@ def test_create_lane_links_normalroad1():
 
     odr.adjust_roads_and_lanes()
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
     assert int(road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == -1
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
     assert int(road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
 
     assert (
@@ -222,9 +221,9 @@ def test_create_lane_links_normalroad1():
     assert (
         int(road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == -1
     )
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
     assert int(road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
@@ -241,8 +240,7 @@ def test_create_lane_links_junction1():
         pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
     )
 
-    geom = []
-    geom.append(pyodrx.Line(50))
+    geom = [pyodrx.Line(50)]
     geom.append(pyodrx.Arc(0.01, angle=np.pi / 2))
     geom.append(pyodrx.Line(50))
 
@@ -251,7 +249,7 @@ def test_create_lane_links_junction1():
         planview.append(pyodrx.PlanView())
         planview[i].add_geometry(geom[i])
     # create centerlanes
-    for i in range(len(geom)):
+    for _ in geom:
         lanec.append(pyodrx.Lane(a=3))
         lanel.append(pyodrx.Lane(a=3))
         laner.append(pyodrx.Lane(a=3))
@@ -296,15 +294,15 @@ def test_create_lane_links_junction1():
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
@@ -321,8 +319,7 @@ def test_create_lane_links_junction2():
         pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
     )
 
-    geom = []
-    geom.append(pyodrx.Line(50))
+    geom = [pyodrx.Line(50)]
     geom.append(pyodrx.Arc(0.01, angle=np.pi / 2))
     geom.append(pyodrx.Line(50))
 
@@ -374,15 +371,15 @@ def test_create_lane_links_junction2():
     )
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == -1
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
@@ -399,8 +396,7 @@ def test_create_lane_links_junction3():
         pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
     )
 
-    geom = []
-    geom.append(pyodrx.Line(50))
+    geom = [pyodrx.Line(50)]
     geom.append(pyodrx.Arc(0.01, angle=np.pi / 2))
     geom.append(pyodrx.Line(50))
 
@@ -452,15 +448,15 @@ def test_create_lane_links_junction3():
     )
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 
@@ -477,8 +473,7 @@ def test_create_lane_links_junction4():
         pyodrx.RoadMarkType.solid, 0.2, rule=pyodrx.MarkRule.no_passing
     )
 
-    geom = []
-    geom.append(pyodrx.Line(50))
+    geom = [pyodrx.Line(50)]
     geom.append(pyodrx.Arc(0.01, angle=np.pi / 2))
     geom.append(pyodrx.Line(50))
 
@@ -528,15 +523,15 @@ def test_create_lane_links_junction4():
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
     assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == -1
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() is None
+    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() is None
     assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
 
 

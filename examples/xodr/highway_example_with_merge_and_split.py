@@ -35,9 +35,7 @@ class Scenario(ScenarioGenerator):
 
     def road(self, **kwargs):
         # create some simple roads
-        roads = []
-        # start road
-        roads.append(
+        roads = [
             xodr.create_road(
                 [
                     xodr.Spiral(-0.004, 0.00001, 100),
@@ -48,7 +46,7 @@ class Scenario(ScenarioGenerator):
                 left_lanes=2,
                 right_lanes=[xodr.LaneDef(50, 175, 3, 4, -4)],
             )
-        )
+        ]
         # intermittent road
         roads.append(
             xodr.create_road(
@@ -145,7 +143,7 @@ class Scenario(ScenarioGenerator):
         roads[8].add_predecessor(xodr.ElementType.junction, 2)
 
         # create the junction struct
-        exit_junction = xodr.create_junction(roads[3:5], 1, roads[0:3])
+        exit_junction = xodr.create_junction(roads[3:5], 1, roads[:3])
         entry_junction = xodr.create_junction(
             roads[6:8], 2, [roads[x] for x in [1, 5, 8]]
         )

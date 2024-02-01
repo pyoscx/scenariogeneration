@@ -628,8 +628,7 @@ def test_sync_action():
 
 
 def test_follow_traj_action_polyline():
-    positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))
+    positionlist = [OSC.RelativeLanePosition(-3, "Ego", 0, 10)]
     positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))
     positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))
     positionlist.append(OSC.RelativeLanePosition(-3, "Ego", 0, 10))

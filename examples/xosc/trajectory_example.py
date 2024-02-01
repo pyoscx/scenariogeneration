@@ -112,8 +112,7 @@ class Scenario(ScenarioGenerator):
         event = xosc.Event("myfirstevent", xosc.Priority.overwrite)
         event.add_trigger(trigger)
 
-        positionlist = []
-        positionlist.append(xosc.RelativeLanePosition(0, targetname, 0, ds=0))
+        positionlist = [xosc.RelativeLanePosition(0, targetname, 0, ds=0)]
         positionlist.append(xosc.RelativeLanePosition(0, targetname, 0.5, ds=20))
         positionlist.append(xosc.RelativeLanePosition(0, targetname, -0.5, ds=40))
         positionlist.append(xosc.RelativeLanePosition(0, targetname, -1, ds=60))
@@ -157,8 +156,7 @@ class Scenario(ScenarioGenerator):
         sb = xosc.StoryBoard(init)
         sb.add_story(story)
 
-        ## create the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "trajectory_example",
             "Mandolin",
             paramdec,
@@ -168,7 +166,6 @@ class Scenario(ScenarioGenerator):
             catalog=catalog,
             osc_minor_version=self.open_scenario_version,
         )
-        return sce
 
 
 if __name__ == "__main__":

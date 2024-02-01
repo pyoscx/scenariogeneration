@@ -35,14 +35,11 @@ class Scenario(ScenarioGenerator):
         planview = xodr.PlanView()
         planview.add_geometry(xodr.Line(300))
 
-        ## create the customized centerlanes with different lanemarkings
-        centerlanes = []
         # standard solid solid
 
         solid_solid = xodr.Lane()
         solid_solid.add_roadmark(xodr.STD_ROADMARK_SOLID_SOLID)
-        centerlanes.append(solid_solid)
-
+        centerlanes = [solid_solid]
         # standard solid broken
         solid_broken = xodr.Lane()
         solid_broken.add_roadmark(xodr.STD_ROADMARK_SOLID_BROKEN)

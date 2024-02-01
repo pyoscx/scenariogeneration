@@ -90,14 +90,14 @@ def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
             with open(filename, "wb") as file_handle:
                 file_handle.write(prettify(element, encoding=encoding))
         except LookupError:
-            print("%s is not a valid encoding option." % encoding)
+            print(f"{encoding} is not a valid encoding option.")
 
     else:
         tree = ET.ElementTree(element)
         try:
             tree.write(filename, encoding=encoding)
         except LookupError:
-            print("%s is not a valid encoding option." % encoding)
+            print(f"{encoding} is not a valid encoding option.")
 
 
 def enum2str(enum):
@@ -127,9 +127,9 @@ def convert_bool(value):
         boolean (str)
     """
     if isinstance(value, str):
-        if value == "true" or value == "1":
+        if value in ["true", "1"]:
             return True
-        elif value == "false" or value == "0":
+        elif value in ["false", "0"]:
             return False
         elif value[0] == "$":
             return value
@@ -139,7 +139,4 @@ def convert_bool(value):
                 + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
             )
 
-    if value:
-        return "true"
-    else:
-        return "false"
+    return "true" if value else "false"

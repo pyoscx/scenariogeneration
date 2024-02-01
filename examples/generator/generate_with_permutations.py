@@ -109,7 +109,7 @@ class Scenario(ScenarioGenerator):
             ),
         )
         sb.add_maneuver(man, egoname)
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "my scenario",
             "Mandolin",
             xosc.ParameterDeclarations(),
@@ -118,8 +118,6 @@ class Scenario(ScenarioGenerator):
             road,
             catalog,
         )
-
-        return sce
 
 
 if __name__ == "__main__":

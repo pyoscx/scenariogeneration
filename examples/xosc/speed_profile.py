@@ -90,8 +90,7 @@ class Scenario(ScenarioGenerator):
         )
         sb.add_maneuver(ego_man, actors=egoname)
 
-        ## create the scenario
-        sce = xosc.Scenario(
+        return xosc.Scenario(
             "speed_profile_example",
             "Mandolin",
             paramdec,
@@ -101,7 +100,6 @@ class Scenario(ScenarioGenerator):
             catalog=catalog,
             osc_minor_version=self.open_scenario_version,
         )
-        return sce
 
 
 if __name__ == "__main__":
