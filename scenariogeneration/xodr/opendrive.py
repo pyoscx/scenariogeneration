@@ -699,7 +699,7 @@ class Road(XodrBase):
 
             speed (float/str): the maximum speed allowed
 
-            sped_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+            sped_unit (str): unit of the speed, can be 'm/s','mph,'km/h'
         """
         self.types.append(_Type(road_type, s, country, speed, speed_unit))
         return self
@@ -1936,7 +1936,7 @@ class _Type(XodrBase):
 
             speed (float/str): the maximum speed allowed
 
-            speed_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+            speed_unit (str): unit of the speed, can be 'm/s','mph,'km/h'
 
 
         """
@@ -1958,9 +1958,9 @@ class _Type(XodrBase):
                     + str(speed_unit)
                 )
 
-        if speed_unit not in ["m/s", "mph", "kph"]:
+        if speed_unit not in ["m/s", "mph", "km/h"]:
             raise ValueError(
-                "speed_unit can only be m/s, mph, or kph, not: " + speed_unit
+                "speed_unit can only be m/s, mph, or km/h, not: " + speed_unit
             )
         self.speed_unit = speed_unit
 
