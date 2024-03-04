@@ -178,7 +178,8 @@ class _SignalObjectBase(XodrBase):
         retdict["id"] = str(self.id)
         retdict["s"] = str(self.s)
         retdict["t"] = str(self.t)
-        retdict["subtype"] = str(self.subtype)
+        if self.subtype is not None:
+            retdict["subtype"] = str(self.subtype)
         retdict["dynamic"] = enum2str(self.dynamic)
         retdict["zOffset"] = str(self.zOffset)
         if self.pitch is not None:
