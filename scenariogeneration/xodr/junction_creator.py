@@ -44,6 +44,9 @@ class CommonJunctionCreator:
         startnum (int): the starting id of this junctions roads
             Default: 100
 
+        junction_type (Optional[JunctionType]): type of junction
+            Default: JunctionType.default
+
     Attributes
     ----------
         id (int): the id of the junction
@@ -69,7 +72,7 @@ class CommonJunctionCreator:
         add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
     """
 
-    def __init__(self, id, name, startnum=100):
+    def __init__(self, id, name, startnum=100, junction_type=JunctionType.default):
         self.id = id
         self.incoming_roads = []
         self._radie = []
@@ -81,7 +84,7 @@ class CommonJunctionCreator:
         self._number_of_left_lanes = []
         self._number_of_right_lanes = []
         self.startnum = startnum
-        self.junction = Junction(name, id, junction_type=JunctionType.default)
+        self.junction = Junction(name, id, junction_type)
         self._circular_junction = False
         self._generic_junction = False
         self._height = None
@@ -1034,6 +1037,9 @@ class DirectJunctionCreator:
 
         name (str): name of the junction
 
+        junction_type (Optional[JunctionType]): type of junction
+            Default: JunctionType.direct
+
     Attributes
     ----------
         id (int): the id of the junction
@@ -1046,7 +1052,7 @@ class DirectJunctionCreator:
         add_connection(first_road_id, second_road_id, first_lane_id, second_lane_id)
     """
 
-    def __init__(self, id, name):
+    def __init__(self, id, name, junction_type=JunctionType.direct):
         """Initalize the DirectJunctionCreator
 
         Parameters
@@ -1057,7 +1063,7 @@ class DirectJunctionCreator:
 
         """
         self.id = id
-        self.junction = Junction(name, id, JunctionType.direct)
+        self.junction = Junction(name, id, junction_type)
         self._incoming_lane_ids = []
         self._linked_lane_ids = []
 

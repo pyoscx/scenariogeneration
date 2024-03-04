@@ -130,7 +130,9 @@ class _SignalObjectBase(XodrBase):
         self.t = t
         self.height = height
         self.Type = Type
-        self.dynamic = enumchecker(dynamic, Dynamic)
+        self.dynamic = dynamic
+        if self.dynamic is not None:
+            self.dynamic = enumchecker(dynamic, Dynamic)
         self.name = name
         self.zOffset = zOffset
         self.subtype = subtype
@@ -180,7 +182,8 @@ class _SignalObjectBase(XodrBase):
         retdict["t"] = str(self.t)
         if self.subtype is not None:
             retdict["subtype"] = str(self.subtype)
-        retdict["dynamic"] = enum2str(self.dynamic)
+        if self.dynamic is not None:
+            retdict["dynamic"] = enum2str(self.dynamic)
         retdict["zOffset"] = str(self.zOffset)
         if self.pitch is not None:
             retdict["pitch"] = str(self.pitch)
@@ -366,7 +369,8 @@ class Signal(_SignalObjectBase):
         retdict = super().get_common_attributes()
         retdict["country"] = str(self.country).upper()
         retdict["type"] = str(self.type)
-        retdict["subtype"] = str(self.subtype)
+        if self.subtype is not None:
+            retdict["subtype"] = str(self.subtype)
         if self.countryRevision is not None:
             retdict["countryRevision"] = str(self.countryRevision)
         if self.hOffset is not None:
