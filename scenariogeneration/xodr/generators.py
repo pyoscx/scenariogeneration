@@ -864,7 +864,9 @@ def _create_junction_links(
         connection.add_lanelink(r_or_l * i + from_offset, r_or_l * sign * i + to_offset)
 
 
-def create_junction(junction_roads, id, roads, name="my junction", junction_type=JunctionType.default):
+def create_junction(
+    junction_roads, id, roads, name="my junction", junction_type=JunctionType.default
+):
     """create_junction creates the junction struct for a set of roads
 
 
