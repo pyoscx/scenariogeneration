@@ -38,18 +38,27 @@ def prettify(element, encoding=None):
     indent_str = "    "
 
     # Use the etree.Parser class from lxml to specify a custom parser
-    parser = etree.XMLParser(remove_blank_text=True)
+    parser = etree.XMLParser(remove_blank_text=True, strip_cdata=False)
 
     # Convert the ElementTree element to an lxml etree form
     lxml_element = etree.fromstring(ET.tostring(element, encoding), parser=parser)
 
+    # Replace the CDATA marker with a real CDATA node
+    for cdata_marker in lxml_element.xpath('//*[starts-with(text(), "<![CDATA[")]'):
+        cdata_content = cdata_marker.text[len("<![CDATA[") : -len("]]>")]
+        cdata_marker.text = etree.CDATA(cdata_content)
+
     # Now generate a 2-space indented pretty_print string (bytes type)
-    pretty_print_bytes = etree.tostring(
-        lxml_element, pretty_print=True, encoding=encoding
+    # and Decode the bytes type pretty_print string to utf-8 encoded string,
+    # then replace 2-space indents with 4 spaces
+    pretty_print_str = (
+        etree.tostring(lxml_element, pretty_print=True, encoding=encoding, xml_declaration=True, with_comments=True)
+        .decode(encoding)
+        .replace("  ", indent_str)
+        .replace("'", '"')
     )
 
-    # Decode the bytes type pretty_print string to utf-8 encoded string, then replace 2-space indents with 4 spaces
-    pretty_print_str = pretty_print_bytes.decode(encoding).replace("  ", indent_str)
+    # pretty_print_str = f'<?xml version="1.0" encoding="{encoding}"?>\n{pretty_print_str}'
 
     # Encode the string back into bytes type and return
     return pretty_print_str.encode(encoding)
