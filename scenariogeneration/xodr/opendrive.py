@@ -834,7 +834,7 @@ class OpenDrive(XodrBase):
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
-        self._header = _Header(self.name, self.revMajor, self.revMinor, self.geo_reference)
+        self._header = _Header(self.name, self.revMajor, self.revMinor, geo_reference)
         self.roads = {}
         self.junctions = []
         # self.road_ids = []
