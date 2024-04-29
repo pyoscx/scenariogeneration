@@ -15,7 +15,7 @@ from lxml import etree
 import os
 
 
-def prettify(element, encoding=None):
+def prettify(element, encoding=None, xml_declaration=True):
     """Returns a bytes string representing a prettified version of an XML element.
 
     Parameters:
@@ -52,13 +52,16 @@ def prettify(element, encoding=None):
     # and Decode the bytes type pretty_print string to utf-8 encoded string,
     # then replace 2-space indents with 4 spaces
     pretty_print_str = (
-        etree.tostring(lxml_element, pretty_print=True, encoding=encoding, xml_declaration=True, with_comments=True)
+        etree.tostring(
+            lxml_element,
+            pretty_print=True,
+            encoding=encoding,
+            xml_declaration=xml_declaration,
+        )
         .decode(encoding)
         .replace("  ", indent_str)
         .replace("'", '"')
     )
-
-    # pretty_print_str = f'<?xml version="1.0" encoding="{encoding}"?>\n{pretty_print_str}'
 
     # Encode the string back into bytes type and return
     return pretty_print_str.encode(encoding)
