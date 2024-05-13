@@ -10,6 +10,7 @@
 
 """
 
+from tempfile import tempdir
 from scenariogeneration.xodr.opendrive import OpenDrive
 import pytest
 from scenariogeneration import xodr
@@ -809,3 +810,31 @@ def test_roadmark_adjustment_common_junction_suc_suc():
     assert road2.lanes.lanesections[0].rightlanes[0].roadmark[0]._line[
         0
     ].soffset == pytest.approx(1.0, 0.001)
+
+
+def test_write_to_tempfile(tmpdir):
+    # Create a temporary file
+    temp_file = tmpdir.join("testfile.txt")
+    # Write to the temporary file
+    temp_file.write("Hello, pytest!")
+    # Read from the temporary file to verify
+    assert temp_file.read() == "Hello, pytest!"
+
+
+def test_header_geo_reference(tmpdir):
+    datum1 = "WGS84"
+    datum2 = "WGS88"
+    geo_reference_base = (
+        "<![CDATA[+proj=utm +zone=32 +ellps=WGS84 +datum={} +units=m +no_defs]]>"
+    )
+    geo_reference_str1 = geo_reference_base.format(datum1)
+    geo_reference_str2 = geo_reference_base.format(datum2)
+    odr1 = xodr.OpenDrive("my road", geo_reference=geo_reference_str1)
+    odr2 = xodr.OpenDrive("my road", geo_reference=geo_reference_str2)
+    assert odr1 != odr2
+
+    temp_road_file = tmpdir.join("odr1.xodr")
+    odr1.write_xml(temp_road_file)
+
+    assert geo_reference_str1 in temp_road_file.read()
+    assert geo_reference_str2 not in temp_road_file.read()

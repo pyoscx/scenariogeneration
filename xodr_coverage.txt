@@ -3,7 +3,7 @@ COVERAGE OPEN DRIVE 1.5:
 
 OpenDRIVE                           YES
 |-header                            YES
-| |-geoReference                    NO
+| |-geoReference                    YES
 | |-offset                          NO
 |-road                              YES
 | |-link                            YES
