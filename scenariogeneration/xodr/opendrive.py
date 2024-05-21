@@ -68,6 +68,8 @@ class _Header:
 
         revMinor (str): minor revision of OpenDRIVE
 
+        geo_reference (str): The information for geographic reference of a database
+
     Attributes
     ----------
         name (str): name of the scenario
@@ -75,6 +77,8 @@ class _Header:
         revMajor (str): major revision of OpenDRIVE
 
         revMinor (str): minor revision of OpenDRIVE
+
+        geo_reference (str): The information for geographic reference of a database
 
     Methods
     -------
@@ -86,7 +90,7 @@ class _Header:
 
     """
 
-    def __init__(self, name, revMajor, revMinor):
+    def __init__(self, name, revMajor, revMinor, geo_reference=None):
         """Initalize the Header
 
          Parameters
@@ -97,10 +101,14 @@ class _Header:
 
             revMinor (str): minor revision of OpenDRIVE
 
+            geo_reference (str): The information for geographic reference of a database
+                Default: None
+
         """
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
+        self.geo_reference = geo_reference
 
     def __eq__(self, other):
         if isinstance(other, _Header):
@@ -108,6 +116,7 @@ class _Header:
                 self.name == other.name
                 and self.revMajor == other.revMajor
                 and self.revMinor == other.revMinor
+                and self.geo_reference == other.geo_reference
             ):
                 return True
         return False
@@ -128,6 +137,10 @@ class _Header:
     def get_element(self):
         """returns the elementTree of the FileHeader"""
         element = ET.Element("header", attrib=self.get_attributes())
+
+        if self.geo_reference is not None:
+            geo_reference_element = ET.SubElement(element, "geoReference")
+            geo_reference_element.text = self.geo_reference
 
         return element
 
@@ -764,6 +777,9 @@ class OpenDrive(XodrBase):
         revMinor (str): minor revision of OpenDRIVE written to header
             Default: '5'
 
+        geo_reference (str): The information for geographic reference of a database
+            Default: None
+
     Attributes
     ----------
         name (str): name of the road
@@ -773,6 +789,9 @@ class OpenDrive(XodrBase):
 
         revMinor (str): minor revision of OpenDRIVE written to header
             Default: '5'
+
+        geo_reference (str): The information for geographic reference of a database
+            Default: None
 
         roads (list of Road): all roads
 
@@ -803,7 +822,7 @@ class OpenDrive(XodrBase):
 
     """
 
-    def __init__(self, name, revMajor="1", revMinor="5"):
+    def __init__(self, name, revMajor="1", revMinor="5", geo_reference=None):
         """Initalize the Header
 
         Parameters
@@ -815,7 +834,7 @@ class OpenDrive(XodrBase):
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
-        self._header = _Header(self.name, self.revMajor, self.revMinor)
+        self._header = _Header(self.name, self.revMajor, self.revMinor, geo_reference)
         self.roads = {}
         self.junctions = []
         # self.road_ids = []

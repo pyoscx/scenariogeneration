@@ -315,7 +315,9 @@ def test_tunnel():
 
 
 def _is_sub_element_written(sub_element, element):
-    return prettify(sub_element.get_element()) in prettify(element.get_element())
+    return prettify(sub_element.get_element(), xml_declaration=False) in prettify(
+        element.get_element(), xml_declaration=True
+    )
 
 
 def test_repeated_object():
