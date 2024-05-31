@@ -87,7 +87,8 @@ def standard_lane(offset=3, rm=std_roadmark_broken()):
 
     """
     lc = Lane(a=offset)
-    lc.add_roadmark(rm)
+    if rm is not None:
+        lc.add_roadmark(rm)
     return lc
 
 
