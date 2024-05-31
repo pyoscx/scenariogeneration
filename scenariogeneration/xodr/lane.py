@@ -1079,9 +1079,9 @@ class Lane(XodrBase):
             roadmark (RoadMark): roadmark of the lane
 
         """
-        if not isinstance(roadmark, RoadMark):
-            raise TypeError("roadmark input is not of type RoadMark")
         if roadmark is not None:
+            if not isinstance(roadmark, RoadMark):
+                raise TypeError("roadmark input is not of type RoadMark")
             self.roadmark.append(roadmark)
         return self
 
