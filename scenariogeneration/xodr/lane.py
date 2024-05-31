@@ -1081,8 +1081,7 @@ class Lane(XodrBase):
         """
         if not isinstance(roadmark, RoadMark):
             raise TypeError("roadmark input is not of type RoadMark")
-        if roadmark is not None:
-            self.roadmark.append(roadmark)
+        self.roadmark.append(roadmark)
         return self
 
     def add_height(self, inner, outer=None, soffset=0):
