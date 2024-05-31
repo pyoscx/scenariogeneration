@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2024-05-31 Version 0.14.4
+
+- New features
+    - support for geo_reference added. 
+- Bugfixes
+    - standard_lane allows user to set road mark parameter to None to not add a road mark
 
 ### 2024-01-24 Version 0.14.3
 
