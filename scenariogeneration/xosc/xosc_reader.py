@@ -67,7 +67,7 @@ class CatalogLoader:
             fullpath = os.path.join(catalog_path, catalog_reference + ".xosc")
             name_ref = catalog_reference
 
-        with open(fullpath, "r") as f:
+        with open(fullpath, "r", encoding="utf-8") as f:
             catalog_element = ET.parse(f).find("Catalog")
             self.all_catalogs[name_ref] = catalog_element
 
