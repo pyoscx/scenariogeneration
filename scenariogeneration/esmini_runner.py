@@ -11,6 +11,7 @@
 """
 
 import os
+import subprocess
 
 from .scenario_generator import ScenarioGenerator
 from .xodr import OpenDrive
@@ -75,7 +76,7 @@ def esmini(
 
         headless (boolean): run esmini in headless mode (no viewer)
     """
-    additional_args = ""
+    additional_args = []
     # resource_path = os.path.join(esminipath,'resources')
     if not resource_path:
         resource_path = os.path.join(esminipath, "resources", "xosc")
@@ -92,11 +93,11 @@ def esmini(
             os.mkdir(os.path.join(generation_path, "xosc"))
         if not os.path.exists(os.path.join(generation_path, "xodr")):
             os.mkdir(os.path.join(generation_path, "xodr"))
-        executable = "odrviewer"
-        filetype = " --odr "
-        additional_args += " --density " + str(car_density)
+        executable = ["odrviewer"]
+        filetype = ["--odr"]
+        additional_args += ["--density", str(car_density)]
         if not headless:
-            additional_args += " --window " + window_size
+            additional_args += ["--window", window_size]
         run_with_replayer = False
         filename = os.path.join(generation_path, "xodr", "python_road.xodr")
         generator.write_xml(filename, True)
@@ -108,14 +109,14 @@ def esmini(
             os.mkdir(os.path.join(generation_path, "xosc"))
         if not os.path.exists(os.path.join(generation_path, "xodr")):
             os.mkdir(os.path.join(generation_path, "xodr"))
-        executable = "esmini"
-        filetype = " --osc "
+        executable = ["esmini"]
+        filetype = ["--osc"]
         if run_with_replayer:
-            additional_args += " --headless" + " --fixed_timestep " + str(ts)
+            additional_args += ["--headless", "--fixed_timestep", str(ts)]
             if not record:
-                record = "python_record"
+                record = ["python_record"]
         elif not headless:
-            additional_args += " --window " + window_size
+            additional_args += ["--window", window_size]
 
         filename = os.path.join(generation_path, "xosc", "python_scenario.xosc")
         generator.write_xml(filename)
@@ -128,21 +129,21 @@ def esmini(
         if scenario_file == "":
             run_with_replayer = False
             executable = "odrviewer"
-            filetype = " --odr "
-            additional_args += " --density " + str(car_density)
-            additional_args += " --window " + window_size
+            filetype = "--odr"
+            additional_args += ["--density", str(car_density)]
+            additional_args += ["--window", window_size]
             filename = os.path.join(
                 generation_path, "xodr", os.path.split(road_file)[1]
             )
         else:
             executable = "esmini"
-            filetype = " --osc "
+            filetype = "--osc"
             if run_with_replayer:
-                additional_args += " --headless" + " --fixed_timestep " + str(ts)
+                additional_args += ["--headless", "--fixed_timestep", str(ts)]
                 if not record:
-                    record = "python_record"
+                    record = ["python_record"]
             elif not headless:
-                additional_args += " --window " + window_size
+                additional_args += ["--window", window_size]
 
             filename = scenario_file
     else:
@@ -152,18 +153,18 @@ def esmini(
 
     # create the additional_args for the esmini execusion
     if save_osi:
-        additional_args += " --osi_file " + save_osi
+        additional_args += ["--osi_file", save_osi]
 
     if record:
-        additional_args += " --record " + record
+        additional_args += ["--record", record]
 
     if disable_controllers:
-        additional_args += " --disable_controllers"
+        additional_args += ["--disable_controllers"]
 
     if timestep != None:
-        additional_args += " --fixed_timestep " + str(timestep)
+        additional_args += ["--fixed_timestep", str(timestep)]
 
-    additional_args += " " + args + " --path " + resource_path
+    additional_args += [args, "--path", resource_path]
 
     # find executable based on OS
     if os.name == "posix":
@@ -177,19 +178,28 @@ def esmini(
             ".", os.path.realpath(esminipath), "bin", "replayer.exe"
         )
 
-    # run esmini
-    if os.system(executable_path + filetype + filename + additional_args) != 0:
+    cmd_and_args = [executable_path] + [filetype] + [filename] + additional_args
+    print("Executing: ", " ".join(cmd_and_args))
+    result = subprocess.run(cmd_and_args)
+    if result.returncode != 0:
         print("An error occurred while trying to execute the scenario")
         return
 
     # run viewer if wanted
     if run_with_replayer:
-        os.system(
-            replay_executable
-            + " --file "
-            + record
-            + " --res_path "
-            + os.path.join(resource_path, os.pardir)
-            + " --window "
-            + window_size
-        )
+        cmd_and_args = [
+            replay_executable,
+            "--file",
+            record,
+            "--res_path",
+            os.path.join(resource_path, os.pardir),
+            "--window",
+            window_size,
+            "--path",
+            generation_path,
+        ]
+        print("Replaying: ", " ".join(cmd_and_args))
+        result = subprocess.run(cmd_and_args)
+        if result.returncode != 0:
+            print("An error occurred while trying to replay the scenario")
+            return

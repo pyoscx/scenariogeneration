@@ -1,13 +1,13 @@
 """
   scenariogeneration
   https://github.com/pyoscx/scenariogeneration
- 
+
   This Source Code Form is subject to the terms of the Mozilla Public
   License, v. 2.0. If a copy of the MPL was not distributed with this
   file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
+
   Copyright (c) 2022 The scenariogeneration Authors.
-  
+
     example of how to write the EUNCAP2020 CCRm tests in a parametrized maner
 
 
@@ -224,8 +224,9 @@ class Scenario(ScenarioGenerator):
 if __name__ == "__main__":
     sce = Scenario()
     # s.print_permutations()
-    files = sce.generate("CCRm_scsenarios")
+    foldername = "CCRm_scenarios"
+    files = sce.generate(foldername)
 
     # uncomment the following lines to display the scenario using esmini
     # from scenariogeneration import esmini
-    # esmini(sce,os.path.join('esmini'))
+    # esmini(sce,os.path.join('esmini'),generation_path=foldername)
