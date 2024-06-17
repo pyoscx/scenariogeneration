@@ -1,5 +1,12 @@
 ## scenariogeneration release notes
 
+### 2024-06-17 Version 0.14.5
+
+- New features
+    - support space in esmini paths
+- Bugfixes
+    - add encoding in xosc_reader
+
 ### 2024-05-31 Version 0.14.4
 
 - New features
