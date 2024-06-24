@@ -93,11 +93,11 @@ def esmini(
             os.mkdir(os.path.join(generation_path, "xosc"))
         if not os.path.exists(os.path.join(generation_path, "xodr")):
             os.mkdir(os.path.join(generation_path, "xodr"))
-        executable = ["odrviewer"]
-        filetype = ["--odr"]
+        executable = "odrviewer"
+        filetype = "--odr"
         additional_args += ["--density", str(car_density)]
         if not headless:
-            additional_args += ["--window", window_size]
+            additional_args += ["--window"] + window_size.split()
         run_with_replayer = False
         filename = os.path.join(generation_path, "xodr", "python_road.xodr")
         generator.write_xml(filename, True)
@@ -109,14 +109,14 @@ def esmini(
             os.mkdir(os.path.join(generation_path, "xosc"))
         if not os.path.exists(os.path.join(generation_path, "xodr")):
             os.mkdir(os.path.join(generation_path, "xodr"))
-        executable = ["esmini"]
-        filetype = ["--osc"]
+        executable = "esmini"
+        filetype = "--osc"
         if run_with_replayer:
             additional_args += ["--headless", "--fixed_timestep", str(ts)]
             if not record:
-                record = ["python_record"]
+                record = "python_record"
         elif not headless:
-            additional_args += ["--window", window_size]
+            additional_args += ["--window"] + window_size.split()
 
         filename = os.path.join(generation_path, "xosc", "python_scenario.xosc")
         generator.write_xml(filename)
@@ -131,7 +131,7 @@ def esmini(
             executable = "odrviewer"
             filetype = "--odr"
             additional_args += ["--density", str(car_density)]
-            additional_args += ["--window", window_size]
+            additional_args += ["--window"] + window_size.split()
             filename = os.path.join(
                 generation_path, "xodr", os.path.split(road_file)[1]
             )
@@ -141,9 +141,9 @@ def esmini(
             if run_with_replayer:
                 additional_args += ["--headless", "--fixed_timestep", str(ts)]
                 if not record:
-                    record = ["python_record"]
+                    record = "python_record"
             elif not headless:
-                additional_args += ["--window", window_size]
+                additional_args += ["--window"] + window_size.split()
 
             filename = scenario_file
     else:
