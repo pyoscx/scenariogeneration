@@ -258,9 +258,7 @@ class _Action(VersionBase):
                 element.find("GlobalAction")
             )
         elif element.find("UserDefinedAction") is not None:
-            action = UserDefinedAction.parse(
-                element.find("UserDefinedAction")
-            )
+            action = UserDefinedAction.parse(element.find("UserDefinedAction"))
         else:
             raise NotAValidElement(element.tag, "is not a valid action")
         return _Action(name, action)
