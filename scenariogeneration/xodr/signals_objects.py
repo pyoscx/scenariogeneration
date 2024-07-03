@@ -93,6 +93,7 @@ class _SignalObjectBase(XodrBase):
         roll,
         width,
         height,
+        length,
     ):
         """initalizes common attributes for Signal and Object
 
@@ -122,7 +123,9 @@ class _SignalObjectBase(XodrBase):
 
             width (float): width of the Signal / Object
 
-            height (float): height of Signal / Object
+            height (float): height of the Signal / Object
+
+            length (float): length of the Signal / Object
 
         """
         super().__init__()
@@ -138,6 +141,7 @@ class _SignalObjectBase(XodrBase):
         self.pitch = pitch
         self.roll = roll
         self.width = width
+        self.length = length
         self.id = id
 
     def __eq__(self, other):
@@ -246,6 +250,8 @@ class Signal(_SignalObjectBase):
 
         height (float): height of Signal (init in base class)
 
+        length (float): length of the Signal (init in base class)
+
         validity (Validity): explicit validity information for a signal (optional)
 
     Methods
@@ -281,6 +287,7 @@ class Signal(_SignalObjectBase):
         roll=0,
         height=None,
         width=None,
+        length=None,
     ):
         """initalizes the Signal
 
@@ -322,6 +329,8 @@ class Signal(_SignalObjectBase):
                 Default: None
             height (float): height of Signal (init in base class)
                 Default: None
+            length (float): length of the Signal (init in base class)
+                Default: None
 
         """
 
@@ -340,6 +349,7 @@ class Signal(_SignalObjectBase):
             roll,
             width,
             height,
+            length,
         )
         self.s = s
         self.t = t
@@ -764,6 +774,7 @@ class Object(_SignalObjectBase):
             roll,
             width,
             height,
+            length,
         )
 
         # attributes that differ from signals
