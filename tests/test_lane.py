@@ -240,6 +240,21 @@ def test_lane_with_height():
         )
         == ValidationResponse.OK
     )
+    
+
+def test_lane_with_material():
+    lane = xodr.Lane(a=3)
+    lane._set_lane_id(1)
+    lane.add_lane_material(friction=1.1)
+    lane.add_lane_material(friction=1.2, soffset=2.0)
+    lane.add_lane_material(friction=1.3, soffset=1.0)
+    prettyprint(lane.get_element())
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane", lane, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
 
 
 def test_lane_with_roadmarks():
