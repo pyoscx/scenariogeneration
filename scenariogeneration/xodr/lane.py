@@ -946,8 +946,12 @@ class Lane(XodrBase):
         get_width(s)
             returns the width of the lane at s
 
-        add_lane_material(friction, roughness, soffset, surface)
+        add_height(self, inner, outer=None, soffset=0)
             add_height adds a height entry to the lane to elevate it independent from the road elevation
+
+        add_lane_material(self, friction, roughness=None, soffset=0, surface=None)
+            add_lane_material adds a material description entry to the lane
+
 
     """
 
