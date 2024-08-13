@@ -942,13 +942,13 @@ class Lane(XodrBase):
 
         add_lane_width(a, b, c, d, soffset)
             adds an additional width element to the lane
-        
+
         get_width(s)
             returns the width of the lane at s
-            
+
         add_lane_material(friction, roughness, soffset, surface)
             add_height adds a height entry to the lane to elevate it independent from the road elevation
-            
+
     """
 
     def __init__(self, lane_type=LaneType.driving, a=0, b=0, c=0, d=0, soffset=0):
@@ -1119,21 +1119,20 @@ class Lane(XodrBase):
         return self
 
     def add_lane_material(self, friction, roughness=None, soffset=0, surface=None):
-        """add_lane_material adds a material description entry to the lane 
-# 
+        """add_lane_material adds a material description entry to the lane
         Parameters
         ----------
             friction (float): friction coefficient
-            # 
+
             roughness (float): roughness, for example, for sound and motion systems
                 Default: None
-                # 
+
             sOffset (float): s offset of the material
                 Default: 0
-                # 
+
             surface (str): surface material code, depending on application
                 Default: None
-                # 
+
         """
         materialdict = {}
         materialdict["friction"] = str(friction)
@@ -1144,7 +1143,7 @@ class Lane(XodrBase):
             materialdict["surface"] = str(surface)
         self.materials.append(materialdict)
         return self
-        
+
     def get_attributes(self):
         """returns the attributes of the Lane as a dict"""
         retdict = {}
@@ -1177,7 +1176,7 @@ class Lane(XodrBase):
 
         for height in self.heights:
             ET.SubElement(element, "height", attrib=height)
-        
+
         for material in sorted(self.materials, key=lambda x: x["sOffset"]):
             ET.SubElement(element, "material", attrib=material)
 
