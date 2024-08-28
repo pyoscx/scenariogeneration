@@ -227,7 +227,7 @@ def test_object():
         Type=xodr.ObjectType.pole,
     )
 
-    outline = xodr.Outline()
+    outline = xodr.Outline(id=1)
     outline.add_corner(xodr.CornerLocal(1, 2, 3, 4))
     outline.add_corner(xodr.CornerLocal(1, 2, 3, 5))
     object2.add_outline(outline)
