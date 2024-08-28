@@ -3,6 +3,16 @@
 ### 2024-06-17 Version 0.14.5
 
 - New features
+    - function add_lane_material
+    - xmlschema version upgraded to 3.3.1
+- Bugfixes
+    - fix argument composition issues in esmini runner
+    - fix missing child element for UserDefinedAction in class _Action parser
+    - fix missing id four Outline in test_object that caused previous downgrade of xmlschema version
+
+### 2024-06-17 Version 0.14.5
+
+- New features
     - support space in esmini paths
 - Bugfixes
     - add encoding in xosc_reader

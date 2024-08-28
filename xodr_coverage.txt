@@ -41,7 +41,7 @@ OpenDRIVE                           YES
 | | | | | | | | -line               YES
 | | | | | | | -explicit             YES
 | | | | | | | | -line               YES
-| | | | | |-material                NO
+| | | | | |-material                YES
 | | | | | |-visibility              NO
 | | | | | |-speed                   NO
 | | | | | |-access                  NO
