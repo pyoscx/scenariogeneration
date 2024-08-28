@@ -1,6 +1,6 @@
 ## scenariogeneration release notes
 
-### 2024-06-17 Version 0.14.5
+### 2024-08-28 Version 0.14.6
 
 - New features
     - function add_lane_material
