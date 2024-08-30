@@ -262,7 +262,7 @@ class ParameterType(metaclass=_EnumMeta):
     double = _OscEnum("ParameterType", "double")
     string = _OscEnum("ParameterType", "string")
     unsignedInt = _OscEnum("ParameterType", "unsignedInt")
-    unsignedShort = _OscEnum("ParameterType", "unsignedShorts")
+    unsignedShort = _OscEnum("ParameterType", "unsignedShort")
     boolean = _OscEnum("ParameterType", "boolean")
     dateTime = _OscEnum("ParameterType", "dateTime")
 
