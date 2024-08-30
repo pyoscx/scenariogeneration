@@ -719,9 +719,9 @@ class LanePosition(_PositionType):
 
         offset (float): offset from center of lane
 
-        lane_id (int): lane of the road
+        lane_id (str): lane of the road
 
-        road_id (int): id of the road
+        road_id (str): id of the road
 
         orientation (Orientation): the angular orientation of the entity
             Default: Orientation()
@@ -732,9 +732,9 @@ class LanePosition(_PositionType):
 
         offset (float): offset from center of lane
 
-        lane_id (int): lane of the road
+        lane_id (str): lane of the road
 
-        road_id (int): id of the road
+        road_id (str): id of the road
 
         orient (Orientation): the angular orientation of the entity
             Default: Orientation()
@@ -761,18 +761,18 @@ class LanePosition(_PositionType):
 
             offset (float): offset from center of lane
 
-            lane_id (int): lane of the road
+            lane_id (str): lane of the road
 
-            road_id (int): id of the road
+            road_id (str): id of the road
 
             orientation (Orientation): the angular orientation of the entity
                 Default: Orientation()
 
         """
         self.s = convert_float(s)
-        self.lane_id = convert_int(lane_id)
+        self.lane_id = lane_id
         self.offset = convert_float(offset)
-        self.road_id = convert_int(road_id)
+        self.road_id = road_id
         if not isinstance(orientation, Orientation):
             raise TypeError("input orientation is not of type Orientation")
         self.orient = orientation
@@ -800,10 +800,10 @@ class LanePosition(_PositionType):
 
         """
         position_element = element.find("LanePosition")
-        roadId = convert_int(position_element.attrib["roadId"])
+        roadId = position_element.attrib["roadId"]
         s = convert_float(position_element.attrib["s"])
         offset = convert_float(position_element.attrib["offset"])
-        laneid = convert_int(position_element.attrib["laneId"])
+        laneid = position_element.attrib["laneId"]
 
         if position_element.find("Orientation") != None:
             orientation = Orientation.parse(position_element.find("Orientation"))
