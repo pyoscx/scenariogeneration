@@ -60,7 +60,7 @@ def prettify(element, encoding=None, xml_declaration=True):
         )
         .decode(encoding)
         .replace("  ", indent_str)
-        .replace("'", '"')
+        # .replace("'", '"') // This was added for geo_reference. Will remove for now since it's causing issues with stacking double quotations
     )
 
     # Encode the string back into bytes type and return
