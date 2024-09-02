@@ -1,5 +1,13 @@
 ## scenariogeneration release notes
 
+### 2024-09-02 Version 0.14.7
+
+- New features
+    LanePosition support roadId and and laneId of type string
+- Bugfixes
+    - fix issue with double quotation within double quotation
+    - some typos
+
 ### 2024-08-28 Version 0.14.6
 
 - New features
