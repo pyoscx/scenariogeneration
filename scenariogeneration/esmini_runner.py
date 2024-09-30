@@ -194,7 +194,7 @@ def esmini(
             "--res_path",
             os.path.join(resource_path, os.pardir),
             "--window",
-            window_size,
+            *window_size.split(),
             "--path",
             generation_path,
         ]
