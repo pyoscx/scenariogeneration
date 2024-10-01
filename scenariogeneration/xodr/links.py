@@ -804,13 +804,15 @@ def _create_links_connecting_road(connecting, road):
                 )
                 if linktype == "predecessor":
                     if str(road.id) in connecting.lane_offset_pred:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_pred[str(road.id)]
+                        linkid += int(
+                            np.sign(linkid)
+                            * abs(connecting.lane_offset_pred[str(road.id)])
                         )
                 else:
                     if str(road.id) in connecting.lane_offset_suc:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_suc[str(road.id)]
+                        linkid += int(
+                            np.sign(linkid)
+                            * abs(connecting.lane_offset_suc[str(road.id)])
                         )
                 connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(
                     linktype, linkid
@@ -829,13 +831,15 @@ def _create_links_connecting_road(connecting, road):
                 )
                 if linktype == "predecessor":
                     if str(road.id) in connecting.lane_offset_pred:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_pred[str(road.id)]
+                        linkid += int(
+                            np.sign(linkid)
+                            * abs(connecting.lane_offset_pred[str(road.id)])
                         )
                 else:
                     if str(road.id) in connecting.lane_offset_suc:
-                        linkid += np.sign(linkid) * abs(
-                            connecting.lane_offset_suc[str(road.id)]
+                        linkid += int(
+                            np.sign(linkid)
+                            * abs(connecting.lane_offset_suc[str(road.id)])
                         )
                 connecting.lanes.lanesections[connecting_lanesec].rightlanes[
                     i
