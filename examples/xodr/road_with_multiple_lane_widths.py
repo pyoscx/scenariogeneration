@@ -32,7 +32,7 @@ class Scenario(ScenarioGenerator):
 
         road = xodr.create_road(xodr.Line(200), id=0, lane_width=3)
 
-        road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=3, b=2, soffset=100)
+        road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=3, b=0.04, soffset=100)
         road.lanes.lanesections[0].leftlanes[0].add_lane_width(a=5, b=0, soffset=150)
 
         # create the opendrive
