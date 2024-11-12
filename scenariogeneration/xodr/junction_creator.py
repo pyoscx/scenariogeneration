@@ -400,7 +400,12 @@ class CommonJunctionCreator:
         ):
             return ContactPoint.start
         else:
-            raise AttributeError("road is not connected to this junction")
+            raise AttributeError(
+                "road : "
+                + str(road_id)
+                + " is not connected to junction: "
+                + str(self.id)
+            )
 
     def _get_connecting_lane_section(self, idx):
         """_get_connecting_lane_section is a helper method to get the connected
@@ -419,7 +424,12 @@ class CommonJunctionCreator:
         ):
             return 0
         else:
-            raise AttributeError("road is not connected to this junction")
+            raise AttributeError(
+                "road : "
+                + str(incoming_road.id)
+                + " is not connected to junction: "
+                + str(self.id)
+            )
 
     def _create_connecting_roads_unequal_lanes(self, road_one_id, road_two_id):
         """_create_connecting_roads_unequal_lanes is a helper method that connects two roads that have different number of lanes going in to the junciton, will only connect lanes that are common between the roads
@@ -1155,7 +1165,12 @@ class DirectJunctionCreator:
         ):
             return ContactPoint.start
         else:
-            raise AttributeError("road is not connected to this junction")
+            raise AttributeError(
+                "road : "
+                + str(incoming_road.id)
+                + " is not connected to junction: "
+                + str(self.id)
+            )
 
     def add_connection(
         self, incoming_road, linked_road, incoming_lane_ids=None, linked_lane_ids=None
