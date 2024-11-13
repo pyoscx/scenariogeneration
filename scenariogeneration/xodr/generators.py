@@ -54,20 +54,6 @@ from .exceptions import (
 
 from warnings import warn
 
-
-warn(
-    "STD_ROADMARK_<RoadMarkType> is deprecated and will be removed in a few releases! Use std_roadmark_<RoadMarkType> functions instead.",
-    DeprecationWarning,
-    5,
-)
-STD_ROADMARK_SOLID = std_roadmark_solid()
-STD_ROADMARK_BROKEN = std_roadmark_broken()
-STD_ROADMARK_BROKEN_TIGHT = std_roadmark_broken_tight()
-STD_ROADMARK_BROKEN_BROKEN = std_roadmark_broken_broken()
-STD_ROADMARK_SOLID_SOLID = std_roadmark_solid_solid()
-STD_ROADMARK_SOLID_BROKEN = std_roadmark_solid_broken()
-STD_ROADMARK_BROKEN_SOLID = std_roadmark_broken_solid()
-
 STD_START_CLOTH = 1 / 1000000000
 
 
@@ -80,7 +66,7 @@ def standard_lane(offset=3, rm=std_roadmark_broken()):
             default: 3
 
         rm (RoadMark): road mark used for the standard lane
-            default:  RoadMark(STD_ROADMARK_BROKEN)
+            default:  RoadMark(solid)
     Returns
     -------
         lane (Lane): the lane
@@ -195,26 +181,25 @@ def create_road(
 
 def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
     """creates a standard straight road with two lanes
-    STD_ROADMARK_SOLID
-        Parameters
-        ----------
-            road_id (int): id of the road to create
+    Parameters
+    ----------
+        road_id (int): id of the road to create
 
-            length (float): length of the road
-                default: 100
+        length (float): length of the road
+            default: 100
 
-            junction (int): if the road belongs to a junction or not
-                default: -1
+        junction (int): if the road belongs to a junction or not
+            default: -1
 
-            n_lanes (int): number of lanes
-                default: 1
+        n_lanes (int): number of lanes
+            default: 1
 
-            lane_offset (int): width of the road
-                default: 3
+        lane_offset (int): width of the road
+            default: 3
 
-        Returns
-        -------
-            road (Road): a straight road
+    Returns
+    -------
+        road (Road): a straight road
     """
     warn(
         "create_straight_road should not be used anymore, please use the create_road function instead",
@@ -707,7 +692,7 @@ def create_junction_roads(
             Default: None
 
         outer_road_marks (RoadMark): the roadmark that will be on the edge of the connecting roads (limit the junction)
-            Default: STD_ROADMARK_SOLID
+            Default: std_roadmark_solid()
     Returns
     -------
         junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads

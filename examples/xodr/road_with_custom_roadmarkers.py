@@ -40,12 +40,12 @@ class Scenario(ScenarioGenerator):
         # standard solid solid
 
         solid_solid = xodr.Lane()
-        solid_solid.add_roadmark(xodr.STD_ROADMARK_SOLID_SOLID)
+        solid_solid.add_roadmark(xodr.std_roadmark_solid_solid())
         centerlanes.append(solid_solid)
 
         # standard solid broken
         solid_broken = xodr.Lane()
-        solid_broken.add_roadmark(xodr.STD_ROADMARK_SOLID_BROKEN)
+        solid_broken.add_roadmark(xodr.std_roadmark_solid_broken())
         centerlanes.append(solid_broken)
 
         # customized broken broken
@@ -62,10 +62,10 @@ class Scenario(ScenarioGenerator):
         for i in centerlanes:
             lanesection = xodr.LaneSection(ls_start, i)
             left_lane_with_roadmark = xodr.Lane(a=4)
-            left_lane_with_roadmark.add_roadmark(xodr.STD_ROADMARK_BROKEN)
+            left_lane_with_roadmark.add_roadmark(xodr.std_roadmark_broken())
 
             right_lane_with_roadmark = xodr.Lane(a=4)
-            right_lane_with_roadmark.add_roadmark(xodr.STD_ROADMARK_SOLID)
+            right_lane_with_roadmark.add_roadmark(xodr.std_roadmark_solid())
             lanesection.add_left_lane(left_lane_with_roadmark)
             lanesection.add_right_lane(right_lane_with_roadmark)
             ls_start += 100

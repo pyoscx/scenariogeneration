@@ -15,7 +15,6 @@ import pytest
 
 from scenariogeneration import xodr
 from scenariogeneration import prettyprint
-from scenariogeneration.xodr.generators import STD_ROADMARK_BROKEN, STD_ROADMARK_SOLID
 from .xml_validator import version_validation, ValidationResponse
 
 
@@ -260,14 +259,14 @@ def test_lane_with_material():
 def test_lane_with_roadmarks():
     lane = xodr.Lane()
     lane._set_lane_id(1)
-    lane.add_roadmark(STD_ROADMARK_BROKEN)
+    lane.add_roadmark(xodr.std_roadmark_broken())
     lane2 = xodr.Lane()
     lane2._set_lane_id(1)
-    lane2.add_roadmark(STD_ROADMARK_BROKEN)
+    lane2.add_roadmark(xodr.std_roadmark_broken())
     lane3 = xodr.Lane()
     lane3._set_lane_id(1)
-    lane3.add_roadmark(STD_ROADMARK_BROKEN)
-    lane3.add_roadmark(STD_ROADMARK_SOLID)
+    lane3.add_roadmark(xodr.std_roadmark_broken())
+    lane3.add_roadmark(xodr.std_roadmark_solid())
     prettyprint(lane)
     prettyprint(lane3)
     assert lane == lane2

@@ -45,11 +45,11 @@ class Scenario(ScenarioGenerator):
 
         # add driving lanes with roadmarks
         left_lane_with_roadmark = xodr.Lane(a=4)
-        left_lane_with_roadmark.add_roadmark(xodr.STD_ROADMARK_BROKEN)
+        left_lane_with_roadmark.add_roadmark(xodr.std_roadmark_solid())
         lanesection.add_left_lane(left_lane_with_roadmark)
 
         right_lane_with_roadmark = xodr.Lane(a=4)
-        right_lane_with_roadmark.add_roadmark(xodr.STD_ROADMARK_SOLID)
+        right_lane_with_roadmark.add_roadmark(xodr.std_roadmark_solid())
         lanesection.add_right_lane(right_lane_with_roadmark)
 
         # add driving lanes to end in border

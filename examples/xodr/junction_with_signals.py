@@ -36,7 +36,7 @@ class Scenario(ScenarioGenerator):
                 xodr.create_road(
                     [xodr.Line(100)],
                     i,
-                    center_road_mark=xodr.STD_ROADMARK_BROKEN,
+                    center_road_mark=xodr.std_roadmark_broken(),
                     left_lanes=nlanes,
                     right_lanes=nlanes,
                 )
