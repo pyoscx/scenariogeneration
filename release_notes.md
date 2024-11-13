@@ -1,5 +1,19 @@
 ## scenariogeneration release notes
 
+### 2024-11-13 Version 0.14.8
+
+- New features
+    - Length parameter for signal objects
+    - Information about road and junction IDs in AssertionError
+    - xmlschema >= 3.3.1
+- Bugfixes
+    - fix lane link IDs
+    - fix esmini runner replayer window size handling
+    - fix coefficient value in lanewidth entry
+- IMPORTANT!
+    STD_ROADMARK_\<RoadMarkType\> has now been depricated and replaced with std_roadmark_\<RoadMarkType\>. 
+    Please replace all references of constants to their function counterparts.
+
 ### 2024-09-02 Version 0.14.7
 
 - New features
