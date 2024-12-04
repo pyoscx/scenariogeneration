@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+### 2024-12-04 Version 0.14.9
+- New features
+    - Extending Python version support. Now supporting 3.9-3.12.
+
 ### 2024-11-13 Version 0.14.8
 
 - New features

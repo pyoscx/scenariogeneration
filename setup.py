@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="scenariogeneration",
-    version="0.14.8",
+    version="0.14.9",
     license="MPL-2.0",
     author="Mikael Andersson, Irene Natale, Andreas Tingberg",
     author_email="andmika@gmail.com",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/pyoscx/scenariogeneration",
-    download_url="https://github.com/pyoscx/scenariogeneration/archive/v0.14.8.tar.gz",
+    download_url="https://github.com/pyoscx/scenariogeneration/archive/v0.14.9.tar.gz",
     packages=setuptools.find_packages(),
     keywords=["OpenDRIVE", "OpenSCENARIO", "xml"],
     install_requires=["numpy", "scipy", "pyclothoids", "xmlschema>=3.3.1", "lxml"],
@@ -22,6 +22,10 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Operating System :: OS Independent",
     ],
