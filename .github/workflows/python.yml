@@ -14,9 +14,13 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install black
         run: python3 -m pip install black
-      - uses: actions/checkout@v2
+
       - name: Run black
         run: |
           shopt -s globstar
@@ -25,11 +29,14 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install pytest
         run: python3 -m pip install pytest
       - name: Install lxml
         run: python3 -m pip install lxml
-      - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
       - name: Run tests
@@ -38,9 +45,12 @@ jobs:
   xodr_examples:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install lxml
         run: python3 -m pip install lxml
-      - uses: actions/checkout@v2
       - name: Install requirements
         run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
       - name: common_junction_creator
@@ -122,9 +132,12 @@ jobs:
   xosc_examples:
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
         - name: Install lxml
           run: python3 -m pip install lxml
-        - uses: actions/checkout@v2
         - name: Install requirements
           run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
         - name: Acceleration_condition
@@ -180,9 +193,12 @@ jobs:
   generator_examples:
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
         - name: Install lxml
           run: python3 -m pip install lxml
-        - uses: actions/checkout@v2
         - name: Install requirements
           run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
         - name: CCRb
