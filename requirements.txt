@@ -1,5 +1,5 @@
-"numpy"
-"scipy"
-"pyclothoids"
-"xmlschema>=3.3.1"
-"lxml"
+numpy
+scipy
+pyclothoids
+xmlschema>=3.3.1
+lxml
