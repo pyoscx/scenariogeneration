@@ -1906,7 +1906,7 @@ class CatalogFile(VersionBase):
             OSError("No file has been created or opened")
         fileheader = self.catalog_element.find("FileHeader")
 
-        if fileheader.attrib["revMinor"] != obj.version_minor:
+        if convert_int(fileheader.attrib["revMinor"]) != obj.version_minor:
             warnings.warn(
                 "The Catalog and the added object does not have the same OpenSCENARIO version."
             )
