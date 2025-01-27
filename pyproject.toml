@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.setuptools]
+packages=["scenariogeneration","scenariogeneration.xosc","scenariogeneration.xodr"]
+
+
+[project]
+name = "scenariogeneration" # REQUIRED, is the only field that cannot be marked as dynamic.
+
+version = "0.14.9"
+description = "Generation of OpenSCENARIO and OpenDRIVE xml files"
+
+readme = "README.md"
+
+requires-python = ">=3.7"
+
+# https://packaging.python.org/en/latest/specifications/core-metadata/#license
+license = { file = "LICENSE" }
+
+keywords = ["OpenDRIVE", "OpenSCENARIO", "xml"]
+authors = [{ name = "M. Andersson, I. Natale, A. Tingberg", email = "andmika@gmail.com" }]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
+    "Operating System :: OS Independent",
+]
+[tool.setuptools.dynamic]
+dependencies = {file=["requirements.txt"]}

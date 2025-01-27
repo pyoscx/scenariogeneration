@@ -14,9 +14,13 @@ jobs:
   black:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install black
         run: python3 -m pip install black
-      - uses: actions/checkout@v2
+
       - name: Run black
         run: |
           shopt -s globstar
@@ -25,24 +29,30 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install pytest
         run: python3 -m pip install pytest
       - name: Install lxml
         run: python3 -m pip install lxml
-      - uses: actions/checkout@v2
       - name: Install requirements
-        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+        run: python3 -m pip install -r requirements.txt
       - name: Run tests
         run: python3 -m pytest tests/
 
   xodr_examples:
     runs-on: ubuntu-latest
     steps:
-      - name: Install lxml
-        run: python3 -m pip install lxml
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Install requirements
-        run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+        run: python3 -m pip install -r requirements.txt
+      - name: Install scenariogeneration
+        run: python3 -m pip install .
       - name: common_junction_creator
         if: always()
         run: python3 examples/xodr/common_junction_creator.py
@@ -122,11 +132,14 @@ jobs:
   xosc_examples:
       runs-on: ubuntu-latest
       steps:
-        - name: Install lxml
-          run: python3 -m pip install lxml
         - uses: actions/checkout@v2
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
         - name: Install requirements
-          run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+          run: python3 -m pip install -r requirements.txt
+        - name: Install scenariogeneration
+          run: python3 -m pip install .
         - name: Acceleration_condition
           if: always()
           run: python3 examples/xosc/Acceleration_condition.py
@@ -180,11 +193,14 @@ jobs:
   generator_examples:
       runs-on: ubuntu-latest
       steps:
-        - name: Install lxml
-          run: python3 -m pip install lxml
         - uses: actions/checkout@v2
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.11"
         - name: Install requirements
-          run: python3 setup.py install --user # setuptools doesn't support querying 'install_requires' it seems, so install package to get dependencies
+          run: python3 -m pip install -r requirements.txt
+        - name: Install scenariogeneration
+          run: python3 -m pip install .
         - name: CCRb
           if: always()
           run: python3 examples/generator/CCRb.py
