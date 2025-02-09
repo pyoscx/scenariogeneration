@@ -1,23 +1,23 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
 
-    Example of how to create a highway exits using DirectJunctionCreator
+  Example of how to create a highway exits using DirectJunctionCreator
 
-    Some features used:
+  Some features used:
 
-    - create_road
+  - create_road
 
-    - add_successor/add_predecessor with and without the lane_offset option, and the direct_junction input
+  - add_successor/add_predecessor with and without the lane_offset option, and the direct_junction input
 
-    - DirectJunctionCreator
+  - DirectJunctionCreator
 """
 
 import os

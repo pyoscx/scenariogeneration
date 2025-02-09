@@ -1,29 +1,29 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    An example showing how to setup a choise for one vehicle depending on what is happening around it, using multi conditions with different rules
+  An example showing how to setup a choise for one vehicle depending on what is happening around it, using multi conditions with different rules
 
-    for different behaviour change speed_of_outer_car
+  for different behaviour change speed_of_outer_car
 
-    Some features used:
-    - ConditionGroup
+  Some features used:
+  - ConditionGroup
 
-    - TimeToCollisionCondition
+  - TimeToCollisionCondition
 
-    - TimeHeadwayCondition
+  - TimeHeadwayCondition
 
-    - AbsoluteSpeedAction
+  - AbsoluteSpeedAction
 
-    - AbsoluteLaneChangeAction
+  - AbsoluteLaneChangeAction
 
-    - Rule
+  - Rule
 
 """
 

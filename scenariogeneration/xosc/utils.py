@@ -1,17 +1,17 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
 import os
-
+import warnings
 
 from .exceptions import OpenSCENARIOVersionError, NotAValidElement
 import xml.etree.ElementTree as ET
@@ -1892,7 +1892,7 @@ class CatalogFile(VersionBase):
         self.filename = ""
         self.encoding = encoding
 
-    def add_to_catalog(self, obj, osc_minor_version=_MINOR_VERSION):
+    def add_to_catalog(self, obj):
         """add_to_catalog adds an element to the catalog
 
         Parameters
@@ -1905,9 +1905,9 @@ class CatalogFile(VersionBase):
         if self.catalog_element == None:
             OSError("No file has been created or opened")
         fileheader = self.catalog_element.find("FileHeader")
-        self.version_minor = osc_minor_version
-        if fileheader.attrib["revMinor"] != osc_minor_version:
-            Warning(
+
+        if convert_int(fileheader.attrib["revMinor"]) != obj.version_minor:
+            warnings.warn(
                 "The Catalog and the added object does not have the same OpenSCENARIO version."
             )
         catalogs = self.catalog_element.find("Catalog")
@@ -1964,8 +1964,7 @@ class CatalogFile(VersionBase):
                 "xsi:noNamespaceSchemaLocation": "../../" + XSI,
             },
         )
-        #         header = FileHeader(description, author)
-        header = FileHeader(author, description)
+        header = FileHeader(author, description, revMinor=self.version_minor)
         element.append(header.get_element())
         ET.SubElement(element, "Catalog", attrib={"name": catalogtype})
 

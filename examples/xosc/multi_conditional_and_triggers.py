@@ -1,25 +1,25 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    An example showing how a "and logic" for conditions can be created, the blue car has to pass the white one for it to stop
+  An example showing how a "and logic" for conditions can be created, the blue car has to pass the white one for it to stop
 
 
-    Some features used:
+  Some features used:
 
-    - ConditionGroup
+  - ConditionGroup
 
-    - TimeToCollisionCondition
+  - TimeToCollisionCondition
 
-    - TimeHeadwayCondition
+  - TimeHeadwayCondition
 
-    - AbsoluteSpeedAction
+  - AbsoluteSpeedAction
 
 """
 

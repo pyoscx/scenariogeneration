@@ -1,22 +1,22 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Simple example showing how one vehicle triggers based on the speed of another vehicle, then changes its speed
+  Simple example showing how one vehicle triggers based on the speed of another vehicle, then changes its speed
 
-    Some features used:
+  Some features used:
 
-    - SpeedCondition
+  - SpeedCondition
 
-    - AbsoluteSpeedAction
+  - AbsoluteSpeedAction
 
-    - RoadPosition
+  - RoadPosition
 
 """
 

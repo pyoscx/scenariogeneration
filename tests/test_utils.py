@@ -1,12 +1,12 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
@@ -440,6 +440,7 @@ def test_controller(tmpdir):
     assert version_validation("Controller", cnt3, 1) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 1) == ValidationResponse.OSC_VERSION
+    cnt.setVersion(minor=2)
     cnt.dump_to_catalog(
         os.path.join(tmpdir, "my_catalog.xosc"),
         "ControllerCatalog",
@@ -806,6 +807,7 @@ def test_environment(tmpdir):
     assert version_validation("Environment", env, 2) == ValidationResponse.OK
     assert version_validation("Environment", env5, 0) == ValidationResponse.OK
     assert version_validation("Environment", env6, 1) == ValidationResponse.OK
+    env.setVersion(minor=2)
     env.dump_to_catalog(
         os.path.join(tmpdir, "my_catalog.xosc"),
         "EnvironmentCatalog",

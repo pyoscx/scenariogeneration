@@ -1,31 +1,31 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Example how to create a road with a lanemerge.
+  Example how to create a road with a lanemerge.
 
-    Simple cases can automated with create_road and LaneDef, but for complex cases this example shows how to do it from scratch.
-    This example makes use of the LaneLinker class that is not part of OpenDRIVE but a helper class for the xodr module
+  Simple cases can automated with create_road and LaneDef, but for complex cases this example shows how to do it from scratch.
+  This example makes use of the LaneLinker class that is not part of OpenDRIVE but a helper class for the xodr module
 
-    Some features used:
+  Some features used:
 
-    - PlanView
+  - PlanView
 
-    - RoadMark
+  - RoadMark
 
-    - Lane
+  - Lane
 
-    - LaneSection
+  - LaneSection
 
-    - Lanes
+  - Lanes
 
-    - LaneLinker
+  - LaneLinker
 """
 
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator

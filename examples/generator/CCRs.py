@@ -1,24 +1,24 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    example of how to write the EUNCAP2020 CCRs tests in a parametrized maner
+  example of how to write the EUNCAP2020 CCRs tests in a parametrized maner
 
-    Some features used:
+  Some features used:
 
-    - ScenarioGenerator
+  - ScenarioGenerator
 
-    - (ScenarioGenerator).naming
+  - (ScenarioGenerator).naming
 
-    - (ScenarioGenerator).generate_all_roads
+  - (ScenarioGenerator).generate_all_roads
 
-    - (ScenarioGenerator).parameters
+  - (ScenarioGenerator).parameters
 
 
 """

@@ -1,23 +1,23 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    An example, using the generators, showing how to create different symetric junctions,
-    the numintersections can be changed to create different junctions
+  An example, using the generators, showing how to create different symetric junctions,
+  the numintersections can be changed to create different junctions
 
-    In this example we can create a junction given
+  In this example we can create a junction given
 
-    Some features used:
+  Some features used:
 
-    - create_road
+  - create_road
 
-    - CommonJunctionCreator
+  - CommonJunctionCreator
 
 """
 

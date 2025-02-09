@@ -1,18 +1,18 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
- 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
-  Copyright (c) 2022 The scenariogeneration Authors.
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-    example of creating OpenSCENARIO and OpenDRIVE file, with the parameters defined outside the class structure
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-    Example usage: when a itterative procedure is defined and the parameters to the Scenario will change
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Will generate 9 scenarios
+  example of creating OpenSCENARIO and OpenDRIVE file, with the parameters defined outside the class structure
+
+  Example usage: when a itterative procedure is defined and the parameters to the Scenario will change
+
+  Will generate 9 scenarios
 """
 
 from scenariogeneration import xodr
