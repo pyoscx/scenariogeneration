@@ -410,14 +410,14 @@ class Connection(XodrBase):
         if self.id == None:
             self.id = id
 
-    def add_lanelink(self, in_lane, out_lane):
-        """Adds a new link to the connection
+    def add_lanelink(self, in_lane, connecting_lane):
+        """Adds a new lane link to the connection
 
         Parameters
         ----------
             in_lane: lane id of the incoming road
 
-            out_lane: lane id of the outgoing road
+            connecting_lane: lane id of the junction connecting road
         """
         self.links.append((in_lane, out_lane))
         return self
