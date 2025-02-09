@@ -1,30 +1,30 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Fundamental example how to build up a road split with lane split afterwards.
+  Fundamental example how to build up a road split with lane split afterwards.
 
-    This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
+  This simple example could be handled with the LaneDef (as in highway_example_with_merge_and_split.py)
 
-    This example should be seen as a way to create your own complex split case that the LaneDef + create_road cannot handle
+  This example should be seen as a way to create your own complex split case that the LaneDef + create_road cannot handle
 
-    Some features used:
+  Some features used:
 
-    - create_road
+  - create_road
 
-    - lane_offset
+  - lane_offset
 
-    - LaneSection
+  - LaneSection
 
-    - Lanes
+  - Lanes
 
-    - LaneLinker
+  - LaneLinker
 
 """
 

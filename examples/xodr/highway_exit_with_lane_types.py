@@ -1,28 +1,28 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    An example, using the generators, showing how to create a simple highway with exits and entries
+  An example, using the generators, showing how to create a simple highway with exits and entries
 
-    Shows how to patch created roads together with successor/predecessor, together with the lane_offset option
+  Shows how to patch created roads together with successor/predecessor, together with the lane_offset option
 
-    Some features used:
+  Some features used:
 
-    - create_road
+  - create_road
 
-    - add_successor/add_predecessor with and without the lane_offset option
+  - add_successor/add_predecessor with and without the lane_offset option
 
-    - LaneDef
+  - LaneDef
 
-    - LaneType
+  - LaneType
 
-    - DirectJunctionCreator
+  - DirectJunctionCreator
 """
 
 from scenariogeneration import xodr, prettyprint, ScenarioGenerator

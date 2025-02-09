@@ -1,18 +1,18 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Example showing how to create two separate roads (that are not linked), hence adjust_roads_and_lanes will not be able to set the geometries without a similar approach.
+  Example showing how to create two separate roads (that are not linked), hence adjust_roads_and_lanes will not be able to set the geometries without a similar approach.
 
-    Some features used:
+  Some features used:
 
-    - PlanView
+  - PlanView
 
 
 """

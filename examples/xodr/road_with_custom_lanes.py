@@ -1,20 +1,20 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Example how to create roads with custom lanes to the left and right
+  Example how to create roads with custom lanes to the left and right
 
-    Some features used
+  Some features used
 
-    - PlanView
+  - PlanView
 
-    - LaneSection
+  - LaneSection
 
 """
 

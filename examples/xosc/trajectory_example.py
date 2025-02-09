@@ -1,27 +1,27 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    An example showing how to create a trajector based on polyline
-    Also shows how to create a vehicle from start
+  An example showing how to create a trajector based on polyline
+  Also shows how to create a vehicle from start
 
-    Some features used:
+  Some features used:
 
-    - RelativeLanePosition
+  - RelativeLanePosition
 
-    - Polyline
+  - Polyline
 
-    - Trajectory
+  - Trajectory
 
-    - TimeHeadwayCondition
+  - TimeHeadwayCondition
 
-    - FollowTrajectoryAction
+  - FollowTrajectoryAction
 
 """
 

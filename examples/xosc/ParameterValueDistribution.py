@@ -1,24 +1,24 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
- 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
- 
-  Copyright (c) 2022 The scenariogeneration Authors.
-  
-    Example showing how one vehicle triggers based on the acceleration of another vehicle, then changes its speed.
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-    Some features used:
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-    - ParameterValueDistribution
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    - Stocastic
+  Example showing how one vehicle triggers based on the acceleration of another vehicle, then changes its speed.
 
-    - NormalDistribution
+  Some features used:
 
-    - Histogram
+  - ParameterValueDistribution
+
+  - Stocastic
+
+  - NormalDistribution
+
+  - Histogram
 
 """
 

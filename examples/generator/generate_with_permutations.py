@@ -1,19 +1,19 @@
 """
-  scenariogeneration
-  https://github.com/pyoscx/scenariogeneration
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
 
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-  Copyright (c) 2022 The scenariogeneration Authors.
+Copyright (c) 2022 The scenariogeneration Authors.
 
-    Example of creating OpenSCENARIO and OpenDRIVE files with parameter sweep type of input
+  Example of creating OpenSCENARIO and OpenDRIVE files with parameter sweep type of input
 
-    Example usage: When a parameter sweep is wanted with minimal input
-    Using the generate_all_roads feature which will only generate unique roads
+  Example usage: When a parameter sweep is wanted with minimal input
+  Using the generate_all_roads feature which will only generate unique roads
 
-    Will generate 12 different scenarios and 4 different roads.
+  Will generate 12 different scenarios and 4 different roads.
 """
 
 from scenariogeneration import xodr
