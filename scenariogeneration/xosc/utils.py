@@ -3327,7 +3327,7 @@ class Environment(_BaseCatalog):
         roadcondition = None
 
         if element.find("ParameterDeclarations") != None:
-            parameters = ParameterAssignment.parse(element.find("ParamterDeclarations"))
+            parameters = ParameterDeclarations.parse(element.find("ParameterDeclarations"))
         if element.find("TimeOfDay") != None:
             timeofday = TimeOfDay.parse(element.find("TimeOfDay"))
         if element.find("Weather") != None:
