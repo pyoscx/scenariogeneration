@@ -776,9 +776,9 @@ class CommonJunctionCreator:
         else:
             angle_offset_start = -np.sign(lane_one_id) * np.pi / 2
         if self._get_connection_type(idx2) == "successor":
-            angle_offset_end = np.sign(lane_two_id) * np.pi / 2
-        else:
             angle_offset_end = -np.sign(lane_two_id) * np.pi / 2
+        else:
+            angle_offset_end = np.sign(lane_two_id) * np.pi / 2
 
         if self._circular_junction:
             an1 = self._angles[idx2] - self._angles[idx1] - np.pi
@@ -786,13 +786,13 @@ class CommonJunctionCreator:
             if an1 > np.pi:
                 an1 = -(2 * np.pi - an1)
             start_x = -self._radie[idx1]
-            start_y = start_offset
+            start_y = start_offset * np.sin(angle_offset_start)
             start_h = 0
             end_x = self._radie[idx2] * np.cos(an1) + end_offset * np.cos(
-                self._angles[idx2] + angle_offset_end
+                an1 + angle_offset_end
             )
             end_y = self._radie[idx2] * np.sin(an1) + end_offset * np.sin(
-                self._angles[idx2] + angle_offset_end
+                an1 + angle_offset_end
             )
             end_h = an1
 
@@ -805,10 +805,10 @@ class CommonJunctionCreator:
             )
             start_h = self._h[idx1]
             end_x = self._x[idx2] + end_offset * np.cos(
-                self._h[idx2] + angle_offset_end
+                self._h[idx2] - angle_offset_end
             )
             end_y = self._y[idx2] + end_offset * np.sin(
-                self._h[idx2] + angle_offset_end
+                self._h[idx2] - angle_offset_end
             )
             end_h = self._h[idx2] - np.pi
         clothoids = pcloth.SolveG2(
