@@ -12,7 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
   Some features used:
 
-  - ReachPositionCondition
+  - DistanceCondition
 
   - RelativeDistanceCondition
 
@@ -87,7 +87,11 @@ class Scenario(ScenarioGenerator):
         )
 
         ## do lanechange
-        lc_cond = xosc.ReachPositionCondition(xosc.LanePosition(40, 0, -4, 0), 1)
+        lc_cond = xosc.DistanceCondition(
+            value=1,
+            rule=xosc.Rule.lessThan,
+            position=xosc.LanePosition(40, 0, -4, 0),
+        )
         lc_event = xosc.Event("lanechange", xosc.Priority.parallel)
         lc_event.add_action(
             "lanechangeaction",
@@ -165,4 +169,4 @@ if __name__ == "__main__":
 
     # uncomment the following lines to display the scenario using esmini
     # from scenariogeneration import esmini
-    # esmini(sce,os.path.join('esmini'))
+    # esmini(sce, os.path.join("esmini"))
