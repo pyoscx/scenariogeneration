@@ -316,6 +316,7 @@ def test_traveleddistancecondition():
 
 
 def test_reachpositioncondition():
+    OSC.enumerations.VersionBase().setVersion(minor=1)
     cond = OSC.ReachPositionCondition(OSC.WorldPosition(), 0.01)
     prettyprint(cond.get_element())
     cond2 = OSC.ReachPositionCondition(OSC.WorldPosition(), 0.01)
@@ -325,10 +326,8 @@ def test_reachpositioncondition():
 
     cond4 = OSC.ReachPositionCondition.parse(cond.get_element())
     assert cond == cond4
-
     assert version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     assert version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
-    assert version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     with pytest.raises(TypeError):
         OSC.ReachPositionCondition("dummy", 1)
 
@@ -958,6 +957,7 @@ def test_value_condition_factory(valuetrigger):
     assert valuetrigger == factoryoutput
 
 
+@pytest.mark.parametrize("osc_version", [1, 2])
 @pytest.mark.parametrize(
     "entitytrigger",
     [
@@ -978,7 +978,12 @@ def test_value_condition_factory(valuetrigger):
         ),
     ],
 )
-def test_entity_condition_factory(entitytrigger):
+def test_entity_condition_factory(osc_version, entitytrigger):
+    OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+
+    # Skip ReachPositionCondition for OSC version 2
+    if osc_version == 2 and isinstance(entitytrigger, OSC.ReachPositionCondition):
+        return
     # element = ET.Element('ByEntityCondition')
     # element.append(entitytrigger.get_element())
     factoryoutput = OSC.triggers._EntityConditionFactory.parse_entity_condition(
