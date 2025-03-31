@@ -2047,8 +2047,8 @@ class ReachPositionCondition(_EntityTriggerType):
             element, "ReachPositionCondition", attrib=self.get_attributes()
         )
         reachposcond.append(self.position.get_element())
-        if self.isVersion(minor=2):
-            Warning(
+        if self.isVersionEqLarger(minor=2):
+            raise OpenSCENARIOVersionError(
                 "ReachPositionCondition is deprecrated, please use DistanceCondition instead"
             )
         return element
