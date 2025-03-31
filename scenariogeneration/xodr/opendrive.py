@@ -265,7 +265,9 @@ class Road(XodrBase):
         self.lanes = lanes
         self.road_type = road_type
         self.name = name
-        self.rule = enumchecker(rule, TrafficRule)
+        self.rule = rule
+        if self.rule is not None:
+            self.rule = enumchecker(rule, TrafficRule)
         self.links = _Links()
         self._neighbor_added = 0
         self.successor = None
