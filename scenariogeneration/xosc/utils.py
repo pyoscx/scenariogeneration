@@ -3080,7 +3080,14 @@ class CatalogFile(VersionBase):
         self.catalog_element = tree.getroot()
 
     def create_catalog(
-        self, filename: str, catalogtype: str, description: str, author: str
+        self,
+        filename: str,
+        catalogtype: str,
+        description: str,
+        author: str,
+        licence=None,
+        creation_date=None,
+        properties=None,
     ) -> None:
         """Creates an empty catalog of a desired type.
 
@@ -3094,16 +3101,36 @@ class CatalogFile(VersionBase):
             Description of the catalog.
         author : str
             Author of the catalog.
+        license : License
+            license (valid from OpenSCENARIO V1.1)
+                Default: None
+        creation_date : (datetime.datetime):
+            optional hardcoded creation date
+            Default: datetime.datetime.now() (when actually generating the xml)
+        properties : Properties
+            additional info about the scenario
+            Default: None
         """
         self.filename = filename
         self.catalog_element = self.create_catalog_element(
-            catalogtype, description, author
+            catalogtype,
+            description,
+            author,
+            licence,
+            creation_date,
+            properties,
         )
 
     def create_catalog_element(
-        self, catalogtype: str, description: str, author: str
+        self,
+        catalogtype: str,
+        description: str,
+        author: str,
+        licence=None,
+        creation_date=None,
+        properties=None,
     ) -> ET.Element:
-        """Creates an empty catalog element of a desired type.
+        """create_catalog_element creates an empty catalog of a desiered type,
 
         Parameters
         ----------
@@ -3113,7 +3140,15 @@ class CatalogFile(VersionBase):
             Description of the catalog.
         author : str
             Author of the catalog.
-
+        license : License
+            license (valid from OpenSCENARIO V1.1)
+                Default: None
+        creation_date : (datetime.datetime):
+            optional hardcoded creation date
+            Default: datetime.datetime.now() (when actually generating the xml)
+        properties : Properties
+            additional info about the scenario
+            Default: None
         Returns
         -------
         ET.Element
@@ -3126,7 +3161,14 @@ class CatalogFile(VersionBase):
                 "xsi:noNamespaceSchemaLocation": "../../" + XSI,
             },
         )
-        header = FileHeader(author, description, revMinor=self.version_minor)
+        header = FileHeader(
+            author,
+            description,
+            revMinor=self.version_minor,
+            license=licence,
+            creation_date=creation_date,
+            properties=properties,
+        )
         element.append(header.get_element())
         ET.SubElement(element, "Catalog", attrib={"name": catalogtype})
 
@@ -3140,6 +3182,90 @@ class CatalogFile(VersionBase):
             self.prettyprint,
             self.encoding,
         )
+
+
+class _BaseCatalog(VersionBase):
+    """the _BaseCatalog should be inherited by other classes that should be able to create catalogs from their elements"""
+
+    def __init__(self):
+        super().__init__()
+        self.parameters = ParameterDeclarations()
+
+    def add_parameter(self, parameter):
+        """adds a parameter to the Trajectory
+
+        Parameters
+        ----------
+            parameter (Parameter): the parameter to add
+
+        """
+        if not isinstance(parameter, Parameter):
+            raise TypeError("input parameter is not of type Parameter")
+        self.parameters.add_parameter(parameter)
+        return self
+
+    def add_parameters_to_element(self, element):
+        """adds the parameterdeclaration to the element"""
+        param_element = self.parameters.get_element()
+        if param_element:
+            element.append(param_element)
+
+    def dump_to_catalog(
+        self,
+        filename,
+        catalogtype,
+        description,
+        author,
+        licence=None,
+        creation_date=None,
+        properties=None,
+    ):
+        """dump_to_catalog creates a new catalog and adds the element to it
+
+        Parameters
+        ----------
+            filename (str): path of the new catalog file
+
+            catalogtype (str): name of the catalog
+
+            description (str): description of the catalog
+
+            author (str): author of the catalog
+
+            license (License): license (valid from OpenSCENARIO V1.1)
+                Default: None
+
+            creation_date (datetime.datetime): optional hardcoded creation date
+                Default: datetime.datetime.now() (when actually generating the xml)
+
+            properties (Properties): additional info about the scenario
+                Default: None
+        """
+        cf = CatalogFile()
+        cf.create_catalog(
+            filename,
+            catalogtype,
+            description,
+            author,
+            licence,
+            creation_date,
+            properties,
+        )
+        cf.add_to_catalog(self)
+        cf.dump()
+
+    def append_to_catalog(self, filename):
+        """adds the the element to an existing catalog
+
+        Parameters
+        ----------
+            filename (str): path to the catalog file
+
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
 
 
 class Catalog(VersionBase):
