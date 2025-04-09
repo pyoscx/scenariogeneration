@@ -1926,7 +1926,16 @@ class CatalogFile(VersionBase):
         tree = ET.parse(self.filename)
         self.catalog_element = tree.getroot()
 
-    def create_catalog(self, filename, catalogtype, description, author):
+    def create_catalog(
+        self,
+        filename,
+        catalogtype,
+        description,
+        author,
+        licence=None,
+        creation_date=None,
+        properties=None,
+    ):
         """create_catalog_element creates an empty catalog of a desiered type,
 
         Parameters
@@ -1939,13 +1948,29 @@ class CatalogFile(VersionBase):
 
             author (str): author of the catalog
 
+            license (License): license (valid from OpenSCENARIO V1.1)
+                Default: None
+
+            creation_date (datetime.datetime): optional hardcoded creation date
+                Default: datetime.datetime.now() (when actually generating the xml)
+
+            properties (Properties): additional info about the scenario
+                Default: None
         """
         self.filename = filename
         self.catalog_element = self.create_catalog_element(
-            catalogtype, description, author
+            catalogtype, description, author, licence, creation_date, properties
         )
 
-    def create_catalog_element(self, catalogtype, description, author):
+    def create_catalog_element(
+        self,
+        catalogtype,
+        description,
+        author,
+        licence=None,
+        creation_date=None,
+        properties=None,
+    ):
         """create_catalog_element creates an empty catalog of a desiered type,
 
         Parameters
@@ -1964,7 +1989,14 @@ class CatalogFile(VersionBase):
                 "xsi:noNamespaceSchemaLocation": "../../" + XSI,
             },
         )
-        header = FileHeader(author, description, revMinor=self.version_minor)
+        header = FileHeader(
+            author,
+            description,
+            revMinor=self.version_minor,
+            license=licence,
+            creation_date=creation_date,
+            properties=properties,
+        )
         element.append(header.get_element())
         ET.SubElement(element, "Catalog", attrib={"name": catalogtype})
 
@@ -2003,7 +2035,16 @@ class _BaseCatalog(VersionBase):
         if param_element:
             element.append(param_element)
 
-    def dump_to_catalog(self, filename, catalogtype, description, author):
+    def dump_to_catalog(
+        self,
+        filename,
+        catalogtype,
+        description,
+        author,
+        licence=None,
+        creation_date=None,
+        properties=None,
+    ):
         """dump_to_catalog creates a new catalog and adds the element to it
 
         Parameters
@@ -2016,9 +2057,25 @@ class _BaseCatalog(VersionBase):
 
             author (str): author of the catalog
 
+            license (License): license (valid from OpenSCENARIO V1.1)
+                Default: None
+
+            creation_date (datetime.datetime): optional hardcoded creation date
+                Default: datetime.datetime.now() (when actually generating the xml)
+
+            properties (Properties): additional info about the scenario
+                Default: None
         """
         cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
+        cf.create_catalog(
+            filename,
+            catalogtype,
+            description,
+            author,
+            licence,
+            creation_date,
+            properties,
+        )
         cf.add_to_catalog(self)
         cf.dump()
 
