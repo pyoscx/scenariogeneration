@@ -18,7 +18,7 @@ from typing import Optional
 
 import numpy as np
 
-from scenariogeneration.xodr import Road
+from scenariogeneration.xodr import OpenDrive
 from scenariogeneration.xosc import Scenario
 
 from .helpers import printToFile
@@ -96,7 +96,7 @@ class ScenarioGenerator:
         self.all_permutations = None
         self.write_relative_road_path = None
 
-    def road(self, **kwargs) -> Optional[Road]:
+    def road(self, **kwargs) -> Optional[OpenDrive]:
         """Dummy method for generating an OpenDRIVE road
 
         Should be overwritten by the user, and return a pyodrx.OpenDrive
@@ -186,7 +186,7 @@ class ScenarioGenerator:
 
     def _generate_road_and_scenario(
         self, permutation: dict
-    ) -> tuple[str, str]:
+    ) -> tuple[str, str, list[_GenerationStruct]]:
         """_generate_road_and_scenario takes a permutation and generates
         the road/scenario (if specified)
 
