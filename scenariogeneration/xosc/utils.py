@@ -13,7 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import os
 import warnings
 
-from .exceptions import OpenSCENARIOVersionError, NotAValidElement
+from .exceptions import OpenSCENARIOVersionError, NotAValidElement,XMLStructureError
 import xml.etree.ElementTree as ET
 from ..helpers import printToFile
 
@@ -44,6 +44,28 @@ from .enumerations import (
     _OscEnum,
 )
 import datetime as dt
+
+def find_mandatory_field(element:ET.Element, key:str) ->  ET.Element:
+    """Wrapper to find mandatory fields, throws an error if not found
+
+    Parameters
+    ----------
+        element (ET.Element): The element to search in
+        key (str): The key to search for
+    Returns
+    -------
+    ET.Element
+        the found element
+
+    Raises
+    ------
+    XMLStructureError
+        if the key is not found in the element
+    """
+    found = element.find(key)
+    if found is None:
+        raise XMLStructureError(f"Mandatory field {key} not found in {element.tag}")
+    return found
 
 
 class _StochasticDistributionType(VersionBase):

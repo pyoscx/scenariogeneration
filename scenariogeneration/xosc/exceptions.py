@@ -45,3 +45,8 @@ class NotAValidElement(Exception):
     """Raised when one of the needed "optional" inputs are not used"""
 
     pass
+
+class XMLStructureError(Exception):
+    """Raised when the XML structure is not valid"""
+
+    pass

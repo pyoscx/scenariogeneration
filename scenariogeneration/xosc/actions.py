@@ -221,7 +221,7 @@ class _Action(VersionBase):
 
         self.action = action
 
-    def __eq__(self, other: Any):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Action):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -319,7 +319,7 @@ class AbsoluteSpeedAction(_PrivateActionType):
             )
         self.transition_dynamics = transition_dynamics
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AbsoluteSpeedAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -461,7 +461,7 @@ class RelativeSpeedAction(_PrivateActionType):
         self.transition_dynamics = transition_dynamics
         self.continuous = convert_bool(continuous)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RelativeSpeedAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -689,7 +689,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
             displacement, LongitudinalDisplacement
         )
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LongitudinalDistanceAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -895,7 +895,7 @@ class SpeedProfileAction(_PrivateActionType):
             self.times = times
         self.entity = entity
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, SpeedProfileAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1059,7 +1059,7 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
             )
         self.transition_dynamics = transition_dynamics
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AbsoluteLaneChangeAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1209,7 +1209,7 @@ class RelativeLaneChangeAction(_PrivateActionType):
             )
         self.transition_dynamics = transition_dynamics
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RelativeLaneChangeAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1362,7 +1362,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         self.dynshape = convert_enum(shape, DynamicsShapes)
         self.maxlatacc = convert_float(maxlatacc)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AbsoluteLaneOffsetAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1525,7 +1525,7 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         self.dynshape = shape
         self.maxlatacc = convert_float(maxlatacc)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RelativeLaneOffsetAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1732,7 +1732,7 @@ class LateralDistanceAction(_PrivateActionType):
         )
         self.displacement = convert_enum(displacement, LateralDisplacement)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LateralDistanceAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1874,7 +1874,7 @@ class TeleportAction(_PrivateActionType):
 
         self.position = position
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TeleportAction):
             if self.position == other.position:
                 return True
@@ -1956,7 +1956,7 @@ class AssignRouteAction(_PrivateActionType):
 
         self.route = route
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AssignRouteAction):
             if self.route == other.route:
                 return True
@@ -2041,7 +2041,7 @@ class AcquirePositionAction(_PrivateActionType):
 
         self.position = position
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AcquirePositionAction):
             if self.position == other.position:
                 return True
@@ -2174,7 +2174,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         self.timeref = TimeReference(reference_domain, scale, offset)
         self.initialDistanceOffset = convert_float(initialDistanceOffset)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, FollowTrajectoryAction):
             if (
                 self.timeref == other.timeref
@@ -2354,7 +2354,7 @@ class ControllerAction(_PrivateActionType):
         if self.overrideControllerValueAction is not None:
             self.overrideControllerValueAction._used_by_parent = True
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ControllerAction):
             if (
                 self.activateControllerAction == other.activateControllerAction
@@ -2540,7 +2540,7 @@ class ActivateControllerAction(_PrivateActionType):
         self.lighting = convert_bool(lighting)
         self.controllerRef = controllerRef
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ActivateControllerAction):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -2720,7 +2720,7 @@ class AssignControllerAction(_PrivateActionType):
         self.activateAnimation = convert_bool(activateAnimation)
         self._used_by_parent = False
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AssignControllerAction):
             if self.controller == other.controller:
                 return True
@@ -2927,7 +2927,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         self._used_by_parent = False
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, OverrideControllerValueAction):
             if (
                 self.throttle_value == other.throttle_value
@@ -3521,7 +3521,7 @@ class VisibilityAction(_PrivateActionType):
         self.sensors = convert_bool(sensors)
         self.sensor_refs = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, VisibilityAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -3733,7 +3733,7 @@ class SynchronizeAction(_PrivateActionType):
         else:
             self.final_speed = final_speed
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, SynchronizeAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -3933,7 +3933,7 @@ class LightStateAction(_PrivateActionType):
 
         self.transition_time = convert_float(transition_time)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LightStateAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4103,7 +4103,7 @@ class AnimationAction(_PrivateActionType):
         self.loop = loop
         self.state = convert_float(state)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AnimationAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4239,7 +4239,7 @@ class ParameterAddAction(_ActionType):
         self.parameter_ref = parameter_ref
         self.value = convert_float(value)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterAddAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4351,7 +4351,7 @@ class ParameterMultiplyAction(_ActionType):
         self.parameter_ref = parameter_ref
         self.value = convert_float(value)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterMultiplyAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4463,7 +4463,7 @@ class ParameterSetAction(_ActionType):
         self.parameter_ref = parameter_ref
         self.value = value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterSetAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4571,7 +4571,7 @@ class VariableAddAction(_ActionType):
         self.variable_ref = variable_ref
         self.value = value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, VariableAddAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4683,7 +4683,7 @@ class VariableMultiplyAction(_ActionType):
         self.variable_ref = variable_ref
         self.value = value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, VariableMultiplyAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4788,7 +4788,7 @@ class VariableSetAction(_ActionType):
         self.variable_ref = variable_ref
         self.value = value
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, VariableSetAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4893,7 +4893,7 @@ class TrafficSignalStateAction(_ActionType):
         self.name = name
         self.state = state
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSignalStateAction):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -4994,7 +4994,7 @@ class AddEntityAction(_ActionType):
             raise TypeError("position input is not of a known _PositionType")
         self.position = position
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AddEntityAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -5091,7 +5091,7 @@ class DeleteEntityAction(_ActionType):
 
         self.entityref = entityref
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DeleteEntityAction):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -5187,7 +5187,7 @@ class TrafficSignalControllerAction(_ActionType):
         self.phase = phase
         self.traffic_signalcontroller_ref = traffic_signalcontroller_ref
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSignalControllerAction):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -5338,7 +5338,7 @@ class TrafficSourceAction(_ActionType):
         self.velocity = convert_float(velocity)
         self.name = name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSourceAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -5506,7 +5506,7 @@ class TrafficSinkAction(_ActionType):
         self.trafficdefinition = trafficdefinition
         self.name = name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSinkAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -5728,7 +5728,7 @@ class TrafficSwarmAction(_ActionType):
             )
         self.direction_of_travel = direction_of_travel
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSwarmAction):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -5893,7 +5893,7 @@ class TrafficStopAction(_ActionType):
         """
         self.name = name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficStopAction):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -5996,7 +5996,7 @@ class EnvironmentAction(_ActionType):
             )
         self.environment = environment
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, EnvironmentAction):
             if self.environment == other.environment:
                 return True
@@ -6075,7 +6075,7 @@ class CustomCommandAction(_ActionType):
         self.type = type
         self.content = content
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, CustomCommandAction):
             if other.type == self.type:
                 return True
@@ -6148,7 +6148,7 @@ class UserDefinedAction(_ActionType):
         """
         self.custom_command_action = custom_command_action
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, UserDefinedAction):
             if self.custom_command_action == other.custom_command_action:
                 return True

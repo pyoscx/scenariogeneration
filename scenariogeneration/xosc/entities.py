@@ -126,7 +126,7 @@ class Axle(VersionBase):
         zpos = convert_float(element.attrib["positionZ"])
         return Axle(maxsteer, wheeldia, track_width, xpos, zpos)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Axle):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -212,7 +212,7 @@ class Axles(VersionBase):
         self.rearaxle = rearaxle
         self.additionals = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Axles):
             if (
                 self.frontaxle == other.frontaxle
@@ -347,7 +347,7 @@ class Entity(VersionBase):
                 self.object_type.append(convert_enum(object_type, ObjectType))
             self.entity = None
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Entity):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -523,7 +523,7 @@ class Pedestrian(_BaseCatalog):
         self.properties = Properties()
         self.role = convert_enum(role, Role, True)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Pedestrian):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -732,7 +732,7 @@ class MiscObject(_BaseCatalog):
         self.properties = Properties()
         self.model3d = model3d
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, MiscObject):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -990,7 +990,7 @@ class Vehicle(_BaseCatalog):
         self.model3d = model3d
         self.role = convert_enum(role, Role, True)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Vehicle):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1197,7 +1197,7 @@ class ExternalObjectReference(VersionBase):
         """
         self.name = name
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ExternalObjectReference):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -1278,7 +1278,7 @@ class Entities(VersionBase):
         self.scenario_objects = []
         self.entities = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Entities):
             if (
                 self.scenario_objects == other.scenario_objects
@@ -1497,7 +1497,7 @@ class ScenarioObject(VersionBase):
             self.controller = controller
         self.entityobject = entityobject
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ScenarioObject):
             if (
                 self.get_attributes() == other.get_attributes()
