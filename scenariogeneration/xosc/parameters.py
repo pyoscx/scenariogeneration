@@ -118,7 +118,7 @@ class Range(VersionBase):
         self.lower = convert_float(lower)
         self.upper = convert_float(upper)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Range):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -217,7 +217,7 @@ class _HistogramBin(VersionBase):
         self.weight = convert_float(weight)
         self.range = range
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _HistogramBin):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -315,7 +315,7 @@ class _ProbabilityDistributionSetElement(VersionBase):
         self.value = value
         self.weight = convert_float(weight)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _ProbabilityDistributionSetElement):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -412,7 +412,7 @@ class Stochastic(VersionBase):
         self.random_seed = random_seed
         self.distributions = {}
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Stochastic):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -565,7 +565,7 @@ class NormalDistribution(_StochasticDistributionType):
         self.variance = variance
         self.range = range
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, NormalDistribution):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -661,7 +661,7 @@ class UniformDistribution(_StochasticDistributionType):
             raise TypeError("range input is not of type Range")
         self.range = range
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, UniformDistribution):
             if self.range == other.range:
                 return True
@@ -740,7 +740,7 @@ class PoissonDistribution(_StochasticDistributionType):
         self.expected_value = expected_value
         self.range = range
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PoissonDistribution):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -820,7 +820,7 @@ class Histogram(_StochasticDistributionType):
         """Initializes the Histogram."""
         self.bins = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Histogram):
             if self.bins == other.bins:
                 return True
@@ -904,7 +904,7 @@ class ProbabilityDistributionSet(_StochasticDistributionType):
         """Initializes the ProbabilityDistributionSet."""
         self.sets = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ProbabilityDistributionSet):
             if self.sets == other.sets:
                 return True
@@ -991,7 +991,7 @@ class ParameterValueSet(VersionBase):
         """Initializes the ParameterValueSet."""
         self.sets = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterValueSet):
             if self.sets == other.sets:
                 return True
@@ -1076,7 +1076,7 @@ class DeterministicMultiParameterDistribution(VersionBase):
         """Initializes the DeterministicMultiParameterDistribution."""
         self.sets = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DeterministicMultiParameterDistribution):
             if self.sets == other.sets:
                 return True
@@ -1199,7 +1199,7 @@ class DistributionRange(VersionBase):
             raise TypeError("range is not of type Range.")
         self.range = range
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DistributionRange):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1277,7 +1277,7 @@ class DistributionSet(VersionBase):
         """Initializes the DistributionSet."""
         self.value_elements = []
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DistributionSet):
             if self.value_elements == other.value_elements:
                 return True
@@ -1365,7 +1365,7 @@ class Deterministic(VersionBase):
         self.multi_distributions = []
         self.single_distributions = {}
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Deterministic):
             if (
                 self.multi_distributions == other.multi_distributions
@@ -1574,7 +1574,7 @@ class ParameterValueDistribution(VersionBase):
         self.scenario_file = scenario_file
         self.parameter_distribution = parameter_distribution
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterValueDistribution):
             if (
                 self.header == other.header

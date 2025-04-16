@@ -108,7 +108,7 @@ class _OscEnum(VersionBase):
         self.max_minor_version = max_minor_version
         self.replacement = replacement
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _OscEnum):
             if self.name == other.name and self.classname == other.classname:
                 return True
