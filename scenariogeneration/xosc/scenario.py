@@ -10,79 +10,79 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from .position import _PositionFactory, _PositionType
-from .exceptions import OpenSCENARIOVersionError, NotEnoughInputArguments
-
-import xml.etree.ElementTree as ET
+import datetime
 import xml.dom.minidom as mini
-
+import xml.etree.ElementTree as ET
+from typing import List, Optional, Union
 
 from ..helpers import printToFile
+from .entities import Entities
+from .enumerations import _MINOR_VERSION, XMLNS, XSI, VersionBase
+from .exceptions import NotEnoughInputArguments, OpenSCENARIOVersionError
+from .position import _PositionFactory, _PositionType
+from .storyboard import StoryBoard
 from .utils import (
-    FileHeader,
-    ParameterDeclarations,
     Catalog,
+    FileHeader,
+    License,
+    ParameterDeclarations,
+    Properties,
     TrafficSignalController,
     VariableDeclarations,
 )
-from .enumerations import VersionBase, XMLNS, XSI, _MINOR_VERSION
-from .entities import Entities
-from .storyboard import StoryBoard
 
 
 class Scenario(VersionBase):
-    """The Scenario class collects all parts of OpenScenario and creates a .xml file
+    """The Scenario class collects all parts of OpenScenario and creates a .xml
+    file.
 
     Parameters
     ----------
-        header (FileHeader): the header of the scenario file
-
-        parameters (ParameterDeclarations): the parameters to be used in the scenario
-
-        entities (Entities): the entities in the scenario
-
-        storyboard (StoryBoard): the storyboard of the scenario
-
-        roadnetwork (RoadNetwork): the roadnetwork of the scenario
-
-        catalog (Catalog): the catalogs used in the scenario
-
-        osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
-            Default: 2
-
-        licence (License): optional license to the file header
-            Default: None
-
-        createtion_date (datetime.datetime): optional creation date of the scenario
-            Default: None (will be at the time of generation)
+    header : FileHeader
+        The header of the scenario file.
+    parameters : ParameterDeclarations
+        The parameters to be used in the scenario.
+    entities : Entities
+        The entities in the scenario.
+    storyboard : StoryBoard
+        The storyboard of the scenario.
+    roadnetwork : RoadNetwork
+        The roadnetwork of the scenario.
+    catalog : Catalog
+        The catalogs used in the scenario.
+    osc_minor_version : int, optional
+        Used to set if another than the newest version of
+        OpenSCENARIO should be used. Default is 2.
+    license : License, optional
+        Optional license to the file header. Default is None.
+    creation_date : datetime.datetime, optional
+        Optional creation date of the scenario. Default is None
+        (will be at the time of generation).
 
     Attributes
     ----------
-        header (FileHeader): the header of the scenario file
-
-        parameters (ParameterDeclarations): the parameters to be used in the scenario
-
-        entities (Entities): the entities in the scenario
-
-        storyboard (StoryBoard): the storyboard of the scenario
-
-        roadnetwork (RoadNetwork): the roadnetwork of the scenario
-
-        catalog (Catalog): the catalogs used in the scenario
-
-        header (FileHeader): header of the scenario
+    header : FileHeader
+        The header of the scenario file.
+    parameters : ParameterDeclarations
+        The parameters to be used in the scenario.
+    entities : Entities
+        The entities in the scenario.
+    storyboard : StoryBoard
+        The storyboard of the scenario.
+    roadnetwork : RoadNetwork
+        The roadnetwork of the scenario.
+    catalog : Catalog
+        The catalogs used in the scenario.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        write_xml(filename)
-            write a open scenario xml
-
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    write_xml(filename)
+        Writes an OpenScenario XML file.
     """
 
     _XMLNS = XMLNS
@@ -90,50 +90,51 @@ class Scenario(VersionBase):
 
     def __init__(
         self,
-        name,
-        author,
-        parameters,
-        entities,
-        storyboard,
-        roadnetwork,
-        catalog,
-        osc_minor_version=_MINOR_VERSION,
-        license=None,
-        creation_date=None,
-        header_properties=None,
-        variable_declaration=None,
-    ):
-        """Initalizes the Scenario class, and creates the header.
+        name: str,
+        author: str,
+        parameters: ParameterDeclarations,
+        entities: Entities,
+        storyboard: StoryBoard,
+        roadnetwork: "RoadNetwork",
+        catalog: Catalog,
+        osc_minor_version: int = _MINOR_VERSION,
+        license: Optional[License] = None,
+        creation_date: Optional[datetime.datetime] = None,
+        header_properties: Optional[Properties] = None,
+        variable_declaration: Optional[VariableDeclarations] = None,
+    ) -> None:
+        """Initializes the Scenario class and creates the header.
 
         Parameters
         ----------
-            name (str): name of the scenario
-
-            author (str): the author fo the scenario
-
-            parameters (ParameterDeclarations): the parameters to be used in the scenario
-
-            entities (Entities): the entities in the scenario
-
-            storyboard (StoryBoard): the storyboard of the scenario
-
-            roadnetwork (RoadNetwork): the roadnetwork of the scenario
-
-            catalog (Catalog): the catalogs used in the scenario
-
-            osc_minor_version (int): used to set if another than the newest version of OpenSCENARIO should be used
-                Default: 1
-
-            licence (License): optional license to the file header (Valid from OSC V1.1)
-                Default: None
-
-            createtion_date (datetime.datetime): optional creation date of the scenario
-                Default: None (will be at the time of generation)
-
-            header_properties (Properties): properties that can be added to the header (Valid from OSC V1.2)
-                Default: None
-
-            variable_declaration (VariableDeclarations): (Valid from OSC V1.2)
+        name : str
+            Name of the scenario.
+        author : str
+            The author of the scenario.
+        parameters : ParameterDeclarations
+            The parameters to be used in the scenario.
+        entities : Entities
+            The entities in the scenario.
+        storyboard : StoryBoard
+            The storyboard of the scenario.
+        roadnetwork : RoadNetwork
+            The roadnetwork of the scenario.
+        catalog : Catalog
+            The catalogs used in the scenario.
+        osc_minor_version : int, optional
+            Used to set if another than the newest version of
+            OpenSCENARIO should be used. Default is 1.
+        license : License, optional
+            Optional license to the file header (valid from OSC
+            V1.1). Default is None.
+        creation_date : datetime.datetime, optional
+            Optional creation date of the scenario. Default is
+            None (will be at the time of generation).
+        header_properties : Properties, optional
+            Properties that can be added to the header (valid
+            from OSC V1.2). Default is None.
+        variable_declaration : VariableDeclarations, optional
+            Variable declarations (valid from OSC V1.2).
         """
         if not isinstance(entities, Entities):
             raise TypeError("entities input is not of type Entities")
@@ -144,7 +145,9 @@ class Scenario(VersionBase):
         if not isinstance(catalog, Catalog):
             raise TypeError("catalog input is not of type StorCatalogyBoard")
         if not isinstance(parameters, ParameterDeclarations):
-            raise TypeError("parameters input is not of type ParameterDeclarations")
+            raise TypeError(
+                "parameters input is not of type ParameterDeclarations"
+            )
 
         if variable_declaration and not isinstance(
             variable_declaration, VariableDeclarations
@@ -167,7 +170,7 @@ class Scenario(VersionBase):
             properties=header_properties,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Scenario):
             if (
                 self.entities == other.entities
@@ -182,17 +185,19 @@ class Scenario(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Scenario
+    def parse(element: ET.Element) -> "Scenario":
+        """Parses the XML element of Scenario.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A Scenario element (same as generated by the class itself)
+        element : xml.etree.ElementTree.Element
+            A Scenario element (same as generated by the class
+            itself).
 
         Returns
         -------
-            scenario (Scenario): a Scenario object
-
+        Scenario
+            A Scenario object.
         """
         header = FileHeader.parse(element.find("FileHeader"))
         parameters = ParameterDeclarations()
@@ -207,7 +212,9 @@ class Scenario(VersionBase):
 
         variables = None
         if element.find("VariableDeclarations") is not None:
-            variables = VariableDeclarations.parse(element.find("VariableDeclarations"))
+            variables = VariableDeclarations.parse(
+                element.find("VariableDeclarations")
+            )
         return Scenario(
             header.description,
             header.author,
@@ -221,8 +228,14 @@ class Scenario(VersionBase):
             variables,
         )
 
-    def get_element(self):
-        """returns the elementTree of the Scenario"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Scenario.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the Scenario.
+        """
         element = ET.Element(
             "OpenSCENARIO",
             attrib={
@@ -243,70 +256,72 @@ class Scenario(VersionBase):
 
         return element
 
-    def write_xml(self, filename, prettyprint=True, encoding="utf-8"):
-        """write_xml writes the OpenSCENARIO xml file
+    def write_xml(
+        self, filename: str, prettyprint: bool = True, encoding: str = "utf-8"
+    ) -> None:
+        """Writes the OpenSCENARIO XML file.
 
         Parameters
         ----------
-            filename (str): path and filename of the wanted xml file
-
-            prettyprint (bool): pretty print or ugly print?
-                Default: True
-
-            encoding (str): specifies the output encoding
-                Default: 'utf-8'
-
+        filename : str
+            Path and filename of the desired XML file.
+        prettyprint : bool, optional
+            Pretty print or ugly print? Default is True.
+        encoding : str, optional
+            Specifies the output encoding. Default is 'utf-8'.
         """
         printToFile(self.get_element(), filename, prettyprint, encoding)
 
 
 class RoadNetwork(VersionBase):
-    """The RoadNetwork class creates the RoadNetwork of the openScenario
+    """The RoadNetwork class creates the RoadNetwork of the OpenScenario.
 
     Parameters
     ----------
-        roadfile (str): path to the opendrive file
-
-        scenegraph (str): path to the opensceengraph file (optional)
+    roadfile : str, optional
+        Path to the OpenDRIVE file.
+    scenegraph : str, optional
+        Path to the OpenSceneGraph file.
 
     Attributes
     ----------
-        road_file (str): path to the opendrive file
-
-        scene (str): path to the opensceengraph file
-
-        traffic_signals (list of TrafficSignalController): all traffic signals in the roadnetwork
-
-        used_area_positions (list of Positions): the positions that determines the used area of the roadnetwork
+    road_file : str
+        Path to the OpenDRIVE file.
+    scene : str
+        Path to the OpenSceneGraph file.
+    traffic_signals : list of TrafficSignalController
+        All traffic signals in the roadnetwork.
+    used_area_positions : list of Positions
+        The positions that determine the used area of the
+        roadnetwork.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-
-
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
     """
 
-    def __init__(self, roadfile=None, scenegraph=None):
-        """Initalizes the RoadNetwork
+    def __init__(
+        self, roadfile: Optional[str] = None, scenegraph: Optional[str] = None
+    ) -> None:
+        """Initializes the RoadNetwork.
 
         Parameters
         ----------
-            roadfile (str): path to the opendrive file (optional)
-
-            scenegraph (str): path to the opensceengraph file (optional)
-
+        roadfile : str, optional
+            Path to the OpenDRIVE file. Default is None.
+        scenegraph : str, optional
+            Path to the OpenSceneGraph file. Default is None.
         """
         self.road_file = roadfile
         self.scene = scenegraph
         self.traffic_signals = []
         self.used_area_positions = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadNetwork):
             if (
                 self.road_file == other.road_file
@@ -318,17 +333,19 @@ class RoadNetwork(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of RoadNetwork
+    def parse(element: ET.Element) -> "RoadNetwork":
+        """Parses the XML element of RoadNetwork.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A RoadNetwork element (same as generated by the class itself)
+        element : xml.etree.ElementTree.Element
+            A RoadNetwork element (same as generated by the class
+            itself).
 
         Returns
         -------
-            roadnetwork (RoadNetwork): a RoadNetwork object
-
+        RoadNetwork
+            A RoadNetwork object.
         """
         logicFile = None
         if element.find("LogicFile") is not None:
@@ -338,7 +355,9 @@ class RoadNetwork(VersionBase):
         if element.find("SceneGraphFile") is not None:
             sceneGraphFile = element.find("SceneGraphFile").attrib["filepath"]
 
-        roadnetwork = RoadNetwork(roadfile=logicFile, scenegraph=sceneGraphFile)
+        roadnetwork = RoadNetwork(
+            roadfile=logicFile, scenegraph=sceneGraphFile
+        )
 
         position_elements = element.findall("UsedArea/Position")
         if position_elements is not None:
@@ -347,7 +366,9 @@ class RoadNetwork(VersionBase):
                     _PositionFactory.parse_position(position)
                 )
 
-        tsc_elements = element.findall("TrafficSignals/TrafficSignalController")
+        tsc_elements = element.findall(
+            "TrafficSignals/TrafficSignalController"
+        )
         if tsc_elements is not None:
             for tsc_element in tsc_elements:
                 controller = TrafficSignalController.parse(tsc_element)
@@ -355,13 +376,15 @@ class RoadNetwork(VersionBase):
 
         return roadnetwork
 
-    def add_traffic_signal_controller(self, traffic_signal_controller):
-        """adds a TrafficSignalController to the RoadNetwork
+    def add_traffic_signal_controller(
+        self, traffic_signal_controller: TrafficSignalController
+    ) -> "RoadNetwork":
+        """Adds a TrafficSignalController to the RoadNetwork.
 
         Parameters
         ----------
-            traffic_signal_controller (TrafficSignalController): the traffic signal controller to add
-
+        traffic_signal_controller : TrafficSignalController
+            The traffic signal controller to add.
         """
         if not isinstance(traffic_signal_controller, TrafficSignalController):
             raise TypeError(
@@ -370,27 +393,38 @@ class RoadNetwork(VersionBase):
         self.traffic_signals.append(traffic_signal_controller)
         return self
 
-    def add_used_area_position(self, position):
-        """adds a position to determine the usedArea of the roadnetwork used, this feature was added in OpenSCENARIO V1.1.
-        Atleast 2 positions are required.
+    def add_used_area_position(self, position: _PositionType) -> "RoadNetwork":
+        """Adds a position to determine the used area of the roadnetwork. This
+        feature was added in OpenSCENARIO V1.1. At least 2 positions are
+        required.
 
         Parameters
         ----------
-            position (*Position): any position to determine the used area
-
+        position : *Position
+            Any position to determine the used area.
         """
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid position Type")
         self.used_area_positions.append(position)
         return self
 
-    def get_element(self):
-        """returns the elementTree of the RoadNetwork"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the RoadNetwork.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the RoadNetwork.
+        """
         roadnetwork = ET.Element("RoadNetwork")
         if self.road_file:
-            ET.SubElement(roadnetwork, "LogicFile", {"filepath": self.road_file})
+            ET.SubElement(
+                roadnetwork, "LogicFile", {"filepath": self.road_file}
+            )
         if self.scene:
-            ET.SubElement(roadnetwork, "SceneGraphFile", {"filepath": self.scene})
+            ET.SubElement(
+                roadnetwork, "SceneGraphFile", {"filepath": self.scene}
+            )
         if self.traffic_signals:
             trafsign_element = ET.SubElement(roadnetwork, "TrafficSignals")
             for ts in self.traffic_signals:
@@ -399,11 +433,12 @@ class RoadNetwork(VersionBase):
             raise NotEnoughInputArguments(
                 'To use "usedArea" more than 1 used_area_position is needed.'
             )
-        elif len(self.used_area_positions) > 1 and self.isVersion(minor=0):
+        if len(self.used_area_positions) > 1 and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError(
-                "UsedArea is not supported in OpenSCENARIO V1.0, was introduced in OpenSCENARIO V1.1"
+                "UsedArea is not supported in OpenSCENARIO V1.0, " \
+                "was introduced in OpenSCENARIO V1.1"
             )
-        elif len(self.used_area_positions) > 1 and not self.isVersion(minor=0):
+        if len(self.used_area_positions) > 1 and not self.isVersion(minor=0):
             usedarea = ET.SubElement(roadnetwork, "UsedArea")
             for p in self.used_area_positions:
                 usedarea.append(p.get_element())
