@@ -28,7 +28,9 @@ def enumchecker(value, enum_type, none_ok=False):
             return value
         else:
             raise TypeError(
-                value.get_name() + " is not of Enumeration type :" + str(enum_type)
+                value.get_name()
+                + " is not of Enumeration type :"
+                + str(enum_type)
             )
 
     elif isinstance(value, str):
@@ -41,7 +43,9 @@ def enumchecker(value, enum_type, none_ok=False):
                 + str(enum_type)
             )
     else:
-        raise TypeError("Type: " + type(enum_type) + " is not a valid input for Enums.")
+        raise TypeError(
+            "Type: " + type(enum_type) + " is not a valid input for Enums."
+        )
 
 
 class TrafficRule(Enum):

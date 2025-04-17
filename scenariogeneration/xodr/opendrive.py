@@ -229,7 +229,13 @@ class Road(XodrBase):
     """
 
     def __init__(
-        self, road_id, planview, lanes, road_type=-1, name=None, rule=TrafficRule.RHT
+        self,
+        road_id,
+        planview,
+        lanes,
+        road_type=-1,
+        name=None,
+        rule=TrafficRule.RHT,
     ):
         """initalize the Road
 
@@ -252,7 +258,8 @@ class Road(XodrBase):
         super().__init__()
         self.id = road_id
         if not (
-            isinstance(planview, PlanView) or isinstance(planview, AdjustablePlanview)
+            isinstance(planview, PlanView)
+            or isinstance(planview, AdjustablePlanview)
         ):
             raise TypeError(
                 "planview input is not of type PlanView or AdjustablePlanview"
@@ -515,7 +522,9 @@ class Road(XodrBase):
         """
         if isinstance(tunnel, list):
             if any([not isinstance(x, Tunnel) for x in tunnel]):
-                raise TypeError("tunnel contains elements that are not of type Tunnel")
+                raise TypeError(
+                    "tunnel contains elements that are not of type Tunnel"
+                )
             self.objects.extend(tunnel)
         else:
             if not isinstance(tunnel, Tunnel):
@@ -604,7 +613,9 @@ class Road(XodrBase):
             lanesections_s.append(lanesection.s)
             if side != RoadSide.right:
                 # adding object for left side
-                road_objects[RoadSide.left] = cpy.deepcopy(road_object_prototype)
+                road_objects[RoadSide.left] = cpy.deepcopy(
+                    road_object_prototype
+                )
                 total_widths[RoadSide.left].append(0)
                 for lane in lanesection.leftlanes:
                     total_widths[RoadSide.left][-1] = (
@@ -612,7 +623,9 @@ class Road(XodrBase):
                     )
             if side != RoadSide.left:
                 # adding object for right side
-                road_objects[RoadSide.right] = cpy.deepcopy(road_object_prototype)
+                road_objects[RoadSide.right] = cpy.deepcopy(
+                    road_object_prototype
+                )
                 total_widths[RoadSide.right].append(0)
                 for lane in lanesection.rightlanes:
                     total_widths[RoadSide.right][-1] = (
@@ -639,18 +652,24 @@ class Road(XodrBase):
             for idx, length in enumerate(lanesections_length):
                 accumulated_length += length
                 if idx == 0:
-                    repeat_lengths[road_side].append(accumulated_length - sOffset)
+                    repeat_lengths[road_side].append(
+                        accumulated_length - sOffset
+                    )
                     repeat_s[road_side].append(sOffset)
                     repeat_t[road_side].append(
                         (total_widths[road_side][idx] + tOffset) * hdg_factor
                     )
                 else:
-                    if total_widths[road_side][idx] != total_widths[road_side][idx - 1]:
+                    if (
+                        total_widths[road_side][idx]
+                        != total_widths[road_side][idx - 1]
+                    ):
                         # add another repeat record only if width is changing
                         repeat_lengths[road_side].append(length)
                         repeat_s[road_side].append(lanesections_s[idx])
                         repeat_t[road_side].append(
-                            (total_widths[road_side][idx] + tOffset) * hdg_factor
+                            (total_widths[road_side][idx] + tOffset)
+                            * hdg_factor
                         )
                     else:
                         # otherwise add the length to existing repeat entry
@@ -683,22 +702,31 @@ class Road(XodrBase):
         if isinstance(signal, list):
             if any(
                 [
-                    not any(isinstance(x, Signal) or isinstance(x, SignalReference))
+                    not any(
+                        isinstance(x, Signal) or isinstance(x, SignalReference)
+                    )
                     for x in signal
                 ]
             ):
-                raise TypeError("signal contains elements that are not of type Signal")
+                raise TypeError(
+                    "signal contains elements that are not of type Signal"
+                )
             for single_signal in signal:
                 single_signal._update_id()
             self.signals = self.signals + signal
         else:
-            if not (isinstance(signal, Signal) or isinstance(signal, SignalReference)):
+            if not (
+                isinstance(signal, Signal)
+                or isinstance(signal, SignalReference)
+            ):
                 raise TypeError("signal is not of type Signal")
             signal._update_id()
             self.signals.append(signal)
         return self
 
-    def add_type(self, road_type, s=0, country=None, speed=None, speed_unit="m/s"):
+    def add_type(
+        self, road_type, s=0, country=None, speed=None, speed_unit="m/s"
+    ):
         """adds a type to the road (not to mix with junction or not as the init)
 
         Parameters
@@ -727,7 +755,11 @@ class Road(XodrBase):
             h (float): the end heading
 
         """
-        return self.planview.present_x, self.planview.present_y, self.planview.present_h
+        return (
+            self.planview.present_x,
+            self.planview.present_y,
+            self.planview.present_h,
+        )
 
     def get_attributes(self):
         """returns the attributes as a dict of the Road"""
@@ -834,7 +866,9 @@ class OpenDrive(XodrBase):
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
-        self._header = _Header(self.name, self.revMajor, self.revMinor, geo_reference)
+        self._header = _Header(
+            self.name, self.revMajor, self.revMinor, geo_reference
+        )
         self.roads = {}
         self.junctions = []
         # self.road_ids = []
@@ -900,7 +934,9 @@ class OpenDrive(XodrBase):
 
         for r in range(len(results)):
             # print('Analyzing roads', results[r][0], 'and', results[r][1] )
-            create_lane_links(self.roads[results[r][0]], self.roads[results[r][1]])
+            create_lane_links(
+                self.roads[results[r][0]], self.roads[results[r][1]]
+            )
 
     def adjust_roadmarks(self):
         """Tries to adjust broken roadmarks (if same definition) along roads and lane sections"""
@@ -924,7 +960,10 @@ class OpenDrive(XodrBase):
                     )
                 if self.roads[r].lanes.roadmarks_adjusted:
                     if self.roads[r].successor:
-                        if self.roads[r].successor.element_type == ElementType.road:
+                        if (
+                            self.roads[r].successor.element_type
+                            == ElementType.road
+                        ):
                             if (
                                 self.roads[r].successor.contact_point
                                 == ContactPoint.start
@@ -958,14 +997,19 @@ class OpenDrive(XodrBase):
 
                             for conn in junction.connections:
                                 if str(conn.incoming_road) == r:
-                                    if conn.contact_point == ContactPoint.start:
+                                    if (
+                                        conn.contact_point
+                                        == ContactPoint.start
+                                    ):
                                         self.roads[
                                             str(conn.connecting_road)
                                         ].lanes.adjust_road_marks_from_start(
                                             self.roads[
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
-                                            self.roads[r].lanes.lanesections[0],
+                                            self.roads[r].lanes.lanesections[
+                                                0
+                                            ],
                                             ContactPoint.end,
                                         )
                                     else:
@@ -975,14 +1019,19 @@ class OpenDrive(XodrBase):
                                             self.roads[
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
-                                            self.roads[r].lanes.lanesections[0],
+                                            self.roads[r].lanes.lanesections[
+                                                0
+                                            ],
                                             ContactPoint.end,
                                         )
 
                                     count_total_adjusted_roads += 1
 
                     if self.roads[r].predecessor:
-                        if self.roads[r].predecessor.element_type == ElementType.road:
+                        if (
+                            self.roads[r].predecessor.element_type
+                            == ElementType.road
+                        ):
                             if (
                                 self.roads[r].predecessor.contact_point
                                 == ContactPoint.start
@@ -991,7 +1040,11 @@ class OpenDrive(XodrBase):
                                     str(self.roads[r].predecessor.element_id)
                                 ].lanes.adjust_road_marks_from_start(
                                     self.roads[
-                                        str(self.roads[r].predecessor.element_id)
+                                        str(
+                                            self.roads[
+                                                r
+                                            ].predecessor.element_id
+                                        )
                                     ].planview.get_total_length(),
                                     self.roads[r].lanes.lanesections[0],
                                     ContactPoint.start,
@@ -1002,7 +1055,11 @@ class OpenDrive(XodrBase):
                                     str(self.roads[r].predecessor.element_id)
                                 ].lanes.adjust_road_marks_from_end(
                                     self.roads[
-                                        str(self.roads[r].predecessor.element_id)
+                                        str(
+                                            self.roads[
+                                                r
+                                            ].predecessor.element_id
+                                        )
                                     ].planview.get_total_length(),
                                     self.roads[r].lanes.lanesections[0],
                                     ContactPoint.start,
@@ -1011,14 +1068,19 @@ class OpenDrive(XodrBase):
                         else:
                             for conn in self.junctions[0].connections:
                                 if str(conn.incoming_road) == r:
-                                    if conn.contact_point == ContactPoint.start:
+                                    if (
+                                        conn.contact_point
+                                        == ContactPoint.start
+                                    ):
                                         self.roads[
                                             str(conn.connecting_road)
                                         ].lanes.adjust_road_marks_from_start(
                                             self.roads[
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
-                                            self.roads[r].lanes.lanesections[-1],
+                                            self.roads[r].lanes.lanesections[
+                                                -1
+                                            ],
                                             ContactPoint.start,
                                         )
                                     else:
@@ -1028,7 +1090,9 @@ class OpenDrive(XodrBase):
                                             self.roads[
                                                 str(conn.connecting_road)
                                             ].planview.get_total_length(),
-                                            self.roads[r].lanes.lanesections[-1],
+                                            self.roads[r].lanes.lanesections[
+                                                -1
+                                            ],
                                             ContactPoint.start,
                                         )
                                     count_total_adjusted_roads += 1
@@ -1073,7 +1137,9 @@ class OpenDrive(XodrBase):
             if main_road.pred_direct_junction:
                 num_lane_offsets = main_road.pred_direct_junction[neighbour_id]
             elif str(neighbour_id) in main_road.lane_offset_pred:
-                num_lane_offsets = main_road.lane_offset_pred[str(neighbour_id)]
+                num_lane_offsets = main_road.lane_offset_pred[
+                    str(neighbour_id)
+                ]
             offset_width = self._calculate_lane_offset_width(
                 road_id, neighbour_id, num_lane_offsets, contact_point
             )
@@ -1170,12 +1236,14 @@ class OpenDrive(XodrBase):
                 (
                     contact_point == ContactPoint.start
                     and self.roads[neighbor_id].predecessor is not None
-                    and self.roads[neighbor_id].predecessor.element_id == int(road_id)
+                    and self.roads[neighbor_id].predecessor.element_id
+                    == int(road_id)
                 )
                 or (
                     contact_point == ContactPoint.end
                     and self.roads[neighbor_id].successor is not None
-                    and self.roads[neighbor_id].successor.element_id == int(road_id)
+                    and self.roads[neighbor_id].successor.element_id
+                    == int(road_id)
                 )
             ):
                 raise MixingDrivingDirection(
@@ -1317,12 +1385,16 @@ class OpenDrive(XodrBase):
             )
 
         if successor_contact_point == ContactPoint.start:
-            end_x, end_y, end_h = self.roads[successor_id].planview.get_start_point()
+            end_x, end_y, end_h = self.roads[
+                successor_id
+            ].planview.get_start_point()
             end_lane_section = 0
             flip_end = False
 
         elif successor_contact_point == ContactPoint.end:
-            end_x, end_y, end_h = self.roads[successor_id].planview.get_end_point()
+            end_x, end_y, end_h = self.roads[
+                successor_id
+            ].planview.get_end_point()
             end_lane_section = -1
             end_h = end_h - np.pi
             flip_end = True
@@ -1429,7 +1501,9 @@ class OpenDrive(XodrBase):
                     .centerlane.roadmark[0]
                 )
             else:
-                center_road_mark = self.roads[road_id].planview.center_road_mark
+                center_road_mark = self.roads[
+                    road_id
+                ].planview.center_road_mark
 
             lanes = create_lanes_merge_split(
                 [
@@ -1531,7 +1605,10 @@ class OpenDrive(XodrBase):
                                 "An AdjustablePlanview needs both a predecessor and a successor."
                             )
 
-                        if self.roads[k].successor.element_type == ElementType.junction:
+                        if (
+                            self.roads[k].successor.element_type
+                            == ElementType.junction
+                        ):
                             if self.roads[k].succ_direct_junction:
                                 for key, value in self.roads[
                                     k
@@ -1547,11 +1624,17 @@ class OpenDrive(XodrBase):
                                             and self.roads[
                                                 str(key)
                                             ].successor.element_id
-                                            == self.roads[k].successor.element_id
+                                            == self.roads[
+                                                k
+                                            ].successor.element_id
                                         ):
-                                            suc_contact_point = ContactPoint.end
+                                            suc_contact_point = (
+                                                ContactPoint.end
+                                            )
                                         else:
-                                            suc_contact_point = ContactPoint.start
+                                            suc_contact_point = (
+                                                ContactPoint.start
+                                            )
                                         break
                             else:
                                 raise UndefinedRoadNetwork(
@@ -1561,7 +1644,9 @@ class OpenDrive(XodrBase):
                             if self.roads[
                                 str(self.roads[k].successor.element_id)
                             ].planview.adjusted:
-                                successor = str(self.roads[k].successor.element_id)
+                                successor = str(
+                                    self.roads[k].successor.element_id
+                                )
                                 suc_contact_point = self.roads[
                                     k
                                 ].successor.contact_point
@@ -1585,11 +1670,17 @@ class OpenDrive(XodrBase):
                                             and self.roads[
                                                 str(key)
                                             ].successor.element_id
-                                            == self.roads[k].predecessor.element_id
+                                            == self.roads[
+                                                k
+                                            ].predecessor.element_id
                                         ):
-                                            pred_contact_point = ContactPoint.end
+                                            pred_contact_point = (
+                                                ContactPoint.end
+                                            )
                                         else:
-                                            pred_contact_point = ContactPoint.start
+                                            pred_contact_point = (
+                                                ContactPoint.start
+                                            )
                                         break
                             else:
                                 for r_id, r in self.roads.items():
@@ -1599,11 +1690,15 @@ class OpenDrive(XodrBase):
                                         and r.planview.adjusted
                                     ):
                                         if r.predecessor.element_id == int(k):
-                                            pred_contact_point = ContactPoint.start
+                                            pred_contact_point = (
+                                                ContactPoint.start
+                                            )
                                             predecessor = r_id
                                             break
                                         elif r.successor.element_id == int(k):
-                                            pred_contact_point = ContactPoint.end
+                                            pred_contact_point = (
+                                                ContactPoint.end
+                                            )
                                             predecessor = r_id
                                             break
 
@@ -1611,7 +1706,9 @@ class OpenDrive(XodrBase):
                             if self.roads[
                                 str(self.roads[k].predecessor.element_id)
                             ].planview.adjusted:
-                                predecessor = str(self.roads[k].predecessor.element_id)
+                                predecessor = str(
+                                    self.roads[k].predecessor.element_id
+                                )
                                 pred_contact_point = self.roads[
                                     k
                                 ].predecessor.contact_point
@@ -1711,7 +1808,10 @@ class OpenDrive(XodrBase):
                                 == ContactPoint.start
                             ):
                                 self._adjust_road_wrt_neighbour(
-                                    pred_id, k, ContactPoint.start, "predecessor"
+                                    pred_id,
+                                    k,
+                                    ContactPoint.start,
+                                    "predecessor",
                                 )
                             else:
                                 self._adjust_road_wrt_neighbour(
@@ -1729,15 +1829,22 @@ class OpenDrive(XodrBase):
                             is ElementType.junction
                         ):
                             for dr in self.roads[k].succ_direct_junction:
-                                if self.roads[str(dr)].is_adjusted("planview") is True:
+                                if (
+                                    self.roads[str(dr)].is_adjusted("planview")
+                                    is True
+                                ):
                                     if (
                                         int(k)
-                                        in self.roads[str(dr)].succ_direct_junction
+                                        in self.roads[
+                                            str(dr)
+                                        ].succ_direct_junction
                                     ):
                                         cp = ContactPoint.end
                                     elif (
                                         int(k)
-                                        in self.roads[str(dr)].pred_direct_junction
+                                        in self.roads[
+                                            str(dr)
+                                        ].pred_direct_junction
                                     ):
                                         cp = ContactPoint.start
                                     else:
@@ -1755,15 +1862,22 @@ class OpenDrive(XodrBase):
                             is ElementType.junction
                         ):
                             for dr in self.roads[k].pred_direct_junction:
-                                if self.roads[str(dr)].is_adjusted("planview") is True:
+                                if (
+                                    self.roads[str(dr)].is_adjusted("planview")
+                                    is True
+                                ):
                                     if (
                                         int(k)
-                                        in self.roads[str(dr)].succ_direct_junction
+                                        in self.roads[
+                                            str(dr)
+                                        ].succ_direct_junction
                                     ):
                                         cp = ContactPoint.end
                                     elif (
                                         int(k)
-                                        in self.roads[str(dr)].pred_direct_junction
+                                        in self.roads[
+                                            str(dr)
+                                        ].pred_direct_junction
                                     ):
                                         cp = ContactPoint.start
                                     else:
@@ -1798,7 +1912,8 @@ class OpenDrive(XodrBase):
                 )
             elif (
                 self.roads[k].predecessor is not None
-                and self.roads[k].predecessor.element_type == ElementType.junction
+                and self.roads[k].predecessor.element_type
+                == ElementType.junction
             ):
                 if self.roads[k].pred_direct_junction:
                     for key in self.roads[k].pred_direct_junction:
@@ -1818,10 +1933,13 @@ class OpenDrive(XodrBase):
                 self.roads[k].successor is not None
                 and self.roads[k].successor.element_type == ElementType.road
             ):
-                ec.add_successor(self.roads[str(self.roads[k].successor.element_id)])
+                ec.add_successor(
+                    self.roads[str(self.roads[k].successor.element_id)]
+                )
             elif (
                 self.roads[k].successor is not None
-                and self.roads[k].successor.element_type == ElementType.junction
+                and self.roads[k].successor.element_type
+                == ElementType.junction
             ):
                 if self.roads[k].succ_direct_junction:
                     for key in self.roads[k].succ_direct_junction:
@@ -1855,7 +1973,10 @@ class OpenDrive(XodrBase):
                     ec.create_profile(elevation_type)
 
                 new_count = sum(
-                    [x.is_adjusted(elevation_type) for _, x in self.roads.items()]
+                    [
+                        x.is_adjusted(elevation_type)
+                        for _, x in self.roads.items()
+                    ]
                 )
                 if new_count == count_total_adjusted_roads:
                     Warning("cannot adjust " + elevation_type + " more.")
@@ -1874,7 +1995,9 @@ class OpenDrive(XodrBase):
             raise TypeError("junction input is not of type Junction")
         if any([junction.id == x.id for x in self.junctions]):
             raise IdAlreadyExists(
-                "Junction with id " + str(junction.id) + " has already been added. "
+                "Junction with id "
+                + str(junction.id)
+                + " has already been added. "
             )
         self.junctions.append(junction)
         return self
@@ -1941,7 +2064,9 @@ class _Type(XodrBase):
         speed_unit (str): unit of the speed
     """
 
-    def __init__(self, road_type, s=0, country=None, speed=None, speed_unit="m/s"):
+    def __init__(
+        self, road_type, s=0, country=None, speed=None, speed_unit="m/s"
+    ):
         """initalize the _Type
 
         Parameters

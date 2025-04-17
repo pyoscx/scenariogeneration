@@ -118,7 +118,9 @@ def esmini(
         elif not headless:
             additional_args += ["--window"] + window_size.split()
 
-        filename = os.path.join(generation_path, "xosc", "python_scenario.xosc")
+        filename = os.path.join(
+            generation_path, "xosc", "python_scenario.xosc"
+        )
         generator.write_xml(filename)
 
     elif isinstance(generator, ScenarioGenerator):
@@ -178,7 +180,9 @@ def esmini(
             ".", os.path.realpath(esminipath), "bin", "replayer.exe"
         )
 
-    cmd_and_args = [executable_path] + [filetype] + [filename] + additional_args
+    cmd_and_args = (
+        [executable_path] + [filetype] + [filename] + additional_args
+    )
     print("Executing: ", " ".join(cmd_and_args))
     result = subprocess.run(cmd_and_args)
     if result.returncode != 0:

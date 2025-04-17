@@ -420,7 +420,9 @@ class _Geometry(XodrBase):
         if not isinstance(geom_type, _BaseGeometry):
             raise TypeError("geom_type is not of type _BaseGeometry.")
         self.geom_type = geom_type
-        _, _, _, self.length = self.geom_type.get_end_data(self.x, self.y, self.heading)
+        _, _, _, self.length = self.geom_type.get_end_data(
+            self.x, self.y, self.heading
+        )
 
     def __eq__(self, other):
         if isinstance(other, _Geometry) and super().__eq__(other):
@@ -602,7 +604,9 @@ class Arc(_BaseGeometry):
         """
         super().__init__()
         if length == None and angle == None:
-            raise NotEnoughInputArguments("neither length nor angle defined, for arc")
+            raise NotEnoughInputArguments(
+                "neither length nor angle defined, for arc"
+            )
 
         if length != None and angle != None:
             raise ToManyOptionalArguments(
@@ -1017,7 +1021,9 @@ class Spiral(_BaseGeometry):
                 "Spiral is overdefined, please use only one of the optional inputs"
             )
         if angle:
-            self.length = 2 * abs(angle) / np.maximum(abs(curvend), abs(curvstart))
+            self.length = (
+                2 * abs(angle) / np.maximum(abs(curvend), abs(curvstart))
+            )
 
         elif cdot:
             self.length = (self.curvend - self.curvstart) / cdot

@@ -179,7 +179,9 @@ def create_road(
     return road
 
 
-def create_straight_road(road_id, length=100, junction=-1, n_lanes=1, lane_offset=3):
+def create_straight_road(
+    road_id, length=100, junction=-1, n_lanes=1, lane_offset=3
+):
     """creates a standard straight road with two lanes
     Parameters
     ----------
@@ -419,7 +421,9 @@ def get_lanes_offset(road1, road2, contactpoint):
         road2.lanes.lanesections[0].rightlanes
     ):
         n_lanes = len(road1.lanes.lanesections[n_lanesection].leftlanes)
-        lane_offset = road1.lanes.lanesections[n_lanesection].leftlanes[0].widths[0].a
+        lane_offset = (
+            road1.lanes.lanesections[n_lanesection].leftlanes[0].widths[0].a
+        )
     else:
         raise NotSameAmountOfLanesError(
             "Incoming road ",
@@ -646,7 +650,9 @@ def create_junction_roads_from_arc(
 
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road, roads[i].id, cp)
-            tmp_junc.add_successor(ElementType.road, roads[j].id, ContactPoint.start)
+            tmp_junc.add_successor(
+                ElementType.road, roads[j].id, ContactPoint.start
+            )
             startnum += 1
             junction_roads.append(tmp_junc)
 
@@ -703,12 +709,16 @@ def create_junction_roads(
         2,
     )
     if len(roads) is not len(angles):
-        raise GeneralIssueInputArguments("roads and angles do not have the same size.")
+        raise GeneralIssueInputArguments(
+            "roads and angles do not have the same size."
+        )
 
     if len(R) == 1:
         R = R * np.ones(len(roads))
     elif len(R) > 1 and len(R) is not len(roads):
-        raise GeneralIssueInputArguments("roads and R do not have the same size.")
+        raise GeneralIssueInputArguments(
+            "roads and R do not have the same size."
+        )
 
     # linelength = 2*R
     junction_roads = []
@@ -815,7 +825,9 @@ def create_junction_roads(
                     )
             # add predecessor and successor
             tmp_junc.add_predecessor(ElementType.road, roads[i].id, cp)
-            tmp_junc.add_successor(ElementType.road, roads[j].id, ContactPoint.start)
+            tmp_junc.add_successor(
+                ElementType.road, roads[j].id, ContactPoint.start
+            )
             startnum += 1
             junction_roads.append(tmp_junc)
 
@@ -847,7 +859,9 @@ def _create_junction_links(
             Default: 0
     """
     for i in range(1, nlanes + 1, 1):
-        connection.add_lanelink(r_or_l * i + from_offset, r_or_l * sign * i + to_offset)
+        connection.add_lanelink(
+            r_or_l * i + from_offset, r_or_l * sign * i + to_offset
+        )
 
 
 def create_junction(junction_roads, id, roads, name="my junction"):
@@ -897,7 +911,9 @@ def create_junction(junction_roads, id, roads, name="my junction"):
         junc.add_connection(conne1)
 
         # handle predecessor lanes
-        conne2 = Connection(jr.predecessor.element_id, jr.id, ContactPoint.start)
+        conne2 = Connection(
+            jr.predecessor.element_id, jr.id, ContactPoint.start
+        )
         _, sign, _ = _get_related_lanesection(
             jr, get_road_by_id(roads, jr.predecessor.element_id)
         )

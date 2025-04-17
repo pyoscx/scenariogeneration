@@ -363,7 +363,8 @@ class DataQuality:
                 self.date == other.date
                 and self.post_processing == other.post_processing
                 and self.source == other.source
-                and self.post_processing_comment == other.post_processing_comment
+                and self.post_processing_comment
+                == other.post_processing_comment
                 and self.source_comment == other.source_comment
                 and self.xy_abs == other.xy_abs
                 and self.xy_rel == other.xy_rel
@@ -383,7 +384,9 @@ class DataQuality:
                 "source": enum2str(self.source),
             }
             if self.post_processing_comment is not None:
-                raw_data_attrib["postProcessingComment"] = self.post_processing_comment
+                raw_data_attrib["postProcessingComment"] = (
+                    self.post_processing_comment
+                )
             if self.source_comment is not None:
                 raw_data_attrib["sourceComment"] = self.source_comment
 

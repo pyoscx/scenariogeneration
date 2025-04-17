@@ -10,22 +10,25 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import xml.etree.ElementTree as ET
 import os
+import xml.etree.ElementTree as ET
 
-
-from .parameters import ParameterValueDistribution
-from .scenario import Scenario, Catalog
+from .entities import MiscObject, Pedestrian, Vehicle
 from .exceptions import NoCatalogFoundError, NotAValidElement
-from .entities import Vehicle, Pedestrian, MiscObject
-from .utils import ParameterDeclarations, Controller, Environment, CatalogReference
+from .parameters import ParameterValueDistribution
+from .position import Route, Trajectory
+from .scenario import Catalog, Scenario
 from .storyboard import Maneuver
-from .position import Trajectory, Route
+from .utils import (
+    CatalogReference,
+    Controller,
+    Environment,
+    ParameterDeclarations,
+)
 
 
 class CatalogLoader:
-    """CatalogLoader makes it possible to read certain elements from a catalog
-
+    """CatalogLoader makes it possible to read certain elements from a catalog.
 
     Attributes
     ----------
@@ -42,15 +45,17 @@ class CatalogLoader:
     """
 
     def __init__(self):
-        """CatalogLoader makes it possible to read certain elements from a catalog
+        """CatalogLoader makes it possible to read certain elements from a
+        catalog.
 
-        Main use case for this is to be able to parametrize and write scenarios based on a catalog based entry
-
+        Main use case for this is to be able to parametrize and write
+        scenarios based on a catalog based entry
         """
         self.all_catalogs = {}
 
     def load_catalog(self, catalog_reference, catalog_path):
-        """CatalogLoader makes it possible to read certain elements from a catalog
+        """CatalogLoader makes it possible to read certain elements from a
+        catalog.
 
         Parameters
         ----------
@@ -72,7 +77,7 @@ class CatalogLoader:
             self.all_catalogs[name_ref] = catalog_element
 
     def parse(self, catalog_reference):
-        """parse reads reads a specific entry from a loaded catalog
+        """Parse reads reads a specific entry from a loaded catalog.
 
         Parameters
         ----------
@@ -81,11 +86,12 @@ class CatalogLoader:
         Returns
         -------
             The catalog entry
-
         """
         if not catalog_reference.catalogname in self.all_catalogs:
             raise NoCatalogFoundError(
-                "Catalog " + catalog_reference.catalogname + " is not loaded yet."
+                "Catalog "
+                + catalog_reference.catalogname
+                + " is not loaded yet."
             )
         catalog = self.all_catalogs[catalog_reference.catalogname]
         for entry in catalog:
@@ -114,10 +120,13 @@ class CatalogLoader:
                 if entry.attrib["name"] == catalog_reference.entryname:
                     return Route.parse(entry)
             else:
-                raise NotImplementedError("This catalogtype is not supported yet.")
+                raise NotImplementedError(
+                    "This catalogtype is not supported yet."
+                )
 
     def read_entry(self, catalog_reference, catalog_path):
-        """read_entry loads and reads a catalog directly (both load_catalog, and parse)
+        """read_entry loads and reads a catalog directly (both load_catalog,
+        and parse)
 
         The catalog will still be loaded and can be used with parse after this.
 
@@ -132,7 +141,8 @@ class CatalogLoader:
 
 
 def CatalogReader(catalog_reference, catalog_path):
-    """CatalogReader is a function that will read a openscenario catalog and return the corresponding scenariogeneration.xosc object
+    """CatalogReader is a function that will read a openscenario catalog and
+    return the corresponding scenariogeneration.xosc object.
 
     Main use case for this is to be able to parametrize and write scenarios based on a catalog based entry
 
@@ -153,7 +163,8 @@ def CatalogReader(catalog_reference, catalog_path):
     loaded_catalog = catalog_reference.catalogname
 
     with open(
-        os.path.join(catalog_path, catalog_reference.catalogname + ".xosc"), "r"
+        os.path.join(catalog_path, catalog_reference.catalogname + ".xosc"),
+        "r",
     ) as f:
         loaded_catalog = ET.parse(f)
 
@@ -185,7 +196,9 @@ def CatalogReader(catalog_reference, catalog_path):
                 if entry.attrib["name"] == catalog_reference.entryname:
                     return Route.parse(entry)
             else:
-                raise NotImplementedError("This catalogtype is not supported yet.")
+                raise NotImplementedError(
+                    "This catalogtype is not supported yet."
+                )
 
         raise NoCatalogFoundError(
             "A catalog entry with the name "
@@ -195,12 +208,12 @@ def CatalogReader(catalog_reference, catalog_path):
 
 
 def ParameterDeclarationReader(file_path):
-    """ParameterDeclarationReader reads the parameter declaration of a xosc file and creates a ParameterDeclaration object from it
+    """ParameterDeclarationReader reads the parameter declaration of a xosc
+    file and creates a ParameterDeclaration object from it.
 
     Parameters
     ----------
         file_path (str): path to the xosc file wanted to be parsed
-
     """
     param_decl = ParameterDeclarations()
     with open(file_path, "r") as f:
@@ -212,7 +225,8 @@ def ParameterDeclarationReader(file_path):
 
 
 def ParseOpenScenario(file_path):
-    """ParseOpenScenario parses a openscenario file (of any type) and returns the python object
+    """ParseOpenScenario parses a openscenario file (of any type) and returns
+    the python object.
 
     Parameters
     ----------
