@@ -67,7 +67,7 @@ from .utils import (
 
 class _GlobalActionFactory:
     @staticmethod
-    def parse_globalaction(element: ET.Element):
+    def parse_globalaction(element: ET.Element) -> Any:
         if element.findall("EnvironmentAction"):
             return EnvironmentAction.parse(element)
         elif element.findall("EntityAction/AddEntityAction"):
@@ -114,7 +114,7 @@ class _GlobalActionFactory:
 
 class _PrivateActionFactory:
     @staticmethod
-    def parse_privateaction(element: ET.Element):
+    def parse_privateaction(element: ET.Element) -> Any:
         if element.findall(
             "LongitudinalAction/SpeedAction/SpeedActionTarget/AbsoluteTargetSpeed"
         ):
@@ -180,8 +180,8 @@ class _PrivateActionType(_ActionType):
 
 
 class _Action(VersionBase):
-    """Private class used to define an action, should not be used by the
-    user. Used as a wrapper to create the extra elements needed.
+    """Private class used to define an action, should not be used by the user.
+    Used as a wrapper to create the extra elements needed.
 
     Parameters
     ----------
@@ -208,7 +208,7 @@ class _Action(VersionBase):
             Returns a dictionary of all attributes of the class
     """
 
-    def __init__(self, name: str, action: _ActionType):
+    def __init__(self, name: str, action: _ActionType) -> None:
         """Initalize _Action.
 
         Parameters
@@ -275,8 +275,8 @@ class _Action(VersionBase):
 
 
 class AbsoluteSpeedAction(_PrivateActionType):
-    """Specifies a LongitudinalAction of type SpeedAction with an
-    absolute target speed.
+    """Specifies a LongitudinalAction of type SpeedAction with an absolute
+    target speed.
 
     Parameters
     ----------
@@ -353,8 +353,7 @@ class AbsoluteSpeedAction(_PrivateActionType):
         return AbsoluteSpeedAction(speed, transition_dynamics)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the AbsoluteSpeedAction as a
-        dictionary.
+        """Returns the attributes of the AbsoluteSpeedAction as a dictionary.
 
         Returns
         -------
@@ -388,8 +387,7 @@ class AbsoluteSpeedAction(_PrivateActionType):
 
 
 class RelativeSpeedAction(_PrivateActionType):
-    """Creates a LongitudinalAction of type SpeedAction with a relative
-    target.
+    """Creates a LongitudinalAction of type SpeedAction with a relative target.
 
     Parameters
     ----------
@@ -502,8 +500,7 @@ class RelativeSpeedAction(_PrivateActionType):
         )
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the RelativeSpeedAction as a
-        dictionary.
+        """Returns the attributes of the RelativeSpeedAction as a dictionary.
 
         Returns
         -------
@@ -951,8 +948,7 @@ class SpeedProfileAction(_PrivateActionType):
         )
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the SpeedProfileAction as a
-        dictionary.
+        """Returns the attributes of the SpeedProfileAction as a dictionary.
 
         Returns
         -------
@@ -1145,8 +1141,7 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
 
 
 class RelativeLaneChangeAction(_PrivateActionType):
-    """Creates a LateralAction of type LaneChangeAction with a relative
-    target.
+    """Creates a LateralAction of type LaneChangeAction with a relative target.
 
     Parameters
     ----------
@@ -1297,8 +1292,8 @@ class RelativeLaneChangeAction(_PrivateActionType):
 
 
 class AbsoluteLaneOffsetAction(_PrivateActionType):
-    """The AbsoluteLaneOffsetAction class creates a LateralAction of
-    type LaneOffsetAction with an absolute target.
+    """The AbsoluteLaneOffsetAction class creates a LateralAction of type
+    LaneOffsetAction with an absolute target.
 
     Parameters
     ----------
@@ -1452,8 +1447,7 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
 
 
 class RelativeLaneOffsetAction(_PrivateActionType):
-    """Creates a LateralAction of type LaneOffsetAction with a relative
-    target.
+    """Creates a LateralAction of type LaneOffsetAction with a relative target.
 
     Parameters
     ----------
@@ -1798,8 +1792,7 @@ class LateralDistanceAction(_PrivateActionType):
         )
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the LateralDistanceAction as a
-        dictionary.
+        """Returns the attributes of the LateralDistanceAction as a dictionary.
 
         Returns
         -------
@@ -1819,8 +1812,8 @@ class LateralDistanceAction(_PrivateActionType):
         return retdict
 
     def get_element(self) -> ET.Element:
-        """Constructs and returns an XML element tree representation of
-        the LateralDistanceAction.
+        """Constructs and returns an XML element tree representation of the
+        LateralDistanceAction.
 
         Returns
         -------
@@ -1917,8 +1910,7 @@ class TeleportAction(_PrivateActionType):
 
 
 class AssignRouteAction(_PrivateActionType):
-    """AssignRouteAction creates a RouteAction of type
-    AssignRouteAction.
+    """AssignRouteAction creates a RouteAction of type AssignRouteAction.
 
     Parameters
     ----------
@@ -2412,8 +2404,8 @@ class ControllerAction(_PrivateActionType):
         )
 
     def get_element(self) -> ET.Element:
-        """Generates and returns an XML element tree representation of
-        the ControllerAction.
+        """Generates and returns an XML element tree representation of the
+        ControllerAction.
 
         Returns
         -------
@@ -3156,7 +3148,9 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         return ocv_action
 
-    def set_clutch(self, active, value=0, rate=None):
+    def set_clutch(
+        self, active: bool, value: float = 0, rate: Optional[float] = None
+    ) -> None:
         """Sets the clutch value.
 
         Parameters
@@ -3173,7 +3167,13 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.clutch_value = convert_float(value)
         self.clutch_rate = rate
 
-    def set_brake(self, active, value=0, rate=None, interpret_as_force=False):
+    def set_brake(
+        self,
+        active: bool,
+        value: float = 0,
+        rate: Optional[float] = None,
+        interpret_as_force: bool = False,
+    ) -> None:
         """Sets the brake value.
 
         Parameters
@@ -3194,7 +3194,9 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.brake_rate = rate
         self.brake_force = interpret_as_force
 
-    def set_throttle(self, active, value=0, rate=None):
+    def set_throttle(
+        self, active: bool, value: float = 0, rate: Optional[float] = None
+    ) -> None:
         """Sets the throttle value.
 
         Parameters
@@ -3211,7 +3213,13 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.throttle_value = convert_float(value)
         self.throttle_rate = rate
 
-    def set_steeringwheel(self, active, value=0, rate=None, torque=None):
+    def set_steeringwheel(
+        self,
+        active: bool,
+        value: float = 0,
+        rate: Optional[float] = None,
+        torque: Optional[float] = None,
+    ) -> None:
         """Sets the steeringwheel value.
 
         Parameters
@@ -3233,8 +3241,12 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.steeringwheel_torque = convert_float(torque)
 
     def set_parkingbrake(
-        self, active, value=0, rate=None, interpret_as_force=False
-    ):
+        self,
+        active: bool,
+        value: float = 0,
+        rate: Optional[float] = None,
+        interpret_as_force: bool = False,
+    ) -> None:
         """Sets the parkingbrake value.
 
         Parameters
@@ -3255,7 +3267,9 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.parkingbrake_rate = rate
         self.parkingbrake_force = interpret_as_force
 
-    def set_gear(self, active, value=0):
+    def set_gear(
+        self, active: bool, value: float | AutomaticGearType = 0
+    ) -> None:
         """Sets the gear value.
 
         Parameters
@@ -3560,7 +3574,7 @@ class VisibilityAction(_PrivateActionType):
                 )
         return visibility_action
 
-    def add_sensor_reference(self, sensor_ref):
+    def add_sensor_reference(self, sensor_ref: str):
         """Adds a sensor reference to the visibility action.
 
         Parameters
@@ -3577,8 +3591,7 @@ class VisibilityAction(_PrivateActionType):
         return self
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the VisibilityAction as a
-        dictionary.
+        """Returns the attributes of the VisibilityAction as a dictionary.
 
         Returns
         -------
@@ -3622,11 +3635,10 @@ class VisibilityAction(_PrivateActionType):
 
 
 class SynchronizeAction(_PrivateActionType):
-    """Synchronizes an entity's arrival at a destination with a master
-    entity. Both entities are provided with their own reference position
-    which shall be reached at the same time. Final speed can be
-    specified. Note that the reference positions can be different or
-    identical.
+    """Synchronizes an entity's arrival at a destination with a master entity.
+    Both entities are provided with their own reference position which shall be
+    reached at the same time. Final speed can be specified. Note that the
+    reference positions can be different or identical.
 
     Parameters
     ----------
@@ -3800,8 +3812,7 @@ class SynchronizeAction(_PrivateActionType):
         _
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the AbsoluteSynchronizeAction as a
-        dict.
+        """Returns the attributes of the AbsoluteSynchronizeAction as a dict.
 
         Returns
         -------
@@ -3983,8 +3994,7 @@ class LightStateAction(_PrivateActionType):
         return light_state_action
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the LightStateAction as a
-        dictionary.
+        """Returns the attributes of the LightStateAction as a dictionary.
 
         Returns
         -------
@@ -4017,8 +4027,7 @@ class LightStateAction(_PrivateActionType):
 
 
 class AnimationAction(_PrivateActionType):
-    """AnimationAction creates an AppearanceAction of the Type
-    AnimationAction.
+    """AnimationAction creates an AppearanceAction of the Type AnimationAction.
 
     Parameters
     ----------
@@ -4147,8 +4156,7 @@ class AnimationAction(_PrivateActionType):
         return AnimationAction(animation_type, duration, loop, state)
 
     def get_attributes(self) -> dict:
-        """Retrieve the attributes of the AnimationAction as a
-        dictionary.
+        """Retrieve the attributes of the AnimationAction as a dictionary.
 
         Returns
         -------
@@ -4198,8 +4206,8 @@ class AnimationAction(_PrivateActionType):
 #### Global Actions ####
 class ParameterAddAction(_ActionType):
     """The ParameterAddAction class creates a ParameterAction of type
-    ParameterModifyAction which adds a value to an existing Parameter
-    (valid to V1.1, deprecated since V1.2).
+    ParameterModifyAction which adds a value to an existing Parameter (valid to
+    V1.1, deprecated since V1.2).
 
     Parameters
     ----------
@@ -4274,8 +4282,7 @@ class ParameterAddAction(_ActionType):
         return ParameterAddAction(parameterRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the ParameterAddAction as a
-        dictionary.
+        """Returns the attributes of the ParameterAddAction as a dictionary.
 
         Returns
         -------
@@ -4309,9 +4316,9 @@ class ParameterAddAction(_ActionType):
 
 
 class ParameterMultiplyAction(_ActionType):
-    """The ParameterMultiplyAction class creates a ParameterAction of
-    type ParameterModifyAction which multiplies a value to an existing
-    Parameter (valid to V1.1, deprecated since V1.2).
+    """The ParameterMultiplyAction class creates a ParameterAction of type
+    ParameterModifyAction which multiplies a value to an existing Parameter
+    (valid to V1.1, deprecated since V1.2).
 
     Parameters
     ----------
@@ -4386,8 +4393,7 @@ class ParameterMultiplyAction(_ActionType):
         return ParameterMultiplyAction(parameterRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the ParameterMultiplyAction as a
-        dict.
+        """Returns the attributes of the ParameterMultiplyAction as a dict.
 
         Returns
         -------
@@ -4421,9 +4427,8 @@ class ParameterMultiplyAction(_ActionType):
 
 
 class ParameterSetAction(_ActionType):
-    """The ParameterSetAction class creates a ParameterAction which adds
-    a value to an existing Parameter (valid to V1.1, deprecated since
-    V1.2).
+    """The ParameterSetAction class creates a ParameterAction which adds a
+    value to an existing Parameter (valid to V1.1, deprecated since V1.2).
 
     Parameters
     ----------
@@ -4496,8 +4501,7 @@ class ParameterSetAction(_ActionType):
         return psa  # ParameterSetAction(parameterRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the ParameterSetAction as a
-        dictionary.
+        """Returns the attributes of the ParameterSetAction as a dictionary.
 
         Returns
         -------
@@ -4530,8 +4534,8 @@ class ParameterSetAction(_ActionType):
 
 class VariableAddAction(_ActionType):
     """The VariableAddAction class creates a VariableAction of type
-    VariableModifyAction which adds a value to an existing Variable
-    (valid from V1.2).
+    VariableModifyAction which adds a value to an existing Variable (valid from
+    V1.2).
 
     Parameters
     ----------
@@ -4606,8 +4610,7 @@ class VariableAddAction(_ActionType):
         return VariableAddAction(variableRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the AbsoluteSpeedAction as a
-        dictionary.
+        """Returns the attributes of the AbsoluteSpeedAction as a dictionary.
 
         Returns
         -------
@@ -4642,8 +4645,8 @@ class VariableAddAction(_ActionType):
 
 class VariableMultiplyAction(_ActionType):
     """The VariableMultiplyAction class creates a VariableAction of type
-    VariableModifyAction which multiplies a value to an existing
-    Variable (valid from V1.2).
+    VariableModifyAction which multiplies a value to an existing Variable
+    (valid from V1.2).
 
     Parameters
     ----------
@@ -4718,8 +4721,7 @@ class VariableMultiplyAction(_ActionType):
         return VariableMultiplyAction(variableRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the VariableMultiplyAction as a
-        dict.
+        """Returns the attributes of the VariableMultiplyAction as a dict.
 
         Returns
         -------
@@ -4747,8 +4749,8 @@ class VariableMultiplyAction(_ActionType):
 
 
 class VariableSetAction(_ActionType):
-    """The VariableSetAction class creates a VariableAction which sets a
-    value to an existing Variable (valid from V1.2).
+    """The VariableSetAction class creates a VariableAction which sets a value
+    to an existing Variable (valid from V1.2).
 
     Parameters
     ----------
@@ -4819,8 +4821,7 @@ class VariableSetAction(_ActionType):
         return VariableSetAction(variableRef, value)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the VariableSetAction as a
-        dictionary.
+        """Returns the attributes of the VariableSetAction as a dictionary.
 
         Returns
         -------
@@ -4852,8 +4853,8 @@ class VariableSetAction(_ActionType):
 
 
 class TrafficSignalStateAction(_ActionType):
-    """The TrafficSignalStateAction class creates an Infrastructure
-    action which controls the state of a traffic signal.
+    """The TrafficSignalStateAction class creates an Infrastructure action
+    which controls the state of a traffic signal.
 
     Parameters
     ----------
@@ -4922,8 +4923,7 @@ class TrafficSignalStateAction(_ActionType):
         return TrafficSignalStateAction(name, state)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the TrafficSignalStateAction as a
-        dict.
+        """Returns the attributes of the TrafficSignalStateAction as a dict.
 
         Returns
         -------
@@ -4953,8 +4953,8 @@ class TrafficSignalStateAction(_ActionType):
 
 
 class AddEntityAction(_ActionType):
-    """AddEntityAction class creates an EntityAction to add an entity to
-    the scenario.
+    """AddEntityAction class creates an EntityAction to add an entity to the
+    scenario.
 
     Parameters
     ----------
@@ -5027,8 +5027,7 @@ class AddEntityAction(_ActionType):
         return AddEntityAction(entityref, position)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the AddEntityAction as a
-        dictionary.
+        """Returns the attributes of the AddEntityAction as a dictionary.
 
         Returns
         -------
@@ -5056,8 +5055,8 @@ class AddEntityAction(_ActionType):
 
 
 class DeleteEntityAction(_ActionType):
-    """The DeleteEntityAction class creates an EntityAction that removes
-    an entity from the scenario.
+    """The DeleteEntityAction class creates an EntityAction that removes an
+    entity from the scenario.
 
     Parameters
     ----------
@@ -5117,8 +5116,7 @@ class DeleteEntityAction(_ActionType):
         return DeleteEntityAction(entityref)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the DeleteEntityAction as a
-        dictionary.
+        """Returns the attributes of the DeleteEntityAction as a dictionary.
 
         Returns
         -------
@@ -5146,8 +5144,8 @@ class DeleteEntityAction(_ActionType):
 
 
 class TrafficSignalControllerAction(_ActionType):
-    """The TrafficSignalControllerAction class creates an Infrastructure
-    action which activates a controller of a traffic signal.
+    """The TrafficSignalControllerAction class creates an Infrastructure action
+    which activates a controller of a traffic signal.
 
     Parameters
     ----------
@@ -5218,8 +5216,8 @@ class TrafficSignalControllerAction(_ActionType):
         return TrafficSignalControllerAction(phase, tsc_ref)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the TrafficSignalControllerAction
-        as a dictionary.
+        """Returns the attributes of the TrafficSignalControllerAction as a
+        dictionary.
 
         Returns
         -------
@@ -5389,8 +5387,7 @@ class TrafficSourceAction(_ActionType):
         )
 
     def get_attributes(self) -> dict:
-        """Retrieve the attributes of the TrafficSourceAction as a
-        dictionary.
+        """Retrieve the attributes of the TrafficSourceAction as a dictionary.
 
         Returns
         -------
@@ -5556,8 +5553,7 @@ class TrafficSinkAction(_ActionType):
         )
 
     def get_attributes(self) -> dict:
-        """Retrieve the attributes of the TrafficSinkAction as a
-        dictionary.
+        """Retrieve the attributes of the TrafficSinkAction as a dictionary.
 
         Returns
         -------
@@ -5798,8 +5794,7 @@ class TrafficSwarmAction(_ActionType):
         return tsa_object
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the TrafficSwarmAction as a
-        dictionary.
+        """Returns the attributes of the TrafficSwarmAction as a dictionary.
 
         Returns
         -------
@@ -5919,8 +5914,7 @@ class TrafficStopAction(_ActionType):
         return TrafficStopAction(name)
 
     def get_attributes(self) -> dict:
-        """Returns the attributes of the TrafficStopAction as a
-        dictionary.
+        """Returns the attributes of the TrafficStopAction as a dictionary.
 
         Returns
         -------
@@ -6175,8 +6169,7 @@ class UserDefinedAction(_ActionType):
         return user_defined_action
 
     def get_element(self) -> ET.Element:
-        """Generate an ElementTree representation of the
-        UserDefinedAction.
+        """Generate an ElementTree representation of the UserDefinedAction.
 
         Returns
         -------

@@ -88,8 +88,12 @@ class Lanes(XodrBase):
                 for link in lanelink.links:
                     # check if link already added
                     if not link.used:
-                        link.predecessor.add_link("successor", link.successor.lane_id)
-                        link.successor.add_link("predecessor", link.predecessor.lane_id)
+                        link.predecessor.add_link(
+                            "successor", link.successor.lane_id
+                        )
+                        link.successor.add_link(
+                            "predecessor", link.predecessor.lane_id
+                        )
                         link.used = True
 
         self.lanesections.append(lanesection)
@@ -322,9 +326,13 @@ class Lanes(XodrBase):
 
         else:
             if start_or_end == "start":
-                prev_remainder = neighboring_lane.roadmark[0]._line[i_line]._remainder
+                prev_remainder = (
+                    neighboring_lane.roadmark[0]._line[i_line]._remainder
+                )
             else:
-                prev_remainder = neighboring_lane.roadmark[0]._line[i_line].soffset
+                prev_remainder = (
+                    neighboring_lane.roadmark[0]._line[i_line].soffset
+                )
         return prev_remainder
 
     def _get_seg_length(self, total_road_length, lane_section_index):
@@ -346,7 +354,9 @@ class Lanes(XodrBase):
         elif lane_section_index == 0:
             seg_length = self.lanesections[1].s
         elif lane_section_index == len(self.lanesections) - 1:
-            seg_length = total_road_length - self.lanesections[lane_section_index].s
+            seg_length = (
+                total_road_length - self.lanesections[lane_section_index].s
+            )
         else:
             seg_length = (
                 self.lanesections[lane_section_index + 1].s
@@ -378,7 +388,9 @@ class Lanes(XodrBase):
         if connected_lane_section and not isinstance(
             connected_lane_section, LaneSection
         ):
-            raise TypeError("connected_lane_section is not of type LaneSection")
+            raise TypeError(
+                "connected_lane_section is not of type LaneSection"
+            )
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -398,7 +410,8 @@ class Lanes(XodrBase):
                         ):
                             if ls == 0 and connected_lane_section is None:
                                 set_zero_offset_to_lines(
-                                    self.lanesections[ls].rightlanes[rl], seg_length
+                                    self.lanesections[ls].rightlanes[rl],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -409,22 +422,29 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "right",
-                                        contact_point,
-                                        rl,
-                                        ls,
-                                        "start",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "right",
+                                            contact_point,
+                                            rl,
+                                            ls,
+                                            "start",
+                                        )
                                     )
-                                    self.lanesections[ls].rightlanes[rl].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_remainder(
-                                        seg_length, previous_remainder=prev_remainder
+                                    self.lanesections[ls].rightlanes[
+                                        rl
+                                    ].roadmark[0]._line[
+                                        i_line
+                                    ].adjust_remainder(
+                                        seg_length,
+                                        previous_remainder=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].rightlanes[rl].roadmark[0]
+                                    self.lanesections[ls]
+                                    .rightlanes[rl]
+                                    .roadmark[0]
                                 )
                 if self._left_lanes_adjustable:
                     for ll in range(len(self.lanesections[ls].leftlanes)):
@@ -433,7 +453,8 @@ class Lanes(XodrBase):
                         ):
                             if ls == 0 and connected_lane_section is None:
                                 set_zero_offset_to_lines(
-                                    self.lanesections[ls].leftlanes[ll], seg_length
+                                    self.lanesections[ls].leftlanes[ll],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -444,32 +465,45 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "left",
-                                        contact_point,
-                                        ll,
-                                        ls,
-                                        "start",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "left",
+                                            contact_point,
+                                            ll,
+                                            ls,
+                                            "start",
+                                        )
                                     )
-                                    self.lanesections[ls].leftlanes[ll].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_remainder(
-                                        seg_length, previous_remainder=prev_remainder
+                                    self.lanesections[ls].leftlanes[
+                                        ll
+                                    ].roadmark[0]._line[
+                                        i_line
+                                    ].adjust_remainder(
+                                        seg_length,
+                                        previous_remainder=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].leftlanes[ll].roadmark[0]
+                                    self.lanesections[ls]
+                                    .leftlanes[ll]
+                                    .roadmark[0]
                                 )
                 if self._center_lane_adjustable:
-                    if self._check_valid_mark_type(self.lanesections[ls].centerlane):
+                    if self._check_valid_mark_type(
+                        self.lanesections[ls].centerlane
+                    ):
                         if ls == 0 and connected_lane_section is None:
                             set_zero_offset_to_lines(
                                 self.lanesections[ls].centerlane, seg_length
                             )
                         else:
                             for i_line in range(
-                                len(self.lanesections[ls].centerlane.roadmark[0]._line)
+                                len(
+                                    self.lanesections[ls]
+                                    .centerlane.roadmark[0]
+                                    ._line
+                                )
                             ):
                                 prev_remainder = self._get_previous_remainder(
                                     connected_lane_section,
@@ -480,10 +514,11 @@ class Lanes(XodrBase):
                                     ls,
                                     "start",
                                 )
-                                self.lanesections[ls].centerlane.roadmark[0]._line[
-                                    i_line
-                                ].adjust_remainder(
-                                    seg_length, previous_remainder=prev_remainder
+                                self.lanesections[ls].centerlane.roadmark[
+                                    0
+                                ]._line[i_line].adjust_remainder(
+                                    seg_length,
+                                    previous_remainder=prev_remainder,
                                 )
                             self._adjust_for_missing_line_offset(
                                 self.lanesections[ls].centerlane.roadmark[0]
@@ -513,7 +548,9 @@ class Lanes(XodrBase):
         if connected_lane_section and not isinstance(
             connected_lane_section, LaneSection
         ):
-            raise TypeError("connected_lane_section is not of type LaneSection")
+            raise TypeError(
+                "connected_lane_section is not of type LaneSection"
+            )
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -536,7 +573,8 @@ class Lanes(XodrBase):
                                 and connected_lane_section is None
                             ):
                                 set_zero_remainder_to_lines(
-                                    self.lanesections[ls].rightlanes[rl], seg_length
+                                    self.lanesections[ls].rightlanes[rl],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -547,22 +585,27 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "right",
-                                        contact_point,
-                                        rl,
-                                        ls,
-                                        "end",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "right",
+                                            contact_point,
+                                            rl,
+                                            ls,
+                                            "end",
+                                        )
                                     )
-                                    self.lanesections[ls].rightlanes[rl].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_soffset(
-                                        seg_length, previous_offset=prev_remainder
+                                    self.lanesections[ls].rightlanes[
+                                        rl
+                                    ].roadmark[0]._line[i_line].adjust_soffset(
+                                        seg_length,
+                                        previous_offset=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].rightlanes[rl].roadmark[0]
+                                    self.lanesections[ls]
+                                    .rightlanes[rl]
+                                    .roadmark[0]
                                 )
                 if self._left_lanes_adjustable:
                     for ll in range(len(self.lanesections[ls].leftlanes)):
@@ -574,7 +617,8 @@ class Lanes(XodrBase):
                                 and connected_lane_section is None
                             ):
                                 set_zero_remainder_to_lines(
-                                    self.lanesections[ls].leftlanes[ll], seg_length
+                                    self.lanesections[ls].leftlanes[ll],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -585,26 +629,33 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "left",
-                                        contact_point,
-                                        ll,
-                                        ls,
-                                        "end",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "left",
+                                            contact_point,
+                                            ll,
+                                            ls,
+                                            "end",
+                                        )
                                     )
-                                    self.lanesections[ls].leftlanes[ll].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_soffset(
-                                        seg_length, previous_offset=prev_remainder
+                                    self.lanesections[ls].leftlanes[
+                                        ll
+                                    ].roadmark[0]._line[i_line].adjust_soffset(
+                                        seg_length,
+                                        previous_offset=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].leftlanes[ll].roadmark[0]
+                                    self.lanesections[ls]
+                                    .leftlanes[ll]
+                                    .roadmark[0]
                                 )
 
                 if self._center_lane_adjustable:
-                    if self._check_valid_mark_type(self.lanesections[ls].centerlane):
+                    if self._check_valid_mark_type(
+                        self.lanesections[ls].centerlane
+                    ):
                         if (
                             ls == len(self.lanesections) - 1
                             and connected_lane_section is None
@@ -614,7 +665,11 @@ class Lanes(XodrBase):
                             )
                         else:
                             for i_line in range(
-                                len(self.lanesections[ls].centerlane.roadmark[0]._line)
+                                len(
+                                    self.lanesections[ls]
+                                    .centerlane.roadmark[0]
+                                    ._line
+                                )
                             ):
                                 prev_remainder = self._get_previous_remainder(
                                     connected_lane_section,
@@ -625,9 +680,9 @@ class Lanes(XodrBase):
                                     ls,
                                     "end",
                                 )
-                                self.lanesections[ls].centerlane.roadmark[0]._line[
-                                    i_line
-                                ].adjust_soffset(
+                                self.lanesections[ls].centerlane.roadmark[
+                                    0
+                                ]._line[i_line].adjust_soffset(
                                     seg_length, previous_offset=prev_remainder
                                 )
                             self._adjust_for_missing_line_offset(
@@ -955,7 +1010,9 @@ class Lane(XodrBase):
 
     """
 
-    def __init__(self, lane_type=LaneType.driving, a=0, b=0, c=0, d=0, soffset=0):
+    def __init__(
+        self, lane_type=LaneType.driving, a=0, b=0, c=0, d=0, soffset=0
+    ):
         """initalizes the Lane
 
         Parameters
@@ -1122,7 +1179,9 @@ class Lane(XodrBase):
         self.heights.append(heightdict)
         return self
 
-    def add_lane_material(self, friction, roughness=None, soffset=0, surface=None):
+    def add_lane_material(
+        self, friction, roughness=None, soffset=0, surface=None
+    ):
         """add_lane_material adds a material description entry to the lane
         Parameters
         ----------
@@ -1471,7 +1530,14 @@ class RoadLine(XodrBase):
 
     # TODO: check this for 1.5
     def __init__(
-        self, width=0, length=0, space=0, toffset=0, soffset=0, rule=None, color=None
+        self,
+        width=0,
+        length=0,
+        space=0,
+        toffset=0,
+        soffset=0,
+        rule=None,
+        color=None,
     ):
         """initalizes the RoadLine
 
@@ -1509,7 +1575,9 @@ class RoadLine(XodrBase):
                 return True
         return False
 
-    def adjust_remainder(self, total_length, soffset=None, previous_remainder=None):
+    def adjust_remainder(
+        self, total_length, soffset=None, previous_remainder=None
+    ):
         """adjust_remainder is used to calculated and set the remainer of a broken mark for offset adjustments
 
         Parameters
@@ -1530,13 +1598,17 @@ class RoadLine(XodrBase):
             self.soffset = soffset
         if previous_remainder is not None:
             self.soffset = self.space - previous_remainder
-        self._remainder = self._calculate_remainder_of_line(self.soffset, total_length)
+        self._remainder = self._calculate_remainder_of_line(
+            self.soffset, total_length
+        )
 
     def shift_soffset(self):
         """shifts the soffset one period"""
         self.soffset += self.space + self.length
 
-    def adjust_soffset(self, total_length, remainder=None, previous_offset=None):
+    def adjust_soffset(
+        self, total_length, remainder=None, previous_offset=None
+    ):
         """adjust_soffset is used to calculated and set the soffset of a broken mark for offset adjustments
 
         Parameters
@@ -1557,7 +1629,9 @@ class RoadLine(XodrBase):
             self._remainder = remainder
         if previous_offset is not None:
             self._remainder = self.space - previous_offset
-        self.soffset = self._calculate_remainder_of_line(self._remainder, total_length)
+        self.soffset = self._calculate_remainder_of_line(
+            self._remainder, total_length
+        )
 
     def _calculate_remainder_of_line(self, soffset, total_length):
         n = (total_length - soffset + self.space) / (self.space + self.length)

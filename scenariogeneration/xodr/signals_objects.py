@@ -166,7 +166,9 @@ class _SignalObjectBase(XodrBase):
             self._usedIDs[self.__class__.__name__] = []
             self._IDCounter[self.__class__.__name__] = 0
 
-        if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
+        if self.id == None or (
+            str(self.id) in self._usedIDs[self.__class__.__name__]
+        ):
             while (
                 str(self._IDCounter[self.__class__.__name__])
                 in self._usedIDs[self.__class__.__name__]
@@ -596,7 +598,9 @@ class SignalReference(XodrBase):
             self._usedIDs[self.__class__.__name__] = []
             self._IDCounter[self.__class__.__name__] = 0
 
-        if self.id == None or (str(self.id) in self._usedIDs[self.__class__.__name__]):
+        if self.id == None or (
+            str(self.id) in self._usedIDs[self.__class__.__name__]
+        ):
             while (
                 str(self._IDCounter[self.__class__.__name__])
                 in self._usedIDs[self.__class__.__name__]
@@ -1310,19 +1314,23 @@ class Outline(XodrBase):
         ----------
             corner (CornerRoad, CornerLocal)
         """
-        if not (isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)):
+        if not (
+            isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)
+        ):
             raise TypeError("Not a valid corner.")
         if len(self.corners) == 0:
             if isinstance(corner, CornerLocal):
                 self._corner_type = "local"
             else:
                 self._corner_type = "road"
-        if (isinstance(corner, CornerLocal) and self._corner_type == "local") or (
-            isinstance(corner, CornerRoad) and self._corner_type == "road"
-        ):
+        if (
+            isinstance(corner, CornerLocal) and self._corner_type == "local"
+        ) or (isinstance(corner, CornerRoad) and self._corner_type == "road"):
             self.corners.append(corner)
         else:
-            raise GeneralIssueInputArguments("Mix of cornertypes not allowed. ")
+            raise GeneralIssueInputArguments(
+                "Mix of cornertypes not allowed. "
+            )
 
     def get_attributes(self):
         """returns the attributes of Outline as a dict"""

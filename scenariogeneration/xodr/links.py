@@ -449,11 +449,15 @@ class Connection(XodrBase):
 
         """
 
-        element = ET.Element("connection", attrib=self.get_attributes(junctiontype))
+        element = ET.Element(
+            "connection", attrib=self.get_attributes(junctiontype)
+        )
         self._add_additional_data_to_element(element)
         for l in sorted(self.links, key=lambda x: x[0], reverse=True):
             ET.SubElement(
-                element, "laneLink", attrib={"from": str(l[0]), "to": str(l[1])}
+                element,
+                "laneLink",
+                attrib={"from": str(l[0]), "to": str(l[1])},
             )
         return element
 
@@ -704,7 +708,9 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
 
     """
     if len(road1_lane_ids) != len(road2_lane_ids):
-        raise GeneralIssueInputArguments("Length of the lane ID lists is not the same.")
+        raise GeneralIssueInputArguments(
+            "Length of the lane ID lists is not the same."
+        )
 
     if (0 in road1_lane_ids) or (0 in road2_lane_ids):
         raise ValueError("The center lane (ID 0) should not be linked.")
@@ -713,8 +719,8 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
             road1, road2
         )
-        second_linktype, _, second_connecting_lanesec = _get_related_lanesection(
-            road2, road1
+        second_linktype, _, second_connecting_lanesec = (
+            _get_related_lanesection(road2, road1)
         )
 
         # The road links need to be reciprocal for the lane linking to succeed
@@ -787,14 +793,20 @@ def _create_links_connecting_road(connecting, road):
         road (Road): a that connects to the connecting road
 
     """
-    linktype, sign, connecting_lanesec = _get_related_lanesection(connecting, road)
+    linktype, sign, connecting_lanesec = _get_related_lanesection(
+        connecting, road
+    )
     _, _, road_lanesection_id = _get_related_lanesection(road, connecting)
 
     if connecting_lanesec != None:
         if connecting.lanes.lanesections[connecting_lanesec].leftlanes:
             # do left lanes
             for i in range(
-                len(connecting.lanes.lanesections[road_lanesection_id].leftlanes)
+                len(
+                    connecting.lanes.lanesections[
+                        road_lanesection_id
+                    ].leftlanes
+                )
             ):
                 linkid = (
                     connecting.lanes.lanesections[road_lanesection_id]
@@ -814,14 +826,18 @@ def _create_links_connecting_road(connecting, road):
                             np.sign(linkid)
                             * abs(connecting.lane_offset_suc[str(road.id)])
                         )
-                connecting.lanes.lanesections[connecting_lanesec].leftlanes[i].add_link(
-                    linktype, linkid
-                )
+                connecting.lanes.lanesections[connecting_lanesec].leftlanes[
+                    i
+                ].add_link(linktype, linkid)
 
         if connecting.lanes.lanesections[connecting_lanesec].rightlanes:
             # do right lanes
             for i in range(
-                len(connecting.lanes.lanesections[connecting_lanesec].rightlanes)
+                len(
+                    connecting.lanes.lanesections[
+                        connecting_lanesec
+                    ].rightlanes
+                )
             ):
                 linkid = (
                     connecting.lanes.lanesections[road_lanesection_id]
@@ -892,7 +908,8 @@ def _get_related_lanesection(road, connected_road):
         and connected_road.predecessor
         and road.predecessor.element_type == ElementType.junction
         and connected_road.predecessor.element_type == ElementType.junction
-        and road.predecessor.element_id == connected_road.predecessor.element_id
+        and road.predecessor.element_id
+        == connected_road.predecessor.element_id
     ):
         # predecessor - predecessor connection
         linktype = "predecessor"
@@ -952,7 +969,8 @@ def _get_related_lanesection(road, connected_road):
                 road_lanesection_id = -1
                 sign = 1
         elif (
-            connected_road.successor and connected_road.successor.element_id == road.id
+            connected_road.successor
+            and connected_road.successor.element_id == road.id
         ):
             if connected_road.successor.contact_point == ContactPoint.start:
                 road_lanesection_id = 0
@@ -985,14 +1003,20 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
         if len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes) == len(
             suc_road.lanes.lanesections[lane_sec_pos].rightlanes
         ):
-            for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes)):
-                linkid = pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].lane_id
-                pre_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
-                    same_type, linkid * -1
+            for i in range(
+                len(pre_road.lanes.lanesections[lane_sec_pos].leftlanes)
+            ):
+                linkid = (
+                    pre_road.lanes.lanesections[lane_sec_pos]
+                    .leftlanes[i]
+                    .lane_id
                 )
-                suc_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
-                    same_type, linkid
-                )
+                pre_road.lanes.lanesections[lane_sec_pos].leftlanes[
+                    i
+                ].add_link(same_type, linkid * -1)
+                suc_road.lanes.lanesections[lane_sec_pos].rightlanes[
+                    i
+                ].add_link(same_type, linkid)
         else:
             raise NotSameAmountOfLanesError(
                 "Road "
@@ -1008,14 +1032,20 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
         if len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes) == len(
             suc_road.lanes.lanesections[-1].leftlanes
         ):
-            for i in range(len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes)):
-                linkid = pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].lane_id
-                pre_road.lanes.lanesections[lane_sec_pos].rightlanes[i].add_link(
-                    same_type, linkid * -1
+            for i in range(
+                len(pre_road.lanes.lanesections[lane_sec_pos].rightlanes)
+            ):
+                linkid = (
+                    pre_road.lanes.lanesections[lane_sec_pos]
+                    .rightlanes[i]
+                    .lane_id
                 )
-                suc_road.lanes.lanesections[lane_sec_pos].leftlanes[i].add_link(
-                    same_type, linkid
-                )
+                pre_road.lanes.lanesections[lane_sec_pos].rightlanes[
+                    i
+                ].add_link(same_type, linkid * -1)
+                suc_road.lanes.lanesections[lane_sec_pos].leftlanes[
+                    i
+                ].add_link(same_type, linkid)
         else:
             raise NotSameAmountOfLanesError(
                 "Road "
@@ -1029,17 +1059,23 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
             )
 
     else:
-        pre_linktype, pre_sign, pre_connecting_lanesec = _get_related_lanesection(
-            pre_road, suc_road
+        pre_linktype, pre_sign, pre_connecting_lanesec = (
+            _get_related_lanesection(pre_road, suc_road)
         )
         suc_linktype, _, suc_connecting_lanesec = _get_related_lanesection(
             suc_road, pre_road
         )
-        if len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes) == len(
+        if len(
+            pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes
+        ) == len(
             suc_road.lanes.lanesections[suc_connecting_lanesec].leftlanes
         ):
             for i in range(
-                len(pre_road.lanes.lanesections[pre_connecting_lanesec].leftlanes)
+                len(
+                    pre_road.lanes.lanesections[
+                        pre_connecting_lanesec
+                    ].leftlanes
+                )
             ):
                 linkid = (
                     pre_road.lanes.lanesections[pre_connecting_lanesec]
@@ -1062,11 +1098,17 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
                 + " does not have the same number of right lanes."
             )
 
-        if len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes) == len(
+        if len(
+            pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes
+        ) == len(
             suc_road.lanes.lanesections[suc_connecting_lanesec].rightlanes
         ):
             for i in range(
-                len(pre_road.lanes.lanesections[pre_connecting_lanesec].rightlanes)
+                len(
+                    pre_road.lanes.lanesections[
+                        pre_connecting_lanesec
+                    ].rightlanes
+                )
             ):
                 linkid = (
                     pre_road.lanes.lanesections[pre_connecting_lanesec]
@@ -1121,7 +1163,9 @@ class JunctionGroup(XodrBase):
             Adds a connection to the junction
     """
 
-    def __init__(self, name, group_id, junction_type=JunctionGroupType.roundabout):
+    def __init__(
+        self, name, group_id, junction_type=JunctionGroupType.roundabout
+    ):
         """initalize the JunctionGroup
 
         Parameters
@@ -1172,5 +1216,7 @@ class JunctionGroup(XodrBase):
         element = ET.Element("junctionGroup", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for j in self.junctions:
-            ET.SubElement(element, "junctionReference", attrib={"junction": str(j)})
+            ET.SubElement(
+                element, "junctionReference", attrib={"junction": str(j)}
+            )
         return element

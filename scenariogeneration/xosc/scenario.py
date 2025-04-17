@@ -435,7 +435,7 @@ class RoadNetwork(VersionBase):
             )
         if len(self.used_area_positions) > 1 and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError(
-                "UsedArea is not supported in OpenSCENARIO V1.0, " \
+                "UsedArea is not supported in OpenSCENARIO V1.0, "
                 "was introduced in OpenSCENARIO V1.1"
             )
         if len(self.used_area_positions) > 1 and not self.isVersion(minor=0):

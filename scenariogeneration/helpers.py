@@ -41,10 +41,14 @@ def prettify(element, encoding=None, xml_declaration=True):
     parser = etree.XMLParser(remove_blank_text=True, strip_cdata=False)
 
     # Convert the ElementTree element to an lxml etree form
-    lxml_element = etree.fromstring(ET.tostring(element, encoding), parser=parser)
+    lxml_element = etree.fromstring(
+        ET.tostring(element, encoding), parser=parser
+    )
 
     # Replace the CDATA marker with a real CDATA node
-    for cdata_marker in lxml_element.xpath('//*[starts-with(text(), "<![CDATA[")]'):
+    for cdata_marker in lxml_element.xpath(
+        '//*[starts-with(text(), "<![CDATA[")]'
+    ):
         cdata_content = cdata_marker.text[len("<![CDATA[") : -len("]]>")]
         cdata_marker.text = etree.CDATA(cdata_content)
 

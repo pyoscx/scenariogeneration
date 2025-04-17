@@ -43,7 +43,6 @@ from .utils import (
 )
 
 
-
 class Event(VersionBase):
     """The Event class creates the event of OpenScenario.
 
@@ -154,12 +153,12 @@ class Event(VersionBase):
         if not isinstance(trigger, _TriggerType):
             if isinstance(trigger, _ValueTriggerType):
                 raise TypeError(
-                    "trigger input is a value trigger condition, " \
+                    "trigger input is a value trigger condition, "
                     "please add it to a ValueTrigger."
                 )
             if isinstance(trigger, _EntityTriggerType):
                 raise TypeError(
-                    "trigger input is an entity trigger condition, " \
+                    "trigger input is an entity trigger condition, "
                     "please add it to an EntityTrigger."
                 )
             raise TypeError("trigger input is not a valid trigger")
@@ -167,8 +166,8 @@ class Event(VersionBase):
         return self
 
     def add_action(self, actionname: str, action: _ActionType) -> "Event":
-        """Adds an action to the Event. Multiple actions can be added
-        and will be ordered as added.
+        """Adds an action to the Event. Multiple actions can be added and will
+        be ordered as added.
 
         Parameters
         ----------
@@ -214,7 +213,6 @@ class Event(VersionBase):
         if self.trigger:
             element.append(self.trigger.get_element())
         return element
-
 
 
 class Init(VersionBase):
@@ -374,6 +372,7 @@ class Init(VersionBase):
 
         return element
 
+
 class _Actors(VersionBase):
     """_Actors is used to create the actors of a ManeuverGroup.
 
@@ -474,10 +473,6 @@ class _Actors(VersionBase):
         xml.etree.ElementTree.Element
             The ElementTree representation of the _Actors.
         """
-        # if not self.actors:
-        #     raise ValueError('no actors are set')
-        if len(self.actors) == 0:
-            raise Warning("No Actors are defined")
         element = ET.Element("Actors", attrib=self.get_attributes())
         for ent in self.actors:
             element.append(ent.get_element())
@@ -730,9 +725,7 @@ class ManeuverGroup(VersionBase):
         maneuver : Maneuver or CatalogReference
             The maneuver to add.
         """
-        if not (
-            isinstance(maneuver, (Maneuver, CatalogReference))
-        ):
+        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
             raise TypeError("maneuver input is not of type Maneuver")
         self.maneuvers.append(maneuver)
         return self
@@ -774,7 +767,6 @@ class ManeuverGroup(VersionBase):
         for man in self.maneuvers:
             element.append(man.get_element())
         return element
-
 
 
 class Act(VersionBase):
@@ -939,7 +931,6 @@ class Act(VersionBase):
         element.append(self.starttrigger.get_element())
         element.append(self.stoptrigger.get_element())
         return element
-
 
 
 class Story(VersionBase):
@@ -1280,9 +1271,7 @@ class StoryBoard(VersionBase):
         parameters : ParameterDeclarations, optional
             The parameters of the story. Default is None.
         """
-        if not (
-            isinstance(maneuver, (Maneuver, CatalogReference))
-        ):
+        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
             raise TypeError("maneuver input is not of type Maneuver")
         if isinstance(maneuver, Maneuver):
             mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)
@@ -1326,4 +1315,3 @@ class StoryBoard(VersionBase):
         element.append(self.stoptrigger.get_element())
 
         return element
-

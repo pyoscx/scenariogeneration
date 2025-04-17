@@ -275,7 +275,9 @@ class _Poly3Profile:
 
     def eval_at_s(self, s):
         if s < self.s:
-            raise ValueError("when evaluating elevation, s must be larger than s_start")
+            raise ValueError(
+                "when evaluating elevation, s must be larger than s_start"
+            )
         return (
             self.a
             + self.b * (s - self.s)
@@ -300,8 +302,12 @@ class _Poly3Profile:
 
     def eval_derivative_at_s(self, s):
         if s < self.s:
-            raise ValueError("when evaluating elevation, s must be larger than s_start")
-        return self.b + 2 * self.c * (s - self.s) + 3 * self.d * (s - self.s) ** 2
+            raise ValueError(
+                "when evaluating elevation, s must be larger than s_start"
+            )
+        return (
+            self.b + 2 * self.c * (s - self.s) + 3 * self.d * (s - self.s) ** 2
+        )
 
     def get_attributes(self):
         """returns the attributes of the Elevetion"""
@@ -330,7 +336,9 @@ class _Poly3Profile:
         if elementname == "shape" and self.t == None:
             raise ValueError("When shape is used, the t value has to be set.")
         elif elementname != "shape" and self.t != None:
-            raise ValueError("When shape is not used, the t value should not be set.")
+            raise ValueError(
+                "When shape is not used, the t value should not be set."
+            )
 
         element = ET.Element(elementname, attrib=self.get_attributes())
 
@@ -372,7 +380,9 @@ class ElevationCalculator:
         self.main_road = main_road
         self.successors = []
         self.predecessors = []
-        self._super_elevation_needed = not self.main_road.is_adjusted("superelevation")
+        self._super_elevation_needed = not self.main_road.is_adjusted(
+            "superelevation"
+        )
         self._elevation_needed = not self.main_road.is_adjusted("elevation")
         self._extra_elevation_needed = False
         self._reset_active_roads()
@@ -457,7 +467,8 @@ class ElevationCalculator:
         for successor_road in self.successors:
             if (
                 successor_road.road.predecessor
-                and successor_road.road.predecessor.element_type == ElementType.junction
+                and successor_road.road.predecessor.element_type
+                == ElementType.junction
                 and self.main_road.id
                 in list(successor_road.road.pred_direct_junction.keys())
             ):
@@ -472,7 +483,8 @@ class ElevationCalculator:
 
             elif (
                 successor_road.road.successor
-                and successor_road.road.successor.element_type == ElementType.junction
+                and successor_road.road.successor.element_type
+                == ElementType.junction
                 and self.main_road.id
                 in list(successor_road.road.succ_direct_junction.keys())
             ):
@@ -487,7 +499,8 @@ class ElevationCalculator:
         for predecessor_road in self.predecessors:
             if (
                 predecessor_road.road.successor
-                and predecessor_road.road.successor.element_type == ElementType.junction
+                and predecessor_road.road.successor.element_type
+                == ElementType.junction
                 and self.main_road.id
                 in list(predecessor_road.road.succ_direct_junction.keys())
             ):
@@ -527,10 +540,12 @@ class ElevationCalculator:
             and successor_road.predecessor.element_id == self.main_road.id
             or successor_road.predecessor.element_type == ElementType.junction
             and successor_road.pred_direct_junction
-            and self.main_road.id in list(successor_road.pred_direct_junction.keys())
+            and self.main_road.id
+            in list(successor_road.pred_direct_junction.keys())
             or successor_road.predecessor.element_type == ElementType.junction
             and not successor_road.pred_direct_junction
-            and self.main_road.road_type == successor_road.predecessor.element_id
+            and self.main_road.road_type
+            == successor_road.predecessor.element_id
         ):
             successor_cp = ContactPoint.start
         elif successor_road.successor is not None and (
@@ -538,7 +553,8 @@ class ElevationCalculator:
             and successor_road.successor.element_id == self.main_road.id
             or successor_road.successor.element_type == ElementType.junction
             and successor_road.succ_direct_junction
-            and self.main_road.id in list(successor_road.succ_direct_junction.keys())
+            and self.main_road.id
+            in list(successor_road.succ_direct_junction.keys())
             or successor_road.successor.element_type == ElementType.junction
             and not successor_road.succ_direct_junction
             and self.main_road.road_type == successor_road.successor.element_id
@@ -548,7 +564,10 @@ class ElevationCalculator:
             raise ValueError("could not figure out the contact point")
         self.successors.append(
             _ElevationConnectionHelper(
-                successor_road, "successor", successor_cp, successor_lateral_offset
+                successor_road,
+                "successor",
+                successor_cp,
+                successor_lateral_offset,
             )
         )
         self._calculate_lateral_offsets_based_on_superelevation()
@@ -563,15 +582,22 @@ class ElevationCalculator:
         if predecessor_road.predecessor is not None and (
             predecessor_road.predecessor.element_type == ElementType.road
             and predecessor_road.predecessor.element_id == self.main_road.id
-            or predecessor_road.predecessor.element_type == ElementType.junction
+            or predecessor_road.predecessor.element_type
+            == ElementType.junction
             and predecessor_road.pred_direct_junction
-            and self.main_road.id in list(predecessor_road.pred_direct_junction.keys())
-            or predecessor_road.predecessor.element_type == ElementType.junction
+            and self.main_road.id
+            in list(predecessor_road.pred_direct_junction.keys())
+            or predecessor_road.predecessor.element_type
+            == ElementType.junction
             and not predecessor_road.pred_direct_junction
-            and self.main_road.road_type == predecessor_road.predecessor.element_id
+            and self.main_road.road_type
+            == predecessor_road.predecessor.element_id
         ):
             predecessor_cp = ContactPoint.start
-            if predecessor_road.predecessor.element_type == ElementType.junction:
+            if (
+                predecessor_road.predecessor.element_type
+                == ElementType.junction
+            ):
                 pass
 
         elif predecessor_road.successor is not None and (
@@ -579,10 +605,12 @@ class ElevationCalculator:
             and predecessor_road.successor.element_id == self.main_road.id
             or predecessor_road.successor.element_type == ElementType.junction
             and predecessor_road.succ_direct_junction
-            and self.main_road.id in list(predecessor_road.succ_direct_junction.keys())
+            and self.main_road.id
+            in list(predecessor_road.succ_direct_junction.keys())
             or predecessor_road.successor.element_type == ElementType.junction
             and not predecessor_road.succ_direct_junction
-            and self.main_road.road_type == predecessor_road.successor.element_id
+            and self.main_road.road_type
+            == predecessor_road.successor.element_id
         ):
             predecessor_cp = ContactPoint.end
             if predecessor_road.successor.element_type == ElementType.junction:
@@ -647,11 +675,15 @@ class ElevationCalculator:
                     self._successor_road.elevationprofile.eval_at_s(suc_s)
                     + self._successor_lateral_offset,
                     suc_sign
-                    * self._successor_road.elevationprofile.eval_derivative_at_s(suc_s),
+                    * self._successor_road.elevationprofile.eval_derivative_at_s(
+                        suc_s
+                    ),
                 ]
             )
             coeffs = np.linalg.solve(A, B)
-            self.main_road.add_elevation(0, coeffs[0], coeffs[1], coeffs[2], coeffs[3])
+            self.main_road.add_elevation(
+                0, coeffs[0], coeffs[1], coeffs[2], coeffs[3]
+            )
             self._elevation_needed = False
         elif self._successor_road or self._predecessor_road:
             if self.main_road.road_type != -1:
@@ -665,7 +697,9 @@ class ElevationCalculator:
                 sign,
                 main_s,
             ) = self._get_related_data_for_single_connection()
-            b = sign * related_road.elevationprofile.eval_derivative_at_s(neighbor_s)
+            b = sign * related_road.elevationprofile.eval_derivative_at_s(
+                neighbor_s
+            )
             a = (
                 related_road.elevationprofile.eval_at_s(neighbor_s)
                 - b * main_s
@@ -792,7 +826,9 @@ class ElevationCalculator:
                 warn(
                     "Having automatic elevation adjustment for junction roads will yeild in ambigious results, please set the elevation for the connecting roads."
                 )
-            a = sign * related_road.lateralprofile.eval_superelevation_at_s(neighbor_s)
+            a = sign * related_road.lateralprofile.eval_superelevation_at_s(
+                neighbor_s
+            )
             self.main_road.add_superelevation(0, a, 0, 0, 0)
             self._super_elevation_needed = False
 
@@ -814,7 +850,9 @@ class ElevationCalculator:
                 self._create_super_elevation()
                 self._calculate_lateral_offsets_based_on_superelevation()
         elif domain == "shape":
-            raise NotImplementedError("shape adjustment is not implemented yet")
+            raise NotImplementedError(
+                "shape adjustment is not implemented yet"
+            )
         else:
             raise ValueError(
                 "domain can only be: geometry, elevation, superelevation, or shape , not "
