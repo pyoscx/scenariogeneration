@@ -222,7 +222,7 @@ def ParseOpenScenario(file_path):
     -------
         xosc_object (Scenario, Catalog, or ParameterValueDistribution)
     """
-    with open(file_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r") as f:
         loaded_xosc = ET.parse(f)
         if loaded_xosc.find("ParameterValueDistribution") is not None:
             return ParameterValueDistribution.parse(loaded_xosc)
