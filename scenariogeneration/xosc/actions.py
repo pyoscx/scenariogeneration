@@ -739,7 +739,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
         max_deceleration = None
         max_speed = None
         constraints = None
-        if lda_element.find("DynamicConstraints") != None:
+        if lda_element.find("DynamicConstraints") is not None:
             constraints = DynamicsConstraints.parse(
                 lda_element.find("DynamicConstraints")
             )
@@ -775,9 +775,9 @@ class LongitudinalDistanceAction(_PrivateActionType):
         retdict["entityRef"] = self.target
         retdict["freespace"] = get_bool_string(self.freespace)
         retdict["continuous"] = get_bool_string(self.continuous)
-        if self.distance != None:
+        if self.distance is not None:
             retdict["distance"] = str(self.distance)
-        if self.timeGap != None:
+        if self.timeGap is not None:
             retdict["timeGap"] = str(self.timeGap)
         if not self.isVersion(minor=0):
             retdict["coordinateSystem"] = self.coordinate_system.get_name()
@@ -987,8 +987,8 @@ class SpeedProfileAction(_PrivateActionType):
         if self.dynamics_constraint is not None:
             speedaction.append(self.dynamics_constraint.get_element())
 
-        for i in range(len(self.speeds)):
-            tmp_dict = {"speed": str(self.speeds[i])}
+        for i, speed in enumerate(self.speeds):
+            tmp_dict = {"speed": str(speed)}
             if self.times:
                 tmp_dict["time"] = str(self.times[i])
             ET.SubElement(speedaction, "SpeedProfileEntry", attrib=tmp_dict)
@@ -1771,7 +1771,7 @@ class LateralDistanceAction(_PrivateActionType):
         max_acc = None
         max_dec = None
         max_speed = None
-        if lda_element.find("DynamicConstraints") != None:
+        if lda_element.find("DynamicConstraints") is not None:
             constraints = DynamicsConstraints.parse(
                 lda_element.find("DynamicConstraints")
             )
@@ -1804,7 +1804,7 @@ class LateralDistanceAction(_PrivateActionType):
         retdict["entityRef"] = self.target
         retdict["freespace"] = get_bool_string(self.freespace)
         retdict["continuous"] = get_bool_string(self.continuous)
-        if self.distance != None:
+        if self.distance is not None:
             retdict["distance"] = str(self.distance)
         if not self.isVersion(minor=0):
             retdict["coordinateSystem"] = self.coordinate_system.get_name()
@@ -1939,9 +1939,7 @@ class AssignRouteAction(_PrivateActionType):
         route : Route or CatalogReference
             The route to follow.
         """
-        if not (
-            isinstance(route, Route) or isinstance(route, CatalogReference)
-        ):
+        if not (isinstance(route, (Route, CatalogReference))):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -1971,9 +1969,9 @@ class AssignRouteAction(_PrivateActionType):
         """
         ara_element = element.find("RoutingAction/AssignRouteAction")
         route = None
-        if ara_element.find("Route") != None:
+        if ara_element.find("Route") is not None:
             route = Route.parse(ara_element.find("Route"))
-        elif ara_element.find("CatalogReference") != None:
+        elif ara_element.find("CatalogReference") is not None:
             route = CatalogReference.parse(
                 ara_element.find("CatalogReference")
             )
@@ -2153,10 +2151,7 @@ class FollowTrajectoryAction(_PrivateActionType):
             Start at this offset into the trajectory (valid from v1.1).
             Default is None.
         """
-        if not (
-            isinstance(trajectory, Trajectory)
-            or isinstance(trajectory, CatalogReference)
-        ):
+        if not (isinstance(trajectory, (Trajectory, CatalogReference))):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -2209,12 +2204,12 @@ class FollowTrajectoryAction(_PrivateActionType):
             tfm_element.attrib["followingMode"], FollowingMode
         )
 
-        if fta_element.find("TrajectoryRef") != None:
+        if fta_element.find("TrajectoryRef") is not None:
             fta_element = fta_element.find("TrajectoryRef")
         trajectory = None
-        if fta_element.find("Trajectory") != None:
+        if fta_element.find("Trajectory") is not None:
             trajectory = Trajectory.parse(fta_element.find("Trajectory"))
-        if fta_element.find("CatalogReference") != None:
+        if fta_element.find("CatalogReference") is not None:
             trajectory = CatalogReference.parse(
                 fta_element.find("CatalogReference")
             )
@@ -2388,13 +2383,13 @@ class ControllerAction(_PrivateActionType):
 
         ca_element = element.find("ControllerAction")
 
-        if ca_element.find("ActivateControllerAction") != None:
+        if ca_element.find("ActivateControllerAction") is not None:
             activateControllerAction = ActivateControllerAction.parse(element)
-        if ca_element.find("OverrideControllerValueAction") != None:
+        if ca_element.find("OverrideControllerValueAction") is not None:
             overrideControllerValueAction = (
                 OverrideControllerValueAction.parse(element)
             )
-        if ca_element.find("AssignControllerAction") != None:
+        if ca_element.find("AssignControllerAction") is not None:
             assignControllerAction = AssignControllerAction.parse(element)
 
         return ControllerAction(
@@ -2438,21 +2433,21 @@ class ControllerAction(_PrivateActionType):
         element = ET.Element("PrivateAction")
         controlleraction = ET.SubElement(element, "ControllerAction")
 
-        if self.activateControllerAction != None:
+        if self.activateControllerAction is not None:
             pa_element = self.activateControllerAction.get_element()
             aca_element = pa_element.find(
                 "ControllerAction/ActivateControllerAction"
             )
             controlleraction.append(aca_element)
 
-        if self.overrideControllerValueAction != None:
+        if self.overrideControllerValueAction is not None:
             pa_element = self.overrideControllerValueAction.get_element()
             ocva_element = pa_element.find(
                 "ControllerAction/OverrideControllerValueAction"
             )
             controlleraction.append(ocva_element)
 
-        if self.assignControllerAction != None:
+        if self.assignControllerAction is not None:
             pa_element = self.assignControllerAction.get_element()
             aca_element = pa_element.find(
                 "ControllerAction/AssignControllerAction"
@@ -2698,10 +2693,7 @@ class AssignControllerAction(_PrivateActionType):
             If the longitudinal control should be activated
             (valid from V1.1). Default is True.
         """
-        if not (
-            isinstance(controller, Controller)
-            or isinstance(controller, CatalogReference)
-        ):
+        if not (isinstance(controller, (Controller, CatalogReference))):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -2760,9 +2752,9 @@ class AssignControllerAction(_PrivateActionType):
                 aca_element.attrib["activateAnimation"]
             )
         controller = None
-        if aca_element.find("Controller") != None:
+        if aca_element.find("Controller") is not None:
             controller = Controller.parse(aca_element.find("Controller"))
-        elif aca_element.find("CatalogReference") != None:
+        elif aca_element.find("CatalogReference") is not None:
             controller = CatalogReference.parse(
                 aca_element.find("CatalogReference")
             )
@@ -3012,7 +3004,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.throttle_active = None
         ocv_action.throttle_value = convert_float(0)
-        if ocva_element.find("Throttle") != None:
+        if ocva_element.find("Throttle") is not None:
             throttle_element = ocva_element.find("Throttle")
             ocv_action.throttle_active = convert_bool(
                 throttle_element.attrib["active"]
@@ -3027,7 +3019,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.brake_active = None
         ocv_action.brake_value = convert_float(0)
-        if ocva_element.find("Brake") != None:
+        if ocva_element.find("Brake") is not None:
             brake_element = ocva_element.find("Brake")
             ocv_action.brake_active = convert_bool(
                 brake_element.attrib["active"]
@@ -3056,7 +3048,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.clutch_active = None
         ocv_action.clutch_value = convert_float(0)
-        if ocva_element.find("Clutch") != None:
+        if ocva_element.find("Clutch") is not None:
             cluth_element = ocva_element.find("Clutch")
             ocv_action.clutch_active = convert_bool(
                 cluth_element.attrib["active"]
@@ -3071,7 +3063,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.parkingbrake_active = None
         ocv_action.parkingbrake_value = convert_float(0)
-        if ocva_element.find("ParkingBrake") != None:
+        if ocva_element.find("ParkingBrake") is not None:
             parkingbrake_element = ocva_element.find("ParkingBrake")
             ocv_action.parkingbrake_active = convert_bool(
                 parkingbrake_element.attrib["active"]
@@ -3105,7 +3097,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.steeringwheel_active = None
         ocv_action.steeringwheel_value = convert_float(0)
-        if ocva_element.find("SteeringWheel") != None:
+        if ocva_element.find("SteeringWheel") is not None:
             steeringwheel_element = ocva_element.find("SteeringWheel")
             ocv_action.steeringwheel_active = convert_bool(
                 steeringwheel_element.attrib["active"]
@@ -3124,7 +3116,7 @@ class OverrideControllerValueAction(_PrivateActionType):
 
         ocv_action.gear_active = None
         ocv_action.gear_value = convert_float(0)
-        if ocva_element.find("Gear") != None:
+        if ocva_element.find("Gear") is not None:
             gear_element = ocva_element.find("Gear")
             ocv_action.gear_active = convert_bool(
                 gear_element.attrib["active"]
@@ -3314,17 +3306,17 @@ class OverrideControllerValueAction(_PrivateActionType):
         )
 
         if (
-            self.throttle_active == None
-            and self.brake_active == None
-            and self.clutch_active == None
-            and self.parkingbrake_active == None
-            and self.steeringwheel_active == None
-            and self.gear_active == None
+            self.throttle_active is None
+            and self.brake_active is None
+            and self.clutch_active is None
+            and self.parkingbrake_active is None
+            and self.steeringwheel_active is None
+            and self.gear_active is None
         ):
             raise NoActionsDefinedError(
                 "No actions were added to the OverrideControllerValueAction"
             )
-        if self.throttle_active != None:
+        if self.throttle_active is not None:
             throttle_dict = {
                 "active": get_bool_string(self.throttle_active),
                 "value": str(self.throttle_value),
@@ -3342,7 +3334,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 "Throttle",
                 throttle_dict,
             )
-        if self.brake_active != None:
+        if self.brake_active is not None:
             if not self.isVersion(minor=2):
                 ET.SubElement(
                     overrideaction,
@@ -3370,7 +3362,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                         override_brake, "BrakePercent", attrib=brake_dict
                     )
 
-        if self.clutch_active != None:
+        if self.clutch_active is not None:
             if self.throttle_rate is not None and self.isVersion(minor=2):
                 throttle_dict["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(
@@ -3394,7 +3386,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 "Clutch",
                 clutch_dict,
             )
-        if self.parkingbrake_active != None:
+        if self.parkingbrake_active is not None:
             if not self.isVersion(minor=2):
                 ET.SubElement(
                     overrideaction,
@@ -3425,7 +3417,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                         "BrakePercent",
                         attrib=parkingbrake_dict,
                     )
-        if self.steeringwheel_active != None:
+        if self.steeringwheel_active is not None:
             steering_dict = {
                 "active": get_bool_string(self.steeringwheel_active),
                 "value": str(self.steeringwheel_value),
@@ -3450,7 +3442,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 steering_dict,
             )
 
-        if self.gear_active != None:
+        if self.gear_active is not None:
             if not self.isVersion(minor=2):
                 ET.SubElement(
                     overrideaction,
@@ -3736,14 +3728,13 @@ class SynchronizeAction(_PrivateActionType):
         self.target_tolerance_master = convert_float(target_tolerance_master)
         self.target_tolerance = convert_float(target_tolerance)
         if final_speed and not (
-            isinstance(final_speed, AbsoluteSpeed)
-            or isinstance(final_speed, RelativeSpeedToMaster)
+            isinstance(final_speed, (AbsoluteSpeed, RelativeSpeedToMaster))
         ):
             raise TypeError(
                 "final_speed input is not AbsoluteSpeed or RelativeSpeedToMaster type"
             )
-        else:
-            self.final_speed = final_speed
+
+        self.final_speed = final_speed
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, SynchronizeAction):
@@ -3794,11 +3785,11 @@ class SynchronizeAction(_PrivateActionType):
         )
 
         finalSpeed = None
-        if sa_element.find("FinalSpeed") != None:
+        if sa_element.find("FinalSpeed") is not None:
             sa_element = sa_element.find("FinalSpeed")
-            if sa_element.find("AbsoluteSpeed") != None:
+            if sa_element.find("AbsoluteSpeed") is not None:
                 finalSpeed = AbsoluteSpeed.parse(sa_element)
-            if sa_element.find("RelativeSpeedToMaster") != None:
+            if sa_element.find("RelativeSpeedToMaster") is not None:
                 finalSpeed = RelativeSpeedToMaster.parse(sa_element)
 
         return SynchronizeAction(
@@ -3809,7 +3800,6 @@ class SynchronizeAction(_PrivateActionType):
             target_tolerance,
             finalSpeed,
         )
-        _
 
     def get_attributes(self) -> dict:
         """Returns the attributes of the AbsoluteSynchronizeAction as a dict.
@@ -3930,7 +3920,7 @@ class LightStateAction(_PrivateActionType):
         """
         try:
             self.light_type = convert_enum(light_type, VehicleLightType)
-        except Exception as e:
+        except Exception:
             if not isinstance(light_type, UserDefinedLight):
                 raise TypeError(
                     "light_type input is not of type VehicleLightType or UserDefinedLight"
@@ -4094,11 +4084,14 @@ class AnimationAction(_PrivateActionType):
         """
         if isinstance(animation_type, UserDefinedComponent):
             self.animation_type = _ComponentAnimation(animation_type)
-        elif (
-            isinstance(animation_type, PedestrianAnimation)
-            or isinstance(animation_type, AnimationFile)
-            or isinstance(animation_type, UserDefinedAnimation)
-            or isinstance(animation_type, _ComponentAnimation)
+        elif isinstance(
+            animation_type,
+            (
+                PedestrianAnimation,
+                AnimationFile,
+                UserDefinedAnimation,
+                _ComponentAnimation,
+            ),
         ):
             self.animation_type = animation_type
         else:
@@ -5539,7 +5532,7 @@ class TrafficSinkAction(_ActionType):
         if "rate" in tsa_element.attrib:
             rate = convert_float(tsa_element.attrib["rate"])
 
-        if tsa_element.find("TrafficDefinition") != None:
+        if tsa_element.find("TrafficDefinition") is not None:
             trafficdefinition = TrafficDefinition.parse(
                 tsa_element.find("TrafficDefinition")
             )
@@ -5981,10 +5974,7 @@ class EnvironmentAction(_ActionType):
         environment : Environment or CatalogReference
             The environment to change to.
         """
-        if not (
-            isinstance(environment, Environment)
-            or isinstance(environment, CatalogReference)
-        ):
+        if not (isinstance(environment, (Environment, CatalogReference))):
             raise TypeError(
                 "environment input not of type Environment or CatalogReference"
             )
@@ -6011,9 +6001,9 @@ class EnvironmentAction(_ActionType):
             A BoundingBox object.
         """
         action_element = element.find("EnvironmentAction")
-        if action_element.find("Environment") != None:
+        if action_element.find("Environment") is not None:
             environment = Environment.parse(action_element.find("Environment"))
-        elif action_element.find("CatalogReference") != None:
+        elif action_element.find("CatalogReference") is not None:
             environment = CatalogReference.parse(
                 action_element.find("CatalogReference")
             )
@@ -6100,7 +6090,7 @@ class CustomCommandAction(_ActionType):
                 f'Expected "CustomCommandAction" element, received "{element.tag}".'
             )
         action_type = element.attrib.get("type", None)
-        if action_type == None:
+        if action_type is None:
             raise NotAValidElement(
                 'CustomCommandAction is missing required argument "type".'
             )

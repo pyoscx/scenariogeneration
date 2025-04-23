@@ -119,10 +119,8 @@ class CatalogLoader:
             elif entry.tag == "Route":
                 if entry.attrib["name"] == catalog_reference.entryname:
                     return Route.parse(entry)
-            else:
-                raise NotImplementedError(
-                    "This catalogtype is not supported yet."
-                )
+
+        raise NotImplementedError("This catalogtype is not supported yet.")
 
     def read_entry(self, catalog_reference, catalog_path):
         """read_entry loads and reads a catalog directly (both load_catalog,

@@ -178,12 +178,12 @@ class Properties(VersionBase):
         """
         properties = Properties()
         files = element.findall("File")
-        if files != None:
+        if files is not None:
             for file in files:
                 filepath = file.attrib["filepath"]
                 properties.add_file(filepath)
         props = element.findall("Property")
-        if props != None:
+        if props is not None:
             for property in props:
                 name = property.attrib["name"]
                 value = property.attrib["value"]
@@ -784,11 +784,6 @@ class Variable(VersionBase):
             element.attrib["variableType"], ParameterType, False
         )
         variable = Variable(name, variable_type, value)
-        constraint_groups = element.findall("ValueConstraintGroup")
-        for constraint_group in constraint_groups:
-            variable.add_value_constraint_group(
-                ValueConstraintGroup.parse(constraint_group)
-            )
         return variable
 
     def get_attributes(self) -> dict[str, str]:
@@ -988,7 +983,7 @@ class CatalogReference(VersionBase):
         reference = CatalogReference(catalogname, entryname)
 
         parameter_assignments = element.find("ParameterAssignments")
-        if parameter_assignments != None:
+        if parameter_assignments is not None:
             parameters = parameter_assignments.findall("ParameterAssignment")
             for parameter in parameters:
                 parameter_assignment = ParameterAssignment.parse(parameter)
@@ -1039,8 +1034,8 @@ class CatalogReference(VersionBase):
         element = ET.Element("CatalogReference", attrib=self.get_attributes())
         if self.parameterassignments:
             parameterassigns = ET.SubElement(element, "ParameterAssignments")
-        for parass in self.parameterassignments:
-            parameterassigns.append(parass.get_element())
+            for parass in self.parameterassignments:
+                parameterassigns.append(parass.get_element())
         return element
 
 
@@ -1270,6 +1265,7 @@ class ParameterDeclarations(VersionBase):
             for p in self.parameters:
                 element.append(p.get_element())
             return element
+        return None
 
 
 class VariableDeclarations(VersionBase):
@@ -1352,7 +1348,9 @@ class VariableDeclarations(VersionBase):
             or None if no variables exist.
         """
         if self.version_minor < 2:
-            OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
+            raise OpenSCENARIOVersionError(
+                "Variables were introduced in OSC 1.2"
+            )
         element = ET.Element("VariableDeclarations")
         for p in self.variables:
             element.append(p.get_element())
@@ -2126,7 +2124,7 @@ class FileHeader(VersionBase):
         author = element.attrib["author"]
         description = element.attrib["description"]
         license = None
-        if element.find("license") != None:
+        if element.find("license") is not None:
             license = License.parse(element.find("license"))
 
         return FileHeader(
@@ -2147,7 +2145,7 @@ class FileHeader(VersionBase):
             "revMajor": str(self.version_major),
             "revMinor": str(self.version_minor),
         }
-        if self.creation_date != None:
+        if self.creation_date is not None:
             retdict["date"] = self.creation_date.isoformat()
         else:
             retdict["date"] = dt.datetime.now().isoformat()
@@ -2235,7 +2233,7 @@ class TimeReference(VersionBase):
             Offset for time values (must be combined with reference_domain
             and scale). Default is None.
         """
-        nones = [reference_domain == None, scale == None, offset == None]
+        nones = [reference_domain is None, scale is None, offset is None]
         if sum(nones) == 3:
             self._only_nones = True
         elif sum(nones) == 0:
@@ -2272,7 +2270,7 @@ class TimeReference(VersionBase):
         TimeReference
             A TimeReference object.
         """
-        if element.find("None") != None:
+        if element.find("None") is not None:
             return TimeReference()
 
         timing_element = element.find("Timing")
@@ -2502,7 +2500,7 @@ class Phase(VersionBase):
             group = element.find("TrafficeSignalGroupState").attrib["state"]
         phase = Phase(name, duration, group)
         signalstates = element.findall("TrafficSignalState")
-        if signalstates != None:
+        if signalstates is not None:
             for signalstate in signalstates:
                 traffic_signal_state = _TrafficSignalState.parse(signalstate)
                 phase.signalstates.append(traffic_signal_state)
@@ -2658,7 +2656,7 @@ class TrafficSignalController(VersionBase):
         tsc = TrafficSignalController(name, delay, reference)
 
         phases = element.findall("Phase")
-        if phases != None:
+        if phases is not None:
             for phase in phases:
                 tsc.phases.append(Phase.parse(phase))
 
@@ -2937,43 +2935,45 @@ class TrafficDefinition(VersionBase):
             The ElementTree representation of the TrafficDefinition.
         """
         if not self.controllers:
-            ValueError("No controllers defined for the TrafficDefinition")
+            raise ValueError(
+                "No controllers defined for the TrafficDefinition"
+            )
         if not self.vehiclecategories:
-            ValueError("No Vehicles defined for the TrafficDefinition")
+            raise ValueError("No Vehicles defined for the TrafficDefinition")
 
         element = ET.Element("TrafficDefinition", attrib=self.get_attributes())
 
         veh_element = ET.SubElement(element, "VehicleCategoryDistribution")
-        for i in range(len(self.vehiclecategories)):
+        for i, vehicle_category in enumerate(self.vehiclecategories):
             ET.SubElement(
                 veh_element,
                 "VehicleCategoryDistributionEntry",
                 attrib={
-                    "category": self.vehiclecategories[i].get_name(),
+                    "category": vehicle_category.get_name(),
                     "weight": str(self.vehicleweights[i]),
                 },
             )
 
         cnt_element = ET.SubElement(element, "ControllerDistribution")
-        for i in range(len(self.controllers)):
+        for i, controller in enumerate(self.controllers):
             tmp_controller = ET.SubElement(
                 cnt_element,
                 "ControllerDistributionEntry",
                 attrib={"weight": str(self.controllerweights[i])},
             )
-            tmp_controller.append(self.controllers[i].get_element())
+            tmp_controller.append(controller.get_element())
         if self.vehicle_roles:
             if self.version_minor < 2:
                 raise OpenSCENARIOVersionError(
                     "VehicleRoleDistribution was added in OSC V1.2"
                 )
             role_element = ET.SubElement(element, "VehicleRoleDistribution")
-            for i in range(len(self.vehicle_roles)):
+            for i, role in enumerate(self.vehicle_roles):
                 ET.SubElement(
                     role_element,
                     "VehicleRoleDistributionEntry",
                     attrib={
-                        "role": self.vehicle_roles[i].get_name(),
+                        "role": role.get_name(),
                         "weight": str(self.vehicle_roles_weights[i]),
                     },
                 )
@@ -3048,8 +3048,8 @@ class CatalogFile(VersionBase):
         CatalogFile
             The updated CatalogFile object.
         """
-        if self.catalog_element == None:
-            OSError("No file has been created or opened")
+        if self.catalog_element is None:
+            raise OSError("No file has been created or opened")
         fileheader = self.catalog_element.find("FileHeader")
 
         if convert_int(fileheader.attrib["revMinor"]) != obj.version_minor:
@@ -3266,9 +3266,9 @@ class Catalog(VersionBase):
         """
         catloc = ET.Element("CatalogLocations")
 
-        for i in self.catalogs:
+        for i, catalog in self.catalogs.items():
             tmpel = ET.SubElement(catloc, i)
-            ET.SubElement(tmpel, "Directory", {"path": self.catalogs[i]})
+            ET.SubElement(tmpel, "Directory", {"path": catalog})
         return catloc
 
 
@@ -3489,7 +3489,7 @@ class TimeOfDay(VersionBase):
         dict
             A dictionary of all attributes of the TimeOfDay.
         """
-        dt = (
+        tod = (
             str(self.year)
             + "-"
             + "{:0>2}".format(self.month)
@@ -3502,7 +3502,7 @@ class TimeOfDay(VersionBase):
             + ":"
             + "{:0>2}".format(self.second)
         )
-        return {"animation": get_bool_string(self.animation), "dateTime": dt}
+        return {"animation": get_bool_string(self.animation), "dateTime": tod}
 
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the TimeOfDay.
@@ -3585,7 +3585,7 @@ class Fog(VersionBase):
         """
         visual_range = element.attrib["visualRange"]
         bounding_box = None
-        if element.find("BoundingBox") != None:
+        if element.find("BoundingBox") is not None:
             bounding_box = BoundingBox.parse(element.find("BoundingBox"))
 
         return Fog(visual_range, bounding_box)
@@ -4020,7 +4020,7 @@ class Weather(VersionBase):
         """
         try:
             self.cloudstate = convert_enum(cloudstate, CloudState, True)
-        except Exception as e:
+        except (TypeError, ValueError):
             self.cloudstate = convert_enum(
                 cloudstate, FractionalCloudCover, True
             )
@@ -4093,15 +4093,15 @@ class Weather(VersionBase):
             cloudstate = convert_enum(
                 element.attrib["fractionalCloudCover"], FractionalCloudCover
             )
-        if element.find("Sun") != None:
+        if element.find("Sun") is not None:
             sun = Sun.parse(element.find("Sun"))
-        if element.find("Fog") != None:
+        if element.find("Fog") is not None:
             fog = Fog.parse(element.find("Fog"))
-        if element.find("Precipitation") != None:
+        if element.find("Precipitation") is not None:
             precipitation = Precipitation.parse(element.find("Precipitation"))
-        if element.find("Wind") != None:
+        if element.find("Wind") is not None:
             wind = Wind.parse(element.find("Wind"))
-        if element.find("DomeImage") != None:
+        if element.find("DomeImage") is not None:
             dome_file = (
                 element.find("DomeImage").find("DomeFile").attrib["filepath"]
             )
@@ -4176,19 +4176,19 @@ class Weather(VersionBase):
             The ElementTree representation of the Weather.
         """
         if self.isVersion(minor=0):
-            if self.sun == None:
+            if self.sun is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, Sun is required."
                 )
-            if self.cloudstate == None:
+            if self.cloudstate is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, CloudState is required."
                 )
-            if self.fog == None:
+            if self.fog is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, Fog is required."
                 )
-            if self.precipitation == None:
+            if self.precipitation is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, Precipitation is required."
                 )
@@ -4307,7 +4307,7 @@ class RoadCondition(VersionBase):
 
         properties = None
         wetness = None
-        if element.find("Properties") != None:
+        if element.find("Properties") is not None:
             properties = Properties.parse(element.find("Properties"))
         if "wetness" in element.attrib:
             wetness = convert_enum(element.attrib["wetness"], Wetness, False)
@@ -4462,15 +4462,15 @@ class Environment(_BaseCatalog):
         timeofday = None
         roadcondition = None
 
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
                 element.find("ParameterDeclarations")
             )
-        if element.find("TimeOfDay") != None:
+        if element.find("TimeOfDay") is not None:
             timeofday = TimeOfDay.parse(element.find("TimeOfDay"))
-        if element.find("Weather") != None:
+        if element.find("Weather") is not None:
             weather = Weather.parse(element.find("Weather"))
-        if element.find("RoadCondition") != None:
+        if element.find("RoadCondition") is not None:
             roadcondition = RoadCondition.parse(element.find("RoadCondition"))
 
         return Environment(name, timeofday, weather, roadcondition, parameters)
@@ -4929,9 +4929,8 @@ class AbsoluteSpeed(VersionBase):
         """
         self.value = value
         if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
+            if not isinstance(
+                steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
                     "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
@@ -4966,11 +4965,14 @@ class AbsoluteSpeed(VersionBase):
         value = absolute_speed_element.attrib["value"]
 
         state = None
-        if absolute_speed_element.find("TargetDistanceSteadyState") != None:
+        if (
+            absolute_speed_element.find("TargetDistanceSteadyState")
+            is not None
+        ):
             state = TargetDistanceSteadyState.parse(
                 absolute_speed_element.find("TargetDistanceSteadyState")
             )
-        elif absolute_speed_element.find("TargetTimeSteadyState") != None:
+        elif absolute_speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
                 absolute_speed_element.find("TargetTimeSteadyState")
             )
@@ -5069,9 +5071,8 @@ class RelativeSpeedToMaster(VersionBase):
         """
         self.value = value
         if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
+            if not isinstance(
+                steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
                     "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
@@ -5112,11 +5113,11 @@ class RelativeSpeedToMaster(VersionBase):
             speed_element.attrib["speedTargetValueType"], SpeedTargetValueType
         )
         state = None
-        if speed_element.find("TargetDistanceSteadyState") != None:
+        if speed_element.find("TargetDistanceSteadyState") is not None:
             state = TargetDistanceSteadyState.parse(
                 speed_element.find("TargetDistanceSteadyState")
             )
-        elif speed_element.find("TargetTimeSteadyState") != None:
+        elif speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
                 speed_element.find("TargetTimeSteadyState")
             )
@@ -5202,9 +5203,9 @@ def convert_bool(value: Union[bool, str]) -> bool:
         If the value is not a valid boolean.
     """
     if isinstance(value, str):
-        if value == "true" or value == "1":
+        if value in ("true", "1"):
             return True
-        elif value == "false" or value == "0":
+        elif value in ("false", "0"):
             return False
         elif value[0] == "$":
             return value
@@ -5216,7 +5217,7 @@ def convert_bool(value: Union[bool, str]) -> bool:
 
     if value:
         return True
-    elif value == None:
+    elif value is None:
         return None
 
     return False
@@ -5278,7 +5279,7 @@ def convert_enum(
         raise TypeError(
             value.get_name() + " is not of Enumeration type :" + str(enumtype)
         )
-    elif isinstance(value, str):
+    if isinstance(value, str):
         if hasattr(enumtype, value):
             return _OscEnum(enumtype.__name__, value)
         elif "$" == value[0]:
@@ -5288,7 +5289,7 @@ def convert_enum(
             + " is not a valid string input for Enumeration type "
             + str(enumtype)
         )
-    elif value == None:
+    if value is None:
         if none_ok:
             return None
 
@@ -5854,10 +5855,10 @@ class _LightState(VersionBase):
         self.flash_on_duration = convert_float(flashing_on_duration)
         self.flash_off_duration = convert_float(flashing_off_duration)
 
-        if flashing_on_duration == None and self.mode == LightMode.flashing:
+        if flashing_on_duration is None and self.mode == LightMode.flashing:
             self.flash_on_duration = 0.5
 
-        if flashing_off_duration == None and self.mode == LightMode.flashing:
+        if flashing_off_duration is None and self.mode == LightMode.flashing:
             self.flash_off_duration = 0.5
 
     def __eq__(self, other: object) -> bool:
@@ -5898,7 +5899,7 @@ class _LightState(VersionBase):
         if "luminousIntensity" in element.attrib:
             intensity = convert_float(element.attrib["luminousIntensity"])
 
-        if element.find("Color") != None:
+        if element.find("Color") is not None:
             color = Color.parse(element.find("Color"))
         mode = convert_enum(element.attrib["mode"], LightMode)
         return _LightState(mode, color, intensity, flashing_off, flashing_on)
@@ -6625,7 +6626,7 @@ class _ComponentAnimation(_AnimationType):
         _ComponentAnimation
             A _ComponentAnimation object.
         """
-        if element.find("VehicleComponent") != None:
+        if element.find("VehicleComponent") is not None:
             component = _VehicleComponent.parse(
                 element.find("VehicleComponent")
             )

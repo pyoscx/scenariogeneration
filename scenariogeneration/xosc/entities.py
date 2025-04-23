@@ -21,7 +21,7 @@ from .enumerations import (
     VehicleCategory,
     VersionBase,
 )
-from .exceptions import OpenSCENARIOVersionError
+from .exceptions import OpenSCENARIOVersionError, XMLStructureError
 from .utils import (
     BoundingBox,
     CatalogReference,
@@ -1536,6 +1536,12 @@ class ScenarioObject(VersionBase):
         elif element.find("ExternalObjectReference") is not None:
             entityobject = ExternalObjectReference.parse(
                 element.find("ExternalObjectReference")
+            )
+        else:
+            raise XMLStructureError(
+                "ScenarioObject does not contain a valid "
+                "CatalogReference, Vehicle, Pedestrian, MiscObject, or "
+                "ExternalObjectReference"
             )
 
         controller = None

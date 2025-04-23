@@ -25,7 +25,6 @@ from .utils import (
     License,
     ParameterAssignment,
     Properties,
-    VersionBase,
     _StochasticDistributionType,
     convert_float,
 )
@@ -501,11 +500,13 @@ class Stochastic(VersionBase):
         element = ET.Element("Stochastic", self.get_attributes())
         if not self.distributions:
             raise NotEnoughInputArguments("No distribution has been added")
-        for d in self.distributions:
+        for key, value in self.distributions.items():
             dist = ET.SubElement(
-                element, "StochasticDistribution", attrib={"parameterName": d}
+                element,
+                "StochasticDistribution",
+                attrib={"parameterName": key},
             )
-            dist.append(self.distributions[d].get_element())
+            dist.append(value.get_element())
 
         return element
 
@@ -1469,13 +1470,13 @@ class Deterministic(VersionBase):
         element = ET.Element("Deterministic")
         for md in self.multi_distributions:
             element.append(md.get_element())
-        for d in self.single_distributions:
+        for d, sing_dist in self.single_distributions.items():
             dist = ET.SubElement(
                 element,
                 "DeterministicSingleParameterDistribution",
                 attrib={"parameterName": d},
             )
-            dist.append(self.single_distributions[d].get_element())
+            dist.append(sing_dist.get_element())
         return element
 
 
@@ -1563,6 +1564,7 @@ class ParameterValueDistribution(VersionBase):
             description,
             revMinor=osc_minor_version,
             properties=header_properties,
+            license=license,
         )
         if not isinstance(
             parameter_distribution, Stochastic
