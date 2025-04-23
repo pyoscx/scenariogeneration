@@ -91,7 +91,9 @@ def test_elevationprofile():
     assert elevation != elevation3
 
     assert (
-        version_validation("t_road_elevationProfile", elevation, wanted_schema="xodr")
+        version_validation(
+            "t_road_elevationProfile", elevation, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -147,7 +149,9 @@ def test_lateralprofile():
     assert latprofile2 == latprofile
     assert latprofile != latprofile3
     assert (
-        version_validation("t_road_lateralProfile", latprofile, wanted_schema="xodr")
+        version_validation(
+            "t_road_lateralProfile", latprofile, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -157,7 +161,9 @@ def test_elevation_calculator_single_suc_pre():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_elevation(0, 10, 1, 0, 0)
     main_road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
-    connected_road.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    connected_road.add_predecessor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.end
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
@@ -171,7 +177,9 @@ def test_elevation_calculator_single_suc_suc():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_elevation(0, 10, 1, 0, 0)
     main_road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
-    connected_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    connected_road.add_successor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.end
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
@@ -185,7 +193,9 @@ def test_elevation_calculator_single_pre_suc():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_elevation(0, 10, 1, 0, 0)
     main_road.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
-    connected_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    connected_road.add_successor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
@@ -198,8 +208,12 @@ def test_elevation_calculator_single_pre_pre():
     main_road = xodr.create_road(xodr.Line(10), 1)
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_elevation(0, 10, 1, 0, 0)
-    main_road.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
-    connected_road.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    main_road.add_predecessor(
+        xodr.ElementType.road, 2, xodr.ContactPoint.start
+    )
+    connected_road.add_predecessor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
@@ -238,10 +252,14 @@ def test_elevation_calculator_pre_suc():
     suc_road.add_elevation(0, 10, 0, 0, 0)
     pred_road = xodr.create_road(xodr.Line(10), 3)
     pred_road.add_elevation(0, 5, 1, 0, 0)
-    main_road.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    main_road.add_predecessor(
+        xodr.ElementType.road, 2, xodr.ContactPoint.start
+    )
     main_road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
 
-    pred_road.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    pred_road.add_predecessor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
     suc_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
 
     ec = xodr.ElevationCalculator(main_road)
@@ -259,7 +277,9 @@ def test_elevation_calculator_single_pre_suc_junction_road():
     connected_road = xodr.create_road(xodr.Line(10), 2, road_type=100)
     connected_road.add_elevation(0, 10, 1, 0, 0)
     main_road.add_predecessor(xodr.ElementType.junction, 100)
-    connected_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    connected_road.add_successor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
@@ -347,7 +367,9 @@ def test_superelevation_calculator_single_suc_pre():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_superelevation(0, 1, 0, 0, 0)
     main_road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
-    connected_road.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    connected_road.add_predecessor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.end
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
@@ -360,7 +382,9 @@ def test_superelevation_calculator_single_suc_suc():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_superelevation(0, 1, 0, 0, 0)
     main_road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
-    connected_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    connected_road.add_successor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.end
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
@@ -373,7 +397,9 @@ def test_superelevation_calculator_single_pre_suc():
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_superelevation(0, 1, 0, 0, 0)
     main_road.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.end)
-    connected_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    connected_road.add_successor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
@@ -385,8 +411,12 @@ def test_superelevation_calculator_single_pre_pre():
     main_road = xodr.create_road(xodr.Line(10), 1)
     connected_road = xodr.create_road(xodr.Line(10), 2)
     connected_road.add_superelevation(0, 1, 0, 0, 0)
-    main_road.add_predecessor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
-    connected_road.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+    main_road.add_predecessor(
+        xodr.ElementType.road, 2, xodr.ContactPoint.start
+    )
+    connected_road.add_predecessor(
+        xodr.ElementType.road, 1, xodr.ContactPoint.start
+    )
 
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)

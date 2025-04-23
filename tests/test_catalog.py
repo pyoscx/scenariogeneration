@@ -23,7 +23,10 @@ def test_creating_new_catalog():
     cf = OSC.CatalogFile()
 
     cf.create_catalog(
-        "my_catalog.xml", "VehicleCatalog", "My first vehicle catalog", "Mandolin"
+        "my_catalog.xml",
+        "VehicleCatalog",
+        "My first vehicle catalog",
+        "Mandolin",
     )
 
     bb = OSC.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)

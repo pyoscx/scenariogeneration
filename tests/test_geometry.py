@@ -23,7 +23,9 @@ from .xml_validator import version_validation, ValidationResponse
 def test_line():
     line = pyodrx.Line(1)
     assert (
-        version_validation("t_road_planView_geometry_line", line, wanted_schema="xodr")
+        version_validation(
+            "t_road_planView_geometry_line", line, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
     line.add_userdata(pyodrx.UserData("stuffs", "morestuffs"))
@@ -39,7 +41,10 @@ def test_line():
         ([1, 0, 0, np.pi / 2], [0, 1, np.pi / 2]),
         ([1, 1, 1, 0], [2, 1, 0]),
         ([1, 1, 1, 0], [2, 1, 0]),
-        ([1, 1, 1, np.pi / 4], [1.7071067811865476, 1.7071067811865476, np.pi / 4]),
+        (
+            [1, 1, 1, np.pi / 4],
+            [1.7071067811865476, 1.7071067811865476, np.pi / 4],
+        ),
     ],
 )
 
@@ -114,8 +119,14 @@ def test_spiral_zero_curv(data, expdata):
         ([0, 0.05, 10, 0, 10, 0], [9.9376805, 0.829620 + 10, 0.25]),
         ([0, 0.05, 10, -10, 0, 0], [-0.062319415, 0.829620, 0.25]),
         ([0, 0.05, 10, 0, -10, 0], [9.937680, -9.17037951, 0.25]),
-        ([0, 0.05, 10, 0, 0, np.pi / 2], [-0.829620, 9.937680, 0.25 + np.pi / 2]),
-        ([0, 0.05, 10, 0, 0, -np.pi / 2], [0.829620, -9.937680, -np.pi / 2 + 0.25]),
+        (
+            [0, 0.05, 10, 0, 0, np.pi / 2],
+            [-0.829620, 9.937680, 0.25 + np.pi / 2],
+        ),
+        (
+            [0, 0.05, 10, 0, 0, -np.pi / 2],
+            [0.829620, -9.937680, -np.pi / 2 + 0.25],
+        ),
     ],
 )
 
@@ -189,7 +200,9 @@ def test_arc():
 
     assert arc != arc3
     assert (
-        version_validation("t_road_planView_geometry_arc", arc, wanted_schema="xodr")
+        version_validation(
+            "t_road_planView_geometry_arc", arc, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -292,7 +305,9 @@ def test_geometry():
     assert geom == geom2
     assert geom != geom3
     assert (
-        version_validation("t_road_planView_geometry", geom, wanted_schema="xodr")
+        version_validation(
+            "t_road_planView_geometry", geom, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
@@ -461,7 +476,9 @@ def test_planview():
 # expdata: end x, end y, end h
 def test_manual_geometry(data, expdata):
     planview = pyodrx.PlanView()
-    planview.add_fixed_geometry(pyodrx.Line(data[0]), data[1], data[2], data[3])
+    planview.add_fixed_geometry(
+        pyodrx.Line(data[0]), data[1], data[2], data[3]
+    )
 
     x, y, h = planview.get_end_point()
     assert pytest.approx(x, 0.000001) == expdata[0]

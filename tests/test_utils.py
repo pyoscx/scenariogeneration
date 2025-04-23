@@ -17,7 +17,10 @@ import os
 
 from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
-from scenariogeneration.xosc.utils import _TrafficSignalState, ValueConstraintGroup
+from scenariogeneration.xosc.utils import (
+    _TrafficSignalState,
+    ValueConstraintGroup,
+)
 
 from .xml_validator import version_validation, ValidationResponse
 
@@ -53,9 +56,18 @@ def test_transition_dynamics():
     assert td == td4
     td5 = OSC.TransitionDynamics.parse(td3.get_element())
     assert td5 == td3
-    assert version_validation("TransitionDynamics", td, 0) == ValidationResponse.OK
-    assert version_validation("TransitionDynamics", td, 1) == ValidationResponse.OK
-    assert version_validation("TransitionDynamics", td, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TransitionDynamics", td, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TransitionDynamics", td, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TransitionDynamics", td, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.TransitionDynamics("dummy", OSC.DynamicsDimension.distance, 1.0)
     with pytest.raises(ValueError):
@@ -64,16 +76,25 @@ def test_transition_dynamics():
 
 @pytest.mark.parametrize(
     "testinp,results",
-    [([None, None, None], 0), ([1, None, None], 1), ([1, None, 2], 2), ([1, 2, 4], 3)],
+    [
+        ([None, None, None], 0),
+        ([1, None, None], 1),
+        ([1, None, 2], 2),
+        ([1, 2, 4], 3),
+    ],
 )
 def test_dynamics_constraints(testinp, results):
     dyncon = OSC.DynamicsConstraints(
-        max_deceleration=testinp[0], max_acceleration=testinp[1], max_speed=testinp[2]
+        max_deceleration=testinp[0],
+        max_acceleration=testinp[1],
+        max_speed=testinp[2],
     )
     assert len(dyncon.get_attributes()) == results
     prettyprint(dyncon)
     dyncon2 = OSC.DynamicsConstraints(
-        max_deceleration=testinp[0], max_acceleration=testinp[1], max_speed=testinp[2]
+        max_deceleration=testinp[0],
+        max_acceleration=testinp[1],
+        max_speed=testinp[2],
     )
     dyncon3 = OSC.DynamicsConstraints(
         max_deceleration=testinp[0],
@@ -84,10 +105,22 @@ def test_dynamics_constraints(testinp, results):
     )
     assert dyncon == dyncon2
     assert dyncon != dyncon3
-    assert version_validation("DynamicConstraints", dyncon, 0) == ValidationResponse.OK
-    assert version_validation("DynamicConstraints", dyncon, 1) == ValidationResponse.OK
-    assert version_validation("DynamicConstraints", dyncon, 2) == ValidationResponse.OK
-    assert version_validation("DynamicConstraints", dyncon3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DynamicConstraints", dyncon, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DynamicConstraints", dyncon, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DynamicConstraints", dyncon, 2)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DynamicConstraints", dyncon3, 2)
+        == ValidationResponse.OK
+    )
     assert (
         version_validation("DynamicConstraints", dyncon3, 1)
         == ValidationResponse.OSC_VERSION
@@ -105,7 +138,9 @@ def test_dynamics_constraints(testinp, results):
 )
 def test_dynamics_constraints_filled(testinp, results):
     dyncon = OSC.DynamicsConstraints(
-        max_deceleration=testinp[0], max_acceleration=testinp[1], max_speed=testinp[2]
+        max_deceleration=testinp[0],
+        max_acceleration=testinp[1],
+        max_speed=testinp[2],
     )
 
     assert dyncon.is_filled() == results
@@ -137,9 +172,18 @@ def test_orientation(testinp, results):
     assert orientation != orientation3
     orientation4 = OSC.Orientation.parse(orientation.get_element())
     assert orientation == orientation4
-    assert version_validation("Orientation", orientation, 0) == ValidationResponse.OK
-    assert version_validation("Orientation", orientation, 1) == ValidationResponse.OK
-    assert version_validation("Orientation", orientation, 2) == ValidationResponse.OK
+    assert (
+        version_validation("Orientation", orientation, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("Orientation", orientation, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("Orientation", orientation, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.Orientation(0, 0, 0, "dummy")
 
@@ -188,15 +232,25 @@ def test_parameter():
     param6 = OSC.Parameter.parse(param4.get_element())
     assert param4 == param6
 
-    assert version_validation("ParameterDeclaration", param, 0) == ValidationResponse.OK
-    assert version_validation("ParameterDeclaration", param, 1) == ValidationResponse.OK
-    assert version_validation("ParameterDeclaration", param, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ParameterDeclaration", param, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterDeclaration", param, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterDeclaration", param, 2)
+        == ValidationResponse.OK
+    )
     assert (
         version_validation("ParameterDeclaration", param4, 0)
         == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("ParameterDeclaration", param4, 2) == ValidationResponse.OK
+        version_validation("ParameterDeclaration", param4, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.Parameter("stuffs", "dummt", "1.0")
@@ -223,7 +277,10 @@ def test_variable():
         version_validation("VariableDeclaration", param, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("VariableDeclaration", param, 2) == ValidationResponse.OK
+    assert (
+        version_validation("VariableDeclaration", param, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(ValueError):
         OSC.Variable("stuff", "dummy", "1")
@@ -250,35 +307,59 @@ def test_catalogreference():
     prettyprint(catref4.get_element())
     assert catref == catref4
 
-    assert version_validation("CatalogReference", catref, 0) == ValidationResponse.OK
-    assert version_validation("CatalogReference", catref, 1) == ValidationResponse.OK
-    assert version_validation("CatalogReference", catref, 2) == ValidationResponse.OK
+    assert (
+        version_validation("CatalogReference", catref, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CatalogReference", catref, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CatalogReference", catref, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_paramdeclaration():
     pardec = OSC.ParameterDeclarations()
-    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true"))
-    pardec.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec.add_parameter(
+        OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true")
+    )
+    pardec.add_parameter(
+        OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01")
+    )
     pardec2 = OSC.ParameterDeclarations()
-    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true"))
-    pardec2.add_parameter(OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec2.add_parameter(
+        OSC.Parameter("myparam1", OSC.ParameterType.boolean, "true")
+    )
+    pardec2.add_parameter(
+        OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01")
+    )
     pardec3 = OSC.ParameterDeclarations.parse(pardec.get_element())
     prettyprint(pardec.get_element())
     assert pardec == pardec2
     assert pardec == pardec3
     pardec4 = OSC.ParameterDeclarations()
-    pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.int, "1"))
-    pardec4.add_parameter(OSC.Parameter("myparam2", OSC.ParameterType.double, "0.01"))
+    pardec4.add_parameter(
+        OSC.Parameter("myparam2", OSC.ParameterType.int, "1")
+    )
+    pardec4.add_parameter(
+        OSC.Parameter("myparam2", OSC.ParameterType.double, "0.01")
+    )
     assert pardec4 != pardec
 
     assert (
-        version_validation("ParameterDeclarations", pardec, 0) == ValidationResponse.OK
+        version_validation("ParameterDeclarations", pardec, 0)
+        == ValidationResponse.OK
     )
     assert (
-        version_validation("ParameterDeclarations", pardec, 1) == ValidationResponse.OK
+        version_validation("ParameterDeclarations", pardec, 1)
+        == ValidationResponse.OK
     )
     assert (
-        version_validation("ParameterDeclarations", pardec, 2) == ValidationResponse.OK
+        version_validation("ParameterDeclarations", pardec, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         pardec.add_parameter("dummy")
@@ -287,17 +368,23 @@ def test_paramdeclaration():
 def test_variabledeclaration():
     pardec = OSC.VariableDeclarations()
     pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.int, "1"))
-    pardec.add_variable(OSC.Variable("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec.add_variable(
+        OSC.Variable("myparam1", OSC.ParameterType.double, "0.01")
+    )
     pardec2 = OSC.VariableDeclarations()
     pardec2.add_variable(OSC.Variable("myparam1", OSC.ParameterType.int, "1"))
-    pardec2.add_variable(OSC.Variable("myparam1", OSC.ParameterType.double, "0.01"))
+    pardec2.add_variable(
+        OSC.Variable("myparam1", OSC.ParameterType.double, "0.01")
+    )
     pardec3 = OSC.VariableDeclarations.parse(pardec.get_element())
     prettyprint(pardec.get_element())
     assert pardec == pardec2
     assert pardec == pardec3
     pardec4 = OSC.VariableDeclarations()
     pardec4.add_variable(OSC.Variable("myparam2", OSC.ParameterType.int, "1"))
-    pardec4.add_variable(OSC.Variable("myparam2", OSC.ParameterType.double, "0.01"))
+    pardec4.add_variable(
+        OSC.Variable("myparam2", OSC.ParameterType.double, "0.01")
+    )
     assert pardec4 != pardec
 
     assert (
@@ -309,7 +396,8 @@ def test_variabledeclaration():
         == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("VariableDeclarations", pardec, 2) == ValidationResponse.OK
+        version_validation("VariableDeclarations", pardec, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         pardec.add_variable("dummy")
@@ -342,9 +430,18 @@ def test_parameterassignment():
     parass4 = OSC.ParameterAssignment.parse(parass.get_element())
     assert parass4 == parass
 
-    assert version_validation("ParameterAssignment", parass, 0) == ValidationResponse.OK
-    assert version_validation("ParameterAssignment", parass, 1) == ValidationResponse.OK
-    assert version_validation("ParameterAssignment", parass, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ParameterAssignment", parass, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterAssignment", parass, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterAssignment", parass, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_boundinbox():
@@ -439,7 +536,10 @@ def test_controller(tmpdir):
     assert version_validation("Controller", cnt3, 0) == ValidationResponse.OK
     assert version_validation("Controller", cnt3, 1) == ValidationResponse.OK
     assert version_validation("Controller", cnt, 2) == ValidationResponse.OK
-    assert version_validation("Controller", cnt, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Controller", cnt, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     cnt.setVersion(minor=2)
     cnt.dump_to_catalog(
         os.path.join(tmpdir, "my_catalog.xosc"),
@@ -454,12 +554,16 @@ def test_controller(tmpdir):
 
 
 def test_fileheader():
-    fh = OSC.FileHeader("my_scenario", "Mandolin", creation_date=dt.datetime.now())
+    fh = OSC.FileHeader(
+        "my_scenario", "Mandolin", creation_date=dt.datetime.now()
+    )
     prettyprint(fh.get_element())
     fh2 = OSC.FileHeader("my_scenario", "Mandolin")
     props = OSC.Properties()
     props.add_file("dummy")
-    fh3 = OSC.FileHeader("my_scenario", "Mandolin2", license=OSC.License("dummy"))
+    fh3 = OSC.FileHeader(
+        "my_scenario", "Mandolin2", license=OSC.License("dummy")
+    )
 
     assert fh == fh2
     assert fh != fh3
@@ -471,12 +575,21 @@ def test_fileheader():
     assert version_validation("FileHeader", fh, 1) == ValidationResponse.OK
     assert version_validation("FileHeader", fh, 2) == ValidationResponse.OK
 
-    assert version_validation("FileHeader", fh3, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("FileHeader", fh3, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("FileHeader", fh3, 1) == ValidationResponse.OK
     assert version_validation("FileHeader", fh3, 2) == ValidationResponse.OK
 
-    assert version_validation("FileHeader", fh5, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("FileHeader", fh5, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("FileHeader", fh5, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("FileHeader", fh5, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("FileHeader", fh5, 2) == ValidationResponse.OK
 
 
@@ -490,9 +603,18 @@ def test_timeref():
 
     timeref4 = OSC.TimeReference.parse(timeref.get_element())
     assert timeref4 == timeref
-    assert version_validation("TimeReference", timeref, 0) == ValidationResponse.OK
-    assert version_validation("TimeReference", timeref, 1) == ValidationResponse.OK
-    assert version_validation("TimeReference", timeref, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TimeReference", timeref, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TimeReference", timeref, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TimeReference", timeref, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.TimeReference("dummy")
 
@@ -533,9 +655,18 @@ def test_TrafficSignalState():
 
     tss4 = _TrafficSignalState.parse(tss.get_element())
     assert tss4 == tss
-    assert version_validation("TrafficSignalState", tss, 0) == ValidationResponse.OK
-    assert version_validation("TrafficSignalState", tss, 1) == ValidationResponse.OK
-    assert version_validation("TrafficSignalState", tss, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TrafficSignalState", tss, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficSignalState", tss, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficSignalState", tss, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_TrafficSignalController():
@@ -567,13 +698,16 @@ def test_TrafficSignalController():
     assert tsc4 == tsc
 
     assert (
-        version_validation("TrafficSignalController", tsc, 0) == ValidationResponse.OK
+        version_validation("TrafficSignalController", tsc, 0)
+        == ValidationResponse.OK
     )
     assert (
-        version_validation("TrafficSignalController", tsc, 1) == ValidationResponse.OK
+        version_validation("TrafficSignalController", tsc, 1)
+        == ValidationResponse.OK
     )
     assert (
-        version_validation("TrafficSignalController", tsc, 2) == ValidationResponse.OK
+        version_validation("TrafficSignalController", tsc, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -614,9 +748,18 @@ def test_trafficdefinition():
     traffic5 = OSC.TrafficDefinition.parse(traffic3.get_element())
     assert traffic3 == traffic5
 
-    assert version_validation("TrafficDefinition", traffic, 0) == ValidationResponse.OK
-    assert version_validation("TrafficDefinition", traffic, 1) == ValidationResponse.OK
-    assert version_validation("TrafficDefinition", traffic, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TrafficDefinition", traffic, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficDefinition", traffic, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TrafficDefinition", traffic, 2)
+        == ValidationResponse.OK
+    )
 
     assert (
         version_validation("TrafficDefinition", traffic3, 0)
@@ -626,7 +769,10 @@ def test_trafficdefinition():
         version_validation("TrafficDefinition", traffic3, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("TrafficDefinition", traffic3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TrafficDefinition", traffic3, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(TypeError):
         traffic.add_controller("dummy", 1)
@@ -672,15 +818,24 @@ def test_weather():
     assert weather == weather6
     weather5 = OSC.Weather(OSC.CloudState.free, 100, 0, wind=OSC.Wind(0.3, 10))
 
-    assert version_validation("Weather", weather, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("Weather", weather, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Weather", weather, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Weather", weather, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Weather", weather, 2) == ValidationResponse.OK
 
     assert version_validation("Weather", weather4, 0) == ValidationResponse.OK
     assert version_validation("Weather", weather4, 1) == ValidationResponse.OK
 
     assert version_validation("Weather", weather5, 1) == ValidationResponse.OK
-    assert version_validation("Weather", weather5, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Weather", weather5, 0)
+        == ValidationResponse.OSC_VERSION
+    )
 
     cloud_param = OSC.Weather("$asdf")
     cloud_param.setVersion(2)
@@ -764,8 +919,14 @@ def test_roadcondition():
 
     assert rc == rc4
 
-    assert version_validation("RoadCondition", rc, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("RoadCondition", rc, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("RoadCondition", rc, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("RoadCondition", rc, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("RoadCondition", rc, 2) == ValidationResponse.OK
     assert version_validation("RoadCondition", rc3, 0) == ValidationResponse.OK
     assert version_validation("RoadCondition", rc3, 1) == ValidationResponse.OK
@@ -802,8 +963,14 @@ def test_environment(tmpdir):
     env5 = OSC.Environment("Env_name2", tod, weather2, OSC.RoadCondition(3))
     env6 = OSC.Environment("Env_name2", roadcondition=OSC.RoadCondition(3))
 
-    assert version_validation("Environment", env, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("Environment", env, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Environment", env, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Environment", env, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Environment", env, 2) == ValidationResponse.OK
     assert version_validation("Environment", env5, 0) == ValidationResponse.OK
     assert version_validation("Environment", env6, 1) == ValidationResponse.OK
@@ -828,10 +995,14 @@ def test_environment(tmpdir):
 def test_oscenum():
     enum1 = OSC.enumerations._OscEnum("classname", "testname")
     assert enum1.get_name() == "testname"
-    enum2 = OSC.enumerations._OscEnum("classname", "testname", min_minor_version=3)
+    enum2 = OSC.enumerations._OscEnum(
+        "classname", "testname", min_minor_version=3
+    )
     with pytest.raises(OSC.OpenSCENARIOVersionError):
         enum2.get_name()
-    enum3 = OSC.enumerations._OscEnum("classname", "testname", max_minor_version=0)
+    enum3 = OSC.enumerations._OscEnum(
+        "classname", "testname", max_minor_version=0
+    )
     with pytest.raises(OSC.OpenSCENARIOVersionError):
         enum3.get_name()
 
@@ -875,8 +1046,14 @@ def test_timesteadystate():
         version_validation("TargetTimeSteadyState", ttss, 0)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("TargetTimeSteadyState", ttss, 1) == ValidationResponse.OK
-    assert version_validation("TargetTimeSteadyState", ttss, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TargetTimeSteadyState", ttss, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TargetTimeSteadyState", ttss, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_wind():
@@ -967,11 +1144,23 @@ def test_dynamicsConstraints():
         version_validation("DynamicConstraints", dc, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("DynamicConstraints", dc, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DynamicConstraints", dc, 2)
+        == ValidationResponse.OK
+    )
 
-    assert version_validation("DynamicConstraints", dc3, 0) == ValidationResponse.OK
-    assert version_validation("DynamicConstraints", dc3, 1) == ValidationResponse.OK
-    assert version_validation("DynamicConstraints", dc3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DynamicConstraints", dc3, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DynamicConstraints", dc3, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DynamicConstraints", dc3, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_license():
@@ -984,7 +1173,9 @@ def test_license():
 
     l4 = OSC.License.parse(l.get_element())
     assert l4 == l
-    assert version_validation("License", l, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("License", l, 0) == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("License", l, 1) == ValidationResponse.OK
     assert version_validation("License", l, 2) == ValidationResponse.OK
 
@@ -1010,7 +1201,10 @@ def test_absoluteSpeed():
     assert version_validation("FinalSpeed", inst, 1) == ValidationResponse.OK
     assert version_validation("FinalSpeed", inst, 2) == ValidationResponse.OK
 
-    assert version_validation("FinalSpeed", inst4, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("FinalSpeed", inst4, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("FinalSpeed", inst4, 1) == ValidationResponse.OK
     assert version_validation("FinalSpeed", inst4, 2) == ValidationResponse.OK
 
@@ -1025,11 +1219,15 @@ def test_relativeSpeedToMaster():
     assert inst == inst2
     assert inst != inst3
     inst4 = OSC.RelativeSpeedToMaster(
-        1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetTimeSteadyState(2)
+        1,
+        OSC.SpeedTargetValueType.delta,
+        steadyState=OSC.TargetTimeSteadyState(2),
     )
     prettyprint(inst4)
     inst5 = OSC.RelativeSpeedToMaster(
-        1, OSC.SpeedTargetValueType.delta, steadyState=OSC.TargetDistanceSteadyState(1)
+        1,
+        OSC.SpeedTargetValueType.delta,
+        steadyState=OSC.TargetDistanceSteadyState(1),
     )
 
     inst6 = OSC.RelativeSpeedToMaster.parse(inst4.get_element())
@@ -1039,12 +1237,17 @@ def test_relativeSpeedToMaster():
     assert version_validation("FinalSpeed", inst, 1) == ValidationResponse.OK
     assert version_validation("FinalSpeed", inst, 2) == ValidationResponse.OK
 
-    assert version_validation("FinalSpeed", inst4, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("FinalSpeed", inst4, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("FinalSpeed", inst4, 1) == ValidationResponse.OK
     assert version_validation("FinalSpeed", inst4, 2) == ValidationResponse.OK
 
     with pytest.raises(ValueError):
-        OSC.RelativeSpeedToMaster(1, "dummy", steadyState=OSC.TargetTimeSteadyState(2))
+        OSC.RelativeSpeedToMaster(
+            1, "dummy", steadyState=OSC.TargetTimeSteadyState(2)
+        )
     with pytest.raises(TypeError):
         OSC.RelativeSpeedToMaster(
             1, OSC.SpeedTargetValueType.delta, steadyState="dummy"
@@ -1084,8 +1287,14 @@ def test_targetTimeSteadyState():
         version_validation("TargetTimeSteadyState", inst, 0)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("TargetTimeSteadyState", inst, 1) == ValidationResponse.OK
-    assert version_validation("TargetTimeSteadyState", inst, 2) == ValidationResponse.OK
+    assert (
+        version_validation("TargetTimeSteadyState", inst, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("TargetTimeSteadyState", inst, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_value_constraint_group():
@@ -1110,8 +1319,14 @@ def test_value_constraint_group():
         version_validation("ValueConstraintGroup", vcg, 0)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("ValueConstraintGroup", vcg, 1) == ValidationResponse.OK
-    assert version_validation("ValueConstraintGroup", vcg, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ValueConstraintGroup", vcg, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ValueConstraintGroup", vcg, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(TypeError):
         vcg.add_value_constraint("dummy")
@@ -1127,10 +1342,15 @@ def test_value_constraint():
     vc4 = OSC.ValueConstraint.parse(vc.get_element())
     assert vc == vc4
     assert (
-        version_validation("ValueConstraint", vc, 0) == ValidationResponse.OSC_VERSION
+        version_validation("ValueConstraint", vc, 0)
+        == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("ValueConstraint", vc, 1) == ValidationResponse.OK
-    assert version_validation("ValueConstraint", vc, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ValueConstraint", vc, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ValueConstraint", vc, 2) == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.ValueConstraint("dummy", 3)
 
@@ -1215,12 +1435,16 @@ def test_userdefinedlight():
     udl4 = OSC.UserDefinedLight.parse(udl.get_element())
     assert udl4 == udl
     assert (
-        version_validation("UserDefinedLight", udl, 0) == ValidationResponse.OSC_VERSION
+        version_validation("UserDefinedLight", udl, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("UserDefinedLight", udl, 1) == ValidationResponse.OSC_VERSION
+        version_validation("UserDefinedLight", udl, 1)
+        == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("UserDefinedLight", udl, 2) == ValidationResponse.OK
+    assert (
+        version_validation("UserDefinedLight", udl, 2) == ValidationResponse.OK
+    )
 
 
 def test_lightstate():
@@ -1247,8 +1471,14 @@ def test_lightstate():
     ls4 = OSC.utils._LightState.parse(ls.get_element())
     assert ls == ls4
 
-    assert version_validation("LightState", ls, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("LightState", ls, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("LightState", ls, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("LightState", ls, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("LightState", ls, 2) == ValidationResponse.OK
 
     with pytest.raises(ValueError):
@@ -1281,8 +1511,14 @@ def test_animationfile():
     prettyprint(ani4.get_element())
     assert ani4 == ani2
 
-    assert version_validation("AnimationFile", ani, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("AnimationFile", ani, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("AnimationFile", ani, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("AnimationFile", ani, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("AnimationFile", ani, 2) == ValidationResponse.OK
 
 
@@ -1328,7 +1564,10 @@ def test_userdefinedanimation():
         version_validation("UserDefinedAnimation", ani, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("UserDefinedAnimation", ani, 2) == ValidationResponse.OK
+    assert (
+        version_validation("UserDefinedAnimation", ani, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_userdefinedcomponent():
@@ -1348,17 +1587,28 @@ def test_userdefinedcomponent():
         version_validation("UserDefinedComponent", ani, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("UserDefinedComponent", ani, 2) == ValidationResponse.OK
+    assert (
+        version_validation("UserDefinedComponent", ani, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_pedestriananimation():
-    pa = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
-    pa2 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation2")
-    pa3 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.ducking, "animation1")
+    pa = OSC.PedestrianAnimation(
+        OSC.PedestrianMotionType.running, "animation1"
+    )
+    pa2 = OSC.PedestrianAnimation(
+        OSC.PedestrianMotionType.running, "animation2"
+    )
+    pa3 = OSC.PedestrianAnimation(
+        OSC.PedestrianMotionType.ducking, "animation1"
+    )
     prettyprint(pa.get_element())
     assert pa != pa2
     assert pa != pa3
-    pa4 = OSC.PedestrianAnimation(OSC.PedestrianMotionType.running, "animation1")
+    pa4 = OSC.PedestrianAnimation(
+        OSC.PedestrianMotionType.running, "animation1"
+    )
     pa.add_gesture(OSC.PedestrianGestureType.sandwichLeftHand)
     pa4.add_gesture(OSC.PedestrianGestureType.sandwichRightHand)
     assert pa != pa4
@@ -1374,8 +1624,14 @@ def test_pedestriananimation():
         version_validation("PedestrianAnimation", pa, 1)
         == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("PedestrianAnimation", pa, 2) == ValidationResponse.OK
-    assert version_validation("PedestrianAnimation", pa4, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PedestrianAnimation", pa, 2)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PedestrianAnimation", pa4, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.PedestrianAnimation(
             "dummy",
@@ -1393,12 +1649,16 @@ def test_vehiclecomponent():
     prettyprint(vc4.get_element())
     assert vc4 == vc
     assert (
-        version_validation("VehicleComponent", vc, 0) == ValidationResponse.OSC_VERSION
+        version_validation("VehicleComponent", vc, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("VehicleComponent", vc, 1) == ValidationResponse.OSC_VERSION
+        version_validation("VehicleComponent", vc, 1)
+        == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("VehicleComponent", vc, 2) == ValidationResponse.OK
+    assert (
+        version_validation("VehicleComponent", vc, 2) == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.utils._VehicleComponent("dummy")
 
@@ -1448,7 +1708,9 @@ def test_componentanimation():
 def test_global_action_factory(input):
     test_element = ET.Element("AnimationType")
     test_element.append(input.get_element())
-    factoryoutput = OSC.utils._AnimationTypeFactory.parse_animationtype(test_element)
+    factoryoutput = OSC.utils._AnimationTypeFactory.parse_animationtype(
+        test_element
+    )
     prettyprint(input, None)
     prettyprint(factoryoutput, None)
     assert input == factoryoutput
@@ -1478,7 +1740,10 @@ def test_convert_enum():
     e2 = "$param"
     assert OSC.convert_enum(e1, OSC.DynamicsDimension).get_name() == "time"
     assert OSC.convert_enum("time", OSC.DynamicsDimension).get_name() == "time"
-    assert OSC.convert_enum("$param", OSC.DynamicsDimension).get_name() == "$param"
+    assert (
+        OSC.convert_enum("$param", OSC.DynamicsDimension).get_name()
+        == "$param"
+    )
     with pytest.raises(TypeError):
         OSC.convert_enum(1, OSC.DynamicsDimension)
     with pytest.raises(TypeError):

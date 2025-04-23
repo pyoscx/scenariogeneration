@@ -50,7 +50,8 @@ class Scenario(ScenarioGenerator):
         )
         # create spirals from each responce
         roadgeoms = [
-            xodr.Spiral(x.KappaStart, x.KappaEnd, length=x.length) for x in clothoids
+            xodr.Spiral(x.KappaStart, x.KappaEnd, length=x.length)
+            for x in clothoids
         ]
 
         # create the road

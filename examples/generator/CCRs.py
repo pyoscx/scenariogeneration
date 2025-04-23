@@ -49,7 +49,9 @@ class Scenario(ScenarioGenerator):
         self.parameters["offset"] = [-50, -25, 0, 25, 50]
 
     def road(self, **kwargs):
-        road = xodr.create_road([xodr.Line(500)], id=1, left_lanes=2, right_lanes=2)
+        road = xodr.create_road(
+            [xodr.Line(500)], id=1, left_lanes=2, right_lanes=2
+        )
         odr = xodr.OpenDrive("myroad")
         odr.add_road(road)
         odr.adjust_roads_and_lanes()
@@ -107,13 +109,17 @@ class Scenario(ScenarioGenerator):
         cal_offset = kwargs["offset"] / 100 * target_width
 
         egospeed = xosc.AbsoluteSpeedAction(0, step_time)
-        egostart = xosc.TeleportAction(xosc.LanePosition(25, cal_offset, -1, 1))
+        egostart = xosc.TeleportAction(
+            xosc.LanePosition(25, cal_offset, -1, 1)
+        )
 
         startpos = 25 + kwargs["ego_speedvalue"] / 3.6 * (
             acceleration_time + ttc_at_speed
         )
         targetspeed = xosc.AbsoluteSpeedAction(0, step_time)
-        targetstart = xosc.TeleportAction(xosc.LanePosition(startpos, 0, -1, 1))
+        targetstart = xosc.TeleportAction(
+            xosc.LanePosition(startpos, 0, -1, 1)
+        )
 
         init.add_init_action(egoname, egospeed)
         init.add_init_action(egoname, egostart)

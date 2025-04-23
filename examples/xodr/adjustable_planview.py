@@ -39,8 +39,12 @@ class Scenario(ScenarioGenerator):
         jc = xodr.CommonJunctionCreator(100, "my junc")
 
         jc.add_incoming_road_cartesian_geometry(road1, 0, 0, 0, "successor")
-        jc.add_incoming_road_cartesian_geometry(road2, 30, 0, -3.14, "predecessor")
-        jc.add_incoming_road_cartesian_geometry(road3, 15, 15, -3.14 / 2, "successor")
+        jc.add_incoming_road_cartesian_geometry(
+            road2, 30, 0, -3.14, "predecessor"
+        )
+        jc.add_incoming_road_cartesian_geometry(
+            road3, 15, 15, -3.14 / 2, "successor"
+        )
 
         jc.add_connection(1, 2)
         jc.add_connection(3, 2)

@@ -66,11 +66,17 @@ class Scenario(ScenarioGenerator):
         roads[2].add_predecessor(xodr.ElementType.junction, 1)
 
         # add connections to the first connecting road
-        roads[3].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
-        roads[3].add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+        roads[3].add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
+        roads[3].add_successor(
+            xodr.ElementType.road, 2, xodr.ContactPoint.start
+        )
 
         # add connections to the second connecting road with an offset
-        roads[4].add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+        roads[4].add_predecessor(
+            xodr.ElementType.road, 1, xodr.ContactPoint.end
+        )
         roads[4].add_successor(
             xodr.ElementType.road, 2, xodr.ContactPoint.start, lane_offset=-2
         )

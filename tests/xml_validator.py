@@ -15,20 +15,31 @@ class ValidationResponse(Enum):
 
 schemas = []
 schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(0) + ".xsd"))
+    xmlschema.XMLSchema(
+        os.path.join("schemas", "OpenSCENARIO_1_" + str(0) + ".xsd")
+    )
 )
 schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(1) + ".xsd"))
+    xmlschema.XMLSchema(
+        os.path.join("schemas", "OpenSCENARIO_1_" + str(1) + ".xsd")
+    )
 )
 schemas.append(
-    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd"))
+    xmlschema.XMLSchema(
+        os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd")
+    )
 )
 
-xodr_schema = xmlschema.XMLSchema(os.path.join("schemas", "opendrive_17_core.xsd"))
+xodr_schema = xmlschema.XMLSchema(
+    os.path.join("schemas", "opendrive_17_core.xsd")
+)
 
 
 def version_validation(
-    top_element_name, scenariogeneration_object, osc_version=2, wanted_schema="xosc"
+    top_element_name,
+    scenariogeneration_object,
+    osc_version=2,
+    wanted_schema="xosc",
 ):
     if wanted_schema == "xosc":
         schema = schemas[osc_version]

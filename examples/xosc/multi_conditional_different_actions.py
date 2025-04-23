@@ -120,7 +120,9 @@ class Scenario(ScenarioGenerator):
             xosc.AbsoluteSpeedAction(
                 9,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 1
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    1,
                 ),
             ),
         )
@@ -129,7 +131,9 @@ class Scenario(ScenarioGenerator):
         ttc_cond = xosc.TimeToCollisionCondition(
             3, xosc.Rule.lessThan, entity=targetname
         )
-        headway_cond = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.lessThan)
+        headway_cond = xosc.TimeHeadwayCondition(
+            speedyname, 1, xosc.Rule.lessThan
+        )
 
         headway_trigger = xosc.EntityTrigger(
             "trigger", 0, xosc.ConditionEdge.none, headway_cond, egoname
@@ -154,13 +158,17 @@ class Scenario(ScenarioGenerator):
             xosc.AbsoluteLaneChangeAction(
                 -3,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 3
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    3,
                 ),
             ),
         )
 
         # create two separate condition groups
-        headway_cond_2 = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.greaterThan)
+        headway_cond_2 = xosc.TimeHeadwayCondition(
+            speedyname, 1, xosc.Rule.greaterThan
+        )
         headway_trigger_2 = xosc.EntityTrigger(
             "trigger", 0, xosc.ConditionEdge.none, headway_cond_2, egoname
         )

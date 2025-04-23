@@ -122,7 +122,9 @@ class Scenario(ScenarioGenerator):
         trig_cond1 = xosc.TimeToCollisionCondition(
             2, xosc.Rule.lessThan, entity=targetname
         )
-        trig_cond2 = xosc.TimeHeadwayCondition(speedyname, 1, xosc.Rule.greaterThan)
+        trig_cond2 = xosc.TimeHeadwayCondition(
+            speedyname, 1, xosc.Rule.greaterThan
+        )
 
         collision_trigger = xosc.EntityTrigger(
             "trigger", 0, xosc.ConditionEdge.none, trig_cond1, egoname

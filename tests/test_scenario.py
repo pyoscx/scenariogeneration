@@ -25,7 +25,9 @@ def reset_version():
 
 
 def test_road():
-    controller = OSC.TrafficSignalController("controllerName", 11, "ReferenceID")
+    controller = OSC.TrafficSignalController(
+        "controllerName", 11, "ReferenceID"
+    )
     roadfile = "Databases/SampleDatabase.xodr"
     road = OSC.RoadNetwork(roadfile)
     prettyprint(road.get_element(), None)
@@ -49,7 +51,10 @@ def test_road():
     prettyprint(road4.get_element(), None)
     assert road4 == road
 
-    assert version_validation("RoadNetwork", road, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("RoadNetwork", road, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("RoadNetwork", road, 1) == ValidationResponse.OK
     assert version_validation("RoadNetwork", road, 2) == ValidationResponse.OK
 
@@ -79,9 +84,18 @@ def test_catalog():
     prettyprint(catalog4.get_element(), None)
     assert catalog == catalog4
 
-    assert version_validation("CatalogLocations", catalog, 0) == ValidationResponse.OK
-    assert version_validation("CatalogLocations", catalog, 1) == ValidationResponse.OK
-    assert version_validation("CatalogLocations", catalog, 2) == ValidationResponse.OK
+    assert (
+        version_validation("CatalogLocations", catalog, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CatalogLocations", catalog, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CatalogLocations", catalog, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_scenario():
@@ -93,7 +107,11 @@ def test_scenario():
     road = OSC.RoadNetwork(roadfile)
 
     trigcond = OSC.TimeToCollisionCondition(
-        10, OSC.Rule.equalTo, True, freespace=False, position=OSC.WorldPosition()
+        10,
+        OSC.Rule.equalTo,
+        True,
+        freespace=False,
+        position=OSC.WorldPosition(),
     )
 
     trigger = OSC.EntityTrigger(
@@ -103,7 +121,9 @@ def test_scenario():
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
 
-    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
+    TD = OSC.TransitionDynamics(
+        OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+    )
 
     lanechangeaction = OSC.AbsoluteLaneChangeAction(1, TD)
     prettyprint(lanechangeaction.get_element())
@@ -127,7 +147,9 @@ def test_scenario():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
-    veh = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
 
     entities = OSC.Entities()
     entities.add_scenario_object("Ego", veh)
@@ -137,7 +159,9 @@ def test_scenario():
     egospeed = OSC.AbsoluteSpeedAction(10, TD)
 
     init.add_init_action("Ego", egospeed)
-    init.add_init_action("Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0)))
+    init.add_init_action(
+        "Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0))
+    )
     init.add_init_action("Target_1", egospeed)
     init.add_init_action(
         "Target_1", OSC.TeleportAction(OSC.WorldPosition(1, 5, 3, 0, 0, 0))
@@ -146,7 +170,9 @@ def test_scenario():
     sb = OSC.StoryBoard(init)
     sb.add_story(story)
     variables = OSC.VariableDeclarations()
-    variables.add_variable(OSC.Variable("my_var", OSC.ParameterType.string, "hej"))
+    variables.add_variable(
+        OSC.Variable("my_var", OSC.ParameterType.string, "hej")
+    )
     sce = OSC.Scenario(
         "myscenario",
         "Mandolin",

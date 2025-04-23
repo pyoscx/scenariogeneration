@@ -26,11 +26,17 @@ import pytest
 )
 def test_OSC_1_0(tmpdir, python_file):
     sys.path.insert(
-        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
     )
     validator = xmlschema.XMLSchema(
         os.path.join(
-            os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_0.xsd"
+            os.path.split(__file__)[0],
+            os.pardir,
+            "schemas",
+            "OpenSCENARIO_1_0.xsd",
         )
     )
     imp = importlib.import_module(python_file)
@@ -61,11 +67,17 @@ def test_OSC_1_0(tmpdir, python_file):
 )
 def test_OSC_1_1(tmpdir, python_file):
     sys.path.insert(
-        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
     )
     validator = xmlschema.XMLSchema(
         os.path.join(
-            os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_1.xsd"
+            os.path.split(__file__)[0],
+            os.pardir,
+            "schemas",
+            "OpenSCENARIO_1_1.xsd",
         )
     )
     imp = importlib.import_module(python_file)
@@ -97,11 +109,17 @@ def test_OSC_1_1(tmpdir, python_file):
 )
 def test_OSC_1_2(tmpdir, python_file):
     sys.path.insert(
-        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xosc")
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
     )
     validator = xmlschema.XMLSchema(
         os.path.join(
-            os.path.split(__file__)[0], os.pardir, "schemas", "OpenSCENARIO_1_2.xsd"
+            os.path.split(__file__)[0],
+            os.pardir,
+            "schemas",
+            "OpenSCENARIO_1_2.xsd",
         )
     )
     imp = importlib.import_module(python_file)
@@ -149,11 +167,17 @@ def test_OSC_1_2(tmpdir, python_file):
 )
 def test_ODR(tmpdir, python_file):
     sys.path.insert(
-        1, os.path.join(os.path.split(__file__)[0], os.pardir, "examples", "xodr")
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xodr"
+        ),
     )
     validator = xmlschema.XMLSchema(
         os.path.join(
-            os.path.split(__file__)[0], os.pardir, "schemas", "opendrive_17_core.xsd"
+            os.path.split(__file__)[0],
+            os.pardir,
+            "schemas",
+            "opendrive_17_core.xsd",
         )
     )
     imp = importlib.import_module(python_file)

@@ -42,7 +42,9 @@ class Scenario(ScenarioGenerator):
                 )
             )
             roads[-1].add_signal(
-                xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
+                xodr.Signal(
+                    s=98.0, t=-4, country="USA", Type="R1", subtype="1"
+                )
             )
 
             # add road to junciton

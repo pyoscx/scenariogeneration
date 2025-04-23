@@ -50,7 +50,9 @@ class Scenario(ScenarioGenerator):
 
         # create road_2
         road_2_geo = xodr.Line(60.0)
-        road_2_pv = xodr.PlanView(x_start=100.0, y_start=-40.0, h_start=-np.pi / 2)
+        road_2_pv = xodr.PlanView(
+            x_start=100.0, y_start=-40.0, h_start=-np.pi / 2
+        )
         road_2_pv.add_geometry(road_2_geo)
 
         road_2_left_lane_1 = xodr.Lane(a=1.0)

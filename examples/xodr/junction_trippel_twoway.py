@@ -83,22 +83,36 @@ class Scenario(ScenarioGenerator):
         roads = []
         roadtypes = [-1, 1, -1, 1, -1, 1, -1]
         for i in range(numberofroads):
-            roads.append(xodr.Road(i, planviews[i], lanes[i], road_type=roadtypes[i]))
+            roads.append(
+                xodr.Road(i, planviews[i], lanes[i], road_type=roadtypes[i])
+            )
 
         roads[0].add_successor(xodr.ElementType.junction, 1)
 
-        roads[1].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
-        roads[1].add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+        roads[1].add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
+        roads[1].add_successor(
+            xodr.ElementType.road, 2, xodr.ContactPoint.start
+        )
 
         roads[2].add_predecessor(xodr.ElementType.junction, 1)
 
-        roads[3].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
-        roads[3].add_successor(xodr.ElementType.road, 4, xodr.ContactPoint.start)
+        roads[3].add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
+        roads[3].add_successor(
+            xodr.ElementType.road, 4, xodr.ContactPoint.start
+        )
 
         roads[4].add_predecessor(xodr.ElementType.junction, 1)
 
-        roads[5].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
-        roads[5].add_successor(xodr.ElementType.road, 6, xodr.ContactPoint.start)
+        roads[5].add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
+        roads[5].add_successor(
+            xodr.ElementType.road, 6, xodr.ContactPoint.start
+        )
 
         roads[6].add_predecessor(xodr.ElementType.junction, 1)
 

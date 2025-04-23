@@ -40,10 +40,14 @@ class Scenario(ScenarioGenerator):
         paramdec = xosc.ParameterDeclarations()
 
         paramdec.add_parameter(
-            xosc.Parameter("$HostVehicle", xosc.ParameterType.string, "car_white")
+            xosc.Parameter(
+                "$HostVehicle", xosc.ParameterType.string, "car_white"
+            )
         )
         paramdec.add_parameter(
-            xosc.Parameter("$TargetVehicle", xosc.ParameterType.string, "car_red")
+            xosc.Parameter(
+                "$TargetVehicle", xosc.ParameterType.string, "car_red"
+            )
         )
 
         ### create vehicles
@@ -97,7 +101,9 @@ class Scenario(ScenarioGenerator):
 
         ### create an event
 
-        trigcond = xosc.TimeHeadwayCondition(targetname, 0.1, xosc.Rule.greaterThan)
+        trigcond = xosc.TimeHeadwayCondition(
+            targetname, 0.1, xosc.Rule.greaterThan
+        )
 
         trigger = xosc.EntityTrigger(
             "mytesttrigger", 0.2, xosc.ConditionEdge.none, trigcond, egoname

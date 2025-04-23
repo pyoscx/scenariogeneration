@@ -49,7 +49,9 @@ class Scenario(ScenarioGenerator):
         self.parameters["decel"] = [-2, -6]
 
     def road(self, **kwargs):
-        road = xodr.create_road([xodr.Line(500)], id=1, left_lanes=2, right_lanes=2)
+        road = xodr.create_road(
+            [xodr.Line(500)], id=1, left_lanes=2, right_lanes=2
+        )
         odr = xodr.OpenDrive("myroad")
         odr.add_road(road)
         odr.adjust_roads_and_lanes()
@@ -107,7 +109,9 @@ class Scenario(ScenarioGenerator):
         cal_offset = 0
 
         egospeed = xosc.AbsoluteSpeedAction(0, step_time)
-        egostart = xosc.TeleportAction(xosc.LanePosition(25, cal_offset, -1, 1))
+        egostart = xosc.TeleportAction(
+            xosc.LanePosition(25, cal_offset, -1, 1)
+        )
 
         targetspeed = xosc.AbsoluteSpeedAction(0, step_time)
         targetstart = xosc.TeleportAction(
@@ -164,9 +168,13 @@ class Scenario(ScenarioGenerator):
                 abs(kwargs["decel"]),
             ),
         )
-        event_tar_slowdown = xosc.Event("target slowing down", xosc.Priority.overwrite)
+        event_tar_slowdown = xosc.Event(
+            "target slowing down", xosc.Priority.overwrite
+        )
         event_tar_slowdown.add_trigger(target_slowingdown_trigger)
-        event_tar_slowdown.add_action("slowdownaction", target_slowingdown_action)
+        event_tar_slowdown.add_action(
+            "slowdownaction", target_slowingdown_action
+        )
 
         # create maneuvers/maneuvergroups
         ego_man = xosc.Maneuver("ego man")
@@ -211,7 +219,9 @@ class Scenario(ScenarioGenerator):
                 xosc.ConditionEdge.rising,
                 xosc.SimulationTimeCondition(
                     acceleration_time
-                    + np.ceil(np.sqrt(2 * kwargs["distance"] / abs(kwargs["decel"])))
+                    + np.ceil(
+                        np.sqrt(2 * kwargs["distance"] / abs(kwargs["decel"]))
+                    )
                     + kwargs["distance"] / 50,
                     xosc.Rule.greaterThan,
                 ),

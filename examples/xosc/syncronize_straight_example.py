@@ -92,7 +92,9 @@ class Scenario(ScenarioGenerator):
             target_tolerance_master=1,
             target_tolerance=1,
             final_speed=xosc.RelativeSpeedToMaster(
-                10, xosc.SpeedTargetValueType.delta, xosc.TargetTimeSteadyState(10)
+                10,
+                xosc.SpeedTargetValueType.delta,
+                xosc.TargetTimeSteadyState(10),
             ),
         )
 

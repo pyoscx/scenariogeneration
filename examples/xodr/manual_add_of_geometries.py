@@ -30,7 +30,13 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import os
-from scenariogeneration import xodr, xosc, esmini, prettyprint, ScenarioGenerator
+from scenariogeneration import (
+    xodr,
+    xosc,
+    esmini,
+    prettyprint,
+    ScenarioGenerator,
+)
 
 
 class Scenario(ScenarioGenerator):
@@ -47,8 +53,12 @@ class Scenario(ScenarioGenerator):
         # create simple lanes
         lanes = xodr.Lanes()
         lanesection1 = xodr.LaneSection(0, xodr.standard_lane())
-        lanesection1.add_left_lane(xodr.standard_lane(rm=xodr.std_roadmark_solid()))
-        lanesection1.add_right_lane(xodr.standard_lane(rm=xodr.std_roadmark_solid()))
+        lanesection1.add_left_lane(
+            xodr.standard_lane(rm=xodr.std_roadmark_solid())
+        )
+        lanesection1.add_right_lane(
+            xodr.standard_lane(rm=xodr.std_roadmark_solid())
+        )
         lanes.add_lanesection(lanesection1)
 
         road1 = xodr.Road(0, planview, lanes)
