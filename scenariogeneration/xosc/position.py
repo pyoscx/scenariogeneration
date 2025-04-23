@@ -345,7 +345,7 @@ class RelativeWorldPosition(_PositionType):
         dz = convert_float(position_element.attrib["dz"])
         entityref = position_element.attrib["entityRef"]
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -497,7 +497,7 @@ class RelativeObjectPosition(_PositionType):
             dz = None
         entityref = position_element.attrib["entityRef"]
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -518,7 +518,7 @@ class RelativeObjectPosition(_PositionType):
         retdict["entityRef"] = self.target
         retdict["dx"] = str(self.dx)
         retdict["dy"] = str(self.dy)
-        if self.dz != None:
+        if self.dz is not None:
             retdict["dz"] = str(self.dz)
         return retdict
 
@@ -637,7 +637,7 @@ class RoadPosition(_PositionType):
         s = convert_float(position_element.attrib["s"])
         t = convert_float(position_element.attrib["t"])
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -775,7 +775,7 @@ class RelativeRoadPosition(_PositionType):
         dt = convert_float(position_element.attrib["dt"])
         entityref = position_element.attrib["entityRef"]
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -922,7 +922,7 @@ class LanePosition(_PositionType):
         offset = convert_float(position_element.attrib["offset"])
         laneid = position_element.attrib["laneId"]
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1042,11 +1042,11 @@ class RelativeLanePosition(_PositionType):
             The angular orientation of the entity. Default is
             Orientation().
         """
-        if ds != None and dsLane != None:
+        if ds is not None and dsLane is not None:
             raise ToManyOptionalArguments(
                 "Not both of ds and dsLane can be used."
             )
-        if ds == None and dsLane == None:
+        if ds is None and dsLane is None:
             raise NotEnoughInputArguments(
                 "Either ds or dsLane is needed as input."
             )
@@ -1096,7 +1096,7 @@ class RelativeLanePosition(_PositionType):
         dLane = convert_int(position_element.attrib["dLane"])
 
         entityref = position_element.attrib["entityRef"]
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1122,7 +1122,7 @@ class RelativeLanePosition(_PositionType):
         if self.dsLane is not None and not self.isVersion(minor=0):
             retdict["dsLane"] = str(self.dsLane)
         elif self.dsLane is not None and self.isVersion(minor=0):
-            OpenSCENARIOVersionError(
+            raise OpenSCENARIOVersionError(
                 "dsLane was introduced in OpenSCENARIO V1.1, not in 1.0"
             )
         retdict["offset"] = str(self.offset)
@@ -1200,10 +1200,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
         """
-        if not (
-            isinstance(route_ref, Route)
-            or isinstance(route_ref, CatalogReference)
-        ):
+        if not isinstance(route_ref, (Route, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -1238,7 +1235,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
             A RoutePositionOfCurrentEntity object.
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1249,7 +1246,7 @@ class RoutePositionOfCurrentEntity(_PositionType):
         )
         entity = entityelement.attrib["entityRef"]
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
+        if route_element.find("Route") is not None:
             routeref = Route.parse(route_element.find("Route"))
         else:
             routeref = CatalogReference.parse(
@@ -1334,10 +1331,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
         """
-        if not (
-            isinstance(route_ref, Route)
-            or isinstance(route_ref, CatalogReference)
-        ):
+        if not isinstance(route_ref, (Route, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -1374,7 +1368,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
             A RoutePositionInRoadCoordinates object.
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1386,7 +1380,7 @@ class RoutePositionInRoadCoordinates(_PositionType):
         s = convert_float(road_coord_element.attrib["pathS"])
         t = convert_float(road_coord_element.attrib["t"])
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
+        if route_element.find("Route") is not None:
             routeref = Route.parse(route_element.find("Route"))
         else:
             routeref = CatalogReference.parse(
@@ -1480,10 +1474,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
         """
-        if not (
-            isinstance(route_ref, Route)
-            or isinstance(route_ref, CatalogReference)
-        ):
+        if not isinstance(route_ref, (Route, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -1522,7 +1513,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
             A RoutePositionInLaneCoordinates object.
         """
         position_element = element.find("RoutePosition")
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1538,7 +1529,7 @@ class RoutePositionInLaneCoordinates(_PositionType):
         except KeyError:
             offset = 0
         route_element = position_element.find("RouteRef")
-        if route_element.find("Route") != None:
+        if route_element.find("Route") is not None:
             routeref = Route.parse(route_element.find("Route"))
         else:
             routeref = CatalogReference.parse(
@@ -1632,10 +1623,7 @@ class TrajectoryPosition(_PositionType):
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
         """
-        if not (
-            isinstance(trajectory, Trajectory)
-            or isinstance(trajectory, CatalogReference)
-        ):
+        if not isinstance(trajectory, (Trajectory, CatalogReference)):
             raise TypeError(
                 "trajectory input not of type Trajectory or CatalogReference"
             )
@@ -1671,7 +1659,7 @@ class TrajectoryPosition(_PositionType):
             A TrajectoryPosition object.
         """
         position_element = element.find("TrajectoryPosition")
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1684,7 +1672,7 @@ class TrajectoryPosition(_PositionType):
             s = position_element.attrib["s"]
 
         trajectory_element = position_element.find("TrajectoryRef")
-        if trajectory_element.find("Trajectory") != None:
+        if trajectory_element.find("Trajectory") is not None:
             trajectory = Trajectory.parse(
                 trajectory_element.find("Trajectory")
             )
@@ -1806,6 +1794,7 @@ class GeoPosition(_PositionType):
                 return True
         return False
 
+    @staticmethod
     def parse(element: ET.Element) -> "GeoPosition":
         """Parse the XML element of GeoPosition.
 
@@ -1841,7 +1830,7 @@ class GeoPosition(_PositionType):
         else:
             height = None
 
-        if position_element.find("Orientation") != None:
+        if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 position_element.find("Orientation")
             )
@@ -1985,12 +1974,12 @@ class Polyline(_TrajectoryShape):
         """
         shape = ET.Element("Shape")
         element = ET.SubElement(shape, ("Polyline"))
-        for i in range(len(self.positions)):
+        for i, pos in enumerate(self.positions):
             time_dict = {}
             if self.time:
                 time_dict = {"time": str(self.time[i])}
             vert = ET.SubElement(element, "Vertex", attrib=time_dict)
-            vert.append(self.positions[i].get_element())
+            vert.append(pos.get_element())
         return shape
 
 
@@ -2064,6 +2053,8 @@ class Clothoid(_TrajectoryShape):
         stoptime : float, optional
             End time of the clothoid. Default is None.
         """
+        # TODO: The input order needs to be changed, curvature_change has
+        # cardinality 0, breaking change!
         self.curvature = convert_float(curvature)
         self.curvature_change = convert_float(curvature_change)
         self.length = convert_float(length)
@@ -2073,8 +2064,8 @@ class Clothoid(_TrajectoryShape):
 
         self.starttime = convert_float(starttime)
         self.stoptime = convert_float(stoptime)
-        if (self.starttime == None and self.stoptime != None) or (
-            self.starttime != None and self.stoptime == None
+        if (self.starttime is None and self.stoptime is not None) or (
+            self.starttime is not None and self.stoptime is None
         ):
             raise ValueError(
                 "Both start and stoptime has to be set, or none of them"
@@ -2150,7 +2141,7 @@ class Clothoid(_TrajectoryShape):
         else:
             retdict["curvaturePrime"] = str(self.curvature_change)
         retdict["length"] = str(self.length)
-        if self.starttime != None:
+        if self.starttime is not None:
             retdict["startTime"] = str(self.starttime)
             retdict["stopTime"] = str(self.stoptime)
         return retdict
@@ -2516,7 +2507,7 @@ class Route(_BaseCatalog):
             The ElementTree representation of the Route.
         """
         if len(self.waypoints) < 2:
-            ValueError("Too few waypoints")
+            raise ValueError("Too few waypoints")
         element = ET.Element("Route", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         for w in self.waypoints:
@@ -2620,11 +2611,7 @@ class Trajectory(_BaseCatalog):
         shape : _TrajectoryShape
             The shape to be added to the trajectory.
         """
-        if not (
-            isinstance(shape, Polyline)
-            or isinstance(shape, Clothoid)
-            or isinstance(shape, Nurbs)
-        ):
+        if not isinstance(shape, (Polyline, Clothoid, Nurbs)):
             raise TypeError("shape input neither of type _TrajectoryShape")
         self.shapes = shape
         return self

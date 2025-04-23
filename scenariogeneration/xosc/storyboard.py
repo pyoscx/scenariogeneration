@@ -363,11 +363,11 @@ class Init(VersionBase):
             actions.append(i.get_element())
 
         # add private actions
-        for i in self.initactions:
+        for key, val in self.initactions.items():
             private = ET.SubElement(
-                actions, "Private", attrib={"entityRef": i}
+                actions, "Private", attrib={"entityRef": key}
             )
-            for j in self.initactions[i]:
+            for j in val:
                 private.append(j.get_element())
 
         return element

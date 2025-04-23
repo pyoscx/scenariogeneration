@@ -227,9 +227,7 @@ class Trigger(_TriggerType):
                 and self._triggerpoint == other._triggerpoint
             ):
                 return True
-        elif isinstance(other, EntityTrigger) or isinstance(
-            other, ValueTrigger
-        ):
+        elif isinstance(other, (EntityTrigger, ValueTrigger)):
             if (
                 len(self.conditiongroups) == 1
                 and len(self.conditiongroups[0].conditions) == 1
@@ -292,8 +290,6 @@ class Trigger(_TriggerType):
     def get_element(self):
         """Returns the elementTree of the Trigger."""
         element = ET.Element(self._triggerpoint)
-        if not self.conditiongroups:
-            ValueError("No conditiongroups were added to the trigger")
         for c in self.conditiongroups:
             element.append(c.get_element())
         return element
@@ -340,6 +336,7 @@ class ConditionGroup(_TriggerType):
         else:
             self._triggerpoint = "StopTrigger"
         self.conditions = []
+        self._used_by_parent = False
 
     def __eq__(self, other):
         if isinstance(other, ConditionGroup):
@@ -355,9 +352,7 @@ class ConditionGroup(_TriggerType):
                     and other.conditiongroups[0] == self
                 ):
                     return True
-        elif isinstance(other, EntityTrigger) or isinstance(
-            other, ValueTrigger
-        ):
+        elif isinstance(other, (EntityTrigger, ValueTrigger)):
             if len(self.conditions) == 1:
                 if (
                     self._triggerpoint == other._triggerpoint
@@ -397,10 +392,7 @@ class ConditionGroup(_TriggerType):
         ----------
             condition (EntityTrigger, or ValueTrigger): a condition to add to the ConditionGroup
         """
-        if not (
-            isinstance(condition, EntityTrigger)
-            or isinstance(condition, ValueTrigger)
-        ):
+        if not isinstance(condition, (EntityTrigger, ValueTrigger)):
             raise TypeError(
                 "condition input not of type EntityTrigger or ValueTrigger"
             )
@@ -1421,7 +1413,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         self.alongroute = convert_bool(alongroute)
         self.rule = convert_enum(rule, Rule)
         self.use_entity = None
-        if (entity != None) and (position != None):
+        if (entity is not None) and (position is not None):
             raise ToManyOptionalArguments(
                 "Can only have either entity of position, not both"
             )
@@ -1434,7 +1426,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
             self.position = position
             self.use_entity = False
 
-        if self.use_entity == None:
+        if self.use_entity is None:
             raise ValueError("neither position or entity was set.")
 
         self.relative_distance_type = convert_enum(
@@ -2061,7 +2053,7 @@ class ReachPositionCondition(_EntityTriggerType):
 
             tolerance (float): tolerance of the position
         """
-        if not (isinstance(position, _PositionType)):
+        if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
         self.position = position
         self.tolerance = convert_float(tolerance)
@@ -2182,7 +2174,7 @@ class DistanceCondition(_EntityTriggerType):
         self.alongroute = convert_bool(alongroute)
         self.freespace = convert_bool(freespace)
         self.rule = convert_enum(rule, Rule)
-        if not (isinstance(position, _PositionType)):
+        if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
         self.position = position
         self.relative_distance_type = convert_enum(
@@ -2988,7 +2980,7 @@ class SimulationTimeCondition(_ValueTriggerType):
         -------
             condition (SimulationTimeCondition): a SimulationTimeCondition object
         """
-        condition = element.find("SimulationTimeCondition")
+        # condition = element.find("SimulationTimeCondition")
         value = convert_float(element.attrib["value"])
         rule = convert_enum(element.attrib["rule"], Rule)
         return SimulationTimeCondition(value, rule)

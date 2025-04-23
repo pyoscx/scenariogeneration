@@ -168,7 +168,7 @@ def test_relativelaneposition():
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
     pos5 = OSC.RelativeLanePosition(dsLane=1, lane_id=2, entity="Ego")
-    assert version_validation("Position", pos5, 0) == ValidationResponse.XSD_FAILURE
+    assert version_validation("Position", pos5, 0) == ValidationResponse.OSC_VERSION
     assert version_validation("Position", pos5, 1) == ValidationResponse.OK
     assert version_validation("Position", pos5, 2) == ValidationResponse.OK
     with pytest.raises(TypeError):
