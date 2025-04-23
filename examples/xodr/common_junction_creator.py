@@ -37,20 +37,32 @@ class Scenario(ScenarioGenerator):
 
         # create 3 roads, and add the successor/predecessor junction
 
-        road1 = xodr.create_road(xodr.Line(100), id=1, left_lanes=2, right_lanes=2)
-        road2 = xodr.create_road(xodr.Line(100), id=2, left_lanes=1, right_lanes=1)
-        road3 = xodr.create_road(xodr.Line(100), id=3, left_lanes=2, right_lanes=2)
+        road1 = xodr.create_road(
+            xodr.Line(100), id=1, left_lanes=2, right_lanes=2
+        )
+        road2 = xodr.create_road(
+            xodr.Line(100), id=2, left_lanes=1, right_lanes=1
+        )
+        road3 = xodr.create_road(
+            xodr.Line(100), id=3, left_lanes=2, right_lanes=2
+        )
 
         # create direct junction connection to all common lanes between the main roads
 
-        junction_creator = xodr.CommonJunctionCreator(id=100, name="my_junction")
+        junction_creator = xodr.CommonJunctionCreator(
+            id=100, name="my_junction"
+        )
 
         junction_creator.add_incoming_road_cartesian_geometry(
             road1, x=0, y=0, heading=0, road_connection="successor"
         )
 
         junction_creator.add_incoming_road_cartesian_geometry(
-            road2, x=50, y=50, heading=3.1415 * 3 / 2, road_connection="predecessor"
+            road2,
+            x=50,
+            y=50,
+            heading=3.1415 * 3 / 2,
+            road_connection="predecessor",
         )
 
         junction_creator.add_incoming_road_cartesian_geometry(

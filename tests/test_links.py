@@ -207,25 +207,72 @@ def test_create_lane_links_normalroad1():
 
     odr.adjust_roads_and_lanes()
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert int(road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == -1
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert int(road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        int(road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == -1
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        int(road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == 1
+    )
 
     assert (
-        int(road2.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == -1
+        int(
+            road2.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == -1
     )
-    assert int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == -1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
+    assert (
+        int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == -1
+    )
+    assert (
+        int(
+            road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == 1
+    )
+    assert (
+        int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == 1
+    )
 
     assert (
-        int(road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == -1
+        int(
+            road3.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == -1
     )
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert int(road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        int(
+            road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == 1
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 # road - junction - road // -> - -> - ->
@@ -290,22 +337,65 @@ def test_create_lane_links_junction1():
     odr.adjust_roads_and_lanes()
 
     assert (
-        int(road2.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == -1
+        int(
+            road2.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == -1
     )
-    assert int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == -1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
+    assert (
+        int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == -1
+    )
+    assert (
+        int(
+            road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == 1
+    )
+    assert (
+        int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == 1
+    )
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 # road - junction - road // <- - -> - <-
@@ -351,7 +441,9 @@ def test_create_lane_links_junction2():
     road1.add_predecessor(pyodrx.ElementType.junction, 1)
 
     road2 = pyodrx.Road(2, planview[1], lanes[1], road_type=1)
-    road2.add_predecessor(pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start)
+    road2.add_predecessor(
+        pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start
+    )
     road2.add_successor(pyodrx.ElementType.road, 3, pyodrx.ContactPoint.end)
 
     road3 = pyodrx.Road(3, planview[2], lanes[2])
@@ -366,24 +458,65 @@ def test_create_lane_links_junction2():
     odr.adjust_roads_and_lanes()
 
     assert (
-        int(road2.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == 1
+        int(
+            road2.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == 1
     )
-    assert int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == 1
     assert (
-        int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == -1
+        int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == 1
     )
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == -1
+    assert (
+        int(
+            road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == -1
+    )
+    assert (
+        int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == -1
+    )
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 # road - junction - road // <- - -> - ->
@@ -429,7 +562,9 @@ def test_create_lane_links_junction3():
     road1.add_predecessor(pyodrx.ElementType.junction, 1)
 
     road2 = pyodrx.Road(2, planview[1], lanes[1], road_type=1)
-    road2.add_predecessor(pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start)
+    road2.add_predecessor(
+        pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start
+    )
     road2.add_successor(pyodrx.ElementType.road, 3, pyodrx.ContactPoint.start)
 
     road3 = pyodrx.Road(3, planview[2], lanes[2])
@@ -444,24 +579,65 @@ def test_create_lane_links_junction3():
     odr.adjust_roads_and_lanes()
 
     assert (
-        int(road2.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == 1
+        int(
+            road2.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == 1
     )
-    assert int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == -1
     assert (
-        int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == -1
+        int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == -1
     )
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == 1
+    assert (
+        int(
+            road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == -1
+    )
+    assert (
+        int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == 1
+    )
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 # road - junction - road // -> - -> - <-
@@ -522,22 +698,65 @@ def test_create_lane_links_junction4():
     odr.adjust_roads_and_lanes()
 
     assert (
-        int(road2.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()) == -1
+        int(
+            road2.lanes.lanesections[0]
+            .rightlanes[0]
+            .links.get_predecessor_id()
+        )
+        == -1
     )
-    assert int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id()) == 1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()) == 1
-    assert int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id()) == -1
+    assert (
+        int(road2.lanes.lanesections[0].rightlanes[0].links.get_successor_id())
+        == 1
+    )
+    assert (
+        int(
+            road2.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        )
+        == 1
+    )
+    assert (
+        int(road2.lanes.lanesections[0].leftlanes[0].links.get_successor_id())
+        == -1
+    )
 
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
 
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id() == None
-    assert road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id() == None
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].rightlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_predecessor_id()
+        == None
+    )
+    assert (
+        road3.lanes.lanesections[0].leftlanes[0].links.get_successor_id()
+        == None
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_junction_group():
@@ -573,14 +792,21 @@ def test_lanelinking_roads_pre_suc():
     odr.add_road(road2)
     odr.adjust_roads_and_lanes()
     assert (
-        road1.lanes.lanesections[0].leftlanes[0].links.links[0].link_type == "successor"
+        road1.lanes.lanesections[0].leftlanes[0].links.links[0].link_type
+        == "successor"
     )
     assert (
         road1.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "successor"
     )
-    assert road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "1"
-    assert road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "-1"
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "1"
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "-1"
+    )
 
     assert (
         road2.lanes.lanesections[0].leftlanes[0].links.links[0].link_type
@@ -590,9 +816,18 @@ def test_lanelinking_roads_pre_suc():
         road2.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "predecessor"
     )
-    assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "1"
-    assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "-1"
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "1"
+    )
+    assert (
+        road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "-1"
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_lanelinking_roads_suc_suc():
@@ -605,32 +840,53 @@ def test_lanelinking_roads_suc_suc():
     odr.add_road(road2)
     odr.adjust_roads_and_lanes()
     assert (
-        road1.lanes.lanesections[0].leftlanes[0].links.links[0].link_type == "successor"
+        road1.lanes.lanesections[0].leftlanes[0].links.links[0].link_type
+        == "successor"
     )
     assert (
         road1.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "successor"
     )
-    assert road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
-    assert road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "-1"
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "1"
+    )
 
     assert (
-        road2.lanes.lanesections[0].leftlanes[0].links.links[0].link_type == "successor"
+        road2.lanes.lanesections[0].leftlanes[0].links.links[0].link_type
+        == "successor"
     )
     assert (
         road2.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "successor"
     )
-    assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
-    assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "-1"
+    )
+    assert (
+        road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "1"
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
 
 
 def test_lanelinking_roads_suc_suc():
     road1 = pyodrx.create_road(pyodrx.Line(10), 0, 1, 1)
     road2 = pyodrx.create_road(pyodrx.Line(10), 1, 1, 1)
-    road1.add_predecessor(pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start)
-    road2.add_predecessor(pyodrx.ElementType.road, 0, pyodrx.ContactPoint.start)
+    road1.add_predecessor(
+        pyodrx.ElementType.road, 1, pyodrx.ContactPoint.start
+    )
+    road2.add_predecessor(
+        pyodrx.ElementType.road, 0, pyodrx.ContactPoint.start
+    )
     odr = pyodrx.OpenDrive("test")
     odr.add_road(road1)
     odr.add_road(road2)
@@ -643,8 +899,14 @@ def test_lanelinking_roads_suc_suc():
         road1.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "predecessor"
     )
-    assert road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
-    assert road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
+    assert (
+        road1.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "-1"
+    )
+    assert (
+        road1.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "1"
+    )
 
     assert (
         road2.lanes.lanesections[0].leftlanes[0].links.links[0].link_type
@@ -654,6 +916,15 @@ def test_lanelinking_roads_suc_suc():
         road2.lanes.lanesections[0].rightlanes[0].links.links[0].link_type
         == "predecessor"
     )
-    assert road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id == "-1"
-    assert road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id == "1"
-    assert version_validation(None, odr, wanted_schema="xodr") == ValidationResponse.OK
+    assert (
+        road2.lanes.lanesections[0].leftlanes[0].links.links[0].element_id
+        == "-1"
+    )
+    assert (
+        road2.lanes.lanesections[0].rightlanes[0].links.links[0].element_id
+        == "1"
+    )
+    assert (
+        version_validation(None, odr, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )

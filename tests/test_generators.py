@@ -438,7 +438,9 @@ def test_create_right_lane_merge_second_lane():
 
 
 def test_create_lanes_with_uniform_lane_width_diff():
-    lanes = xodr.create_lanes_merge_split(1, 1, 30, xodr.std_roadmark_solid(), 3, 4)
+    lanes = xodr.create_lanes_merge_split(
+        1, 1, 30, xodr.std_roadmark_solid(), 3, 4
+    )
     assert len(lanes.lanesections) == 1
     assert len(lanes.lanesections[0].leftlanes) == 1
     assert len(lanes.lanesections[0].rightlanes) == 1

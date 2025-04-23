@@ -132,7 +132,9 @@ def test_roadmark():
     prettyprint(mark4.get_element())
     assert (
         version_validation(
-            "t_road_lanes_laneSection_lcr_lane_roadMark", mark, wanted_schema="xodr"
+            "t_road_lanes_laneSection_lcr_lane_roadMark",
+            mark,
+            wanted_schema="xodr",
         )
         == ValidationResponse.OK
     )
@@ -300,7 +302,9 @@ def test_lanesection():
     assert ls == ls2
     assert ls != ls3
     assert (
-        version_validation("t_road_lanes_laneSection", ls, wanted_schema="xodr")
+        version_validation(
+            "t_road_lanes_laneSection", ls, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
@@ -320,7 +324,9 @@ def test_laneoffset():
     assert laneoffset1 != laneoffset2
     assert laneoffset1 == laneoffset3
     assert (
-        version_validation("t_road_lanes_laneOffset", laneoffset1, wanted_schema="xodr")
+        version_validation(
+            "t_road_lanes_laneOffset", laneoffset1, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -513,7 +519,9 @@ def test_adjust_lanes_end_one_lanesection_end_connection():
     connecting_lanes.add_lanesection(connecting_lane_section)
     connecting_lanes.adjust_road_marks_from_start(10)
 
-    lanes.adjust_road_marks_from_end(11, connecting_lane_section, xodr.ContactPoint.end)
+    lanes.adjust_road_marks_from_end(
+        11, connecting_lane_section, xodr.ContactPoint.end
+    )
 
     assert ls.rightlanes[0].roadmark[0]._line[0].soffset == 0
     assert ls.rightlanes[0].roadmark[0]._line[0]._remainder == 2

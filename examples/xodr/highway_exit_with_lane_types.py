@@ -43,8 +43,12 @@ class Scenario(ScenarioGenerator):
         )
 
         # add the type of lane to the exit and offramp
-        first_road.lanes.lanesections[1].rightlanes[2].lane_type = xodr.LaneType.exit
-        first_road.lanes.lanesections[2].rightlanes[2].lane_type = xodr.LaneType.exit
+        first_road.lanes.lanesections[1].rightlanes[
+            2
+        ].lane_type = xodr.LaneType.exit
+        first_road.lanes.lanesections[2].rightlanes[
+            2
+        ].lane_type = xodr.LaneType.exit
 
         continuation_road = xodr.create_road(
             xodr.Spiral(0.00001, 0.001, 200), 2, left_lanes=2, right_lanes=2
@@ -59,7 +63,9 @@ class Scenario(ScenarioGenerator):
             0,
             1,
         )
-        exit_road.lanes.lanesections[0].rightlanes[0].lane_type = xodr.LaneType.offRamp
+        exit_road.lanes.lanesections[0].rightlanes[
+            0
+        ].lane_type = xodr.LaneType.offRamp
 
         # add successors and predecessors as a direct junction
         first_road.add_successor(xodr.ElementType.junction, 100)

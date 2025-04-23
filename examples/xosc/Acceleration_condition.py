@@ -88,7 +88,9 @@ class Scenario(ScenarioGenerator):
         egostart = xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0))
 
         targetspeed = xosc.AbsoluteSpeedAction(15, step_time)
-        targetstart = xosc.TeleportAction(xosc.RelativeRoadPosition(30, 0, egoname))
+        targetstart = xosc.TeleportAction(
+            xosc.RelativeRoadPosition(30, 0, egoname)
+        )
 
         init.add_init_action(egoname, egospeed)
         init.add_init_action(egoname, egostart)
@@ -141,7 +143,11 @@ class Scenario(ScenarioGenerator):
 
         trigcond = xosc.StandStillCondition(0.5)
         standstill_trigger = xosc.EntityTrigger(
-            "standstill trigger", 0.1, xosc.ConditionEdge.none, trigcond, targetname
+            "standstill trigger",
+            0.1,
+            xosc.ConditionEdge.none,
+            trigcond,
+            targetname,
         )
         stop_action = xosc.AbsoluteSpeedAction(
             0,

@@ -75,8 +75,14 @@ def test_normaldistribution():
     assert nd4 == nd
     nd5 = OSC.NormalDistribution.parse(nd3.get_element())
     assert nd5 == nd3
-    assert version_validation("NormalDistribution", nd, 1) == ValidationResponse.OK
-    assert version_validation("NormalDistribution", nd, 2) == ValidationResponse.OK
+    assert (
+        version_validation("NormalDistribution", nd, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("NormalDistribution", nd, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.NormalDistribution(1, 2, "dummy")
 
@@ -93,8 +99,14 @@ def test_poissondistribution():
     assert pd4 == pd
     pd5 = OSC.PoissonDistribution.parse(pd3.get_element())
     assert pd5 == pd3
-    assert version_validation("PoissonDistribution", pd, 1) == ValidationResponse.OK
-    assert version_validation("PoissonDistribution", pd, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PoissonDistribution", pd, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PoissonDistribution", pd, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.PoissonDistribution(1, "dummy")
 
@@ -145,8 +157,14 @@ def test_uniformdist():
     assert ud != ud3
     ud4 = OSC.UniformDistribution.parse(ud.get_element())
     assert ud == ud4
-    assert version_validation("UniformDistribution", ud, 1) == ValidationResponse.OK
-    assert version_validation("UniformDistribution", ud, 2) == ValidationResponse.OK
+    assert (
+        version_validation("UniformDistribution", ud, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("UniformDistribution", ud, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.UniformDistribution("dummy")
 
@@ -158,7 +176,9 @@ def test_element():
     prettyprint(e)
     assert e == e2
     assert e != e3
-    e4 = OSC.parameters._ProbabilityDistributionSetElement.parse(e.get_element())
+    e4 = OSC.parameters._ProbabilityDistributionSetElement.parse(
+        e.get_element()
+    )
     assert e4 == e
     assert (
         version_validation("ProbabilityDistributionSetElement", e, 1)
@@ -184,8 +204,14 @@ def test_parameter_set():
     assert pvs != pvs3
     pvs4 = OSC.ParameterValueSet.parse(pvs3.get_element())
     assert pvs4 == pvs3
-    assert version_validation("ParameterValueSet", pvs, 1) == ValidationResponse.OK
-    assert version_validation("ParameterValueSet", pvs, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ParameterValueSet", pvs, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ParameterValueSet", pvs, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_probabilitydistributionset():
@@ -223,8 +249,12 @@ def test_distributionrange():
     assert dr != dr4
     dr5 = OSC.DistributionRange.parse(dr.get_element())
     assert dr5 == dr
-    assert version_validation("DistributionRange", dr, 1) == ValidationResponse.OK
-    assert version_validation("DistributionRange", dr, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DistributionRange", dr, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DistributionRange", dr, 2) == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.DistributionRange(1, "dummy")
 
@@ -243,8 +273,12 @@ def test_distributionset():
     ds4 = OSC.DistributionSet.parse(ds3.get_element())
     assert ds3 == ds4
 
-    assert version_validation("DistributionSet", ds, 1) == ValidationResponse.OK
-    assert version_validation("DistributionSet", ds, 2) == ValidationResponse.OK
+    assert (
+        version_validation("DistributionSet", ds, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("DistributionSet", ds, 2) == ValidationResponse.OK
+    )
 
 
 def test_DeterministicMultiParameterDistribution():
@@ -265,7 +299,9 @@ def test_DeterministicMultiParameterDistribution():
     prettyprint(dist3, None)
     assert dist == dist2
     assert dist != dist3
-    dist4 = OSC.DeterministicMultiParameterDistribution.parse(dist3.get_element())
+    dist4 = OSC.DeterministicMultiParameterDistribution.parse(
+        dist3.get_element()
+    )
     prettyprint(dist4, None)
     assert dist4 == dist3
 
@@ -404,7 +440,9 @@ def test_Stochastic_factory(distribution):
     element = ET.Element("StochasticDistribution")
     element.append(distribution.get_element())
     prettyprint(element, None)
-    factoryoutput = OSC.parameters._StochasticFactory.parse_distribution(element)
+    factoryoutput = OSC.parameters._StochasticFactory.parse_distribution(
+        element
+    )
 
     prettyprint(factoryoutput)
     assert distribution == factoryoutput
@@ -422,7 +460,9 @@ def test_deterministic_factory(distribution):
     element = ET.Element("DeterministicSingleParameterDistribution")
     element.append(distribution.get_element())
     prettyprint(element, None)
-    factoryoutput = OSC.parameters._DeterministicFactory.parse_distribution(element)
+    factoryoutput = OSC.parameters._DeterministicFactory.parse_distribution(
+        element
+    )
 
     prettyprint(factoryoutput)
     assert distribution == factoryoutput

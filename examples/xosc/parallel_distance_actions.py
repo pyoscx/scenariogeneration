@@ -99,13 +99,19 @@ class Scenario(ScenarioGenerator):
                 -1,
                 targetname,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 3
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    3,
                 ),
             ),
         )
         lc_event.add_trigger(
             xosc.EntityTrigger(
-                "lanechangetrigger", 0, xosc.ConditionEdge.none, lc_cond, egoname
+                "lanechangetrigger",
+                0,
+                xosc.ConditionEdge.none,
+                lc_cond,
+                egoname,
             )
         )
 
@@ -120,7 +126,10 @@ class Scenario(ScenarioGenerator):
             ),
         )
         trig_cond = xosc.RelativeDistanceCondition(
-            5, xosc.Rule.lessThan, xosc.RelativeDistanceType.lateral, targetname
+            5,
+            xosc.Rule.lessThan,
+            xosc.RelativeDistanceType.lateral,
+            targetname,
         )
         event.add_trigger(
             xosc.EntityTrigger(

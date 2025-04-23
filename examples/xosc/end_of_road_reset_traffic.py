@@ -69,12 +69,16 @@ class Scenario(ScenarioGenerator):
                 xosc.AbsoluteSpeedAction(
                     60,
                     xosc.TransitionDynamics(
-                        xosc.DynamicsShapes.step, xosc.DynamicsDimension.time, 1
+                        xosc.DynamicsShapes.step,
+                        xosc.DynamicsDimension.time,
+                        1,
                     ),
                 ),
             )
 
-            event = xosc.Event("speedchange", xosc.Priority.overwrite, maxexecution=10)
+            event = xosc.Event(
+                "speedchange", xosc.Priority.overwrite, maxexecution=10
+            )
             event.add_action(
                 "restart", xosc.TeleportAction(xosc.LanePosition(0, 0, -1, 1))
             )

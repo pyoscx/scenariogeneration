@@ -95,7 +95,9 @@ def test_vehicle(tmpdir):
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
 
-    veh = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
 
     prettyprint(veh.get_element())
     veh.add_property_file("propfile.xml")
@@ -106,7 +108,9 @@ def test_vehicle(tmpdir):
 
     prettyprint(veh.get_element())
 
-    veh2 = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh2 = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
     veh2.add_property_file("propfile.xml")
     veh2.add_property("myprop", "12")
     veh2.add_axle(ba)
@@ -142,8 +146,14 @@ def test_vehicle(tmpdir):
     assert version_validation("Vehicle", veh, 1) == ValidationResponse.OK
     assert version_validation("Vehicle", veh, 2) == ValidationResponse.OK
 
-    assert version_validation("Vehicle", veh3, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("Vehicle", veh3, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Vehicle", veh3, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Vehicle", veh3, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Vehicle", veh3, 2) == ValidationResponse.OK
 
     veh6 = OSC.Vehicle(
@@ -159,7 +169,10 @@ def test_vehicle(tmpdir):
         "model",
     )
 
-    assert version_validation("Vehicle", veh6, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Vehicle", veh6, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Vehicle", veh6, 1) == ValidationResponse.OK
     assert version_validation("Vehicle", veh6, 2) == ValidationResponse.OK
 
@@ -173,14 +186,28 @@ def test_vehicle(tmpdir):
     with pytest.raises(ValueError):
         OSC.Vehicle("car", "dummy", bb, fa, ba, 150, 10, 10)
     with pytest.raises(TypeError):
-        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, "dummy", fa, ba, 150, 10, 10)
+        OSC.Vehicle(
+            "car", OSC.VehicleCategory.bicycle, "dummy", fa, ba, 150, 10, 10
+        )
     with pytest.raises(TypeError):
-        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, bb, "dummy", ba, 150, 10, 10)
+        OSC.Vehicle(
+            "car", OSC.VehicleCategory.bicycle, bb, "dummy", ba, 150, 10, 10
+        )
     with pytest.raises(TypeError):
-        OSC.Vehicle("car", OSC.VehicleCategory.bicycle, bb, fa, "dummy", 150, 10, 10)
+        OSC.Vehicle(
+            "car", OSC.VehicleCategory.bicycle, bb, fa, "dummy", 150, 10, 10
+        )
     with pytest.raises(ValueError):
         OSC.Vehicle(
-            "car", OSC.VehicleCategory.bicycle, bb, fa, ba, 150, 10, 10, role="dummy"
+            "car",
+            OSC.VehicleCategory.bicycle,
+            bb,
+            fa,
+            ba,
+            150,
+            10,
+            10,
+            role="dummy",
         )
     with pytest.raises(TypeError):
         veh.add_parameter("dummy")
@@ -191,7 +218,12 @@ def test_vehicle(tmpdir):
 def test_pedestrian(tmpdir):
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     ped = OSC.Pedestrian(
-        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", OSC.Role.police
+        "myped",
+        100,
+        OSC.PedestrianCategory.pedestrian,
+        bb,
+        "ped",
+        OSC.Role.police,
     )
 
     prettyprint(ped.get_element())
@@ -203,7 +235,12 @@ def test_pedestrian(tmpdir):
     prettyprint(ped.get_element())
 
     ped2 = OSC.Pedestrian(
-        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", OSC.Role.police
+        "myped",
+        100,
+        OSC.PedestrianCategory.pedestrian,
+        bb,
+        "ped",
+        OSC.Role.police,
     )
     ped2.add_property_file("propfile.xml")
     ped2.add_property("myprop", "12")
@@ -223,8 +260,14 @@ def test_pedestrian(tmpdir):
         "test catalog",
         "Mandolin",
     )
-    assert version_validation("Pedestrian", ped, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("Pedestrian", ped, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Pedestrian", ped, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("Pedestrian", ped, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Pedestrian", ped, 2) == ValidationResponse.OK
 
     assert version_validation("Pedestrian", ped3, 0) == ValidationResponse.OK
@@ -312,9 +355,15 @@ def test_entity():
     prettyprint(ent6.get_element())
     assert ent6 == ent3
 
-    assert version_validation("EntitySelection", ent, 0) == ValidationResponse.OK
-    assert version_validation("EntitySelection", ent, 1) == ValidationResponse.OK
-    assert version_validation("EntitySelection", ent, 2) == ValidationResponse.OK
+    assert (
+        version_validation("EntitySelection", ent, 0) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("EntitySelection", ent, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("EntitySelection", ent, 2) == ValidationResponse.OK
+    )
 
     with pytest.raises(ValueError):
         OSC.Entity("ego", object_type="dummy")
@@ -331,7 +380,9 @@ def test_scenarioobject():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
-    veh = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
     veh.add_property_file("propfile.xml")
     veh.add_property("myprop", "12")
     veh.add_axle(ba)
@@ -367,7 +418,9 @@ def test_entities():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
-    veh = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
     param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
     veh.add_parameter(param)
 
@@ -441,7 +494,9 @@ def test_controller_in_Entities():
     bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
     fa = OSC.Axle(2, 2, 2, 1, 1)
     ba = OSC.Axle(1, 1, 2, 1, 1)
-    veh = OSC.Vehicle("mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10)
+    veh = OSC.Vehicle(
+        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+    )
 
     prop = OSC.Properties()
     prop.add_property("mything", "2")
@@ -481,7 +536,8 @@ def test_controller_in_Entities():
         == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("Entities", entities_multi_cnt, 2) == ValidationResponse.OK
+        version_validation("Entities", entities_multi_cnt, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         entities_multi_cnt.add_scenario_object("tar", veh, [cnt, "dummy"])

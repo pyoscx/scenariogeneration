@@ -44,10 +44,14 @@ class Scenario(ScenarioGenerator):
         paramdec = xosc.ParameterDeclarations()
 
         paramdec.add_parameter(
-            xosc.Parameter("$HostVehicle", xosc.ParameterType.string, "car_white")
+            xosc.Parameter(
+                "$HostVehicle", xosc.ParameterType.string, "car_white"
+            )
         )
         paramdec.add_parameter(
-            xosc.Parameter("$TargetVehicle", xosc.ParameterType.string, "car_red")
+            xosc.Parameter(
+                "$TargetVehicle", xosc.ParameterType.string, "car_red"
+            )
         )
 
         ### create vehicles

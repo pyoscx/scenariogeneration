@@ -74,7 +74,9 @@ class Scenario(ScenarioGenerator):
             xosc.AbsoluteLaneChangeAction(
                 -1,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 4
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    4,
                 ),
             ),
         )

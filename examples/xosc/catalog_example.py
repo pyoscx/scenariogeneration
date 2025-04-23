@@ -30,7 +30,9 @@ from scenariogeneration import xosc, prettyprint
 bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)
 fa = xosc.Axle(0.523598775598, 0.8, 1.68, 2.98, 0.4)
 ba = xosc.Axle(0.523598775598, 0.8, 1.68, 0, 0.4)
-white_veh = xosc.Vehicle("car_pink", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10)
+white_veh = xosc.Vehicle(
+    "car_pink", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10
+)
 
 white_veh.add_property_file("../models/car_white.osgb")
 white_veh.add_property("control", "internal")
@@ -45,7 +47,9 @@ white_veh.dump_to_catalog(
 bb = xosc.BoundingBox(2, 5.1, 1.9, 2.0, 0, 0.9)
 fa = xosc.Axle(0.523598775598, 0.8, 1.68, 2.98, 0.4)
 ba = xosc.Axle(0.523598775598, 0.8, 1.68, 0, 0.4)
-red_veh = xosc.Vehicle("car_pink", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10)
+red_veh = xosc.Vehicle(
+    "car_pink", xosc.VehicleCategory.car, bb, fa, ba, 69, 10, 10
+)
 
 red_veh.add_property_file("../models/car_red.osgb")
 red_veh.add_property("control", "internal")

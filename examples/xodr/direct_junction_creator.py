@@ -44,10 +44,15 @@ class Scenario(ScenarioGenerator):
         continuation_road = xodr.create_road(
             [xodr.Line(200)], id=2, left_lanes=3, right_lanes=2
         )
-        continuation_road.add_predecessor(xodr.ElementType.junction, junction_id)
+        continuation_road.add_predecessor(
+            xodr.ElementType.junction, junction_id
+        )
 
         exit_road_right = xodr.create_road(
-            xodr.Spiral(-0.00001, -0.001, 100), id=10, left_lanes=0, right_lanes=1
+            xodr.Spiral(-0.00001, -0.001, 100),
+            id=10,
+            left_lanes=0,
+            right_lanes=1,
         )
         exit_road_right.add_predecessor(xodr.ElementType.junction, junction_id)
 
