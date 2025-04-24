@@ -233,12 +233,13 @@ class Scenario(VersionBase):
         element.append(self.header.get_element())
         if self.parameters.get_element():
             element.append(self.parameters.get_element())
+        if self.variable_declaration:
+            element.append(self.variable_declaration.get_element())
+
         element.append(self.catalog.get_element())
         element.append(self.roadnetwork.get_element())
         element.append(self.entities.get_element())
         element.append(self.storyboard.get_element())
-        if self.variable_declaration:
-            element.append(self.variable_declaration.get_element())
 
         return element
 
