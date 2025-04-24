@@ -93,6 +93,7 @@ def test_OSC_1_1(tmpdir, python_file):
         "syncronize_straight_example",
         "trajectory_example",
         "withcontroller",
+        "variable_usage",
     ],
 )
 def test_OSC_1_2(tmpdir, python_file):
