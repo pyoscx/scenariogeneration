@@ -850,7 +850,9 @@ def _create_junction_links(
         connection.add_lanelink(r_or_l * i + from_offset, r_or_l * sign * i + to_offset)
 
 
-def create_junction(junction_roads, id, roads, name="my junction"):
+def create_junction(
+    junction_roads, id, roads, name="my junction", junction_type=JunctionType.default
+):
     """create_junction creates the junction struct for a set of roads
 
 
@@ -863,7 +865,10 @@ def create_junction(junction_roads, id, roads, name="my junction"):
         roads (list of Road): all incomming roads to the junction
 
         name(str): name of the junction
-        default: 'my junction'
+            default: 'my junction'
+
+        junction_type (Optional[JunctionType]): type of junction
+            Default: JunctionType.default
 
     Returns
     -------
@@ -871,7 +876,7 @@ def create_junction(junction_roads, id, roads, name="my junction"):
 
     """
 
-    junc = Junction(name, id)
+    junc = Junction(name, id, junction_type)
 
     for jr in junction_roads:
         # handle succesor lanes

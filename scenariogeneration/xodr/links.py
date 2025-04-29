@@ -467,7 +467,7 @@ class Junction(XodrBase):
 
         id (int): id of the junction
 
-        junction_type (JunctionType): type of junction
+        junction_type (Optional[JunctionType]): type of junction
             Default: JunctionType.default
 
         orientation (Orientation): the orientation of the junction (only used for virtual junction)
@@ -550,7 +550,9 @@ class Junction(XodrBase):
         self.connections = []
         self._id_counter = 0
 
-        self.junction_type = enumchecker(junction_type, JunctionType)
+        self.junction_type = junction_type
+        if self.junction_type is not None:
+            self.junction_type = enumchecker(junction_type, JunctionType)
         if junction_type == JunctionType.virtual:
             if not (
                 sstart is not None
@@ -595,7 +597,8 @@ class Junction(XodrBase):
         retdict = {}
         retdict["name"] = self.name
         retdict["id"] = str(self.id)
-        retdict["type"] = self.junction_type.name
+        if self.junction_type is not None:
+            retdict["type"] = self.junction_type.name
 
         # these are only used for virtual junctions
         if self.junction_type == JunctionType.virtual:
