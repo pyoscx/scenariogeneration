@@ -7,17 +7,38 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 Copyright (c) 2022 The scenariogeneration Authors.
-
 """
 
-""" the enumerations module contains the enumerations of OpenDRIVE
-
-"""
 from enum import Enum, auto
+from typing import Type, Union
 
 
-def enumchecker(value, enum_type, none_ok=False):
-    """checks if a enum is correct, and if input is a string, tries to convert it to the enum"""
+def enumchecker(
+    value: Union[Enum, str, None], enum_type: Type[Enum], none_ok: bool = False
+) -> Enum:
+    """
+    Check if an enum value is correct. If the input is a string,
+    attempt to convert it to the enum.
+
+    Parameters
+    ----------
+    value : Enum or str or None
+        The value to check or convert.
+    enum_type : Type[Enum]
+        The enumeration type to validate against.
+    none_ok : bool, optional
+        Whether None is an acceptable value. Defaults to False.
+
+    Returns
+    -------
+    Enum
+        The validated or converted enum value.
+
+    Raises
+    ------
+    TypeError
+        If the value is invalid or cannot be converted to the enum type.
+    """
     if value is None:
         if none_ok:
             return value
@@ -49,7 +70,7 @@ def enumchecker(value, enum_type, none_ok=False):
 
 
 class TrafficRule(Enum):
-    """Enum for MarkRule"""
+    """Enum for TrafficRule."""
 
     RHT = auto()
     LHT = auto()
@@ -57,7 +78,7 @@ class TrafficRule(Enum):
 
 
 class MarkRule(Enum):
-    """Enum for MarkRule"""
+    """Enum for MarkRule."""
 
     no_passing = auto()
     caution = auto()
@@ -65,7 +86,7 @@ class MarkRule(Enum):
 
 
 class LaneType(Enum):
-    """Enum for LaneType"""
+    """Enum for LaneType."""
 
     none = auto()
     driving = auto()
@@ -98,7 +119,7 @@ class LaneType(Enum):
 
 
 class RoadMarkColor(Enum):
-    """Enum for RoadMarkColor"""
+    """Enum for RoadMarkColor."""
 
     standard = auto()
     blue = auto()
@@ -110,14 +131,14 @@ class RoadMarkColor(Enum):
 
 
 class RoadMarkWeight(Enum):
-    """Enum for RoadMarkWeight"""
+    """Enum for RoadMarkWeight."""
 
     standard = auto()
     bold = auto()
 
 
 class RoadMarkType(Enum):
-    """Enum for RoadMarkType"""
+    """Enum for RoadMarkType."""
 
     none = auto()
     solid = auto()
@@ -134,7 +155,7 @@ class RoadMarkType(Enum):
 
 
 class RoadType(Enum):
-    """Enum for RoadType"""
+    """Enum for RoadType."""
 
     unknown = auto()
     rural = auto()
@@ -152,7 +173,7 @@ class RoadType(Enum):
 
 
 class LaneChange(Enum):
-    """Enum for LaneChange"""
+    """Enum for LaneChange."""
 
     increase = auto()
     decrease = auto()
@@ -161,28 +182,28 @@ class LaneChange(Enum):
 
 
 class ElementType(Enum):
-    """Enum for LaneChange"""
+    """Enum for LaneChange."""
 
     road = auto()
     junction = auto()
 
 
 class ContactPoint(Enum):
-    """Enum for ContactPoint"""
+    """Enum for ContactPoint."""
 
     start = auto()
     end = auto()
 
 
 class Direction(Enum):
-    """Enum for Direction"""
+    """Enum for Direction."""
 
     same = auto()
     opposite = auto()
 
 
 class Orientation(Enum):
-    """Enum for Orientation"""
+    """Enum for Orientation."""
 
     positive = auto()
     negative = auto()
@@ -190,7 +211,8 @@ class Orientation(Enum):
 
 
 class ObjectType(Enum):
-    """Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated types"""
+    """Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated
+    types."""
 
     none = auto()
     obstacle = auto()
@@ -211,21 +233,21 @@ class ObjectType(Enum):
 
 
 class TunnelType(Enum):
-    """Enum for TunnelType"""
+    """Enum for TunnelType."""
 
     standard = auto()
     underpass = auto()
 
 
 class Dynamic(Enum):
-    """Enum for Dynamic"""
+    """Enum for Dynamic."""
 
     yes = auto()
     no = auto()
 
 
 class RoadSide(Enum):
-    """Enum for RoadSide"""
+    """Enum for RoadSide."""
 
     both = auto()
     left = auto()
@@ -233,14 +255,14 @@ class RoadSide(Enum):
 
 
 class JunctionGroupType(Enum):
-    """Enum for JunctionGroup"""
+    """Enum for JunctionGroup."""
 
     roundabout = auto()
     unknown = auto()
 
 
 class JunctionType(Enum):
-    """Enum for JunctionType"""
+    """Enum for JunctionType."""
 
     default = auto()
     virtual = auto()
@@ -248,7 +270,7 @@ class JunctionType(Enum):
 
 
 class FillType(Enum):
-    """Enum for FillType"""
+    """Enum for FillType."""
 
     asphalt = auto()
     cobble = auto()
@@ -260,7 +282,7 @@ class FillType(Enum):
 
 
 class Access(Enum):
-    """Enum for ParkingSpace Access"""
+    """Enum for ParkingSpace Access."""
 
     all = auto()
     bus = auto()
@@ -273,7 +295,7 @@ class Access(Enum):
 
 
 class RawDataPostProcessing(Enum):
-    """Enum for dataQuality RawData PostProcessing"""
+    """Enum for dataQuality RawData PostProcessing."""
 
     cleaned = auto()
     fused = auto()
@@ -282,7 +304,7 @@ class RawDataPostProcessing(Enum):
 
 
 class RawDataSource(Enum):
-    """Enum for dataQuality RawData PostProcessing"""
+    """Enum for dataQuality RawData PostProcessing."""
 
     cadaster = auto()
     custom = auto()
