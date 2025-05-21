@@ -12,7 +12,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 
 class NotSameAmountOfLanesError(Exception):
-    """Raised when the amount of Lanes are not the same (used for the automation of linking)"""
+    """Raised when the amount of Lanes are not the same (used for the
+    automation of linking)"""
 
     pass
 
@@ -36,13 +37,15 @@ class UndefinedRoadNetwork(Exception):
 
 
 class RoadsAndLanesNotAdjusted(Exception):
-    """Raised when the user tries to perform an action on non-adjusted lanes and roads that requires adjusted lanes and roads"""
+    """Raised when the user tries to perform an action on non-adjusted lanes
+    and roads that requires adjusted lanes and roads"""
 
     pass
 
 
 class MixOfGeometryAddition(Exception):
-    """Raise when the wrong way of adding geometires are used for the planview"""
+    """Raise when the wrong way of adding geometires are used for the
+    planview"""
 
     pass
 
