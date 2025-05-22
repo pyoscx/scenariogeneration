@@ -10,16 +10,22 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-""" This is a collection of ready to use functions, to generate standard road snipets, like:
-    - Simple straight road
-    - Spiral-Arc-Spiral type of turns
-    - Simple roads with different geometries and lanes
-    - Simple junction roads
-        limited to 3/4-way crossings with 90degree turns (3-way can be 120 deg aswell)
-    - Creation of the junction based on the connecting roads and incomming/outgoing roads
+"""
+This module provides a collection of ready-to-use functions to generate
+standard road snippets, including:
+
+- Simple straight roads.
+- Spiral-Arc-Spiral type of turns.
+- Simple roads with different geometries and lanes.
+- Simple junction roads, limited to 3/4-way crossings with 90-degree
+  turns (3-way crossings can also be 120 degrees).
+- Creation of junctions based on connecting roads and incoming/outgoing
+  roads.
+
 """
 import numpy as np
 import pyclothoids as pcloth
+from typing import Union, List, Optional
 
 from .lane import Lane, RoadMark, LaneSection, Lanes, RoadLine
 from .enumerations import (
@@ -57,20 +63,23 @@ from warnings import warn
 STD_START_CLOTH = 1 / 1000000000
 
 
-def standard_lane(offset=3, rm=std_roadmark_broken()):
-    """standard_lane creates a simple lane with an offset an a roadmark
+def standard_lane(
+    offset: int = 3, rm: RoadMark = std_roadmark_broken()
+) -> Lane:
+    """
+    Create a simple lane with an offset and a roadmark.
 
     Parameters
     ----------
-        offset (int): width of the lane
-            default: 3
+    offset : int, optional
+        Width of the lane. Default is 3.
+    rm : RoadMark, optional
+        Road mark used for the standard lane. Default is RoadMark(solid).
 
-        rm (RoadMark): road mark used for the standard lane
-            default:  RoadMark(solid)
     Returns
     -------
-        lane (Lane): the lane
-
+    Lane
+        The created lane.
     """
     lc = Lane(a=offset)
     if rm is not None:
@@ -79,42 +88,59 @@ def standard_lane(offset=3, rm=std_roadmark_broken()):
 
 
 def create_road(
-    geometry,
-    id,
-    left_lanes=1,
-    right_lanes=1,
-    road_type=-1,
-    center_road_mark=std_roadmark_solid(),
-    lane_width=3,
-    lane_width_end=None,
-):
-    """create_road creates a road with one lanesection with different number of lanes, lane marks will be of type broken,
-    except the outer lane, that will be solid.
-    The lane_width_end parameter can only be used when inputs for left_lanes and right_lanes are int
+    geometry: Union[
+        Line,
+        Spiral,
+        "ParamPoly3",
+        Arc,
+        List[Union[Line, Spiral, "ParamPoly3", Arc]],
+        AdjustablePlanview,
+    ],
+    id: int,
+    left_lanes: Union[List[LaneDef], int] = 1,
+    right_lanes: Union[List[LaneDef], int] = 1,
+    road_type: int = -1,
+    center_road_mark: RoadMark = std_roadmark_solid(),
+    lane_width: float = 3,
+    lane_width_end: Optional[float] = None,
+) -> Road:
+    """
+    Create a road with one lane section and different numbers of lanes.
+
+    Lane marks will be of type broken, except for the outer lane, which
+    will be solid. The `lane_width_end` parameter can only be used when
+    inputs for `left_lanes` and `right_lanes` are integers.
 
     Parameters
     ----------
-        geometry (Line, Spiral, ParamPoly3, Arc, a list of(Line, Spiral, ParamPoly3, Arc), or AdjustablePlanview ): geometries to build the road
-
-        id (int): id of the new road
-
-        left_lanes (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes.
-            Default: 1
-
-        right_lanes (list of LaneDef, or an int): a list of the splits/merges that are wanted on the right side of the road, if int constant number of lanes
-            Default: 1
-
-        road_type (int): type of road, -1 normal road, otherwise connecting road
-
-        center_road_mark (RoadMark): roadmark for the center line
-
-        lane_width (float): the width of all lanes
-
-        lane_width_end (float): the end width of all lanes
+    geometry : Line, Spiral, ParamPoly3, Arc, list of (Line, Spiral,
+               ParamPoly3, Arc), or AdjustablePlanview
+        Geometries to build the road.
+    id : int
+        ID of the new road.
+    left_lanes : list of LaneDef or int, optional
+        A list of the splits/merges that are wanted on the left side of
+        the road. If an integer, it specifies a constant number of
+        lanes. Default is 1.
+    right_lanes : list of LaneDef or int, optional
+        A list of the splits/merges that are wanted on the right side of
+        the road. If an integer, it specifies a constant number of
+        lanes. Default is 1.
+    road_type : int, optional
+        Type of road. Use -1 for a normal road, or another value for a
+        connecting road. Default is -1.
+    center_road_mark : RoadMark, optional
+        Road mark for the center line. Default is RoadMark(solid).
+    lane_width : float, optional
+        The width of all lanes. Default is 3.
+    lane_width_end : float, optional
+        The end width of all lanes. Can only be used when `left_lanes`
+        and `right_lanes` are integers.
 
     Returns
     -------
-        road (Road): a straight road
+    Road
+        A straight road.
     """
 
     if isinstance(left_lanes, LaneDef):
@@ -180,28 +206,32 @@ def create_road(
 
 
 def create_straight_road(
-    road_id, length=100, junction=-1, n_lanes=1, lane_offset=3
-):
-    """creates a standard straight road with two lanes
+    road_id: int,
+    length: float = 100,
+    junction: int = -1,
+    n_lanes: int = 1,
+    lane_offset: int = 3,
+) -> Road:
+    """
+    Create a standard straight road with two lanes.
+
     Parameters
     ----------
-        road_id (int): id of the road to create
-
-        length (float): length of the road
-            default: 100
-
-        junction (int): if the road belongs to a junction or not
-            default: -1
-
-        n_lanes (int): number of lanes
-            default: 1
-
-        lane_offset (int): width of the road
-            default: 3
+    road_id : int
+        ID of the road to create.
+    length : float, optional
+        Length of the road. Default is 100.
+    junction : int, optional
+        Indicates if the road belongs to a junction. Default is -1.
+    n_lanes : int, optional
+        Number of lanes. Default is 1.
+    lane_offset : int, optional
+        Width of the road. Default is 3.
 
     Returns
     -------
-        road (Road): a straight road
+    Road
+        A straight road.
     """
     warn(
         "create_straight_road should not be used anymore, please use the create_road function instead",
@@ -230,41 +260,42 @@ def create_straight_road(
 
 
 def create_cloth_arc_cloth(
-    arc_curv,
-    arc_angle,
-    cloth_angle,
-    r_id,
-    junction=1,
-    cloth_start=STD_START_CLOTH,
-    n_lanes=1,
-    lane_offset=3,
+    arc_curv: float,
+    arc_angle: float,
+    cloth_angle: float,
+    r_id: int,
+    junction: int = 1,
+    cloth_start: float = STD_START_CLOTH,
+    n_lanes: int = 1,
+    lane_offset: int = 3,
 ):
-    """creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
+    """
+    Create a curved road with a Spiral-Arc-Spiral and two lanes.
 
     Parameters
     ----------
-        arc_curv (float): curvature of the arc (and max clothoid of clothoids)
-
-        arc_angle (float): how much of the curv should be the arc
-
-        cloth_angle (float): how much of the curv should be the clothoid (will be doubled since there are two clothoids)
-
-        r_id (int): the id of the road
-
-        junction (int): if the Road belongs to a junction
-            default: 1
-
-        cloth_start (float): staring curvature of clothoids
-
-        n_lanes (int): number of lanes
-            default: 1
-
-        lane_offset (int): width of the road
-            default: 3
+    arc_curv : float
+        Curvature of the arc (and max clothoid of clothoids).
+    arc_angle : float
+        How much of the curve should be the arc.
+    cloth_angle : float
+        How much of the curve should be the clothoid (will be doubled
+        since there are two clothoids).
+    r_id : int
+        The ID of the road.
+    junction : int, optional
+        Indicates if the road belongs to a junction. Default is 1.
+    cloth_start : float, optional
+        Starting curvature of clothoids. Default is 1 / 1000000000.
+    n_lanes : int, optional
+        Number of lanes. Default is 1.
+    lane_offset : int, optional
+        Width of the road. Default is 3.
 
     Returns
     -------
-        road (Road): a road built up of a Spiral-Arc-Spiral
+    Road
+        A road built up of a Spiral-Arc-Spiral.
     """
     warn(
         "create_cloth_arc_cloth should not be used anymore, please use the create_road (see exampels/xodr/clothoid_generation.py) function instead",
@@ -301,59 +332,59 @@ def create_cloth_arc_cloth(
 
 
 def create_3cloths(
-    cloth1_start,
-    cloth1_end,
-    cloth1_length,
-    cloth2_start,
-    cloth2_end,
-    cloth2_length,
-    cloth3_start,
-    cloth3_end,
-    cloth3_length,
-    r_id,
-    junction=1,
-    n_lanes=1,
-    lane_offset=3,
-    road_marks=std_roadmark_broken(),
+    cloth1_start: float,
+    cloth1_end: float,
+    cloth1_length: float,
+    cloth2_start: float,
+    cloth2_end: float,
+    cloth2_length: float,
+    cloth3_start: float,
+    cloth3_end: float,
+    cloth3_length: float,
+    r_id: int,
+    junction: int = 1,
+    n_lanes: int = 1,
+    lane_offset: int = 3,
+    road_marks: RoadMark = std_roadmark_broken(),
 ):
-    """creates a curved Road  with a Spiral - Arc - Spiral, and two lanes
+    """
+    Create a curved road with a Spiral-Spiral-Spiral and two lanes.
 
     Parameters
     ----------
-        cloth1_start (float): initial curvature of spiral 1
-
-        cloth1_end (float): ending curvature of spiral 1
-
-        cloth1_length (float): total length of spiral 1
-
-        cloth2_start (float): initial curvature of spiral 2
-
-        cloth2_end (float): ending curvature of spiral 2
-
-        cloth2_length (float): total length of spiral 2
-
-        cloth3_start (float): initial curvature of spiral 3
-
-        cloth3_end (float): ending curvature of spiral 3
-
-        cloth3_length (float): total length of spiral 3
-
-        r_id (int): the id of the road
-
-        junction (int): if the Road belongs to a junction
-            default: 1
-
-        cloth_start (float): staring curvature of clothoids
-
-        n_lanes (int): number of lanes
-            default: 1
-
-        lane_offset (int): width of the road
-            default: 3
+    cloth1_start : float
+        Initial curvature of spiral 1.
+    cloth1_end : float
+        Ending curvature of spiral 1.
+    cloth1_length : float
+        Total length of spiral 1.
+    cloth2_start : float
+        Initial curvature of spiral 2.
+    cloth2_end : float
+        Ending curvature of spiral 2.
+    cloth2_length : float
+        Total length of spiral 2.
+    cloth3_start : float
+        Initial curvature of spiral 3.
+    cloth3_end : float
+        Ending curvature of spiral 3.
+    cloth3_length : float
+        Total length of spiral 3.
+    r_id : int
+        The ID of the road.
+    junction : int, optional
+        Indicates if the road belongs to a junction. Default is 1.
+    n_lanes : int, optional
+        Number of lanes. Default is 1.
+    lane_offset : int, optional
+        Width of the road. Default is 3.
+    road_marks : RoadMark, optional
+        Road mark used for the standard lane. Default is RoadMark(broken).
 
     Returns
     -------
-        road (Road): a road built up of a Spiral-Spiral-Spiral
+    Road
+        A road built up of a Spiral-Spiral-Spiral.
     """
     warn(
         "create_cloth_arc_cloth should not be used anymore, please use the create_road (see exampels/xodr/clothoid_generation.py) function instead",
@@ -392,21 +423,35 @@ def create_3cloths(
     return Road(r_id, pv, lanes, road_type=junction)
 
 
-def get_lanes_offset(road1, road2, contactpoint):
-    """returns number of lanes (hp #left lanes = # right lanes) and their offset (hp offset is constant)
+def get_lanes_offset(
+    road1: Road, road2: Road, contactpoint: ContactPoint
+) -> tuple[int, int]:
+    """
+    Return the number of lanes and their offset.
 
+    Assumes that the number of left lanes equals the number of right
+    lanes and that the offset is constant.
 
     Parameters
     ----------
-        road1 (Road): first road
-
-        road2 (Road): second road
+    road1 : Road
+        The first road.
+    road2 : Road
+        The second road.
+    contactpoint : ContactPoint
+        The contact point indicating the connection type.
 
     Returns
     -------
-        n_lanes (int):
+    tuple[int, int]
+        A tuple containing:
+        - n_lanes (int): The number of lanes.
+        - lane_offset (int): The offset of the lanes.
 
-        lane_offset (int):
+    Raises
+    ------
+    NotSameAmountOfLanesError
+        If the incoming and outgoing roads do not have the same number of left lanes.
     """
 
     # now we always look at lanesection[0] to take the number of lanes
@@ -437,47 +482,61 @@ def get_lanes_offset(road1, road2, contactpoint):
 
 
 def create_junction_roads_standalone(
-    angles,
-    r,
-    junction=1,
-    spiral_part=1 / 3,
-    arc_part=1 / 3,
-    startnum=100,
-    n_lanes=1,
-    lane_width=3,
-):
-    """creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
-    - 3way crossings (either a T junction, or 120 deg junction)
-    - 4way crossing (all 90 degree turns)
-    NOTE: this will not generate any links or add any successor/predecessors to the roads, and has to be added manually,
-    if you have the connecting roads please use create_junction_roads
+    angles: List[float],
+    r: float,
+    junction: int = 1,
+    spiral_part: float = 1 / 3,
+    arc_part: float = 1 / 3,
+    startnum: int = 100,
+    n_lanes: int = 1,
+    lane_width: float = 3,
+) -> List[Road]:
+    """
+    Create all needed roads for simple junctions.
+
+    The curved parts of the junction are created as a spiral-arc-spiral
+    combination. Supported junctions include:
+    - 3-way crossings (either a T-junction or 120-degree junction).
+    - 4-way crossings (all 90-degree turns).
+
+    Note
+    ----
+    This function does not generate any links or add any successors/
+    predecessors to the roads. These must be added manually. If you
+    have the connecting roads, use `create_junction_roads` instead.
 
     Parameters
     ----------
+    angles : list of float
+        The angles from where the roads should be coming in (see
+        description for what is supported). Angles should be defined in
+        mathematically positive order, beginning with the first incoming
+        road.
+    r : float
+        The radius of the arcs in the junction (determines the size of
+        the junction).
+    junction : int, optional
+        The ID of the junction. Default is 1.
+    spiral_part : float, optional
+        The part of the curve that should be spirals (two of these).
+        `spiral_part * 2 + arc_part = angle of the turn`. Default is
+        1/3.
+    arc_part : float, optional
+        The part of the curve that should be an arc.
+        `spiral_part * 2 + arc_part = angle of the turn`. Default is
+        1/3.
+    startnum : int, optional
+        Start number of the roads in the junction (will increase by 1
+        for each road). Default is 100.
+    n_lanes : int, optional
+        The number of lanes in the junction. Default is 1.
+    lane_width : float, optional
+        The lane width of the lanes in the junction. Default is 3.
 
-        angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
-                                to be defined in mathimatically positive order, beginning with the first incoming road
-
-        r (float): the radius of the arcs in the junction (will determine the size of the junction)
-
-        junction (int): the id of the junction
-            default: 1
-
-        spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
-            default: (1/3)
-
-        arc_part (float): the part of the curve that should be an arc:  spiral_part*2 + arcpart = angle of the turn
-            default: (1/3)
-
-        startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
-
-        n_lanes (int): the number of lanes in the junction
-
-        lane_width (float): the lane width of the lanes in the junction
     Returns
     -------
-        junction_roads (list of Road): a list of all roads in a junction without connections added
-
+    list of Road
+        A list of all roads in a junction without connections added.
     """
     warn(
         "create_junction_roads_standalone should not be used anymore, please use the CommonJunctionCreator function instead",
@@ -544,36 +603,46 @@ def create_junction_roads_standalone(
 
 
 def create_junction_roads_from_arc(
-    roads, angles, r=0, junction=1, arc_part=1 / 3, startnum=100
-):
-    """creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
-    Supported junctions:
-    - 3way crossings (either a T junction, or 120 deg junction)
-    - 4way crossing (all 90 degree turns)
+    roads: List[Road],
+    angles: List[float],
+    r: float = 0,
+    junction: int = 1,
+    arc_part: float = 1 / 3,
+    startnum: int = 100,
+) -> List[Road]:
+    """
+    Create all needed roads for simple junctions.
+
+    The curved parts of the junction are created as a spiral-arc-spiral
+    combination. Supported junctions include:
+    - 3-way crossings (either a T-junction or 120-degree junction).
+    - 4-way crossings (all 90-degree turns).
 
     Parameters
     ----------
-        roads (list of Road): all roads that should go into the junction
-
-        angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
-                                to be defined in mathimatically positive order, beginning with the first incoming road [0, +2pi]
-
-        r (float): the radius of the arcs in the junction (will determine the size of the junction)
-
-        junction (int): the id of the junction
-            default: 1
-
-        spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
-            default: (1/3)
-
-        arc_part (float): the part of the curve that should be an arc:  spiral_part*2 + arcpart = angle of the turn
-            default: (1/3)
-
-        startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
+    roads : list of Road
+        All roads that should go into the junction.
+    angles : list of float
+        The angles from where the roads should be coming in (see
+        description for what is supported). Angles should be defined in
+        mathematically positive order, beginning with the first incoming
+        road [0, +2π].
+    r : float
+        The radius of the arcs in the junction (determines the size of
+        the junction).
+    junction : int, optional
+        The ID of the junction. Default is 1.
+    arc_part : float, optional
+        The part of the curve that should be an arc:
+        `spiral_part * 2 + arc_part = angle of the turn`. Default is 1/3.
+    startnum : int, optional
+        Start number of the roads in the junction (will increase by 1
+        for each road). Default is 100.
 
     Returns
     -------
-        junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
+    list of Road
+        A list of all roads needed for all traffic connecting the roads.
     """
     warn(
         "create_junction_roads_from_arc should not be used anymore, please use the CommonJunctionCreator function instead",
@@ -663,45 +732,55 @@ def create_junction_roads_from_arc(
 
 
 def create_junction_roads(
-    roads,
-    angles,
-    R,
-    junction=1,
-    arc_part=1 / 3,
-    startnum=100,
-    inner_road_marks=None,
-    outer_road_marks=std_roadmark_solid(),
-):
-    """creates all needed roads for some simple junctions, the curved parts of the junction are created as a spiral-arc-spiral combo
-    R is value to the the radius of the whole junction (meaning R = distance between the center of the junction and any external road attached to the junction)
-    Supportes all angles and number of roads.
+    roads: List[Road],
+    angles: List[float],
+    R: Union[float, List[float]],
+    junction: int = 1,
+    arc_part: float = 1 / 3,
+    startnum: int = 100,
+    inner_road_marks: Optional[RoadMark] = None,
+    outer_road_marks: RoadMark = std_roadmark_solid(),
+) -> List[Road]:
+    """
+    Create all needed roads for some simple junctions.
+
+    The curved parts of the junction are created as a spiral-arc-spiral
+    combination. `R` is the radius of the whole junction, meaning the
+    distance between the center of the junction and any external road
+    attached to the junction. Supports all angles and numbers of roads.
 
     Parameters
     ----------
-        roads (list of Road): all roads that should go into the junction
+    roads : list of Road
+        All roads that should go into the junction.
+    angles : list of float
+        The angles from where the roads should be coming in (see
+        description for what is supported). Angles should be defined in
+        mathematically positive order, beginning with the first incoming
+        road [0, +2π].
+    R : list of float
+        The radius of the whole junction, meaning the distance between
+        roads and the center of the junction. If only one value is
+        specified, then all roads will have the same distance.
+    junction : int, optional
+        The ID of the junction. Default is 1.
+    spiral_part : float, optional
+        The part of the curve that should be spirals (two of these).
+        `spiral_part * 2 + arc_part = angle of the turn`. Default is 1/3.
+    startnum : int, optional
+        Start number of the roads in the junction (will increase by 1
+        for each road). Default is 100.
+    inner_road_marks : RoadMark, optional
+        The RoadMark that all lanes inside the junction will have
+        (outer will be solid). Default is None.
+    outer_road_marks : RoadMark, optional
+        The RoadMark that will be on the edge of the connecting roads
+        (limits the junction). Default is std_roadmark_solid().
 
-        angles (list of float): the angles from where the roads should be coming in (see description for what is supported),
-                                to be defined in mathimatically positive order, beginning with the first incoming road [0, +2pi]
-
-        R (list of float): the radius of the whole junction, meaning the distance between roads and the center of the junction. If only one value is specified, then all roads will have the same distance.
-
-        junction (int): the id of the junction
-            default: 1
-
-        spiral_part (float): the part of the curve that should be spirals (two of these) spiral_part*2 + arcpart = angle of the turn
-            default: (1/3)
-
-        startnum (int): start number of the roads in the junctions (will increase with 1 for each road)
-            default: 100
-
-        inner_road_marks (RoadMark): the RoadMark that all lanes inside the junction will have (outer will be solid)
-            Default: None
-
-        outer_road_marks (RoadMark): the roadmark that will be on the edge of the connecting roads (limit the junction)
-            Default: std_roadmark_solid()
     Returns
     -------
-        junction_roads (list of Road): a list of all roads needed for all traffic connecting the roads
+    list of Road
+        A list of all roads needed for all traffic connecting the roads.
     """
     warn(
         "create_junction_roads_from_arc should not be used anymore, please use the CommonJunctionCreator function instead",
@@ -838,25 +917,34 @@ def create_junction_roads(
 
 
 def _create_junction_links(
-    connection, nlanes, r_or_l, sign, from_offset=0, to_offset=0
-):
-    """helper function to create junction links
+    connection: Connection,
+    nlanes: int,
+    r_or_l: int,
+    sign: int,
+    from_offset: int = 0,
+    to_offset: int = 0,
+) -> None:
+    """
+    Helper function to create junction links.
 
     Parameters
     ----------
-        connection (Connection): the connection to fill
+    connection : Connection
+        The connection to fill.
+    nlanes : int
+        Number of lanes.
+    r_or_l : {1, -1}
+        Indicates if the lane should start from -1 or 1.
+    sign : {1, -1}
+        Indicates if the sign should change.
+    from_offset : int, optional
+        Offset at the beginning of the road. Default is 0.
+    to_offset : int, optional
+        Offset at the end of the road. Default is 0.
 
-        nlanes (int): number of lanes
-
-        r_or_l (1 or -1): if the lane should start from -1 or 1
-
-        sign (1 or -1): if the sign should change
-
-        from_offset (int): if there is an offset in the beginning
-            Default: 0
-
-        to_offset (int): if there is an offset in the end of the road
-            Default: 0
+    Returns
+    -------
+    None
     """
     for i in range(1, nlanes + 1, 1):
         connection.add_lanelink(
@@ -864,27 +952,31 @@ def _create_junction_links(
         )
 
 
-def create_junction(junction_roads, id, roads, name="my junction"):
-    """create_junction creates the junction struct for a set of roads
-
+def create_junction(
+    junction_roads: List[Road],
+    id: int,
+    roads: List[Road],
+    name: str = "my junction",
+) -> Junction:
+    """
+    Create a junction structure for a set of roads.
 
     Parameters
     ----------
-        junction_roads (list of Road): all connecting roads in the junction
-
-        id (int): the id of the junction
-
-        roads (list of Road): all incomming roads to the junction
-
-        name(str): name of the junction
-        default: 'my junction'
+    junction_roads : list of Road
+        All connecting roads in the junction.
+    id : int
+        The ID of the junction.
+    roads : list of Road
+        All incoming roads to the junction.
+    name : str, optional
+        Name of the junction. Default is "my junction".
 
     Returns
     -------
-        junction (Junction): the junction struct ready to use
-
+    Junction
+        The junction structure ready to use.
     """
-
     junc = Junction(name, id)
 
     for jr in junction_roads:
@@ -935,40 +1027,51 @@ def create_junction(junction_roads, id, roads, name="my junction"):
     return junc
 
 
-def create_direct_junction(roads, id, name="my direct junction"):
-    """create_direct_junction creates the junction struct for a set of roads, for a direct junction
+def create_direct_junction(
+    roads: List[Road], id: int, name: str = "my direct junction"
+) -> Junction:
+    """
+    Create the junction structure for a set of roads, for a direct junction.
 
     Parameters
     ----------
-        roads (list of Road): all roads that are building up the direct junction
-
-        id (int): the id of the junction
-
-        name(str): name of the junction
-        default: 'my direct junction'
+    roads : list of Road
+        All roads that are building up the direct junction.
+    id : int
+        The ID of the junction.
+    name : str, optional
+        Name of the junction. Default is "my direct junction".
 
     Returns
     -------
-        junction (Junction): the junction struct ready to use
+    Junction
+        The junction structure ready to use.
 
+    Raises
+    ------
+    RemovedFunctionality
+        If the function is called, as it has been deprecated.
     """
     raise RemovedFunctionality(
         "The create_direct_junction has been removed, due to its very limited functionality, please try the xodr.DirectJunctionCreator instead."
     )
 
 
-def get_road_by_id(roads, id):
-    """get_road_by_id returns a road based on the road id
+def get_road_by_id(roads: List[Road], id: int) -> Road:
+    """
+    Return a road based on the road ID.
 
     Parameters
     ----------
-        roads (list of Roads): a list of roads to seach through
-
-        id (int): the id of the road wanted
+    roads : list of Road
+        A list of roads to search through.
+    id : int
+        The ID of the road to retrieve.
 
     Returns
     -------
-        Road
+    Road
+        The road with the specified ID.
     """
     for r in roads:
         if r.id == id:
