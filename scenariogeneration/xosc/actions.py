@@ -61,6 +61,7 @@ from .utils import (
     convert_enum,
     convert_float,
     convert_int,
+    find_mandatory_field,
     get_bool_string,
 )
 
@@ -70,41 +71,41 @@ class _GlobalActionFactory:
     def parse_globalaction(element: ET.Element) -> Any:
         if element.findall("EnvironmentAction"):
             return EnvironmentAction.parse(element)
-        elif element.findall("EntityAction/AddEntityAction"):
+        if element.findall("EntityAction/AddEntityAction"):
             return AddEntityAction.parse(element)
-        elif element.findall("EntityAction/DeleteEntityAction"):
+        if element.findall("EntityAction/DeleteEntityAction"):
             return DeleteEntityAction.parse(element)
-        elif element.findall("ParameterAction/ModifyAction/Rule/AddValue"):
+        if element.findall("ParameterAction/ModifyAction/Rule/AddValue"):
             return ParameterAddAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "ParameterAction/ModifyAction/Rule/MultiplyByValue"
         ):
             return ParameterMultiplyAction.parse(element)
-        elif element.findall("ParameterAction/SetAction"):
+        if element.findall("ParameterAction/SetAction"):
             return ParameterSetAction.parse(element)
-        elif element.findall("VariableAction/ModifyAction/Rule/AddValue"):
+        if element.findall("VariableAction/ModifyAction/Rule/AddValue"):
             return VariableAddAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "VariableAction/ModifyAction/Rule/MultiplyByValue"
         ):
             return VariableMultiplyAction.parse(element)
-        elif element.findall("VariableAction/SetAction"):
+        if element.findall("VariableAction/SetAction"):
             return VariableSetAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "InfrastructureAction/TrafficSignalAction/TrafficSignalStateAction"
         ):
             return TrafficSignalStateAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "InfrastructureAction/TrafficSignalAction/TrafficSignalControllerAction"
         ):
             return TrafficSignalControllerAction.parse(element)
-        elif element.findall("TrafficAction/TrafficSourceAction"):
+        if element.findall("TrafficAction/TrafficSourceAction"):
             return TrafficSourceAction.parse(element)
-        elif element.findall("TrafficAction/TrafficSinkAction"):
+        if element.findall("TrafficAction/TrafficSinkAction"):
             return TrafficSinkAction.parse(element)
-        elif element.findall("TrafficAction/TrafficSwarmAction"):
+        if element.findall("TrafficAction/TrafficSwarmAction"):
             return TrafficSwarmAction.parse(element)
-        elif element.findall("TrafficAction/TrafficStopAction"):
+        if element.findall("TrafficAction/TrafficStopAction"):
             return TrafficStopAction.parse(element)
 
         raise NotAValidElement(
@@ -119,51 +120,51 @@ class _PrivateActionFactory:
             "LongitudinalAction/SpeedAction/SpeedActionTarget/AbsoluteTargetSpeed"
         ):
             return AbsoluteSpeedAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "LongitudinalAction/SpeedAction/SpeedActionTarget/RelativeTargetSpeed"
         ):
             return RelativeSpeedAction.parse(element)
-        elif element.findall("LongitudinalAction/LongitudinalDistanceAction"):
+        if element.findall("LongitudinalAction/LongitudinalDistanceAction"):
             return LongitudinalDistanceAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "LateralAction/LaneChangeAction/LaneChangeTarget/AbsoluteTargetLane"
         ):
             return AbsoluteLaneChangeAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "LateralAction/LaneChangeAction/LaneChangeTarget/RelativeTargetLane"
         ):
             return RelativeLaneChangeAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "LateralAction/LaneOffsetAction/LaneOffsetTarget/AbsoluteTargetLaneOffset"
         ):
             return AbsoluteLaneOffsetAction.parse(element)
-        elif element.findall(
+        if element.findall(
             "LateralAction/LaneOffsetAction/LaneOffsetTarget/RelativeTargetLaneOffset"
         ):
             return RelativeLaneOffsetAction.parse(element)
-        elif element.findall("LateralAction/LateralDistanceAction"):
+        if element.findall("LateralAction/LateralDistanceAction"):
             return LateralDistanceAction.parse(element)
-        elif element.findall("VisibilityAction"):
+        if element.findall("VisibilityAction"):
             return VisibilityAction.parse(element)
-        elif element.findall("SynchronizeAction"):
+        if element.findall("SynchronizeAction"):
             return SynchronizeAction.parse(element)
-        elif element.findall("ActivateControllerAction"):
+        if element.findall("ActivateControllerAction"):
             return ActivateControllerAction.parse(element)
-        elif element.findall("ControllerAction"):
+        if element.findall("ControllerAction"):
             return ControllerAction.parse(element)
-        elif element.findall("TeleportAction"):
+        if element.findall("TeleportAction"):
             return TeleportAction.parse(element)
-        elif element.findall("RoutingAction/AssignRouteAction"):
+        if element.findall("RoutingAction/AssignRouteAction"):
             return AssignRouteAction.parse(element)
-        elif element.findall("RoutingAction/FollowTrajectoryAction"):
+        if element.findall("RoutingAction/FollowTrajectoryAction"):
             return FollowTrajectoryAction.parse(element)
-        elif element.findall("RoutingAction/AcquirePositionAction"):
+        if element.findall("RoutingAction/AcquirePositionAction"):
             return AcquirePositionAction.parse(element)
-        elif element.findall("AppearanceAction/AnimationAction"):
+        if element.findall("AppearanceAction/AnimationAction"):
             return AnimationAction.parse(element)
-        elif element.findall("LongitudinalAction/SpeedProfileAction"):
+        if element.findall("LongitudinalAction/SpeedProfileAction"):
             return SpeedProfileAction.parse(element)
-        elif element.findall("AppearanceAction/LightStateAction"):
+        if element.findall("AppearanceAction/LightStateAction"):
             return LightStateAction.parse(element)
 
         raise NotAValidElement(
@@ -246,14 +247,16 @@ class _Action(VersionBase):
         name = element.attrib["name"]
         if element.find("PrivateAction") is not None:
             action = _PrivateActionFactory.parse_privateaction(
-                element.find("PrivateAction")
+                find_mandatory_field(element, "PrivateAction")
             )
         elif element.find("GlobalAction") is not None:
             action = _GlobalActionFactory.parse_globalaction(
-                element.find("GlobalAction")
+                find_mandatory_field(element, "GlobalAction")
             )
         elif element.find("UserDefinedAction") is not None:
-            action = UserDefinedAction.parse(element.find("UserDefinedAction"))
+            action = UserDefinedAction.parse(
+                find_mandatory_field(element, "UserDefinedAction")
+            )
         else:
             raise NotAValidElement(element.tag, "is not a valid action")
         return _Action(name, action)
@@ -342,11 +345,12 @@ class AbsoluteSpeedAction(_PrivateActionType):
         AbsoluteSpeedAction
             A world position object.
         """
-        speed_element = element.find(
-            "LongitudinalAction/SpeedAction/SpeedActionTarget/AbsoluteTargetSpeed"
+        speed_element = find_mandatory_field(
+            element,
+            "LongitudinalAction/SpeedAction/SpeedActionTarget/AbsoluteTargetSpeed",
         )
-        td_element = element.find(
-            "LongitudinalAction/SpeedAction/SpeedActionDynamics"
+        td_element = find_mandatory_field(
+            element, "LongitudinalAction/SpeedAction/SpeedActionDynamics"
         )
         speed = speed_element.attrib["value"]
         transition_dynamics = TransitionDynamics.parse(td_element)
@@ -482,11 +486,12 @@ class RelativeSpeedAction(_PrivateActionType):
         RelativeSpeedAction
             The RelativeSpeedAction object.
         """
-        speed_element = element.find(
-            "LongitudinalAction/SpeedAction/SpeedActionTarget/RelativeTargetSpeed"
+        speed_element = find_mandatory_field(
+            element,
+            "LongitudinalAction/SpeedAction/SpeedActionTarget/RelativeTargetSpeed",
         )
-        td_element = element.find(
-            "LongitudinalAction/SpeedAction/SpeedActionDynamics"
+        td_element = find_mandatory_field(
+            element, "LongitudinalAction/SpeedAction/SpeedActionDynamics"
         )
         speed = speed_element.attrib["value"]
         entity = speed_element.attrib["entityRef"]
@@ -710,8 +715,8 @@ class LongitudinalDistanceAction(_PrivateActionType):
         LongitudinalDistanceAction
             A LongitudinalDistanceAction object.
         """
-        lda_element = element.find(
-            "LongitudinalAction/LongitudinalDistanceAction"
+        lda_element = find_mandatory_field(
+            element, "LongitudinalAction/LongitudinalDistanceAction"
         )
         entity = lda_element.attrib["entityRef"]
         freespace = convert_bool(lda_element.attrib["freespace"])
@@ -741,7 +746,7 @@ class LongitudinalDistanceAction(_PrivateActionType):
         constraints = None
         if lda_element.find("DynamicConstraints") is not None:
             constraints = DynamicsConstraints.parse(
-                lda_element.find("DynamicConstraints")
+                find_mandatory_field(lda_element, "DynamicConstraints")
             )
             max_acceleration = constraints.max_acceleration
             max_deceleration = constraints.max_deceleration
@@ -919,8 +924,8 @@ class SpeedProfileAction(_PrivateActionType):
         SpeedProfileAction
             A SpeedProfileAction object.
         """
-        speed_profile_element = element.find(
-            "LongitudinalAction/SpeedProfileAction"
+        speed_profile_element = find_mandatory_field(
+            element, "LongitudinalAction/SpeedProfileAction"
         )
         following_mode = convert_enum(
             speed_profile_element.attrib["followingMode"], FollowingMode
@@ -930,9 +935,14 @@ class SpeedProfileAction(_PrivateActionType):
 
         if "entityRef" in speed_profile_element.attrib:
             entity = speed_profile_element.attrib["entityRef"]
-        if speed_profile_element.find("DynamicConstraints") is not None:
+        if (
+            find_mandatory_field(speed_profile_element, "DynamicConstraints")
+            is not None
+        ):
             dynamics_constraint = DynamicsConstraints.parse(
-                speed_profile_element.find("DynamicConstraints")
+                find_mandatory_field(
+                    speed_profile_element, "DynamicConstraints"
+                )
             )
 
         entires = speed_profile_element.findall("SpeedProfileEntry")
@@ -1080,17 +1090,19 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         AbsoluteLaneChangeAction
             An AbsoluteLaneChangeAction object.
         """
-        lca_element = element.find("LateralAction/LaneChangeAction")
+        lca_element = find_mandatory_field(
+            element, "LateralAction/LaneChangeAction"
+        )
         target_lane_offset = None
         if "targetLaneOffset" in lca_element.attrib:
             target_lane_offset = convert_float(
                 lca_element.attrib["targetLaneOffset"]
             )
         dynamics = TransitionDynamics.parse(
-            lca_element.find("LaneChangeActionDynamics")
+            find_mandatory_field(lca_element, "LaneChangeActionDynamics")
         )
-        targetlane_element = lca_element.find(
-            "LaneChangeTarget/AbsoluteTargetLane"
+        targetlane_element = find_mandatory_field(
+            lca_element, "LaneChangeTarget/AbsoluteTargetLane"
         )
         lane = convert_int(targetlane_element.attrib["value"])
 
@@ -1229,17 +1241,19 @@ class RelativeLaneChangeAction(_PrivateActionType):
         AbsoluteLaneChangeAction
             An AbsoluteLaneChangeAction object.
         """
-        lca_element = element.find("LateralAction/LaneChangeAction")
+        lca_element = find_mandatory_field(
+            element, "LateralAction/LaneChangeAction"
+        )
         target_lane_offset = None
         if "targetLaneOffset" in lca_element.attrib:
             target_lane_offset = convert_float(
                 lca_element.attrib["targetLaneOffset"]
             )
         dynamics = TransitionDynamics.parse(
-            lca_element.find("LaneChangeActionDynamics")
+            find_mandatory_field(lca_element, "LaneChangeActionDynamics")
         )
-        targetlane_element = lca_element.find(
-            "LaneChangeTarget/RelativeTargetLane"
+        targetlane_element = find_mandatory_field(
+            lca_element, "LaneChangeTarget/RelativeTargetLane"
         )
         lane = convert_int(targetlane_element.attrib["value"])
         target = targetlane_element.attrib["entityRef"]
@@ -1383,17 +1397,21 @@ class AbsoluteLaneOffsetAction(_PrivateActionType):
         AbsoluteLaneOffsetAction
             An AbsoluteLaneOffsetAction object.
         """
-        loa_element = element.find("LateralAction/LaneOffsetAction")
+        loa_element = find_mandatory_field(
+            element, "LateralAction/LaneOffsetAction"
+        )
 
         continuous = convert_bool(loa_element.attrib["continuous"])
-        load_element = loa_element.find("LaneOffsetActionDynamics")
+        load_element = find_mandatory_field(
+            loa_element, "LaneOffsetActionDynamics"
+        )
         maxacc = convert_float(load_element.attrib["maxLateralAcc"])
         dynamics = convert_enum(
             load_element.attrib["dynamicsShape"], DynamicsShapes
         )
 
-        atlo_element = loa_element.find(
-            "LaneOffsetTarget/AbsoluteTargetLaneOffset"
+        atlo_element = find_mandatory_field(
+            loa_element, "LaneOffsetTarget/AbsoluteTargetLaneOffset"
         )
         value = atlo_element.attrib["value"]
 
@@ -1546,17 +1564,21 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         AbsoluteLaneOffsetAction
             An AbsoluteLaneOffsetAction object.
         """
-        loa_element = element.find("LateralAction/LaneOffsetAction")
+        loa_element = find_mandatory_field(
+            element, "LateralAction/LaneOffsetAction"
+        )
 
         contiuous = convert_bool(loa_element.attrib["continuous"])
-        load_element = loa_element.find("LaneOffsetActionDynamics")
+        load_element = find_mandatory_field(
+            loa_element, "LaneOffsetActionDynamics"
+        )
         maxacc = convert_float(load_element.attrib["maxLateralAcc"])
         dynamics = getattr(
             DynamicsShapes, load_element.attrib["dynamicsShape"]
         )
 
-        rtlo_element = loa_element.find(
-            "LaneOffsetTarget/RelativeTargetLaneOffset"
+        rtlo_element = find_mandatory_field(
+            loa_element, "LaneOffsetTarget/RelativeTargetLaneOffset"
         )
         value = convert_float(rtlo_element.attrib["value"])
         entity = rtlo_element.attrib["entityRef"]
@@ -1750,7 +1772,9 @@ class LateralDistanceAction(_PrivateActionType):
         LateralDistanceAction
             A LateralDistanceAction object.
         """
-        lda_element = element.find("LateralAction/LateralDistanceAction")
+        lda_element = find_mandatory_field(
+            element, "LateralAction/LateralDistanceAction"
+        )
         continuous = convert_bool(lda_element.attrib["continuous"])
         freespace = convert_bool(lda_element.attrib["freespace"])
         entity = lda_element.attrib["entityRef"]
@@ -1773,7 +1797,7 @@ class LateralDistanceAction(_PrivateActionType):
         max_speed = None
         if lda_element.find("DynamicConstraints") is not None:
             constraints = DynamicsConstraints.parse(
-                lda_element.find("DynamicConstraints")
+                find_mandatory_field(lda_element, "DynamicConstraints")
             )
             max_acc = constraints.max_acceleration
             max_dec = constraints.max_deceleration
@@ -1887,7 +1911,9 @@ class TeleportAction(_PrivateActionType):
         TeleportAction
             A TeleportAction object.
         """
-        position_element = element.find("TeleportAction/Position")
+        position_element = find_mandatory_field(
+            element, "TeleportAction/Position"
+        )
 
         position = _PositionFactory.parse_position(position_element)
         return TeleportAction(position)
@@ -1939,7 +1965,7 @@ class AssignRouteAction(_PrivateActionType):
         route : Route or CatalogReference
             The route to follow.
         """
-        if not (isinstance(route, (Route, CatalogReference))):
+        if not isinstance(route, (Route, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -1967,13 +1993,15 @@ class AssignRouteAction(_PrivateActionType):
         AssignRouteAction
             A AssignRouteAction object.
         """
-        ara_element = element.find("RoutingAction/AssignRouteAction")
+        ara_element = find_mandatory_field(
+            element, "RoutingAction/AssignRouteAction"
+        )
         route = None
         if ara_element.find("Route") is not None:
-            route = Route.parse(ara_element.find("Route"))
+            route = Route.parse(find_mandatory_field(ara_element, "Route"))
         elif ara_element.find("CatalogReference") is not None:
             route = CatalogReference.parse(
-                ara_element.find("CatalogReference")
+                find_mandatory_field(ara_element, "CatalogReference")
             )
 
         return AssignRouteAction(route)
@@ -2052,8 +2080,8 @@ class AcquirePositionAction(_PrivateActionType):
         AcquirePositionAction
             An AcquirePositionAction object.
         """
-        pos_element = element.find(
-            "RoutingAction/AcquirePositionAction/Position"
+        pos_element = find_mandatory_field(
+            element, "RoutingAction/AcquirePositionAction/Position"
         )
 
         position = _PositionFactory.parse_position(pos_element)
@@ -2151,7 +2179,7 @@ class FollowTrajectoryAction(_PrivateActionType):
             Start at this offset into the trajectory (valid from v1.1).
             Default is None.
         """
-        if not (isinstance(trajectory, (Trajectory, CatalogReference))):
+        if not isinstance(trajectory, (Trajectory, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -2187,31 +2215,39 @@ class FollowTrajectoryAction(_PrivateActionType):
         FollowTrajectoryAction
             A FollowTrajectoryAction object.
         """
-        fta_element = element.find("RoutingAction/FollowTrajectoryAction")
+        fta_element = find_mandatory_field(
+            element, "RoutingAction/FollowTrajectoryAction"
+        )
         initial_distance_offset = None
         if "initialDistanceOffset" in fta_element.attrib:
             initial_distance_offset = convert_float(
                 fta_element.attrib["initialDistanceOffset"]
             )
 
-        timeref = TimeReference.parse(fta_element.find("TimeReference"))
+        timeref = TimeReference.parse(
+            find_mandatory_field(fta_element, "TimeReference")
+        )
         reference_domain = timeref.reference_domain
         offset = timeref.offset
         scale = timeref.scale
 
-        tfm_element = fta_element.find("TrajectoryFollowingMode")
+        tfm_element = find_mandatory_field(
+            fta_element, "TrajectoryFollowingMode"
+        )
         following_mode = convert_enum(
             tfm_element.attrib["followingMode"], FollowingMode
         )
 
         if fta_element.find("TrajectoryRef") is not None:
-            fta_element = fta_element.find("TrajectoryRef")
+            fta_element = find_mandatory_field(fta_element, "TrajectoryRef")
         trajectory = None
         if fta_element.find("Trajectory") is not None:
-            trajectory = Trajectory.parse(fta_element.find("Trajectory"))
+            trajectory = Trajectory.parse(
+                find_mandatory_field(fta_element, "Trajectory")
+            )
         if fta_element.find("CatalogReference") is not None:
             trajectory = CatalogReference.parse(
-                fta_element.find("CatalogReference")
+                find_mandatory_field(fta_element, "CatalogReference")
             )
 
         return FollowTrajectoryAction(
@@ -2381,7 +2417,7 @@ class ControllerAction(_PrivateActionType):
         overrideControllerValueAction = None
         assignControllerAction = None
 
-        ca_element = element.find("ControllerAction")
+        ca_element = find_mandatory_field(element, "ControllerAction")
 
         if ca_element.find("ActivateControllerAction") is not None:
             activateControllerAction = ActivateControllerAction.parse(element)
@@ -2423,7 +2459,8 @@ class ControllerAction(_PrivateActionType):
                 or self.overrideControllerValueAction is None
             ):
                 raise NotEnoughInputArguments(
-                    "Both assignControllerAction and overrideControllerValueAction are required in version 1.0."
+                    "Both assignControllerAction and " \
+                    "overrideControllerValueAction are required in version 1.0."
                 )
             if self.activateControllerAction is not None:
                 raise OpenSCENARIOVersionError(
@@ -2435,22 +2472,22 @@ class ControllerAction(_PrivateActionType):
 
         if self.activateControllerAction is not None:
             pa_element = self.activateControllerAction.get_element()
-            aca_element = pa_element.find(
-                "ControllerAction/ActivateControllerAction"
+            aca_element = find_mandatory_field(
+                pa_element, "ControllerAction/ActivateControllerAction"
             )
             controlleraction.append(aca_element)
 
         if self.overrideControllerValueAction is not None:
             pa_element = self.overrideControllerValueAction.get_element()
-            ocva_element = pa_element.find(
-                "ControllerAction/OverrideControllerValueAction"
+            ocva_element = find_mandatory_field(
+                pa_element, "ControllerAction/OverrideControllerValueAction"
             )
             controlleraction.append(ocva_element)
 
         if self.assignControllerAction is not None:
             pa_element = self.assignControllerAction.get_element()
-            aca_element = pa_element.find(
-                "ControllerAction/AssignControllerAction"
+            aca_element = find_mandatory_field(
+                pa_element, "ControllerAction/AssignControllerAction"
             )
             controlleraction.append(aca_element)
 
@@ -2559,7 +2596,9 @@ class ActivateControllerAction(_PrivateActionType):
         animation = None
         lighting = None
         controllerRef = None
-        aca_element = element.find("ControllerAction/ActivateControllerAction")
+        aca_element = find_mandatory_field(
+            element, "ControllerAction/ActivateControllerAction"
+        )
         if "lateral" in aca_element.attrib:
             lateral = convert_bool(aca_element.attrib["lateral"])
         if "longitudinal" in aca_element.attrib:
@@ -2693,7 +2732,7 @@ class AssignControllerAction(_PrivateActionType):
             If the longitudinal control should be activated
             (valid from V1.1). Default is True.
         """
-        if not (isinstance(controller, (Controller, CatalogReference))):
+        if not isinstance(controller, (Controller, CatalogReference)):
             raise TypeError(
                 "route input not of type Route or CatalogReference"
             )
@@ -2728,8 +2767,10 @@ class AssignControllerAction(_PrivateActionType):
         AssignControllerAction
             An AssignControllerAction object.
         """
-        ca_element = element.find("ControllerAction")
-        aca_element = ca_element.find("AssignControllerAction")
+        ca_element = find_mandatory_field(element, "ControllerAction")
+        aca_element = find_mandatory_field(
+            ca_element, "AssignControllerAction"
+        )
         activate_lateral = True
         if "activateLateral" in aca_element.attrib:
             activate_lateral = convert_bool(
@@ -2753,10 +2794,12 @@ class AssignControllerAction(_PrivateActionType):
             )
         controller = None
         if aca_element.find("Controller") is not None:
-            controller = Controller.parse(aca_element.find("Controller"))
+            controller = Controller.parse(
+                find_mandatory_field(aca_element, "Controller")
+            )
         elif aca_element.find("CatalogReference") is not None:
             controller = CatalogReference.parse(
-                aca_element.find("CatalogReference")
+                find_mandatory_field(aca_element, "CatalogReference")
             )
         else:
             raise NotAValidElement(
@@ -2998,14 +3041,14 @@ class OverrideControllerValueAction(_PrivateActionType):
             A OverrideControllerValueAction object.
         """
         ocv_action = OverrideControllerValueAction()
-        ocva_element = element.find(
-            "ControllerAction/OverrideControllerValueAction"
+        ocva_element = find_mandatory_field(
+            element, "ControllerAction/OverrideControllerValueAction"
         )
 
         ocv_action.throttle_active = None
         ocv_action.throttle_value = convert_float(0)
         if ocva_element.find("Throttle") is not None:
-            throttle_element = ocva_element.find("Throttle")
+            throttle_element = find_mandatory_field(ocva_element, "Throttle")
             ocv_action.throttle_active = convert_bool(
                 throttle_element.attrib["active"]
             )
@@ -3020,7 +3063,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         ocv_action.brake_active = None
         ocv_action.brake_value = convert_float(0)
         if ocva_element.find("Brake") is not None:
-            brake_element = ocva_element.find("Brake")
+            brake_element = find_mandatory_field(ocva_element, "Brake")
             ocv_action.brake_active = convert_bool(
                 brake_element.attrib["active"]
             )
@@ -3030,11 +3073,15 @@ class OverrideControllerValueAction(_PrivateActionType):
                 )
             else:
                 if brake_element.find("BrakePercent") is not None:
-                    brake_input_element = brake_element.find("BrakePercent")
+                    brake_input_element = find_mandatory_field(
+                        brake_element, "BrakePercent"
+                    )
                     ocv_action.brake_force = False
 
                 elif brake_element.find("BrakeForce") is not None:
-                    brake_input_element = brake_element.find("BrakeForce")
+                    brake_input_element = find_mandatory_field(
+                        brake_element, "BrakeForce"
+                    )
                     ocv_action.brake_force = True
                 else:
                     raise ValueError("No value found while parsing brake.")
@@ -3049,7 +3096,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         ocv_action.clutch_active = None
         ocv_action.clutch_value = convert_float(0)
         if ocva_element.find("Clutch") is not None:
-            cluth_element = ocva_element.find("Clutch")
+            cluth_element = find_mandatory_field(ocva_element, "Clutch")
             ocv_action.clutch_active = convert_bool(
                 cluth_element.attrib["active"]
             )
@@ -3064,7 +3111,9 @@ class OverrideControllerValueAction(_PrivateActionType):
         ocv_action.parkingbrake_active = None
         ocv_action.parkingbrake_value = convert_float(0)
         if ocva_element.find("ParkingBrake") is not None:
-            parkingbrake_element = ocva_element.find("ParkingBrake")
+            parkingbrake_element = find_mandatory_field(
+                ocva_element, "ParkingBrake"
+            )
             ocv_action.parkingbrake_active = convert_bool(
                 parkingbrake_element.attrib["active"]
             )
@@ -3075,14 +3124,14 @@ class OverrideControllerValueAction(_PrivateActionType):
                 )
             else:
                 if parkingbrake_element.find("BrakePercent") is not None:
-                    parkingbrake_input_element = parkingbrake_element.find(
-                        "BrakePercent"
+                    parkingbrake_input_element = find_mandatory_field(
+                        parkingbrake_element, "BrakePercent"
                     )
                     ocv_action.parkingbrake_force = False
 
                 elif parkingbrake_element.find("BrakeForce") is not None:
-                    parkingbrake_input_element = parkingbrake_element.find(
-                        "BrakeForce"
+                    parkingbrake_input_element = find_mandatory_field(
+                        parkingbrake_element, "BrakeForce"
                     )
                     ocv_action.parkingbrake_force = True
                 else:
@@ -3098,7 +3147,9 @@ class OverrideControllerValueAction(_PrivateActionType):
         ocv_action.steeringwheel_active = None
         ocv_action.steeringwheel_value = convert_float(0)
         if ocva_element.find("SteeringWheel") is not None:
-            steeringwheel_element = ocva_element.find("SteeringWheel")
+            steeringwheel_element = find_mandatory_field(
+                ocva_element, "SteeringWheel"
+            )
             ocv_action.steeringwheel_active = convert_bool(
                 steeringwheel_element.attrib["active"]
             )
@@ -3117,7 +3168,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         ocv_action.gear_active = None
         ocv_action.gear_value = convert_float(0)
         if ocva_element.find("Gear") is not None:
-            gear_element = ocva_element.find("Gear")
+            gear_element = find_mandatory_field(ocva_element, "Gear")
             ocv_action.gear_active = convert_bool(
                 gear_element.attrib["active"]
             )
@@ -3128,12 +3179,16 @@ class OverrideControllerValueAction(_PrivateActionType):
             elif gear_element.find("AutomaticGear") is not None:
                 ocv_action.gear_value = getattr(
                     AutomaticGearType,
-                    gear_element.find("AutomaticGear").attrib["gear"],
+                    find_mandatory_field(gear_element, "AutomaticGear").attrib[
+                        "gear"
+                    ],
                 )
 
             elif gear_element.find("ManualGear") is not None:
                 ocv_action.gear_value = convert_float(
-                    gear_element.find("ManualGear").attrib["number"]
+                    find_mandatory_field(gear_element, "ManualGear").attrib[
+                        "number"
+                    ]
                 )
             else:
                 raise ValueError("no gear number found in OverrideGearAction")
@@ -3551,7 +3606,7 @@ class VisibilityAction(_PrivateActionType):
         VisibilityAction
             A VisibilityAction object.
         """
-        va_element = element.find("VisibilityAction")
+        va_element = find_mandatory_field(element, "VisibilityAction")
         graphics = convert_bool(va_element.attrib["graphics"])
         traffic = convert_bool(va_element.attrib["traffic"])
         sensors = convert_bool(va_element.attrib["sensors"])
@@ -3762,7 +3817,7 @@ class SynchronizeAction(_PrivateActionType):
         SynchronizeAction
             A SynchronizeAction object.
         """
-        sa_element = element.find("SynchronizeAction")
+        sa_element = find_mandatory_field(element, "SynchronizeAction")
         entity = sa_element.attrib["masterEntityRef"]
 
         target_tolerance = None
@@ -3778,15 +3833,15 @@ class SynchronizeAction(_PrivateActionType):
             )
 
         targetPositionMaster = _PositionFactory.parse_position(
-            sa_element.find("TargetPositionMaster")
+            find_mandatory_field(sa_element, "TargetPositionMaster")
         )
         targetPosition = _PositionFactory.parse_position(
-            sa_element.find("TargetPosition")
+            find_mandatory_field(sa_element, "TargetPosition")
         )
 
         finalSpeed = None
         if sa_element.find("FinalSpeed") is not None:
-            sa_element = sa_element.find("FinalSpeed")
+            sa_element = find_mandatory_field(sa_element, "FinalSpeed")
             if sa_element.find("AbsoluteSpeed") is not None:
                 finalSpeed = AbsoluteSpeed.parse(sa_element)
             if sa_element.find("RelativeSpeedToMaster") is not None:
@@ -3925,8 +3980,8 @@ class LightStateAction(_PrivateActionType):
                 raise TypeError(
                     "light_type input is not of type VehicleLightType or UserDefinedLight"
                 )
-            else:
-                self.light_type = light_type
+
+            self.light_type = light_type
 
         self.lightstate = _LightState(
             mode, color, intensity, flashing_off_duration, flashing_on_duration
@@ -3959,21 +4014,27 @@ class LightStateAction(_PrivateActionType):
         LightStateAction
             A LightStateAction object.
         """
-        light_element = element.find("AppearanceAction/LightStateAction")
+        light_element = find_mandatory_field(
+            element, "AppearanceAction/LightStateAction"
+        )
         transition_time = None
         if "transitionTime" in light_element.attrib:
             transition_time = convert_float(
                 light_element.attrib["transitionTime"]
             )
-        light_state = _LightState.parse(light_element.find("LightState"))
-        type_element = light_element.find("LightType")
+        light_state = _LightState.parse(
+            find_mandatory_field(light_element, "LightState")
+        )
+        type_element = find_mandatory_field(light_element, "LightType")
         if type_element.find("UserDefinedLight") is not None:
             light_type = UserDefinedLight.parse(
-                type_element.find("UserDefinedLight")
+                find_mandatory_field(type_element, "UserDefinedLight")
             )
         else:
             light_type = convert_enum(
-                type_element.find("VehicleLight").attrib["vehicleLightType"],
+                find_mandatory_field(type_element, "VehicleLight").attrib[
+                    "vehicleLightType"
+                ],
                 VehicleLightType,
             )
         # create with dummy mode
@@ -4130,7 +4191,9 @@ class AnimationAction(_PrivateActionType):
         AnimationAction
             A AnimationAction object.
         """
-        animation_element = element.find("AppearanceAction/AnimationAction")
+        animation_element = find_mandatory_field(
+            element, "AppearanceAction/AnimationAction"
+        )
         duration = None
         if "animationDuration" in animation_element.attrib:
             duration = convert_float(
@@ -4139,12 +4202,14 @@ class AnimationAction(_PrivateActionType):
         loop = None
         if "loop" in animation_element.attrib:
             loop = convert_bool(animation_element.attrib["loop"])
-        animation_state = animation_element.find("AnimationState")
+        animation_state = find_mandatory_field(
+            animation_element, "AnimationState"
+        )
         state = None
         if animation_state is not None:
             state = convert_float(animation_state.attrib["state"])
         animation_type = _AnimationTypeFactory.parse_animationtype(
-            animation_element.find("AnimationType")
+            find_mandatory_field(animation_element, "AnimationType")
         )
         return AnimationAction(animation_type, duration, loop, state)
 
@@ -4264,12 +4329,12 @@ class ParameterAddAction(_ActionType):
         ParameterAddAction
             A ParameterAddAction object.
         """
-        pa_element = element.find("ParameterAction")
+        pa_element = find_mandatory_field(element, "ParameterAction")
         parameterRef = pa_element.attrib["parameterRef"]
 
-        ma_element = pa_element.find("ModifyAction")
-        rule_element = ma_element.find("Rule")
-        mbv_element = rule_element.find("AddValue")
+        ma_element = find_mandatory_field(pa_element, "ModifyAction")
+        rule_element = find_mandatory_field(ma_element, "Rule")
+        mbv_element = find_mandatory_field(rule_element, "AddValue")
         value = convert_float(mbv_element.attrib["value"])
 
         return ParameterAddAction(parameterRef, value)
@@ -4375,12 +4440,12 @@ class ParameterMultiplyAction(_ActionType):
         ParameterMultiplyAction
             A ParameterMultiplyAction object.
         """
-        pa_element = element.find("ParameterAction")
+        pa_element = find_mandatory_field(element, "ParameterAction")
         parameterRef = pa_element.attrib["parameterRef"]
 
-        ma_element = pa_element.find("ModifyAction")
-        rule_element = ma_element.find("Rule")
-        mbv_element = rule_element.find("MultiplyByValue")
+        ma_element = find_mandatory_field(pa_element, "ModifyAction")
+        rule_element = find_mandatory_field(ma_element, "Rule")
+        mbv_element = find_mandatory_field(rule_element, "MultiplyByValue")
         value = convert_float(mbv_element.attrib["value"])
 
         return ParameterMultiplyAction(parameterRef, value)
@@ -4406,7 +4471,8 @@ class ParameterMultiplyAction(_ActionType):
         """
         if self.version_minor > 1:
             raise OpenSCENARIOVersionError(
-                "ParameterMultiplyAction was deprecated in OSC 1.2, please use VariableMultiplyAction instead"
+                "ParameterMultiplyAction was deprecated in OSC 1.2, " \
+                "please use VariableMultiplyAction instead"
             )
         element = ET.Element("GlobalAction")
         paramaction = ET.SubElement(
@@ -4485,9 +4551,9 @@ class ParameterSetAction(_ActionType):
         ParameterSetAction
             A ParameterSetAction object.
         """
-        pa_element = element.find("ParameterAction")
+        pa_element = find_mandatory_field(element, "ParameterAction")
         parameterRef = pa_element.attrib["parameterRef"]
-        psa_element = pa_element.find("SetAction")
+        psa_element = find_mandatory_field(pa_element, "SetAction")
         value = psa_element.attrib["value"]
         psa = ParameterSetAction(parameterRef, value)
         psa.setVersion(minor=1)
@@ -4592,12 +4658,12 @@ class VariableAddAction(_ActionType):
         VariableAddAction
             A VariableAddAction object.
         """
-        pa_element = element.find("VariableAction")
+        pa_element = find_mandatory_field(element, "VariableAction")
         variableRef = pa_element.attrib["variableRef"]
 
-        ma_element = pa_element.find("ModifyAction")
-        rule_element = ma_element.find("Rule")
-        mbv_element = rule_element.find("AddValue")
+        ma_element = find_mandatory_field(pa_element, "ModifyAction")
+        rule_element = find_mandatory_field(ma_element, "Rule")
+        mbv_element = find_mandatory_field(rule_element, "AddValue")
         value = mbv_element.attrib["value"]
 
         return VariableAddAction(variableRef, value)
@@ -4703,12 +4769,12 @@ class VariableMultiplyAction(_ActionType):
         VariableMultiplyAction
             A VariableMultiplyAction object.
         """
-        pa_element = element.find("VariableAction")
+        pa_element = find_mandatory_field(element, "VariableAction")
         variableRef = pa_element.attrib["variableRef"]
 
-        ma_element = pa_element.find("ModifyAction")
-        rule_element = ma_element.find("Rule")
-        mbv_element = rule_element.find("MultiplyByValue")
+        ma_element = find_mandatory_field(pa_element, "ModifyAction")
+        rule_element = find_mandatory_field(ma_element, "Rule")
+        mbv_element = find_mandatory_field(rule_element, "MultiplyByValue")
         value = mbv_element.attrib["value"]
 
         return VariableMultiplyAction(variableRef, value)
@@ -4807,9 +4873,9 @@ class VariableSetAction(_ActionType):
         VariableSetAction
             A VariableSetAction object.
         """
-        pa_element = element.find("VariableAction")
+        pa_element = find_mandatory_field(element, "VariableAction")
         variableRef = pa_element.attrib["variableRef"]
-        psa_element = pa_element.find("SetAction")
+        psa_element = find_mandatory_field(pa_element, "SetAction")
         value = psa_element.attrib["value"]
         return VariableSetAction(variableRef, value)
 
@@ -4908,9 +4974,11 @@ class TrafficSignalStateAction(_ActionType):
         TrafficSignalStateAction
             A TrafficSignalStateAction object.
         """
-        isa_element = element.find("InfrastructureAction")
-        tsa_element = isa_element.find("TrafficSignalAction")
-        tss_element = tsa_element.find("TrafficSignalStateAction")
+        isa_element = find_mandatory_field(element, "InfrastructureAction")
+        tsa_element = find_mandatory_field(isa_element, "TrafficSignalAction")
+        tss_element = find_mandatory_field(
+            tsa_element, "TrafficSignalStateAction"
+        )
         name = tss_element.attrib["name"]
         state = tss_element.attrib["state"]
         return TrafficSignalStateAction(name, state)
@@ -5011,11 +5079,11 @@ class AddEntityAction(_ActionType):
         AddEntityAction
             A AddEntityAction object.
         """
-        ea_element = element.find("EntityAction")
+        ea_element = find_mandatory_field(element, "EntityAction")
         entityref = ea_element.attrib["entityRef"]
-        aea_element = ea_element.find("AddEntityAction")
+        aea_element = find_mandatory_field(ea_element, "AddEntityAction")
         position = _PositionFactory.parse_position(
-            aea_element.find("Position")
+            find_mandatory_field(aea_element, "Position")
         )
         return AddEntityAction(entityref, position)
 
@@ -5104,7 +5172,7 @@ class DeleteEntityAction(_ActionType):
         DeleteEntityAction
             A DeleteEntityAction object.
         """
-        ea_element = element.find("EntityAction")
+        ea_element = find_mandatory_field(element, "EntityAction")
         entityref = ea_element.attrib["entityRef"]
         return DeleteEntityAction(entityref)
 
@@ -5199,9 +5267,11 @@ class TrafficSignalControllerAction(_ActionType):
         TrafficSignalControllerAction
             A TrafficSignalControllerAction object.
         """
-        isa_element = element.find("InfrastructureAction")
-        tsa_element = isa_element.find("TrafficSignalAction")
-        tsc_element = tsa_element.find("TrafficSignalControllerAction")
+        isa_element = find_mandatory_field(element, "InfrastructureAction")
+        tsa_element = find_mandatory_field(isa_element, "TrafficSignalAction")
+        tsc_element = find_mandatory_field(
+            tsa_element, "TrafficSignalControllerAction"
+        )
 
         phase = tsc_element.attrib["phase"]
         tsc_ref = tsc_element.attrib["trafficSignalControllerRef"]
@@ -5355,11 +5425,11 @@ class TrafficSourceAction(_ActionType):
         TrafficSourceAction
             A TrafficSourceAction object.
         """
-        ta_element = element.find("TrafficAction")
+        ta_element = find_mandatory_field(element, "TrafficAction")
         name = None
         if "trafficName" in ta_element.attrib:
             name = ta_element.attrib["trafficName"]
-        tsa_element = ta_element.find("TrafficSourceAction")
+        tsa_element = find_mandatory_field(ta_element, "TrafficSourceAction")
 
         radius = convert_float(tsa_element.attrib["radius"])
         rate = convert_float(tsa_element.attrib["rate"])
@@ -5369,10 +5439,10 @@ class TrafficSourceAction(_ActionType):
         elif "speed" in tsa_element.attrib:
             velocity = tsa_element.attrib["speed"]
         position = _PositionFactory.parse_position(
-            tsa_element.find("Position")
+            find_mandatory_field(tsa_element, "Position")
         )
         trafficdefinition = TrafficDefinition.parse(
-            tsa_element.find("TrafficDefinition")
+            find_mandatory_field(tsa_element, "TrafficDefinition")
         )
 
         return TrafficSourceAction(
@@ -5521,12 +5591,12 @@ class TrafficSinkAction(_ActionType):
         TrafficSinkAction
             A TrafficSinkAction object.
         """
-        ta_element = element.find("TrafficAction")
+        ta_element = find_mandatory_field(element, "TrafficAction")
         name = None
         if "trafficName" in ta_element.attrib:
             name = ta_element.attrib["trafficName"]
 
-        tsa_element = ta_element.find("TrafficSinkAction")
+        tsa_element = find_mandatory_field(ta_element, "TrafficSinkAction")
         radius = convert_float(tsa_element.attrib["radius"])
         rate = None
         if "rate" in tsa_element.attrib:
@@ -5534,11 +5604,11 @@ class TrafficSinkAction(_ActionType):
 
         if tsa_element.find("TrafficDefinition") is not None:
             trafficdefinition = TrafficDefinition.parse(
-                tsa_element.find("TrafficDefinition")
+                find_mandatory_field(tsa_element, "TrafficDefinition")
             )
 
         position = _PositionFactory.parse_position(
-            tsa_element.find("Position")
+            find_mandatory_field(tsa_element, "Position")
         )
 
         return TrafficSinkAction(
@@ -5743,12 +5813,12 @@ class TrafficSwarmAction(_ActionType):
         TrafficSwarmAction
             A TrafficSwarmAction object.
         """
-        ta_element = element.find("TrafficAction")
+        ta_element = find_mandatory_field(element, "TrafficAction")
         name = None
         if "trafficName" in ta_element.attrib:
             name = ta_element.attrib["trafficName"]
 
-        tsa_element = ta_element.find("TrafficSwarmAction")
+        tsa_element = find_mandatory_field(ta_element, "TrafficSwarmAction")
 
         innerradius = convert_float(tsa_element.attrib["innerRadius"])
         numberofvehicles = convert_int(tsa_element.attrib["numberOfVehicles"])
@@ -5759,17 +5829,21 @@ class TrafficSwarmAction(_ActionType):
         if "velocity" in tsa_element.attrib:
             velocity = convert_float(tsa_element.attrib["velocity"])
         elif tsa_element.find("InitalSpeedRange") is not None:
-            velocity = Range.parse(tsa_element.find("InitalSpeedRange"))
+            velocity = Range.parse(
+                find_mandatory_field(tsa_element, "InitalSpeedRange")
+            )
 
         trafficdefinition = TrafficDefinition.parse(
-            tsa_element.find("TrafficDefinition")
+            find_mandatory_field(tsa_element, "TrafficDefinition")
         )
         dot = None
-        if tsa_element.find("DirectionOfTravelDistribution"):
+        if tsa_element.find("DirectionOfTravelDistribution") is not None:
             dot = DirectionOfTravelDistribution.parse(
-                tsa_element.find("DirectionOfTravelDistribution")
+                find_mandatory_field(
+                    tsa_element, "DirectionOfTravelDistribution"
+                )
             )
-        central_element = tsa_element.find("CentralObject")
+        central_element = find_mandatory_field(tsa_element, "CentralObject")
         centralobject = central_element.attrib["entityRef"]
 
         tsa_object = TrafficSwarmAction(
@@ -5838,7 +5912,8 @@ class TrafficSwarmAction(_ActionType):
                     )
                 else:
                     raise OpenSCENARIOVersionError(
-                        "Range for TrafficSwarmAction was introduced in OSC V1.2, velocity should not be used anymore."
+                        "Range for TrafficSwarmAction was introduced in " \
+                        "OSC V1.2, velocity should not be used anymore."
                     )
 
         if self.direction_of_travel is not None:
@@ -5902,7 +5977,7 @@ class TrafficStopAction(_ActionType):
         TrafficStopAction
             A TrafficStopAction object.
         """
-        trafficaction_element = element.find("TrafficAction")
+        trafficaction_element = find_mandatory_field(element, "TrafficAction")
         name = trafficaction_element.attrib["trafficName"]
         return TrafficStopAction(name)
 
@@ -5974,7 +6049,7 @@ class EnvironmentAction(_ActionType):
         environment : Environment or CatalogReference
             The environment to change to.
         """
-        if not (isinstance(environment, (Environment, CatalogReference))):
+        if not isinstance(environment, (Environment, CatalogReference)):
             raise TypeError(
                 "environment input not of type Environment or CatalogReference"
             )
@@ -6000,12 +6075,14 @@ class EnvironmentAction(_ActionType):
         BoundingBox
             A BoundingBox object.
         """
-        action_element = element.find("EnvironmentAction")
+        action_element = find_mandatory_field(element, "EnvironmentAction")
         if action_element.find("Environment") is not None:
-            environment = Environment.parse(action_element.find("Environment"))
+            environment = Environment.parse(
+                find_mandatory_field(action_element, "Environment")
+            )
         elif action_element.find("CatalogReference") is not None:
             environment = CatalogReference.parse(
-                action_element.find("CatalogReference")
+                find_mandatory_field(action_element, "CatalogReference")
             )
 
         return EnvironmentAction(environment)
@@ -6153,7 +6230,7 @@ class UserDefinedAction(_ActionType):
             A UserDefinedAction object.
         """
         custom_command_action = CustomCommandAction.parse(
-            element.find("CustomCommandAction")
+            find_mandatory_field(element, "CustomCommandAction")
         )
         user_defined_action = UserDefinedAction(custom_command_action)
         return user_defined_action

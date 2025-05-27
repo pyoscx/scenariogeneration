@@ -33,6 +33,7 @@ from .utils import (
     _BaseCatalog,
     convert_enum,
     convert_float,
+    find_mandatory_field,
 )
 
 
@@ -236,8 +237,8 @@ class Axles(VersionBase):
         Axles
             An Axles object.
         """
-        frontaxle = Axle.parse(element.find("FrontAxle"))
-        rearaxle = Axle.parse(element.find("RearAxle"))
+        frontaxle = Axle.parse(find_mandatory_field(element, "FrontAxle"))
+        rearaxle = Axle.parse(find_mandatory_field(element, "RearAxle"))
         axles = Axles(frontaxle, rearaxle)
         additionals = element.findall("AdditionalAxle")
         for additional in additionals:
@@ -375,7 +376,7 @@ class Entity(VersionBase):
         bytypes = []
         entity_refs = []
 
-        members_element = element.find("Members")
+        members_element = find_mandatory_field(element, "Members")
         if members_element.find("ByType") is not None:
             types = members_element.findall("ByType")
             for t in types:
@@ -561,12 +562,16 @@ class Pedestrian(_BaseCatalog):
         )
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         else:
             parameters = ParameterDeclarations()
-        boundingbox = BoundingBox.parse(element.find("BoundingBox"))
-        properties = Properties.parse(element.find("Properties"))
+        boundingbox = BoundingBox.parse(
+            find_mandatory_field(element, "BoundingBox")
+        )
+        properties = Properties.parse(
+            find_mandatory_field(element, "Properties")
+        )
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
@@ -762,15 +767,19 @@ class MiscObject(_BaseCatalog):
             model3d = element.attrib["model3d"]
         mass = convert_float(element.attrib["mass"])
         name = element.attrib["name"]
-        properties = Properties.parse(element.find("Properties"))
-        boundingbox = BoundingBox.parse(element.find("BoundingBox"))
+        properties = Properties.parse(
+            find_mandatory_field(element, "Properties")
+        )
+        boundingbox = BoundingBox.parse(
+            find_mandatory_field(element, "BoundingBox")
+        )
         category = convert_enum(
             element.attrib["miscObjectCategory"], MiscObjectCategory
         )
 
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         else:
             parameters = ParameterDeclarations()
@@ -1031,23 +1040,31 @@ class Vehicle(_BaseCatalog):
             model3d = element.attrib["model3d"]
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         else:
             parameters = ParameterDeclarations()
-        boundingbox = BoundingBox.parse(element.find("BoundingBox"))
-        properties = Properties.parse(element.find("Properties"))
+        boundingbox = BoundingBox.parse(
+            find_mandatory_field(element, "BoundingBox")
+        )
+        properties = Properties.parse(
+            find_mandatory_field(element, "Properties")
+        )
 
-        performance = DynamicsConstraints.parse(element.find("Performance"))
+        performance = DynamicsConstraints.parse(
+            find_mandatory_field(element, "Performance")
+        )
         max_speed = performance.max_speed
         max_acc = performance.max_acceleration
         max_dec = performance.max_deceleration
         max_acc_rate = performance.max_acceleration_rate
         max_dec_rate = performance.max_deceleration_rate
 
-        axles_element = element.find("Axles")
-        frontaxle = Axle.parse(axles_element.find("FrontAxle"))
-        rearaxle = Axle.parse(axles_element.find("RearAxle"))
+        axles_element = find_mandatory_field(element, "Axles")
+        frontaxle = Axle.parse(
+            find_mandatory_field(axles_element, "FrontAxle")
+        )
+        rearaxle = Axle.parse(find_mandatory_field(axles_element, "RearAxle"))
 
         role = None
         if "role" in element.attrib:
@@ -1525,17 +1542,23 @@ class ScenarioObject(VersionBase):
         name = element.attrib["name"]
         if element.find("CatalogReference") is not None:
             entityobject = CatalogReference.parse(
-                element.find("CatalogReference")
+                find_mandatory_field(element, "CatalogReference")
             )
         elif element.find("Vehicle") is not None:
-            entityobject = Vehicle.parse(element.find("Vehicle"))
+            entityobject = Vehicle.parse(
+                find_mandatory_field(element, "Vehicle")
+            )
         elif element.find("Pedestrian") is not None:
-            entityobject = Pedestrian.parse(element.find("Pedestrian"))
+            entityobject = Pedestrian.parse(
+                find_mandatory_field(element, "Pedestrian")
+            )
         elif element.find("MiscObject") is not None:
-            entityobject = MiscObject.parse(element.find("MiscObject"))
+            entityobject = MiscObject.parse(
+                find_mandatory_field(element, "MiscObject")
+            )
         elif element.find("ExternalObjectReference") is not None:
             entityobject = ExternalObjectReference.parse(
-                element.find("ExternalObjectReference")
+                find_mandatory_field(element, "ExternalObjectReference")
             )
         else:
             raise XMLStructureError(
@@ -1553,16 +1576,22 @@ class ScenarioObject(VersionBase):
                 if object_controller_element.find("Controller") is not None:
                     controller.append(
                         Controller.parse(
-                            object_controller_element.find("Controller")
+                            find_mandatory_field(
+                                object_controller_element, "Controller"
+                            )
                         )
                     )
                 elif (
-                    object_controller_element.find("CatalogReference")
+                    find_mandatory_field(
+                        object_controller_element, "CatalogReference"
+                    )
                     is not None
                 ):
                     controller.append(
                         CatalogReference.parse(
-                            object_controller_element.find("CatalogReference")
+                            find_mandatory_field(
+                                object_controller_element, "CatalogReference"
+                            )
                         )
                     )
 

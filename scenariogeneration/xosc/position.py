@@ -30,6 +30,7 @@ from .utils import (
     convert_enum,
     convert_float,
     convert_int,
+    find_mandatory_field,
     get_bool_string,
 )
 
@@ -188,7 +189,7 @@ class WorldPosition(_PositionType):
         WorldPosition
             A WorldPosition object.
         """
-        position_element = element.find("WorldPosition")
+        position_element = find_mandatory_field(element, "WorldPosition")
         x = convert_float(position_element.attrib["x"])
         y = convert_float(position_element.attrib["y"])
         z = None
@@ -339,7 +340,9 @@ class RelativeWorldPosition(_PositionType):
         RelativeWorldPosition
             A RelativeWorldPosition object.
         """
-        position_element = element.find("RelativeWorldPosition")
+        position_element = find_mandatory_field(
+            element, "RelativeWorldPosition"
+        )
         dx = convert_float(position_element.attrib["dx"])
         dy = convert_float(position_element.attrib["dy"])
         dz = convert_float(position_element.attrib["dz"])
@@ -347,7 +350,7 @@ class RelativeWorldPosition(_PositionType):
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -488,7 +491,9 @@ class RelativeObjectPosition(_PositionType):
         RelativeObjectPosition
             A RelativeObjectPosition object.
         """
-        position_element = element.find("RelativeObjectPosition")
+        position_element = find_mandatory_field(
+            element, "RelativeObjectPosition"
+        )
         dx = convert_float(position_element.attrib["dx"])
         dy = convert_float(position_element.attrib["dy"])
         if "dz" in position_element.attrib:
@@ -499,7 +504,7 @@ class RelativeObjectPosition(_PositionType):
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -632,14 +637,14 @@ class RoadPosition(_PositionType):
         RoadPosition
             A RoadPosition object.
         """
-        position_element = element.find("RoadPosition")
+        position_element = find_mandatory_field(element, "RoadPosition")
         roadId = convert_int(position_element.attrib["roadId"])
         s = convert_float(position_element.attrib["s"])
         t = convert_float(position_element.attrib["t"])
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -769,7 +774,9 @@ class RelativeRoadPosition(_PositionType):
         RelativeRoadPosition
             A RelativeRoadPosition object.
         """
-        position_element = element.find("RelativeRoadPosition")
+        position_element = find_mandatory_field(
+            element, "RelativeRoadPosition"
+        )
 
         ds = convert_float(position_element.attrib["ds"])
         dt = convert_float(position_element.attrib["dt"])
@@ -777,7 +784,7 @@ class RelativeRoadPosition(_PositionType):
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -916,7 +923,7 @@ class LanePosition(_PositionType):
         LanePosition
             A LanePosition object.
         """
-        position_element = element.find("LanePosition")
+        position_element = find_mandatory_field(element, "LanePosition")
         roadId = position_element.attrib["roadId"]
         s = convert_float(position_element.attrib["s"])
         offset = convert_float(position_element.attrib["offset"])
@@ -924,7 +931,7 @@ class LanePosition(_PositionType):
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -1083,7 +1090,9 @@ class RelativeLanePosition(_PositionType):
         RelativeLanePosition
             A RelativeLanePosition object.
         """
-        position_element = element.find("RelativeLanePosition")
+        position_element = find_mandatory_field(
+            element, "RelativeLanePosition"
+        )
         ds = None
         dslane = None
         if "ds" in position_element.attrib:
@@ -1098,7 +1107,7 @@ class RelativeLanePosition(_PositionType):
         entityref = position_element.attrib["entityRef"]
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -1234,23 +1243,25 @@ class RoutePositionOfCurrentEntity(_PositionType):
         RoutePositionOfCurrentEntity
             A RoutePositionOfCurrentEntity object.
         """
-        position_element = element.find("RoutePosition")
+        position_element = find_mandatory_field(element, "RoutePosition")
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
-        entityelement = position_element.find(
-            "InRoutePosition/FromCurrentEntity"
+        entityelement = find_mandatory_field(
+            position_element, "InRoutePosition/FromCurrentEntity"
         )
         entity = entityelement.attrib["entityRef"]
-        route_element = position_element.find("RouteRef")
+        route_element = find_mandatory_field(position_element, "RouteRef")
         if route_element.find("Route") is not None:
-            routeref = Route.parse(route_element.find("Route"))
+            routeref = Route.parse(
+                find_mandatory_field(route_element, "Route")
+            )
         else:
             routeref = CatalogReference.parse(
-                route_element.find("CatalogReference")
+                find_mandatory_field(route_element, "CatalogReference")
             )
 
         return RoutePositionOfCurrentEntity(routeref, entity, orientation)
@@ -1367,24 +1378,26 @@ class RoutePositionInRoadCoordinates(_PositionType):
         RoutePositionInRoadCoordinates
             A RoutePositionInRoadCoordinates object.
         """
-        position_element = element.find("RoutePosition")
+        position_element = find_mandatory_field(element, "RoutePosition")
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
-        road_coord_element = position_element.find(
-            "InRoutePosition/FromRoadCoordinates"
+        road_coord_element = find_mandatory_field(
+            position_element, "InRoutePosition/FromRoadCoordinates"
         )
         s = convert_float(road_coord_element.attrib["pathS"])
         t = convert_float(road_coord_element.attrib["t"])
-        route_element = position_element.find("RouteRef")
+        route_element = find_mandatory_field(position_element, "RouteRef")
         if route_element.find("Route") is not None:
-            routeref = Route.parse(route_element.find("Route"))
+            routeref = Route.parse(
+                find_mandatory_field(route_element, "Route")
+            )
         else:
             routeref = CatalogReference.parse(
-                route_element.find("CatalogReference")
+                find_mandatory_field(route_element, "CatalogReference")
             )
 
         return RoutePositionInRoadCoordinates(routeref, s, t, orientation)
@@ -1512,15 +1525,15 @@ class RoutePositionInLaneCoordinates(_PositionType):
         RoutePositionInLaneCoordinates
             A RoutePositionInLaneCoordinates object.
         """
-        position_element = element.find("RoutePosition")
+        position_element = find_mandatory_field(element, "RoutePosition")
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
-        lane_coord_element = position_element.find(
-            "InRoutePosition/FromLaneCoordinates"
+        lane_coord_element = find_mandatory_field(
+            position_element, "InRoutePosition/FromLaneCoordinates"
         )
         s = convert_float(lane_coord_element.attrib["pathS"])
         lane_id = convert_int(lane_coord_element.attrib["laneId"])
@@ -1528,12 +1541,14 @@ class RoutePositionInLaneCoordinates(_PositionType):
             offset = convert_float(lane_coord_element.attrib["laneOffset"])
         except KeyError:
             offset = 0
-        route_element = position_element.find("RouteRef")
+        route_element = find_mandatory_field(position_element, "RouteRef")
         if route_element.find("Route") is not None:
-            routeref = Route.parse(route_element.find("Route"))
+            routeref = Route.parse(
+                find_mandatory_field(route_element, "Route")
+            )
         else:
             routeref = CatalogReference.parse(
-                route_element.find("CatalogReference")
+                find_mandatory_field(route_element, "CatalogReference")
             )
 
         return RoutePositionInLaneCoordinates(
@@ -1658,10 +1673,10 @@ class TrajectoryPosition(_PositionType):
         TrajectoryPosition
             A TrajectoryPosition object.
         """
-        position_element = element.find("TrajectoryPosition")
+        position_element = find_mandatory_field(element, "TrajectoryPosition")
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -1671,14 +1686,16 @@ class TrajectoryPosition(_PositionType):
         if "t" in position_element:
             s = position_element.attrib["s"]
 
-        trajectory_element = position_element.find("TrajectoryRef")
+        trajectory_element = find_mandatory_field(
+            position_element, "TrajectoryRef"
+        )
         if trajectory_element.find("Trajectory") is not None:
             trajectory = Trajectory.parse(
-                trajectory_element.find("Trajectory")
+                find_mandatory_field(trajectory_element, "Trajectory")
             )
         else:
             trajectory = CatalogReference.parse(
-                trajectory_element.find("CatalogReference")
+                find_mandatory_field(trajectory_element, "CatalogReference")
             )
 
         return TrajectoryPosition(trajectory, s, t, orientation)
@@ -1808,7 +1825,7 @@ class GeoPosition(_PositionType):
         GeoPosition
             A GeoPosition object.
         """
-        position_element = element.find("GeoPosition")
+        position_element = find_mandatory_field(element, "GeoPosition")
         if "longitude" in position_element.attrib:
             longitude = convert_float(position_element.attrib["longitude"])
         elif "longitudeDeg" in position_element.attrib:
@@ -1832,7 +1849,7 @@ class GeoPosition(_PositionType):
 
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
-                position_element.find("Orientation")
+                find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
@@ -1952,7 +1969,7 @@ class Polyline(_TrajectoryShape):
         Polyline
             A Polyline object.
         """
-        polyline_element = element.find("Polyline")
+        polyline_element = find_mandatory_field(element, "Polyline")
         vertexes = polyline_element.findall("Vertex")
         time_list = []
         position_list = []
@@ -1960,7 +1977,9 @@ class Polyline(_TrajectoryShape):
             if "time" in vertex.attrib:
                 time_list.append(convert_float(vertex.attrib["time"]))
             position_list.append(
-                _PositionFactory.parse_position(vertex.find("Position"))
+                _PositionFactory.parse_position(
+                    find_mandatory_field(vertex, "Position")
+                )
             )
         return Polyline(time_list, position_list)
 
@@ -2094,9 +2113,9 @@ class Clothoid(_TrajectoryShape):
         Clothoid
             A Clothoid object.
         """
-        clothoid_element = element.find("Clothoid")
+        clothoid_element = find_mandatory_field(element, "Clothoid")
         start_position = _PositionFactory.parse_position(
-            clothoid_element.find("Position")
+            find_mandatory_field(clothoid_element, "Position")
         )
         length = convert_float(clothoid_element.attrib["length"])
         curvature = convert_float(clothoid_element.attrib["curvature"])
@@ -2251,7 +2270,7 @@ class ControlPoint(VersionBase):
             time = convert_float(element.attrib["time"])
         if "weight" in element.attrib:
             weight = convert_float(element.attrib["weight"])
-        pos_element = element.find("Position")
+        pos_element = find_mandatory_field(element, "Position")
         position = _PositionFactory.parse_position(pos_element)
 
         return ControlPoint(position, time, weight)
@@ -2352,7 +2371,7 @@ class Waypoint(VersionBase):
         Waypoint
             A Waypoint object.
         """
-        pos_element = element.find("Position")
+        pos_element = find_mandatory_field(element, "Position")
         position = _PositionFactory.parse_position(pos_element)
         strategy = convert_enum(element.attrib["routeStrategy"], RouteStrategy)
         return Waypoint(position, strategy)
@@ -2597,7 +2616,7 @@ class Trajectory(_BaseCatalog):
         """
         name = element.attrib["name"]
         closed = convert_bool(element.attrib["closed"])
-        pos_element = element.find("Shape")
+        pos_element = find_mandatory_field(element, "Shape")
         shape = _ShapeFactory.parse_shape(pos_element)
         trajectory = Trajectory(name, closed)
         trajectory.add_shape(shape)
@@ -2717,7 +2736,7 @@ class Nurbs(_TrajectoryShape):
         Nurbs
             A Nurbs object.
         """
-        nurbs_element = element.find("Nurbs")
+        nurbs_element = find_mandatory_field(element, "Nurbs")
         order = convert_int(nurbs_element.attrib["order"])
 
         # print(pos_element)

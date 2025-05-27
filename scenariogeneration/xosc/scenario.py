@@ -29,6 +29,7 @@ from .utils import (
     Properties,
     TrafficSignalController,
     VariableDeclarations,
+    find_mandatory_field,
 )
 
 
@@ -199,21 +200,27 @@ class Scenario(VersionBase):
         Scenario
             A Scenario object.
         """
-        header = FileHeader.parse(element.find("FileHeader"))
+        header = FileHeader.parse(find_mandatory_field(element, "FileHeader"))
         parameters = ParameterDeclarations()
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
-        catalog = Catalog.parse(element.find("CatalogLocations"))
-        storyboard = StoryBoard.parse(element.find("Storyboard"))
-        entities = Entities.parse(element.find("Entities"))
-        roadnetwork = RoadNetwork.parse(element.find("RoadNetwork"))
+        catalog = Catalog.parse(
+            find_mandatory_field(element, "CatalogLocations")
+        )
+        storyboard = StoryBoard.parse(
+            find_mandatory_field(element, "Storyboard")
+        )
+        entities = Entities.parse(find_mandatory_field(element, "Entities"))
+        roadnetwork = RoadNetwork.parse(
+            find_mandatory_field(element, "RoadNetwork")
+        )
 
         variables = None
         if element.find("VariableDeclarations") is not None:
             variables = VariableDeclarations.parse(
-                element.find("VariableDeclarations")
+                find_mandatory_field(element, "VariableDeclarations")
             )
         return Scenario(
             header.description,
@@ -349,11 +356,15 @@ class RoadNetwork(VersionBase):
         """
         logicFile = None
         if element.find("LogicFile") is not None:
-            logicFile = element.find("LogicFile").attrib["filepath"]
+            logicFile = find_mandatory_field(element, "LogicFile").attrib[
+                "filepath"
+            ]
 
         sceneGraphFile = None
         if element.find("SceneGraphFile") is not None:
-            sceneGraphFile = element.find("SceneGraphFile").attrib["filepath"]
+            sceneGraphFile = find_mandatory_field(
+                element, "SceneGraphFile"
+            ).attrib["filepath"]
 
         roadnetwork = RoadNetwork(
             roadfile=logicFile, scenegraph=sceneGraphFile

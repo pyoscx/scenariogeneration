@@ -42,6 +42,7 @@ from .utils import (
     convert_enum,
     convert_float,
     convert_int,
+    find_mandatory_field,
     get_bool_string,
 )
 
@@ -134,30 +135,40 @@ class _ValueConditionFactory:
     @staticmethod
     def parse_value_condition(element):
         if element.find("ParameterCondition") is not None:
-            return ParameterCondition.parse(element.find("ParameterCondition"))
+            return ParameterCondition.parse(
+                find_mandatory_field(element, "ParameterCondition")
+            )
         elif element.find("VariableCondition") is not None:
-            return VariableCondition.parse(element.find("VariableCondition"))
+            return VariableCondition.parse(
+                find_mandatory_field(element, "VariableCondition")
+            )
         elif element.find("TimeOfDayCondition") is not None:
-            return TimeOfDayCondition.parse(element.find("TimeOfDayCondition"))
+            return TimeOfDayCondition.parse(
+                find_mandatory_field(element, "TimeOfDayCondition")
+            )
         elif element.find("SimulationTimeCondition") is not None:
             return SimulationTimeCondition.parse(
-                element.find("SimulationTimeCondition")
+                find_mandatory_field(element, "SimulationTimeCondition")
             )
         elif element.find("StoryboardElementStateCondition") is not None:
             return StoryboardElementStateCondition.parse(
-                element.find("StoryboardElementStateCondition")
+                find_mandatory_field(
+                    element, "StoryboardElementStateCondition"
+                )
             )
         elif element.find("UserDefinedValueCondition") is not None:
             return UserDefinedValueCondition.parse(
-                element.find("UserDefinedValueCondition")
+                find_mandatory_field(element, "UserDefinedValueCondition")
             )
         elif element.find("TrafficSignalCondition") is not None:
             return TrafficSignalCondition.parse(
-                element.find("TrafficSignalCondition")
+                find_mandatory_field(element, "TrafficSignalCondition")
             )
         elif element.find("TrafficSignalControllerCondition") is not None:
             return TrafficSignalControllerCondition.parse(
-                element.find("TrafficSignalControllerCondition")
+                find_mandatory_field(
+                    element, "TrafficSignalControllerCondition"
+                )
             )
         else:
             raise NotAValidElement(
@@ -566,12 +577,14 @@ class EntityTrigger(_TriggerType):
         conditionedge = convert_enum(
             element.attrib["conditionEdge"], ConditionEdge
         )
-        entityconditionelement = element.find("ByEntityCondition")
+        entityconditionelement = find_mandatory_field(
+            element, "ByEntityCondition"
+        )
         triggering_entities = TriggeringEntities.parse(
-            entityconditionelement.find("TriggeringEntities")
+            find_mandatory_field(entityconditionelement, "TriggeringEntities")
         )
         condition = _EntityConditionFactory.parse_entity_condition(
-            entityconditionelement.find("EntityCondition")
+            find_mandatory_field(entityconditionelement, "EntityCondition")
         )
         enttrig = EntityTrigger(name, delay, conditionedge, condition, "")
         enttrig.triggerentity = triggering_entities
@@ -756,7 +769,7 @@ class ValueTrigger(_TriggerType):
             element.attrib["conditionEdge"], ConditionEdge
         )
         condition = _ValueConditionFactory.parse_value_condition(
-            element.find("ByValueCondition")
+            find_mandatory_field(element, "ByValueCondition")
         )
         return ValueTrigger(name, delay, conditionedge, condition)
 
@@ -946,7 +959,7 @@ class EndOfRoadCondition(_EntityTriggerType):
         -------
             condition (EndOfRoadCondition): a EndOfRoadCondition object
         """
-        condition = element.find("EndOfRoadCondition")
+        condition = find_mandatory_field(element, "EndOfRoadCondition")
         duration = convert_float(condition.attrib["duration"])
         return EndOfRoadCondition(duration)
 
@@ -1017,12 +1030,14 @@ class CollisionCondition(_EntityTriggerType):
         -------
             condition (CollisionCondition): a CollisionCondition object
         """
-        condition = element.find("CollisionCondition")
+        condition = find_mandatory_field(element, "CollisionCondition")
         bytype = condition.find("ByType")
         if bytype is not None:
             entity = convert_enum(bytype.attrib["type"], ObjectType)
         else:
-            entityref = EntityRef.parse(condition.find("EntityRef"))
+            entityref = EntityRef.parse(
+                find_mandatory_field(condition, "EntityRef")
+            )
             entity = entityref.entity
         return CollisionCondition(entity)
 
@@ -1088,7 +1103,7 @@ class OffroadCondition(_EntityTriggerType):
         -------
             condition (OffroadCondition): a OffroadCondition object
         """
-        condition = element.find("OffroadCondition")
+        condition = find_mandatory_field(element, "OffroadCondition")
         duration = convert_float(condition.attrib["duration"])
         return OffroadCondition(duration)
 
@@ -1231,7 +1246,7 @@ class TimeHeadwayCondition(_EntityTriggerType):
         -------
             condition (TimeHeadwayCondition): a TimeHeadwayCondition object
         """
-        condition = element.find("TimeHeadwayCondition")
+        condition = find_mandatory_field(element, "TimeHeadwayCondition")
         entity = condition.attrib["entityRef"]
         value = condition.attrib["value"]
         rule = getattr(Rule, condition.attrib["rule"])
@@ -1468,7 +1483,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         -------
             condition (TimeToCollisionCondition): a TimeToCollisionCondition object
         """
-        condition = element.find("TimeToCollisionCondition")
+        condition = find_mandatory_field(element, "TimeToCollisionCondition")
         value = condition.attrib["value"]
         rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
@@ -1498,7 +1513,9 @@ class TimeToCollisionCondition(_EntityTriggerType):
             is not None
         ):
             entityref = EntityRef.parse(
-                condition.find("TimeToCollisionConditionTarget/EntityRef")
+                find_mandatory_field(
+                    condition, "TimeToCollisionConditionTarget/EntityRef"
+                )
             )
             entity = entityref.entity
         elif (
@@ -1506,7 +1523,9 @@ class TimeToCollisionCondition(_EntityTriggerType):
             is not None
         ):
             position = _PositionFactory.parse_position(
-                condition.find("TimeToCollisionConditionTarget/Position")
+                find_mandatory_field(
+                    condition, "TimeToCollisionConditionTarget/Position"
+                )
             )
         else:
             raise ValueError(
@@ -1634,7 +1653,7 @@ class AccelerationCondition(_EntityTriggerType):
             condition (AccelerationCondition): a AccelerationCondition object
         """
         direction = None
-        condition = element.find("AccelerationCondition")
+        condition = find_mandatory_field(element, "AccelerationCondition")
         value = convert_float(condition.attrib["value"])
         rule = convert_enum(condition.attrib["rule"], Rule)
         if "direction" in condition.attrib:
@@ -1717,7 +1736,7 @@ class StandStillCondition(_EntityTriggerType):
         -------
             condition (StandStillCondition): a StandStillCondition object
         """
-        condition = element.find("StandStillCondition")
+        condition = find_mandatory_field(element, "StandStillCondition")
         duration = convert_float(condition.attrib["duration"])
         return StandStillCondition(duration)
 
@@ -1804,7 +1823,7 @@ class SpeedCondition(_EntityTriggerType):
         -------
             condition (SpeedCondition): a SpeedCondition object
         """
-        condition = element.find("SpeedCondition")
+        condition = find_mandatory_field(element, "SpeedCondition")
         value = convert_float(condition.attrib["value"])
         rule = convert_enum(condition.attrib["rule"], Rule)
         direction = None
@@ -1911,7 +1930,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
         -------
             condition (RelativeSpeedCondition): a RelativeSpeedCondition object
         """
-        condition = element.find("RelativeSpeedCondition")
+        condition = find_mandatory_field(element, "RelativeSpeedCondition")
         value = convert_float(condition.attrib["value"])
         entity = condition.attrib["entityRef"]
         rule = convert_enum(condition.attrib["rule"], Rule)
@@ -1998,7 +2017,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
         -------
             condition (TraveledDistanceCondition): a TraveledDistanceCondition object
         """
-        condition = element.find("TraveledDistanceCondition")
+        condition = find_mandatory_field(element, "TraveledDistanceCondition")
         value = convert_float(condition.attrib["value"])
         return TraveledDistanceCondition(value)
 
@@ -2079,9 +2098,11 @@ class ReachPositionCondition(_EntityTriggerType):
         -------
             condition (ReachPositionCondition): a ReachPositionCondition object
         """
-        condition = element.find("ReachPositionCondition")
+        condition = find_mandatory_field(element, "ReachPositionCondition")
         tolerance = convert_float(condition.attrib["tolerance"])
-        position = _PositionFactory.parse_position(condition.find("Position"))
+        position = _PositionFactory.parse_position(
+            find_mandatory_field(condition, "Position")
+        )
         return ReachPositionCondition(position, tolerance)
 
     def get_attributes(self):
@@ -2208,7 +2229,7 @@ class DistanceCondition(_EntityTriggerType):
         -------
             condition (DistanceCondition): a DistanceCondition object
         """
-        condition = element.find("DistanceCondition")
+        condition = find_mandatory_field(element, "DistanceCondition")
         value = condition.attrib["value"]
         rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
@@ -2239,7 +2260,9 @@ class DistanceCondition(_EntityTriggerType):
             routing_algorithm = None
         position = None
 
-        position = _PositionFactory.parse_position(condition.find("Position"))
+        position = _PositionFactory.parse_position(
+            find_mandatory_field(condition, "Position")
+        )
         return DistanceCondition(
             value,
             rule,
@@ -2400,7 +2423,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         -------
             condition (RelativeDistanceCondition): a RelativeDistanceCondition object
         """
-        condition = element.find("RelativeDistanceCondition")
+        condition = find_mandatory_field(element, "RelativeDistanceCondition")
         value = condition.attrib["value"]
         rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
@@ -2569,7 +2592,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         -------
             condition (RelativeClearanceCondition): a RelativeClearanceCondition object
         """
-        condition = element.find("RelativeClearanceCondition")
+        condition = find_mandatory_field(element, "RelativeClearanceCondition")
         if "freespace" in condition.attrib:
             freespace = convert_bool(condition.attrib["freespace"])
         else:
@@ -2980,7 +3003,6 @@ class SimulationTimeCondition(_ValueTriggerType):
         -------
             condition (SimulationTimeCondition): a SimulationTimeCondition object
         """
-        # condition = element.find("SimulationTimeCondition")
         value = convert_float(element.attrib["value"])
         rule = convert_enum(element.attrib["rule"], Rule)
         return SimulationTimeCondition(value, rule)

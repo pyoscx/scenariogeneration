@@ -24,6 +24,7 @@ from .utils import (
     Controller,
     Environment,
     ParameterDeclarations,
+    find_mandatory_field,
 )
 
 
@@ -73,7 +74,7 @@ class CatalogLoader:
             name_ref = catalog_reference
 
         with open(fullpath, "r", encoding="utf-8") as f:
-            catalog_element = ET.parse(f).find("Catalog")
+            catalog_element = find_mandatory_field(ET.parse(f), "Catalog")
             self.all_catalogs[name_ref] = catalog_element
 
     def parse(self, catalog_reference):
@@ -166,7 +167,7 @@ def CatalogReader(catalog_reference, catalog_path):
     ) as f:
         loaded_catalog = ET.parse(f)
 
-        catalog = loaded_catalog.find("Catalog")
+        catalog = find_mandatory_field(loaded_catalog, "Catalog")
 
         for entry in catalog:
             if entry.tag == "Vehicle":
@@ -216,7 +217,7 @@ def ParameterDeclarationReader(file_path):
     param_decl = ParameterDeclarations()
     with open(file_path, "r") as f:
         loaded_xosc = ET.parse(f)
-        paramdec = loaded_xosc.find("ParameterDeclarations")
+        paramdec = find_mandatory_field(loaded_xosc, "ParameterDeclarations")
         param_decl = ParameterDeclarations.parse(paramdec)
 
     return param_decl

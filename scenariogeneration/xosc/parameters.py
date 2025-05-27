@@ -27,6 +27,7 @@ from .utils import (
     Properties,
     _StochasticDistributionType,
     convert_float,
+    find_mandatory_field,
 )
 
 
@@ -34,20 +35,22 @@ class _StochasticFactory:
     @staticmethod
     def parse_distribution(element):
         if element.find("NormalDistribution") is not None:
-            return NormalDistribution.parse(element.find("NormalDistribution"))
+            return NormalDistribution.parse(
+                find_mandatory_field(element, "NormalDistribution")
+            )
         elif element.find("UniformDistribution") is not None:
             return UniformDistribution.parse(
-                element.find("UniformDistribution")
+                find_mandatory_field(element, "UniformDistribution")
             )
         elif element.find("PoissonDistribution") is not None:
             return PoissonDistribution.parse(
-                element.find("PoissonDistribution")
+                find_mandatory_field(element, "PoissonDistribution")
             )
         elif element.find("Histogram") is not None:
-            return Histogram.parse(element.find("Histogram"))
+            return Histogram.parse(find_mandatory_field(element, "Histogram"))
         elif element.find("ProbabilityDistributionSet") is not None:
             return ProbabilityDistributionSet.parse(
-                element.find("ProbabilityDistributionSet")
+                find_mandatory_field(element, "ProbabilityDistributionSet")
             )
         elif element.find("UserDefinedDistribution") is not None:
             return NotImplementedError(
@@ -63,9 +66,13 @@ class _DeterministicFactory:
     @staticmethod
     def parse_distribution(element):
         if element.find("DistributionSet") is not None:
-            return DistributionSet.parse(element.find("DistributionSet"))
+            return DistributionSet.parse(
+                find_mandatory_field(element, "DistributionSet")
+            )
         elif element.find("DistributionRange") is not None:
-            return DistributionRange.parse(element.find("DistributionRange"))
+            return DistributionRange.parse(
+                find_mandatory_field(element, "DistributionRange")
+            )
         elif element.find("UserDefinedDistribution") is not None:
             return NotImplementedError(
                 "UserDefinedDistribution is not implemented yet."
@@ -240,7 +247,7 @@ class _HistogramBin(VersionBase):
         _HistogramBin
             A _HistogramBin object.
         """
-        range_element = element.find("Range")
+        range_element = find_mandatory_field(element, "Range")
         if range_element is not None:
             range = Range.parse(range_element)
         else:
@@ -591,7 +598,7 @@ class NormalDistribution(_StochasticDistributionType):
             A NormalDistribution object.
         """
         if element.find("Range") is not None:
-            range = Range.parse(element.find("Range"))
+            range = Range.parse(find_mandatory_field(element, "Range"))
         else:
             range = None
         nd = NormalDistribution(
@@ -683,7 +690,9 @@ class UniformDistribution(_StochasticDistributionType):
         UniformDistribution
             A UniformDistribution object.
         """
-        return UniformDistribution(Range.parse(element.find("Range")))
+        return UniformDistribution(
+            Range.parse(find_mandatory_field(element, "Range"))
+        )
 
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the UniformDistribution.
@@ -766,7 +775,7 @@ class PoissonDistribution(_StochasticDistributionType):
             A PoissonDistribution object.
         """
         if element.find("Range") is not None:
-            range = Range.parse(element.find("Range"))
+            range = Range.parse(find_mandatory_field(element, "Range"))
         else:
             range = None
         pd = PoissonDistribution(element.attrib["expectedValue"], range)
@@ -1225,7 +1234,8 @@ class DistributionRange(VersionBase):
             A DistributionRange object.
         """
         distribution_range = DistributionRange(
-            element.attrib["stepWidth"], Range.parse(element.find("Range"))
+            element.attrib["stepWidth"],
+            Range.parse(find_mandatory_field(element, "Range")),
         )
         return distribution_range
 
@@ -1606,20 +1616,33 @@ class ParameterValueDistribution(VersionBase):
         NotAValidElement
             If the ParameterValueDistribution is missing a distribution.
         """
-        pvd_element = element.find("ParameterValueDistribution")
+        pvd_element = find_mandatory_field(
+            element, "ParameterValueDistribution"
+        )
         if pvd_element.find("Stochastic") is not None:
-            dist = Stochastic.parse(pvd_element.find("Stochastic"))
+            dist = Stochastic.parse(
+                find_mandatory_field(pvd_element, "Stochastic")
+            )
         elif pvd_element.find("Deterministic") is not None:
-            dist = Deterministic.parse(pvd_element.find("Deterministic"))
+            dist = Deterministic.parse(
+                find_mandatory_field(pvd_element, "Deterministic")
+            )
         else:
             raise NotAValidElement(
                 "ParameterValueDistribution is missing a distribution"
             )
 
         pvd = ParameterValueDistribution(
-            "", "", pvd_element.find("ScenarioFile").attrib["filepath"], dist
+            "",
+            "",
+            find_mandatory_field(pvd_element, "ScenarioFile").attrib[
+                "filepath"
+            ],
+            dist,
         )
-        pvd.header = FileHeader.parse(element.find("FileHeader"))
+        pvd.header = FileHeader.parse(
+            find_mandatory_field(element, "FileHeader")
+        )
         return pvd
 
     def get_element(self) -> ET.Element:

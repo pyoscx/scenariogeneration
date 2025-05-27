@@ -39,6 +39,7 @@ from .utils import (
     convert_bool,
     convert_enum,
     convert_int,
+    find_mandatory_field,
     get_bool_string,
 )
 
@@ -135,7 +136,9 @@ class Event(VersionBase):
 
         event = Event(name, prio, maxexec)
 
-        event.add_trigger(Trigger.parse(element.find("StartTrigger")))
+        event.add_trigger(
+            Trigger.parse(find_mandatory_field(element, "StartTrigger"))
+        )
 
         for a in element.findall("Action"):
             event.action.append(_Action.parse(a))
@@ -274,7 +277,7 @@ class Init(VersionBase):
         Cannot parse UserDefinedAction.
         """
         init = Init()
-        action_element = element.find("Actions")
+        action_element = find_mandatory_field(element, "Actions")
         global_elements = action_element.findall("GlobalAction")
         for ga in global_elements:
             globalaction = _GlobalActionFactory.parse_globalaction(ga)
@@ -565,7 +568,7 @@ class Maneuver(_BaseCatalog):
         parameters = None
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         name = element.attrib["name"]
         man = Maneuver(name, parameters)
@@ -705,7 +708,7 @@ class ManeuverGroup(VersionBase):
         """
         name = element.attrib["name"]
         maxexec = convert_int(element.attrib["maximumExecutionCount"])
-        actors = _Actors.parse(element.find("Actors"))
+        actors = _Actors.parse(find_mandatory_field(element, "Actors"))
         maneuver_group = ManeuverGroup(name, maxexec)
         maneuver_group.actors = actors
         for m in element.findall("Maneuver"):
@@ -883,8 +886,12 @@ class Act(VersionBase):
         name = element.attrib["name"]
         stoptrigger = None
         if element.find("StopTrigger") is not None:
-            stoptrigger = Trigger.parse(element.find("StopTrigger"))
-        starttrigger = Trigger.parse(element.find("StartTrigger"))
+            stoptrigger = Trigger.parse(
+                find_mandatory_field(element, "StopTrigger")
+            )
+        starttrigger = Trigger.parse(
+            find_mandatory_field(element, "StartTrigger")
+        )
 
         act = Act(name, starttrigger, stoptrigger)
         for m in element.findall("ManeuverGroup"):
@@ -1018,7 +1025,7 @@ class Story(VersionBase):
         name = element.attrib["name"]
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         else:
             parameters = ParameterDeclarations()
@@ -1152,8 +1159,10 @@ class StoryBoard(VersionBase):
         StoryBoard
             A StoryBoard object.
         """
-        init = Init.parse(element.find("Init"))
-        stoptrigger = Trigger.parse(element.find("StopTrigger"))
+        init = Init.parse(find_mandatory_field(element, "Init"))
+        stoptrigger = Trigger.parse(
+            find_mandatory_field(element, "StopTrigger")
+        )
 
         storyboard = StoryBoard(init, stoptrigger)
         for s in element.findall("Story"):

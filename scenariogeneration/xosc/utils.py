@@ -107,17 +107,19 @@ class _AnimationTypeFactory:
         print(element)
         if element.find("ComponentAnimation") is not None:
             return _ComponentAnimation.parse(
-                element.find("ComponentAnimation")
+                find_mandatory_field(element, "ComponentAnimation")
             )
         elif element.find("PedestrianAnimation") is not None:
             return PedestrianAnimation.parse(
-                element.find("PedestrianAnimation")
+                find_mandatory_field(element, "PedestrianAnimation")
             )
         elif element.find("AnimationFile") is not None:
-            return AnimationFile.parse(element.find("AnimationFile"))
+            return AnimationFile.parse(
+                find_mandatory_field(element, "AnimationFile")
+            )
         elif element.find("UserDefinedAnimation") is not None:
             return UserDefinedAnimation.parse(
-                element.find("UserDefinedAnimation")
+                find_mandatory_field(element, "UserDefinedAnimation")
             )
         else:
             raise NotAValidElement(
@@ -432,9 +434,11 @@ class BoundingBox(VersionBase):
         BoundingBox
             A BoundingBox object.
         """
-        center = Center.parse(element.find("Center"))
+        center = Center.parse(find_mandatory_field(element, "Center"))
         cen_dict = center.get_attributes()
-        dimension = Dimensions.parse(element.find("Dimensions"))
+        dimension = Dimensions.parse(
+            find_mandatory_field(element, "Dimensions")
+        )
         dim_dict = dimension.get_attributes()
         return BoundingBox(
             dim_dict["width"],
@@ -1130,7 +1134,7 @@ class Controller(_BaseCatalog):
             A Controller object.
         """
         name = element.attrib["name"]
-        properties_element = element.find("Properties")
+        properties_element = find_mandatory_field(element, "Properties")
         properties = Properties.parse(properties_element)
         cnt_type = None
         if "controllerType" in element.attrib:
@@ -2125,7 +2129,7 @@ class FileHeader(VersionBase):
         description = element.attrib["description"]
         license = None
         if element.find("license") is not None:
-            license = License.parse(element.find("license"))
+            license = License.parse(find_mandatory_field(element, "license"))
 
         return FileHeader(
             author=author, description=description, license=license
@@ -2273,7 +2277,7 @@ class TimeReference(VersionBase):
         if element.find("None") is not None:
             return TimeReference()
 
-        timing_element = element.find("Timing")
+        timing_element = find_mandatory_field(element, "Timing")
         scale = None
         offset = None
         reference_domain = None
@@ -2497,7 +2501,9 @@ class Phase(VersionBase):
         group = None
         # NOTE: Misspelling according to standard...
         if element.find("TrafficeSignalGroupState") is not None:
-            group = element.find("TrafficeSignalGroupState").attrib["state"]
+            group = find_mandatory_field(
+                element, "TrafficeSignalGroupState"
+            ).attrib["state"]
         phase = Phase(name, duration, group)
         signalstates = element.findall("TrafficSignalState")
         if signalstates is not None:
@@ -2804,7 +2810,9 @@ class TrafficDefinition(VersionBase):
         name = element.attrib["name"]
         td = TrafficDefinition(name)
 
-        vehicle_distributions = element.find("VehicleCategoryDistribution")
+        vehicle_distributions = find_mandatory_field(
+            element, "VehicleCategoryDistribution"
+        )
         vehicle_entries = vehicle_distributions.findall(
             "VehicleCategoryDistributionEntry"
         )
@@ -2813,20 +2821,22 @@ class TrafficDefinition(VersionBase):
             category = convert_enum(entry.attrib["category"], VehicleCategory)
             td.add_vehicle(category, weight)
 
-        controller_distributions = element.find("ControllerDistribution")
+        controller_distributions = find_mandatory_field(
+            element, "ControllerDistribution"
+        )
         controller_entries = controller_distributions.findall(
             "ControllerDistributionEntry"
         )
         for controller_dist in controller_entries:
             weight = convert_float(controller_dist.attrib["weight"])
-            if controller_dist.find("Controller"):
+            if controller_dist.find("Controller") is not None:
                 controller = Controller.parse(
-                    controller_dist.find("Controller")
+                    find_mandatory_field(controller_dist, "Controller")
                 )
                 td.add_controller(controller, weight)
             else:
                 catalog_reference = CatalogReference.parse(
-                    controller_dist.find("CatalogReference")
+                    find_mandatory_field(controller_dist, "CatalogReference")
                 )
                 td.add_controller(catalog_reference, weight)
 
@@ -3050,13 +3060,13 @@ class CatalogFile(VersionBase):
         """
         if self.catalog_element is None:
             raise OSError("No file has been created or opened")
-        fileheader = self.catalog_element.find("FileHeader")
+        fileheader = find_mandatory_field(self.catalog_element, "FileHeader")
 
         if convert_int(fileheader.attrib["revMinor"]) != obj.version_minor:
             warnings.warn(
                 "The Catalog and the added object does not have the same OpenSCENARIO version."
             )
-        catalogs = self.catalog_element.find("Catalog")
+        catalogs = find_mandatory_field(self.catalog_element, "Catalog")
         catalogs.append(obj.get_element())
         return self
 
@@ -3193,42 +3203,44 @@ class Catalog(VersionBase):
 
         vc_element = element.find("VehicleCatalog")
         if vc_element is not None:
-            path = vc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(vc_element, "Directory").attrib["path"]
             catalog.add_catalog("VehicleCatalog", path)
 
         cc_element = element.find("ControllerCatalog")
         if cc_element is not None:
-            path = cc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(cc_element, "Directory").attrib["path"]
             catalog.add_catalog("ControllerCatalog", path)
 
         pc_element = element.find("PedestrianCatalog")
         if pc_element is not None:
-            path = pc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(pc_element, "Directory").attrib["path"]
             catalog.add_catalog("PedestrianCatalog", path)
 
         moc_element = element.find("MiscObjectCatalog")
         if moc_element is not None:
-            path = moc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(moc_element, "Directory").attrib[
+                "path"
+            ]
             catalog.add_catalog("MiscObjectCatalog", path)
 
         ec_element = element.find("EnvironmentCatalog")
         if ec_element is not None:
-            path = ec_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(ec_element, "Directory").attrib["path"]
             catalog.add_catalog("EnvironmentCatalog", path)
 
         mc_element = element.find("ManeuverCatalog")
         if mc_element is not None:
-            path = mc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(mc_element, "Directory").attrib["path"]
             catalog.add_catalog("ManeuverCatalog", path)
 
         tc_element = element.find("TrajectoryCatalog")
         if tc_element is not None:
-            path = tc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(tc_element, "Directory").attrib["path"]
             catalog.add_catalog("TrajectoryCatalog", path)
 
         rc_element = element.find("RouteCatalog")
         if rc_element is not None:
-            path = rc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(rc_element, "Directory").attrib["path"]
             catalog.add_catalog("RouteCatalog", path)
 
         return catalog
@@ -3586,7 +3598,9 @@ class Fog(VersionBase):
         visual_range = element.attrib["visualRange"]
         bounding_box = None
         if element.find("BoundingBox") is not None:
-            bounding_box = BoundingBox.parse(element.find("BoundingBox"))
+            bounding_box = BoundingBox.parse(
+                find_mandatory_field(element, "BoundingBox")
+            )
 
         return Fog(visual_range, bounding_box)
 
@@ -4094,21 +4108,28 @@ class Weather(VersionBase):
                 element.attrib["fractionalCloudCover"], FractionalCloudCover
             )
         if element.find("Sun") is not None:
-            sun = Sun.parse(element.find("Sun"))
+            sun = Sun.parse(find_mandatory_field(element, "Sun"))
         if element.find("Fog") is not None:
-            fog = Fog.parse(element.find("Fog"))
+            fog = Fog.parse(find_mandatory_field(element, "Fog"))
         if element.find("Precipitation") is not None:
-            precipitation = Precipitation.parse(element.find("Precipitation"))
-        if element.find("Wind") is not None:
-            wind = Wind.parse(element.find("Wind"))
-        if element.find("DomeImage") is not None:
-            dome_file = (
-                element.find("DomeImage").find("DomeFile").attrib["filepath"]
+            precipitation = Precipitation.parse(
+                find_mandatory_field(element, "Precipitation")
             )
+        if element.find("Wind") is not None:
+            wind = Wind.parse(find_mandatory_field(element, "Wind"))
+        if element.find("DomeImage") is not None:
+            dome_file = find_mandatory_field(
+                find_mandatory_field(element, "DomeImage"), "DomeFile"
+            ).attrib["filepath"]
 
-            if "azimuthOffset" in element.find("DomeImage").attrib:
+            if (
+                "azimuthOffset"
+                in find_mandatory_field(element, "DomeImage").attrib
+            ):
                 dome_azimuth = convert_float(
-                    element.find("DomeImage").attrib["azimuthOffset"]
+                    find_mandatory_field(element, "DomeImage").attrib[
+                        "azimuthOffset"
+                    ]
                 )
         return Weather(
             cloudstate,
@@ -4308,7 +4329,9 @@ class RoadCondition(VersionBase):
         properties = None
         wetness = None
         if element.find("Properties") is not None:
-            properties = Properties.parse(element.find("Properties"))
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         if "wetness" in element.attrib:
             wetness = convert_enum(element.attrib["wetness"], Wetness, False)
         return RoadCondition(friction_scale_factor, properties, wetness)
@@ -4464,14 +4487,18 @@ class Environment(_BaseCatalog):
 
         if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
         if element.find("TimeOfDay") is not None:
-            timeofday = TimeOfDay.parse(element.find("TimeOfDay"))
+            timeofday = TimeOfDay.parse(
+                find_mandatory_field(element, "TimeOfDay")
+            )
         if element.find("Weather") is not None:
-            weather = Weather.parse(element.find("Weather"))
+            weather = Weather.parse(find_mandatory_field(element, "Weather"))
         if element.find("RoadCondition") is not None:
-            roadcondition = RoadCondition.parse(element.find("RoadCondition"))
+            roadcondition = RoadCondition.parse(
+                find_mandatory_field(element, "RoadCondition")
+            )
 
         return Environment(name, timeofday, weather, roadcondition, parameters)
 
@@ -4961,7 +4988,7 @@ class AbsoluteSpeed(VersionBase):
         AbsoluteSpeed
             An AbsoluteSpeed object.
         """
-        absolute_speed_element = element.find("AbsoluteSpeed")
+        absolute_speed_element = find_mandatory_field(element, "AbsoluteSpeed")
         value = absolute_speed_element.attrib["value"]
 
         state = None
@@ -4970,11 +4997,15 @@ class AbsoluteSpeed(VersionBase):
             is not None
         ):
             state = TargetDistanceSteadyState.parse(
-                absolute_speed_element.find("TargetDistanceSteadyState")
+                find_mandatory_field(
+                    absolute_speed_element, "TargetDistanceSteadyState"
+                )
             )
         elif absolute_speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
-                absolute_speed_element.find("TargetTimeSteadyState")
+                find_mandatory_field(
+                    absolute_speed_element, "TargetTimeSteadyState"
+                )
             )
 
         return AbsoluteSpeed(value, state)
@@ -5106,7 +5137,7 @@ class RelativeSpeedToMaster(VersionBase):
         RelativeSpeedToMaster
             A RelativeSpeedToMaster object.
         """
-        speed_element = element.find("RelativeSpeedToMaster")
+        speed_element = find_mandatory_field(element, "RelativeSpeedToMaster")
 
         value = speed_element.attrib["value"]
         speedTargetValueType = convert_enum(
@@ -5115,11 +5146,13 @@ class RelativeSpeedToMaster(VersionBase):
         state = None
         if speed_element.find("TargetDistanceSteadyState") is not None:
             state = TargetDistanceSteadyState.parse(
-                speed_element.find("TargetDistanceSteadyState")
+                find_mandatory_field(
+                    speed_element, "TargetDistanceSteadyState"
+                )
             )
         elif speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
-                speed_element.find("TargetTimeSteadyState")
+                find_mandatory_field(speed_element, "TargetTimeSteadyState")
             )
 
         return RelativeSpeedToMaster(value, speedTargetValueType, state)
@@ -5668,9 +5701,13 @@ class Color(VersionBase):
         """
         color_type = convert_enum(element.attrib["colorType"], ColorType)
         if element.find("ColorRgb") is not None:
-            color_def = ColorRGB.parse(element.find("ColorRgb"))
+            color_def = ColorRGB.parse(
+                find_mandatory_field(element, "ColorRgb")
+            )
         elif element.find("ColorCmyk") is not None:
-            color_def = ColorCMYK.parse(element.find("ColorCmyk"))
+            color_def = ColorCMYK.parse(
+                find_mandatory_field(element, "ColorCmyk")
+            )
         return Color(color_type, color_def)
 
     def get_attributes(self) -> dict[str, str]:
@@ -5900,7 +5937,7 @@ class _LightState(VersionBase):
             intensity = convert_float(element.attrib["luminousIntensity"])
 
         if element.find("Color") is not None:
-            color = Color.parse(element.find("Color"))
+            color = Color.parse(find_mandatory_field(element, "Color"))
         mode = convert_enum(element.attrib["mode"], LightMode)
         return _LightState(mode, color, intensity, flashing_off, flashing_on)
 
@@ -6006,7 +6043,7 @@ class AnimationFile(_AnimationType):
         """
         timeOffset = None
         if element.find("File") is not None:
-            file = element.find("File").attrib["filepath"]
+            file = find_mandatory_field(element, "File").attrib["filepath"]
         if "timeOffset" in element.attrib:
             timeOffset = convert_float(element.attrib["timeOffset"])
         return AnimationFile(file, timeOffset)
@@ -6628,11 +6665,11 @@ class _ComponentAnimation(_AnimationType):
         """
         if element.find("VehicleComponent") is not None:
             component = _VehicleComponent.parse(
-                element.find("VehicleComponent")
+                find_mandatory_field(element, "VehicleComponent")
             )
         else:
             component = UserDefinedComponent.parse(
-                element.find("UserDefinedComponent")
+                find_mandatory_field(element, "UserDefinedComponent")
             )
         return _ComponentAnimation(component)
 

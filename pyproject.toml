@@ -47,3 +47,10 @@ line-length = 79
 atomic = true
 profile = "black"
 known_first_party = ["black"]
+
+[tool.pylint]
+disable = [
+    "invalid-name",
+    "too-many-positional-arguments",
+    "too-many-arguments"
+]
