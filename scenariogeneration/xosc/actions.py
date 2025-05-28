@@ -85,9 +85,7 @@ class _GlobalActionFactory:
             return ParameterSetAction.parse(element)
         if element.findall("VariableAction/ModifyAction/Rule/AddValue"):
             return VariableAddAction.parse(element)
-        if element.findall(
-            "VariableAction/ModifyAction/Rule/MultiplyByValue"
-        ):
+        if element.findall("VariableAction/ModifyAction/Rule/MultiplyByValue"):
             return VariableMultiplyAction.parse(element)
         if element.findall("VariableAction/SetAction"):
             return VariableSetAction.parse(element)
@@ -2459,7 +2457,7 @@ class ControllerAction(_PrivateActionType):
                 or self.overrideControllerValueAction is None
             ):
                 raise NotEnoughInputArguments(
-                    "Both assignControllerAction and " \
+                    "Both assignControllerAction and "
                     "overrideControllerValueAction are required in version 1.0."
                 )
             if self.activateControllerAction is not None:
@@ -4471,7 +4469,7 @@ class ParameterMultiplyAction(_ActionType):
         """
         if self.version_minor > 1:
             raise OpenSCENARIOVersionError(
-                "ParameterMultiplyAction was deprecated in OSC 1.2, " \
+                "ParameterMultiplyAction was deprecated in OSC 1.2, "
                 "please use VariableMultiplyAction instead"
             )
         element = ET.Element("GlobalAction")
@@ -5912,7 +5910,7 @@ class TrafficSwarmAction(_ActionType):
                     )
                 else:
                     raise OpenSCENARIOVersionError(
-                        "Range for TrafficSwarmAction was introduced in " \
+                        "Range for TrafficSwarmAction was introduced in "
                         "OSC V1.2, velocity should not be used anymore."
                     )
 

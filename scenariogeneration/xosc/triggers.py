@@ -101,34 +101,33 @@ class _EntityConditionFactory:
     def parse_entity_condition(element):
         if element.find("EndOfRoadCondition") is not None:
             return EndOfRoadCondition.parse(element)
-        elif element.find("CollisionCondition") is not None:
+        if element.find("CollisionCondition") is not None:
             return CollisionCondition.parse(element)
-        elif element.find("OffroadCondition") is not None:
+        if element.find("OffroadCondition") is not None:
             return OffroadCondition.parse(element)
-        elif element.find("TimeHeadwayCondition") is not None:
+        if element.find("TimeHeadwayCondition") is not None:
             return TimeHeadwayCondition.parse(element)
-        elif element.find("TimeToCollisionCondition") is not None:
+        if element.find("TimeToCollisionCondition") is not None:
             return TimeToCollisionCondition.parse(element)
-        elif element.find("AccelerationCondition") is not None:
+        if element.find("AccelerationCondition") is not None:
             return AccelerationCondition.parse(element)
-        elif element.find("StandStillCondition") is not None:
+        if element.find("StandStillCondition") is not None:
             return StandStillCondition.parse(element)
-        elif element.find("SpeedCondition") is not None:
+        if element.find("SpeedCondition") is not None:
             return SpeedCondition.parse(element)
-        elif element.find("RelativeSpeedCondition") is not None:
+        if element.find("RelativeSpeedCondition") is not None:
             return RelativeSpeedCondition.parse(element)
-        elif element.find("TraveledDistanceCondition") is not None:
+        if element.find("TraveledDistanceCondition") is not None:
             return TraveledDistanceCondition.parse(element)
-        elif element.find("ReachPositionCondition") is not None:
+        if element.find("ReachPositionCondition") is not None:
             return ReachPositionCondition.parse(element)
-        elif element.find("DistanceCondition") is not None:
+        if element.find("DistanceCondition") is not None:
             return DistanceCondition.parse(element)
-        elif element.find("RelativeDistanceCondition") is not None:
+        if element.find("RelativeDistanceCondition") is not None:
             return RelativeDistanceCondition.parse(element)
-        else:
-            raise NotAValidElement(
-                "element ", element, "is not a valid entity condition"
-            )
+        raise NotAValidElement(
+            "element ", element, "is not a valid entity condition"
+        )
 
 
 class _ValueConditionFactory:
@@ -138,42 +137,41 @@ class _ValueConditionFactory:
             return ParameterCondition.parse(
                 find_mandatory_field(element, "ParameterCondition")
             )
-        elif element.find("VariableCondition") is not None:
+        if element.find("VariableCondition") is not None:
             return VariableCondition.parse(
                 find_mandatory_field(element, "VariableCondition")
             )
-        elif element.find("TimeOfDayCondition") is not None:
+        if element.find("TimeOfDayCondition") is not None:
             return TimeOfDayCondition.parse(
                 find_mandatory_field(element, "TimeOfDayCondition")
             )
-        elif element.find("SimulationTimeCondition") is not None:
+        if element.find("SimulationTimeCondition") is not None:
             return SimulationTimeCondition.parse(
                 find_mandatory_field(element, "SimulationTimeCondition")
             )
-        elif element.find("StoryboardElementStateCondition") is not None:
+        if element.find("StoryboardElementStateCondition") is not None:
             return StoryboardElementStateCondition.parse(
                 find_mandatory_field(
                     element, "StoryboardElementStateCondition"
                 )
             )
-        elif element.find("UserDefinedValueCondition") is not None:
+        if element.find("UserDefinedValueCondition") is not None:
             return UserDefinedValueCondition.parse(
                 find_mandatory_field(element, "UserDefinedValueCondition")
             )
-        elif element.find("TrafficSignalCondition") is not None:
+        if element.find("TrafficSignalCondition") is not None:
             return TrafficSignalCondition.parse(
                 find_mandatory_field(element, "TrafficSignalCondition")
             )
-        elif element.find("TrafficSignalControllerCondition") is not None:
+        if element.find("TrafficSignalControllerCondition") is not None:
             return TrafficSignalControllerCondition.parse(
                 find_mandatory_field(
                     element, "TrafficSignalControllerCondition"
                 )
             )
-        else:
-            raise NotAValidElement(
-                "element ", element, "is not a valid entity condition"
-            )
+        raise NotAValidElement(
+            "element ", element, "is not a valid entity condition"
+        )
 
 
 class _ConditionFactory:
@@ -269,7 +267,8 @@ class Trigger(_TriggerType):
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+            element (xml.etree.ElementTree.Element): A position element
+            (same as generated by the class itself)
 
         Returns
         -------
@@ -380,7 +379,8 @@ class ConditionGroup(_TriggerType):
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+            element (xml.etree.ElementTree.Element): A position element
+            (same as generated by the class itself)
 
         Returns
         -------
@@ -428,11 +428,10 @@ class ConditionGroup(_TriggerType):
 
         if self._used_by_parent:
             return condgroup
-        else:
-            # could create a new Trigger here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            element.append(condgroup)
-            return element
+        # could create a new Trigger here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        element.append(condgroup)
+        return element
 
 
 class EntityTrigger(_TriggerType):
@@ -556,11 +555,13 @@ class EntityTrigger(_TriggerType):
     @staticmethod
     def parse(element):
         """Parses the xml element of EntityTrigger
-        NOTE: this parser will ONLY parse the Condition itself, not the CondintionGroup or Trigger that it can generate
+        NOTE: this parser will ONLY parse the Condition itself,
+        not the CondintionGroup or Trigger that it can generate
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+            element (xml.etree.ElementTree.Element): A position element
+            (same as generated by the class itself)
 
         Returns
         -------
@@ -623,12 +624,11 @@ class EntityTrigger(_TriggerType):
 
         if self._used_by_parent:
             return condition
-        else:
-            # could create a new Trigger ConditionGroup here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            condgroup = ET.SubElement(element, "ConditionGroup")
-            condgroup.append(condition)
-            return element
+        # could create a new Trigger ConditionGroup here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        condgroup = ET.SubElement(element, "ConditionGroup")
+        condgroup.append(condition)
+        return element
 
 
 class ValueTrigger(_TriggerType):
@@ -747,11 +747,13 @@ class ValueTrigger(_TriggerType):
     @staticmethod
     def parse(element):
         """Parses the xml element of ValueTrigger
-        NOTE: this parser will ONLY parse the Condition itself, not the CondintionGroup or Trigger that it can generate
+        NOTE: this parser will ONLY parse the Condition itself,
+        not the CondintionGroup or Trigger that it can generate
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+            element (xml.etree.ElementTree.Element): A position element
+            (same as generated by the class itself)
 
         Returns
         -------
@@ -793,12 +795,11 @@ class ValueTrigger(_TriggerType):
         byvalue.append(self.valuecondition.get_element())
         if self._used_by_parent:
             return condition
-        else:
-            # could create a new Trigger ConditionGroup here, but went with this solution for now
-            element = ET.Element(self._triggerpoint)
-            condgroup = ET.SubElement(element, "ConditionGroup")
-            condgroup.append(condition)
-            return element
+        # could create a new Trigger ConditionGroup here, but went with this solution for now
+        element = ET.Element(self._triggerpoint)
+        condgroup = ET.SubElement(element, "ConditionGroup")
+        condgroup.append(condition)
+        return element
 
 
 class TriggeringEntities(VersionBase):
@@ -856,11 +857,13 @@ class TriggeringEntities(VersionBase):
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+            element (xml.etree.ElementTree.Element): A position element
+            (same as generated by the class itself)
 
         Returns
         -------
-            triggeringentities (TriggeringEntities): a TriggeringEntities object
+            triggeringentities (TriggeringEntities): A
+            TriggeringEntities object
         """
 
         rule = convert_enum(

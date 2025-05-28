@@ -11,9 +11,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 XMLNS = "http://www.w3.org/2001/XMLSchema-instance"
 XSI = "OpenScenario.xsd"
+
 import warnings
-from os import error
-from typing import Any
 
 from .exceptions import OpenSCENARIOVersionError
 
@@ -141,7 +140,7 @@ class _OscEnum(VersionBase):
                 + "."
                 + str(self.min_minor_version)
             )
-        elif self.max_minor_version < self.version_minor:
+        if self.max_minor_version < self.version_minor:
             if self.replacement:
                 warnings.warn(
                     self.classname

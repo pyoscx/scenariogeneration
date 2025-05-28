@@ -11,9 +11,9 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import datetime
-import xml.dom.minidom as mini
+
 import xml.etree.ElementTree as ET
-from typing import List, Optional, Union
+from typing import Optional
 
 from ..helpers import printToFile
 from .entities import Entities

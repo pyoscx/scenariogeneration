@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Any, Optional
+from typing import Optional
 
 from .enumerations import (
     MiscObjectCategory,

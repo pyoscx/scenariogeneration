@@ -109,22 +109,21 @@ class _AnimationTypeFactory:
             return _ComponentAnimation.parse(
                 find_mandatory_field(element, "ComponentAnimation")
             )
-        elif element.find("PedestrianAnimation") is not None:
+        if element.find("PedestrianAnimation") is not None:
             return PedestrianAnimation.parse(
                 find_mandatory_field(element, "PedestrianAnimation")
             )
-        elif element.find("AnimationFile") is not None:
+        if element.find("AnimationFile") is not None:
             return AnimationFile.parse(
                 find_mandatory_field(element, "AnimationFile")
             )
-        elif element.find("UserDefinedAnimation") is not None:
+        if element.find("UserDefinedAnimation") is not None:
             return UserDefinedAnimation.parse(
                 find_mandatory_field(element, "UserDefinedAnimation")
             )
-        else:
-            raise NotAValidElement(
-                "element ", element, " is not a valid animation type"
-            )
+        raise NotAValidElement(
+            "element ", element, " is not a valid animation type"
+        )
 
 
 class Properties(VersionBase):
@@ -1546,15 +1545,12 @@ class Orientation(VersionBase):
         bool
             True if any orientations are set, False otherwise.
         """
-        if (
+        return (
             self.h is not None
             or self.p is not None
             or self.r is not None
             or self.ref is not None
-        ):
-            return True
-        else:
-            return False
+        )
 
     def get_attributes(self) -> dict[str, str]:
         """Returns the attributes of the Orientation as a dictionary.
@@ -2913,10 +2909,7 @@ class TrafficDefinition(VersionBase):
         TrafficDefinition
             The updated TrafficDefinition object.
         """
-        if not (
-            isinstance(controller, Controller)
-            or isinstance(controller, CatalogReference)
-        ):
+        if not isinstance(controller, (Controller, CatalogReference)):
             raise TypeError(
                 "controller input not of type Controller or CatalogReference"
             )
@@ -4960,7 +4953,8 @@ class AbsoluteSpeed(VersionBase):
                 steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+                    "steadyState input is not an TargetTimeSteadyState or "
+                    "TargetDistanceSteadyState input"
                 )
         self.steadyState = steadyState
 
@@ -5106,7 +5100,8 @@ class RelativeSpeedToMaster(VersionBase):
                 steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+                    "steadyState input is not an TargetTimeSteadyState or "
+                    "TargetDistanceSteadyState input"
                 )
         self.steadyState = steadyState
         self.speedTargetValueType = convert_enum(
@@ -5245,7 +5240,10 @@ def convert_bool(value: Union[bool, str]) -> bool:
         else:
             raise ValueError(
                 value
-                + "is not a valid type of boolean input to openscenario, if a string is used as a boolean value (parameter or expression), it should have a $ as the first char.."
+                + " is not a valid type of boolean input to openscenario, "
+                "if a string is used as a boolean value "
+                "(parameter or expression), "
+                "it should have a $ as the first char.."
             )
 
     if value:
@@ -5356,8 +5354,10 @@ def convert_float(value: Union[float, str, int, None]) -> Optional[float]:
             float(value)
         except ValueError:
             raise ValueError(
-                value
-                + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
+                value + " is not a valid type of float input to openscenario, "
+                "if a string is used as a float value "
+                "(parameter or expression), "
+                "it should have a $ as the first char.."
             )
 
     if value is not None:
@@ -5391,8 +5391,10 @@ def convert_int(value: Union[int, str, None]) -> Optional[int]:
             int(value)
         except ValueError:
             raise ValueError(
-                value
-                + "is not a valid type of int input to openscenario, if a string is used as a int value (parameter or expression), it should have a $ as the first char."
+                value + " is not a valid type of int input to openscenario, "
+                "if a string is used as a int value "
+                "(parameter or expression), "
+                "it should have a $ as the first char."
             )
 
     if value is not None:

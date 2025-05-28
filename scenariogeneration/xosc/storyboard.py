@@ -728,7 +728,7 @@ class ManeuverGroup(VersionBase):
         maneuver : Maneuver or CatalogReference
             The maneuver to add.
         """
-        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
+        if not isinstance(maneuver, (Maneuver, CatalogReference)):
             raise TypeError("maneuver input is not of type Maneuver")
         self.maneuvers.append(maneuver)
         return self
@@ -1280,7 +1280,7 @@ class StoryBoard(VersionBase):
         parameters : ParameterDeclarations, optional
             The parameters of the story. Default is None.
         """
-        if not (isinstance(maneuver, (Maneuver, CatalogReference))):
+        if not isinstance(maneuver, (Maneuver, CatalogReference)):
             raise TypeError("maneuver input is not of type Maneuver")
         if isinstance(maneuver, Maneuver):
             mangr = ManeuverGroup("maneuvuergroup_" + maneuver.name)

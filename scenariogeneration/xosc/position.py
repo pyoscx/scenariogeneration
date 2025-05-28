@@ -19,6 +19,7 @@ from .exceptions import (
     NotEnoughInputArguments,
     OpenSCENARIOVersionError,
     ToManyOptionalArguments,
+    XMLStructureError,
 )
 from .utils import (
     CatalogReference,
@@ -44,38 +45,33 @@ class _PositionFactory:
     def parse_position(element: ET.Element) -> _PositionType:
         if element.findall("WorldPosition"):
             return WorldPosition.parse(element)
-        elif element.findall("RelativeWorldPosition"):
+        if element.findall("RelativeWorldPosition"):
             return RelativeWorldPosition.parse(element)
-        elif element.findall("RelativeObjectPosition"):
+        if element.findall("RelativeObjectPosition"):
             return RelativeObjectPosition.parse(element)
-        elif element.findall("RoadPosition"):
+        if element.findall("RoadPosition"):
             return RoadPosition.parse(element)
-        elif element.findall("RelativeRoadPosition"):
+        if element.findall("RelativeRoadPosition"):
             return RelativeRoadPosition.parse(element)
-        elif element.findall("LanePosition"):
+        if element.findall("LanePosition"):
             return LanePosition.parse(element)
-        elif element.findall("RelativeLanePosition"):
+        if element.findall("RelativeLanePosition"):
             return RelativeLanePosition.parse(element)
-        elif element.findall(
-            "RoutePosition/InRoutePosition/FromCurrentEntity"
-        ):
+        if element.findall("RoutePosition/InRoutePosition/FromCurrentEntity"):
             return RoutePositionOfCurrentEntity.parse(element)
-        elif element.findall(
+        if element.findall(
             "RoutePosition/InRoutePosition/FromRoadCoordinates"
         ):
             return RoutePositionInRoadCoordinates.parse(element)
-        elif element.findall(
+        if element.findall(
             "RoutePosition/InRoutePosition/FromLaneCoordinates"
         ):
             return RoutePositionInLaneCoordinates.parse(element)
-        elif element.findall("TrajectoryPosition"):
+        if element.findall("TrajectoryPosition"):
             return TrajectoryPosition.parse(element)
-        elif element.findall("GeoPosition"):
+        if element.findall("GeoPosition"):
             return GeoPosition.parse(element)
-        else:
-            raise NotAValidElement(
-                "element ", element, "is not a valid position"
-            )
+        raise NotAValidElement("element ", element, "is not a valid position")
 
 
 class _ShapeFactory:
@@ -83,12 +79,11 @@ class _ShapeFactory:
     def parse_shape(element) -> _TrajectoryShape:
         if element.findall("Polyline"):
             return Polyline.parse(element)
-        elif element.findall("Clothoid"):
+        if element.findall("Clothoid"):
             return Clothoid.parse(element)
-        elif element.findall("Nurbs"):
+        if element.findall("Nurbs"):
             return Nurbs.parse(element)
-        else:
-            raise NotAValidElement("element ", element, "is not a valid shape")
+        raise NotAValidElement("element ", element, "is not a valid shape")
 
 
 class WorldPosition(_PositionType):
@@ -2135,7 +2130,10 @@ class Clothoid(_TrajectoryShape):
             curvature_change = convert_float(
                 clothoid_element.attrib["curvaturePrime"]
             )
-
+        else:
+            raise XMLStructureError(
+                "curatureDot or curvaturePrime not found in Clothoid"
+            )
         return Clothoid(
             curvature,
             curvature_change,

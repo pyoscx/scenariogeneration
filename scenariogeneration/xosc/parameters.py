@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Any, Optional
+from typing import Optional
 
 from ..helpers import printToFile
 from .enumerations import _MINOR_VERSION, XMLNS, XSI, VersionBase
@@ -38,21 +38,21 @@ class _StochasticFactory:
             return NormalDistribution.parse(
                 find_mandatory_field(element, "NormalDistribution")
             )
-        elif element.find("UniformDistribution") is not None:
+        if element.find("UniformDistribution") is not None:
             return UniformDistribution.parse(
                 find_mandatory_field(element, "UniformDistribution")
             )
-        elif element.find("PoissonDistribution") is not None:
+        if element.find("PoissonDistribution") is not None:
             return PoissonDistribution.parse(
                 find_mandatory_field(element, "PoissonDistribution")
             )
-        elif element.find("Histogram") is not None:
+        if element.find("Histogram") is not None:
             return Histogram.parse(find_mandatory_field(element, "Histogram"))
-        elif element.find("ProbabilityDistributionSet") is not None:
+        if element.find("ProbabilityDistributionSet") is not None:
             return ProbabilityDistributionSet.parse(
                 find_mandatory_field(element, "ProbabilityDistributionSet")
             )
-        elif element.find("UserDefinedDistribution") is not None:
+        if element.find("UserDefinedDistribution") is not None:
             return NotImplementedError(
                 "UserDefinedDistribution is not implemented yet."
             )
@@ -69,11 +69,11 @@ class _DeterministicFactory:
             return DistributionSet.parse(
                 find_mandatory_field(element, "DistributionSet")
             )
-        elif element.find("DistributionRange") is not None:
+        if element.find("DistributionRange") is not None:
             return DistributionRange.parse(
                 find_mandatory_field(element, "DistributionRange")
             )
-        elif element.find("UserDefinedDistribution") is not None:
+        if element.find("UserDefinedDistribution") is not None:
             return NotImplementedError(
                 "UserDefinedDistribution is not implemented yet."
             )
@@ -886,8 +886,8 @@ class Histogram(_StochasticDistributionType):
             raise NotEnoughInputArguments(
                 "The Histogram has no bins, please use add_bin to add at least one."
             )
-        for bin in self.bins:
-            element.append(bin.get_element())
+        for _bin in self.bins:
+            element.append(_bin.get_element())
         return element
 
 
@@ -1661,7 +1661,8 @@ class ParameterValueDistribution(VersionBase):
         """
         if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError(
-                "Everything related to ParameterValueDistribution was introduced in OpenSCENARIO V1.1"
+                "Everything related to ParameterValueDistribution was "
+                "introduced in OpenSCENARIO V1.1"
             )
         element = ET.Element(
             "OpenSCENARIO",
