@@ -12,11 +12,12 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import xml.etree.ElementTree as ET
 from typing import Optional
-from .utils import XodrBase
-from .enumerations import ContactPoint, ElementType
+from warnings import warn
+
 import numpy as np
 
-from warnings import warn
+from .enumerations import ContactPoint, ElementType
+from .utils import XodrBase
 
 
 class ElevationProfile(XodrBase):

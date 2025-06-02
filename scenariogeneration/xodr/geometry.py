@@ -15,12 +15,13 @@ from typing import List, Optional, Union
 
 import numpy as np
 import pyclothoids as pcloth
+from scipy.integrate import quad
+
 from .exceptions import (
+    MixOfGeometryAddition,
     NotEnoughInputArguments,
     ToManyOptionalArguments,
-    MixOfGeometryAddition,
 )
-from scipy.integrate import quad
 from .utils import XodrBase
 
 

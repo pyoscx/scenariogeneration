@@ -10,51 +10,43 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import xml.etree.ElementTree as ET
-
-
-from ..helpers import printToFile, enum2str
-from .links import _Link, _Links, create_lane_links, Junction
-from .enumerations import (
-    ElementType,
-    ContactPoint,
-    RoadSide,
-    TrafficRule,
-    JunctionType,
-    enumchecker,
-    RoadType,
-)
-from .exceptions import (
-    UndefinedRoadNetwork,
-    RoadsAndLanesNotAdjusted,
-    IdAlreadyExists,
-    MixingDrivingDirection,
-    GeneralIssueInputArguments,
-)
-from .elevation import (
-    LateralProfile,
-    ElevationProfile,
-    _Poly3Profile,
-    ElevationCalculator,
-)
-from .exceptions import (
-    UndefinedRoadNetwork,
-    RoadsAndLanesNotAdjusted,
-    IdAlreadyExists,
-    MixingDrivingDirection,
-    GeneralIssueInputArguments,
-)
-from .lane import Lanes
-from .signals_objects import Object, Signal, Tunnel, SignalReference
-from .utils import get_lane_sec_and_s_for_lane_calc
-from .geometry import AdjustablePlanview, Spiral, PlanView
-from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
-import pyclothoids as pcloth
-import datetime as dt
-from itertools import combinations
-import numpy as np
 import copy as cpy
-from .utils import XodrBase
+import datetime as dt
+import xml.etree.ElementTree as ET
+from itertools import combinations
+
+import numpy as np
+import pyclothoids as pcloth
+
+from ..helpers import enum2str, printToFile
+from .elevation import (
+    ElevationCalculator,
+    ElevationProfile,
+    LateralProfile,
+    _Poly3Profile,
+)
+from .enumerations import (
+    ContactPoint,
+    ElementType,
+    JunctionType,
+    RoadSide,
+    RoadType,
+    TrafficRule,
+    enumchecker,
+)
+from .exceptions import (
+    GeneralIssueInputArguments,
+    IdAlreadyExists,
+    MixingDrivingDirection,
+    RoadsAndLanesNotAdjusted,
+    UndefinedRoadNetwork,
+)
+from .geometry import AdjustablePlanview, PlanView, Spiral
+from .lane import Lanes
+from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
+from .links import Junction, _Link, _Links, create_lane_links
+from .signals_objects import Object, Signal, SignalReference, Tunnel
+from .utils import XodrBase, get_lane_sec_and_s_for_lane_calc
 
 
 class _Header:

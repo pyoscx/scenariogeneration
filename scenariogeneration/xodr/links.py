@@ -10,25 +10,26 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import warnings
 import xml.etree.ElementTree as ET
+
+import numpy as np
+
 from ..helpers import enum2str
 from .enumerations import (
+    ContactPoint,
+    Direction,
     ElementType,
     JunctionGroupType,
     JunctionType,
     Orientation,
     enumchecker,
-    ContactPoint,
-    Direction,
 )
-import numpy as np
-
 from .exceptions import (
+    GeneralIssueInputArguments,
     NotEnoughInputArguments,
     NotSameAmountOfLanesError,
-    GeneralIssueInputArguments,
 )
-import warnings
 from .utils import XodrBase
 
 

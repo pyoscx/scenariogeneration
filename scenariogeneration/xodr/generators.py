@@ -23,42 +23,41 @@ standard road snippets, including:
   roads.
 
 """
+from typing import List, Optional, Union
+from warnings import warn
+
 import numpy as np
 import pyclothoids as pcloth
-from typing import Union, List, Optional
 
-from .lane import Lane, RoadMark, LaneSection, Lanes, RoadLine
 from .enumerations import (
-    JunctionType,
-    RoadMarkType,
-    MarkRule,
     ContactPoint,
     ElementType,
+    JunctionType,
+    MarkRule,
     ObjectType,
-)
-
-from .geometry import Line, Arc, Spiral, PlanView, AdjustablePlanview
-from .opendrive import Road
-from .links import Junction, Connection, _get_related_lanesection, LaneLinker
-from .lane_def import (
-    LaneDef,
-    create_lanes_merge_split,
-    std_roadmark_broken,
-    std_roadmark_broken_solid,
-    std_roadmark_broken_tight,
-    std_roadmark_broken_broken,
-    std_roadmark_broken_long_line,
-    std_roadmark_solid_broken,
-    std_roadmark_solid_solid,
-    std_roadmark_solid,
+    RoadMarkType,
 )
 from .exceptions import (
     GeneralIssueInputArguments,
     NotSameAmountOfLanesError,
     RemovedFunctionality,
 )
-
-from warnings import warn
+from .geometry import AdjustablePlanview, Arc, Line, PlanView, Spiral
+from .lane import Lane, Lanes, LaneSection, RoadLine, RoadMark
+from .lane_def import (
+    LaneDef,
+    create_lanes_merge_split,
+    std_roadmark_broken,
+    std_roadmark_broken_broken,
+    std_roadmark_broken_long_line,
+    std_roadmark_broken_solid,
+    std_roadmark_broken_tight,
+    std_roadmark_solid,
+    std_roadmark_solid_broken,
+    std_roadmark_solid_solid,
+)
+from .links import Connection, Junction, LaneLinker, _get_related_lanesection
+from .opendrive import Road
 
 STD_START_CLOTH = 1 / 1000000000
 

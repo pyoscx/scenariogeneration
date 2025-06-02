@@ -10,25 +10,26 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from .enumerations import JunctionType, ElementType, ContactPoint
-from .geometry import Spiral, Line
 from typing import List, Optional, Union
-from .generators import (
-    create_road,
-    _get_related_lanesection,
-    _create_junction_links,
-    LaneDef,
-)
-from .links import Junction, Connection
-from .exceptions import (
-    NotEnoughInputArguments,
-    UndefinedRoadNetwork,
-    NotSameAmountOfLanesError,
-    MixingDrivingDirection,
-)
-import pyclothoids as pcloth
 
 import numpy as np
+import pyclothoids as pcloth
+
+from .enumerations import ContactPoint, ElementType, JunctionType
+from .exceptions import (
+    MixingDrivingDirection,
+    NotEnoughInputArguments,
+    NotSameAmountOfLanesError,
+    UndefinedRoadNetwork,
+)
+from .generators import (
+    LaneDef,
+    _create_junction_links,
+    _get_related_lanesection,
+    create_road,
+)
+from .geometry import Line, Spiral
+from .links import Connection, Junction
 
 STD_START_CLOTH = 1 / 1000000000
 

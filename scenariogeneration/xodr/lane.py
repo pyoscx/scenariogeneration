@@ -10,24 +10,25 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from operator import index
-from typing import List, Optional, Union
 import xml.etree.ElementTree as ET
+from typing import Optional, Union
+
+import numpy as np
+
 from ..helpers import enum2str
 from .enumerations import (
-    LaneType,
+    ContactPoint,
     LaneChange,
-    RoadMarkWeight,
+    LaneType,
+    MarkRule,
     RoadMarkColor,
     RoadMarkType,
-    MarkRule,
-    ContactPoint,
+    RoadMarkWeight,
     enumchecker,
 )
 from .exceptions import ToManyOptionalArguments
+from .links import LaneLinker, _Link, _Links
 from .utils import XodrBase
-from .links import _Links, _Link, LaneLinker
-import numpy as np
 
 
 class Lanes(XodrBase):

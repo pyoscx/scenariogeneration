@@ -45,7 +45,9 @@ class Scenario(ScenarioGenerator):
         ### create parameters
         paramdec = xosc.ParameterDeclarations()
         variabledec = xosc.VariableDeclarations()
-        variabledec.add_variable(xosc.Variable("myvar", xosc.ParameterType.integer, 0))
+        variabledec.add_variable(
+            xosc.Variable("myvar", xosc.ParameterType.integer, 0)
+        )
         ## create entities
 
         egoname = "Ego"
@@ -68,7 +70,9 @@ class Scenario(ScenarioGenerator):
         )
 
         var_event = xosc.Event("change_variable_event", xosc.Priority.override)
-        var_event.add_action("change variable", xosc.VariableSetAction("myvar", 1))
+        var_event.add_action(
+            "change variable", xosc.VariableSetAction("myvar", 1)
+        )
         var_event.add_trigger(
             xosc.ValueTrigger(
                 "timetrigger",

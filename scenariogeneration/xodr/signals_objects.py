@@ -11,17 +11,18 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
+
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
 from .enumerations import (
-    ObjectType,
-    TunnelType,
-    Orientation,
+    Access,
     Dynamic,
-    enumchecker,
     FillType,
     LaneType,
-    Access,
+    ObjectType,
+    Orientation,
+    TunnelType,
+    enumchecker,
 )
 from .exceptions import GeneralIssueInputArguments, NotEnoughInputArguments
 from .utils import XodrBase

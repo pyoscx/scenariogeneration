@@ -11,7 +11,6 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import datetime
-
 import xml.etree.ElementTree as ET
 from typing import Optional
 

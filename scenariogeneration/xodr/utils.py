@@ -11,10 +11,11 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
+
 import numpy as np
 
-from .enumerations import ContactPoint
 from ..helpers import enum2str
+from .enumerations import ContactPoint
 
 
 def get_lane_sec_and_s_for_lane_calc(road, contact_point):

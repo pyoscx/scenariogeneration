@@ -14,12 +14,13 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import copy
-import numpy as np
 from typing import List, Optional, Union
 
+import numpy as np
+
+from .lane import Lane, Lanes, LaneSection, RoadLine, RoadMark, RoadMarkType
 from .links import LaneLinker
 from .utils import get_coeffs_for_poly3
-from .lane import RoadMark, RoadMarkType, RoadLine, Lane, LaneSection, Lanes
 
 
 def std_roadmark_solid() -> RoadMark:

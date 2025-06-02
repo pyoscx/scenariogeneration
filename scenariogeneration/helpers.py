@@ -10,9 +10,10 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import xml.etree.ElementTree as ET
-from lxml import etree
 import os
+import xml.etree.ElementTree as ET
+
+from lxml import etree
 
 
 def prettify(element, encoding=None, xml_declaration=True):
