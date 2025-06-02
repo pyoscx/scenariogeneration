@@ -15,94 +15,190 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import copy
 import numpy as np
+from typing import List, Optional, Union
 
 from .links import LaneLinker
 from .utils import get_coeffs_for_poly3
 from .lane import RoadMark, RoadMarkType, RoadLine, Lane, LaneSection, Lanes
 
 
-def std_roadmark_solid():
+def std_roadmark_solid() -> RoadMark:
+    """Create a standard solid roadmark.
+
+    This function generates a solid roadmark with a default width of 0.2.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a solid roadmark.
+    """
     return RoadMark(RoadMarkType.solid, 0.2)
 
 
-def std_roadmark_broken():
+def std_roadmark_broken() -> RoadMark:
+    """Create a standard broken roadmark.
+
+    This function generates a broken roadmark with a default width of 0.2
+    and a specific road line pattern.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a broken roadmark.
+    """
     roadmark = RoadMark(RoadMarkType.broken, 0.2)
     roadmark.add_specific_road_line(RoadLine(0.15, 3, 9, 0, 0))
     return roadmark
 
 
-def std_roadmark_broken_long_line():
+def std_roadmark_broken_long_line() -> RoadMark:
+    """Create a standard broken roadmark with a long line pattern.
+
+    This function generates a broken roadmark with a default width of 0.2
+    and a specific road line pattern where the line is longer than the
+    gap.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a broken roadmark with a long
+        line.
+    """
     roadmark = RoadMark(RoadMarkType.broken, 0.2)
     roadmark.add_specific_road_line(RoadLine(0.15, 9, 3, 0, 0))
     return roadmark
 
 
-def std_roadmark_broken_tight():
+def std_roadmark_broken_tight() -> RoadMark:
+    """Create a standard broken roadmark with a tight line pattern.
+
+    This function generates a broken roadmark with a default width of 0.2
+    and a specific road line pattern where the line and gap are of equal
+    length.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a broken roadmark with a tight
+        line pattern.
+    """
     roadmark = RoadMark(RoadMarkType.broken, 0.2)
     roadmark.add_specific_road_line(RoadLine(0.15, 3, 3, 0, 0))
     return roadmark
 
 
-def std_roadmark_broken_broken():
+def std_roadmark_broken_broken() -> RoadMark:
+    """Create a standard broken-broken roadmark.
+
+    This function generates a broken-broken roadmark with two parallel
+    broken lines, each with a default width of 0.2.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a broken-broken roadmark.
+    """
     roadmark = RoadMark(RoadMarkType.broken_broken)
     roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
     roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
     return roadmark
 
 
-def std_roadmark_solid_solid():
+def std_roadmark_solid_solid() -> RoadMark:
+    """Create a standard solid-solid roadmark.
+
+    This function generates a solid-solid roadmark with two parallel solid
+    lines, each with a default width of 0.2.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a solid-solid roadmark.
+    """
     roadmark = RoadMark(RoadMarkType.solid_solid)
     roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
     roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
     return roadmark
 
 
-def std_roadmark_solid_broken():
+def std_roadmark_solid_broken() -> RoadMark:
+    """Create a standard solid-broken roadmark.
+
+    This function generates a solid-broken roadmark with two parallel
+    lines: one solid and one broken, each with a default width of 0.2.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a solid-broken roadmark.
+    """
     roadmark = RoadMark(RoadMarkType.solid_broken)
     roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, 0.2, 0))
     roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, -0.2, 0))
     return roadmark
 
 
-def std_roadmark_broken_solid():
+def std_roadmark_broken_solid() -> RoadMark:
+    """Create a standard broken-solid roadmark.
+
+    This function generates a broken-solid roadmark with two paralle
+    lines: one broken and one solid, each with a default width of 0.2.
+
+    Returns
+    -------
+    RoadMark
+        A `RoadMark` object representing a broken-solid roadmark.
+    """
     roadmark = RoadMark(RoadMarkType.broken_solid)
-    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
     roadmark.add_specific_road_line(RoadLine(0.2, 3, 3, 0.2, 0))
+    roadmark.add_specific_road_line(RoadLine(0.2, 0, 0, -0.2, 0))
     return roadmark
 
 
 def create_lanes_merge_split(
-    right_lane_def,
-    left_lane_def,
-    road_length,
-    center_road_mark,
-    lane_width,
-    lane_width_end,
-):
-    """create_lanes_merge_split is a generator that will create the Lanes of a road road that can contain one or more lane merges/splits
-    This is a simple implementation and has some constraints:
-     - left and right merges has to be at the same place (or one per lane), TODO: will be fixed with the singleSide attribute later on.
-     - the change will be a 3 degree polynomial with the derivative 0 on both start and end.
+    right_lane_def: Union[list["LaneDef"], int],
+    left_lane_def: Union[list["LaneDef"], int],
+    road_length: float,
+    center_road_mark: RoadMark,
+    lane_width: float,
+    lane_width_end: Optional[float] = None,
+) -> Lanes:
+    """Create lanes for a road with one or more lane merges or splits.
 
-    Please note that the merges/splits are defined in the road direction, NOT the driving direction.
+    This function generates the lanes of a road that can contain one or
+    more lane merges or splits. It has the following constraints:
+    - Left and right merges must occur at the same location (or one per
+    lane).
+      This will be fixed with the `singleSide` attribute in the future.
+    - The lane change is modeled as a 3rd-degree polynomial with zero
+      derivatives at both the start and end.
+
+    Note
+    ----
+    The merges and splits are defined in the road direction, not the
+    driving direction.
 
     Parameters
     ----------
-        right_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the right side of the road, if int constant number of lanes
+    right_lane_def : list of LaneDef or int
+        A list of lane definitions for the right side of the road, or an
+        integer specifying a constant number of lanes.
+    left_lane_def : list of LaneDef or int
+        A list of lane definitions for the left side of the road, or an
+        integer specifying a constant number of lanes.
+    road_length : float
+        The total length of the road.
+    center_road_mark : RoadMark
+        The roadmark for the center line.
+    lane_width : float
+        The width of the lanes.
+    lane_width_end : float, optional
+        The width of the lanes at the end of the road. Default is None.
 
-        left_lane_def (list of LaneDef, or an int): a list of the splits/merges that are wanted on the left side of the road, if int constant number of lanes.
-
-        road_length (float): the full length of the road
-
-        center_road_mark (RoadMark): roadmark for the center line
-
-        lane_width (float): the width of the lanes
-
-        lane_width_end (float): the end width of the lanes
-
-    Return
-    ------
-        road (Lanes): the lanes of a road
+    Returns
+    -------
+    Lanes
+        A `Lanes` object representing the lanes of the road.
     """
 
     lanesections = []
@@ -346,55 +442,86 @@ def create_lanes_merge_split(
 
 
 class LaneDef:
-    """LaneDef is used to help create a lane merge or split. Can handle one lane merging or spliting.
+    """Helper class to define a lane merge or split.
 
-    NOTE: This is not part of the OpenDRIVE standard, but a helper for the xodr module.
+    This class is not part of the OpenDRIVE standard but is used as a
+    helper for the xodr module to handle lane merges or splits.
 
     Parameters
     ----------
-        s_start (float): s coordinate of the start of the change
-
-        s_end (float): s coordinate of the end of the change
-
-        n_lanes_start (int): number of lanes at s_start
-
-        n_lanes_end (int): number of lanes at s_end
-
-        sub_lane (int): the lane that should be created (split) or removed (merge)
-
-        lane_start_widths (list of float): widths of lanes at start, must be [] or same length as n_lanes_start
-            Default: []
-
-        lane_end_widths (list of float): widths of lanes at end, must be [] or same length as n_lanes_end
-            Default: same as lane_start_widths
+    s_start : float
+        The `s` coordinate of the start of the change.
+    s_end : float
+        The `s` coordinate of the end of the change.
+    n_lanes_start : int
+        The number of lanes at `s_start`.
+    n_lanes_end : int
+        The number of lanes at `s_end`.
+    sub_lane : int, optional
+        The lane that should be created (split) or removed (merge).
+        Default is None.
+    lane_start_widths : list of float, optional
+        The widths of lanes at the start. Must be empty or the same length
+        as `n_lanes_start`. Default is an empty list.
+    lane_end_widths : list of float, optional
+        The widths of lanes at the end. Must be empty or the same length
+        as `n_lanes_end`. Default is the same as `lane_start_widths`.
 
     Attributes
     ----------
-        s_start (float): s coordinate of the start of the change
-
-        s_end (float): s coordinate of the end of the change
-
-        n_lanes_start (int): number of lanes at s_start
-
-        n_lanes_end (int): number of lanes at s_end
-
-        sub_lane (int): the lane that should be created (split) or removed (merge)
-
-        lane_start_widths (list of float): widths of lanes at start, must be [] or same length as n_lanes_start
-
-        lane_end_widths (list of float): widths of lanes at end, must be [] or same length as n_lanes_end
+    s_start : float
+        The `s` coordinate of the start of the change.
+    s_end : float
+        The `s` coordinate of the end of the change.
+    n_lanes_start : int
+        The number of lanes at `s_start`.
+    n_lanes_end : int
+        The number of lanes at `s_end`.
+    sub_lane : int
+        The lane that should be created (split) or removed (merge).
+    lane_start_widths : list of float
+        The widths of lanes at the start.
+    lane_end_widths : list of float
+        The widths of lanes at the end.
     """
 
     def __init__(
         self,
-        s_start,
-        s_end,
-        n_lanes_start,
-        n_lanes_end,
-        sub_lane=None,
-        lane_start_widths=[],
-        lane_end_widths=[],
-    ):
+        s_start: float,
+        s_end: float,
+        n_lanes_start: int,
+        n_lanes_end: int,
+        sub_lane: Optional[int] = None,
+        lane_start_widths: Optional[list[float]] = [],
+        lane_end_widths: Optional[list[float]] = [],
+    ) -> None:
+        """Initialize a `LaneDef` instance.
+
+        Parameters
+        ----------
+        s_start : float
+            The `s` coordinate of the start of the change.
+        s_end : float
+            The `s` coordinate of the end of the change.
+        n_lanes_start : int
+            The number of lanes at `s_start`.
+        n_lanes_end : int
+            The number of lanes at `s_end`.
+        sub_lane : int, optional
+            The lane that should be created (split) or removed (merge).
+            Default is None.
+        lane_start_widths : list of float, optional
+            The widths of lanes at the start. Must be empty or the same
+            length as `n_lanes_start`. Default is an empty list.
+        lane_end_widths : list of float, optional
+            The widths of lanes at the end. Must be empty or the same
+            length as `n_lanes_end`. Default is the same as
+            `lane_start_widths`.
+
+        Returns
+        -------
+        None
+        """
         self.s_start = s_start
         self.s_end = s_end
         self.n_lanes_start = n_lanes_start
@@ -406,7 +533,16 @@ class LaneDef:
         else:
             self.lane_end_widths = lane_end_widths
 
-    def _adjust_lane_widths(self):
+    def _adjust_lane_widths(self) -> None:
+        """Adjust lane widths for merges or splits.
+
+        This method ensures that the lane widths are consistent when a
+        laneis created (split) or removed (merge).
+
+        Returns
+        -------
+        None
+        """
         if self.sub_lane:
             if (
                 self.lane_end_widths
@@ -423,22 +559,48 @@ class LaneDef:
         # TODO: add some checks here?
 
 
-def _create_lane_lists(right, left, tot_length, default_lane_width):
-    """_create_lane_lists is a function used by create_lanes_merge_split to expand the list of LaneDefs to be used to create stuffs
+def _create_lane_lists(
+    right: Union[list[LaneDef], int],
+    left: Union[list[LaneDef], int],
+    tot_length: float,
+    default_lane_width: float,
+) -> tuple[list[LaneDef], list[LaneDef]]:
+    """Expand the list of `LaneDef` objects for lane creation.
+
+    This function is used by `create_lanes_merge_split` to expand the list
+    of `LaneDef` objects for the right and left lanes, ensuring that the
+    entire road length is covered.
 
     Parameters
     ----------
-        right (list of LaneDef, or int): the list of LaneDef for the right lane
+    right : list of LaneDef or int
+        The list of `LaneDef` objects for the right lanes, or an integer
+        specifying a constant number of lanes.
+    left : list of LaneDef or int
+        The list of `LaneDef` objects for the left lanes, or an integer
+        specifying a constant number of lanes.
+    tot_length : float
+        The total length of the road.
+    default_lane_width : float
+        The default lane width to use if not defined in `LaneDef`.
 
-        left (list of LaneDef, or int): the list of LaneDef for the left lane
-
-        tot_length (float): the total length of the road
-
-        default_lane_width (float): lane_width to be used if not defined in LaneDef
+    Returns
+    -------
+    tuple of (list of LaneDef, list of LaneDef)
+        A tuple containing:
+        - A list of `LaneDef` objects for the right lanes.
+        - A list of `LaneDef` objects for the left lanes.
     """
 
     # TODO: implement for left and right lanesection...
-    def _check_lane_widths(lane):
+    def _check_lane_widths(lane: LaneDef) -> None:
+        """Ensure lane widths are defined for a `LaneDef`.
+
+        Parameters
+        ----------
+        lane : LaneDef
+            The `LaneDef` object to check and adjust.
+        """
         if lane.lane_start_widths == []:
             lane.lane_start_widths = [
                 default_lane_width for x in range(lane.n_lanes_start)
