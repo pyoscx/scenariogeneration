@@ -16,9 +16,8 @@ from typing import Type, Union
 def enumchecker(
     value: Union[Enum, str, None], enum_type: Type[Enum], none_ok: bool = False
 ) -> Enum:
-    """
-    Check if an enum value is correct. If the input is a string,
-    attempt to convert it to the enum.
+    """Check if an enum value is correct. If the input is a string, attempt to
+    convert it to the enum.
 
     Parameters
     ----------

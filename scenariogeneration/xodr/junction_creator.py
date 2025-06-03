@@ -157,8 +157,7 @@ class CommonJunctionCreator:
         heading: float,
         road_connection: Optional[str] = None,
     ) -> None:
-        """Add an incoming road to a junction, assuming a Cartesian
-        geometry.
+        """Add an incoming road to a junction, assuming a Cartesian geometry.
 
         This method places roads based on a local coordinate system
         defined by x, y, and heading.
@@ -216,8 +215,7 @@ class CommonJunctionCreator:
     def _get_minimum_lanes_to_connect(
         self, incoming_road: "Road", linked_road: "Road"
     ) -> tuple[list[int], list[int]]:
-        """Determine the minimum number of lanes to connect between two
-        roads.
+        """Determine the minimum number of lanes to connect between two roads.
 
         This method calculates the lane IDs for both incoming and linked
         roads based on their lane sections and driving directions.
@@ -479,8 +477,7 @@ class CommonJunctionCreator:
             )
 
     def _get_list_index(self, id: int) -> int:
-        """Get the index of a road in the incoming roads list based on
-        its ID.
+        """Get the index of a road in the incoming roads list based on its ID.
 
         Parameters
         ----------
@@ -504,8 +501,7 @@ class CommonJunctionCreator:
     def _set_offset_for_incoming_road(
         self, road_idx: int, connecting_road_id: int, offset: int
     ) -> None:
-        """Set the lane offset for an incoming road connected to the
-        junction.
+        """Set the lane offset for an incoming road connected to the junction.
 
         This method updates the lane offset for the incoming road based on
         whether it is a predecessor or successor of the connecting road.
@@ -575,8 +571,7 @@ class CommonJunctionCreator:
             )
 
     def _get_connecting_lane_section(self, idx: int) -> int:
-        """Get the lane section index for a road connected to the
-        junction.
+        """Get the lane section index for a road connected to the junction.
 
         This method determines whether the road is a predecessor or
         successor of the junction and returns the corresponding lane
@@ -620,8 +615,7 @@ class CommonJunctionCreator:
     def _create_connecting_roads_unequal_lanes(
         self, road_one_id: int, road_two_id: int
     ) -> None:
-        """Create connecting roads between two roads with unequal lane
-        counts.
+        """Create connecting roads between two roads with unequal lane counts.
 
         This method connects two roads that have different numbers of
         lanes entering the junction. It only connects lanes that are
@@ -746,8 +740,7 @@ class CommonJunctionCreator:
         """
 
         def _get_lane_widths(idx: int, l_or_r: str) -> list[float]:
-            """Get lane widths for a specific side (left or right) of
-            a road.
+            """Get lane widths for a specific side (left or right) of a road.
 
             This method retrieves the widths of lanes on the specified
             side of the road based on its lane section.
@@ -891,8 +884,7 @@ class CommonJunctionCreator:
     def _create_connecting_roads_with_equal_lanes(
         self, road_one_id: int, road_two_id: int
     ) -> None:
-        """Create connecting roads between two roads with equal lane
-        counts.
+        """Create connecting roads between two roads with equal lane counts.
 
         This method connects two roads that have the same number of left
         and right lanes entering the junction.
@@ -1349,8 +1341,7 @@ class CommonJunctionCreator:
         return roadgeoms
 
     def _create_geometry_from_circular(self, idx1: int, idx2: int) -> list:
-        """Create a connecting road between two roads using circular
-        geometry.
+        """Create a connecting road between two roads using circular geometry.
 
         This method generates the geometry for a connecting road based on
         the circular radius and angles of the two roads.
@@ -1455,8 +1446,7 @@ class DirectJunctionCreator:
     def _get_minimum_lanes_to_connect(
         self, incoming_road: "Road", linked_road: "Road"
     ) -> tuple[list[int], list[int]]:
-        """Determine the minimum number of lanes to connect between two
-        roads.
+        """Determine the minimum number of lanes to connect between two roads.
 
         This method calculates the lane IDs for both incoming and linked
         roads based on their lane sections and driving directions.

@@ -21,8 +21,7 @@ from .utils import XodrBase
 
 
 class ElevationProfile(XodrBase):
-    """
-    Create the elevationProfile element of the road in OpenDRIVE.
+    """Create the elevationProfile element of the road in OpenDRIVE.
 
     Attributes
     ----------
@@ -38,9 +37,7 @@ class ElevationProfile(XodrBase):
     """
 
     def __init__(self) -> None:
-        """
-        Initialize the ElevationProfile class.
-        """
+        """Initialize the ElevationProfile class."""
         self.elevations = []
         super().__init__()
 
@@ -61,8 +58,7 @@ class ElevationProfile(XodrBase):
         ].eval_derivative_at_s(s)
 
     def add_elevation(self, elevation: "_Poly3Profile") -> "ElevationProfile":
-        """
-        Add an elevation to the ElevationProfile.
+        """Add an elevation to the ElevationProfile.
 
         Parameters
         ----------
@@ -83,8 +79,7 @@ class ElevationProfile(XodrBase):
         return self
 
     def get_element(self) -> ET.Element:
-        """
-        Return the ElementTree of the ElevationProfile.
+        """Return the ElementTree of the ElevationProfile.
 
         Returns
         -------
@@ -99,8 +94,7 @@ class ElevationProfile(XodrBase):
 
 
 class LateralProfile(XodrBase):
-    """
-    Create the lateralProfile element of the road in OpenDRIVE.
+    """Create the lateralProfile element of the road in OpenDRIVE.
 
     Attributes
     ----------
@@ -120,9 +114,7 @@ class LateralProfile(XodrBase):
     """
 
     def __init__(self) -> None:
-        """
-        Initialize the LateralProfile class.
-        """
+        """Initialize the LateralProfile class."""
         super().__init__()
         self.superelevations = []
         self.shapes = []
@@ -139,8 +131,7 @@ class LateralProfile(XodrBase):
     def add_superelevation(
         self, superelevation: "_Poly3Profile"
     ) -> "LateralProfile":
-        """
-        Add a superelevation to the LateralProfile.
+        """Add a superelevation to the LateralProfile.
 
         Parameters
         ----------
@@ -182,8 +173,7 @@ class LateralProfile(XodrBase):
         return 0
 
     def add_shape(self, shape: "_Poly3Profile") -> "LateralProfile":
-        """
-        Add a shape to the LateralProfile.
+        """Add a shape to the LateralProfile.
 
         Parameters
         ----------
@@ -204,8 +194,7 @@ class LateralProfile(XodrBase):
         return self
 
     def get_element(self) -> ET.Element:
-        """
-        Return the ElementTree of the LateralProfile.
+        """Return the ElementTree of the LateralProfile.
 
         Returns
         -------
@@ -222,12 +211,10 @@ class LateralProfile(XodrBase):
 
 
 class _Poly3Profile:
-    """
-    The _Poly3Profile class describes a poly3 along the s-coordinate of a
-    road. The elevation is described as a third-degree polynomial:
-        elev(ds) = a + b*ds + c*ds^2 + d*ds^3
-    or (if t is used):
-        shape(ds) = a + b*dt + c*dt^2 + d*dt^3
+    """The _Poly3Profile class describes a poly3 along the s-coordinate of a
+    road. The elevation is described as a third-degree polynomial: elev(ds) = a
+    + b*ds + c*ds^2 + d*ds^3 or (if t is used): shape(ds) = a + b*dt + c*dt^2 +
+    d*dt^3.
 
     This class is used for elevation, superelevation, and shape.
 
@@ -279,8 +266,7 @@ class _Poly3Profile:
         t: Optional[float] = None,
         elevation_type: str = "elevation",
     ) -> None:
-        """
-        Initialize the _Poly3Profile class.
+        """Initialize the _Poly3Profile class.
 
         Parameters
         ----------
@@ -356,8 +342,7 @@ class _Poly3Profile:
         )
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Return the attributes of the _Poly3Profile.
+        """Return the attributes of the _Poly3Profile.
 
         Returns
         -------
@@ -375,8 +360,7 @@ class _Poly3Profile:
         return retdict
 
     def get_element(self, elementname: Optional[str] = None) -> ET.Element:
-        """
-        Return the ElementTree of the _Poly3Profile.
+        """Return the ElementTree of the _Poly3Profile.
 
         Parameters
         ----------
@@ -418,8 +402,7 @@ class _ElevationConnectionHelper:
 
 
 class ElevationCalculator:
-    """
-    ElevationCalculator is a helper class to add elevation profiles to a
+    """ElevationCalculator is a helper class to add elevation profiles to a
     road based on its neighbors' elevations.
 
     Parameters
@@ -454,9 +437,7 @@ class ElevationCalculator:
         self._reset_active_roads()
 
     def _reset_active_roads(self) -> None:
-        """
-        Resets all active roads for a calculation
-        """
+        """Resets all active roads for a calculation."""
         self._successor_road = None
         self._predecessor_road = None
         self._predecessor_cp = None
@@ -465,9 +446,7 @@ class ElevationCalculator:
         self._predecessor_lateral_offset = 0
 
     def set_zero_elevation(self) -> None:
-        """
-        Sets an elevation at zero for the main_road.
-        """
+        """Sets an elevation at zero for the main_road."""
         self.main_road.add_elevation(0, 0, 0, 0, 0)
         self._elevation_needed = False
 
@@ -478,8 +457,8 @@ class ElevationCalculator:
         offsets: int,
         main_lanesection: int,
     ) -> float:
-        """
-        Calculate an elevation offset needed if a direct junction is present.
+        """Calculate an elevation offset needed if a direct junction is
+        present.
 
         Parameters
         ----------
@@ -539,11 +518,10 @@ class ElevationCalculator:
         return road.lateralprofile.eval_t_superelevation_at_s(s_value, tvalue)
 
     def _calculate_lateral_offsets_based_on_superelevation(self) -> None:
-        """
-        Calculate the elevation offsets based on superelevation.
+        """Calculate the elevation offsets based on superelevation.
 
-        This method must be run as soon as any road might have been updated to
-        ensure correct offsets.
+        This method must be run as soon as any road might have been
+        updated to ensure correct offsets.
         """
         for successor_road in self.successors:
             if (
@@ -610,8 +588,7 @@ class ElevationCalculator:
                 )
 
     def add_successor(self, successor_road: "Road") -> None:
-        """
-        Add a succeeding road to the main_road.
+        """Add a succeeding road to the main_road.
 
         This method can be called multiple times for junctions.
 
@@ -659,8 +636,7 @@ class ElevationCalculator:
         self._calculate_lateral_offsets_based_on_superelevation()
 
     def add_predecessor(self, predecessor_road: "Road") -> None:
-        """
-        Adds a preceding road to the main_road.
+        """Adds a preceding road to the main_road.
 
         This method can be called multiple times for junctions.
 
@@ -719,8 +695,8 @@ class ElevationCalculator:
         self._calculate_lateral_offsets_based_on_superelevation()
 
     def _set_active_roads(self, domain: str) -> None:
-        """
-        Checks what successors/predecessor roads are adjusted in the wanted domain and set those for calculations.
+        """Checks what successors/predecessor roads are adjusted in the wanted
+        domain and set those for calculations.
 
         Parameters
         ----------
@@ -740,10 +716,9 @@ class ElevationCalculator:
                 self._predecessor_lateral_offset = predecessor.lateral_offset
 
     def _create_elevation(self) -> None:
-        """
-        Method that calculates and adds the elevation profile to the main_road
-        based on the elevations on the predecessor or successor roads.
-        """
+        """Method that calculates and adds the elevation profile to the
+        main_road based on the elevations on the predecessor or successor
+        roads."""
         self._calculate_lateral_offsets_based_on_superelevation()
         self._set_active_roads("elevation")
         if self._successor_road and self._predecessor_road:
@@ -807,9 +782,8 @@ class ElevationCalculator:
     def _get_related_data_for_single_connection(
         self,
     ) -> tuple["Road", float, int, float]:
-        """
-        Common functionality for both elevation and superelevation.
-        For a road that has elevations on one side to adjust to.
+        """Common functionality for both elevation and superelevation. For a
+        road that has elevations on one side to adjust to.
 
         Returns
         -------
@@ -845,9 +819,8 @@ class ElevationCalculator:
     def _get_related_data_for_double_connection(
         self,
     ) -> tuple[float, int, float, int, np.ndarray]:
-        """
-        Common functionality for both elevation and superelevation.
-        For a road that has elevations on both sides to adjust to.
+        """Common functionality for both elevation and superelevation. For a
+        road that has elevations on both sides to adjust to.
 
         Returns
         -------
@@ -943,8 +916,7 @@ class ElevationCalculator:
         self._reset_active_roads()
 
     def create_profile(self, domain: str = "elevation") -> None:
-        """
-        Main method to try to calculate an elevation or superelevation.
+        """Main method to try to calculate an elevation or superelevation.
 
         Parameters
         ----------

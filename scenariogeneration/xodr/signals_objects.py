@@ -29,7 +29,8 @@ from .utils import XodrBase
 
 
 class _SignalObjectBase(XodrBase):
-    """creates a common basis for Signal and Object shall not be instantiated directly
+    """Creates a common basis for Signal and Object shall not be instantiated
+    directly.
 
     Attributes
     ----------
@@ -96,7 +97,7 @@ class _SignalObjectBase(XodrBase):
         height,
         length,
     ):
-        """initalizes common attributes for Signal and Object
+        """Initalizes common attributes for Signal and Object.
 
         Parameters
         ----------
@@ -127,7 +128,6 @@ class _SignalObjectBase(XodrBase):
             height (float): height of the Signal / Object
 
             length (float): length of the Signal / Object
-
         """
         super().__init__()
         self.s = s
@@ -180,7 +180,7 @@ class _SignalObjectBase(XodrBase):
         self._usedIDs[self.__class__.__name__].append(str(self.id))
 
     def get_common_attributes(self):
-        """returns common attributes of Signal and Object as a dict"""
+        """Returns common attributes of Signal and Object as a dict."""
         retdict = {}
         retdict["id"] = str(self.id)
         retdict["s"] = str(self.s)
@@ -213,7 +213,7 @@ class _SignalObjectBase(XodrBase):
 
 
 class Signal(_SignalObjectBase):
-    """Signal defines the signal element in Opendrive
+    """Signal defines the signal element in Opendrive.
 
     Attributes
     ----------
@@ -267,7 +267,6 @@ class Signal(_SignalObjectBase):
 
         add_validity(fromLane, toLane)
             Adds a new validity between fromLane to toLane
-
     """
 
     def __init__(
@@ -292,7 +291,7 @@ class Signal(_SignalObjectBase):
         width=None,
         length=None,
     ):
-        """initalizes the Signal
+        """Initalizes the Signal.
 
         Parameters
         ----------
@@ -334,7 +333,6 @@ class Signal(_SignalObjectBase):
                 Default: None
             length (float): length of the Signal (init in base class)
                 Default: None
-
         """
 
         # get attributes that are common with signals
@@ -407,7 +405,7 @@ class Signal(_SignalObjectBase):
 
 
 class Validity(XodrBase):
-    """Validity is the explicit validity information for a signal
+    """Validity is the explicit validity information for a signal.
 
     Attributes
     ----------
@@ -422,18 +420,16 @@ class Validity(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(self, fromLane, toLane):
-        """initalize the Validity
+        """Initalize the Validity.
 
         Parameters
         ----------
             fromLane (int): minimum id of the lanes for which the object is valid
 
             toLane (int): maximum id of the lanes for which the object is valid
-
         """
         super().__init__()
         self.fromLane = fromLane
@@ -446,22 +442,23 @@ class Validity(XodrBase):
         return False
 
     def get_attributes(self):
-        """returns the attributes of Validity as a dict"""
+        """Returns the attributes of Validity as a dict."""
         retdict = {}
         retdict["fromLane"] = str(self.fromLane)
         retdict["toLane"] = str(self.toLane)
         return retdict
 
     def get_element(self):
-        """returns the elementTree of Validity"""
+        """Returns the elementTree of Validity."""
         element = ET.Element("validity", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class Dependency(XodrBase):
-    """
-    Dependency defines the dependency element in Opendrive. It is placed within the signal element.
+    """Dependency defines the dependency element in Opendrive. It is placed
+    within the signal element.
+
     Parameters
         ----------
             id (str): id of the controlled signal
@@ -503,7 +500,7 @@ class Dependency(XodrBase):
 
 
 class SignalReference(XodrBase):
-    """Signal defines the signal element in Opendrive
+    """Signal defines the signal element in Opendrive.
 
     Attributes
     ----------
@@ -540,7 +537,6 @@ class SignalReference(XodrBase):
         _update_id()
             Ensures that an ID is assigned if none was provided and that provided IDs are unique
             Should be called when adding an Object or Signal to the road
-
     """
 
     _usedIDs = {}
@@ -553,7 +549,7 @@ class SignalReference(XodrBase):
         id=None,
         orientation=Orientation.positive,
     ):
-        """initalizes the Signal
+        """Initalizes the Signal.
 
         Parameters
         ----------
@@ -566,7 +562,6 @@ class SignalReference(XodrBase):
 
             orientation (Orientation): orientation of SignalReference with respect to road
                 Default: Orientation.none
-
         """
 
         # get attributes that are common with signals
@@ -612,7 +607,7 @@ class SignalReference(XodrBase):
         self._usedIDs[self.__class__.__name__].append(str(self.id))
 
     def get_attributes(self):
-        """returns attributes of SignalReference as a dict"""
+        """Returns attributes of SignalReference as a dict."""
         retdict = {}
         retdict["id"] = str(self.id)
         retdict["s"] = str(self.s)
@@ -641,7 +636,7 @@ class SignalReference(XodrBase):
 
 
 class Object(_SignalObjectBase):
-    """creates an Object
+    """Creates an Object.
 
     Parameters
     ----------
@@ -701,7 +696,6 @@ class Object(_SignalObjectBase):
 
         get_attributes()
             Returns a dictionary of all attributes of FileHeader
-
     """
 
     def __init__(
@@ -724,7 +718,7 @@ class Object(_SignalObjectBase):
         radius=None,
         validLength=None,
     ):
-        """initalizes the Object
+        """Initalizes the Object.
 
         Parameters
         ----------
@@ -762,7 +756,6 @@ class Object(_SignalObjectBase):
                 Default: None
             validLength (float): validity of object along s-coordinate
                 Default: None
-
         """
         # get attributes that are common with signals
         super().__init__(
@@ -911,7 +904,7 @@ class Object(_SignalObjectBase):
             self._repeats[-1]["radiusEnd"] = str(radiusEnd)
 
     def add_validity(self, fromLane, toLane):
-        """adds a validity to the object
+        """Adds a validity to the object.
 
         Parameters
         ----------
@@ -925,7 +918,7 @@ class Object(_SignalObjectBase):
         return self
 
     def add_outline(self, outline):
-        """adds an outline to the object
+        """Adds an outline to the object.
 
         Parameters
         ----------
@@ -934,7 +927,7 @@ class Object(_SignalObjectBase):
         self.outlines.append(outline)
 
     def add_parking_space(self, parking_space):
-        """adds an parking space to the object
+        """Adds an parking space to the object.
 
         Parameters
         ----------
@@ -943,7 +936,7 @@ class Object(_SignalObjectBase):
         self.parking_space = parking_space
 
     def get_attributes(self):
-        """returns the attributes of the Object as a dict"""
+        """Returns the attributes of the Object as a dict."""
         retdict = super().get_common_attributes()
         if self.validLength is not None:
             retdict["validLength"] = str(self.validLength)
@@ -958,7 +951,7 @@ class Object(_SignalObjectBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the WorldPostion"""
+        """Returns the elementTree of the WorldPostion."""
         element = ET.Element("object", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for _repeat in self._repeats:
@@ -1000,7 +993,6 @@ class Tunnel(XodrBase):
 
         get_attributes()
             Returns a dictionary of all xml attributes
-
     """
 
     def __init__(
@@ -1013,7 +1005,7 @@ class Tunnel(XodrBase):
         daylight: float = 0.5,
         lighting: float = 0.5,
     ):
-        """Initialize a tunnel
+        """Initialize a tunnel.
 
         Parameters
         ----------
@@ -1048,7 +1040,7 @@ class Tunnel(XodrBase):
         return False
 
     def get_attributes(self):
-        """Return a dictionary of all xml attributes"""
+        """Return a dictionary of all xml attributes."""
         retdict = {}
         retdict["s"] = str(self.s)
         retdict["length"] = str(self.length)
@@ -1060,13 +1052,13 @@ class Tunnel(XodrBase):
         return retdict
 
     def get_element(self):
-        """Return the elementTree of the Tunnel"""
+        """Return the elementTree of the Tunnel."""
         element = ET.Element("tunnel", attrib=self.get_attributes())
         return element
 
 
 class CornerLocal(XodrBase):
-    """CornerLocal is one way to describe outline in for objects
+    """CornerLocal is one way to describe outline in for objects.
 
     Parameters
     ----------
@@ -1099,11 +1091,10 @@ class CornerLocal(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(self, u, v, z, height, id=None):
-        """initalize the cornerLocal
+        """Initalize the cornerLocal.
 
         Parameters
         ----------
@@ -1116,7 +1107,6 @@ class CornerLocal(XodrBase):
             height (float): height of the object at this corner
 
             id (int): id of the point (optional)
-
         """
         super().__init__()
         self.u = u
@@ -1132,7 +1122,7 @@ class CornerLocal(XodrBase):
         return False
 
     def get_attributes(self):
-        """returns the attributes of cornerLocal as a dict"""
+        """Returns the attributes of cornerLocal as a dict."""
         retdict = {}
         retdict["u"] = str(self.u)
         retdict["v"] = str(self.v)
@@ -1143,14 +1133,14 @@ class CornerLocal(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of cornerLocal"""
+        """Returns the elementTree of cornerLocal."""
         element = ET.Element("cornerLocal", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class CornerRoad(XodrBase):
-    """CornerRoad is one way to describe outline in for objects
+    """CornerRoad is one way to describe outline in for objects.
 
     Parameters
     ----------
@@ -1182,11 +1172,10 @@ class CornerRoad(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(self, s, t, dz, height, id=None):
-        """initalize the CornerRoad
+        """Initalize the CornerRoad.
 
         Parameters
         ----------
@@ -1199,7 +1188,6 @@ class CornerRoad(XodrBase):
             height (float): height of the object at this corner
 
             id (int): id of the point (optional)
-
         """
         super().__init__()
         self.s = s
@@ -1215,7 +1203,7 @@ class CornerRoad(XodrBase):
         return False
 
     def get_attributes(self):
-        """returns the attributes of cornerRoad as a dict"""
+        """Returns the attributes of cornerRoad as a dict."""
         retdict = {}
         retdict["s"] = str(self.s)
         retdict["t"] = str(self.t)
@@ -1226,14 +1214,14 @@ class CornerRoad(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of cornerRoad"""
+        """Returns the elementTree of cornerRoad."""
         element = ET.Element("cornerRoad", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class Outline(XodrBase):
-    """Outline is used to wrap corners for an object in OpenDRIVE
+    """Outline is used to wrap corners for an object in OpenDRIVE.
 
     Parameters
     ----------
@@ -1267,13 +1255,12 @@ class Outline(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(
         self, closed=None, fill_type=None, lane_type=None, outer=None, id=None
     ):
-        """initalize the Outline
+        """Initalize the Outline.
 
         Parameters
         ----------
@@ -1286,7 +1273,6 @@ class Outline(XodrBase):
             outer (bool): defines if the outline is the outer outline (optional)
 
             id (int): id of the point (optional)
-
         """
         super().__init__()
         self.closed = closed
@@ -1307,7 +1293,7 @@ class Outline(XodrBase):
         return False
 
     def add_corner(self, corner):
-        """add_corner adds a corner to the outline
+        """add_corner adds a corner to the outline.
 
         Note: only the same typ of corners can be added
 
@@ -1334,7 +1320,7 @@ class Outline(XodrBase):
             )
 
     def get_attributes(self):
-        """returns the attributes of Outline as a dict"""
+        """Returns the attributes of Outline as a dict."""
         retdict = {}
         if self.closed is not None:
             retdict["closed"] = get_bool_string(self.closed)
@@ -1349,7 +1335,7 @@ class Outline(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of Outline"""
+        """Returns the elementTree of Outline."""
         element = ET.Element("outline", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for corner in self.corners:
@@ -1359,7 +1345,8 @@ class Outline(XodrBase):
 
 
 class ParkingSpace(XodrBase):
-    """ParkingSpace is used to define access and restrictions for objects in OpenDRIVE
+    """ParkingSpace is used to define access and restrictions for objects in
+    OpenDRIVE.
 
     Parameters
     ----------
@@ -1381,19 +1368,16 @@ class ParkingSpace(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(self, access=None, restrictions=None):
-        """initalize the ParkingSpace
+        """Initalize the ParkingSpace.
 
         Parameters
         ----------
             access (Access): type of access of the parking space (optional)
 
             restrictions (string): restrictions of the parking space (optional)
-
-
         """
         super().__init__()
         self.access = enumchecker(access, Access)
@@ -1406,7 +1390,7 @@ class ParkingSpace(XodrBase):
         return False
 
     def get_attributes(self):
-        """returns the attributes of ParkingSpace as a dict"""
+        """Returns the attributes of ParkingSpace as a dict."""
         retdict = {}
         if self.access is not None:
             retdict["access"] = enum2str(self.access)
@@ -1416,7 +1400,7 @@ class ParkingSpace(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of ParkingSpace"""
+        """Returns the elementTree of ParkingSpace."""
         element = ET.Element("parkingSpace", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
 

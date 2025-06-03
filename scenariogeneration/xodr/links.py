@@ -34,7 +34,7 @@ from .utils import XodrBase
 
 
 class _Links(XodrBase):
-    """Link creates a Link element used for roadlinking in OpenDrive
+    """Link creates a Link element used for roadlinking in OpenDrive.
 
     Parameters
     ----------
@@ -50,11 +50,10 @@ class _Links(XodrBase):
 
         add_link(link)
             adds a link to links
-
     """
 
     def __init__(self):
-        """initalize the _Links"""
+        """Initalize the _Links."""
         super().__init__()
         self.links = []
 
@@ -65,12 +64,11 @@ class _Links(XodrBase):
         return False
 
     def add_link(self, link):
-        """Adds a _Link
+        """Adds a _Link.
 
         Parameters
         ----------
             link (_Link): a link to be added to the Links
-
         """
         if not isinstance(link, _Link):
             raise TypeError("link input is not of type _Link")
@@ -96,10 +94,9 @@ class _Links(XodrBase):
         return self
 
     def get_predecessor_contact_point(self):
-        """returns the predecessor contact_point of the link (if exists)
+        """Returns the predecessor contact_point of the link (if exists)
 
-        Return
-            id (int): id of the predecessor road
+        Return     id (int): id of the predecessor road
         """
         retval = None
         for l in self.links:
@@ -108,10 +105,10 @@ class _Links(XodrBase):
         return retval
 
     def get_successor_contact_point(self):
-        """returns the successor contact_point of the link (if exists)
+        """Returns the successor contact_point of the link (if exists)
 
-        Return
-            id (int): id of the successor road (None if no successor available)
+        Return     id (int): id of the successor road (None if no
+        successor available)
         """
         retval = None
         for l in self.links:
@@ -120,10 +117,9 @@ class _Links(XodrBase):
         return retval
 
     def get_predecessor_type(self):
-        """returns the predecessor id of the link (if exists)
+        """Returns the predecessor id of the link (if exists)
 
-        Return
-            id (int): id of the predecessor road
+        Return     id (int): id of the predecessor road
         """
         retval = None
         for l in self.links:
@@ -132,10 +128,10 @@ class _Links(XodrBase):
         return retval
 
     def get_successor_type(self):
-        """returns the successor id of the link (if exists)
+        """Returns the successor id of the link (if exists)
 
-        Return
-            id (int): id of the successor road (None if no successor available)
+        Return     id (int): id of the successor road (None if no
+        successor available)
         """
         retval = None
         for l in self.links:
@@ -144,10 +140,9 @@ class _Links(XodrBase):
         return retval
 
     def get_predecessor_id(self):
-        """returns the predecessor id of the link (if exists)
+        """Returns the predecessor id of the link (if exists)
 
-        Return
-            id (int): id of the predecessor road
+        Return     id (int): id of the predecessor road
         """
         retval = None
         for l in self.links:
@@ -156,10 +151,10 @@ class _Links(XodrBase):
         return retval
 
     def get_successor_id(self):
-        """returns the successor id of the link (if exists)
+        """Returns the successor id of the link (if exists)
 
-        Return
-            id (int): id of the successor road (None if no successor available)
+        Return     id (int): id of the successor road (None if no
+        successor available)
         """
         retval = None
         for l in self.links:
@@ -168,7 +163,7 @@ class _Links(XodrBase):
         return retval
 
     def get_element(self):
-        """returns the elementTree of the _Link"""
+        """Returns the elementTree of the _Link."""
         element = ET.Element("link")
         self._add_additional_data_to_element(element)
         # sort links alphabetically by link type to ensure predecessor
@@ -179,7 +174,8 @@ class _Links(XodrBase):
 
 
 class _Link(XodrBase):
-    """Link creates a predecessor/successor/neghbor element used for Links in OpenDrive
+    """Link creates a predecessor/successor/neghbor element used for Links in
+    OpenDrive.
 
     Parameters
     ----------
@@ -215,7 +211,6 @@ class _Link(XodrBase):
 
         get_attributes()
             Returns a dictionary of all attributes of the class
-
     """
 
     def __init__(
@@ -226,7 +221,7 @@ class _Link(XodrBase):
         contact_point=None,
         direction=None,
     ):
-        """initalize the _Link
+        """Initalize the _Link.
 
         Parameters
         ----------
@@ -265,7 +260,7 @@ class _Link(XodrBase):
         return False
 
     def get_attributes(self):
-        """returns the attributes as a dict of the _Link"""
+        """Returns the attributes as a dict of the _Link."""
         retdict = {}
         if self.element_type == None:
             retdict["id"] = str(self.element_id)
@@ -280,7 +275,7 @@ class _Link(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the _Link"""
+        """Returns the elementTree of the _Link."""
         element = ET.Element(self.link_type, attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
@@ -305,12 +300,12 @@ class LaneLinker:
     """
 
     def __init__(self):
-        """initalize the _Links"""
+        """Initalize the _Links."""
 
         self.links = []
 
     def add_link(self, predlane, succlane, connecting_road=None):
-        """Adds a _Link
+        """Adds a _Link.
 
         Parameters
         ----------
@@ -319,14 +314,13 @@ class LaneLinker:
             succlane (Lane): successor lane
 
             connecting_road (id): id of a connecting road (used for junctions)
-
         """
         self.links.append(_lanelink(predlane, succlane, connecting_road))
         return self
 
 
 class _lanelink:
-    """helper class for LaneLinker"""
+    """Helper class for LaneLinker."""
 
     def __init__(self, predecessor, successor, connecting_road):
         self.predecessor = predecessor
@@ -336,7 +330,7 @@ class _lanelink:
 
 
 class Connection(XodrBase):
-    """Connection creates a connection as a base of junction
+    """Connection creates a connection as a base of junction.
 
     Parameters
     ----------
@@ -373,7 +367,7 @@ class Connection(XodrBase):
     """
 
     def __init__(self, incoming_road, connecting_road, contact_point, id=None):
-        """initalize the Connection
+        """Initalize the Connection.
 
         Parameters
         ----------
@@ -402,7 +396,7 @@ class Connection(XodrBase):
         return False
 
     def _set_id(self, id):
-        """id is set
+        """Id is set.
 
         Parameters
         ----------
@@ -412,7 +406,7 @@ class Connection(XodrBase):
             self.id = id
 
     def add_lanelink(self, in_lane, out_lane):
-        """Adds a new link to the connection
+        """Adds a new link to the connection.
 
         Parameters
         ----------
@@ -424,12 +418,11 @@ class Connection(XodrBase):
         return self
 
     def get_attributes(self, junctiontype=JunctionType.default):
-        """returns the attributes as a dict of the Connection
+        """Returns the attributes as a dict of the Connection.
 
         Parameters
         ----------
             junctiontype (JunctionType): type of junction created (connections will be different)
-
         """
         retdict = {}
         retdict["incomingRoad"] = str(self.incoming_road)
@@ -442,12 +435,11 @@ class Connection(XodrBase):
         return retdict
 
     def get_element(self, junctiontype=JunctionType.default):
-        """returns the elementTree of the Connection
+        """Returns the elementTree of the Connection.
 
         Parameters
         ----------
             junctiontype (JunctionType): type of junction created (connections will be different)
-
         """
 
         element = ET.Element(
@@ -464,7 +456,7 @@ class Connection(XodrBase):
 
 
 class Junction(XodrBase):
-    """Junction creates a junction of OpenDRIVE
+    """Junction creates a junction of OpenDRIVE.
 
     Parameters
     ----------
@@ -529,7 +521,7 @@ class Junction(XodrBase):
         send=None,
         mainroad=None,
     ):
-        """initalize the Junction
+        """Initalize the Junction.
 
         Parameters
         ----------
@@ -547,7 +539,6 @@ class Junction(XodrBase):
             send (float): end of the virtual junction (only used for virtual junction)
 
             mainroad (int): main road for a virtual junction
-
         """
         super().__init__()
         self.name = name
@@ -581,12 +572,11 @@ class Junction(XodrBase):
         return False
 
     def add_connection(self, connection):
-        """Adds a new link to the Junction
+        """Adds a new link to the Junction.
 
         Parameters
         ----------
             connection (Connection): adds a connection to the junction
-
         """
         if not isinstance(connection, Connection):
             raise TypeError("connection is not of type Connection")
@@ -596,7 +586,7 @@ class Junction(XodrBase):
         return self
 
     def get_attributes(self):
-        """returns the attributes as a dict of the Junction"""
+        """Returns the attributes as a dict of the Junction."""
         retdict = {}
         retdict["name"] = self.name
         retdict["id"] = str(self.id)
@@ -614,7 +604,7 @@ class Junction(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the Junction"""
+        """Returns the elementTree of the Junction."""
         element = ET.Element("junction", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for con in self.connections:
@@ -627,7 +617,7 @@ from .enumerations import ContactPoint
 
 
 def are_roads_consecutive(road1, road2):
-    """checks if road2 follows road1
+    """Checks if road2 follows road1.
 
     Parameters
     ----------
@@ -654,7 +644,8 @@ def are_roads_consecutive(road1, road2):
 
 
 def are_roads_connected(road1, road2):
-    """checks if road1 and road2 are connected as successor/successor or predecessor/predecessor
+    """Checks if road1 and road2 are connected as successor/successor or
+    predecessor/predecessor.
 
     Parameters
     ----------
@@ -689,9 +680,8 @@ def are_roads_connected(road1, road2):
 
 
 def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
-    """
-    Experimental function to connect lanes of two roads given the corresponding lane IDs
-    (numbers).
+    """Experimental function to connect lanes of two roads given the
+    corresponding lane IDs (numbers).
 
     NOTE: Usually only necessary when there is not the same amount of lanes at the
     connection of two roads or there are new lanes with zero width at the beginning of a
@@ -706,7 +696,6 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         road1_lane_ids (list of int): list of the ids of road1 (do not use the 0 lane)
 
         road2_lane_ids (list of int): list of the ids of road2 (do not use the 0 lane)
-
     """
     if len(road1_lane_ids) != len(road2_lane_ids):
         raise GeneralIssueInputArguments(
@@ -758,8 +747,8 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
 
 
 def create_lane_links(road1, road2):
-    """create_lane_links takes two roads and if they are connected, match their lanes
-    and creates lane links.
+    """create_lane_links takes two roads and if they are connected, match their
+    lanes and creates lane links.
 
     Parameters
     ----------
@@ -785,14 +774,14 @@ def create_lane_links(road1, road2):
 
 
 def _create_links_connecting_road(connecting, road):
-    """_create_links_connecting_road will create lane links between a connecting road and a normal road
+    """_create_links_connecting_road will create lane links between a
+    connecting road and a normal road.
 
     Parameters
     ----------
         connecting (Road): a road of type connecting road (not -1)
 
         road (Road): a that connects to the connecting road
-
     """
     linktype, sign, connecting_lanesec = _get_related_lanesection(
         connecting, road
@@ -864,8 +853,9 @@ def _create_links_connecting_road(connecting, road):
 
 
 def _get_related_lanesection(road, connected_road):
-    """_get_related_lanesection takes two roads, and gives the correct lane section to use
-    the type of link and if the sign of lanes should be switched
+    """_get_related_lanesection takes two roads, and gives the correct lane
+    section to use the type of link and if the sign of lanes should be
+    switched.
 
     Parameters
     ----------
@@ -984,7 +974,8 @@ def _get_related_lanesection(road, connected_road):
 
 
 def _create_links_roads(pre_road, suc_road, same_type=""):
-    """_create_links_roads takes two roads and connect the lanes with links, if they have the same amount.
+    """_create_links_roads takes two roads and connect the lanes with links, if
+    they have the same amount.
 
     Parameters
     ----------
@@ -993,7 +984,6 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
         suc_road (Road): the successor road
 
         same_type (str): used if the roads are connecting to the same type, predecessor or successor
-
     """
     if same_type != "":
         if same_type == "successor":
@@ -1133,7 +1123,7 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
 
 
 class JunctionGroup(XodrBase):
-    """JunctionGroup creates a JunctionGroup of OpenDRIVE
+    """JunctionGroup creates a JunctionGroup of OpenDRIVE.
 
     Parameters
     ----------
@@ -1167,7 +1157,7 @@ class JunctionGroup(XodrBase):
     def __init__(
         self, name, group_id, junction_type=JunctionGroupType.roundabout
     ):
-        """initalize the JunctionGroup
+        """Initalize the JunctionGroup.
 
         Parameters
         ----------
@@ -1194,18 +1184,17 @@ class JunctionGroup(XodrBase):
         return False
 
     def add_junction(self, junction_id):
-        """Adds a new link to the JunctionGroup
+        """Adds a new link to the JunctionGroup.
 
         Parameters
         ----------
             junction_id (int): adds a junction to the junctiongroup
-
         """
         self.junctions.append(junction_id)
         return self
 
     def get_attributes(self):
-        """returns the attributes as a dict of the JunctionGroup"""
+        """Returns the attributes as a dict of the JunctionGroup."""
         retdict = {}
         retdict["name"] = self.name
         retdict["id"] = str(self.group_id)
@@ -1213,7 +1202,7 @@ class JunctionGroup(XodrBase):
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the Junction"""
+        """Returns the elementTree of the Junction."""
         element = ET.Element("junctionGroup", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for j in self.junctions:

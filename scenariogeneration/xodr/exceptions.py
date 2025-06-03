@@ -19,56 +19,56 @@ class NotSameAmountOfLanesError(Exception):
 
 
 class NotEnoughInputArguments(Exception):
-    """Raised when one of the needed "optional" inputs are not used"""
+    """Raised when one of the needed "optional" inputs are not used."""
 
     pass
 
 
 class ToManyOptionalArguments(Exception):
-    """Raised when one of the needed "optional" inputs are not used"""
+    """Raised when one of the needed "optional" inputs are not used."""
 
     pass
 
 
 class UndefinedRoadNetwork(Exception):
-    """Raised when the user haven't connected the roads in a correct way"""
+    """Raised when the user haven't connected the roads in a correct way."""
 
     pass
 
 
 class RoadsAndLanesNotAdjusted(Exception):
     """Raised when the user tries to perform an action on non-adjusted lanes
-    and roads that requires adjusted lanes and roads"""
+    and roads that requires adjusted lanes and roads."""
 
     pass
 
 
 class MixOfGeometryAddition(Exception):
     """Raise when the wrong way of adding geometires are used for the
-    planview"""
+    planview."""
 
     pass
 
 
 class GeneralIssueInputArguments(Exception):
-    """Raise when there is something wrong in the input arguments"""
+    """Raise when there is something wrong in the input arguments."""
 
     pass
 
 
 class IdAlreadyExists(Exception):
-    """Raise when there is a clash between ids"""
+    """Raise when there is a clash between ids."""
 
     pass
 
 
 class RemovedFunctionality(Exception):
-    """Raise when a function has been removed"""
+    """Raise when a function has been removed."""
 
     pass
 
 
 class MixingDrivingDirection(Exception):
-    """Raise when the driving directions are added"""
+    """Raise when the driving directions are added."""
 
     pass

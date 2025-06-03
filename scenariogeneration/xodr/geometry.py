@@ -30,7 +30,7 @@ def wrap_pi(angle):
 
 
 class _BaseGeometry(XodrBase):
-    """Base class for geometries"""
+    """Base class for geometries."""
 
     def __init__(self) -> None:
         super().__init__()
@@ -79,8 +79,7 @@ class AdjustablePlanview:
         lane_width: Optional[float] = None,
         lane_width_end: Optional[float] = None,
     ) -> None:
-        """
-        Initialize the `AdjustablePlanview` instance.
+        """Initialize the `AdjustablePlanview` instance.
 
         Parameters
         ----------
@@ -214,8 +213,8 @@ class PlanView(XodrBase):
     def add_geometry(
         self, geom: _BaseGeometry, heading: Optional[float] = None
     ) -> "PlanView":
-        """Add a geometry to the PlanView and stitch together all
-        geometries in the order they are added.
+        """Add a geometry to the PlanView and stitch together all geometries in
+        the order they are added.
 
         This method should be used together with the
         `adjust_roads_and_lanes` method in the OpenDrive class.
@@ -387,8 +386,7 @@ class PlanView(XodrBase):
         return self.x_end, self.y_end, self.h_end
 
     def adjust_geometries(self, from_end: bool = False) -> None:
-        """Adjust all geometries to have the correct start point and
-        heading.
+        """Adjust all geometries to have the correct start point and heading.
 
         Parameters
         ----------
@@ -645,8 +643,7 @@ class _Geometry(XodrBase):
         return x, y, heading, self.length
 
     def set_s(self, s: float) -> None:
-        """
-        Set the start s value (along the road) of the geometry.
+        """Set the start s value (along the road) of the geometry.
 
         Parameters
         ----------
@@ -971,7 +968,7 @@ class Arc(_BaseGeometry):
     def get_start_data(
         self, end_x: float, end_y: float, end_h: float
     ) -> tuple[float, float, float, float]:
-        """Returns information about the end point of the geometry
+        """Returns information about the end point of the geometry.
 
         Parameters
         ----------
@@ -995,7 +992,6 @@ class Arc(_BaseGeometry):
                 The start heading of the geometry.
             - length : float
                 The length of the geometry.
-
         """
         x = end_x
         y = end_y
@@ -1053,9 +1049,8 @@ class Arc(_BaseGeometry):
 
 
 class ParamPoly3(_BaseGeometry):
-    """The `ParamPoly3` class creates a parametric polynomial type of
-    geometry in the coordinate system U (along the road) and
-    V (normal to the road).
+    """The `ParamPoly3` class creates a parametric polynomial type of geometry
+    in the coordinate system U (along the road) and V (normal to the road).
 
     The polynomials are of the form:
         uv(p) = a + b*p + c*p^2 + d*p^3
@@ -1209,7 +1204,7 @@ class ParamPoly3(_BaseGeometry):
     def get_start_data(
         self, x: float, y: float, h: float
     ) -> tuple[float, float, float, float]:
-        """Returns the start point of the geometry
+        """Returns the start point of the geometry.
 
         Parameters
         ----------

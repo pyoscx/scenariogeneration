@@ -1,5 +1,6 @@
 # __init__.py
-"""the xodr module contains the classes used to generate OpenDRIVE (xml) files."""
+"""The xodr module contains the classes used to generate OpenDRIVE (xml)
+files."""
 from .elevation import *
 from .enumerations import *
 from .generators import *

@@ -34,7 +34,8 @@ def esmini(
     car_density=15,
     headless=False,
 ):
-    """write a scenario and runs it in esminis OpenDriveViewer with some random traffic
+    """Write a scenario and runs it in esminis OpenDriveViewer with some random
+    traffic.
 
     Parameters
     ----------

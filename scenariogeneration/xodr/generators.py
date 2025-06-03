@@ -65,8 +65,7 @@ STD_START_CLOTH = 1 / 1000000000
 def standard_lane(
     offset: int = 3, rm: RoadMark = std_roadmark_broken()
 ) -> Lane:
-    """
-    Create a simple lane with an offset and a roadmark.
+    """Create a simple lane with an offset and a roadmark.
 
     Parameters
     ----------
@@ -103,8 +102,7 @@ def create_road(
     lane_width: float = 3,
     lane_width_end: Optional[float] = None,
 ) -> Road:
-    """
-    Create a road with one lane section and different numbers of lanes.
+    """Create a road with one lane section and different numbers of lanes.
 
     Lane marks will be of type broken, except for the outer lane, which
     will be solid. The `lane_width_end` parameter can only be used when
@@ -211,8 +209,7 @@ def create_straight_road(
     n_lanes: int = 1,
     lane_offset: int = 3,
 ) -> Road:
-    """
-    Create a standard straight road with two lanes.
+    """Create a standard straight road with two lanes.
 
     Parameters
     ----------
@@ -268,8 +265,7 @@ def create_cloth_arc_cloth(
     n_lanes: int = 1,
     lane_offset: int = 3,
 ):
-    """
-    Create a curved road with a Spiral-Arc-Spiral and two lanes.
+    """Create a curved road with a Spiral-Arc-Spiral and two lanes.
 
     Parameters
     ----------
@@ -346,8 +342,7 @@ def create_3cloths(
     lane_offset: int = 3,
     road_marks: RoadMark = std_roadmark_broken(),
 ):
-    """
-    Create a curved road with a Spiral-Spiral-Spiral and two lanes.
+    """Create a curved road with a Spiral-Spiral-Spiral and two lanes.
 
     Parameters
     ----------
@@ -425,8 +420,7 @@ def create_3cloths(
 def get_lanes_offset(
     road1: Road, road2: Road, contactpoint: ContactPoint
 ) -> tuple[int, int]:
-    """
-    Return the number of lanes and their offset.
+    """Return the number of lanes and their offset.
 
     Assumes that the number of left lanes equals the number of right
     lanes and that the offset is constant.
@@ -490,8 +484,7 @@ def create_junction_roads_standalone(
     n_lanes: int = 1,
     lane_width: float = 3,
 ) -> List[Road]:
-    """
-    Create all needed roads for simple junctions.
+    """Create all needed roads for simple junctions.
 
     The curved parts of the junction are created as a spiral-arc-spiral
     combination. Supported junctions include:
@@ -609,8 +602,7 @@ def create_junction_roads_from_arc(
     arc_part: float = 1 / 3,
     startnum: int = 100,
 ) -> List[Road]:
-    """
-    Create all needed roads for simple junctions.
+    """Create all needed roads for simple junctions.
 
     The curved parts of the junction are created as a spiral-arc-spiral
     combination. Supported junctions include:
@@ -740,8 +732,7 @@ def create_junction_roads(
     inner_road_marks: Optional[RoadMark] = None,
     outer_road_marks: RoadMark = std_roadmark_solid(),
 ) -> List[Road]:
-    """
-    Create all needed roads for some simple junctions.
+    """Create all needed roads for some simple junctions.
 
     The curved parts of the junction are created as a spiral-arc-spiral
     combination. `R` is the radius of the whole junction, meaning the
@@ -923,8 +914,7 @@ def _create_junction_links(
     from_offset: int = 0,
     to_offset: int = 0,
 ) -> None:
-    """
-    Helper function to create junction links.
+    """Helper function to create junction links.
 
     Parameters
     ----------
@@ -957,8 +947,7 @@ def create_junction(
     roads: List[Road],
     name: str = "my junction",
 ) -> Junction:
-    """
-    Create a junction structure for a set of roads.
+    """Create a junction structure for a set of roads.
 
     Parameters
     ----------
@@ -1029,8 +1018,7 @@ def create_junction(
 def create_direct_junction(
     roads: List[Road], id: int, name: str = "my direct junction"
 ) -> Junction:
-    """
-    Create the junction structure for a set of roads, for a direct junction.
+    """Create the junction structure for a set of roads, for a direct junction.
 
     Parameters
     ----------
@@ -1057,8 +1045,7 @@ def create_direct_junction(
 
 
 def get_road_by_id(roads: List[Road], id: int) -> Road:
-    """
-    Return a road based on the road ID.
+    """Return a road based on the road ID.
 
     Parameters
     ----------

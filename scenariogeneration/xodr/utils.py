@@ -19,7 +19,8 @@ from .enumerations import ContactPoint
 
 
 def get_lane_sec_and_s_for_lane_calc(road, contact_point):
-    """Helping function to get a lane_section and s coordinate for calculations, at either the end or start of a road
+    """Helping function to get a lane_section and s coordinate for
+    calculations, at either the end or start of a road.
 
     Parameters
     ----------
@@ -49,7 +50,8 @@ def get_lane_sec_and_s_for_lane_calc(road, contact_point):
 
 
 def get_coeffs_for_poly3(length, lane_offset, zero_start, lane_width_end=None):
-    """get_coeffs_for_poly3 creates the coefficients for a third degree polynomial, can be used for all kinds of descriptions in xodr.
+    """get_coeffs_for_poly3 creates the coefficients for a third degree
+    polynomial, can be used for all kinds of descriptions in xodr.
 
     Assuming that the derivative is 0 at the start and end of the segment.
 
@@ -97,7 +99,8 @@ def get_coeffs_for_poly3(length, lane_offset, zero_start, lane_width_end=None):
 
 
 class XodrBase:
-    """Sets up common functionality for xodr generating classes by enabling userdata inputs
+    """Sets up common functionality for xodr generating classes by enabling
+    userdata inputs.
 
     Parameters
     ----------
@@ -118,11 +121,10 @@ class XodrBase:
 
         add_dataquality(dataquality)
             adds dataquality to the xodr entry
-
     """
 
     def __init__(self):
-        """initalize the UserData"""
+        """Initalize the UserData."""
         self.user_data = []
         self.data_quality = None
 
@@ -136,7 +138,7 @@ class XodrBase:
         return False
 
     def add_userdata(self, userdata):
-        """Adds a userdata entry to the xodr entry
+        """Adds a userdata entry to the xodr entry.
 
         Parameters
         ----------
@@ -147,7 +149,7 @@ class XodrBase:
         self.user_data.append(userdata)
 
     def add_dataquality(self, dataquality):
-        """Adds a dataquality entry to the xodr entry
+        """Adds a dataquality entry to the xodr entry.
 
         Parameters
         ----------
@@ -158,7 +160,7 @@ class XodrBase:
         self.data_quality = dataquality
 
     def _add_additional_data_to_element(self, element):
-        """returns the elementTree of the Junction"""
+        """Returns the elementTree of the Junction."""
         for ud in self.user_data:
             element.append(ud.get_element())
         if self.data_quality:
@@ -167,7 +169,7 @@ class XodrBase:
 
 
 class UserData:
-    """Sets up addtional data for any entry of OpenDRIVE
+    """Sets up addtional data for any entry of OpenDRIVE.
 
     Parameters
     ----------
@@ -194,17 +196,16 @@ class UserData:
 
         add_userdata_content(ET.element)
             adds extra elements to the userdata
-
     """
 
     def __init__(self, code, value=None):
-        """initalize the UserData"""
+        """Initalize the UserData."""
         self.code = code
         self.value = value
         self.userdata_content = []
 
     def add_userdata_content(self, content):
-        """add_userdata_content adds extra elements to userdata
+        """add_userdata_content adds extra elements to userdata.
 
         Parameters
         ----------
@@ -239,7 +240,7 @@ class UserData:
         return False
 
     def get_attributes(self):
-        """returns the attributes as a dict of the JunctionGroup"""
+        """Returns the attributes as a dict of the JunctionGroup."""
         retdict = {}
         retdict["code"] = str(self.code)
         if self.value is not None:
@@ -247,7 +248,7 @@ class UserData:
         return retdict
 
     def get_element(self):
-        """returns the elementTree of the Junction"""
+        """Returns the elementTree of the Junction."""
         element = ET.Element("userData", attrib=self.get_attributes())
         for i in self.userdata_content:
             element.append(i)
@@ -255,8 +256,7 @@ class UserData:
 
 
 class DataQuality:
-    """Sets up DataQuality for any entry of OpenDRIVE
-
+    """Sets up DataQuality for any entry of OpenDRIVE.
 
     Attributes
     ----------
@@ -294,7 +294,7 @@ class DataQuality:
     """
 
     def __init__(self):
-        """initalize the UserData"""
+        """Initalize the UserData."""
         self.date = None
         self.post_processing = None
         self.source = None
@@ -315,7 +315,7 @@ class DataQuality:
         post_processing_comment=None,
         source_comment=None,
     ):
-        """add_raw_data_info adds data for the RawData entry
+        """add_raw_data_info adds data for the RawData entry.
 
         Parameters
         ----------
@@ -340,7 +340,7 @@ class DataQuality:
         self._raw_data_added = True
 
     def add_error(self, xy_abs, xy_rel, z_abs, z_rel):
-        """add_error adds data to the error element
+        """add_error adds data to the error element.
 
         Parameters
         ----------
@@ -376,7 +376,7 @@ class DataQuality:
         return False
 
     def get_element(self):
-        """returns the elementTree of the Junction"""
+        """Returns the elementTree of the Junction."""
         element = ET.Element("dataQuality")
         if self._raw_data_added:
             raw_data_attrib = {

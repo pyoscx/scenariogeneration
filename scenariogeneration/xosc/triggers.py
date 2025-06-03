@@ -49,8 +49,7 @@ from .utils import (
 
 
 class EmptyTrigger(_TriggerType):
-    """
-    EmptyTrigger creates an empty trigger.
+    """EmptyTrigger creates an empty trigger.
 
     Parameters
     ----------
@@ -64,8 +63,7 @@ class EmptyTrigger(_TriggerType):
     """
 
     def __init__(self, triggeringpoint: str = "start") -> None:
-        """
-        Initializes the empty trigger.
+        """Initializes the empty trigger.
 
         Parameters
         ----------
@@ -94,8 +92,7 @@ class EmptyTrigger(_TriggerType):
         return False
 
     def get_element(self) -> ET.Element:
-        """
-        Generate an XML element for the trigger point.
+        """Generate an XML element for the trigger point.
 
         Returns
         -------
@@ -197,8 +194,7 @@ class _ConditionFactory:
 
 
 class EntityTrigger(_TriggerType):
-    """
-    The EntityTrigger creates a Trigger containing an EntityTrigger.
+    """The EntityTrigger creates a Trigger containing an EntityTrigger.
 
     Parameters
     ----------
@@ -248,8 +244,7 @@ class EntityTrigger(_TriggerType):
         triggeringrule: TriggeringEntitiesRule = TriggeringEntitiesRule.any,
         triggeringpoint: str = "start",
     ) -> None:
-        """
-        Initialize the EntityTrigger.
+        """Initialize the EntityTrigger.
 
         Parameters
         ----------
@@ -318,8 +313,7 @@ class EntityTrigger(_TriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "EntityTrigger":
-        """
-        Parses the XML element of EntityTrigger.
+        """Parses the XML element of EntityTrigger.
 
         Parameters
         ----------
@@ -361,14 +355,11 @@ class EntityTrigger(_TriggerType):
         return enttrig
 
     def _set_used_by_parent(self) -> None:
-        """
-        Used internally if the condition is added to a ConditionGroup.
-        """
+        """Used internally if the condition is added to a ConditionGroup."""
         self._used_by_parent = True
 
     def add_triggering_entity(self, triggerentity: str) -> "EntityTrigger":
-        """
-        Adds additional triggering entities to a trigger.
+        """Adds additional triggering entities to a trigger.
 
         Parameters
         ----------
@@ -384,8 +375,7 @@ class EntityTrigger(_TriggerType):
         return self
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the EntityTrigger as a dictionary.
+        """Returns the attributes of the EntityTrigger as a dictionary.
 
         Returns
         -------
@@ -399,8 +389,7 @@ class EntityTrigger(_TriggerType):
         }
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the ElementTree representation of the EntityTrigger.
+        """Returns the ElementTree representation of the EntityTrigger.
 
         Returns
         -------
@@ -435,8 +424,7 @@ class EntityTrigger(_TriggerType):
 
 
 class ValueTrigger(_TriggerType):
-    """
-    The ValueTrigger creates a Trigger of the type ValueTrigger of
+    """The ValueTrigger creates a Trigger of the type ValueTrigger of
     openscenario.
 
     Parameters
@@ -485,8 +473,7 @@ class ValueTrigger(_TriggerType):
         valuecondition: _ValueTriggerType,
         triggeringpoint: str = "start",
     ) -> None:
-        """
-        Initialize the ValueTrigger.
+        """Initialize the ValueTrigger.
 
         Parameters
         ----------
@@ -551,8 +538,7 @@ class ValueTrigger(_TriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "ValueTrigger":
-        """
-        Parses the XML element of ValueTrigger.
+        """Parses the XML element of ValueTrigger.
 
         Parameters
         ----------
@@ -589,8 +575,7 @@ class ValueTrigger(_TriggerType):
         return ValueTrigger(name, delay, conditionedge, condition)
 
     def _set_used_by_parent(self) -> None:
-        """
-        Set the condition as used by a parent ConditionGroup.
+        """Set the condition as used by a parent ConditionGroup.
 
         This method is used internally when the condition is added to a
         ConditionGroup.
@@ -598,8 +583,7 @@ class ValueTrigger(_TriggerType):
         self._used_by_parent = True
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Get the attributes of the LaneOffsetAction as a dictionary.
+        """Get the attributes of the LaneOffsetAction as a dictionary.
 
         Returns
         -------
@@ -613,8 +597,7 @@ class ValueTrigger(_TriggerType):
         }
 
     def get_element(self) -> ET.Element:
-        """
-        Get the ElementTree representation of the LaneOffsetAction.
+        """Get the ElementTree representation of the LaneOffsetAction.
 
         Returns
         -------
@@ -634,10 +617,9 @@ class ValueTrigger(_TriggerType):
 
 
 class ConditionGroup(_TriggerType):
-    """
-    The ConditionGroup class creates a Trigger that can be used if
-    multiple Conditions are wanted. The ConditionGroups act like an
-    "AND" logic for all added conditions.
+    """The ConditionGroup class creates a Trigger that can be used if multiple
+    Conditions are wanted. The ConditionGroups act like an "AND" logic for all
+    added conditions.
 
     Parameters
     ----------
@@ -661,8 +643,7 @@ class ConditionGroup(_TriggerType):
     """
 
     def __init__(self, triggeringpoint: str = "start") -> None:
-        """
-        Initialize the ConditionGroup.
+        """Initialize the ConditionGroup.
 
         Parameters
         ----------
@@ -706,8 +687,7 @@ class ConditionGroup(_TriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "ConditionGroup":
-        """
-        Parse the XML element of ConditionGroup.
+        """Parse the XML element of ConditionGroup.
 
         Parameters
         ----------
@@ -730,8 +710,7 @@ class ConditionGroup(_TriggerType):
     def add_condition(
         self, condition: Union[EntityTrigger, ValueTrigger]
     ) -> "ConditionGroup":
-        """
-        Adds a condition (EntityTrigger or ValueTrigger) to the
+        """Adds a condition (EntityTrigger or ValueTrigger) to the
         ConditionGroup.
 
         Parameters
@@ -749,8 +728,7 @@ class ConditionGroup(_TriggerType):
         return self
 
     def _set_used_by_parent(self) -> None:
-        """
-        Set the condition group as used by a parent Trigger.
+        """Set the condition group as used by a parent Trigger.
 
         This method is used internally when the condition group is added
         to a Trigger.
@@ -758,8 +736,7 @@ class ConditionGroup(_TriggerType):
         self._used_by_parent = True
 
     def get_element(self) -> ET.Element:
-        """
-        Constructs and returns an XML element representation of the
+        """Constructs and returns an XML element representation of the
         ConditionGroup.
 
         Returns
@@ -792,10 +769,9 @@ class ConditionGroup(_TriggerType):
 
 
 class Trigger(_TriggerType):
-    """
-    The Trigger class creates a Trigger that can be used if multiple
-    ConditionGroups are wanted. The Trigger acts like an "OR" logic
-    for all added ConditionGroups.
+    """The Trigger class creates a Trigger that can be used if multiple
+    ConditionGroups are wanted. The Trigger acts like an "OR" logic for all
+    added ConditionGroups.
 
     Parameters
     ----------
@@ -818,8 +794,7 @@ class Trigger(_TriggerType):
     """
 
     def __init__(self, triggeringpoint: str = "start") -> None:
-        """
-        Initialize the Trigger.
+        """Initialize the Trigger.
 
         Parameters
         ----------
@@ -870,8 +845,7 @@ class Trigger(_TriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "Trigger":
-        """
-        Parse the XML element of ConditionGroup.
+        """Parse the XML element of ConditionGroup.
 
         Parameters
         ----------
@@ -894,8 +868,7 @@ class Trigger(_TriggerType):
         return trigger
 
     def add_conditiongroup(self, conditiongroup: ConditionGroup) -> "Trigger":
-        """
-        Add a condition group to the trigger.
+        """Add a condition group to the trigger.
 
         Parameters
         ----------
@@ -914,8 +887,7 @@ class Trigger(_TriggerType):
         return self
 
     def get_element(self) -> ET.Element:
-        """
-        Generate an XML element representation of the Trigger.
+        """Generate an XML element representation of the Trigger.
 
         Returns
         -------
@@ -931,9 +903,8 @@ class Trigger(_TriggerType):
 
 
 class TriggeringEntities(VersionBase):
-    """
-    The TriggeringEntities class is used by Value and Entity Triggers
-    to define the trigger entity.
+    """The TriggeringEntities class is used by Value and Entity Triggers to
+    define the trigger entity.
 
     Parameters
     ----------
@@ -958,8 +929,7 @@ class TriggeringEntities(VersionBase):
     """
 
     def __init__(self, triggeringrule: TriggeringEntitiesRule) -> None:
-        """
-        Initialize the TriggeringEntities.
+        """Initialize the TriggeringEntities.
 
         Parameters
         ----------
@@ -984,8 +954,7 @@ class TriggeringEntities(VersionBase):
 
     @staticmethod
     def parse(element: ET.Element) -> "TriggeringEntities":
-        """
-        Parse the XML element of TriggeringEntities.
+        """Parse the XML element of TriggeringEntities.
 
         Parameters
         ----------
@@ -1009,8 +978,7 @@ class TriggeringEntities(VersionBase):
         return triggeringentities
 
     def add_entity(self, entity: str) -> "TriggeringEntities":
-        """
-        Add an entity to the TriggeringEntities.
+        """Add an entity to the TriggeringEntities.
 
         Parameters
         ----------
@@ -1021,8 +989,7 @@ class TriggeringEntities(VersionBase):
         return self
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the LaneOffsetAction as a dictionary.
+        """Returns the attributes of the LaneOffsetAction as a dictionary.
 
         Returns
         -------
@@ -1032,8 +999,7 @@ class TriggeringEntities(VersionBase):
         return {"triggeringEntitiesRule": self.triggeringrule.get_name()}
 
     def get_element(self) -> ET.Element:
-        """
-        Constructs and returns an XML element representation of the
+        """Constructs and returns an XML element representation of the
         LaneOffsetAction.
 
         Returns
@@ -1061,8 +1027,7 @@ class TriggeringEntities(VersionBase):
 
 
 class EndOfRoadCondition(_EntityTriggerType):
-    """
-    The EndOfRoadCondition class is an Entity Condition used by the
+    """The EndOfRoadCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -1087,8 +1052,7 @@ class EndOfRoadCondition(_EntityTriggerType):
     """
 
     def __init__(self, duration: float) -> None:
-        """
-        Initialize the EndOfRoadCondition.
+        """Initialize the EndOfRoadCondition.
 
         Parameters
         ----------
@@ -1105,8 +1069,7 @@ class EndOfRoadCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "EndOfRoadCondition":
-        """
-        Parses the xml element of EndOfRoadCondition.
+        """Parses the xml element of EndOfRoadCondition.
 
         Parameters
         ----------
@@ -1123,8 +1086,7 @@ class EndOfRoadCondition(_EntityTriggerType):
         return EndOfRoadCondition(duration)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the EndOfRoadCondition as a dictionary.
+        """Returns the attributes of the EndOfRoadCondition as a dictionary.
 
         Returns
         -------
@@ -1134,8 +1096,7 @@ class EndOfRoadCondition(_EntityTriggerType):
         return {"duration": str(self.duration)}
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the EndOfRoadCondition.
+        """Returns the elementTree of the EndOfRoadCondition.
 
         Returns
         -------
@@ -1150,8 +1111,7 @@ class EndOfRoadCondition(_EntityTriggerType):
 
 
 class CollisionCondition(_EntityTriggerType):
-    """
-    The CollisionCondition class is an Entity Condition used by the
+    """The CollisionCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -1176,8 +1136,7 @@ class CollisionCondition(_EntityTriggerType):
     """
 
     def __init__(self, entity: Union[str, ObjectType]) -> None:
-        """
-        The CollisionCondition class is an Entity Condition used by the
+        """The CollisionCondition class is an Entity Condition used by the
         EntityTrigger.
 
         Parameters
@@ -1197,8 +1156,7 @@ class CollisionCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "CollisionCondition":
-        """
-        Parses the xml element of CollisionCondition.
+        """Parses the xml element of CollisionCondition.
 
         Parameters
         ----------
@@ -1222,8 +1180,7 @@ class CollisionCondition(_EntityTriggerType):
         return CollisionCondition(entity)
 
     def get_element(self) -> ET.Element:
-        """
-        Generate an XML element representing a CollisionCondition.
+        """Generate an XML element representing a CollisionCondition.
 
         Returns
         -------
@@ -1240,8 +1197,7 @@ class CollisionCondition(_EntityTriggerType):
 
 
 class OffroadCondition(_EntityTriggerType):
-    """
-    The OffroadCondition class is an Entity Condition used by the
+    """The OffroadCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -1266,8 +1222,7 @@ class OffroadCondition(_EntityTriggerType):
     """
 
     def __init__(self, duration: float) -> None:
-        """
-        Initialize the OffroadCondition.
+        """Initialize the OffroadCondition.
 
         Parameters
         ----------
@@ -1284,8 +1239,7 @@ class OffroadCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "OffroadCondition":
-        """
-        Parses the xml element of OffroadCondition.
+        """Parses the xml element of OffroadCondition.
 
         Parameters
         ----------
@@ -1302,8 +1256,7 @@ class OffroadCondition(_EntityTriggerType):
         return OffroadCondition(duration)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the OffroadCondition as a dictionary.
+        """Returns the attributes of the OffroadCondition as a dictionary.
 
         Returns
         -------
@@ -1313,8 +1266,7 @@ class OffroadCondition(_EntityTriggerType):
         return {"duration": str(self.duration)}
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the OffroadCondition.
+        """Returns the elementTree of the OffroadCondition.
 
         Returns
         -------
@@ -1526,9 +1478,8 @@ class TimeHeadwayCondition(_EntityTriggerType):
 
 
 class TimeToCollisionCondition(_EntityTriggerType):
-    """
-    The TimeToCollisionCondition class is an Entity Condition used by
-    the EntityTrigger.
+    """The TimeToCollisionCondition class is an Entity Condition used by the
+    EntityTrigger.
 
     Parameters
     ----------
@@ -1602,8 +1553,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         coordinate_system: CoordinateSystem = CoordinateSystem.road,
         routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
-        """
-        Initialize the TimeToCollisionCondition.
+        """Initialize the TimeToCollisionCondition.
 
         Parameters
         ----------
@@ -1680,8 +1630,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "TimeToCollisionCondition":
-        """
-        Parse the XML element of TimeToCollisionCondition.
+        """Parse the XML element of TimeToCollisionCondition.
 
         Parameters
         ----------
@@ -1758,8 +1707,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         )
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the TimeToCollisionCondition as a dict.
+        """Returns the attributes of the TimeToCollisionCondition as a dict.
 
         Returns
         -------
@@ -1785,8 +1733,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the TimeToCollisionCondition.
+        """Returns the elementTree of the TimeToCollisionCondition.
 
         Returns
         -------
@@ -1811,8 +1758,7 @@ class TimeToCollisionCondition(_EntityTriggerType):
 
 
 class AccelerationCondition(_EntityTriggerType):
-    """
-    The AccelerationCondition class is an Entity Condition used by the
+    """The AccelerationCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -1852,9 +1798,8 @@ class AccelerationCondition(_EntityTriggerType):
         rule: Rule,
         direction: Union[DirectionalDimension, None] = None,
     ) -> None:
-        """
-        The AccelerationCondition class is an Entity Condition used by
-        the EntityTrigger.
+        """The AccelerationCondition class is an Entity Condition used by the
+        EntityTrigger.
 
         Parameters
         ----------
@@ -1878,8 +1823,7 @@ class AccelerationCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "AccelerationCondition":
-        """
-        Parse the XML element of AccelerationCondition.
+        """Parse the XML element of AccelerationCondition.
 
         Parameters
         ----------
@@ -1902,8 +1846,8 @@ class AccelerationCondition(_EntityTriggerType):
         return AccelerationCondition(value, rule, direction)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Retrieves the attributes of the AccelerationCondition as a dictionary.
+        """Retrieves the attributes of the AccelerationCondition as a
+        dictionary.
 
         Returns
         -------
@@ -1930,8 +1874,7 @@ class AccelerationCondition(_EntityTriggerType):
         return retdict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the AccelerationCondition.
+        """Returns the elementTree of the AccelerationCondition.
 
         Returns
         -------
@@ -1946,8 +1889,7 @@ class AccelerationCondition(_EntityTriggerType):
 
 
 class StandStillCondition(_EntityTriggerType):
-    """
-    The StandStillCondition class is an Entity Condition used by the
+    """The StandStillCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -1972,9 +1914,8 @@ class StandStillCondition(_EntityTriggerType):
     """
 
     def __init__(self, duration: float):
-        """
-        The StandStillCondition class is an Entity Condition used by
-        the EntityTrigger.
+        """The StandStillCondition class is an Entity Condition used by the
+        EntityTrigger.
 
         Parameters
         ----------
@@ -1991,8 +1932,7 @@ class StandStillCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "StandStillCondition":
-        """
-        Parse the XML element of StandStillCondition.
+        """Parse the XML element of StandStillCondition.
 
         Parameters
         ----------
@@ -2009,8 +1949,7 @@ class StandStillCondition(_EntityTriggerType):
         return StandStillCondition(duration)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the StandStillCondition as a dict.
+        """Returns the attributes of the StandStillCondition as a dict.
 
         Returns
         -------
@@ -2021,8 +1960,7 @@ class StandStillCondition(_EntityTriggerType):
         return {"duration": str(self.duration)}
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the StandStillCondition.
+        """Returns the elementTree of the StandStillCondition.
 
         Returns
         -------
@@ -2037,8 +1975,7 @@ class StandStillCondition(_EntityTriggerType):
 
 
 class SpeedCondition(_EntityTriggerType):
-    """
-    The SpeedCondition class is an Entity Condition used by the
+    """The SpeedCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -2078,8 +2015,7 @@ class SpeedCondition(_EntityTriggerType):
         rule: Rule,
         directional_dimension: Union[DirectionalDimension, None] = None,
     ) -> None:
-        """
-        Initialize the SpeedCondition class.
+        """Initialize the SpeedCondition class.
 
         Parameters
         ----------
@@ -2105,8 +2041,7 @@ class SpeedCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "SpeedCondition":
-        """
-        Parse the XML element of SpeedCondition.
+        """Parse the XML element of SpeedCondition.
 
         Parameters
         ----------
@@ -2129,8 +2064,7 @@ class SpeedCondition(_EntityTriggerType):
         return SpeedCondition(value, rule, direction)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the SpeedCondition as a dictionary.
+        """Returns the attributes of the SpeedCondition as a dictionary.
 
         Returns
         -------
@@ -2149,8 +2083,7 @@ class SpeedCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the SpeedCondition.
+        """Returns the elementTree of the SpeedCondition.
 
         Returns
         -------
@@ -2163,8 +2096,7 @@ class SpeedCondition(_EntityTriggerType):
 
 
 class RelativeSpeedCondition(_EntityTriggerType):
-    """
-    The RelativeSpeedCondition class is an Entity Condition used by the
+    """The RelativeSpeedCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -2209,8 +2141,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
         entity: str,
         directional_dimension: Union[DirectionalDimension, None] = None,
     ) -> None:
-        """
-        Initialize the RelativeSpeedCondition.
+        """Initialize the RelativeSpeedCondition.
 
         Parameters
         ----------
@@ -2239,8 +2170,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "RelativeSpeedCondition":
-        """
-        Parse the XML element of RelativeSpeedCondition.
+        """Parse the XML element of RelativeSpeedCondition.
 
         Parameters
         ----------
@@ -2264,8 +2194,8 @@ class RelativeSpeedCondition(_EntityTriggerType):
         return RelativeSpeedCondition(value, rule, entity, direction)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the RelativeSpeedCondition as a dictionary.
+        """Returns the attributes of the RelativeSpeedCondition as a
+        dictionary.
 
         Returns
         -------
@@ -2293,8 +2223,7 @@ class RelativeSpeedCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Generate an XML element representing a RelativeSpeedCondition.
+        """Generate an XML element representing a RelativeSpeedCondition.
 
         Returns
         -------
@@ -2313,9 +2242,8 @@ class RelativeSpeedCondition(_EntityTriggerType):
 
 
 class TraveledDistanceCondition(_EntityTriggerType):
-    """
-    The TraveledDistanceCondition class is an Entity Condition used
-    by the EntityTrigger.
+    """The TraveledDistanceCondition class is an Entity Condition used by the
+    EntityTrigger.
 
     Parameters
     ----------
@@ -2339,9 +2267,8 @@ class TraveledDistanceCondition(_EntityTriggerType):
     """
 
     def __init__(self, value: float):
-        """
-        The TraveledDistanceCondition class is an Entity Condition
-        used by the EntityTrigger.
+        """The TraveledDistanceCondition class is an Entity Condition used by
+        the EntityTrigger.
 
         Parameters
         ----------
@@ -2358,8 +2285,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "TraveledDistanceCondition":
-        """
-        Parse the XML element of TraveledDistanceCondition.
+        """Parse the XML element of TraveledDistanceCondition.
 
         Parameters
         ----------
@@ -2376,8 +2302,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
         return TraveledDistanceCondition(value)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the TraveledDistanceCondition as a
+        """Returns the attributes of the TraveledDistanceCondition as a
         dictionary.
 
         Returns
@@ -2389,8 +2314,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
         return {"value": str(self.value)}
 
     def get_element(self) -> ET.Element:
-        """
-        Generate an XML element representing a TraveledDistanceCondition.
+        """Generate an XML element representing a TraveledDistanceCondition.
 
         Returns
         -------
@@ -2407,8 +2331,7 @@ class TraveledDistanceCondition(_EntityTriggerType):
 
 
 class ReachPositionCondition(_EntityTriggerType):
-    """
-    The ReachPositionCondition class is an Entity Condition used by the
+    """The ReachPositionCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -2437,8 +2360,7 @@ class ReachPositionCondition(_EntityTriggerType):
     """
 
     def __init__(self, position: _PositionType, tolerance: float) -> None:
-        """
-        Initialize the ReachPositionCondition.
+        """Initialize the ReachPositionCondition.
 
         Parameters
         ----------
@@ -2463,8 +2385,7 @@ class ReachPositionCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "ReachPositionCondition":
-        """
-        Parse the XML element of ReachPositionCondition.
+        """Parse the XML element of ReachPositionCondition.
 
         Parameters
         ----------
@@ -2484,8 +2405,7 @@ class ReachPositionCondition(_EntityTriggerType):
         return ReachPositionCondition(position, tolerance)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the ReachPositionCondition as a dict.
+        """Returns the attributes of the ReachPositionCondition as a dict.
 
         Returns
         -------
@@ -2496,8 +2416,7 @@ class ReachPositionCondition(_EntityTriggerType):
         return {"tolerance": str(self.tolerance)}
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the ReachPositionCondition.
+        """Returns the elementTree of the ReachPositionCondition.
 
         Returns
         -------
@@ -2517,8 +2436,7 @@ class ReachPositionCondition(_EntityTriggerType):
 
 
 class DistanceCondition(_EntityTriggerType):
-    """
-    The DistanceCondition class is an Entity Condition used by the
+    """The DistanceCondition class is an Entity Condition used by the
     EntityTrigger.
 
     Parameters
@@ -2587,8 +2505,7 @@ class DistanceCondition(_EntityTriggerType):
         coordinate_system: CoordinateSystem = CoordinateSystem.road,
         routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
-        """
-        Initialize the DistanceCondition.
+        """Initialize the DistanceCondition.
 
         Parameters
         ----------
@@ -2642,8 +2559,7 @@ class DistanceCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "DistanceCondition":
-        """
-        Parse the XML element of DistanceCondition.
+        """Parse the XML element of DistanceCondition.
 
         Parameters
         ----------
@@ -2701,8 +2617,7 @@ class DistanceCondition(_EntityTriggerType):
         )
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the DistanceCondition as a dict.
+        """Returns the attributes of the DistanceCondition as a dict.
 
         Returns
         -------
@@ -2732,8 +2647,7 @@ class DistanceCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the DistanceCondition.
+        """Returns the elementTree of the DistanceCondition.
 
         Returns
         -------
@@ -2750,9 +2664,8 @@ class DistanceCondition(_EntityTriggerType):
 
 
 class RelativeDistanceCondition(_EntityTriggerType):
-    """
-    The RelativeDistanceCondition class is an Entity Condition used by
-    the EntityTrigger.
+    """The RelativeDistanceCondition class is an Entity Condition used by the
+    EntityTrigger.
 
     Parameters
     ----------
@@ -2815,8 +2728,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         coordinate_system: CoordinateSystem = CoordinateSystem.entity,
         routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
-        """
-        Initialize the RelativeDistanceCondition.
+        """Initialize the RelativeDistanceCondition.
 
         Parameters
         ----------
@@ -2859,8 +2771,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "RelativeDistanceCondition":
-        """
-        Parse the XML element of RelativeDistanceCondition.
+        """Parse the XML element of RelativeDistanceCondition.
 
         Parameters
         ----------
@@ -2914,8 +2825,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         )
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the RelativeDistanceCondition as a
+        """Returns the attributes of the RelativeDistanceCondition as a
         dictionary.
 
         Returns
@@ -2945,8 +2855,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the RelativeDistanceCondition.
+        """Returns the elementTree of the RelativeDistanceCondition.
 
         Returns
         -------
@@ -2961,9 +2870,8 @@ class RelativeDistanceCondition(_EntityTriggerType):
 
 
 class RelativeClearanceCondition(_EntityTriggerType):
-    """
-    The RelativeClearanceCondition class is an Entity Condition used
-    by the EntityTrigger.
+    """The RelativeClearanceCondition class is an Entity Condition used by the
+    EntityTrigger.
 
     Parameters
     ----------
@@ -3015,8 +2923,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         distance_forward: float = 0,
         freespace: bool = True,
     ) -> None:
-        """
-        Initialize the RelativeDistanceCondition.
+        """Initialize the RelativeDistanceCondition.
 
         Parameters
         ----------
@@ -3051,8 +2958,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "RelativeClearanceCondition":
-        """
-        Parse the XML element of RelativeClearanceCondition.
+        """Parse the XML element of RelativeClearanceCondition.
 
         Parameters
         ----------
@@ -3095,8 +3001,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         return retval
 
     def add_entity(self, entity: str) -> None:
-        """
-        Add an entity to the RelativeClearanceCondition.
+        """Add an entity to the RelativeClearanceCondition.
 
         Parameters
         ----------
@@ -3106,8 +3011,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         self.entities.append(EntityRef(entity))
 
     def add_relative_lane_range(self, from_lane: int, to_lane: int) -> None:
-        """
-        Add a RelativeLaneRange to the RelativeClearanceCondition.
+        """Add a RelativeLaneRange to the RelativeClearanceCondition.
 
         Parameters
         ----------
@@ -3119,8 +3023,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         self.lane_ranges.append((from_lane, to_lane))
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the RelativeClearanceCondition as a
+        """Returns the attributes of the RelativeClearanceCondition as a
         dictionary.
 
         Returns
@@ -3141,8 +3044,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the RelativeClearanceCondition.
+        """Returns the elementTree of the RelativeClearanceCondition.
 
         Returns
         -------
@@ -3175,8 +3077,7 @@ class RelativeClearanceCondition(_EntityTriggerType):
 
 
 class ParameterCondition(_ValueTriggerType):
-    """
-    The ParameterCondition class is a Value Condition used by the
+    """The ParameterCondition class is a Value Condition used by the
     ValueTrigger.
 
     Parameters
@@ -3209,8 +3110,7 @@ class ParameterCondition(_ValueTriggerType):
     """
 
     def __init__(self, parameter: str, value: int, rule: Rule) -> None:
-        """
-        Initialize the ParameterCondition.
+        """Initialize the ParameterCondition.
 
         Parameters
         ----------
@@ -3233,8 +3133,7 @@ class ParameterCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "ParameterCondition":
-        """
-        Parse the XML element of ParameterCondition.
+        """Parse the XML element of ParameterCondition.
 
         Parameters
         ----------
@@ -3252,8 +3151,7 @@ class ParameterCondition(_ValueTriggerType):
         return ParameterCondition(parameter, value, rule)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the ParameterCondition as a dict.
+        """Returns the attributes of the ParameterCondition as a dict.
 
         Returns
         -------
@@ -3266,8 +3164,7 @@ class ParameterCondition(_ValueTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the ParameterCondition.
+        """Returns the elementTree of the ParameterCondition.
 
         Returns
         -------
@@ -3278,8 +3175,7 @@ class ParameterCondition(_ValueTriggerType):
 
 
 class VariableCondition(_ValueTriggerType):
-    """
-    The VariableCondition class is a Value Condition used by the
+    """The VariableCondition class is a Value Condition used by the
     ValueTrigger (valid from V1.2).
 
     Parameters
@@ -3312,8 +3208,7 @@ class VariableCondition(_ValueTriggerType):
     """
 
     def __init__(self, variable: str, value: int, rule: Rule) -> None:
-        """
-        Initialize the VariableCondition.
+        """Initialize the VariableCondition.
 
         Parameters
         ----------
@@ -3336,8 +3231,7 @@ class VariableCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "VariableCondition":
-        """
-        Parse the XML element of VariableCondition.
+        """Parse the XML element of VariableCondition.
 
         Parameters
         ----------
@@ -3355,8 +3249,7 @@ class VariableCondition(_ValueTriggerType):
         return VariableCondition(variable, value, rule)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the VariableCondition as a dict.
+        """Returns the attributes of the VariableCondition as a dict.
 
         Returns
         -------
@@ -3369,8 +3262,7 @@ class VariableCondition(_ValueTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the VariableCondition.
+        """Returns the elementTree of the VariableCondition.
 
         Returns
         -------
@@ -3475,8 +3367,7 @@ class TimeOfDayCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "TimeOfDayCondition":
-        """
-        Parse the XML element of TimeOfDayCondition.
+        """Parse the XML element of TimeOfDayCondition.
 
         Parameters
         ----------
@@ -3500,8 +3391,7 @@ class TimeOfDayCondition(_ValueTriggerType):
         return TimeOfDayCondition(rule, year, month, day, hour, minute, second)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the TimeOfDayCondition as a dict.
+        """Returns the attributes of the TimeOfDayCondition as a dict.
 
         Returns
         -------
@@ -3528,8 +3418,7 @@ class TimeOfDayCondition(_ValueTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the TimeOfDayCondition.
+        """Returns the elementTree of the TimeOfDayCondition.
 
         Returns
         -------
@@ -3540,8 +3429,7 @@ class TimeOfDayCondition(_ValueTriggerType):
 
 
 class SimulationTimeCondition(_ValueTriggerType):
-    """
-    The SimulationTimeCondition class is a Value Condition used by the
+    """The SimulationTimeCondition class is a Value Condition used by the
     ValueTrigger.
 
     Parameters
@@ -3570,8 +3458,7 @@ class SimulationTimeCondition(_ValueTriggerType):
     """
 
     def __init__(self, value: float, rule: Rule) -> None:
-        """
-        Initialize the SimulationTimeCondition.
+        """Initialize the SimulationTimeCondition.
 
         Parameters
         ----------
@@ -3591,8 +3478,7 @@ class SimulationTimeCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "SimulationTimeCondition":
-        """
-        Parse the XML element of SimulationTimeCondition.
+        """Parse the XML element of SimulationTimeCondition.
 
         Parameters
         ----------
@@ -3609,8 +3495,7 @@ class SimulationTimeCondition(_ValueTriggerType):
         return SimulationTimeCondition(value, rule)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the SimulationTimeCondition as a dict.
+        """Returns the attributes of the SimulationTimeCondition as a dict.
 
         Returns
         -------
@@ -3624,8 +3509,7 @@ class SimulationTimeCondition(_ValueTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the SimulationTimeCondition.
+        """Returns the elementTree of the SimulationTimeCondition.
 
         Returns
         -------
@@ -3638,9 +3522,8 @@ class SimulationTimeCondition(_ValueTriggerType):
 
 
 class StoryboardElementStateCondition(_ValueTriggerType):
-    """
-    The StoryboardElementStateCondition class is a Value Condition used
-    by the ValueTrigger.
+    """The StoryboardElementStateCondition class is a Value Condition used by
+    the ValueTrigger.
 
     Parameters
     ----------
@@ -3677,8 +3560,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         reference: str,
         state: StoryboardElementState,
     ) -> None:
-        """
-        Initialize the StoryboardElementStateCondition.
+        """Initialize the StoryboardElementStateCondition.
 
         Parameters
         ----------
@@ -3701,8 +3583,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "StoryboardElementStateCondition":
-        """
-        Parse the XML element of StoryboardElementStateCondition.
+        """Parse the XML element of StoryboardElementStateCondition.
 
         Parameters
         ----------
@@ -3722,9 +3603,8 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         return StoryboardElementStateCondition(sbet, ref, state)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the StoryboardElementStateCondition
-        as a dictionary.
+        """Returns the attributes of the StoryboardElementStateCondition as a
+        dictionary.
 
         Returns
         -------
@@ -3739,8 +3619,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
         }
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the StoryboardElementStateCondition.
+        """Returns the elementTree of the StoryboardElementStateCondition.
 
         Returns
         -------
@@ -3753,9 +3632,7 @@ class StoryboardElementStateCondition(_ValueTriggerType):
 
 
 class UserDefinedValueCondition(_ValueTriggerType):
-    """
-    UserDefinedValueCondition is a Value Condition used by the
-    ValueTrigger.
+    """UserDefinedValueCondition is a Value Condition used by the ValueTrigger.
 
     Parameters
     ----------
@@ -3787,8 +3664,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
     """
 
     def __init__(self, name: str, value: int, rule: Rule) -> None:
-        """
-        Initialize the UserDefinedValueCondition.
+        """Initialize the UserDefinedValueCondition.
 
         Parameters
         ----------
@@ -3811,8 +3687,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "UserDefinedValueCondition":
-        """
-        Parse the XML element of UserDefinedValueCondition.
+        """Parse the XML element of UserDefinedValueCondition.
 
         Parameters
         ----------
@@ -3830,8 +3705,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
         return UserDefinedValueCondition(name, value, rule)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the UserDefinedValueCondition as a
+        """Returns the attributes of the UserDefinedValueCondition as a
         dictionary.
 
         Returns
@@ -3845,8 +3719,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
         return basedict
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the UserDefinedValueCondition.
+        """Returns the elementTree of the UserDefinedValueCondition.
 
         Returns
         -------
@@ -3859,8 +3732,7 @@ class UserDefinedValueCondition(_ValueTriggerType):
 
 
 class TrafficSignalCondition(_ValueTriggerType):
-    """
-    TrafficSignalCondition is a Value Condition used by the ValueTrigger.
+    """TrafficSignalCondition is a Value Condition used by the ValueTrigger.
 
     Parameters
     ----------
@@ -3888,8 +3760,7 @@ class TrafficSignalCondition(_ValueTriggerType):
     """
 
     def __init__(self, name: str, state: str) -> None:
-        """
-        Initialize the TrafficSignalCondition.
+        """Initialize the TrafficSignalCondition.
 
         Parameters
         ----------
@@ -3909,8 +3780,7 @@ class TrafficSignalCondition(_ValueTriggerType):
 
     @staticmethod
     def parse(element: ET.Element) -> "TrafficSignalCondition":
-        """
-        Parse the XML element of TrafficSignalCondition.
+        """Parse the XML element of TrafficSignalCondition.
 
         Parameters
         ----------
@@ -3928,8 +3798,7 @@ class TrafficSignalCondition(_ValueTriggerType):
         return TrafficSignalCondition(name, state)
 
     def get_attributes(self) -> dict[str, str]:
-        """
-        Returns the attributes of the TrafficSignalCondition as a dict.
+        """Returns the attributes of the TrafficSignalCondition as a dict.
 
         Returns
         -------
@@ -3940,8 +3809,7 @@ class TrafficSignalCondition(_ValueTriggerType):
         return {"name": self.name, "state": self.state}
 
     def get_element(self) -> ET.Element:
-        """
-        Returns the elementTree of the TrafficSignalCondition.
+        """Returns the elementTree of the TrafficSignalCondition.
 
         Returns
         -------

@@ -83,7 +83,7 @@ class Lanes(XodrBase):
         None
         """
         super().__init__()
-        """initalize Lanes"""
+        """Initalize Lanes."""
         self.lanesections = []
         self.laneoffsets = []
         self.roadmarks_adjusted = False
@@ -201,9 +201,9 @@ class Lanes(XodrBase):
         )
 
     def _adjust_for_missing_line_offset(self, roadmark: "RoadMark") -> None:
-        """Add an explicit line if the offset is less than 0 (
-        for adjusting from the start) or longer than the space between
-        lines (for adjusting from the end).
+        """Add an explicit line if the offset is less than 0 ( for adjusting
+        from the start) or longer than the space between lines (for adjusting
+        from the end).
 
         Parameters
         ----------
@@ -239,8 +239,8 @@ class Lanes(XodrBase):
                 line.shift_soffset()
 
     def _validity_check_for_roadmark_adjustment(self) -> None:
-        """Perform validity checks to determine if the lanes' roadmarks
-        can be adjusted.
+        """Perform validity checks to determine if the lanes' roadmarks can be
+        adjusted.
 
         This method checks the right, left, and center lanes to ensure
         their roadmarks meet the criteria for adjustment.
@@ -287,8 +287,7 @@ class Lanes(XodrBase):
         lane_section_index: int,
         start_or_end: str,
     ) -> float:
-        """Get the remainder of a lane marking from a connecting lane
-        section.
+        """Get the remainder of a lane marking from a connecting lane section.
 
         This helper method calculates the remainder of a lane marking for
         length adjustment based on the connected lane section.
@@ -1348,8 +1347,7 @@ class Lane(XodrBase):
         d: float = 0,
         soffset: float = 0,
     ) -> None:
-        """
-        Add an additional width element to the lane.
+        """Add an additional width element to the lane.
 
         Parameters
         ----------
@@ -1424,8 +1422,8 @@ class Lane(XodrBase):
         return None
 
     def _set_lane_id(self, lane_id: int) -> None:
-        """Set the lane ID of the lane and update the lane type to 'none'
-        if it is a center lane.
+        """Set the lane ID of the lane and update the lane type to 'none' if it
+        is a center lane.
 
         Parameters
         ----------
@@ -2107,7 +2105,7 @@ class RoadLine(XodrBase):
         ET.Element
             The XML ElementTree representation of the `RoadLine`.
         """
-        """returns the elementTree of the RoadLine"""
+        """Returns the elementTree of the RoadLine."""
         element = ET.Element("line", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
@@ -2189,8 +2187,7 @@ class ExplicitRoadLine(XodrBase):
         return False
 
     def get_attributes(self) -> dict:
-        """Return the attributes of the `ExplicitRoadLine` as a
-        dictionary.
+        """Return the attributes of the `ExplicitRoadLine` as a dictionary.
 
         Returns
         -------
@@ -2208,8 +2205,7 @@ class ExplicitRoadLine(XodrBase):
         return retdict
 
     def get_element(self) -> ET.Element:
-        """Return the ElementTree representation of the
-        `ExplicitRoadLine`.
+        """Return the ElementTree representation of the `ExplicitRoadLine`.
 
         Returns
         -------

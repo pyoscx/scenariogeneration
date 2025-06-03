@@ -17,7 +17,8 @@ from lxml import etree
 
 
 def prettify(element, encoding=None, xml_declaration=True):
-    """Returns a bytes string representing a prettified version of an XML element.
+    """Returns a bytes string representing a prettified version of an XML
+    element.
 
     Parameters:
     ----------
@@ -73,7 +74,8 @@ def prettify(element, encoding=None, xml_declaration=True):
 
 
 def prettyprint(element, encoding=None):
-    """returns the element prettyfied for writing to file or printing to the commandline
+    """Returns the element prettyfied for writing to file or printing to the
+    commandline.
 
     Parameters
     ----------
@@ -81,13 +83,12 @@ def prettyprint(element, encoding=None):
 
         encoding (str): specify the output encoding
             Default: None (works best for printing in terminal on ubuntu atleast)
-
     """
     print(prettify(element, encoding=encoding).decode())
 
 
 def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
-    """prints the element to a xml file
+    """Prints the element to a xml file.
 
     Parameters
     ----------
@@ -118,7 +119,8 @@ def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
 
 
 def enum2str(enum):
-    """helper to create strings from enums that should contain space but have to have _
+    """Helper to create strings from enums that should contain space but have
+    to have _
 
     Parameters
     ----------
@@ -127,7 +129,6 @@ def enum2str(enum):
     Returns
     -------
         enumstr (str): the enum as a string replacing _ with ' '
-
     """
     return enum.name.replace("_", " ")
 
