@@ -12,23 +12,32 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import os
 import xml.etree.ElementTree as ET
-
+from typing import Optional, Union
 from lxml import etree
 
 
-def prettify(element, encoding=None, xml_declaration=True):
+def prettify(
+    element: ET.Element,
+    encoding: Optional[str] = None,
+    xml_declaration: bool = True,
+) -> bytes:
     """Returns a bytes string representing a prettified version of an XML
     element.
 
-    Parameters:
+    Parameters
     ----------
-        element (ET.Element): The XML element to prettify.
-        encoding (str): The encoding to use for the output, defaults to 'utf-8'.
-                        If None, then 'utf-8' will be used as default.
+    element : ET.Element
+        The XML element to prettify.
+    encoding : str, optional
+        The encoding to use for the output. Defaults to 'utf-8'. If None,
+        'utf-8' will be used as the default.
+    xml_declaration : bool, optional
+        Whether to include the XML declaration in the output. Default is True.
 
-    Returns:
-    ----------
-        bytes: The prettified XML as bytes string with 4-space indentation.
+    Returns
+    -------
+    bytes
+        The prettified XML as a bytes string with 4-space indentation.
     """
     if not isinstance(element, ET.Element):
         element = element.get_element()
@@ -73,33 +82,48 @@ def prettify(element, encoding=None, xml_declaration=True):
     return pretty_print_str.encode(encoding)
 
 
-def prettyprint(element, encoding=None):
-    """Returns the element prettyfied for writing to file or printing to the
-    commandline.
+def prettyprint(element: ET.Element, encoding: Optional[str] = None) -> None:
+    """Returns the element prettified for writing to a file or printing to
+    the command line.
 
     Parameters
     ----------
-        element (Element, or any generation class of scenariogeneration): element to print
+    element : ET.Element
+        The XML element to print. Can also be any generation class of
+        scenariogeneration.
+    encoding : str, optional
+        Specify the output encoding. Default is None, which works best for
+        printing in the terminal on Ubuntu.
 
-        encoding (str): specify the output encoding
-            Default: None (works best for printing in terminal on ubuntu atleast)
+    Returns
+    -------
+    None
     """
     print(prettify(element, encoding=encoding).decode())
 
 
-def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
-    """Prints the element to a xml file.
+def printToFile(
+    element: ET.Element,
+    filename: str,
+    prettyprint: bool = True,
+    encoding: str = "utf-8",
+) -> None:
+    """Prints the element to an XML file.
 
     Parameters
     ----------
-        element (Element): element to print
+    element : ET.Element
+        The XML element to print.
+    filename : str
+        The file path to save the XML content.
+    prettyprint : bool, optional
+        Whether to format the XML with indentation. Default is True.
+    encoding : str, optional
+        The output encoding to use. Default is 'utf-8'.
 
-        filename (str): file to save to
-
-        prettyprint (bool): pretty or "ugly" print
-
-        encoding (str): specify the output encoding
-            Default: 'utf-8'
+    Returns
+    -------
+    None
     """
     if prettyprint:
         try:
@@ -118,31 +142,46 @@ def printToFile(element, filename, prettyprint=True, encoding="utf-8"):
             print("%s is not a valid encoding option." % encoding)
 
 
-def enum2str(enum):
-    """Helper to create strings from enums that should contain space but have
-    to have _
+def enum2str(enum: "Enum") -> str:
+    """Helper to create strings from enums that should contain spaces but
+    use underscores internally.
 
     Parameters
     ----------
-        enum (Enum): a enum of pyodrx
+    enum : Enum
+        An enum instance from pyodrx.
 
     Returns
     -------
-        enumstr (str): the enum as a string replacing _ with ' '
+    str
+        The enum as a string with underscores replaced by spaces.
     """
     return enum.name.replace("_", " ")
 
 
-def convert_bool(value):
-    """Method to transform booleans to correct xml version (lower case)
+def convert_bool(value: Union[bool, str]) -> Union[str, bool]:
+    """Transform booleans to the correct XML version (lowercase) or
+    validate string inputs.
 
-    Parameter
-    ---------
-        value (bool): the boolean
+    Parameters
+    ----------
+    value : bool or str
+        The boolean or string to convert. Strings can represent boolean
+        values ("true", "false", "1", "0") or parameterized expressions
+        (starting with "$").
 
-    Return
+    Returns
+    -------
+    str or bool
+        - "true" or "false" if the input is a boolean.
+        - True or False if the input is a valid string representation of
+          a boolean.
+        - The input string if it starts with "$".
+
+    Raises
     ------
-        boolean (str)
+    ValueError
+        If the input string is not a valid boolean or parameterized value.
     """
     if isinstance(value, str):
         if value == "true" or value == "1":
