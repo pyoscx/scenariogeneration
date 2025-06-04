@@ -41,7 +41,9 @@ road = xosc.RoadNetwork(roadfile="../xodr/e6mini.xodr")
 
 ## create parameters
 paramdec = xosc.ParameterDeclarations()
-paramdec.add_parameter(xosc.Parameter(ego_param_name, xosc.ParameterType.double, "10"))
+paramdec.add_parameter(
+    xosc.Parameter(ego_param_name, xosc.ParameterType.double, "10")
+)
 paramdec.add_parameter(
     xosc.Parameter(target_param_name, xosc.ParameterType.double, "10")
 )
@@ -65,10 +67,18 @@ step_time = xosc.TransitionDynamics(
     xosc.DynamicsShapes.step, xosc.DynamicsDimension.time, 1
 )
 
-init.add_init_action(egoname, xosc.AbsoluteSpeedAction(ego_param_name, step_time))
-init.add_init_action(egoname, xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0)))
-init.add_init_action(redname, xosc.AbsoluteSpeedAction(target_param_name, step_time))
-init.add_init_action(redname, xosc.TeleportAction(xosc.LanePosition(15, 0, -2, 0)))
+init.add_init_action(
+    egoname, xosc.AbsoluteSpeedAction(ego_param_name, step_time)
+)
+init.add_init_action(
+    egoname, xosc.TeleportAction(xosc.LanePosition(25, 0, -3, 0))
+)
+init.add_init_action(
+    redname, xosc.AbsoluteSpeedAction(target_param_name, step_time)
+)
+init.add_init_action(
+    redname, xosc.TeleportAction(xosc.LanePosition(15, 0, -2, 0))
+)
 
 ## create storyboard
 sb = xosc.StoryBoard(

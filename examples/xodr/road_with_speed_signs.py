@@ -34,17 +34,35 @@ class Scenario(ScenarioGenerator):
         # create 3 poles
         road1.add_object(
             xodr.Object(
-                s=100, t=-12, id=1, length=0.05, width=0.05, radius=0.5, height=2.3
+                s=100,
+                t=-12,
+                id=1,
+                length=0.05,
+                width=0.05,
+                radius=0.5,
+                height=2.3,
             )
         )
         road1.add_object(
             xodr.Object(
-                s=100, t=0, id=1, length=0.05, width=0.05, radius=0.5, height=2.3
+                s=100,
+                t=0,
+                id=1,
+                length=0.05,
+                width=0.05,
+                radius=0.5,
+                height=2.3,
             )
         )
         road1.add_object(
             xodr.Object(
-                s=100, t=12, id=1, length=0.05, width=0.05, radius=0.5, height=2.3
+                s=100,
+                t=12,
+                id=1,
+                length=0.05,
+                width=0.05,
+                radius=0.5,
+                height=2.3,
             )
         )
 

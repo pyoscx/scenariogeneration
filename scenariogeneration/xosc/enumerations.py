@@ -7,94 +7,98 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 Copyright (c) 2022 The scenariogeneration Authors.
-
 """
 
 XMLNS = "http://www.w3.org/2001/XMLSchema-instance"
 XSI = "OpenScenario.xsd"
 
-import re
-from .exceptions import OpenSCENARIOVersionError
-from os import error
 import warnings
+
+from .exceptions import OpenSCENARIOVersionError
 
 _MINOR_VERSION = 2
 
 
 class VersionBase:
-    """base class for checking different versions of OpenSCENARIO"""
+    """Base class for checking different versions of OpenSCENARIO."""
 
     version_major = 1
     version_minor = _MINOR_VERSION
 
-    def isVersion(self, major=1, minor=_MINOR_VERSION):
+    def isVersion(self, major: int = 1, minor: int = _MINOR_VERSION):
         return major == self.version_major and minor == self.version_minor
 
-    def isVersionEqLess(self, major=1, minor=_MINOR_VERSION):
+    def isVersionEqLess(self, major: int = 1, minor: int = _MINOR_VERSION):
         return major >= self.version_major and minor >= self.version_minor
 
-    def isVersionEqLarger(self, major=1, minor=_MINOR_VERSION):
+    def isVersionEqLarger(self, major: int = 1, minor: int = _MINOR_VERSION):
         return major <= self.version_major and minor <= self.version_minor
 
-    def setVersion(self, major=1, minor=_MINOR_VERSION):
+    def setVersion(self, major: int = 1, minor: int = _MINOR_VERSION):
         VersionBase.version_major = major
         VersionBase.version_minor = minor
 
 
 class _OscEnum(VersionBase):
-    """custom "enum" class to be able to handle different versions of the enums in OpenSCENARIO
+    """Custom "enum" class to handle different versions of enums in
+    OpenSCENARIO.
 
     Parameters
     ----------
-        name (str): enum name
-
-        classname (str): name of the enum class (only used for printouts to help debugging)
-
-        min_minor_version (int): how the relative distance should be calculated
-            Default: 0
-
-        max_minor_version (int): the max "minor version" where the enum is valid
-            Default: Current Supported Version
+    classname : str
+        Name of the enum class (used for debugging).
+    name : str
+        Enum name.
+    min_minor_version : int, optional
+        Minimum minor version where the enum is valid. Default is 0.
+    max_minor_version : int, optional
+        Maximum minor version where the enum is valid. Default is the
+        current supported version.
+    replacement : str, optional
+        Replacement enum name if the current enum is deprecated.
 
     Attributes
     ----------
-        name (str): enum name
-
-        classname (str): name of the enum class (only used for printouts to help debugging)
-
-        min_minor_version (int): how the relative distance should be calculated
-
-        max_minor_version (int): the max "minor version" where the enum is valid
+    classname : str
+        Name of the enum class (used for debugging).
+    name : str
+        Enum name.
+    min_minor_version : int
+        Minimum minor version where the enum is valid.
+    max_minor_version : int
+        Maximum minor version where the enum is valid.
+    replacement : str
+        Replacement enum name if the current enum is deprecated.
 
     Methods
     -------
-        get_name()
-            Returns the correct string of the Enum, will take care of versions
-
+    get_name()
+        Returns the correct string of the enum, considering versions.
     """
 
     def __init__(
         self,
-        classname,
-        name,
-        min_minor_version=0,
-        max_minor_version=_MINOR_VERSION,
-        replacement=None,
+        classname: str,
+        name: str,
+        min_minor_version: int = 0,
+        max_minor_version: int = _MINOR_VERSION,
+        replacement: str = None,
     ):
-        """initalize the _OscEnum
+        """Initialize the _OscEnum.
+
         Parameters
         ----------
-            name (str): enum name
-
-            classname (str): name of the enum class (only used for printouts to help debugging)
-
-            min_minor_version (int): how the relative distance should be calculated
-                Default: 0
-
-            max_minor_version (int): the max "minor version" where the enum is valid
-                Default: Current Supported Version
-
-            replacement (str): can be used is the enum has been replaced to make transitions go easier
+        classname : str
+            Name of the enum class (used for debugging).
+        name : str
+            Enum name.
+        min_minor_version : int, optional
+            Minimum minor version where the enum is valid. Default is 0.
+        max_minor_version : int, optional
+            Maximum minor version where the enum is valid. Default is the
+            current supported version.
+        replacement : str, optional
+            Replacement enum name if the current enum is deprecated.
         """
 
         self.name = name
@@ -103,18 +107,24 @@ class _OscEnum(VersionBase):
         self.max_minor_version = max_minor_version
         self.replacement = replacement
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _OscEnum):
             if self.name == other.name and self.classname == other.classname:
                 return True
         return False
 
-    def get_name(self):
-        """method that should be used when using the _OscEnum to get the string, will check version of the enum to see if it is used correctly with the used version
+    def get_name(self) -> str:
+        """Get the string representation of the enum, considering versions.
 
         Returns
         -------
-        name (str)
+        str
+            The name of the enum.
+
+        Raises
+        ------
+        OpenSCENARIOVersionError
+            If the enum is not valid for the current version.
         """
         if self.min_minor_version > self.version_minor:
             raise OpenSCENARIOVersionError(
@@ -130,7 +140,7 @@ class _OscEnum(VersionBase):
                 + "."
                 + str(self.min_minor_version)
             )
-        elif self.max_minor_version < self.version_minor:
+        if self.max_minor_version < self.version_minor:
             if self.replacement:
                 warnings.warn(
                     self.classname
@@ -169,9 +179,10 @@ class _OscEnum(VersionBase):
 
 
 class _EnumMeta(type):
-    """This class is used to add functionality to the Enum classes in the xosc module
-    Note: this class should only be inherited
+    """This class is used to add functionality to the Enum classes in the xosc
+    module.
 
+    Note: this class should only be inherited.
     """
 
     def __getitem__(self, name):
@@ -179,7 +190,7 @@ class _EnumMeta(type):
 
 
 class CloudState(metaclass=_EnumMeta):
-    """Enum for CloudState"""
+    """Enum for CloudState."""
 
     skyOff = _OscEnum("CloudState", "skyOff")
     free = _OscEnum("CloudState", "free")
@@ -189,7 +200,7 @@ class CloudState(metaclass=_EnumMeta):
 
 
 class ConditionEdge(metaclass=_EnumMeta):
-    """Enum for ConditionEdge"""
+    """Enum for ConditionEdge."""
 
     rising = _OscEnum("ConditionEdge", "rising")
     falling = _OscEnum("ConditionEdge", "falling")
@@ -198,7 +209,7 @@ class ConditionEdge(metaclass=_EnumMeta):
 
 
 class DynamicsDimension(metaclass=_EnumMeta):
-    """Enum for DynamicsDimension"""
+    """Enum for DynamicsDimension."""
 
     rate = _OscEnum("DynamicsDimension", "rate")
     time = _OscEnum("DynamicsDimension", "time")
@@ -206,7 +217,7 @@ class DynamicsDimension(metaclass=_EnumMeta):
 
 
 class DynamicsShapes(metaclass=_EnumMeta):
-    """Enum for DynamicsShapes"""
+    """Enum for DynamicsShapes."""
 
     linear = _OscEnum("DynamicsShapes", "linear")
     cubic = _OscEnum("DynamicsShapes", "cubic")
@@ -215,14 +226,14 @@ class DynamicsShapes(metaclass=_EnumMeta):
 
 
 class FollowingMode(metaclass=_EnumMeta):
-    """Enum for FollowingMode"""
+    """Enum for FollowingMode."""
 
     position = _OscEnum("FollowingMode", "position")
     follow = _OscEnum("FollowingMode", "follow")
 
 
 class MiscObjectCategory(metaclass=_EnumMeta):
-    """Enum for MiscObjectCategory"""
+    """Enum for MiscObjectCategory."""
 
     none = _OscEnum("MiscObjectCategory", "none")
     obstacle = _OscEnum("MiscObjectCategory", "obstacle")
@@ -244,7 +255,7 @@ class MiscObjectCategory(metaclass=_EnumMeta):
 
 
 class ObjectType(metaclass=_EnumMeta):
-    """Enum for ObjectType"""
+    """Enum for ObjectType."""
 
     pedestrian = _OscEnum("ObjectType", "pedestrian")
     vehicle = _OscEnum("ObjectType", "vehicle")
@@ -253,7 +264,7 @@ class ObjectType(metaclass=_EnumMeta):
 
 
 class ParameterType(metaclass=_EnumMeta):
-    """Enum for ParameterType"""
+    """Enum for ParameterType."""
 
     integer = _OscEnum(
         "ParameterType", "integer", max_minor_version=1, replacement="int"
@@ -268,7 +279,7 @@ class ParameterType(metaclass=_EnumMeta):
 
 
 class PedestrianCategory(metaclass=_EnumMeta):
-    """Enum for PedestrianCategory"""
+    """Enum for PedestrianCategory."""
 
     pedestrian = _OscEnum("PedestrianCategory", "pedestrian")
     wheelchair = _OscEnum("PedestrianCategory", "wheelchair")
@@ -276,7 +287,7 @@ class PedestrianCategory(metaclass=_EnumMeta):
 
 
 class PrecipitationType(metaclass=_EnumMeta):
-    """Enum for PercipitationType"""
+    """Enum for PrecipitationType."""
 
     dry = _OscEnum("PrecipitationType", "dry")
     rain = _OscEnum("PrecipitationType", "rain")
@@ -284,7 +295,7 @@ class PrecipitationType(metaclass=_EnumMeta):
 
 
 class Priority(metaclass=_EnumMeta):
-    """Enum for Priority"""
+    """Enum for Priority."""
 
     overwrite = _OscEnum(
         "Priority", "overwrite", max_minor_version=1, replacement="override"
@@ -295,14 +306,14 @@ class Priority(metaclass=_EnumMeta):
 
 
 class ReferenceContext(metaclass=_EnumMeta):
-    """Enum for ReferenceContext"""
+    """Enum for ReferenceContext."""
 
     relative = _OscEnum("ReferenceContext", "relative")
     absolute = _OscEnum("ReferenceContext", "absolute")
 
 
 class RelativeDistanceType(metaclass=_EnumMeta):
-    """Enum for RelativeDistanceType"""
+    """Enum for RelativeDistanceType."""
 
     longitudinal = _OscEnum("RelativeDistanceType", "longitudinal")
     lateral = _OscEnum("RelativeDistanceType", "lateral")
@@ -315,7 +326,7 @@ class RelativeDistanceType(metaclass=_EnumMeta):
 
 
 class RouteStrategy(metaclass=_EnumMeta):
-    """Enum for RouteStrategy"""
+    """Enum for RouteStrategy."""
 
     fastest = _OscEnum("RouteStrategy", "fastest")
     shortest = _OscEnum("RouteStrategy", "shortest")
@@ -324,7 +335,7 @@ class RouteStrategy(metaclass=_EnumMeta):
 
 
 class Rule(metaclass=_EnumMeta):
-    """Enum for Rule"""
+    """Enum for Rule."""
 
     greaterThan = _OscEnum("Rule", "greaterThan")
     lessThan = _OscEnum("Rule", "lessThan")
@@ -335,14 +346,14 @@ class Rule(metaclass=_EnumMeta):
 
 
 class SpeedTargetValueType(metaclass=_EnumMeta):
-    """Enum for SpeedTargetValueType"""
+    """Enum for SpeedTargetValueType."""
 
     delta = _OscEnum("SpeedTargetValueType", "delta")
     factor = _OscEnum("SpeedTargetValueType", "factor")
 
 
 class StoryboardElementState(metaclass=_EnumMeta):
-    """Enum for StoryboardElementState"""
+    """Enum for StoryboardElementState."""
 
     startTransition = _OscEnum("StoryboardElementState", "startTransition")
     endTransition = _OscEnum("StoryboardElementState", "endTransition")
@@ -354,7 +365,7 @@ class StoryboardElementState(metaclass=_EnumMeta):
 
 
 class StoryboardElementType(metaclass=_EnumMeta):
-    """Enum for StoryboardElementType"""
+    """Enum for StoryboardElementType."""
 
     story = _OscEnum("StoryboardElementType", "story")
     act = _OscEnum("StoryboardElementType", "act")
@@ -365,14 +376,14 @@ class StoryboardElementType(metaclass=_EnumMeta):
 
 
 class TriggeringEntitiesRule(metaclass=_EnumMeta):
-    """Enum for TriggeringEntitiesRule"""
+    """Enum for TriggeringEntitiesRule."""
 
     any = _OscEnum("TriggeringEntitiesRule", "any")
     all = _OscEnum("TriggeringEntitiesRule", "all")
 
 
 class VehicleCategory(metaclass=_EnumMeta):
-    """Enum for VehicleCategory"""
+    """Enum for VehicleCategory."""
 
     car = _OscEnum("VehicleCategory", "car")
     van = _OscEnum("VehicleCategory", "van")
@@ -387,12 +398,14 @@ class VehicleCategory(metaclass=_EnumMeta):
 
 
 class CoordinateSystem(metaclass=_EnumMeta):
-    """Enum for CoordinateSystem"""
+    """Enum for CoordinateSystem."""
 
     entity = _OscEnum("CoordinateSystem", "entity", min_minor_version=1)
     lane = _OscEnum("CoordinateSystem", "lane", min_minor_version=1)
     road = _OscEnum("CoordinateSystem", "road", min_minor_version=1)
-    trajectory = _OscEnum("CoordinateSystem", "trajectory", min_minor_version=1)
+    trajectory = _OscEnum(
+        "CoordinateSystem", "trajectory", min_minor_version=1
+    )
 
 
 class LateralDisplacement(metaclass=_EnumMeta):
@@ -408,10 +421,14 @@ class LateralDisplacement(metaclass=_EnumMeta):
 class LongitudinalDisplacement(metaclass=_EnumMeta):
     any = _OscEnum("LongitudinalDisplacement", "any", min_minor_version=1)
     trailingReferencedEntity = _OscEnum(
-        "LongitudinalDisplacement", "trailingReferencedEntity", min_minor_version=1
+        "LongitudinalDisplacement",
+        "trailingReferencedEntity",
+        min_minor_version=1,
     )
     leadingReferencedEntity = _OscEnum(
-        "LongitudinalDisplacement", "leadingReferencedEntity", min_minor_version=1
+        "LongitudinalDisplacement",
+        "leadingReferencedEntity",
+        min_minor_version=1,
     )
 
 
@@ -424,7 +441,9 @@ class AutomaticGearType(metaclass=_EnumMeta):
 
 class ControllerType(metaclass=_EnumMeta):
     lateral = _OscEnum("ControllerType", "lateral", min_minor_version=2)
-    longitudinal = _OscEnum("ControllerType", "longitudinal", min_minor_version=2)
+    longitudinal = _OscEnum(
+        "ControllerType", "longitudinal", min_minor_version=2
+    )
     lighting = _OscEnum("ControllerType", "lighting", min_minor_version=2)
     animation = _OscEnum("ControllerType", "animation", min_minor_version=2)
     movement = _OscEnum("ControllerType", "movement", min_minor_version=2)
@@ -433,22 +452,46 @@ class ControllerType(metaclass=_EnumMeta):
 
 
 class DirectionalDimension(metaclass=_EnumMeta):
-    longitudinal = _OscEnum("DirectionalDimension", "longitudinal", min_minor_version=2)
+    longitudinal = _OscEnum(
+        "DirectionalDimension", "longitudinal", min_minor_version=2
+    )
     lateral = _OscEnum("DirectionalDimension", "lateral", min_minor_version=2)
-    vertical = _OscEnum("DirectionalDimension", "vertical", min_minor_version=2)
+    vertical = _OscEnum(
+        "DirectionalDimension", "vertical", min_minor_version=2
+    )
 
 
 class FractionalCloudCover(metaclass=_EnumMeta):
-    zeroOktas = _OscEnum("FractionalCloudCover", "zeroOktas", min_minor_version=2)
-    oneOktas = _OscEnum("FractionalCloudCover", "oneOktas", min_minor_version=2)
-    twoOktas = _OscEnum("FractionalCloudCover", "twoOktas", min_minor_version=2)
-    threeOktas = _OscEnum("FractionalCloudCover", "threeOktas", min_minor_version=2)
-    fourOktas = _OscEnum("FractionalCloudCover", "fourOktas", min_minor_version=2)
-    fiveOktas = _OscEnum("FractionalCloudCover", "fiveOktas", min_minor_version=2)
-    sixOktas = _OscEnum("FractionalCloudCover", "sixOktas", min_minor_version=2)
-    sevenOktas = _OscEnum("FractionalCloudCover", "sevenOktas", min_minor_version=2)
-    eightOktas = _OscEnum("FractionalCloudCover", "eightOktas", min_minor_version=2)
-    nineOktas = _OscEnum("FractionalCloudCover", "nineOktas", min_minor_version=2)
+    zeroOktas = _OscEnum(
+        "FractionalCloudCover", "zeroOktas", min_minor_version=2
+    )
+    oneOktas = _OscEnum(
+        "FractionalCloudCover", "oneOktas", min_minor_version=2
+    )
+    twoOktas = _OscEnum(
+        "FractionalCloudCover", "twoOktas", min_minor_version=2
+    )
+    threeOktas = _OscEnum(
+        "FractionalCloudCover", "threeOktas", min_minor_version=2
+    )
+    fourOktas = _OscEnum(
+        "FractionalCloudCover", "fourOktas", min_minor_version=2
+    )
+    fiveOktas = _OscEnum(
+        "FractionalCloudCover", "fiveOktas", min_minor_version=2
+    )
+    sixOktas = _OscEnum(
+        "FractionalCloudCover", "sixOktas", min_minor_version=2
+    )
+    sevenOktas = _OscEnum(
+        "FractionalCloudCover", "sevenOktas", min_minor_version=2
+    )
+    eightOktas = _OscEnum(
+        "FractionalCloudCover", "eightOktas", min_minor_version=2
+    )
+    nineOktas = _OscEnum(
+        "FractionalCloudCover", "nineOktas", min_minor_version=2
+    )
 
 
 class LightMode(metaclass=_EnumMeta):
@@ -482,7 +525,9 @@ class PedestrianGestureType(metaclass=_EnumMeta):
     umbrellaLeftHand = _OscEnum(
         "PedestrianGestureType", "umbrellaLeftHand", min_minor_version=2
     )
-    crossArms = _OscEnum("PedestrianGestureType", "crossArms", min_minor_version=2)
+    crossArms = _OscEnum(
+        "PedestrianGestureType", "crossArms", min_minor_version=2
+    )
     coffeeRightHand = _OscEnum(
         "PedestrianGestureType", "coffeeRightHand", min_minor_version=2
     )
@@ -498,22 +543,32 @@ class PedestrianGestureType(metaclass=_EnumMeta):
 
 
 class PedestrianMotionType(metaclass=_EnumMeta):
-    standing = _OscEnum("PedestrianMotionType", "standing", min_minor_version=2)
+    standing = _OscEnum(
+        "PedestrianMotionType", "standing", min_minor_version=2
+    )
     sitting = _OscEnum("PedestrianMotionType", "sitting", min_minor_version=2)
     lying = _OscEnum("PedestrianMotionType", "lying", min_minor_version=2)
-    squatting = _OscEnum("PedestrianMotionType", "squatting", min_minor_version=2)
+    squatting = _OscEnum(
+        "PedestrianMotionType", "squatting", min_minor_version=2
+    )
     walking = _OscEnum("PedestrianMotionType", "walking", min_minor_version=2)
     running = _OscEnum("PedestrianMotionType", "running", min_minor_version=2)
     reeling = _OscEnum("PedestrianMotionType", "reeling", min_minor_version=2)
-    crawling = _OscEnum("PedestrianMotionType", "crawling", min_minor_version=2)
+    crawling = _OscEnum(
+        "PedestrianMotionType", "crawling", min_minor_version=2
+    )
     cycling = _OscEnum("PedestrianMotionType", "cycling", min_minor_version=2)
     jumping = _OscEnum("PedestrianMotionType", "jumping", min_minor_version=2)
     ducking = _OscEnum("PedestrianMotionType", "ducking", min_minor_version=2)
-    bendingDown = _OscEnum("PedestrianMotionType", "bendingDown", min_minor_version=2)
+    bendingDown = _OscEnum(
+        "PedestrianMotionType", "bendingDown", min_minor_version=2
+    )
 
 
 class RoutingAlgorithm(metaclass=_EnumMeta):
-    assignedRoute = _OscEnum("RoutingAlgorithm", "assignedRoute", min_minor_version=2)
+    assignedRoute = _OscEnum(
+        "RoutingAlgorithm", "assignedRoute", min_minor_version=2
+    )
     fastest = _OscEnum("RoutingAlgorithm", "fastest", min_minor_version=2)
     leastIntersections = _OscEnum(
         "RoutingAlgorithm", "leastIntersections", min_minor_version=2
@@ -534,7 +589,9 @@ class VehicleComponentType(metaclass=_EnumMeta):
     doorRearRight = _OscEnum(
         "VehicleComponentType", "doorRearRight", min_minor_version=2
     )
-    doorRearLeft = _OscEnum("VehicleComponentType", "doorRearLeft", min_minor_version=2)
+    doorRearLeft = _OscEnum(
+        "VehicleComponentType", "doorRearLeft", min_minor_version=2
+    )
     windowFrontRight = _OscEnum(
         "VehicleComponentType", "windowFrontRight", min_minor_version=2
     )
@@ -547,7 +604,9 @@ class VehicleComponentType(metaclass=_EnumMeta):
     windowRearLeft = _OscEnum(
         "VehicleComponentType", "windowRearLeft", min_minor_version=2
     )
-    sideMirrors = _OscEnum("VehicleComponentType", "sideMirrors", min_minor_version=2)
+    sideMirrors = _OscEnum(
+        "VehicleComponentType", "sideMirrors", min_minor_version=2
+    )
     sideMirrorRight = _OscEnum(
         "VehicleComponentType", "sideMirrorRight", min_minor_version=2
     )
@@ -563,12 +622,24 @@ class VehicleLightType(metaclass=_EnumMeta):
     lowBeam = _OscEnum("VehicleLightType", "lowBeam", min_minor_version=2)
     highBeam = _OscEnum("VehicleLightType", "highBeam", min_minor_version=2)
     fogLights = _OscEnum("VehicleLightType", "fogLights", min_minor_version=2)
-    fogLightsFront = _OscEnum("VehicleLightType", "fogLightsFront", min_minor_version=2)
-    fogLightsRear = _OscEnum("VehicleLightType", "fogLightsRear", min_minor_version=2)
-    brakeLights = _OscEnum("VehicleLightType", "brakeLights", min_minor_version=2)
-    warningLights = _OscEnum("VehicleLightType", "warningLights", min_minor_version=2)
-    indicatorLeft = _OscEnum("VehicleLightType", "indicatorLeft", min_minor_version=2)
-    indicatorRight = _OscEnum("VehicleLightType", "indicatorRight", min_minor_version=2)
+    fogLightsFront = _OscEnum(
+        "VehicleLightType", "fogLightsFront", min_minor_version=2
+    )
+    fogLightsRear = _OscEnum(
+        "VehicleLightType", "fogLightsRear", min_minor_version=2
+    )
+    brakeLights = _OscEnum(
+        "VehicleLightType", "brakeLights", min_minor_version=2
+    )
+    warningLights = _OscEnum(
+        "VehicleLightType", "warningLights", min_minor_version=2
+    )
+    indicatorLeft = _OscEnum(
+        "VehicleLightType", "indicatorLeft", min_minor_version=2
+    )
+    indicatorRight = _OscEnum(
+        "VehicleLightType", "indicatorRight", min_minor_version=2
+    )
     reversingLights = _OscEnum(
         "VehicleLightType", "reversingLights", min_minor_version=2
     )

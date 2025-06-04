@@ -39,3 +39,18 @@ classifiers = [
 ]
 [tool.setuptools.dynamic]
 dependencies = {file=["requirements.txt"]}
+
+[tool.black]
+line-length = 79
+
+[tool.isort]
+atomic = true
+profile = "black"
+known_first_party = ["black"]
+
+[tool.pylint]
+disable = [
+    "invalid-name",
+    "too-many-positional-arguments",
+    "too-many-arguments"
+]

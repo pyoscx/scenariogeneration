@@ -168,7 +168,10 @@ def test_relativelaneposition():
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
     pos5 = OSC.RelativeLanePosition(dsLane=1, lane_id=2, entity="Ego")
-    assert version_validation("Position", pos5, 0) == ValidationResponse.XSD_FAILURE
+    assert (
+        version_validation("Position", pos5, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Position", pos5, 1) == ValidationResponse.OK
     assert version_validation("Position", pos5, 2) == ValidationResponse.OK
     with pytest.raises(TypeError):
@@ -214,7 +217,9 @@ def test_route_position_road_coordinates():
     assert routepos == routepos2
     assert routepos != routepos3
 
-    routepos4 = OSC.RoutePositionInRoadCoordinates.parse(routepos.get_element())
+    routepos4 = OSC.RoutePositionInRoadCoordinates.parse(
+        routepos.get_element()
+    )
     assert routepos == routepos4
 
     assert version_validation("Position", routepos, 0) == ValidationResponse.OK
@@ -235,7 +240,9 @@ def test_route_position_lane_coordinates():
     assert routepos == routepos2
     assert routepos != routepos3
 
-    routepos4 = OSC.RoutePositionInLaneCoordinates.parse(routepos.get_element())
+    routepos4 = OSC.RoutePositionInLaneCoordinates.parse(
+        routepos.get_element()
+    )
     assert routepos == routepos4
 
     assert version_validation("Position", routepos, 0) == ValidationResponse.OK
@@ -261,7 +268,10 @@ def test_trajectory_position():
 
     pos4 = OSC.TrajectoryPosition.parse(pos.get_element())
     assert pos == pos4
-    assert version_validation("Position", pos, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Position", pos, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
@@ -281,7 +291,10 @@ def test_geo_position():
 
     pos4 = OSC.GeoPosition.parse(pos.get_element())
     assert pos == pos4
-    assert version_validation("Position", pos, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("Position", pos, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
 
@@ -308,20 +321,26 @@ route.add_waypoint(OSC.WorldPosition(1, 1, 1), OSC.RouteStrategy.shortest)
             10,
             20,
             0,
-            orientation=OSC.Orientation(1, 1, 1, OSC.ReferenceContext.absolute),
+            orientation=OSC.Orientation(
+                1, 1, 1, OSC.ReferenceContext.absolute
+            ),
         ),
         OSC.RelativeRoadPosition(
             10,
             0,
             "ego",
-            orientation=OSC.Orientation(1, 1, 1, OSC.ReferenceContext.relative),
+            orientation=OSC.Orientation(
+                1, 1, 1, OSC.ReferenceContext.relative
+            ),
         ),
         OSC.LanePosition(
             10,
             1,
             -1,
             1,
-            orientation=OSC.Orientation(1, 1, 1, OSC.ReferenceContext.relative),
+            orientation=OSC.Orientation(
+                1, 1, 1, OSC.ReferenceContext.relative
+            ),
         ),
         OSC.RelativeLanePosition(
             -1,
@@ -329,7 +348,9 @@ route.add_waypoint(OSC.WorldPosition(1, 1, 1), OSC.RouteStrategy.shortest)
             0,
             None,
             0.1,
-            orientation=OSC.Orientation(1, 1, 1, OSC.ReferenceContext.relative),
+            orientation=OSC.Orientation(
+                1, 1, 1, OSC.ReferenceContext.relative
+            ),
         ),
         OSC.GeoPosition(10.11, 12.001),
         OSC.TrajectoryPosition(traj, 10),
@@ -339,7 +360,9 @@ route.add_waypoint(OSC.WorldPosition(1, 1, 1), OSC.RouteStrategy.shortest)
     ],
 )
 def test_position_factory(position):
-    factoryoutput = OSC.position._PositionFactory.parse_position(position.get_element())
+    factoryoutput = OSC.position._PositionFactory.parse_position(
+        position.get_element()
+    )
     prettyprint(position)
     prettyprint(factoryoutput)
     assert position == factoryoutput
@@ -407,18 +430,30 @@ def test_waypoint():
 
 def test_route(tmpdir):
     route = OSC.Route("myroute")
-    route.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-    route.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
+    route.add_waypoint(
+        OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
+    route.add_waypoint(
+        OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
 
     prettyprint(route.get_element())
 
     route2 = OSC.Route("myroute")
-    route2.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-    route2.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
+    route2.add_waypoint(
+        OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
+    route2.add_waypoint(
+        OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
 
     route3 = OSC.Route("myroute")
-    route3.add_waypoint(OSC.WorldPosition(0, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-    route3.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
+    route3.add_waypoint(
+        OSC.WorldPosition(0, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
+    route3.add_waypoint(
+        OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
     route.dump_to_catalog(
         os.path.join(tmpdir, "my_catalog.xosc"),
         "RouteCatalog",
@@ -439,10 +474,18 @@ def test_route(tmpdir):
 
 def test_polyline():
     positionlist = []
-    positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
-    positionlist.append(OSC.RelativeLanePosition(ds=11, lane_id=-3, entity="Ego"))
-    positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
-    positionlist.append(OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego"))
+    positionlist.append(
+        OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego")
+    )
+    positionlist.append(
+        OSC.RelativeLanePosition(ds=11, lane_id=-3, entity="Ego")
+    )
+    positionlist.append(
+        OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego")
+    )
+    positionlist.append(
+        OSC.RelativeLanePosition(ds=10, lane_id=-3, entity="Ego")
+    )
     prettyprint(positionlist[0].get_element())
     polyline = OSC.Polyline([0, 0.5, 1, 1.5], positionlist)
     prettyprint(polyline.get_element())
@@ -456,7 +499,9 @@ def test_polyline():
     polyline5 = OSC.Polyline.parse(polyline.get_element())
     prettyprint(polyline5)
     assert polyline == polyline5
-    polyline_factory = OSC.position._ShapeFactory.parse_shape(polyline.get_element())
+    polyline_factory = OSC.position._ShapeFactory.parse_shape(
+        polyline.get_element()
+    )
     assert polyline == polyline_factory
     assert version_validation("Shape", polyline, 0) == ValidationResponse.OK
     assert version_validation("Shape", polyline, 1) == ValidationResponse.OK

@@ -48,7 +48,10 @@ class Scenario(ScenarioGenerator):
         # intermittent road
         roads.append(
             xodr.create_road(
-                [xodr.Spiral(0.0001, 0.003, 65), xodr.Spiral(0.003, 0.00001, 50)],
+                [
+                    xodr.Spiral(0.0001, 0.003, 65),
+                    xodr.Spiral(0.003, 0.00001, 50),
+                ],
                 id=1,
                 left_lanes=3,
                 right_lanes=3,
@@ -56,7 +59,9 @@ class Scenario(ScenarioGenerator):
         )
 
         # exit road
-        roads.append(xodr.create_road(xodr.Line(50), id=2, left_lanes=0, right_lanes=1))
+        roads.append(
+            xodr.create_road(xodr.Line(50), id=2, left_lanes=0, right_lanes=1)
+        )
         # junctions for exit
         roads.append(
             xodr.create_road(
@@ -105,7 +110,9 @@ class Scenario(ScenarioGenerator):
 
         # entry road
         roads.append(
-            xodr.create_road(xodr.Arc(0.004, 60), id=8, left_lanes=1, right_lanes=0)
+            xodr.create_road(
+                xodr.Arc(0.004, 60), id=8, left_lanes=1, right_lanes=0
+            )
         )
 
         # add predecessors and succesors to the non junction roads
@@ -115,27 +122,39 @@ class Scenario(ScenarioGenerator):
         roads[2].add_predecessor(xodr.ElementType.junction, 1)
 
         # add connections to the first junction road
-        roads[3].add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
-        roads[3].add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
+        roads[3].add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
+        roads[3].add_successor(
+            xodr.ElementType.road, 1, xodr.ContactPoint.start
+        )
 
         # add connections to the second junction road, the exit
         roads[4].add_predecessor(
             xodr.ElementType.road, 0, xodr.ContactPoint.end, lane_offset=-3
         )
-        roads[4].add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+        roads[4].add_successor(
+            xodr.ElementType.road, 2, xodr.ContactPoint.start
+        )
 
         # add connections to the final road
         roads[5].add_predecessor(xodr.ElementType.junction, 2)
 
         # add connections to the junctionroad that continues
-        roads[6].add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
-        roads[6].add_successor(xodr.ElementType.road, 5, xodr.ContactPoint.start)
+        roads[6].add_predecessor(
+            xodr.ElementType.road, 1, xodr.ContactPoint.end
+        )
+        roads[6].add_successor(
+            xodr.ElementType.road, 5, xodr.ContactPoint.start
+        )
 
         # add connections to the entry junction road
         roads[7].add_predecessor(
             xodr.ElementType.road, 1, xodr.ContactPoint.end, lane_offset=2
         )
-        roads[7].add_successor(xodr.ElementType.road, 8, xodr.ContactPoint.start)
+        roads[7].add_successor(
+            xodr.ElementType.road, 8, xodr.ContactPoint.start
+        )
 
         # add connection to the entry road
         roads[8].add_predecessor(xodr.ElementType.junction, 2)

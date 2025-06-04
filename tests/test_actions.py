@@ -23,7 +23,9 @@ from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 from .xml_validator import version_validation, ValidationResponse
 
-TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0)
+TD = OSC.TransitionDynamics(
+    OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0
+)
 
 tod = OSC.TimeOfDay(True, 2020, 10, 1, 18, 30, 30)
 weather = OSC.Weather(OSC.FractionalCloudCover.nineOktas, 100)
@@ -33,7 +35,9 @@ prop.add_file("mycontrollerfile.xml")
 controller = OSC.Controller("mycontroller", prop)
 traffic = OSC.TrafficDefinition("my traffic")
 traffic.add_controller(controller, 0.5)
-traffic.add_controller(OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5)
+traffic.add_controller(
+    OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+)
 traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
 traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 env = OSC.Environment("Env_name", tod, weather, rc)
@@ -48,7 +52,10 @@ def reset_version():
     "input",
     [
         [OSC.EnvironmentAction(env), _MINOR_VERSION],
-        [OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), _MINOR_VERSION],
+        [
+            OSC.AddEntityAction("my new thingy", OSC.WorldPosition()),
+            _MINOR_VERSION,
+        ],
         [OSC.DeleteEntityAction("my new thingy"), _MINOR_VERSION],
         [OSC.ParameterAddAction("Myparam", 3), 1],
         [OSC.ParameterMultiplyAction("Myparam", 3), 1],
@@ -57,13 +64,22 @@ def reset_version():
         [OSC.VariableMultiplyAction("Myparam", 3), _MINOR_VERSION],
         [OSC.VariableSetAction("Myparam", 3), _MINOR_VERSION],
         [OSC.TrafficSignalStateAction("my signal", "red"), _MINOR_VERSION],
-        [OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), _MINOR_VERSION],
+        [
+            OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"),
+            _MINOR_VERSION,
+        ],
         [
             OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
             _MINOR_VERSION,
         ],
-        [OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), _MINOR_VERSION],
-        [OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), _MINOR_VERSION],
+        [
+            OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10),
+            _MINOR_VERSION,
+        ],
+        [
+            OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic),
+            _MINOR_VERSION,
+        ],
         [OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION],
     ],
 )
@@ -79,8 +95,12 @@ def test_global_action_factory(input):
 
 
 route = OSC.Route("myroute")
-route.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-route.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
+route.add_waypoint(
+    OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+)
+route.add_waypoint(
+    OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+)
 prop2 = OSC.Properties()
 prop2.add_property("mything", "2")
 prop2.add_property("theotherthing", "true")
@@ -106,12 +126,18 @@ ass = OSC.AssignControllerAction(cnt)
         OSC.AbsoluteSpeedAction(50.0, TD),
         OSC.RelativeSpeedAction(1, "Ego", TD),
         OSC.LongitudinalDistanceAction(
-            "Ego", max_acceleration=3, max_deceleration=2, max_speed=4, distance=1
+            "Ego",
+            max_acceleration=3,
+            max_deceleration=2,
+            max_speed=4,
+            distance=1,
         ),
         OSC.AbsoluteLaneChangeAction(1, TD),
         OSC.RelativeLaneChangeAction(1, "Ego", TD, 0.2),
         OSC.AbsoluteLaneOffsetAction(1, OSC.DynamicsShapes.step, 3, False),
-        OSC.RelativeLaneOffsetAction(1, "Ego", OSC.DynamicsShapes.step, 3, False),
+        OSC.RelativeLaneOffsetAction(
+            1, "Ego", OSC.DynamicsShapes.step, 3, False
+        ),
         OSC.LateralDistanceAction("Ego", 3, max_speed=50),
         OSC.VisibilityAction(True, False, True),
         OSC.SynchronizeAction(
@@ -135,7 +161,9 @@ ass = OSC.AssignControllerAction(cnt)
             scale=4,
         ),
         OSC.AcquirePositionAction(OSC.WorldPosition(1, 1, 0, 0, 0, 0)),
-        OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1),
+        OSC.AnimationAction(
+            OSC.VehicleComponentType.doorFrontRight, 1, False, 1
+        ),
         OSC.LightStateAction(
             OSC.VehicleLightType.brakeLights,
             OSC.LightMode.on,
@@ -191,9 +219,18 @@ def test_speedaction_rel():
 
     speedaction4 = OSC.RelativeSpeedAction.parse(speedaction.get_element())
     assert speedaction == speedaction4
-    assert version_validation("PrivateAction", speedaction, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", speedaction, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", speedaction, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", speedaction, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", speedaction, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", speedaction, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.RelativeSpeedAction(50, "Ego", "dummy")
 
@@ -222,31 +259,60 @@ def test_longdistaction_dist():
     prettyprint(longdist4.get_element())
     assert longdist == longdist4
     assert longdist3 == longdist5
-    assert version_validation("PrivateAction", longdist, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", longdist, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", longdist, 2) == ValidationResponse.OK
-    assert version_validation("PrivateAction", longdist3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", longdist, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", longdist, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", longdist, 2)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", longdist3, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(ValueError):
-        OSC.LongitudinalDistanceAction("ego", distance=1, coordinate_system="dummy")
+        OSC.LongitudinalDistanceAction(
+            "ego", distance=1, coordinate_system="dummy"
+        )
     with pytest.raises(ValueError):
         OSC.LongitudinalDistanceAction("ego", distance=1, displacement="dummy")
 
 
 def test_longdistaction_time():
-    longdist = OSC.LongitudinalDistanceAction("Ego", max_acceleration=1, timeGap=2)
+    longdist = OSC.LongitudinalDistanceAction(
+        "Ego", max_acceleration=1, timeGap=2
+    )
     prettyprint(longdist.get_element())
-    longdist2 = OSC.LongitudinalDistanceAction("Ego", max_acceleration=1, timeGap=2)
-    longdist3 = OSC.LongitudinalDistanceAction("Ego", max_acceleration=1, timeGap=3)
+    longdist2 = OSC.LongitudinalDistanceAction(
+        "Ego", max_acceleration=1, timeGap=2
+    )
+    longdist3 = OSC.LongitudinalDistanceAction(
+        "Ego", max_acceleration=1, timeGap=3
+    )
     assert longdist == longdist2
     assert longdist != longdist3
 
     longdist4 = OSC.LongitudinalDistanceAction.parse(longdist.get_element())
     prettyprint(longdist4.get_element())
     assert longdist == longdist4
-    assert version_validation("PrivateAction", longdist, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", longdist, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", longdist, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", longdist, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", longdist, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", longdist, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_lanechange_abs():
@@ -259,9 +325,18 @@ def test_lanechange_abs():
 
     lanechange4 = OSC.AbsoluteLaneChangeAction.parse(lanechange.get_element())
     assert lanechange == lanechange4
-    assert version_validation("PrivateAction", lanechange, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", lanechange, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", lanechange, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", lanechange, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", lanechange, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", lanechange, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.AbsoluteLaneChangeAction(1, "dummy")
 
@@ -277,18 +352,33 @@ def test_lanechange_rel():
     lanechange4 = OSC.RelativeLaneChangeAction.parse(lanechange.get_element())
     prettyprint(lanechange4.get_element(), None)
     assert lanechange4 == lanechange
-    assert version_validation("PrivateAction", lanechange, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", lanechange, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", lanechange, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", lanechange, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", lanechange, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", lanechange, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.RelativeLaneChangeAction(1, "Ego", "dummy", 0.2)
 
 
 def test_laneoffset_abs():
-    laneoffset = OSC.AbsoluteLaneOffsetAction(1, OSC.DynamicsShapes.step, 3, False)
+    laneoffset = OSC.AbsoluteLaneOffsetAction(
+        1, OSC.DynamicsShapes.step, 3, False
+    )
     prettyprint(laneoffset.get_element(), None)
-    laneoffset2 = OSC.AbsoluteLaneOffsetAction(1, OSC.DynamicsShapes.step, 3, False)
-    laneoffset3 = OSC.AbsoluteLaneOffsetAction(1, OSC.DynamicsShapes.step, 2, True)
+    laneoffset2 = OSC.AbsoluteLaneOffsetAction(
+        1, OSC.DynamicsShapes.step, 3, False
+    )
+    laneoffset3 = OSC.AbsoluteLaneOffsetAction(
+        1, OSC.DynamicsShapes.step, 2, True
+    )
 
     assert laneoffset == laneoffset2
     assert laneoffset != laneoffset3
@@ -296,9 +386,18 @@ def test_laneoffset_abs():
     laneoffset4 = OSC.AbsoluteLaneOffsetAction.parse(laneoffset.get_element())
     prettyprint(laneoffset.get_element(), None)
     assert laneoffset == laneoffset4
-    assert version_validation("PrivateAction", laneoffset, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", laneoffset, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", laneoffset, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", laneoffset, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", laneoffset, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", laneoffset, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.AbsoluteLaneOffsetAction(1, "dummy")
 
@@ -320,9 +419,18 @@ def test_laneoffset_rel():
     laneoffset4 = OSC.RelativeLaneOffsetAction.parse(laneoffset.get_element())
     prettyprint(laneoffset4.get_element(), None)
     assert laneoffset4 == laneoffset
-    assert version_validation("PrivateAction", laneoffset, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", laneoffset, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", laneoffset, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", laneoffset, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", laneoffset, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", laneoffset, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.RelativeLaneOffsetAction(1, "ego", "dummy")
 
@@ -338,9 +446,18 @@ def test_lateraldistance_noconst():
     latdist4 = OSC.LateralDistanceAction.parse(latdist.get_element())
     prettyprint(latdist4.get_element(), None)
     assert latdist4 == latdist
-    assert version_validation("PrivateAction", latdist, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", latdist, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", latdist, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", latdist, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", latdist, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", latdist, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.LateralDistanceAction("Ego", 1, coordinate_system="dummy")
     with pytest.raises(ValueError):
@@ -358,9 +475,18 @@ def test_lateraldistance_const():
     latdist4 = OSC.LateralDistanceAction.parse(latdist.get_element())
     prettyprint(latdist4.get_element(), None)
     assert latdist4 == latdist
-    assert version_validation("PrivateAction", latdist, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", latdist, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", latdist, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", latdist, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", latdist, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", latdist, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_teleport():
@@ -372,21 +498,38 @@ def test_teleport():
     assert teleport != teleport3
     teleport4 = OSC.TeleportAction.parse(teleport.get_element())
     assert teleport == teleport4
-    assert version_validation("PrivateAction", teleport, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", teleport, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", teleport, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", teleport, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", teleport, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", teleport, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_assign_route():
     route = OSC.Route("myroute")
-    route.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-    route.add_waypoint(OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
+    route.add_waypoint(
+        OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
+    route.add_waypoint(
+        OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
     ara = OSC.AssignRouteAction(route)
     prettyprint(ara.get_element(), None)
     ara2 = OSC.AssignRouteAction(route)
     route2 = OSC.Route("myroute2")
-    route2.add_waypoint(OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest)
-    route2.add_waypoint(OSC.WorldPosition(1, 1, 1, 0, 0, 0), OSC.RouteStrategy.shortest)
+    route2.add_waypoint(
+        OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
+    route2.add_waypoint(
+        OSC.WorldPosition(1, 1, 1, 0, 0, 0), OSC.RouteStrategy.shortest
+    )
     ara3 = OSC.AssignRouteAction(route2)
     assert ara == ara2
     assert ara != ara3
@@ -464,10 +607,16 @@ def test_activate_controller_action():
     prettyprint(aca5)
     aca6 = OSC.ActivateControllerAction.parse(aca5.get_element())
 
-    aca5 = OSC.ActivateControllerAction(True, True, True, True, "controller_name")
-    aca6 = OSC.ActivateControllerAction(True, True, True, True, "controller_name2")
+    aca5 = OSC.ActivateControllerAction(
+        True, True, True, True, "controller_name"
+    )
+    aca6 = OSC.ActivateControllerAction(
+        True, True, True, True, "controller_name2"
+    )
     assert aca5 != aca6
-    aca7 = OSC.ActivateControllerAction(True, True, True, False, "controller_name")
+    aca7 = OSC.ActivateControllerAction(
+        True, True, True, False, "controller_name"
+    )
     assert aca5 != aca7
     aca8 = OSC.ActivateControllerAction.parse(aca5.get_element())
     prettyprint(aca5.get_element())
@@ -502,7 +651,10 @@ def test_assign_controller_action():
     aca4 = OSC.AssignControllerAction.parse(aca.get_element())
     prettyprint(aca4.get_element(), None)
     assert aca4 == aca
-    assert version_validation("PrivateAction", aca, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("PrivateAction", aca, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
 
@@ -541,10 +693,15 @@ def test_override_controller():
     prettyprint(ocva4.get_element(), None)
     assert ocva4 == ocva
     assert (
-        version_validation("PrivateAction", ocva, 0) == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", ocva, 0)
+        == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("PrivateAction", ocva, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", ocva, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", ocva, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", ocva, 2) == ValidationResponse.OK
+    )
 
 
 def test_visual_action():
@@ -560,7 +717,10 @@ def test_visual_action():
     va4 = OSC.VisibilityAction.parse(va.get_element())
     prettyprint(va4.get_element(), None)
     assert va4 == va
-    assert version_validation("PrivateAction", va, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("PrivateAction", va, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("PrivateAction", va3, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", va3, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", va, 2) == ValidationResponse.OK
@@ -615,9 +775,13 @@ def test_sync_action():
     assert version_validation("PrivateAction", asa, 2) == ValidationResponse.OK
 
     with pytest.raises(TypeError):
-        OSC.SynchronizeAction("ego", "dummy", OSC.WorldPosition(0, 0, 0, 0, 0, 0))
+        OSC.SynchronizeAction(
+            "ego", "dummy", OSC.WorldPosition(0, 0, 0, 0, 0, 0)
+        )
     with pytest.raises(TypeError):
-        OSC.SynchronizeAction("ego", OSC.WorldPosition(0, 0, 0, 0, 0, 0), "dummy")
+        OSC.SynchronizeAction(
+            "ego", OSC.WorldPosition(0, 0, 0, 0, 0, 0), "dummy"
+        )
     with pytest.raises(TypeError):
         OSC.SynchronizeAction(
             "ego",
@@ -665,9 +829,18 @@ def test_follow_traj_action_polyline():
     trajact4 = OSC.FollowTrajectoryAction.parse(trajact.get_element())
     prettyprint(trajact4.get_element(), None)
     assert trajact4 == trajact
-    assert version_validation("PrivateAction", trajact, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", trajact, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", trajact, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", trajact, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", trajact, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", trajact, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(TypeError):
         OSC.FollowTrajectoryAction("dummy", OSC.FollowingMode.follow)
@@ -690,7 +863,10 @@ def testParameterAddActions():
     assert pa == pa4
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
+    )
 
 
 def testParameterMultiplyActions():
@@ -706,7 +882,10 @@ def testParameterMultiplyActions():
     assert pa == pa4
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
+    )
 
 
 def testParameterSetActions():
@@ -722,7 +901,10 @@ def testParameterSetActions():
     assert pa == pa4
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
+    )
 
 
 def testVariableAddActions():
@@ -735,8 +917,14 @@ def testVariableAddActions():
 
     pa4 = OSC.VariableAddAction.parse(pa.get_element())
     assert pa == pa4
-    assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
 
@@ -750,8 +938,14 @@ def testVariableMultiplyActions():
 
     pa4 = OSC.VariableMultiplyAction.parse(pa.get_element())
     assert pa == pa4
-    assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
 
@@ -765,8 +959,14 @@ def testVariableSetActions():
 
     pa4 = OSC.VariableSetAction.parse(pa.get_element())
     assert pa == pa4
-    assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
 
@@ -828,11 +1028,22 @@ def test_trafficsignalcontrolleraction():
     assert tsc_action == tsc_action2
     assert tsc_action != tsc_action3
 
-    tsc_action4 = OSC.TrafficSignalControllerAction.parse(tsc_action.get_element())
+    tsc_action4 = OSC.TrafficSignalControllerAction.parse(
+        tsc_action.get_element()
+    )
     assert tsc_action == tsc_action4
-    assert version_validation("GlobalAction", tsc_action, 0) == ValidationResponse.OK
-    assert version_validation("GlobalAction", tsc_action, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", tsc_action, 2) == ValidationResponse.OK
+    assert (
+        version_validation("GlobalAction", tsc_action, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", tsc_action, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", tsc_action, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_trafficsourceaction():
@@ -849,24 +1060,41 @@ def test_trafficsourceaction():
     traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
     traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 
-    source_action = OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100)
+    source_action = OSC.TrafficSourceAction(
+        10, 10, OSC.WorldPosition(), traffic, 100
+    )
 
     # prettyprint(source_action.get_element())
 
-    source_action = OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic)
+    source_action = OSC.TrafficSourceAction(
+        10, 10, OSC.WorldPosition(), traffic
+    )
     prettyprint(source_action.get_element())
 
-    source_action2 = OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic)
-    source_action3 = OSC.TrafficSourceAction(10, 1, OSC.WorldPosition(), traffic)
+    source_action2 = OSC.TrafficSourceAction(
+        10, 10, OSC.WorldPosition(), traffic
+    )
+    source_action3 = OSC.TrafficSourceAction(
+        10, 1, OSC.WorldPosition(), traffic
+    )
     assert source_action == source_action2
     assert source_action != source_action3
 
     source_action4 = OSC.TrafficSourceAction.parse(source_action.get_element())
     prettyprint(source_action4.get_element())
     assert source_action == source_action4
-    assert version_validation("GlobalAction", source_action, 0) == ValidationResponse.OK
-    assert version_validation("GlobalAction", source_action, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", source_action, 2) == ValidationResponse.OK
+    assert (
+        version_validation("GlobalAction", source_action, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", source_action, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", source_action, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(TypeError):
         OSC.TrafficSourceAction(10, 10, "dummy", traffic)
@@ -899,9 +1127,18 @@ def test_trafficsinkaction():
     sink_action4 = OSC.TrafficSinkAction.parse(sink_action.get_element())
     prettyprint(sink_action4.get_element())
     assert sink_action == sink_action4
-    assert version_validation("GlobalAction", sink_action, 0) == ValidationResponse.OK
-    assert version_validation("GlobalAction", sink_action, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", sink_action, 2) == ValidationResponse.OK
+    assert (
+        version_validation("GlobalAction", sink_action, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", sink_action, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", sink_action, 2)
+        == ValidationResponse.OK
+    )
 
     with pytest.raises(TypeError):
         OSC.TrafficSinkAction(10, "dummy", traffic)
@@ -930,7 +1167,16 @@ def test_trafficswarmaction():
     swarm_action2 = OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic)
 
     swarm_action3 = OSC.TrafficSwarmAction(
-        10, 20, 10, 2, 10, "Ego", traffic, OSC.Range(10, 20), "Traffic_name", dot
+        10,
+        20,
+        10,
+        2,
+        10,
+        "Ego",
+        traffic,
+        OSC.Range(10, 20),
+        "Traffic_name",
+        dot,
     )
     prettyprint(swarm_action3.get_element())
 
@@ -940,9 +1186,18 @@ def test_trafficswarmaction():
     swarm_action4 = OSC.TrafficSwarmAction.parse(swarm_action3.get_element())
     prettyprint(swarm_action4.get_element())
     assert swarm_action3 == swarm_action4
-    assert version_validation("GlobalAction", swarm_action, 0) == ValidationResponse.OK
-    assert version_validation("GlobalAction", swarm_action, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", swarm_action, 2) == ValidationResponse.OK
+    assert (
+        version_validation("GlobalAction", swarm_action, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", swarm_action, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("GlobalAction", swarm_action, 2)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.TrafficSwarmAction(1, 1, 1, 1, 1, "ego", "dummy")
     with pytest.raises(TypeError):
@@ -973,8 +1228,14 @@ def test_environmentaction():
     ea4 = OSC.EnvironmentAction.parse(ea.get_element())
     prettyprint(ea4.get_element())
     assert ea == ea4
-    assert version_validation("GlobalAction", ea, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("GlobalAction", ea, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", ea, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("GlobalAction", ea, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("GlobalAction", ea, 2) == ValidationResponse.OK
     weather2 = OSC.Weather(
         OSC.CloudState.free,
@@ -987,7 +1248,10 @@ def test_environmentaction():
     ea5 = OSC.EnvironmentAction(env2)
     assert version_validation("GlobalAction", ea5, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", ea5, 1) == ValidationResponse.OK
-    assert version_validation("GlobalAction", ea5, 2) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", ea5, 2)
+        == ValidationResponse.OSC_VERSION
+    )
 
     with pytest.raises(TypeError):
         OSC.EnvironmentAction("dummy")
@@ -1004,7 +1268,10 @@ def test_trafficstopaction():
     tsa4 = OSC.TrafficStopAction.parse(tsa.get_element())
     prettyprint(tsa4.get_element())
     assert tsa == tsa4
-    assert version_validation("GlobalAction", tsa, 0) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("GlobalAction", tsa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
     assert version_validation("GlobalAction", tsa, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", tsa, 2) == ValidationResponse.OK
 
@@ -1020,9 +1287,18 @@ def test_customcommandaction():
     prettyprint(cca4.get_element())
     assert cca == cca4
 
-    assert version_validation("CustomCommandAction", cca, 0) == ValidationResponse.OK
-    assert version_validation("CustomCommandAction", cca, 1) == ValidationResponse.OK
-    assert version_validation("CustomCommandAction", cca, 2) == ValidationResponse.OK
+    assert (
+        version_validation("CustomCommandAction", cca, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CustomCommandAction", cca, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("CustomCommandAction", cca, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_userdefinedaction():
@@ -1037,9 +1313,18 @@ def test_userdefinedaction():
     uda4 = OSC.UserDefinedAction.parse(uda.get_element())
     prettyprint(uda4)
     assert uda4 == uda
-    assert version_validation("UserDefinedAction", uda, 0) == ValidationResponse.OK
-    assert version_validation("UserDefinedAction", uda, 1) == ValidationResponse.OK
-    assert version_validation("UserDefinedAction", uda, 2) == ValidationResponse.OK
+    assert (
+        version_validation("UserDefinedAction", uda, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("UserDefinedAction", uda, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("UserDefinedAction", uda, 2)
+        == ValidationResponse.OK
+    )
 
 
 def test_lightstateaction():
@@ -1069,9 +1354,18 @@ def test_lightstateaction():
     assert lsa4 == lsa
     lsa5 = OSC.LightStateAction.parse(lsa3.get_element())
     assert lsa5 == lsa3
-    assert version_validation("PrivateAction", lsa, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("PrivateAction", lsa, 1) == ValidationResponse.OSC_VERSION
-    assert version_validation("PrivateAction", lsa, 2) == ValidationResponse.XSD_FAILURE
+    assert (
+        version_validation("PrivateAction", lsa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("PrivateAction", lsa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("PrivateAction", lsa, 2)
+        == ValidationResponse.XSD_FAILURE
+    )
 
     with pytest.raises(TypeError):
         OSC.LightStateAction("dummy", OSC.LightMode.flashing)
@@ -1079,7 +1373,9 @@ def test_lightstateaction():
         OSC.LightStateAction(OSC.VehicleLightType.fogLights, "dummy")
     with pytest.raises(TypeError):
         OSC.LightStateAction(
-            OSC.VehicleLightType.fogLights, OSC.LightMode.flashing, color="dummy"
+            OSC.VehicleLightType.fogLights,
+            OSC.LightMode.flashing,
+            color="dummy",
         )
 
 
@@ -1107,12 +1403,16 @@ def test_speedprofileaction():
     prettyprint(spa4)
     assert spa == spa4
     assert (
-        version_validation("PrivateAction", spa3, 0) == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", spa3, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-        version_validation("PrivateAction", spa3, 1) == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", spa3, 1)
+        == ValidationResponse.OSC_VERSION
     )
-    assert version_validation("PrivateAction", spa3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("PrivateAction", spa3, 2) == ValidationResponse.OK
+    )
     with pytest.raises(ValueError):
         OSC.SpeedProfileAction([1, 1, 1], "dummy")
     with pytest.raises(TypeError):
@@ -1122,12 +1422,19 @@ def test_speedprofileaction():
 
 
 def test_animation_action():
-    aa = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1)
+    aa = OSC.AnimationAction(
+        OSC.VehicleComponentType.doorFrontRight, 1, False, 1
+    )
 
     prettyprint(aa)
-    aa2 = OSC.AnimationAction(OSC.VehicleComponentType.doorFrontRight, 1, False, 1)
+    aa2 = OSC.AnimationAction(
+        OSC.VehicleComponentType.doorFrontRight, 1, False, 1
+    )
     aa3 = OSC.AnimationAction(
-        OSC.PedestrianAnimation(OSC.PedestrianMotionType.squatting), 1, False, 1
+        OSC.PedestrianAnimation(OSC.PedestrianMotionType.squatting),
+        1,
+        False,
+        1,
     )
 
     assert aa == aa2
@@ -1135,9 +1442,18 @@ def test_animation_action():
     aa4 = OSC.AnimationAction.parse(aa.get_element())
     prettyprint(aa4)
     assert aa == aa4
-    assert version_validation("PrivateAction", aa, 0) == ValidationResponse.OSC_VERSION
-    assert version_validation("PrivateAction", aa, 1) == ValidationResponse.OSC_VERSION
+    assert (
+        version_validation("PrivateAction", aa, 0)
+        == ValidationResponse.OSC_VERSION
+    )
+    assert (
+        version_validation("PrivateAction", aa, 1)
+        == ValidationResponse.OSC_VERSION
+    )
     # BUG IN XSD
-    assert version_validation("PrivateAction", aa, 2) == ValidationResponse.XSD_FAILURE
+    assert (
+        version_validation("PrivateAction", aa, 2)
+        == ValidationResponse.XSD_FAILURE
+    )
     with pytest.raises(ValueError):
         OSC.AnimationAction("dummy")

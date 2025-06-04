@@ -10,53 +10,85 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from operator import index
 import xml.etree.ElementTree as ET
+from typing import Optional, Union
+
+import numpy as np
+
 from ..helpers import enum2str
 from .enumerations import (
-    LaneType,
+    ContactPoint,
     LaneChange,
-    RoadMarkWeight,
+    LaneType,
+    MarkRule,
     RoadMarkColor,
     RoadMarkType,
-    MarkRule,
-    ContactPoint,
+    RoadMarkWeight,
     enumchecker,
 )
 from .exceptions import ToManyOptionalArguments
+from .links import LaneLinker, _Link, _Links
 from .utils import XodrBase
-from .links import _Links, _Link, LaneLinker
-import numpy as np
 
 
 class Lanes(XodrBase):
-    """creates the Lanes element of opendrive
+    """Create the Lanes element of OpenDRIVE.
 
+    This class represents the lanes of a road, including lane sections and
+    lane offsets.
 
     Attributes
     ----------
-        lane_sections (list of LaneSection): a list of all lanesections
+    lanesections : list of LaneSection
+        A list of all lane sections in the road.
+    laneoffsets : list of LaneOffset
+        A list of lane offsets applied to the road.
+    roadmarks_adjusted : bool
+        Indicates whether roadmarks have been adjusted.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        add_lanesection(lanesection)
-            adds a lane section to Lanes
-
-        add_laneoffset(laneoffset)
-            adds a lane offset to Lanes
+    get_element()
+        Returns the full ElementTree representation of the class.
+    add_lanesection(lanesection, lanelinks=None)
+        Adds a lane section to the Lanes object.
+    add_laneoffset(laneoffset)
+        Adds a lane offset to the Lanes object.
+    adjust_road_marks_from_start(total_road_length,
+        connected_lane_section=None, contact_point=ContactPoint.end)
+        Adjusts road marks from the start of the road.
+    adjust_road_marks_from_end(total_road_length, connected_lane_section=None,
+        contact_point=ContactPoint.end)
+        Adjusts road marks from the end of the road.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize the `Lanes` class.
+
+        This constructor initializes the `Lanes` object with default
+        values for lane sections, lane offsets, and roadmark adjustment
+        status.
+
+        Attributes
+        ----------
+        lanesections : list of LaneSection
+            A list of all lane sections in the road.
+        laneoffsets : list of LaneOffset
+            A list of lane offsets applied to the road.
+        roadmarks_adjusted : bool
+            Indicates whether roadmarks have been adjusted.
+
+        Returns
+        -------
+        None
+        """
         super().__init__()
-        """initalize Lanes"""
+        """Initalize Lanes."""
         self.lanesections = []
         self.laneoffsets = []
         self.roadmarks_adjusted = False
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Lanes) and super().__eq__(other):
             if (
                 self.laneoffsets == other.laneoffsets
@@ -65,15 +97,35 @@ class Lanes(XodrBase):
                 return True
         return False
 
-    def add_lanesection(self, lanesection, lanelinks=None):
-        """creates the Lanes element of opendrive
+    def add_lanesection(
+        self,
+        lanesection: "LaneSection",
+        lanelinks: Optional[Union["LaneLinker", list["LaneLinker"]]] = None,
+    ) -> "Lanes":
+        """Add a lane section to the `Lanes` object.
+
+        This method adds a `LaneSection` to the `Lanes` object and
+        optionally links lanes using a `LaneLinker`.
 
         Parameters
         ----------
-            lanesection (LaneSection): a LaneSection to add
+        lanesection : LaneSection
+            A `LaneSection` object to add to the `Lanes` object.
+        lanelinks : LaneLinker or list of LaneLinker, optional
+            A `LaneLinker` or a list of `LaneLinker` objects to link '
+            lanes. Default is None.
 
-            lanelink (LaneLinker): (optional) a LaneLink to add
+        Returns
+        -------
+        Lanes
+            The updated `Lanes` object.
 
+        Raises
+        ------
+        TypeError
+            If `lanesection` is not of type `LaneSection` or if
+            `lanelinks` contains objects that are not of type
+            `LaneLinker`.
         """
         if not isinstance(lanesection, LaneSection):
             raise TypeError("input lanesection is not of type LaneSection")
@@ -88,19 +140,36 @@ class Lanes(XodrBase):
                 for link in lanelink.links:
                     # check if link already added
                     if not link.used:
-                        link.predecessor.add_link("successor", link.successor.lane_id)
-                        link.successor.add_link("predecessor", link.predecessor.lane_id)
+                        link.predecessor.add_link(
+                            "successor", link.successor.lane_id
+                        )
+                        link.successor.add_link(
+                            "predecessor", link.predecessor.lane_id
+                        )
                         link.used = True
 
         self.lanesections.append(lanesection)
         return self
 
-    def add_laneoffset(self, laneoffset):
-        """adds a lane offset to Lanes
+    def add_laneoffset(self, laneoffset: "LaneOffset") -> "Lanes":
+        """Add a lane offset to the `Lanes` object.
+
+        This method adds a `LaneOffset` to the `Lanes` object.
 
         Parameters
         ----------
-            laneoffset (LaneOffset): a LaneOffset to add
+        laneoffset : LaneOffset
+            A `LaneOffset` object to add to the `Lanes` object.
+
+        Returns
+        -------
+        Lanes
+            The updated `Lanes` object.
+
+        Raises
+        ------
+        TypeError
+            If `laneoffset` is not of type `LaneOffset`.
         """
         if not isinstance(laneoffset, LaneOffset):
             raise TypeError(
@@ -110,24 +179,40 @@ class Lanes(XodrBase):
         self.laneoffsets.append(laneoffset)
         return self
 
-    def _check_valid_mark_type(self, lane):
-        """simple checker if the lanemark can be adjusted
+    def _check_valid_mark_type(self, lane: "Lane") -> bool:
+        """Check if the lane's roadmark can be adjusted.
+
+        This method verifies whether the roadmark type of the given lane
+        is valid for adjustment.
 
         Parameters
         ----------
-            lane (Lane): the lane which roadmark should be checked
+        lane : Lane
+            The lane whose roadmark should be checked.
+
+        Returns
+        -------
+        bool
+            True if the roadmark can be adjusted, False otherwise.
         """
         return (
             lane.roadmark[0].marking_type == RoadMarkType.broken
             or lane.roadmark[0].marking_type == RoadMarkType.broken_broken
         )
 
-    def _adjust_for_missing_line_offset(self, roadmark):
-        """adds an explicit line if soofset is less than 0 (for adjusting from start) or longer than the space between lines (for adjusting from end)
+    def _adjust_for_missing_line_offset(self, roadmark: "RoadMark") -> None:
+        """Add an explicit line if the offset is less than 0 ( for adjusting
+        from the start) or longer than the space between lines (for adjusting
+        from the end).
 
         Parameters
         ----------
-            roadmark (RoadMark): the roadmark to be adjusted
+        roadmark : RoadMark
+            The roadmark to be adjusted.
+
+        Returns
+        -------
+        None
         """
         for line in roadmark._line:
             if line.soffset < 0 or line.soffset > line.length + line.soffset:
@@ -153,8 +238,17 @@ class Lanes(XodrBase):
             if line.soffset < 0:
                 line.shift_soffset()
 
-    def _validity_check_for_roadmark_adjustment(self):
-        """does some simple checks if the the different lanes can be adjusted"""
+    def _validity_check_for_roadmark_adjustment(self) -> None:
+        """Perform validity checks to determine if the lanes' roadmarks can be
+        adjusted.
+
+        This method checks the right, left, and center lanes to ensure
+        their roadmarks meet the criteria for adjustment.
+
+        Returns
+        -------
+        None
+        """
         self._right_lanes_adjustable = len(self.lanesections[0].rightlanes) > 0
         self._left_lanes_adjustable = len(self.lanesections[0].leftlanes) > 0
         self._center_lane_adjustable = True
@@ -185,36 +279,41 @@ class Lanes(XodrBase):
 
     def _get_previous_remainder(
         self,
-        connected_lane_section,
-        i_line,
-        lane_side,
-        contact_point,
-        lane_index,
-        lane_section_index,
-        start_or_end,
-    ):
-        """_get_previous_remainder is a helper method to get the remainder of a lanemarking of a connecting lane section (for lenght adjustment)
+        connected_lane_section: "LaneSection",
+        i_line: int,
+        lane_side: str,
+        contact_point: "ContactPoint",
+        lane_index: Optional[int],
+        lane_section_index: int,
+        start_or_end: str,
+    ) -> float:
+        """Get the remainder of a lane marking from a connecting lane section.
+
+        This helper method calculates the remainder of a lane marking for
+        length adjustment based on the connected lane section.
 
         Parameters
         ----------
-            connected_lane_section (LaneSection): connected lane section (on another road)
+        connected_lane_section : LaneSection
+            The connected lane section (on another road).
+        i_line : int
+            The index of the line (`roadmark._line`).
+        lane_side : str
+            The side of the lane ("left", "right", or "center").
+        contact_point : ContactPoint
+            The contact point of the `connected_lane_section`.
+        lane_index : int, optional
+            The lane index of the desired lane.
+        lane_section_index : int
+            The index of the lane section.
+        start_or_end : str
+            Indicates whether the adjustment is done from the start or end
+            of the road.
 
-            i_line (int): index of the line (roadmark._line)
-
-            lane_side (str): "left", "right", or "center" describing what lane is of interest
-
-            contact_point (ContactPoint): contact point of the connected_lane_section
-
-            lane_index (int): the lane index of the wanted lane
-
-            lane_section_index (int): index of the lane section
-
-            start_or_end (str): if the adjustment is done from the end or from the start of the road
-
-        Return
-        ------
-            float: remainder of the previous lanesection
-
+        Returns
+        -------
+        float
+            The remainder of the previous lane section.
         """
         active_lane_sec = self.lanesections[lane_section_index]
         neighbor_lane_sec = None
@@ -322,31 +421,44 @@ class Lanes(XodrBase):
 
         else:
             if start_or_end == "start":
-                prev_remainder = neighboring_lane.roadmark[0]._line[i_line]._remainder
+                prev_remainder = (
+                    neighboring_lane.roadmark[0]._line[i_line]._remainder
+                )
             else:
-                prev_remainder = neighboring_lane.roadmark[0]._line[i_line].soffset
+                prev_remainder = (
+                    neighboring_lane.roadmark[0]._line[i_line].soffset
+                )
         return prev_remainder
 
-    def _get_seg_length(self, total_road_length, lane_section_index):
-        """_get_seg_length is a helper method to figure out how long a lane section is
+    def _get_seg_length(
+        self, total_road_length: float, lane_section_index: int
+    ) -> float:
+        """Calculate the length of a lane section.
+
+        This helper method determines the length of a specific lane
+        section based on the total road length and the index of the lane
+        section.
 
         Parameters
         ----------
-            total_road_length (float): total length of the road
-
-            lane_section_index (int): the index of the wanted lanesection
+        total_road_length : float
+            The total length of the road.
+        lane_section_index : int
+            The index of the desired lane section.
 
         Returns
         -------
-            float: length of the lanesection
-
+        float
+            The length of the specified lane section.
         """
         if len(self.lanesections) == 1:
             seg_length = total_road_length
         elif lane_section_index == 0:
             seg_length = self.lanesections[1].s
         elif lane_section_index == len(self.lanesections) - 1:
-            seg_length = total_road_length - self.lanesections[lane_section_index].s
+            seg_length = (
+                total_road_length - self.lanesections[lane_section_index].s
+            )
         else:
             seg_length = (
                 self.lanesections[lane_section_index + 1].s
@@ -356,29 +468,43 @@ class Lanes(XodrBase):
 
     def adjust_road_marks_from_start(
         self,
-        total_road_length,
-        connected_lane_section=None,
-        contact_point=ContactPoint.end,
-    ):
-        """Adjusts road marks from the start of the road, based on the connected lane section.
-        If connected_lane_section is not provided, the last roadmark will be placed with zero
-        distance to the start of the road
+        total_road_length: float,
+        connected_lane_section: Optional["LaneSection"] = None,
+        contact_point: "ContactPoint" = ContactPoint.end,
+    ) -> None:
+        """Adjust road marks from the start of the road.
+
+        This method adjusts road marks based on the connected lane
+        section. If `connected_lane_section` is not provided, the last
+        roadmark will be placed with zero distance to the start of the
+        road.
 
         Parameters
         ----------
-            total_road_length (float): total length of the road
+        total_road_length : float
+            The total length of the road.
+        connected_lane_section : LaneSection, optional
+            The lane section connected to the road. Default is None.
+        contact_point : ContactPoint, optional
+            The contact point of the `connected_lane_section`. Default is
+            `ContactPoint.end`.
 
-            connected_lane_section (LaneSection): the lane section connected to the road
-                Default: None
+        Returns
+        -------
+        None
 
-            contact_point (ContactPoint)
-                Default: ContactPoint.end
+        Raises
+        ------
+        TypeError
+            If `connected_lane_section` is not of type `LaneSection`.
         """
         contact_point = enumchecker(contact_point, ContactPoint)
         if connected_lane_section and not isinstance(
             connected_lane_section, LaneSection
         ):
-            raise TypeError("connected_lane_section is not of type LaneSection")
+            raise TypeError(
+                "connected_lane_section is not of type LaneSection"
+            )
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -398,7 +524,8 @@ class Lanes(XodrBase):
                         ):
                             if ls == 0 and connected_lane_section is None:
                                 set_zero_offset_to_lines(
-                                    self.lanesections[ls].rightlanes[rl], seg_length
+                                    self.lanesections[ls].rightlanes[rl],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -409,22 +536,29 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "right",
-                                        contact_point,
-                                        rl,
-                                        ls,
-                                        "start",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "right",
+                                            contact_point,
+                                            rl,
+                                            ls,
+                                            "start",
+                                        )
                                     )
-                                    self.lanesections[ls].rightlanes[rl].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_remainder(
-                                        seg_length, previous_remainder=prev_remainder
+                                    self.lanesections[ls].rightlanes[
+                                        rl
+                                    ].roadmark[0]._line[
+                                        i_line
+                                    ].adjust_remainder(
+                                        seg_length,
+                                        previous_remainder=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].rightlanes[rl].roadmark[0]
+                                    self.lanesections[ls]
+                                    .rightlanes[rl]
+                                    .roadmark[0]
                                 )
                 if self._left_lanes_adjustable:
                     for ll in range(len(self.lanesections[ls].leftlanes)):
@@ -433,7 +567,8 @@ class Lanes(XodrBase):
                         ):
                             if ls == 0 and connected_lane_section is None:
                                 set_zero_offset_to_lines(
-                                    self.lanesections[ls].leftlanes[ll], seg_length
+                                    self.lanesections[ls].leftlanes[ll],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -444,32 +579,45 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "left",
-                                        contact_point,
-                                        ll,
-                                        ls,
-                                        "start",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "left",
+                                            contact_point,
+                                            ll,
+                                            ls,
+                                            "start",
+                                        )
                                     )
-                                    self.lanesections[ls].leftlanes[ll].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_remainder(
-                                        seg_length, previous_remainder=prev_remainder
+                                    self.lanesections[ls].leftlanes[
+                                        ll
+                                    ].roadmark[0]._line[
+                                        i_line
+                                    ].adjust_remainder(
+                                        seg_length,
+                                        previous_remainder=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].leftlanes[ll].roadmark[0]
+                                    self.lanesections[ls]
+                                    .leftlanes[ll]
+                                    .roadmark[0]
                                 )
                 if self._center_lane_adjustable:
-                    if self._check_valid_mark_type(self.lanesections[ls].centerlane):
+                    if self._check_valid_mark_type(
+                        self.lanesections[ls].centerlane
+                    ):
                         if ls == 0 and connected_lane_section is None:
                             set_zero_offset_to_lines(
                                 self.lanesections[ls].centerlane, seg_length
                             )
                         else:
                             for i_line in range(
-                                len(self.lanesections[ls].centerlane.roadmark[0]._line)
+                                len(
+                                    self.lanesections[ls]
+                                    .centerlane.roadmark[0]
+                                    ._line
+                                )
                             ):
                                 prev_remainder = self._get_previous_remainder(
                                     connected_lane_section,
@@ -480,10 +628,11 @@ class Lanes(XodrBase):
                                     ls,
                                     "start",
                                 )
-                                self.lanesections[ls].centerlane.roadmark[0]._line[
-                                    i_line
-                                ].adjust_remainder(
-                                    seg_length, previous_remainder=prev_remainder
+                                self.lanesections[ls].centerlane.roadmark[
+                                    0
+                                ]._line[i_line].adjust_remainder(
+                                    seg_length,
+                                    previous_remainder=prev_remainder,
                                 )
                             self._adjust_for_missing_line_offset(
                                 self.lanesections[ls].centerlane.roadmark[0]
@@ -491,29 +640,42 @@ class Lanes(XodrBase):
 
     def adjust_road_marks_from_end(
         self,
-        total_road_length,
-        connected_lane_section=None,
-        contact_point=ContactPoint.end,
-    ):
-        """Adjusts road marks from the end of the road, based on the connected lane section.
-        If connected_lane_section is not provided, the last roadmark will be placed with zero
-        distance to the end of the road
+        total_road_length: float,
+        connected_lane_section: Optional["LaneSection"] = None,
+        contact_point: "ContactPoint" = ContactPoint.end,
+    ) -> None:
+        """Adjust road marks from the end of the road.
+
+        This method adjusts road marks based on the connected lane
+        section. If `connected_lane_section` is not provided, the last
+        roadmark will be placed with zero distance to the end of the road.
 
         Parameters
         ----------
-            total_road_length (float): total length of the road
+        total_road_length : float
+            The total length of the road.
+        connected_lane_section : LaneSection, optional
+            The lane section connected to the road. Default is None.
+        contact_point : ContactPoint, optional
+            The contact point of the `connected_lane_section`. Default is
+            `ContactPoint.end`.
 
-            connected_lane_section (LaneSection): the lane section connected to the road
-                Default: None
+        Returns
+        -------
+        None
 
-            contact_point (ContactPoint)
-                Default: ContactPoint.end
+        Raises
+        ------
+        TypeError
+            If `connected_lane_section` is not of type `LaneSection`.
         """
         contact_point = enumchecker(contact_point, ContactPoint)
         if connected_lane_section and not isinstance(
             connected_lane_section, LaneSection
         ):
-            raise TypeError("connected_lane_section is not of type LaneSection")
+            raise TypeError(
+                "connected_lane_section is not of type LaneSection"
+            )
         if not self.roadmarks_adjusted:
             self._validity_check_for_roadmark_adjustment()
             self.roadmarks_adjusted = True
@@ -536,7 +698,8 @@ class Lanes(XodrBase):
                                 and connected_lane_section is None
                             ):
                                 set_zero_remainder_to_lines(
-                                    self.lanesections[ls].rightlanes[rl], seg_length
+                                    self.lanesections[ls].rightlanes[rl],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -547,22 +710,27 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "right",
-                                        contact_point,
-                                        rl,
-                                        ls,
-                                        "end",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "right",
+                                            contact_point,
+                                            rl,
+                                            ls,
+                                            "end",
+                                        )
                                     )
-                                    self.lanesections[ls].rightlanes[rl].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_soffset(
-                                        seg_length, previous_offset=prev_remainder
+                                    self.lanesections[ls].rightlanes[
+                                        rl
+                                    ].roadmark[0]._line[i_line].adjust_soffset(
+                                        seg_length,
+                                        previous_offset=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].rightlanes[rl].roadmark[0]
+                                    self.lanesections[ls]
+                                    .rightlanes[rl]
+                                    .roadmark[0]
                                 )
                 if self._left_lanes_adjustable:
                     for ll in range(len(self.lanesections[ls].leftlanes)):
@@ -574,7 +742,8 @@ class Lanes(XodrBase):
                                 and connected_lane_section is None
                             ):
                                 set_zero_remainder_to_lines(
-                                    self.lanesections[ls].leftlanes[ll], seg_length
+                                    self.lanesections[ls].leftlanes[ll],
+                                    seg_length,
                                 )
                             else:
                                 for i_line in range(
@@ -585,26 +754,33 @@ class Lanes(XodrBase):
                                         ._line
                                     )
                                 ):
-                                    prev_remainder = self._get_previous_remainder(
-                                        connected_lane_section,
-                                        i_line,
-                                        "left",
-                                        contact_point,
-                                        ll,
-                                        ls,
-                                        "end",
+                                    prev_remainder = (
+                                        self._get_previous_remainder(
+                                            connected_lane_section,
+                                            i_line,
+                                            "left",
+                                            contact_point,
+                                            ll,
+                                            ls,
+                                            "end",
+                                        )
                                     )
-                                    self.lanesections[ls].leftlanes[ll].roadmark[
-                                        0
-                                    ]._line[i_line].adjust_soffset(
-                                        seg_length, previous_offset=prev_remainder
+                                    self.lanesections[ls].leftlanes[
+                                        ll
+                                    ].roadmark[0]._line[i_line].adjust_soffset(
+                                        seg_length,
+                                        previous_offset=prev_remainder,
                                     )
                                 self._adjust_for_missing_line_offset(
-                                    self.lanesections[ls].leftlanes[ll].roadmark[0]
+                                    self.lanesections[ls]
+                                    .leftlanes[ll]
+                                    .roadmark[0]
                                 )
 
                 if self._center_lane_adjustable:
-                    if self._check_valid_mark_type(self.lanesections[ls].centerlane):
+                    if self._check_valid_mark_type(
+                        self.lanesections[ls].centerlane
+                    ):
                         if (
                             ls == len(self.lanesections) - 1
                             and connected_lane_section is None
@@ -614,7 +790,11 @@ class Lanes(XodrBase):
                             )
                         else:
                             for i_line in range(
-                                len(self.lanesections[ls].centerlane.roadmark[0]._line)
+                                len(
+                                    self.lanesections[ls]
+                                    .centerlane.roadmark[0]
+                                    ._line
+                                )
                             ):
                                 prev_remainder = self._get_previous_remainder(
                                     connected_lane_section,
@@ -625,17 +805,26 @@ class Lanes(XodrBase):
                                     ls,
                                     "end",
                                 )
-                                self.lanesections[ls].centerlane.roadmark[0]._line[
-                                    i_line
-                                ].adjust_soffset(
+                                self.lanesections[ls].centerlane.roadmark[
+                                    0
+                                ]._line[i_line].adjust_soffset(
                                     seg_length, previous_offset=prev_remainder
                                 )
                             self._adjust_for_missing_line_offset(
                                 self.lanesections[ls].centerlane.roadmark[0]
                             )
 
-    def get_element(self):
-        """returns the elementTree of Lanes"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree representation of the `Lanes` object.
+
+        This method generates an XML representation of the `Lanes` object,
+        including its lane sections and lane offsets.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `Lanes` object.
+        """
         element = ET.Element("lanes")
         self._add_additional_data_to_element(element)
         for l in self.laneoffsets:
@@ -646,57 +835,69 @@ class Lanes(XodrBase):
 
 
 class LaneOffset(XodrBase):
-    """the LaneOffset class defines an overall lateral offset along the road, described as a third degree polynomial
+    """Define an overall lateral offset along the road as a third-degree
+    polynomial.
 
     Parameters
     ----------
-        s (float): s start coordinate of the elevation
-
-        a (float): a coefficient of the polynomial
-
-        b (float): b coefficient of the polynomial
-
-        c (float): c coefficient of the polynomial
-
-        d (float): d coefficient of the polynomial
+    s : float
+        The `s` start coordinate of the lane offset.
+    a : float
+        The `a` coefficient of the polynomial.
+    b : float
+        The `b` coefficient of the polynomial.
+    c : float
+        The `c` coefficient of the polynomial.
+    d : float
+        The `d` coefficient of the polynomial.
 
     Attributes
     ----------
-        s (float): s start coordinate of the elevation
-
-        a (float): a coefficient of the polynomial
-
-        b (float): b coefficient of the polynomial
-
-        c (float): c coefficient of the polynomial
-
-        d (float): d coefficient of the polynomial
+    s : float
+        The `s` start coordinate of the lane offset.
+    a : float
+        The `a` coefficient of the polynomial.
+    b : float
+        The `b` coefficient of the polynomial.
+    c : float
+        The `c` coefficient of the polynomial.
+    d : float
+        The `d` coefficient of the polynomial.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns the attributes of the class
-
+    get_element()
+        Returns the full ElementTree representation of the class.
+    get_attributes()
+        Returns the attributes of the class as a dictionary.
     """
 
-    def __init__(self, s=0, a=0, b=0, c=0, d=0):
-        """initalize the LaneOffset class
+    def __init__(
+        self,
+        s: float = 0,
+        a: float = 0,
+        b: float = 0,
+        c: float = 0,
+        d: float = 0,
+    ) -> None:
+        """Initialize the `LaneOffset` class.
 
         Parameters
         ----------
-            s (float): s start coordinate of the LaneOffset
+        s : float, optional
+            The `s` start coordinate of the lane offset. Default is 0.
+        a : float, optional
+            The `a` coefficient of the polynomial. Default is 0.
+        b : float, optional
+            The `b` coefficient of the polynomial. Default is 0.
+        c : float, optional
+            The `c` coefficient of the polynomial. Default is 0.
+        d : float, optional
+            The `d` coefficient of the polynomial. Default is 0.
 
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
-
+        Returns
+        -------
+        None
         """
         super().__init__()
         self.s = s
@@ -705,14 +906,24 @@ class LaneOffset(XodrBase):
         self.c = c
         self.d = d
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LaneOffset) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """returns the attributes of the LaneOffset"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `LaneOffset` as a dictionary.
+
+        This method returns the attributes of the `LaneOffset` object,
+        including its polynomial coefficients and the `s` start
+        coordinate.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `LaneOffset`.
+        """
 
         retdict = {}
         retdict["s"] = str(self.s)
@@ -722,55 +933,72 @@ class LaneOffset(XodrBase):
         retdict["d"] = str(self.d)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the LaneOffset"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `LaneOffset`.
+
+        This method generates an XML representation of the `LaneOffset`
+        object, including its attributes.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `LaneOffset`.
+        """
         element = ET.Element("laneOffset", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class LaneSection(XodrBase):
-    """Creates the LaneSection element of opendrive
+    """Create the LaneSection element of OpenDRIVE.
+
+    This class represents a lane section, including its center lane,
+    left lanes, and right lanes.
 
     Parameters
     ----------
-        s (float): start of lanesection
-
-        centerlane (Lane): the centerline of the road
+    s : float
+        The `s` start coordinate of the lane section.
+    centerlane : Lane
+        The center lane of the road.
 
     Attributes
     ----------
-        s (float): start of lanesection
-
-        centerlane (Lane): the centerline of the road
-
-        leftlanes (list of Lane): the lanes left to the center
-
-        rightlanes (list of Lane): the lanes right to the center
+    s : float
+        The `s` start coordinate of the lane section.
+    centerlane : Lane
+        The center lane of the road.
+    leftlanes : list of Lane
+        The lanes to the left of the center lane.
+    rightlanes : list of Lane
+        The lanes to the right of the center lane.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of class
-
-        add_left_lane(Lane)
-            adds a new lane to the left
-
-        add_right_lane(Lane)
-            adds a new lane to the right
+    get_element()
+        Returns the full ElementTree representation of the class.
+    get_attributes()
+        Returns the attributes of the class as a dictionary.
+    add_left_lane(lane)
+        Adds a new lane to the left of the center lane.
+    add_right_lane(lane)
+        Adds a new lane to the right of the center lane.
     """
 
-    def __init__(self, s, centerlane):
-        """initalize the LaneSection
+    def __init__(self, s: float, centerlane: "Lane") -> None:
+        """Initialize the `LaneSection` class.
 
         Parameters
         ----------
-            s (float): start of lanesection
+        s : float
+            The `s` start coordinate of the lane section.
+        centerlane : Lane
+            The center lane of the road.
 
-            centerlane (Lane): the centerline of the road
+        Raises
+        ------
+        TypeError
+            If `centerlane` is not of type `Lane`.
         """
         super().__init__()
         self.s = s
@@ -783,7 +1011,7 @@ class LaneSection(XodrBase):
         self._left_id = 1
         self._right_id = -1
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LaneSection) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -794,12 +1022,23 @@ class LaneSection(XodrBase):
                 return True
         return False
 
-    def add_left_lane(self, lane):
-        """adds a lane to the left of the center, add from center outwards
+    def add_left_lane(self, lane: "Lane") -> "LaneSection":
+        """Add a lane to the left of the center lane.
 
         Parameters
         ----------
-            lane (Lane): the lane to add
+        lane : Lane
+            The lane to add.
+
+        Returns
+        -------
+        LaneSection
+            The updated `LaneSection` object.
+
+        Raises
+        ------
+        TypeError
+            If `lane` is not of type `Lane`.
         """
         if not isinstance(lane, Lane):
             raise TypeError("lane input is not of type Lane")
@@ -808,12 +1047,23 @@ class LaneSection(XodrBase):
         self.leftlanes.append(lane)
         return self
 
-    def add_right_lane(self, lane):
-        """adds a lane to the right of the center, add from center outwards
+    def add_right_lane(self, lane: "Lane") -> "LaneSection":
+        """Add a lane to the right of the center lane.
 
         Parameters
         ----------
-            lane (Lane): the lane to add
+        lane : Lane
+            The lane to add.
+
+        Returns
+        -------
+        LaneSection
+            The updated `LaneSection` object.
+
+        Raises
+        ------
+        TypeError
+            If `lane` is not of type `Lane`.
         """
         if not isinstance(lane, Lane):
             raise TypeError("lane input is not of type Lane")
@@ -822,14 +1072,26 @@ class LaneSection(XodrBase):
         self.rightlanes.append(lane)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the Lane as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `LaneSection` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `LaneSection`.
+        """
         retdict = {}
         retdict["s"] = str(self.s)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the WorldPostion"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `LaneSection`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `LaneSection`.
+        """
         element = ET.Element("laneSection", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self.leftlanes:
@@ -849,20 +1111,93 @@ class LaneSection(XodrBase):
 
 
 class _poly3struct:
-    def __init__(self, a=0, b=0, c=0, d=0, soffset=0):
+    """Represent a third-degree polynomial structure.
+
+    This class is used to define a polynomial of the form:
+        f(s) = a + b * (s - soffset) + c * (s - soffset)^2 + d * (s - soffset)^3
+
+    Parameters
+    ----------
+    a : float, optional
+        The `a` coefficient of the polynomial. Default is 0.
+    b : float, optional
+        The `b` coefficient of the polynomial. Default is 0.
+    c : float, optional
+        The `c` coefficient of the polynomial. Default is 0.
+    d : float, optional
+        The `d` coefficient of the polynomial. Default is 0.
+    soffset : float, optional
+        The `s` offset for the polynomial. Default is 0.
+
+    Attributes
+    ----------
+    a : float
+        The `a` coefficient of the polynomial.
+    b : float
+        The `b` coefficient of the polynomial.
+    c : float
+        The `c` coefficient of the polynomial.
+    d : float
+        The `d` coefficient of the polynomial.
+    soffset : float
+        The `s` offset for the polynomial.
+
+    Methods
+    -------
+    get_width(s)
+        Calculate the width at a given `s` value.
+    get_attributes()
+        Return the attributes of the polynomial as a dictionary.
+    """
+
+    def __init__(
+        self,
+        a: float = 0,
+        b: float = 0,
+        c: float = 0,
+        d: float = 0,
+        soffset: float = 0,
+    ) -> None:
+        """Initialize the `_poly3struct` class.
+
+        Parameters
+        ----------
+        a : float, optional
+            The `a` coefficient of the polynomial. Default is 0.
+        b : float, optional
+            The `b` coefficient of the polynomial. Default is 0.
+        c : float, optional
+            The `c` coefficient of the polynomial. Default is 0.
+        d : float, optional
+            The `d` coefficient of the polynomial. Default is 0.
+        soffset : float, optional
+            The `s` offset for the polynomial. Default is 0.
+        """
         self.a = a
         self.b = b
         self.c = c
         self.d = d
         self.soffset = soffset
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _poly3struct):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_width(self, s):
+    def get_width(self, s: float) -> float:
+        """Calculate the width at a given `s` value.
+
+        Parameters
+        ----------
+        s : float
+            The `s` value at which to calculate the width.
+
+        Returns
+        -------
+        float
+            The width at the given `s` value.
+        """
         width = (
             self.a
             + self.b * (s - self.soffset)
@@ -871,7 +1206,14 @@ class _poly3struct:
         )
         return width
 
-    def get_attributes(self):
+    def get_attributes(self) -> dict:
+        """Return the attributes of the polynomial as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the polynomial.
+        """
         polynomialdict = {}
         polynomialdict["a"] = str(self.a)
         polynomialdict["b"] = str(self.b)
@@ -882,103 +1224,90 @@ class _poly3struct:
 
 
 class Lane(XodrBase):
-    """creates a Lane of opendrive
+    """Create a Lane element of OpenDRIVE.
 
-    the inputs are on the following format:
-        f(s) = a + b*s + c*s^2 + d*s^3
+    The lane is defined using a polynomial of the form:
+        f(s) = a + b * s + c * s^2 + d * s^3
 
     Parameters
     ----------
-
-        lane_type (LaneType): type of lane
-            Default: LaneType.driving
-
-        a (float): a coefficient
-            Default: 0
-
-        b (float): b coefficient
-            Default: 0
-
-        c (float): c coefficient
-            Default: 0
-
-        d (float): d coefficient
-            Default: 0
-
-        soffset (float): soffset of lane
-            Default: 0
-
+    lane_type : LaneType, optional
+        The type of the lane. Default is `LaneType.driving`.
+    a : float, optional
+        The `a` coefficient of the polynomial. Default is 0.
+    b : float, optional
+        The `b` coefficient of the polynomial. Default is 0.
+    c : float, optional
+        The `c` coefficient of the polynomial. Default is 0.
+    d : float, optional
+        The `d` coefficient of the polynomial. Default is 0.
+    soffset : float, optional
+        The `s` offset of the lane. Default is 0.
 
     Attributes
     ----------
-        lane_id (int): id of the lane (automatically assigned by LaneSection)
-
-        lane_type (LaneType): type of lane
-
-        a (float): a coefficient
-
-        b (float): b coefficient
-
-        c (float): c coefficient
-
-        d (float): d coefficient
-
-        soffset (float): soffset of lane
-
-        roadmark (RoadMark): roadmarks related to the lane
-
-        links (_Links): Lane links to the lane
+    lane_id : int
+        The ID of the lane (automatically assigned by `LaneSection`).
+    lane_type : LaneType
+        The type of the lane.
+    widths : list of _poly3struct
+        The width elements of the lane.
+    heights : list of dict
+        The height entries of the lane.
+    roadmark : list of RoadMark
+        The roadmarks associated with the lane.
+    links : _Links
+        The lane links associated with the lane.
+    materials : list of dict
+        The material descriptions of the lane.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of class
-
-        add_roadmark(roadmark)
-            adds a new roadmark to the lane
-
-        add_lane_width(a, b, c, d, soffset)
-            adds an additional width element to the lane
-
-        get_width(s)
-            returns the width of the lane at s
-
-        add_height(self, inner, outer=None, soffset=0)
-            add_height adds a height entry to the lane to elevate it independent from the road elevation
-
-        add_lane_material(self, friction, roughness=None, soffset=0, surface=None)
-            add_lane_material adds a material description entry to the lane
-
-
+    add_lane_width(a, b, c, d, soffset)
+        Add an additional width element to the lane.
+    get_width(s)
+        Calculate the width of the lane at a given `s` value.
+    add_link(link_type, id)
+        Add a link to the lane.
+    get_linked_lane_id(link_type)
+        Get the ID of the linked lane for a given link type.
+    add_roadmark(roadmark)
+        Add a roadmark to the lane.
+    add_height(inner, outer=None, soffset=0)
+        Add a height entry to the lane.
+    add_lane_material(friction, roughness=None, soffset=0, surface=None)
+        Add a material description entry to the lane.
+    get_attributes()
+        Return the attributes of the lane as a dictionary.
+    get_element()
+        Return the ElementTree representation of the lane.
     """
 
-    def __init__(self, lane_type=LaneType.driving, a=0, b=0, c=0, d=0, soffset=0):
-        """initalizes the Lane
+    def __init__(
+        self,
+        lane_type: LaneType = LaneType.driving,
+        a: float = 0,
+        b: float = 0,
+        c: float = 0,
+        d: float = 0,
+        soffset: float = 0,
+    ) -> None:
+        """Initialize the `Lane` class.
 
         Parameters
         ----------
-
-            lane_type (LaneType): type of lane
-                Default: LaneType.driving
-
-            a (float): a polynomial coefficient for width (left/right) or laneoffset (center)
-                Default: 0
-
-            b (float): b polynomial coefficient for width (left/right) or laneoffset (center)
-                Default: 0
-
-            c (float): c polynomial coefficient for width (left/right) or laneoffset (center)
-                Default: 0
-
-            d (float): d polynomial coefficient for width (left/right) or laneoffset (center)
-                Default: 0
-
-            soffset (float): soffset of lane renamed to s in case of centerlane
-                Default: 0
-
+        lane_type : LaneType, optional
+            The type of the lane. Default is `LaneType.driving`.
+        a : float, optional
+            The `a` coefficient of the polynomial. Default is 0.
+        b : float, optional
+            The `b` coefficient of the polynomial. Default is 0.
+        c : float, optional
+            The `c` coefficient of the polynomial. Default is 0.
+        d : float, optional
+            The `d` coefficient of the polynomial. Default is 0.
+        soffset : float, optional
+            The `s` offset of the lane. Default is 0.
         """
         super().__init__()
         self.lane_id = None
@@ -995,7 +1324,7 @@ class Lane(XodrBase):
         self.links = _Links()
         self.materials = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Lane) and super().__eq__(other):
             if (
                 self.links == other.links
@@ -1010,41 +1339,43 @@ class Lane(XodrBase):
 
         # TODO: add more features to add for lane
 
-    def add_lane_width(self, a=0, b=0, c=0, d=0, soffset=0):
-        """adds an additional width element to the lane
+    def add_lane_width(
+        self,
+        a: float = 0,
+        b: float = 0,
+        c: float = 0,
+        d: float = 0,
+        soffset: float = 0,
+    ) -> None:
+        """Add an additional width element to the lane.
 
         Parameters
         ----------
-            a (float): a polynomial coefficient for width
-                Default: 0
-
-            b (float): b polynomial coefficient for width
-                Default: 0
-
-            c (float): c polynomial coefficient for width
-                Default: 0
-
-            d (float): d polynomial coefficient for width
-                Default: 0
-
-            soffset (float): soffset of lane renamed to s in case of centerlane
-                Default: 0
-
+        a : float, optional
+            The `a` coefficient of the polynomial. Default is 0.
+        b : float, optional
+            The `b` coefficient of the polynomial. Default is 0.
+        c : float, optional
+            The `c` coefficient of the polynomial. Default is 0.
+        d : float, optional
+            The `d` coefficient of the polynomial. Default is 0.
+        soffset : float, optional
+            The `s` offset of the lane. Default is 0.
         """
         self.widths.append(_poly3struct(a, b, c, d, soffset))
 
-    def get_width(self, s):
-        """function that calculates the width of a lane at a point s
-
-        Note: no check that s is on the road can be made, that has to be taken care of by the user
+    def get_width(self, s: float) -> float:
+        """Calculate the width of the lane at a given `s` value.
 
         Parameters
         ----------
-            s (float): the point where the width is wished
+        s : float
+            The `s` value at which to calculate the width.
 
         Returns
         -------
-            width (float): the width at point s
+        float
+            The width of the lane at the given `s` value.
         """
         index_to_calc = 0
         for i in range(len(self.widths)):
@@ -1054,62 +1385,101 @@ class Lane(XodrBase):
                 break
         return self.widths[index_to_calc].get_width(s)
 
-    def add_link(self, link_type, id):
-        """adds a link to the lane section
+    def add_link(self, link_type: str, id: Union[str, int]) -> "Lane":
+        """Add a link to the lane.
 
         Parameters
         ----------
-            link_type (str): type of link, successor or predecessor
+        link_type : str
+            The type of the link (e.g., "successor" or "predecessor").
+        id : str or int
+            The ID of the linked lane.
 
-            id (str/id): id of the linked lane
+        Returns
+        -------
+        Lane
+            The updated `Lane` object.
         """
         self.links.add_link(_Link(link_type, str(id)))
         return self
 
-    def get_linked_lane_id(self, link_type):
-        """adds a link to the lane section
+    def get_linked_lane_id(self, link_type: str) -> Optional[int]:
+        """Get the ID of the linked lane for a given link type.
 
         Parameters
         ----------
-            link_type (str): type of link, successor or predecessor
+        link_type : str
+            The type of the link (e.g., "successor" or "predecessor").
+
+        Returns
+        -------
+        int or None
+            The ID of the linked lane, or None if no link exists.
         """
         for link in self.links.links:
             if link.link_type == link_type:
                 return int(link.element_id)
         return None
 
-    def _set_lane_id(self, lane_id):
-        """set the lane id of the lane and set lane type to 'none' in case of centerlane"""
+    def _set_lane_id(self, lane_id: int) -> None:
+        """Set the lane ID of the lane and update the lane type to 'none' if it
+        is a center lane.
+
+        Parameters
+        ----------
+        lane_id : int
+            The ID to assign to the lane.
+
+        Returns
+        -------
+        None
+        """
         self.lane_id = lane_id
         if self.lane_id == 0:
             self.lane_type = LaneType.none
 
-    def add_roadmark(self, roadmark):
-        """add_roadmark adds a roadmark to the lane
+    def add_roadmark(self, roadmark: "RoadMark") -> "Lane":
+        """Add a roadmark to the lane.
 
         Parameters
         ----------
-            roadmark (RoadMark): roadmark of the lane
+        roadmark : RoadMark
+            The roadmark to add.
 
+        Returns
+        -------
+        Lane
+            The updated `Lane` object.
+
+        Raises
+        ------
+        TypeError
+            If `roadmark` is not of type `RoadMark`.
         """
         if not isinstance(roadmark, RoadMark):
             raise TypeError("roadmark input is not of type RoadMark")
         self.roadmark.append(roadmark)
         return self
 
-    def add_height(self, inner, outer=None, soffset=0):
-        """add_height adds a height entry to the lane to elevate it independent from the road elevation
+    def add_height(
+        self, inner: float, outer: Optional[float] = None, soffset: float = 0
+    ) -> "Lane":
+        """Add a height entry to the lane.
 
         Parameters
         ----------
-            inner (float): inner height
+        inner : float
+            The inner height of the lane.
+        outer : float, optional
+            The outer height of the lane. If not provided, the inner
+            height is used. Default is None.
+        soffset : float, optional
+            The `s` offset of the height record. Default is 0.
 
-            outer (float): outer height (if not provided, inner height is used)
-                Default: None
-
-            s_offset (float): s offset of the height record
-                Default: 0
-
+        Returns
+        -------
+        Lane
+            The updated `Lane` object.
         """
         heightdict = {}
         heightdict["inner"] = str(inner)
@@ -1122,21 +1492,30 @@ class Lane(XodrBase):
         self.heights.append(heightdict)
         return self
 
-    def add_lane_material(self, friction, roughness=None, soffset=0, surface=None):
-        """add_lane_material adds a material description entry to the lane
+    def add_lane_material(
+        self,
+        friction: float,
+        roughness: Optional[float] = None,
+        soffset: float = 0,
+        surface: Optional[str] = None,
+    ) -> "Lane":
+        """Add a material description entry to the lane.
+
         Parameters
         ----------
-            friction (float): friction coefficient
+        friction : float
+            The friction coefficient of the material.
+        roughness : float, optional
+            The roughness of the material. Default is None.
+        soffset : float, optional
+            The `s` offset of the material. Default is 0.
+        surface : str, optional
+            The surface material code. Default is None.
 
-            roughness (float): roughness, for example, for sound and motion systems
-                Default: None
-
-            sOffset (float): s offset of the material
-                Default: 0
-
-            surface (str): surface material code, depending on application
-                Default: None
-
+        Returns
+        -------
+        Lane
+            The updated `Lane` object.
         """
         materialdict = {}
         materialdict["friction"] = str(friction)
@@ -1148,8 +1527,19 @@ class Lane(XodrBase):
         self.materials.append(materialdict)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the Lane as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the lane as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the lane.
+
+        Raises
+        ------
+        ValueError
+            If the lane ID is not set.
+        """
         retdict = {}
         if self.lane_id == None:
             raise ValueError("lane id is not set correctly.")
@@ -1158,8 +1548,14 @@ class Lane(XodrBase):
         retdict["level"] = "false"
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the Lane"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the lane.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the lane.
+        """
         element = ET.Element("lane", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         # according to standard if lane is centerlane it should
@@ -1188,94 +1584,117 @@ class Lane(XodrBase):
 
 
 class RoadMark(XodrBase):
-    """creates a RoadMark of opendrive
+    """Create a RoadMark element of OpenDRIVE.
 
     Parameters
     ----------
-        marking_type (RoadMarkType): the type of marking
-
-        width (float): with of the line
-            Default: None
-        length (float): length of the line
-            Default: 0
-        toffset (float): offset in t
-            Default: 0
-        soffset (float): offset in s
-            Default: 0
-        rule (MarkRule): mark rule (optional)
-
-        color (RoadMarkColor): color of line (optional)
+    marking_type : RoadMarkType
+        The type of marking.
+    width : float, optional
+        The width of the marking/line. Default is None.
+    length : float, optional
+        The length of the visible, marked part of the line (used for
+        broken lines). Default is None.
+    space : float, optional
+        The length of the invisible, unmarked part of the line (used for
+        broken lines). Default is None.
+    toffset : float, optional
+        The offset in the `t` direction. Default is None.
+    soffset : float, optional
+        The offset in the `s` direction. Default is 0.
+    rule : MarkRule, optional
+        The marking rule. Default is None.
+    color : RoadMarkColor, optional
+        The color of the marking. Default is `RoadMarkColor.standard`.
+    marking_weight : RoadMarkWeight, optional
+        The weight of the marking. Default is `RoadMarkWeight.standard`.
+    height : float, optional
+        The thickness of the marking. Default is 0.02.
+    laneChange : LaneChange, optional
+        Indicates the direction in which lane changes are allowed.
+        Default is None.
 
     Attributes
     ----------
-        marking_type (str): the type of marking
-
-        width (float): with of the line
-
-        length (float): length of the line
-            Default: 0
-        toffset (float): offset in t
-            Default: 0
-        soffset (float): offset in s
-            Default: 0
-        rule (MarkRule): mark rule (optional)
-
-        color (RoadMarkColor): color of line (optional)
+    marking_type : RoadMarkType
+        The type of marking.
+    width : float
+        The width of the marking/line.
+    length : float
+        The length of the visible, marked part of the line.
+    space : float
+        The length of the invisible, unmarked part of the line.
+    toffset : float
+        The offset in the `t` direction.
+    soffset : float
+        The offset in the `s` direction.
+    rule : MarkRule
+        The marking rule.
+    color : RoadMarkColor
+        The color of the marking.
+    marking_weight : RoadMarkWeight
+        The weight of the marking.
+    height : float
+        The thickness of the marking.
+    laneChange : LaneChange
+        Indicates the direction in which lane changes are allowed.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
-        add_roadmark(roadmark)
-            adds a new roadmark to the lane
-
+    add_specific_road_line(line)
+        Add a custom road line to the RoadMark.
+    add_explicit_road_line(line)
+        Add an explicit road line to the RoadMark.
+    get_attributes()
+        Return the attributes of the RoadMark as a dictionary.
+    get_element()
+        Return the ElementTree representation of the RoadMark.
     """
 
     def __init__(
         self,
-        marking_type,
-        width=None,
-        length=None,
-        space=None,
-        toffset=None,
-        soffset=0,
-        rule=None,
-        color=RoadMarkColor.standard,
-        marking_weight=RoadMarkWeight.standard,
-        height=0.02,
-        laneChange=None,
-    ):
-        """initializes the RoadMark
+        marking_type: RoadMarkType,
+        width: Optional[float] = None,
+        length: Optional[float] = None,
+        space: Optional[float] = None,
+        toffset: Optional[float] = None,
+        soffset: float = 0,
+        rule: Optional[MarkRule] = None,
+        color: RoadMarkColor = RoadMarkColor.standard,
+        marking_weight: RoadMarkWeight = RoadMarkWeight.standard,
+        height: float = 0.02,
+        laneChange: Optional[LaneChange] = None,
+    ) -> None:
+        """Initialize the `RoadMark` class.
 
         Parameters
         ----------
-            marking_type (str): the type of marking
-
-            width (float): width of the marking / line
-                Default: None
-            length (float): length of the visible, marked part of the line (used for broken lines)
-                Default: None
-            space (float): length of the invisible, unmarked part of the line (used for broken lines)
-                Default: None
-            toffset (float): offset in t
-                Default: None
-            soffset (float): offset in s
-                Default: 0
-            rule (MarkRule): mark rule (optional)
-                Default: None
-            color (RoadMarkColor): color of marking
-                Default: 'standard'
-            marking_weight (str): the weight of marking
-                Default: standard
-            height (float): thickness of marking
-                Default: 0.02
-            laneChange (LaneChange): indicates direction in which lane change is allowed
-                Default: none
-
+        marking_type : RoadMarkType
+            The type of marking.
+        width : float, optional
+            The width of the marking/line. Default is None.
+        length : float, optional
+            The length of the visible, marked part of the line (used for
+            broken lines). Default is None.
+        space : float, optional
+            The length of the invisible, unmarked part of the line (used
+            for broken lines). Default is None.
+        toffset : float, optional
+            The offset in the `t` direction. Default is None.
+        soffset : float, optional
+            The offset in the `s` direction. Default is 0.
+        rule : MarkRule, optional
+            The marking rule. Default is None.
+        color : RoadMarkColor, optional
+            The color of the marking. Default is `RoadMarkColor.standard`.
+        marking_weight : RoadMarkWeight, optional
+            The weight of the marking. Default is
+            `RoadMarkWeight.standard`.
+        height : float, optional
+            The thickness of the marking. Default is 0.02.
+        laneChange : LaneChange, optional
+            Indicates the direction in which lane changes are allowed.
+            Default is None.
         """
         super().__init__()
         # required arguments - must be provided by user
@@ -1334,7 +1753,7 @@ class RoadMark(XodrBase):
                 )
             )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadMark) and super().__eq__(other):
             if (
                 self._line == other._line
@@ -1345,34 +1764,60 @@ class RoadMark(XodrBase):
                 return True
         return False
 
-    def add_specific_road_line(self, line):
-        """function to add your own roadline to the RoadMark, to use for multi line type of roadmarks,
+    def add_specific_road_line(self, line: "RoadLine") -> "RoadMark":
+        """Add a custom road line to the RoadMark.
 
         Parameters
         ----------
-            line (RoadLine): the roadline to add
+        line : RoadLine
+            The road line to add.
 
+        Returns
+        -------
+        RoadMark
+            The updated `RoadMark` object.
+
+        Raises
+        ------
+        TypeError
+            If `line` is not of type `RoadLine`.
         """
         if not isinstance(line, RoadLine):
             raise TypeError("line input is not of type RoadLine")
         self._line.append(line)
         return self
 
-    def add_explicit_road_line(self, line):
-        """function to add a explicit roadline to the RoadMark,
+    def add_explicit_road_line(self, line: "ExplicitRoadLine") -> "RoadMark":
+        """Add an explicit road line to the RoadMark.
 
         Parameters
         ----------
-            line (ExplicitRoadLine): the roadline to add
+        line : ExplicitRoadLine
+            The explicit road line to add.
 
+        Returns
+        -------
+        RoadMark
+            The updated `RoadMark` object.
+
+        Raises
+        ------
+        TypeError
+            If `line` is not of type `ExplicitRoadLine`.
         """
         if not isinstance(line, ExplicitRoadLine):
             raise TypeError("line input is not of type RoadLine")
         self._explicit_line.append(line)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the RoadMark as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `RoadMark` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `RoadMark`.
+        """
         retdict = {}
         retdict["sOffset"] = str(self.soffset)
         retdict["type"] = enum2str(self.marking_type)
@@ -1385,8 +1830,14 @@ class RoadMark(XodrBase):
             retdict["laneChange"] = enum2str(self.laneChange)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the RoadMark"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `RoadMark`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `RoadMark`.
+        """
         element = ET.Element("roadMark", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self._line:
@@ -1425,73 +1876,85 @@ class RoadMark(XodrBase):
 
 
 class RoadLine(XodrBase):
-    """creates a Line type of to be used in roadmark
+    """Create a Line type to be used in roadmark.
 
     Parameters
     ----------
-        width (float): with of the line
-            Default: 0
-        length (float): length of the line
-            Default: 0
-        space (float): length of space between (broken) lines
-            Default: 0
-        toffset (float): offset in t
-            Default: 0
-        soffset (float): offset in s
-            Default: 0
-        rule (MarkRule): mark rule (optional)
-
-        color (RoadMarkColor): color of line (optional)
+    width : float, optional
+        The width of the line. Default is 0.
+    length : float, optional
+        The length of the line. Default is 0.
+    space : float, optional
+        The length of space between (broken) lines. Default is 0.
+    toffset : float, optional
+        The offset in the `t` direction. Default is 0.
+    soffset : float, optional
+        The offset in the `s` direction. Default is 0.
+    rule : MarkRule, optional
+        The marking rule. Default is None.
+    color : RoadMarkColor, optional
+        The color of the line. Default is None.
 
     Attributes
     ----------
-        length (float): length of the line
-
-        space (float): length of space between (broken) lines
-
-        toffset (float): offset in t
-
-        soffset (float): offset in s
-
-        rule (MarkRule): mark rule
-
-        width (float): with of the line
-
-        color (RoadMarkColor): color of line
+    length : float
+        The length of the line.
+    space : float
+        The length of space between (broken) lines.
+    toffset : float
+        The offset in the `t` direction.
+    soffset : float
+        The offset in the `s` direction.
+    rule : MarkRule
+        The marking rule.
+    width : float
+        The width of the line.
+    color : RoadMarkColor
+        The color of the line.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
+    adjust_remainder(total_length, soffset=None, previous_remainder=None)
+        Adjust the remainder of a broken mark for offset adjustments.
+    shift_soffset()
+        Shift the `soffset` by one period.
+    adjust_soffset(total_length, remainder=None, previous_offset=None)
+        Adjust the `soffset` of a broken mark for offset adjustments.
+    get_attributes()
+        Return the attributes of the `RoadLine` as a dictionary.
+    get_element()
+        Return the ElementTree representation of the `RoadLine`.
     """
 
     # TODO: check this for 1.5
     def __init__(
-        self, width=0, length=0, space=0, toffset=0, soffset=0, rule=None, color=None
-    ):
-        """initalizes the RoadLine
+        self,
+        width: float = 0,
+        length: float = 0,
+        space: float = 0,
+        toffset: float = 0,
+        soffset: float = 0,
+        rule: Optional[MarkRule] = None,
+        color: Optional[RoadMarkColor] = None,
+    ) -> None:
+        """Initialize the `RoadLine` class.
 
         Parameters
         ----------
-            width (float): with of the line
-                Default: 0
-            length (float): length of the line
-                Default: 0
-            space (float): length of space between (broken) lines
-                Default: 0
-            toffset (float): offset in t
-                Default: 0
-            soffset (float): offset in s
-                Default: 0
-            rule (MarkRule): mark rule (optional)
-
-            color (RoadMarkColor): color of line (optional)
-
-
+        width : float, optional
+            The width of the line. Default is 0.
+        length : float, optional
+            The length of the line. Default is 0.
+        space : float, optional
+            The length of space between (broken) lines. Default is 0.
+        toffset : float, optional
+            The offset in the `t` direction. Default is 0.
+        soffset : float, optional
+            The offset in the `s` direction. Default is 0.
+        rule : MarkRule, optional
+            The marking rule. Default is None.
+        color : RoadMarkColor, optional
+            The color of the line. Default is None.
         """
         super().__init__()
         self.length = length
@@ -1503,24 +1966,35 @@ class RoadLine(XodrBase):
         self.color = enumchecker(color, RoadMarkColor, True)
         self._remainder = 0
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadLine) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def adjust_remainder(self, total_length, soffset=None, previous_remainder=None):
-        """adjust_remainder is used to calculated and set the remainer of a broken mark for offset adjustments
+    def adjust_remainder(
+        self,
+        total_length: float,
+        soffset: Optional[float] = None,
+        previous_remainder: Optional[float] = None,
+    ) -> None:
+        """Adjust the remainder of a broken mark for offset adjustments.
 
         Parameters
         ----------
-            total_length (float): the lenght of the lanesection where this line is valid
+        total_length : float
+            The length of the lane section where this line is valid.
+        soffset : float, optional
+            The desired `soffset` at the beginning of the line. Use this
+            or `previous_remainder`. Default is None.
+        previous_remainder : float, optional
+            The remainder of the previous line. Use this or `soffset`.
+            Default is None.
 
-            soffset (float): the wanted soffset (at beginning of line), use this or previous remainder
-                Default: use defined in class
-
-            previous_remainder (float): the remainder of the previous line, use this or soffset
-                Default: use defined in class
+        Raises
+        ------
+        ToManyOptionalArguments
+            If both `soffset` and `previous_remainder` are provided.
         """
         if soffset and previous_remainder:
             raise ToManyOptionalArguments(
@@ -1530,24 +2004,41 @@ class RoadLine(XodrBase):
             self.soffset = soffset
         if previous_remainder is not None:
             self.soffset = self.space - previous_remainder
-        self._remainder = self._calculate_remainder_of_line(self.soffset, total_length)
+        self._remainder = self._calculate_remainder_of_line(
+            self.soffset, total_length
+        )
 
-    def shift_soffset(self):
-        """shifts the soffset one period"""
+    def shift_soffset(self) -> None:
+        """Shift the `soffset` by one period.
+
+        This method shifts the `soffset` by the sum of the space and
+        length of the line.
+        """
         self.soffset += self.space + self.length
 
-    def adjust_soffset(self, total_length, remainder=None, previous_offset=None):
-        """adjust_soffset is used to calculated and set the soffset of a broken mark for offset adjustments
+    def adjust_soffset(
+        self,
+        total_length: float,
+        remainder: Optional[float] = None,
+        previous_offset: Optional[float] = None,
+    ) -> None:
+        """Adjust the `soffset` of a broken mark for offset adjustments.
 
         Parameters
         ----------
-            total_length (float): the lenght of the lanesection where this line is valid
+        total_length : float
+            The length of the lane section where this line is valid.
+        remainder : float, optional
+            The desired remainder (`soffset` at the end of the line). Use
+            this or `previous_offset`. Default is None.
+        previous_offset : float, optional
+            The `soffset` of the previous line. Use this or `remainder`.
+            Default is None.
 
-            remainder (float): the wanted remainder ("soffset" at end of line), use this or previous_offset
-                Default: use defined in class
-
-            previous_offset (float): the soffset of the previous line, use this or remainder
-                Default: use defined in class
+        Raises
+        ------
+        ToManyOptionalArguments
+            If both `remainder` and `previous_offset` are provided.
         """
         if remainder and previous_offset:
             raise ToManyOptionalArguments(
@@ -1557,9 +2048,27 @@ class RoadLine(XodrBase):
             self._remainder = remainder
         if previous_offset is not None:
             self._remainder = self.space - previous_offset
-        self.soffset = self._calculate_remainder_of_line(self._remainder, total_length)
+        self.soffset = self._calculate_remainder_of_line(
+            self._remainder, total_length
+        )
 
-    def _calculate_remainder_of_line(self, soffset, total_length):
+    def _calculate_remainder_of_line(
+        self, soffset: float, total_length: float
+    ) -> float:
+        """Calculate the remainder of the line.
+
+        Parameters
+        ----------
+        soffset : float
+            The `s` offset of the line.
+        total_length : float
+            The total length of the lane section.
+
+        Returns
+        -------
+        float
+            The remainder of the line.
+        """
         n = (total_length - soffset + self.space) / (self.space + self.length)
         return (
             total_length
@@ -1568,8 +2077,14 @@ class RoadLine(XodrBase):
             + self.space
         )
 
-    def get_attributes(self):
-        """returns the attributes of the Lane as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `RoadLine` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `RoadLine`.
+        """
         retdict = {}
         retdict["length"] = str(self.length)
         retdict["space"] = str(self.space)
@@ -1582,66 +2097,80 @@ class RoadLine(XodrBase):
             retdict["rule"] = enum2str(self.rule)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the RoadLine"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `RoadLine`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `RoadLine`.
+        """
+        """Returns the elementTree of the RoadLine."""
         element = ET.Element("line", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class ExplicitRoadLine(XodrBase):
-    """creates a Explicit RoadLine type of to be used in roadmark
+    """Create an Explicit RoadLine type to be used in roadmark.
 
     Parameters
     ----------
-        width (float): with of the line
-            Default: 0
-        length (float): length of the line
-            Default: 0
-        toffset (float): offset in t
-            Default: 0
-        soffset (float): offset in s
-            Default: 0
-        rule (MarkRule): mark rule (optional)
+    width : float, optional
+        The width of the line. Default is 0.
+    length : float, optional
+        The length of the line. Default is 0.
+    toffset : float, optional
+        The offset in the `t` direction. Default is 0.
+    soffset : float, optional
+        The offset in the `s` direction. Default is 0.
+    rule : MarkRule, optional
+        The marking rule. Default is None.
 
     Attributes
     ----------
-        length (float): length of the line
-
-        toffset (float): offset in t
-
-        soffset (float): offset in s
-
-        rule (MarkRule): mark rule
-
-        width (float): with of the line
+    length : float
+        The length of the line.
+    toffset : float
+        The offset in the `t` direction.
+    soffset : float
+        The offset in the `s` direction.
+    rule : MarkRule
+        The marking rule.
+    width : float
+        The width of the line.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
+    get_element()
+        Return the ElementTree representation of the `ExplicitRoadLine`.
+    get_attributes()
+        Return the attributes of the `ExplicitRoadLine` as a dictionary.
     """
 
     # TODO: check this for 1.5
-    def __init__(self, width=0, length=0, toffset=0, soffset=0, rule=None):
-        """initalizes the RoadLine
+    def __init__(
+        self,
+        width: float = 0,
+        length: float = 0,
+        toffset: float = 0,
+        soffset: float = 0,
+        rule: Optional[MarkRule] = None,
+    ) -> None:
+        """Initialize the `ExplicitRoadLine` class.
 
         Parameters
         ----------
-            width (float): with of the line
-                Default: 0
-            length (float): length of the line
-                Default: 0
-            toffset (float): offset in t
-                Default: 0
-            soffset (float): offset in s
-                Default: 0
-            rule (MarkRule): mark rule (optional)
-
+        width : float, optional
+            The width of the line. Default is 0.
+        length : float, optional
+            The length of the line. Default is 0.
+        toffset : float, optional
+            The offset in the `t` direction. Default is 0.
+        soffset : float, optional
+            The offset in the `s` direction. Default is 0.
+        rule : MarkRule, optional
+            The marking rule. Default is None.
         """
         super().__init__()
         self.length = length
@@ -1651,14 +2180,21 @@ class ExplicitRoadLine(XodrBase):
         self.width = width
         self._remainder = 0
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ExplicitRoadLine) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """returns the attributes of the Lane as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `ExplicitRoadLine` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the
+            `ExplicitRoadLine`.
+        """
         retdict = {}
         retdict["length"] = str(self.length)
         retdict["tOffset"] = str(self.toffset)
@@ -1668,8 +2204,14 @@ class ExplicitRoadLine(XodrBase):
             retdict["rule"] = enum2str(self.rule)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the WorldPostion"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `ExplicitRoadLine`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `ExplicitRoadLine`.
+        """
         element = ET.Element("line", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element

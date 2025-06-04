@@ -36,12 +36,20 @@ class Scenario(ScenarioGenerator):
         lanesection = xodr.LaneSection(0, centerlane)
 
         # add the median to the center
-        lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.median, a=0.3))
-        lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.median, a=0.3))
+        lanesection.add_left_lane(
+            xodr.Lane(lane_type=xodr.LaneType.median, a=0.3)
+        )
+        lanesection.add_right_lane(
+            xodr.Lane(lane_type=xodr.LaneType.median, a=0.3)
+        )
 
         # add a curb
-        lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
-        lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
+        lanesection.add_left_lane(
+            xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1)
+        )
+        lanesection.add_right_lane(
+            xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1)
+        )
 
         # add driving lanes with roadmarks
         left_lane_with_roadmark = xodr.Lane(a=4)
@@ -58,15 +66,25 @@ class Scenario(ScenarioGenerator):
 
         # add a border
 
-        lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.border, a=0.2))
-        lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.border, a=0.2))
+        lanesection.add_left_lane(
+            xodr.Lane(lane_type=xodr.LaneType.border, a=0.2)
+        )
+        lanesection.add_right_lane(
+            xodr.Lane(lane_type=xodr.LaneType.border, a=0.2)
+        )
 
         # add a final curb
-        lanesection.add_left_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
-        lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1))
+        lanesection.add_left_lane(
+            xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1)
+        )
+        lanesection.add_right_lane(
+            xodr.Lane(lane_type=xodr.LaneType.curb, a=0.1)
+        )
 
         # add a bikingroad on one side
-        lanesection.add_right_lane(xodr.Lane(lane_type=xodr.LaneType.biking, a=2))
+        lanesection.add_right_lane(
+            xodr.Lane(lane_type=xodr.LaneType.biking, a=2)
+        )
 
         # create the lanes and add the lanesection
         lanes = xodr.Lanes()

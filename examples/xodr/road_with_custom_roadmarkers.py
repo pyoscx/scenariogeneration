@@ -50,8 +50,12 @@ class Scenario(ScenarioGenerator):
 
         # customized broken broken
         broken_broken_roadmark = xodr.RoadMark(xodr.RoadMarkType.broken_broken)
-        broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2, 9, 3, 0.2))
-        broken_broken_roadmark.add_specific_road_line(xodr.RoadLine(0.2, 3, 9, -0.2, 3))
+        broken_broken_roadmark.add_specific_road_line(
+            xodr.RoadLine(0.2, 9, 3, 0.2)
+        )
+        broken_broken_roadmark.add_specific_road_line(
+            xodr.RoadLine(0.2, 3, 9, -0.2, 3)
+        )
         broken_broken = xodr.Lane()
         broken_broken.add_roadmark(broken_broken_roadmark)
         centerlanes.append(broken_broken)

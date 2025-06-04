@@ -63,7 +63,10 @@ class Scenario(ScenarioGenerator):
         # create the entry and exit roads
 
         exit_road1 = xodr.create_road(
-            [xodr.Arc(-0.05, angle=np.pi / 2), xodr.Arc(0.05, angle=np.pi / 2)],
+            [
+                xodr.Arc(-0.05, angle=np.pi / 2),
+                xodr.Arc(0.05, angle=np.pi / 2),
+            ],
             10,
             right_lanes=0,
             left_lanes=1,
@@ -71,7 +74,10 @@ class Scenario(ScenarioGenerator):
         exit_road1.add_elevation(0, 10, -10 / (40 * np.pi / 2), 0, 0)
 
         entry_road1 = xodr.create_road(
-            [xodr.Arc(0.05, angle=np.pi / 2), xodr.Arc(-0.05, angle=np.pi / 2)],
+            [
+                xodr.Arc(0.05, angle=np.pi / 2),
+                xodr.Arc(-0.05, angle=np.pi / 2),
+            ],
             20,
             left_lanes=1,
             right_lanes=0,
@@ -79,7 +85,10 @@ class Scenario(ScenarioGenerator):
         entry_road1.add_elevation(0, 0, 10 / (40 * np.pi / 2), 0, 0)
 
         exit_road2 = xodr.create_road(
-            [xodr.Arc(-0.05, angle=np.pi / 2), xodr.Arc(0.05, angle=np.pi / 2)],
+            [
+                xodr.Arc(-0.05, angle=np.pi / 2),
+                xodr.Arc(0.05, angle=np.pi / 2),
+            ],
             60,
             right_lanes=0,
             left_lanes=1,
@@ -87,7 +96,10 @@ class Scenario(ScenarioGenerator):
         exit_road2.add_elevation(0, 10, -10 / (40 * np.pi / 2), 0, 0)
 
         entry_road2 = xodr.create_road(
-            [xodr.Arc(0.05, angle=np.pi / 2), xodr.Arc(-0.05, angle=np.pi / 2)],
+            [
+                xodr.Arc(0.05, angle=np.pi / 2),
+                xodr.Arc(-0.05, angle=np.pi / 2),
+            ],
             70,
             left_lanes=0,
             right_lanes=1,
@@ -95,13 +107,19 @@ class Scenario(ScenarioGenerator):
         entry_road2.add_elevation(0, 10, -10 / (40 * np.pi / 2), 0, 0)
 
         # create the bridge and conneting roads to it
-        over_road = xodr.create_road(xodr.Line(12), 30, left_lanes=1, right_lanes=1)
+        over_road = xodr.create_road(
+            xodr.Line(12), 30, left_lanes=1, right_lanes=1
+        )
         over_road.add_elevation(0, 10, 0, 0, 0)
 
-        right_road = xodr.create_road(xodr.Line(100), 40, left_lanes=1, right_lanes=1)
+        right_road = xodr.create_road(
+            xodr.Line(100), 40, left_lanes=1, right_lanes=1
+        )
         right_road.add_elevation(0, 10, 0, 0, 0)
 
-        left_road = xodr.create_road(xodr.Line(100), 50, left_lanes=1, right_lanes=1)
+        left_road = xodr.create_road(
+            xodr.Line(100), 50, left_lanes=1, right_lanes=1
+        )
         left_road.add_elevation(0, 10, 0, 0, 0)
 
         # add the the roads to the right junction
@@ -122,15 +140,25 @@ class Scenario(ScenarioGenerator):
         # add connections and elevations to the created roads
 
         junction_creator_right.add_connection(10, 30)
-        junction_creator_right.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_right.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_right.add_connection(40, 30)
-        junction_creator_right.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_right.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_right.add_connection(10, 40)
-        junction_creator_right.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_right.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_right.add_connection(30, 70)
-        junction_creator_right.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_right.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_right.add_connection(40, 70)
-        junction_creator_right.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_right.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
 
         # add the roads to the left junction
 
@@ -150,15 +178,25 @@ class Scenario(ScenarioGenerator):
         # add connections and elevations to the created roads
 
         junction_creator_left.add_connection(20, 30)
-        junction_creator_left.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_left.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_left.add_connection(20, 50)
-        junction_creator_left.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_left.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_left.add_connection(30, 50)
-        junction_creator_left.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_left.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_left.add_connection(30, 60)
-        junction_creator_left.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_left.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
         junction_creator_left.add_connection(60, 50)
-        junction_creator_left.get_connecting_roads()[-1].add_elevation(0, 10, 0, 0, 0)
+        junction_creator_left.get_connecting_roads()[-1].add_elevation(
+            0, 10, 0, 0, 0
+        )
 
         # add successors/predecessors to the first direct junction
 
@@ -169,9 +207,15 @@ class Scenario(ScenarioGenerator):
 
         # add the connections in the first direct junction
 
-        junction_creator_direct_first.add_connection(road_highway_1, road_highway_2)
-        junction_creator_direct_first.add_connection(road_highway_1, exit_road1, -3, 1)
-        junction_creator_direct_first.add_connection(road_highway_1, entry_road1, 3, 1)
+        junction_creator_direct_first.add_connection(
+            road_highway_1, road_highway_2
+        )
+        junction_creator_direct_first.add_connection(
+            road_highway_1, exit_road1, -3, 1
+        )
+        junction_creator_direct_first.add_connection(
+            road_highway_1, entry_road1, 3, 1
+        )
 
         # add successors/predecessors to the second direct junction
 
@@ -182,11 +226,15 @@ class Scenario(ScenarioGenerator):
 
         # add the connections in the second direct junction
 
-        junction_creator_direct_second.add_connection(road_highway_2, road_highway_3)
+        junction_creator_direct_second.add_connection(
+            road_highway_2, road_highway_3
+        )
         junction_creator_direct_second.add_connection(
             entry_road2, road_highway_3, -1, -3
         )
-        junction_creator_direct_second.add_connection(road_highway_3, exit_road2, 3, 1)
+        junction_creator_direct_second.add_connection(
+            road_highway_3, exit_road2, 3, 1
+        )
 
         # add all the roads
         odr = xodr.OpenDrive("highway bridge")

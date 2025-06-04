@@ -18,7 +18,9 @@ def test_connection_single_right_lane_to_dobule_lane(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=0, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -27,17 +29,25 @@ def test_connection_single_right_lane_to_dobule_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -56,7 +66,9 @@ def test_connections_single_left_lane_to_double(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=1, right_lanes=0)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -65,10 +77,14 @@ def test_connections_single_left_lane_to_double(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -87,7 +103,9 @@ def test_connections_double_to_single_left_lane(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=1, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=0)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=0
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -96,10 +114,14 @@ def test_connections_double_to_single_left_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -118,7 +140,9 @@ def test_connections_double_to_single_right_lane(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=0, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -142,7 +166,9 @@ def test_connections_single_left_lane_to_double(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=1, right_lanes=0)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -151,10 +177,14 @@ def test_connections_single_left_lane_to_double(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -173,7 +203,9 @@ def test_connections_double_to_single_left_lane(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=1, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=0)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=0
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -182,10 +214,14 @@ def test_connections_double_to_single_left_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -204,7 +240,9 @@ def test_connections_double_to_single_right_lane(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=0, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -213,10 +251,14 @@ def test_connections_double_to_single_right_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
@@ -235,7 +277,9 @@ def test_connections_left_and_right(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=1, right_lanes=1)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=1, right_lanes=1
+    )
 
     junction_creator.add_incoming_road_circular_geometry(
         road1, 20, 0, road_connection=data[0]
@@ -244,10 +288,14 @@ def test_connections_left_and_right(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes == data[2]
     assert r2_lanes == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes == data[3]
     assert r2_lanes == data[2]
 
@@ -266,7 +314,9 @@ def test_connections_4lanes(data):
         id=100, name="my_junction", startnum=100
     )
     road1 = xodr.create_road(xodr.Line(100), 1, left_lanes=2, right_lanes=2)
-    road2 = xodr.create_road(xodr.Arc(0.01, 100), 2, left_lanes=2, right_lanes=2)
+    road2 = xodr.create_road(
+        xodr.Arc(0.01, 100), 2, left_lanes=2, right_lanes=2
+    )
 
     junction_creator.add_incoming_road_cartesian_geometry(
         road1, -20, 0, 0, road_connection=data[0]
@@ -275,10 +325,14 @@ def test_connections_4lanes(data):
         road2, 20, 0, np.pi, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(road1, road2)
+    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road1, road2
+    )
     assert r1_lanes == data[2]
     assert r2_lanes == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(road2, road1)
+    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+        road2, road1
+    )
     assert r1_lanes == data[3]
     assert r2_lanes == data[2]
 
@@ -351,7 +405,9 @@ def lane_def_fixture():
 )
 def test_lane_def_creator(lane_def_fixture, data):
     junction_creator_direct = lane_def_fixture(data[0], data[1])
-    left_lane_defs, right_lane_defs = junction_creator_direct._get_lane_defs(0, 1, 20)
+    left_lane_defs, right_lane_defs = junction_creator_direct._get_lane_defs(
+        0, 1, 20
+    )
     assert left_lane_defs.n_lanes_start == 2
     assert left_lane_defs.n_lanes_end == 2
     assert left_lane_defs.s_start == 0
@@ -546,13 +602,19 @@ def direct_junction_left_lane_fixture():
         id=400, name="second_highway_connection"
     )
 
-    main_road = xodr.create_road(xodr.Line(200), 1, right_lanes=3, left_lanes=3)
-    small_road = xodr.create_road(xodr.Line(200), 2, right_lanes=0, left_lanes=1)
+    main_road = xodr.create_road(
+        xodr.Line(200), 1, right_lanes=3, left_lanes=3
+    )
+    small_road = xodr.create_road(
+        xodr.Line(200), 2, right_lanes=0, left_lanes=1
+    )
 
     return main_road, small_road, junction_creator_direct
 
 
-def test_direct_junction_offsets_pre_suc_1_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_pre_suc_1_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -563,7 +625,9 @@ def test_direct_junction_offsets_pre_suc_1_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, 3)
 
 
-def test_direct_junction_offsets_pre_suc_2_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_pre_suc_2_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -574,7 +638,9 @@ def test_direct_junction_offsets_pre_suc_2_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (3, 1)
 
 
-def test_direct_junction_offsets_pre_suc_3_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_pre_suc_3_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -585,7 +651,9 @@ def test_direct_junction_offsets_pre_suc_3_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, 1)
 
 
-def test_direct_junction_offsets_suc_pre_1_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_suc_pre_1_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -596,7 +664,9 @@ def test_direct_junction_offsets_suc_pre_1_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, 3)
 
 
-def test_direct_junction_offsets_suc_pre_2_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_suc_pre_2_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -607,7 +677,9 @@ def test_direct_junction_offsets_suc_pre_2_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (3, 1)
 
 
-def test_direct_junction_offsets_suc_pre_3_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_suc_pre_3_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -618,7 +690,9 @@ def test_direct_junction_offsets_suc_pre_3_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, 1)
 
 
-def test_direct_junction_offsets_suc_suc_1_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_suc_suc_1_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -629,7 +703,9 @@ def test_direct_junction_offsets_suc_suc_1_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, -3)
 
 
-def test_direct_junction_offsets_suc_suc_2_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_suc_suc_2_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -640,7 +716,9 @@ def test_direct_junction_offsets_suc_suc_2_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (-3, 1)
 
 
-def test_direct_junction_offsets_pre_pre_1_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_pre_pre_1_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -651,7 +729,9 @@ def test_direct_junction_offsets_pre_pre_1_left(direct_junction_left_lane_fixtur
     assert junction_creator.junction.connections[0].links[0] == (1, -3)
 
 
-def test_direct_junction_offsets_pre_pre_2_left(direct_junction_left_lane_fixture):
+def test_direct_junction_offsets_pre_pre_2_left(
+    direct_junction_left_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_left_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -668,14 +748,22 @@ def direct_junction_right_lane_fixture():
         id=400, name="second_highway_connection"
     )
 
-    main_road = xodr.create_road(xodr.Line(200), 1, right_lanes=3, left_lanes=3)
-    small_road = xodr.create_road(xodr.Line(200), 2, right_lanes=1, left_lanes=0)
+    main_road = xodr.create_road(
+        xodr.Line(200), 1, right_lanes=3, left_lanes=3
+    )
+    small_road = xodr.create_road(
+        xodr.Line(200), 2, right_lanes=1, left_lanes=0
+    )
 
     return main_road, small_road, junction_creator_direct
 
 
-def test_direct_junction_offsets_pre_suc_1_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_pre_suc_1_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(small_road, main_road, -1, -3)
@@ -685,8 +773,12 @@ def test_direct_junction_offsets_pre_suc_1_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, -3)
 
 
-def test_direct_junction_offsets_pre_suc_2_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_pre_suc_2_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(main_road, small_road, -3, -1)
@@ -696,8 +788,12 @@ def test_direct_junction_offsets_pre_suc_2_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-3, -1)
 
 
-def test_direct_junction_offsets_pre_suc_3_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_pre_suc_3_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(main_road, small_road)
@@ -707,8 +803,12 @@ def test_direct_junction_offsets_pre_suc_3_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, -1)
 
 
-def test_direct_junction_offsets_suc_pre_1_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_suc_pre_1_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -718,8 +818,12 @@ def test_direct_junction_offsets_suc_pre_1_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, -3)
 
 
-def test_direct_junction_offsets_suc_pre_2_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_suc_pre_2_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -729,8 +833,12 @@ def test_direct_junction_offsets_suc_pre_2_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-3, -1)
 
 
-def test_direct_junction_offsets_suc_pre_3_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_suc_pre_3_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -740,8 +848,12 @@ def test_direct_junction_offsets_suc_pre_3_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, -1)
 
 
-def test_direct_junction_offsets_suc_suc_1_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_suc_suc_1_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -751,8 +863,12 @@ def test_direct_junction_offsets_suc_suc_1_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, 3)
 
 
-def test_direct_junction_offsets_suc_suc_2_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_suc_suc_2_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -762,8 +878,12 @@ def test_direct_junction_offsets_suc_suc_2_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (3, -1)
 
 
-def test_direct_junction_offsets_pre_pre_1_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_pre_pre_1_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -773,8 +893,12 @@ def test_direct_junction_offsets_pre_pre_1_right(direct_junction_right_lane_fixt
     assert junction_creator.junction.connections[0].links[0] == (-1, 3)
 
 
-def test_direct_junction_offsets_pre_pre_2_right(direct_junction_right_lane_fixture):
-    main_road, small_road, junction_creator = direct_junction_right_lane_fixture
+def test_direct_junction_offsets_pre_pre_2_right(
+    direct_junction_right_lane_fixture,
+):
+    main_road, small_road, junction_creator = (
+        direct_junction_right_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -793,8 +917,12 @@ def direct_junction_left_multi_lane_fixture():
         id=400, name="second_highway_connection"
     )
 
-    main_road = xodr.create_road(xodr.Line(200), 1, right_lanes=3, left_lanes=3)
-    small_road = xodr.create_road(xodr.Line(200), 2, right_lanes=0, left_lanes=1)
+    main_road = xodr.create_road(
+        xodr.Line(200), 1, right_lanes=3, left_lanes=3
+    )
+    small_road = xodr.create_road(
+        xodr.Line(200), 2, right_lanes=0, left_lanes=1
+    )
 
     return main_road, small_road, junction_creator_direct
 
@@ -802,7 +930,9 @@ def direct_junction_left_multi_lane_fixture():
 def test_direct_junction_offsets_pre_suc_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(small_road, main_road, [1, 2], [2, 3])
@@ -815,7 +945,9 @@ def test_direct_junction_offsets_pre_suc_1_left(
 def test_direct_junction_offsets_pre_suc_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(main_road, small_road, [2, 3], [1, 2])
@@ -828,7 +960,9 @@ def test_direct_junction_offsets_pre_suc_2_left(
 def test_direct_junction_offsets_suc_pre_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -841,7 +975,9 @@ def test_direct_junction_offsets_suc_pre_1_left(
 def test_direct_junction_offsets_suc_pre_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -854,7 +990,9 @@ def test_direct_junction_offsets_suc_pre_2_left(
 def test_direct_junction_offsets_suc_suc_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -867,7 +1005,9 @@ def test_direct_junction_offsets_suc_suc_1_left(
 def test_direct_junction_offsets_suc_suc_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -880,7 +1020,9 @@ def test_direct_junction_offsets_suc_suc_2_left(
 def test_direct_junction_offsets_pre_pre_1_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -893,7 +1035,9 @@ def test_direct_junction_offsets_pre_pre_1_left(
 def test_direct_junction_offsets_pre_pre_2_left(
     direct_junction_left_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_left_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_left_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -909,8 +1053,12 @@ def direct_junction_right_multi_lane_fixture():
         id=400, name="second_highway_connection"
     )
 
-    main_road = xodr.create_road(xodr.Line(200), 1, right_lanes=3, left_lanes=3)
-    small_road = xodr.create_road(xodr.Line(200), 2, right_lanes=2, left_lanes=0)
+    main_road = xodr.create_road(
+        xodr.Line(200), 1, right_lanes=3, left_lanes=3
+    )
+    small_road = xodr.create_road(
+        xodr.Line(200), 2, right_lanes=2, left_lanes=0
+    )
 
     return main_road, small_road, junction_creator_direct
 
@@ -918,7 +1066,9 @@ def direct_junction_right_multi_lane_fixture():
 def test_direct_junction_offsets_pre_suc_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(small_road, main_road, [-1, -2], [-2, -3])
@@ -932,17 +1082,23 @@ def test_direct_junction_offsets_pre_suc_1_right(
 def test_direct_junction_offsets_pre_suc_1_right_wrong_input(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
-        junction_creator.add_connection(small_road, main_road, [1, 2], [-2, -3])
+        junction_creator.add_connection(
+            small_road, main_road, [1, 2], [-2, -3]
+        )
 
 
 def test_direct_junction_offsets_pre_suc_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     junction_creator.add_connection(main_road, small_road, [-2, -3], [-1, -2])
@@ -956,7 +1112,9 @@ def test_direct_junction_offsets_pre_suc_2_right(
 def test_direct_junction_offsets_suc_pre_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -970,7 +1128,9 @@ def test_direct_junction_offsets_suc_pre_1_right(
 def test_direct_junction_offsets_suc_pre_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -984,7 +1144,9 @@ def test_direct_junction_offsets_suc_pre_2_right(
 def test_direct_junction_offsets_suc_suc_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -998,17 +1160,23 @@ def test_direct_junction_offsets_suc_suc_1_right(
 def test_direct_junction_offsets_suc_suc_1_right_wrong_input(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     with pytest.raises(xodr.exceptions.MixingDrivingDirection) as e:
-        junction_creator.add_connection(small_road, main_road, [-1, -2], [2, 3])
+        junction_creator.add_connection(
+            small_road, main_road, [-1, -2], [2, 3]
+        )
 
 
 def test_direct_junction_offsets_suc_suc_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
 
@@ -1022,7 +1190,9 @@ def test_direct_junction_offsets_suc_suc_2_right(
 def test_direct_junction_offsets_pre_pre_1_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -1036,7 +1206,9 @@ def test_direct_junction_offsets_pre_pre_1_right(
 def test_direct_junction_offsets_pre_pre_2_right(
     direct_junction_right_multi_lane_fixture,
 ):
-    main_road, small_road, junction_creator = direct_junction_right_multi_lane_fixture
+    main_road, small_road, junction_creator = (
+        direct_junction_right_multi_lane_fixture
+    )
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
 
@@ -1053,13 +1225,19 @@ def direct_junction_both_lane_fixture():
         id=400, name="second_highway_connection"
     )
 
-    main_road = xodr.create_road(xodr.Line(200), 1, right_lanes=3, left_lanes=3)
-    small_road = xodr.create_road(xodr.Line(200), 2, right_lanes=1, left_lanes=1)
+    main_road = xodr.create_road(
+        xodr.Line(200), 1, right_lanes=3, left_lanes=3
+    )
+    small_road = xodr.create_road(
+        xodr.Line(200), 2, right_lanes=1, left_lanes=1
+    )
 
     return main_road, small_road, junction_creator_direct
 
 
-def test_direct_junction_minimum_connection_pre_suc(direct_junction_both_lane_fixture):
+def test_direct_junction_minimum_connection_pre_suc(
+    direct_junction_both_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_both_lane_fixture
     main_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)
@@ -1070,7 +1248,9 @@ def test_direct_junction_minimum_connection_pre_suc(direct_junction_both_lane_fi
     assert junction_creator.junction.connections[0].links[1] == (1, 1)
 
 
-def test_direct_junction_minimum_connection_suc_pred(direct_junction_both_lane_fixture):
+def test_direct_junction_minimum_connection_suc_pred(
+    direct_junction_both_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_both_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_predecessor(xodr.ElementType.junction, junction_creator.id)
@@ -1081,7 +1261,9 @@ def test_direct_junction_minimum_connection_suc_pred(direct_junction_both_lane_f
     assert junction_creator.junction.connections[0].links[1] == (1, 1)
 
 
-def test_direct_junction_minimum_connection_suc_suc(direct_junction_both_lane_fixture):
+def test_direct_junction_minimum_connection_suc_suc(
+    direct_junction_both_lane_fixture,
+):
     main_road, small_road, junction_creator = direct_junction_both_lane_fixture
     main_road.add_successor(xodr.ElementType.junction, junction_creator.id)
     small_road.add_successor(xodr.ElementType.junction, junction_creator.id)

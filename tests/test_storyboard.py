@@ -24,7 +24,9 @@ def reset_version():
     OSC.enumerations.VersionBase().setVersion(minor=2)
 
 
-TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
+TD = OSC.TransitionDynamics(
+    OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+)
 speedaction = OSC.AbsoluteSpeedAction(50, TD)
 trigcond = OSC.TimeToCollisionCondition(
     10,
@@ -149,9 +151,15 @@ def test_maneuvergroup():
     mangr5 = OSC.ManeuverGroup("with catalog")
     mangr5.add_maneuver(OSC.CatalogReference("my_catalog", "cut-in"))
     prettyprint(mangr5.get_element())
-    assert version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
-    assert version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
-    assert version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+    assert (
+        version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
+    )
+    assert (
+        version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         mangr.add_maneuver("dummy")
 
@@ -223,11 +231,15 @@ def test_actandstory():
 
 def test_init():
     init = OSC.Init()
-    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
+    TD = OSC.TransitionDynamics(
+        OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+    )
     egospeed = OSC.AbsoluteSpeedAction(10, TD)
 
     init.add_init_action("Ego", egospeed)
-    init.add_init_action("Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0)))
+    init.add_init_action(
+        "Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0))
+    )
     init.add_init_action("Target_1", egospeed)
     init.add_init_action(
         "Target_1", OSC.TeleportAction(OSC.WorldPosition(1, 5, 3, 0, 0, 0))
@@ -290,11 +302,15 @@ def test_init():
 
 def test_storyboard_story_input():
     init = OSC.Init()
-    TD = OSC.TransitionDynamics(OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1)
+    TD = OSC.TransitionDynamics(
+        OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+    )
     egospeed = OSC.AbsoluteSpeedAction(10, TD)
 
     init.add_init_action("Ego", egospeed)
-    init.add_init_action("Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0)))
+    init.add_init_action(
+        "Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0))
+    )
     init.add_init_action("Target_1", egospeed)
     init.add_init_action(
         "Target_1", OSC.TeleportAction(OSC.WorldPosition(1, 5, 3, 0, 0, 0))
@@ -568,7 +584,9 @@ def test_storyboard_man_input():
 
     sb3 = OSC.StoryBoard(init)
     sb3.add_maneuver(man, targetname)
-    sb3.add_maneuver(OSC.CatalogReference("mancatalog", "my_maneuver"), targetname)
+    sb3.add_maneuver(
+        OSC.CatalogReference("mancatalog", "my_maneuver"), targetname
+    )
 
     assert sb == sb2
     assert sb != sb3

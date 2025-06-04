@@ -48,10 +48,14 @@ class Scenario(ScenarioGenerator):
         paramdec = xosc.ParameterDeclarations()
 
         paramdec.add_parameter(
-            xosc.Parameter("$HostVehicle", xosc.ParameterType.string, "car_white")
+            xosc.Parameter(
+                "$HostVehicle", xosc.ParameterType.string, "car_white"
+            )
         )
         paramdec.add_parameter(
-            xosc.Parameter("$TargetVehicle", xosc.ParameterType.string, "car_red")
+            xosc.Parameter(
+                "$TargetVehicle", xosc.ParameterType.string, "car_red"
+            )
         )
 
         bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)
@@ -103,7 +107,9 @@ class Scenario(ScenarioGenerator):
 
         ### create an event
 
-        trigcond = xosc.TimeHeadwayCondition(targetname, 0.4, xosc.Rule.greaterThan)
+        trigcond = xosc.TimeHeadwayCondition(
+            targetname, 0.4, xosc.Rule.greaterThan
+        )
 
         trigger = xosc.EntityTrigger(
             "mytesttrigger", 0.2, xosc.ConditionEdge.rising, trigcond, egoname
@@ -114,9 +120,15 @@ class Scenario(ScenarioGenerator):
 
         positionlist = []
         positionlist.append(xosc.RelativeLanePosition(0, targetname, 0, ds=0))
-        positionlist.append(xosc.RelativeLanePosition(0, targetname, 0.5, ds=20))
-        positionlist.append(xosc.RelativeLanePosition(0, targetname, -0.5, ds=40))
-        positionlist.append(xosc.RelativeLanePosition(0, targetname, -1, ds=60))
+        positionlist.append(
+            xosc.RelativeLanePosition(0, targetname, 0.5, ds=20)
+        )
+        positionlist.append(
+            xosc.RelativeLanePosition(0, targetname, -0.5, ds=40)
+        )
+        positionlist.append(
+            xosc.RelativeLanePosition(0, targetname, -1, ds=60)
+        )
 
         polyline = xosc.Polyline([0, 0.5, 1, 1.5], positionlist)
 
@@ -124,7 +136,11 @@ class Scenario(ScenarioGenerator):
         traj.add_shape(polyline)
 
         trajact = xosc.FollowTrajectoryAction(
-            traj, xosc.FollowingMode.position, xosc.ReferenceContext.relative, 1, 0
+            traj,
+            xosc.FollowingMode.position,
+            xosc.ReferenceContext.relative,
+            1,
+            0,
         )
 
         event.add_action("newspeed", trajact)

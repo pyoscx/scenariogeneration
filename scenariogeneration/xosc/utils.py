@@ -7,373 +7,617 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 Copyright (c) 2022 The scenariogeneration Authors.
-
 """
 
+import datetime as dt
 import os
 import warnings
-
-from .exceptions import OpenSCENARIOVersionError, NotAValidElement
 import xml.etree.ElementTree as ET
-from ..helpers import printToFile
+from typing import Any, Optional, Type, Union
 
+from ..helpers import printToFile
 from .enumerations import (
+    _MINOR_VERSION,
+    XMLNS,
+    XSI,
+    CloudState,
+    ColorType,
+    ControllerType,
+    DynamicsDimension,
+    DynamicsShapes,
+    FollowingMode,
+    FractionalCloudCover,
+    LightMode,
     ParameterType,
     PedestrianGestureType,
     PedestrianMotionType,
-    Rule,
-    ReferenceContext,
-    DynamicsShapes,
-    DynamicsDimension,
-    _MINOR_VERSION,
-    XSI,
-    XMLNS,
-    VehicleCategory,
     PrecipitationType,
-    CloudState,
+    ReferenceContext,
+    Role,
+    Rule,
+    SpeedTargetValueType,
+    VehicleCategory,
     VehicleComponentType,
     VersionBase,
-    SpeedTargetValueType,
-    LightMode,
-    ColorType,
-    ControllerType,
-    FractionalCloudCover,
     Wetness,
-    Role,
-    FollowingMode,
     _OscEnum,
 )
-import datetime as dt
+from .exceptions import (
+    NotAValidElement,
+    OpenSCENARIOVersionError,
+    XMLStructureError,
+)
+
+
+def find_mandatory_field(element: ET.Element, key: str) -> ET.Element:
+    """Wrapper to find mandatory fields, throws an error if not found.
+
+    Parameters
+    ----------
+    element : ET.Element
+        The element to search in.
+    key : str
+        The key to search for.
+
+    Returns
+    -------
+    ET.Element
+        The found element.
+
+    Raises
+    ------
+    XMLStructureError
+        If the key is not found in the element.
+    """
+    found = element.find(key)
+    if found is None:
+        raise XMLStructureError(
+            f"Mandatory field {key} not found in {element.tag}"
+        )
+    return found
 
 
 class _StochasticDistributionType(VersionBase):
-    """helper class for typesetting"""
-
-    pass
+    """Helper class for typesetting."""
 
 
 class _PositionType(VersionBase):
-    """helper class for typesetting"""
-
-    pass
-
-    def get_element(self, param):
-        pass
+    """Helper class for typesetting."""
 
 
 class _TriggerType(VersionBase):
-    """helper class for typesetting"""
-
-    pass
+    """Helper class for typesetting."""
 
 
 class _ValueTriggerType(VersionBase):
-    """helper class for typesetting"""
-
-    pass
+    """Helper class for typesetting."""
 
 
 class _EntityTriggerType(VersionBase):
-    """helper class for typesetting"""
-
-    pass
+    """Helper class for typesetting."""
 
 
 class _AnimationType(VersionBase):
-    """helper class for typesetting animations"""
-
-    pass
+    """Helper class for typesetting animations."""
 
 
 class _AnimationTypeFactory:
     @staticmethod
-    def parse_animationtype(element):
+    def parse_animationtype(element: ET.Element) -> _AnimationType:
         print(element)
         if element.find("ComponentAnimation") is not None:
-            return _ComponentAnimation.parse(element.find("ComponentAnimation"))
-        elif element.find("PedestrianAnimation") is not None:
-            return PedestrianAnimation.parse(element.find("PedestrianAnimation"))
-        elif element.find("AnimationFile") is not None:
-            return AnimationFile.parse(element.find("AnimationFile"))
-        elif element.find("UserDefinedAnimation") is not None:
-            return UserDefinedAnimation.parse(element.find("UserDefinedAnimation"))
-        else:
-            raise NotAValidElement(
-                "element ", element, " is not a valid animation type"
+            return _ComponentAnimation.parse(
+                find_mandatory_field(element, "ComponentAnimation")
             )
+        if element.find("PedestrianAnimation") is not None:
+            return PedestrianAnimation.parse(
+                find_mandatory_field(element, "PedestrianAnimation")
+            )
+        if element.find("AnimationFile") is not None:
+            return AnimationFile.parse(
+                find_mandatory_field(element, "AnimationFile")
+            )
+        if element.find("UserDefinedAnimation") is not None:
+            return UserDefinedAnimation.parse(
+                find_mandatory_field(element, "UserDefinedAnimation")
+            )
+        raise NotAValidElement(
+            "element ", element, " is not a valid animation type"
+        )
 
 
-class ParameterDeclarations(VersionBase):
-    """The ParameterDeclarations class creates the ParameterDeclaration of OpenScenario
+class Properties(VersionBase):
+    """The Properties class contains user-defined properties of an object.
 
     Attributes
     ----------
-        parameters: list of Parameter objects
+    files : list of str
+        Arbitrary files with properties.
+    properties : list of tuple(str, str)
+        Properties in name/value pairs.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        add_parameter(Parameter)
-            adds a Parameter to the ParameterDeclarations
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    add_file(file)
+        Adds a file with properties.
+    add_property(name, value)
+        Adds a property pair, with name and value.
+    get_element()
+        Returns the full ElementTree of the class.
     """
 
-    def __init__(self):
-        """initalizes the ParameterDeclarations"""
-        self.parameters = []
+    def __init__(self) -> None:
+        """Initializes the Properties."""
+        self.files = []
+        self.properties = []
 
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of ParameterDeclarations
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A parameterdeclarations element (same as generated by the class itself)
-
-        Returns
-        -------
-            parameterdeclaration (ParameterDeclaration): a ParameterDeclarationn object
-
-        """
-        parameter_declarations = ParameterDeclarations()
-        declarations = element.findall("ParameterDeclaration")
-        for declaration in declarations:
-            parameter_declaration = Parameter.parse(declaration)
-            parameter_declarations.add_parameter(parameter_declaration)
-        return parameter_declarations
-
-    def __eq__(self, other):
-        if isinstance(other, ParameterDeclarations):
-            if self.parameters == other.parameters:
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Properties):
+            if (
+                self.files == other.files
+                and self.properties == other.properties
+            ):
                 return True
         return False
 
-    def add_parameter(self, parameter):
-        """add_parameter adds a Parameter to the ParameterDeclarations
-
-        Parameters
-        ----------
-            parameter (Parameter): a new parameter
-
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("parameter input is not of type Parameter")
-        self.parameters.append(parameter)
-        return self
-
-    def get_element(self):
-        """returns the elementTree of the ParameterDeclarations"""
-        if self.parameters:
-            element = ET.Element("ParameterDeclarations")
-            for p in self.parameters:
-                element.append(p.get_element())
-            return element
-
-
-class VariableDeclarations(VersionBase):
-    """The VariableDeclarations class creates the VariableDeclarations of OpenScenario
-    (Valid from V1.2)
-    Attributes
-    ----------
-        variables: list of Variable objects
-
-    Methods
-    -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        add_variable(Variable)
-            adds a Variable to the VariableDeclarations
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-    """
-
-    def __init__(self):
-        """initalizes the VariableDeclarations"""
-        self.variables = []
-
     @staticmethod
-    def parse(element):
-        """Parses the xml element of VariableDeclarations
+    def parse(element: ET.Element) -> "Properties":
+        """Parses the XML element of Properties.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A VariableDeclarations element (same as generated by the class itself)
+        element : ET.Element
+            A Properties element (same as generated by the class itself).
 
         Returns
         -------
-            VariableDeclarations (VariableDeclarations): a VariableDeclarations object
-
+        Properties
+            A Properties object.
         """
-        variable_declarations = VariableDeclarations()
-        declarations = element.findall("VariableDeclaration")
-        for declaration in declarations:
-            variable = Variable.parse(declaration)
-            variable_declarations.add_variable(variable)
-        return variable_declarations
+        properties = Properties()
+        files = element.findall("File")
+        if files is not None:
+            for file in files:
+                filepath = file.attrib["filepath"]
+                properties.add_file(filepath)
+        props = element.findall("Property")
+        if props is not None:
+            for property in props:
+                name = property.attrib["name"]
+                value = property.attrib["value"]
+                properties.add_property(name, value)
 
-    def __eq__(self, other):
-        if isinstance(other, VariableDeclarations):
-            if self.variables == other.variables:
-                return True
-        return False
+        return properties
 
-    def add_variable(self, variable):
-        """add_variable adds a Variable to the VariableDeclarations
+    def add_file(self, filename: str) -> "Properties":
+        """Adds a property file.
 
         Parameters
         ----------
-            variable (Variable): a new variable
+        filename : str
+            Name of the file.
 
-
+        Returns
+        -------
+        Properties
+            The updated Properties object.
         """
-        if not isinstance(variable, Variable):
-            raise TypeError("variable input is not of type Variable")
-        self.variables.append(variable)
+        self.files.append(filename)
         return self
 
-    def get_element(self):
-        """returns the elementTree of the VariableDeclarations"""
-        if self.version_minor < 2:
-            OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
-        element = ET.Element("VariableDeclarations")
-        for p in self.variables:
-            element.append(p.get_element())
+    def add_property(self, name: str, value: str) -> "Properties":
+        """Adds a property pair.
+
+        Parameters
+        ----------
+        name : str
+            Name of the property.
+        value : str
+            Value of the property.
+
+        Returns
+        -------
+        Properties
+            The updated Properties object.
+        """
+        self.properties.append((name, value))
+        return self
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Properties.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Properties.
+        """
+        element = ET.Element("Properties")
+        for p in self.properties:
+            ET.SubElement(
+                element, "Property", attrib={"name": p[0], "value": p[1]}
+            )
+        for f in self.files:
+            ET.SubElement(element, "File", attrib={"filepath": f})
+
         return element
 
 
-class EntityRef(VersionBase):
-    """EntityRef creates an EntityRef element of openscenario
+class ValueConstraint(VersionBase):
+    """ValueConstraint creates a ValueConstraint element of OpenScenario (valid
+    from OpenSCENARIO V1.1).
 
     Parameters
     ----------
-        entity (str): name of the entity
+    rule : Rule
+        Available operators for the validation of the constraint. Note
+        that either "equalTo" or "notEqualTo" must be used in the
+        parameter declaration of type "string".
+    value : str
+        A constant value, parameter or parameter expression. The value
+        must match the enclosing parameter declaration.
 
     Attributes
     ----------
-        entity (str): name of the entity
+    rule : Rule
+        Available operators for the validation of the constraint.
+    value : str
+        A constant value, parameter or parameter expression.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, entity):
-        """initalize the EntityRef
+    def __init__(self, rule: Rule, value: str) -> None:
+        """Initializes the ValueConstraint.
 
         Parameters
         ----------
-            entity (str): name of the entity
-
+        rule : Rule
+            Available operators for the validation of the constraint.
+            Note that either "equalTo" or "notEqualTo" must be used in
+            the parameter declaration of type "string".
+        value : str
+            A constant value, parameter or parameter expression. The
+            value must match the enclosing parameter declaration.
         """
-        self.entity = entity
+        self.value = value
+        self.rule = convert_enum(rule, Rule)
 
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of EntityRef
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A entityref element (same as generated by the class itself)
-
-        Returns
-        -------
-            entityref (EntityRef): a EntityRef object
-
-        """
-        entity = element.attrib["entityRef"]
-        return EntityRef(entity)
-
-    def __eq__(self, other):
-        if isinstance(other, EntityRef):
-            if self.entity == other.entity:
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ValueConstraint):
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """returns the attributes of the EntityRef as a dict"""
-        return {"entityRef": self.entity}
-
-    def get_element(self):
-        """returns the elementTree of the EntityRef"""
-        return ET.Element("EntityRef", attrib=self.get_attributes())
-
-
-class Parameter(VersionBase):
-    """Parameter is a declaration of a ParameterDeclaration for declarations
-
-    Parameters
-    ----------
-        name (str): name of parameter
-
-        parameter_type (ParameterType): type of the parameter
-
-        value (str): value of the parameter
-
-    Attributes
-    ----------
-        name (str): name of parameter
-
-        parameter_type (ParameterType): type of the parameter
-
-        value (str): value of the parameter
-
-        constraint_group (ValueConstraintGroup) constraint groups to the parameter value
-
-    Methods
-    -------
-        add_parameter ???
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        add_value_constraint_group(constraint_group)
-            adds a value constraint group to the Parameter
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, name, parameter_type, value):
-        """initalize the Parameter
+    @staticmethod
+    def parse(element: ET.Element) -> "ValueConstraint":
+        """Parses the XML element of ValueConstraint.
 
         Parameters
         ----------
-            name (str): name of parameter
+        element : ET.Element
+            A ValueConstraint element (same as generated by the class
+            itself).
 
-            parameter_type (ParameterType): type of the parameter
+        Returns
+        -------
+        ValueConstraint
+            A ValueConstraint object.
+        """
+        value = element.attrib["value"]
+        rule = convert_enum(element.attrib["rule"], Rule)
+        return ValueConstraint(rule, value)
 
-            value (str): value of the parameter
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the ValueConstraint as a dictionary.
 
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the ValueConstraint.
+        """
+        retdict = {}
+        retdict["rule"] = self.rule.get_name()
+        retdict["value"] = str(self.value)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the ValueConstraint.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the ValueConstraint.
+        """
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError(
+                "ValueConstraint was introduced in OpenSCENARIO V1.1"
+            )
+        element = ET.Element("ValueConstraint", attrib=self.get_attributes())
+        return element
+
+
+class BoundingBox(VersionBase):
+    """The BoundingBox class creates a bounding box for an entity.
+
+    Parameters
+    ----------
+    width : float
+        The width of the entity.
+    length : float
+        The length of the entity.
+    height : float
+        The height of the entity.
+    x_center : float
+        X distance from back axle to center.
+    y_center : float
+        Y distance from back axle to center.
+    z_center : float
+        Z distance from back axle to center.
+
+    Attributes
+    ----------
+    boundingbox : Dimensions
+        The dimensions of the entity.
+    center : Center
+        The center of the object relative to the back axle.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    def __init__(
+        self,
+        width: float,
+        length: float,
+        height: float,
+        x_center: float,
+        y_center: float,
+        z_center: float,
+    ) -> None:
+        """Initializes the BoundingBox.
+
+        Parameters
+        ----------
+        width : float
+            The width of the entity.
+        length : float
+            The length of the entity.
+        height : float
+            The height of the entity.
+        x_center : float
+            X distance from back axle to center.
+        y_center : float
+            Y distance from back axle to center.
+        z_center : float
+            Z distance from back axle to center.
+        """
+        self.boundingbox = Dimensions(width, length, height)
+        self.center = Center(x_center, y_center, z_center)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, BoundingBox):
+            if (
+                self.boundingbox == other.boundingbox
+                and self.center == other.center
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "BoundingBox":
+        """Parses the XML element of BoundingBox.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A BoundingBox element (same as generated by the class itself).
+
+        Returns
+        -------
+        BoundingBox
+            A BoundingBox object.
+        """
+        center = Center.parse(find_mandatory_field(element, "Center"))
+        cen_dict = center.get_attributes()
+        dimension = Dimensions.parse(
+            find_mandatory_field(element, "Dimensions")
+        )
+        dim_dict = dimension.get_attributes()
+        return BoundingBox(
+            dim_dict["width"],
+            dim_dict["length"],
+            dim_dict["height"],
+            cen_dict["x"],
+            cen_dict["y"],
+            cen_dict["z"],
+        )
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the BoundingBox.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the BoundingBox.
+        """
+        element = ET.Element("BoundingBox")
+        element.append(self.center.get_element())
+        element.append(self.boundingbox.get_element())
+        return element
+
+
+class ValueConstraintGroup(VersionBase):
+    """ValueConstraintGroup creates a ValueConstraintGroup element of
+    OpenScenario (valid from OpenSCENARIO V1.1).
+
+    Attributes
+    ----------
+    value_constraints : list of ValueConstraint
+        List of value constraints.
+
+    Methods
+    -------
+    add_value_constraint(value_constraint)
+        Adds a value constraint to the value constraint group.
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the ValueConstraintGroup."""
+        self.value_constraints = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ValueConstraintGroup):
+            if self.value_constraints == other.value_constraints:
+                return True
+        return False
+
+    def add_value_constraint(
+        self, value_constraint: ValueConstraint
+    ) -> "ValueConstraintGroup":
+        """Adds a value constraint to the value constraint group.
+
+        Parameters
+        ----------
+        value_constraint : ValueConstraint
+            The value constraint to be added.
+
+        Returns
+        -------
+        ValueConstraintGroup
+            The updated ValueConstraintGroup object.
+        """
+        if not isinstance(value_constraint, ValueConstraint):
+            raise TypeError(
+                "value_conatraint input is not of type ValueConstraint"
+            )
+        self.value_constraints.append(value_constraint)
+        return self
+
+    @staticmethod
+    def parse(element: ET.Element) -> "ValueConstraintGroup":
+        """Parses the XML element of ValueConstraintGroup.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A ValueConstraintGroup element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        ValueConstraintGroup
+            A ValueConstraintGroup object.
+        """
+        value_constraints = ValueConstraintGroup()
+        constraints = element.findall("ValueConstraint")
+        for constraint in constraints:
+            value_constraint = ValueConstraint.parse(constraint)
+            value_constraints.add_value_constraint(value_constraint)
+        return value_constraints
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the ValueConstraintGroup.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the ValueConstraintGroup.
+        """
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError(
+                "ValueConstraintGroup was introduced in OpenSCENARIO V1.1"
+            )
+        element = ET.Element("ConstraintGroup")
+        if not self.value_constraints:
+            raise ValueError(
+                "No Value Constraints in the Value Contraint Group"
+            )
+        for value_constraint in self.value_constraints:
+            element.append(value_constraint.get_element())
+        return element
+
+
+class Parameter(VersionBase):
+    """Parameter is a declaration of a ParameterDeclaration for declarations.
+
+    Parameters
+    ----------
+    name : str
+        Name of the parameter.
+    parameter_type : ParameterType
+        Type of the parameter.
+    value : str
+        Value of the parameter.
+
+    Attributes
+    ----------
+    name : str
+        Name of the parameter.
+    parameter_type : ParameterType
+        Type of the parameter.
+    value : str
+        Value of the parameter.
+    constraint_group : ValueConstraintGroup
+        Constraint groups to the parameter value.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    add_value_constraint_group(constraint_group)
+        Adds a value constraint group to the Parameter.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self, name: str, parameter_type: ParameterType, value: str
+    ) -> None:
+        """Initializes the Parameter.
+
+        Parameters
+        ----------
+        name : str
+            Name of the parameter.
+        parameter_type : ParameterType
+            Type of the parameter.
+        value : str
+            Value of the parameter.
         """
         self.name = name
-        self.parameter_type = convert_enum(parameter_type, ParameterType, False)
+        self.parameter_type = convert_enum(
+            parameter_type, ParameterType, False
+        )
         if isinstance(value, bool):
             value = get_bool_string(value)
         self.value = value
         self.constraint_groups = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Parameter):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -383,17 +627,18 @@ class Parameter(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Parameter
+    def parse(element: ET.Element) -> "Parameter":
+        """Parses the XML element of Parameter.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A parameter element (same as generated by the class itself)
+        element : ET.Element
+            A Parameter element (same as generated by the class itself).
 
         Returns
         -------
-            parameter (Parameter): Parameter object
-
+        Parameter
+            A Parameter object.
         """
         name = element.attrib["name"]
         value = element.attrib["value"]
@@ -408,13 +653,20 @@ class Parameter(VersionBase):
             )
         return parameter
 
-    def add_value_constraint_group(self, constraint_group):
-        """adds a value constraint to the value constraint group
+    def add_value_constraint_group(
+        self, constraint_group: ValueConstraintGroup
+    ) -> "Parameter":
+        """Adds a value constraint to the value constraint group.
 
         Parameters
         ----------
-            constraint_group (ValueConstraintGroup): the value constraint group to be added
+        constraint_group : ValueConstraintGroup
+            The value constraint group to be added.
 
+        Returns
+        -------
+        Parameter
+            The updated Parameter object.
         """
         if not isinstance(constraint_group, ValueConstraintGroup):
             raise TypeError(
@@ -423,17 +675,31 @@ class Parameter(VersionBase):
         self.constraint_groups.append(constraint_group)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the Parameter as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Parameter as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Parameter.
+        """
         return {
             "name": self.name,
             "parameterType": self.parameter_type.get_name(),
             "value": str(self.value),
         }
 
-    def get_element(self):
-        """returns the elementTree of the Parameter"""
-        element = ET.Element("ParameterDeclaration", attrib=self.get_attributes())
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Parameter.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Parameter.
+        """
+        element = ET.Element(
+            "ParameterDeclaration", attrib=self.get_attributes()
+        )
         if self.constraint_groups:
             for constraint_group in self.constraint_groups:
                 element.append(constraint_group.get_element())
@@ -441,55 +707,58 @@ class Parameter(VersionBase):
 
 
 class Variable(VersionBase):
-    """Variable is a declaration of an entry in VariableDeclaration
-    (valid from V1.2)
+    """Variable is a declaration of an entry in VariableDeclaration (valid from
+    V1.2).
+
     Parameters
     ----------
-        name (str): name of variable
-
-        variable_type (ParameterType): type of the variable
-
-        value (str): value of the variable
+    name : str
+        Name of the variable.
+    variable_type : ParameterType
+        Type of the variable.
+    value : str
+        Value of the variable.
 
     Attributes
     ----------
-        name (str): name of variable
-
-        variable_type (ParameterType): type of the variable
-
-        value (str): value of the variable
+    name : str
+        Name of the variable.
+    variable_type : ParameterType
+        Type of the variable.
+    value : str
+        Value of the variable.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, name, variable_type, value):
-        """initalize the Variable
+    def __init__(
+        self, name: str, variable_type: ParameterType, value: str
+    ) -> None:
+        """Initializes the Variable.
 
         Parameters
         ----------
-            name (str): name of variable
-
-            variable_type (ParameterType): type of the variable
-
-            value (str): value of the variable
-
+        name : str
+            Name of the variable.
+        variable_type : ParameterType
+            Type of the variable.
+        value : str
+            Value of the variable.
         """
         self.name = name
         self.variable_type = convert_enum(variable_type, ParameterType, False)
         self.value = value
         self.constraint_groups = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Variable):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -499,17 +768,18 @@ class Variable(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Variable
+    def parse(element: ET.Element) -> "Variable":
+        """Parses the XML element of Variable.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A variable element (same as generated by the class itself)
+        element : ET.Element
+            A Variable element (same as generated by the class itself).
 
         Returns
         -------
-            variable (Variable): Variable object
-
+        Variable
+            A Variable object.
         """
         name = element.attrib["name"]
         value = element.attrib["value"]
@@ -517,104 +787,739 @@ class Variable(VersionBase):
             element.attrib["variableType"], ParameterType, False
         )
         variable = Variable(name, variable_type, value)
-        constraint_groups = element.findall("ValueConstraintGroup")
-        for constraint_group in constraint_groups:
-            variable.add_value_constraint_group(
-                ValueConstraintGroup.parse(constraint_group)
-            )
         return variable
 
-    def get_attributes(self):
-        """returns the attributes of the Variable as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Variable as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Variable.
+        """
         return {
             "name": self.name,
             "variableType": self.variable_type.get_name(),
             "value": str(self.value),
         }
 
-    def get_element(self):
-        """returns the elementTree of the Variable"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Variable.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Variable.
+        """
         if self.isVersionEqLess(minor=1):
-            raise OpenSCENARIOVersionError("Variables were introduced in OSC 1.2")
-        element = ET.Element("VariableDeclaration", attrib=self.get_attributes())
+            raise OpenSCENARIOVersionError(
+                "Variables were introduced in OSC 1.2"
+            )
+        element = ET.Element(
+            "VariableDeclaration", attrib=self.get_attributes()
+        )
         return element
 
 
-class Orientation(VersionBase):
-    """Orientation describes the angular orientation of an entity
-
-    Parameters
-    ----------
-        h (float): header
-
-        p (float): pitch
-
-        r (float): roll
-
-        reference (ReferenceContext): absolute or relative
+class _BaseCatalog(VersionBase):
+    """The _BaseCatalog should be inherited by other classes that should be
+    able to create catalogs from their elements.
 
     Attributes
     ----------
-        h (float): header
-
-        p (float): pitch
-
-        r (float): roll
-
-        reference (ReferenceContext): absolute or relative
+    parameters : ParameterDeclarations
+        The parameters to be used in the scenario.
 
     Methods
     -------
-        is_filled()
-            check is any orientations are set
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    add_parameter(parameter)
+        Adds a parameter to the catalog.
+    add_parameters_to_element(element)
+        Adds the parameter declarations to the element.
+    dump_to_catalog(filename, catalogtype, description, author)
+        Creates a new catalog and adds the element to it.
+    append_to_catalog(filename)
+        Adds the element to an existing catalog.
     """
 
-    def __init__(self, h=None, p=None, r=None, reference=None):
-        """initalize Orientation
+    def __init__(self) -> None:
+        super().__init__()
+        self.parameters = ParameterDeclarations()
+
+    def add_parameter(self, parameter: Parameter) -> "_BaseCatalog":
+        """Adds a parameter to the catalog.
 
         Parameters
         ----------
-            h (float): header
+        parameter : Parameter
+            The parameter to add.
 
-            p (float): pitch
+        Returns
+        -------
+        _BaseCatalog
+            The updated _BaseCatalog object.
+        """
+        if not isinstance(parameter, Parameter):
+            raise TypeError("input parameter is not of type Parameter")
+        self.parameters.add_parameter(parameter)
+        return self
 
-            r (float): roll
+    def add_parameters_to_element(self, element: ET.Element) -> None:
+        """Adds the parameter declarations to the element.
 
-            reference (ReferenceContext): absolute or relative
+        Parameters
+        ----------
+        element : ET.Element
+            The element to add the parameter declarations to.
+        """
+        param_element = self.parameters.get_element()
+        if param_element:
+            element.append(param_element)
+
+    def dump_to_catalog(
+        self, filename: str, catalogtype: str, description: str, author: str
+    ) -> None:
+        """Creates a new catalog and adds the element to it.
+
+        Parameters
+        ----------
+        filename : str
+            Path of the new catalog file.
+        catalogtype : str
+            Name of the catalog.
+        description : str
+            Description of the catalog.
+        author : str
+            Author of the catalog.
+        """
+        cf = CatalogFile()
+        cf.create_catalog(filename, catalogtype, description, author)
+        cf.add_to_catalog(self)
+        cf.dump()
+
+    def append_to_catalog(self, filename: str) -> None:
+        """Adds the element to an existing catalog.
+
+        Parameters
+        ----------
+        filename : str
+            Path to the catalog file.
+        """
+        cf = CatalogFile()
+        cf.open_catalog(filename)
+        cf.add_to_catalog(self)
+        cf.dump()
+
+
+class CatalogReference(VersionBase):
+    """CatalogReference creates a CatalogReference element of OpenScenario.
+
+    Parameters
+    ----------
+    catalogname : str
+        Name of the catalog.
+    entryname : str
+        Name of the entry in the catalog.
+
+    Attributes
+    ----------
+    catalogname : str
+        Name of the catalog.
+    entryname : str
+        Name of the entry in the catalog.
+    parameterassignments : list of ParameterAssignment
+        The parameter assignments for the given catalog reference.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    add_parameter_assignment(parameterref, value)
+        Assigns a parameter with a value.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(self, catalogname: str, entryname: str) -> None:
+        """Initializes the CatalogReference.
+
+        Parameters
+        ----------
+        catalogname : str
+            Name of the catalog.
+        entryname : str
+            Name of the entry in the catalog.
+        """
+        self.catalogname = catalogname
+        self.entryname = entryname
+        self.parameterassignments = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CatalogReference):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.parameterassignments == other.parameterassignments
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "CatalogReference":
+        """Parses the XML element of CatalogReference.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A CatalogReference element (same as generated by the class
+            itself).
+
+        Returns
+        -------
+        CatalogReference
+            A CatalogReference object.
+        """
+        catalogname = element.attrib["catalogName"]
+        entryname = element.attrib["entryName"]
+        reference = CatalogReference(catalogname, entryname)
+
+        parameter_assignments = element.find("ParameterAssignments")
+        if parameter_assignments is not None:
+            parameters = parameter_assignments.findall("ParameterAssignment")
+            for parameter in parameters:
+                parameter_assignment = ParameterAssignment.parse(parameter)
+                reference.parameterassignments.append(parameter_assignment)
+
+        return reference
+
+    def add_parameter_assignment(
+        self, parameterref: str, value: str
+    ) -> "CatalogReference":
+        """Adds a parameter and value to the catalog reference.
+
+        Parameters
+        ----------
+        parameterref : str
+            Name of the parameter.
+        value : str
+            Assigned value of the parameter.
+
+        Returns
+        -------
+        CatalogReference
+            The updated CatalogReference object.
+        """
+        self.parameterassignments.append(
+            ParameterAssignment(parameterref, value)
+        )
+        return self
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the CatalogReference as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the CatalogReference.
+        """
+        return {"catalogName": self.catalogname, "entryName": self.entryname}
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the CatalogReference.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the CatalogReference.
+        """
+        element = ET.Element("CatalogReference", attrib=self.get_attributes())
+        if self.parameterassignments:
+            parameterassigns = ET.SubElement(element, "ParameterAssignments")
+            for parass in self.parameterassignments:
+                parameterassigns.append(parass.get_element())
+        return element
+
+
+class Controller(_BaseCatalog):
+    """The Controller class creates a controller of OpenScenario.
+
+    Parameters
+    ----------
+    name : str
+        Name of the controller.
+    properties : Properties
+        Properties of the controller.
+    controller_type : ControllerType, optional
+        Controller type (valid from V1.2). Default is None.
+
+    Attributes
+    ----------
+    name : str
+        Name of the controller.
+    properties : Properties
+        Properties of the controller.
+    controller_type : ControllerType, optional
+        Controller type.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    add_parameter(parameter)
+        Adds a parameter declaration to the controller.
+    append_to_catalog(filename)
+        Adds the controller to an existing catalog.
+    dump_to_catalog(filename, catalogtype, description, author)
+        Creates a new catalog with the controller.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self,
+        name: str,
+        properties: Properties,
+        controller_type: Optional[ControllerType] = None,
+    ) -> None:
+        """Initializes the Controller.
+
+        Parameters
+        ----------
+        name : str
+            Name of the controller.
+        properties : Properties
+            Properties of the controller.
+        controller_type : ControllerType, optional
+            Controller type (valid from V1.2). Default is None.
+        """
+        super().__init__()
+        self.name = name
+
+        if not isinstance(properties, Properties):
+            raise TypeError("properties input is not of type Properties")
+        self.properties = properties
+        self.controller_type = convert_enum(
+            controller_type, ControllerType, True
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Controller):
+            if (
+                self.properties == other.properties
+                and self.parameters == other.parameters
+                and self.name == other.name
+                and self.controller_type == other.controller_type
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Controller":
+        """Parses the XML element of Controller.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Controller element (same as generated by the class itself).
+
+        Returns
+        -------
+        Controller
+            A Controller object.
+        """
+        name = element.attrib["name"]
+        properties_element = find_mandatory_field(element, "Properties")
+        properties = Properties.parse(properties_element)
+        cnt_type = None
+        if "controllerType" in element.attrib:
+            cnt_type = convert_enum(
+                element.attrib["controllerType"], ControllerType, False
+            )
+        controller = Controller(name, properties, cnt_type)
+
+        parameters_element = element.find("ParameterDeclarations")
+        if parameters_element:
+            controller.parameters = ParameterDeclarations.parse(
+                parameters_element
+            )
+
+        return controller
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Controller as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Controller.
+        """
+        retdict = {"name": self.name}
+        if self.controller_type:
+            if self.isVersion(minor=2):
+                retdict["controllerType"] = self.controller_type.get_name()
+            else:
+                raise OpenSCENARIOVersionError(
+                    "controllerType was introduced in OSC v1.2"
+                )
+
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Controller.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Controller.
+        """
+        element = ET.Element("Controller", attrib=self.get_attributes())
+        self.add_parameters_to_element(element)
+        element.append(self.properties.get_element())
+
+        return element
+
+
+class ParameterDeclarations(VersionBase):
+    """The ParameterDeclarations class creates the ParameterDeclaration of
+    OpenScenario.
+
+    Attributes
+    ----------
+    parameters : list of Parameter
+        List of Parameter objects.
+
+    Methods
+    -------
+    get_element()
+        Returns the full ElementTree of the class.
+    add_parameter(parameter)
+        Adds a Parameter to the ParameterDeclarations.
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the ParameterDeclarations."""
+        self.parameters = []
+
+    @staticmethod
+    def parse(element: ET.Element) -> "ParameterDeclarations":
+        """Parses the XML element of ParameterDeclarations.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A ParameterDeclarations element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        ParameterDeclarations
+            A ParameterDeclarations object.
+        """
+        parameter_declarations = ParameterDeclarations()
+        declarations = element.findall("ParameterDeclaration")
+        for declaration in declarations:
+            parameter_declaration = Parameter.parse(declaration)
+            parameter_declarations.add_parameter(parameter_declaration)
+        return parameter_declarations
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ParameterDeclarations):
+            if self.parameters == other.parameters:
+                return True
+        return False
+
+    def add_parameter(self, parameter: Parameter) -> "ParameterDeclarations":
+        """Adds a Parameter to the ParameterDeclarations.
+
+        Parameters
+        ----------
+        parameter : Parameter
+            A new parameter.
+
+        Returns
+        -------
+        ParameterDeclarations
+            The updated ParameterDeclarations object.
+        """
+        if not isinstance(parameter, Parameter):
+            raise TypeError("parameter input is not of type Parameter")
+        self.parameters.append(parameter)
+        return self
+
+    def get_element(self) -> Optional[ET.Element]:
+        """Returns the ElementTree of the ParameterDeclarations.
+
+        Returns
+        -------
+        ET.Element or None
+            The ElementTree representation of the ParameterDeclarations,
+            or None if no parameters exist.
+        """
+        if self.parameters:
+            element = ET.Element("ParameterDeclarations")
+            for p in self.parameters:
+                element.append(p.get_element())
+            return element
+        return None
+
+
+class VariableDeclarations(VersionBase):
+    """The VariableDeclarations class creates the VariableDeclarations of
+    OpenScenario (Valid from V1.2).
+
+    Attributes
+    ----------
+    variables : list of Variable
+        List of Variable objects.
+
+    Methods
+    -------
+    get_element()
+        Returns the full ElementTree of the class.
+    add_variable(variable)
+        Adds a Variable to the VariableDeclarations.
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the VariableDeclarations."""
+        self.variables = []
+
+    @staticmethod
+    def parse(element: ET.Element) -> "VariableDeclarations":
+        """Parses the XML element of VariableDeclarations.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A VariableDeclarations element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        VariableDeclarations
+            A VariableDeclarations object.
+        """
+        variable_declarations = VariableDeclarations()
+        declarations = element.findall("VariableDeclaration")
+        for declaration in declarations:
+            variable = Variable.parse(declaration)
+            variable_declarations.add_variable(variable)
+        return variable_declarations
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, VariableDeclarations):
+            if self.variables == other.variables:
+                return True
+        return False
+
+    def add_variable(self, variable: Variable) -> "VariableDeclarations":
+        """Adds a Variable to the VariableDeclarations.
+
+        Parameters
+        ----------
+        variable : Variable
+            A new variable.
+
+        Returns
+        -------
+        VariableDeclarations
+            The updated VariableDeclarations object.
+        """
+        if not isinstance(variable, Variable):
+            raise TypeError("variable input is not of type Variable")
+        self.variables.append(variable)
+        return self
+
+    def get_element(self) -> Optional[ET.Element]:
+        """Returns the ElementTree of the VariableDeclarations.
+
+        Returns
+        -------
+        ET.Element or None
+            The ElementTree representation of the VariableDeclarations,
+            or None if no variables exist.
+        """
+        if self.version_minor < 2:
+            raise OpenSCENARIOVersionError(
+                "Variables were introduced in OSC 1.2"
+            )
+        element = ET.Element("VariableDeclarations")
+        for p in self.variables:
+            element.append(p.get_element())
+        return element
+
+
+class EntityRef(VersionBase):
+    """EntityRef creates an EntityRef element of OpenScenario.
+
+    Parameters
+    ----------
+    entity : str
+        Name of the entity.
+
+    Attributes
+    ----------
+    entity : str
+        Name of the entity.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(self, entity: str) -> None:
+        """Initializes the EntityRef.
+
+        Parameters
+        ----------
+        entity : str
+            Name of the entity.
+        """
+        self.entity = entity
+
+    @staticmethod
+    def parse(element: ET.Element) -> "EntityRef":
+        """Parses the XML element of EntityRef.
+
+        Parameters
+        ----------
+        element : ET.Element
+            An EntityRef element (same as generated by the class itself).
+
+        Returns
+        -------
+        EntityRef
+            An EntityRef object.
+        """
+        entity = element.attrib["entityRef"]
+        return EntityRef(entity)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, EntityRef):
+            if self.entity == other.entity:
+                return True
+        return False
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the EntityRef as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the EntityRef.
+        """
+        return {"entityRef": self.entity}
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the EntityRef.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the EntityRef.
+        """
+        return ET.Element("EntityRef", attrib=self.get_attributes())
+
+
+class Orientation(VersionBase):
+    """Orientation describes the angular orientation of an entity.
+
+    Parameters
+    ----------
+    h : float, optional
+        Header. Default is None.
+    p : float, optional
+        Pitch. Default is None.
+    r : float, optional
+        Roll. Default is None.
+    reference : ReferenceContext, optional
+        Absolute or relative. Default is None.
+
+    Attributes
+    ----------
+    h : float, optional
+        Header.
+    p : float, optional
+        Pitch.
+    r : float, optional
+        Roll.
+    reference : ReferenceContext, optional
+        Absolute or relative.
+
+    Methods
+    -------
+    is_filled()
+        Checks if any orientations are set.
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self,
+        h: Optional[float] = None,
+        p: Optional[float] = None,
+        r: Optional[float] = None,
+        reference: Optional[ReferenceContext] = None,
+    ) -> None:
+        """Initializes the Orientation.
+
+        Parameters
+        ----------
+        h : float, optional
+            Header. Default is None.
+        p : float, optional
+            Pitch. Default is None.
+        r : float, optional
+            Roll. Default is None.
+        reference : ReferenceContext, optional
+            Absolute or relative. Default is None.
         """
         self.h = convert_float(h)
         self.p = convert_float(p)
         self.r = convert_float(r)
         self.ref = convert_enum(reference, ReferenceContext, True)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Orientation):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Orientation
+    def parse(element: ET.Element) -> "Orientation":
+        """Parses the XML element of Orientation.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A orientation element (same as generated by the class itself)
+        element : ET.Element
+            An Orientation element (same as generated by the class itself).
 
         Returns
         -------
-            orientation (Orientation): a Orientation object
-
+        Orientation
+            An Orientation object.
         """
         h = None
         p = None
@@ -632,24 +1537,29 @@ class Orientation(VersionBase):
 
         return Orientation(h, p, r, reference)
 
-    def is_filled(self):
-        """is_filled check is any orientations are  set
+    def is_filled(self) -> bool:
+        """Checks if any orientations are set.
 
-        Returns: boolean
-
+        Returns
+        -------
+        bool
+            True if any orientations are set, False otherwise.
         """
-        if (
+        return (
             self.h is not None
             or self.p is not None
             or self.r is not None
             or self.ref is not None
-        ):
-            return True
-        else:
-            return False
+        )
 
-    def get_attributes(self):
-        """returns the attributes of the Orientation as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Orientation as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Orientation.
+        """
         retdict = {}
         if self.h is not None:
             retdict["h"] = str(self.h)
@@ -665,88 +1575,105 @@ class Orientation(VersionBase):
 
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the Orientation"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Orientation.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Orientation.
+        """
         return ET.Element("Orientation", attrib=self.get_attributes())
 
 
 class TransitionDynamics(VersionBase):
-    """TransitionDynamics is used to define how the dynamics of a change
+    """TransitionDynamics is used to define how the dynamics of a change.
 
     Parameters
     ----------
-        shape (DynamicsShapes): shape of the transition
-
-        dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
-
-        value (float): the value of the dynamics (time rate or distance)
-
-        following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
-            Default: None
+    shape : DynamicsShapes
+        Shape of the transition.
+    dimension : DynamicsDimension
+        The dimension of the transition (rate, time or distance).
+    value : float
+        The value of the dynamics (time rate or distance).
+    following_mode : FollowingMode, optional
+        The following mode of the TransitionDynamics (valid from OSC
+        V1.2). Default is None.
 
     Attributes
     ----------
-        shape (DynamicsShapes): shape of the transition
-
-        dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
-
-        value (float): the value of the dynamics (time rate or distance)
-
-        following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
+    shape : DynamicsShapes
+        Shape of the transition.
+    dimension : DynamicsDimension
+        The dimension of the transition (rate, time or distance).
+    value : float
+        The value of the dynamics (time rate or distance).
+    following_mode : FollowingMode, optional
+        The following mode of the TransitionDynamics.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, shape, dimension, value: float, following_mode=None):
-        """
+    def __init__(
+        self,
+        shape: DynamicsShapes,
+        dimension: DynamicsDimension,
+        value: float,
+        following_mode: Optional[FollowingMode] = None,
+    ) -> None:
+        """Initializes the TransitionDynamics.
+
         Parameters
         ----------
-            shape (DynamicsShapes): shape of the transition
-
-            dimension (DynamicsDimension): the dimension of the transition (rate, time or distance)
-
-            value (float): the value of the dynamics (time rate or distance)
-
-            following_mode (FollowingMode): the following mode of the TransitionDynamics (valid from OSC V1.2)
-                Default: None
+        shape : DynamicsShapes
+            Shape of the transition.
+        dimension : DynamicsDimension
+            The dimension of the transition (rate, time or distance).
+        value : float
+            The value of the dynamics (time rate or distance).
+        following_mode : FollowingMode, optional
+            The following mode of the TransitionDynamics (valid from
+            OSC V1.2). Default is None.
         """
-
         self.shape = convert_enum(shape, DynamicsShapes, False)
         self.dimension = convert_enum(dimension, DynamicsDimension, False)
         self.value = convert_float(value)
         self.following_mode = convert_enum(following_mode, FollowingMode, True)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TransitionDynamics):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of TransitionDynamics
+    def parse(element: ET.Element) -> "TransitionDynamics":
+        """Parses the XML element of TransitionDynamics.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A TransitionDynamics element (same as generated by the class itself)
+        element : ET.Element
+            A TransitionDynamics element (same as generated by the
+            class itself).
 
         Returns
         -------
-            transitiondynamics (TransitionDynamics): a TransitionDynamics object
-
+        TransitionDynamics
+            A TransitionDynamics object.
         """
         shape = convert_enum(element.attrib["dynamicsShape"], DynamicsShapes)
-        dimension = convert_enum(element.attrib["dynamicsDimension"], DynamicsDimension)
+        dimension = convert_enum(
+            element.attrib["dynamicsDimension"], DynamicsDimension
+        )
         value = convert_float(element.attrib["value"])
         following_mode = None
         if "followingMode" in element.attrib:
@@ -755,8 +1682,14 @@ class TransitionDynamics(VersionBase):
             )
         return TransitionDynamics(shape, dimension, value, following_mode)
 
-    def get_attributes(self):
-        """returns the attributes of the TransitionDynamics as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TransitionDynamics as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TransitionDynamics.
+        """
         retdict = {
             "dynamicsShape": self.shape.get_name(),
             "value": str(self.value),
@@ -766,64 +1699,87 @@ class TransitionDynamics(VersionBase):
             retdict["followingMode"] = self.following_mode.get_name()
         return retdict
 
-    def get_element(self, name="TransitionDynamics"):
-        """returns the elementTree of the TransitionDynamics"""
+    def get_element(self, name: str = "TransitionDynamics") -> ET.Element:
+        """Returns the ElementTree of the TransitionDynamics.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the element. Default is "TransitionDynamics".
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TransitionDynamics.
+        """
         return ET.Element(name, self.get_attributes())
 
 
 class DynamicsConstraints(VersionBase):
-    """DynamicsConstraints is used by triggers
+    """DynamicsConstraints is used by triggers.
 
     Parameters
     ----------
-        max_acceleration (float): maximum acceleration allowed
-
-        max_deceleration (float): maximum deceleration allowed
-
-        max_speed (float): maximum speed allowed
-
-        max_acceleration_rate (float): maximum acceleration rate allowed
-
-        max_deceleration_rate (float): maximum deceleration rate allowed
+    max_acceleration : float, optional
+        Maximum acceleration allowed. Default is None.
+    max_deceleration : float, optional
+        Maximum deceleration allowed. Default is None.
+    max_speed : float, optional
+        Maximum speed allowed. Default is None.
+    max_acceleration_rate : float, optional
+        Maximum acceleration rate allowed. Default is None.
+    max_deceleration_rate : float, optional
+        Maximum deceleration rate allowed. Default is None.
 
     Attributes
     ----------
-        max_acceleration (float): maximum acceleration allowed
-
-        max_deceleration (float): maximum deceleration allowed
-
-        max_speed (float): maximum speed allowed
-
-        max_acceleration_rate (float): maximum acceleration rate allowed
-
-        max_deceleration_rate (float): maximum deceleration rate allowed
+    max_acceleration : float, optional
+        Maximum acceleration allowed.
+    max_deceleration : float, optional
+        Maximum deceleration allowed.
+    max_speed : float, optional
+        Maximum speed allowed.
+    max_acceleration_rate : float, optional
+        Maximum acceleration rate allowed.
+    max_deceleration_rate : float, optional
+        Maximum deceleration rate allowed.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        is_filled()
-            check is any constraints are set
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    is_filled()
+        Checks if any constraints are set.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
     def __init__(
         self,
-        max_acceleration=None,
-        max_deceleration=None,
-        max_speed=None,
-        max_acceleration_rate=None,
-        max_deceleration_rate=None,
-    ):
-        """initalize DynamicsConstrains"""
+        max_acceleration: Optional[float] = None,
+        max_deceleration: Optional[float] = None,
+        max_speed: Optional[float] = None,
+        max_acceleration_rate: Optional[float] = None,
+        max_deceleration_rate: Optional[float] = None,
+    ) -> None:
+        """Initializes the DynamicsConstraints.
 
+        Parameters
+        ----------
+        max_acceleration : float, optional
+            Maximum acceleration allowed. Default is None.
+        max_deceleration : float, optional
+            Maximum deceleration allowed. Default is None.
+        max_speed : float, optional
+            Maximum speed allowed. Default is None.
+        max_acceleration_rate : float, optional
+            Maximum acceleration rate allowed. Default is None.
+        max_deceleration_rate : float, optional
+            Maximum deceleration rate allowed. Default is None.
+        """
         self.max_acceleration = convert_float(max_acceleration)
         self.max_deceleration = convert_float(max_deceleration)
         self.max_speed = convert_float(max_speed)
@@ -831,17 +1787,19 @@ class DynamicsConstraints(VersionBase):
         self.max_deceleration_rate = convert_float(max_deceleration_rate)
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of DynamicsConstraints
+    def parse(element: ET.Element) -> "DynamicsConstraints":
+        """Parses the XML element of DynamicsConstraints.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A dynamics constraint element (same as generated by the class itself)
+        element : ET.Element
+            A DynamicsConstraints element (same as generated by the
+            class itself).
 
         Returns
         -------
-            constrains (DynamicsConstrains): a DynamicsConstrains object
-
+        DynamicsConstraints
+            A DynamicsConstraints object.
         """
         max_acceleration = None
         max_deceleration = None
@@ -856,9 +1814,13 @@ class DynamicsConstraints(VersionBase):
         if "maxSpeed" in element.attrib:
             max_speed = convert_float(element.attrib["maxSpeed"])
         if "maxAccelerationRate" in element.attrib:
-            max_acceleration_rate = convert_float(element.attrib["maxAccelerationRate"])
+            max_acceleration_rate = convert_float(
+                element.attrib["maxAccelerationRate"]
+            )
         if "maxDecelerationRate" in element.attrib:
-            max_deceleration_rate = convert_float(element.attrib["maxDecelerationRate"])
+            max_deceleration_rate = convert_float(
+                element.attrib["maxDecelerationRate"]
+            )
 
         return DynamicsConstraints(
             max_acceleration,
@@ -868,26 +1830,33 @@ class DynamicsConstraints(VersionBase):
             max_deceleration_rate,
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DynamicsConstraints):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def is_filled(self):
-        """is_filled check is any constraints are set
+    def is_filled(self) -> bool:
+        """Checks if any constraints are set.
 
-        Returns: boolean
-
+        Returns
+        -------
+        bool
+            True if any constraints are set, False otherwise.
         """
-
         if self.max_acceleration or self.max_deceleration or self.max_speed:
             return True
         else:
             return False
 
-    def get_attributes(self):
-        """returns the attributes of the DynamicsConstrains as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the DynamicsConstraints as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the DynamicsConstraints.
+        """
         retdict = {}
         if self.max_speed is not None:
             retdict["maxSpeed"] = str(self.max_speed)
@@ -909,83 +1878,95 @@ class DynamicsConstraints(VersionBase):
             retdict["maxDecelerationRate"] = str(self.max_deceleration_rate)
         return retdict
 
-    def get_element(self, name="DynamicConstraints"):
-        """returns the elementTree of the DynamicsConstrains"""
+    def get_element(self, name: str = "DynamicConstraints") -> ET.Element:
+        """Returns the ElementTree of the DynamicsConstraints.
+
+        Parameters
+        ----------
+        name : str, optional
+            The name of the element. Default is "DynamicConstraints".
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the DynamicsConstraints.
+        """
         return ET.Element(name, attrib=self.get_attributes())
 
 
 class License(VersionBase):
     """License creates the License used by FileHeader in the OpenScenario file
-    (valid from OpenSCENARIO V1.1)
+    (valid from OpenSCENARIO V1.1).
 
     Parameters
     ----------
-        name (str): name of the License
-
-        resource (str): link to URL
-            Default: None
-
-        spdxId (str): license identifier
-            Default: None
+    name : str
+        Name of the License.
+    resource : str, optional
+        Link to URL. Default is None.
+    spdxId : str, optional
+        License identifier. Default is None.
 
     Attributes
     ----------
-        name (str): name of the License
-
-        resource (str): link to URL
-
-        spdxId (str): license identifier
+    name : str
+        Name of the License.
+    resource : str, optional
+        Link to URL.
+    spdxId : str, optional
+        License identifier.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of FileHeader
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, name, resource=None, spdxId=None):
-        """init the License
+    def __init__(
+        self,
+        name: str,
+        resource: Optional[str] = None,
+        spdxId: Optional[str] = None,
+    ) -> None:
+        """Initializes the License.
 
         Parameters
         ----------
-            name (str): name of the License
-
-            resource (str): link to URL
-                Default: None
-
-            spdxId (str): license identifier
-                Default: None
+        name : str
+            Name of the License.
+        resource : str, optional
+            Link to URL. Default is None.
+        spdxId : str, optional
+            License identifier. Default is None.
         """
         self.name = name
         self.resource = resource
         self.spdxId = spdxId
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, License):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    # TODO: Check Class License test string 0..1 The full license
-
     @staticmethod
-    def parse(element):
-        """Parses the xml element of License
+    def parse(element: ET.Element) -> "License":
+        """Parses the XML element of License.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A license element (same as generated by the class itself)
+        element : ET.Element
+            A License element (same as generated by the class itself).
 
         Returns
         -------
-            license (License): a License object
-
+        License
+            A License object.
         """
         name = element.attrib["name"]
         resource = None
@@ -997,8 +1978,14 @@ class License(VersionBase):
 
         return License(name, resource, spdxId)
 
-    def get_attributes(self):
-        """returns the attributes as a dict of the License"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the License as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the License.
+        """
         retdict = {}
         retdict["name"] = self.name
         if self.resource:
@@ -1007,8 +1994,14 @@ class License(VersionBase):
             retdict["spdxId"] = self.spdxId
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the License"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the License.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the License.
+        """
         if self.isVersion(minor=0):
             raise OpenSCENARIOVersionError(
                 "License was introduced in OpenSCENARIO V1.1"
@@ -1019,76 +2012,74 @@ class License(VersionBase):
 
 
 class FileHeader(VersionBase):
-    """FileHeader creates the header of the OpenScenario file1
+    """FileHeader creates the header of the OpenScenario file.
 
     Parameters
     ----------
-        name (str): name of the scenario
+    author : str
+        The author of the scenario.
+    description : str
+        Description of the scenario.
+    revMinor : int, optional
+        The minor revision of the standard. Default is 2.
+    license : License, optional
+        License (valid from OpenSCENARIO V1.1). Default is None.
+    creation_date : datetime.datetime, optional
+        Optional hardcoded creation date. Default is datetime.datetime.now().
+    properties : Properties, optional
+        Additional info about the scenario. Default is None.
 
-        author (str): the author of the scenario
-
-        revMinor (int): the minor revision of the standard
-            Default: 2
-
-        license (License): license (valid from OpenSCENARIO V1.1)
-            Default: None
-
-        creation_date (datetime.datetime): optional hardcoded creation date
-            Default: datetime.datetime.now() (when actually generating the xml)
-
-        properties (Properties): additional info about the scenario
-            Default: None
     Attributes
     ----------
-        name (str): name of the scenario
+    author : str
+        The author of the scenario.
+    description : str
+        Description of the scenario.
+    revMinor : int
+        The minor revision of the standard.
+    license : License, optional
+        License.
+    creation_date : datetime.datetime, optional
+        Optional hardcoded creation date.
+    properties : Properties, optional
+        Additional info about the scenario.
 
-        author (str): the author of the scenario
-
-        license (License): license (valid from OpenSCENARIO V1.1)
-
-        creation_date (datetime.datetime): optional hardcoded creation date
-
-        properties (Properties): additional info about the scenarios
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of FileHeader
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
     def __init__(
         self,
-        author,
-        description,
-        revMinor=_MINOR_VERSION,
-        license=None,
-        creation_date=None,
-        properties=None,
-    ):
-        """FileHeader creates the header of the OpenScenario file1
+        author: str,
+        description: str,
+        revMinor: int = _MINOR_VERSION,
+        license: Optional[License] = None,
+        creation_date: Optional[dt.datetime] = None,
+        properties: Optional[Properties] = None,
+    ) -> None:
+        """Initializes the FileHeader.
 
         Parameters
         ----------
-            name (str): name of the scenario
-
-            author (str): the author of the scenario
-
-            revMinor (int): the minor revision of the standard
-                Default: 1
-
-            license (License): license (valid from OpenSCENARIO V1.1)
-                Default: None
-
-            creation_date (datetime.datetime): optional hardcoded creation date
-                Default: datetime.datetime.now() (when actually generating the xml)
-            properties (Properties): additional info about the scenario
-                Default: None
+        author : str
+            The author of the scenario.
+        description : str
+            Description of the scenario.
+        revMinor : int, optional
+            The minor revision of the standard. Default is 2.
+        license : License, optional
+            License (valid from OpenSCENARIO V1.1). Default is None.
+        creation_date : datetime.datetime, optional
+            Optional hardcoded creation date. Default is datetime.datetime.now().
+        properties : Properties, optional
+            Additional info about the scenario. Default is None.
         """
         self.description = description
         self.author = author
@@ -1103,7 +2094,7 @@ class FileHeader(VersionBase):
             raise TypeError("properties is not of type Properties")
         self.properties = properties
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, FileHeader):
             if (
                 self.description == other.description
@@ -1116,47 +2107,58 @@ class FileHeader(VersionBase):
                 return True
         return False
 
-    # TODO: License handling add_license ???
-
     @staticmethod
-    def parse(element):
-        """Parses the xml element of FileHeader
+    def parse(element: ET.Element) -> "FileHeader":
+        """Parses the XML element of FileHeader.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A file header element (same as generated by the class itself)
+        element : ET.Element
+            A FileHeader element (same as generated by the class itself).
 
         Returns
         -------
-            header (FileHeader): a FileHeader object
-
+        FileHeader
+            A FileHeader object.
         """
         author = element.attrib["author"]
         description = element.attrib["description"]
-        # revMinor = element.attrib['revMinor']
-        # revMajor = element.attrib['revMajor']
         license = None
-        if element.find("license") != None:
-            license = License.parse(element.find("license"))
+        if element.find("license") is not None:
+            license = License.parse(find_mandatory_field(element, "license"))
 
-        return FileHeader(author=author, description=description, license=license)
+        return FileHeader(
+            author=author, description=description, license=license
+        )
 
-    def get_attributes(self):
-        """returns the attributes as a dict of the FileHeader"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the FileHeader as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the FileHeader.
+        """
         retdict = {
             "description": self.description,
             "author": self.author,
             "revMajor": str(self.version_major),
             "revMinor": str(self.version_minor),
         }
-        if self.creation_date != None:
+        if self.creation_date is not None:
             retdict["date"] = self.creation_date.isoformat()
         else:
             retdict["date"] = dt.datetime.now().isoformat()
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the FileHeader"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the FileHeader.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the FileHeader.
+        """
         element = ET.Element("FileHeader", attrib=self.get_attributes())
         if self.license:
             if self.isVersionEqLarger(minor=1):
@@ -1177,66 +2179,74 @@ class FileHeader(VersionBase):
 
 
 class TimeReference(VersionBase):
-    """the TimeReference class creates a TimeReference,
+    """The TimeReference class creates a TimeReference.
 
     Parameters
     ----------
-        referece_domain (ReferenceContext): absolute or relative time reference (must be combined with scale and offset)
-            Default: None
-
-        scale (float): scalefactor of the timeings (must be combined with referece_domain and offset)
-            Default: None
-
-        offset (float): offset for time values (must be combined with referece_domain and scale)
-            Default: None
+    reference_domain : ReferenceContext, optional
+        Absolute or relative time reference (must be combined with
+        scale and offset). Default is None.
+    scale : float, optional
+        Scalefactor of the timings (must be combined with reference_domain
+        and offset). Default is None.
+    offset : float, optional
+        Offset for time values (must be combined with reference_domain
+        and scale). Default is None.
 
     Attributes
     ----------
-        referece_domain (ReferenceContext): absolute or relative time reference
-
-        scale (float): scalefactor of the timeings
-
-        offset (float): offset for time values
+    reference_domain : ReferenceContext, optional
+        Absolute or relative time reference.
+    scale : float, optional
+        Scalefactor of the timings.
+    offset : float, optional
+        Offset for time values.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, reference_domain=None, scale=None, offset=None):
-        """initalize the TimeReference
+    def __init__(
+        self,
+        reference_domain: Optional[ReferenceContext] = None,
+        scale: Optional[float] = None,
+        offset: Optional[float] = None,
+    ) -> None:
+        """Initializes the TimeReference.
 
         Parameters
         ----------
-        referece_domain (ReferenceContext): absolute or relative time reference (must be combined with scale and offset)
-            Default: None
-
-        scale (float): scalefactor of the timeings (must be combined with referece_domain and offset)
-            Default: None
-
-        offset (float): offset for time values (must be combined with referece_domain and scale)
-            Default: None
-
+        reference_domain : ReferenceContext, optional
+            Absolute or relative time reference (must be combined with
+            scale and offset). Default is None.
+        scale : float, optional
+            Scalefactor of the timings (must be combined with reference_domain
+            and offset). Default is None.
+        offset : float, optional
+            Offset for time values (must be combined with reference_domain
+            and scale). Default is None.
         """
-        nones = [reference_domain == None, scale == None, offset == None]
+        nones = [reference_domain is None, scale is None, offset is None]
         if sum(nones) == 3:
             self._only_nones = True
         elif sum(nones) == 0:
             self._only_nones = False
         else:
             raise ValueError("missing inputs for time reference")
-        self.reference_domain = convert_enum(reference_domain, ReferenceContext, True)
+        self.reference_domain = convert_enum(
+            reference_domain, ReferenceContext, True
+        )
         self.scale = convert_float(scale)
         self.offset = convert_float(offset)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeReference):
             if not self._only_nones and not other._only_nones:
                 if self.get_attributes() == other.get_attributes():
@@ -1246,22 +2256,24 @@ class TimeReference(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of TimeReference
+    def parse(element: ET.Element) -> "TimeReference":
+        """Parses the XML element of TimeReference.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A time reference element (same as generated by the class itself)
+        element : ET.Element
+            A TimeReference element (same as generated by the class
+            itself).
 
         Returns
         -------
-            timing (TimeReference): a TimeReference object
-
+        TimeReference
+            A TimeReference object.
         """
-        if element.find("None") != None:
+        if element.find("None") is not None:
             return TimeReference()
 
-        timing_element = element.find("Timing")
+        timing_element = find_mandatory_field(element, "Timing")
         scale = None
         offset = None
         reference_domain = None
@@ -1272,22 +2284,34 @@ class TimeReference(VersionBase):
             scale = timing_element.attrib["scale"]
         if "domainAbsoluteRelative" in timing_element.attrib:
             reference_domain = convert_enum(
-                timing_element.attrib["domainAbsoluteRelative"], ReferenceContext
+                timing_element.attrib["domainAbsoluteRelative"],
+                ReferenceContext,
             )
 
         return TimeReference(reference_domain, scale, offset)
 
-    def get_attributes(self):
-        """returns the attributes of the TimeReference as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TimeReference as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TimeReference.
+        """
         retdict = {}
         retdict["domainAbsoluteRelative"] = self.reference_domain.get_name()
         retdict["scale"] = str(self.scale)
         retdict["offset"] = str(self.offset)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the TimeReference"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TimeReference.
 
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TimeReference.
+        """
         element = ET.Element("TimeReference")
         if self._only_nones:
             ET.SubElement(element, "None")
@@ -1298,139 +2322,154 @@ class TimeReference(VersionBase):
 
 
 class _TrafficSignalState(VersionBase):
-    """crates a _TrafficSignalState used by Phase
+    """Creates a _TrafficSignalState used by Phase.
 
     Parameters
     ----------
-        signal_id (str): id of the traffic signal
-
-        state (str): state of the signal
+    signal_id : str
+        ID of the traffic signal.
+    state : str
+        State of the signal.
 
     Attributes
     ----------
-        signal_id (str): id of the traffic signal
-
-        state (str): state of the signal
+    signal_id : str
+        ID of the traffic signal.
+    state : str
+        State of the signal.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, signal_id, state):
-        """initalize the _TrafficSignalState
+    def __init__(self, signal_id: str, state: str) -> None:
+        """Initializes the _TrafficSignalState.
 
         Parameters
         ----------
-            signal_id (str): id of the traffic signal
-
-            state (str): state of the signal
-
+        signal_id : str
+            ID of the traffic signal.
+        state : str
+            State of the signal.
         """
-
         self.signal_id = signal_id
         self.state = state
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _TrafficSignalState):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of _TrafficSignalState
+    def parse(element: ET.Element) -> "_TrafficSignalState":
+        """Parses the XML element of _TrafficSignalState.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A traffice signal state element (same as generated by the class itself)
+        element : ET.Element
+            A _TrafficSignalState element (same as generated by the
+            class itself).
 
         Returns
         -------
-            ts_state (_TrafficSignalState): a _TrafficSignalState object
-
+        _TrafficSignalState
+            A _TrafficSignalState object.
         """
         signal_id = element.attrib["trafficSignalId"]
         state = element.attrib["state"]
         return _TrafficSignalState(signal_id=signal_id, state=state)
 
-    def get_attributes(self):
-        """returns the attributes of the _TrafficSignalState"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the _TrafficSignalState as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the _TrafficSignalState.
+        """
         retdict = {}
         retdict["trafficSignalId"] = self.signal_id
         retdict["state"] = self.state
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the _TrafficSignalState"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the _TrafficSignalState.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the _TrafficSignalState.
+        """
         return ET.Element("TrafficSignalState", attrib=self.get_attributes())
 
 
 class Phase(VersionBase):
-    """crates a Traffic light phase
+    """Creates a Traffic light phase.
 
     Parameters
     ----------
-        name (str): if of the phase
-
-        duration (float): duration of the phase
-
-        traffic_group_state (str): state for a group of signals (valid since V1.2)
-            Default: None
+    name : str
+        ID of the phase.
+    duration : float
+        Duration of the phase.
+    traffic_group_state : str, optional
+        State for a group of signals (valid since V1.2). Default is None.
 
     Attributes
     ----------
-        name (str): if of the phase
-
-        duration (float): duration of the phase
-
-        signalstates (list of _TrafficSignalState): traffic signal states
-
-        traffic_group_state (str): state for a group of signals (valid since V1.2)
+    name : str
+        ID of the phase.
+    duration : float
+        Duration of the phase.
+    signalstates : list of _TrafficSignalState
+        Traffic signal states.
+    traffic_group_state : str, optional
+        State for a group of signals.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_stignal_state(signal_id,state)
-            add a traffic signal state
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    add_signal_state(signal_id, state)
+        Adds a traffic signal state.
     """
 
-    def __init__(self, name, duration, traffic_group_state=None):
-        """initalize the Phase
+    def __init__(
+        self,
+        name: str,
+        duration: float,
+        traffic_group_state: Optional[str] = None,
+    ) -> None:
+        """Initializes the Phase.
 
         Parameters
         ----------
-            name (str): if of the phase
-
-            duration (float): duration of the phase
-
-            traffic_group_state (str): state for a group of signals (valid since V1.2)
-                Default: None
-
+        name : str
+            ID of the phase.
+        duration : float
+            Duration of the phase.
+        traffic_group_state : str, optional
+            State for a group of signals (valid since V1.2). Default is None.
         """
-
         self.name = name
         self.duration = convert_float(duration)
         self.signalstates = []
         self.traffic_group_state = traffic_group_state
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Phase):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1440,54 +2479,74 @@ class Phase(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Phase
+    def parse(element: ET.Element) -> "Phase":
+        """Parses the XML element of Phase.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A phase element (same as generated by the class itself)
+        element : ET.Element
+            A Phase element (same as generated by the class itself).
 
         Returns
         -------
-            phase (Phase): a Phase object
-
+        Phase
+            A Phase object.
         """
         duration = convert_float(element.attrib["duration"])
         name = element.attrib["name"]
         group = None
         # NOTE: Misspelling according to standard...
         if element.find("TrafficeSignalGroupState") is not None:
-            group = element.find("TrafficeSignalGroupState").attrib["state"]
+            group = find_mandatory_field(
+                element, "TrafficeSignalGroupState"
+            ).attrib["state"]
         phase = Phase(name, duration, group)
         signalstates = element.findall("TrafficSignalState")
-        if signalstates != None:
+        if signalstates is not None:
             for signalstate in signalstates:
                 traffic_signal_state = _TrafficSignalState.parse(signalstate)
                 phase.signalstates.append(traffic_signal_state)
         return phase
 
-    def add_signal_state(self, signal_id, state):
-        """Adds a phase of the traffic signal
+    def add_signal_state(self, signal_id: str, state: str) -> "Phase":
+        """Adds a phase of the traffic signal.
 
         Parameters
         ----------
-            signal_id (str): id of the traffic signal in the road network
+        signal_id : str
+            ID of the traffic signal in the road network.
+        state : str
+            State of the signal defined in the road network.
 
-            state (str): state of the signal defined in the road network
-
+        Returns
+        -------
+        Phase
+            The updated Phase object.
         """
         self.signalstates.append(_TrafficSignalState(signal_id, state))
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the TrafficSignalController"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Phase as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Phase.
+        """
         retdict = {}
         retdict["name"] = self.name
         retdict["duration"] = str(self.duration)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the Polyline"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Phase.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Phase.
+        """
         element = ET.Element("Phase", attrib=self.get_attributes())
         for s in self.signalstates:
             element.append(s.get_element())
@@ -1506,63 +2565,63 @@ class Phase(VersionBase):
 
 
 class TrafficSignalController(VersionBase):
-    """the TrafficSignalController class creates a polyline of (minimum 2) positions
+    """The TrafficSignalController class creates a polyline of (minimum 2)
+    positions.
 
     Parameters
     ----------
-        name (str): if of the trafic signal
-
-        delay (float): delay of the phase shift
-            Default: None
-
-        reference (string): id to the controller in the roadnetwork
-            Default: None
+    name : str
+        ID of the traffic signal.
+    delay : float, optional
+        Delay of the phase shift. Default is None.
+    reference : str, optional
+        ID to the controller in the road network. Default is None.
 
     Attributes
     ----------
-        name (str): if of the trafic signal
-
-        delay (float): delay of the phase shift
-            Default: None
-        reference (string): id to the controller in the roadnetwork
-            Default: None
+    name : str
+        ID of the traffic signal.
+    delay : float, optional
+        Delay of the phase shift.
+    reference : str, optional
+        ID to the controller in the road network.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_phase(Phase)
-            add a phase to the trafficsitnal controller
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    add_phase(phase)
+        Adds a phase to the traffic signal controller.
     """
 
-    def __init__(self, name, delay=None, reference=None):
-        """initalize the TrafficSignalController
+    def __init__(
+        self,
+        name: str,
+        delay: Optional[float] = None,
+        reference: Optional[str] = None,
+    ) -> None:
+        """Initializes the TrafficSignalController.
 
         Parameters
         ----------
-            name (str): if of the trafic signal
-
-            delay (float): delay of the phase shift
-                Default: None
-
-            reference (string): id to the controller in the RoadNetwork
-                Default: None
-
+        name : str
+            ID of the traffic signal.
+        delay : float, optional
+            Delay of the phase shift. Default is None.
+        reference : str, optional
+            ID to the controller in the road network. Default is None.
         """
-
         self.name = name
         self.delay = delay
         self.reference = reference
         self.phases = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficSignalController):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1572,17 +2631,19 @@ class TrafficSignalController(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of TrafficSignalController
+    def parse(element: ET.Element) -> "TrafficSignalController":
+        """Parses the XML element of TrafficSignalController.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A traffice signal controller element (same as generated by the class itself)
+        element : ET.Element
+            A traffic signal controller element (same as generated by
+            the class itself).
 
         Returns
         -------
-            tsc (TrafficSignalController): a TrafficSignalController object
-
+        TrafficSignalController
+            A TrafficSignalController object.
         """
         name = element.attrib["name"]
 
@@ -1597,27 +2658,39 @@ class TrafficSignalController(VersionBase):
         tsc = TrafficSignalController(name, delay, reference)
 
         phases = element.findall("Phase")
-        if phases != None:
+        if phases is not None:
             for phase in phases:
                 tsc.phases.append(Phase.parse(phase))
 
         return tsc
 
-    def add_phase(self, phase):
-        """Adds a phase of the traffic signal
+    def add_phase(self, phase: Phase) -> "TrafficSignalController":
+        """Adds a phase of the traffic signal.
 
         Parameters
         ----------
-            phase (Phase): a phase of the trafficsignal
+        phase : Phase
+            A phase of the traffic signal.
 
+        Returns
+        -------
+        TrafficSignalController
+            The updated TrafficSignalController object.
         """
         if not isinstance(phase, Phase):
             raise TypeError("phase input is not of type Phase")
         self.phases.append(phase)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the TrafficSignalController"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TrafficSignalController as a
+        dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TrafficSignalController.
+        """
         retdict = {}
         retdict["name"] = self.name
         if self.delay is not None:
@@ -1626,63 +2699,73 @@ class TrafficSignalController(VersionBase):
             retdict["reference"] = self.reference
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the TrafficSignalController"""
-        element = ET.Element("TrafficSignalController", attrib=self.get_attributes())
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TrafficSignalController.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TrafficSignalController.
+        """
+        element = ET.Element(
+            "TrafficSignalController", attrib=self.get_attributes()
+        )
         for ph in self.phases:
             element.append(ph.get_element())
         return element
 
 
 class TrafficDefinition(VersionBase):
-    """the TrafficDefinition class creates a TrafficDefinition used by the different TrafficActions
+    """The TrafficDefinition class creates a TrafficDefinition used by the
+    different TrafficActions.
 
     Parameters
     ----------
-        name (str): name of the traffic definition
-
+    name : str
+        Name of the traffic definition.
 
     Attributes
     ----------
-        name (str): name of the traffic definition
-
-        vehicleweights (list of floats): The weights of the vehicle categories (VehicleCategoryDistribution-weight)
-
-        vehiclecategories (list of VehicleCategory): the vehicle category ((VehicleCategoryDistribution-category))
-
-        controllerweights (list of floats): The weights of the controllers
-
-        controllers (list of Controller/CatalogReference): The controllers for the traffic
-
+    name : str
+        Name of the traffic definition.
+    vehicleweights : list of float
+        The weights of the vehicle categories (VehicleCategoryDistribution-weight).
+    vehiclecategories : list of VehicleCategory
+        The vehicle category (VehicleCategoryDistribution-category).
+    controllerweights : list of float
+        The weights of the controllers.
+    controllers : list of Controller or CatalogReference
+        The controllers for the traffic.
+    vehicle_roles : list of Role
+        The roles of the vehicles.
+    vehicle_roles_weights : list of float
+        The weights of the vehicle roles.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_vehicle(vehiclecategory,weight)
-            Adds a vehicle to the traffic definition
-
-        add_controller(controller,weight)
-            Adds a controller to the traffic definition
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    add_vehicle(vehiclecategory, weight)
+        Adds a vehicle to the traffic definition.
+    add_controller(controller, weight)
+        Adds a controller to the traffic definition.
+    add_vehicle_role(vehicle_role, weight)
+        Adds a vehicle role to the traffic definition.
     """
 
-    def __init__(self, name):
-        """initalize the TrafficDefinition
+    def __init__(self, name: str) -> None:
+        """Initializes the TrafficDefinition.
 
         Parameters
         ----------
-            name (str): name of the traffic definition
-
+        name : str
+            Name of the traffic definition.
         """
-
         self.name = name
         self.vehicleweights = []
         self.vehiclecategories = []
@@ -1691,7 +2774,7 @@ class TrafficDefinition(VersionBase):
         self.vehicle_roles = []
         self.vehicle_roles_weights = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TrafficDefinition):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1706,22 +2789,26 @@ class TrafficDefinition(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of TrafficDefinition
+    def parse(element: ET.Element) -> "TrafficDefinition":
+        """Parses the XML element of TrafficDefinition.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A traffic definition element (same as generated by the class itself)
+        element : ET.Element
+            A TrafficDefinition element (same as generated by the class
+            itself).
 
         Returns
         -------
-            td (TrafficDefinition): a TrafficDefinition object
-
+        TrafficDefinition
+            A TrafficDefinition object.
         """
         name = element.attrib["name"]
         td = TrafficDefinition(name)
 
-        vehicle_distributions = element.find("VehicleCategoryDistribution")
+        vehicle_distributions = find_mandatory_field(
+            element, "VehicleCategoryDistribution"
+        )
         vehicle_entries = vehicle_distributions.findall(
             "VehicleCategoryDistributionEntry"
         )
@@ -1730,18 +2817,22 @@ class TrafficDefinition(VersionBase):
             category = convert_enum(entry.attrib["category"], VehicleCategory)
             td.add_vehicle(category, weight)
 
-        controller_distributions = element.find("ControllerDistribution")
+        controller_distributions = find_mandatory_field(
+            element, "ControllerDistribution"
+        )
         controller_entries = controller_distributions.findall(
             "ControllerDistributionEntry"
         )
         for controller_dist in controller_entries:
             weight = convert_float(controller_dist.attrib["weight"])
-            if controller_dist.find("Controller"):
-                controller = Controller.parse(controller_dist.find("Controller"))
+            if controller_dist.find("Controller") is not None:
+                controller = Controller.parse(
+                    find_mandatory_field(controller_dist, "Controller")
+                )
                 td.add_controller(controller, weight)
             else:
                 catalog_reference = CatalogReference.parse(
-                    controller_dist.find("CatalogReference")
+                    find_mandatory_field(controller_dist, "CatalogReference")
                 )
                 td.add_controller(catalog_reference, weight)
 
@@ -1751,50 +2842,74 @@ class TrafficDefinition(VersionBase):
                 "VehicleRoleDistributionEntry"
             ):
                 td.add_vehicle_role(
-                    convert_enum(entry.attrib["role"], Role), entry.attrib["weight"]
+                    convert_enum(entry.attrib["role"], Role),
+                    entry.attrib["weight"],
                 )
         return td
 
-    def add_vehicle(self, vehiclecategory, weight):
-        """Adds a vehicle to the traffic distribution
+    def add_vehicle(
+        self, vehiclecategory: VehicleCategory, weight: float
+    ) -> "TrafficDefinition":
+        """Adds a vehicle to the traffic distribution.
 
         Parameters
         ----------
-            vehiclecategory (VehicleCategory): vehicle category of the entity in the traffic
+        vehiclecategory : VehicleCategory
+            Vehicle category of the entity in the traffic.
+        weight : float
+            The corresponding weight for the distribution of the
+            vehicle category.
 
-            weight (float): the corresponding weight for the distribution of the vehicle category
-
+        Returns
+        -------
+        TrafficDefinition
+            The updated TrafficDefinition object.
         """
-        self.vehiclecategories.append(convert_enum(vehiclecategory, VehicleCategory))
+        self.vehiclecategories.append(
+            convert_enum(vehiclecategory, VehicleCategory)
+        )
         self.vehicleweights.append(weight)
         return self
 
-    def add_vehicle_role(self, vehicle_role, weight):
-        """Adds a vehicle role to a distribution
+    def add_vehicle_role(
+        self, vehicle_role: Role, weight: float
+    ) -> "TrafficDefinition":
+        """Adds a vehicle role to the traffic distribution.
 
         Parameters
         ----------
-            vehicle_role (Role): add a role to the vehicle role distribution
+        vehicle_role : Role
+            Role of the vehicle.
+        weight : float
+            The corresponding weight for the distribution of the
+            vehicle role.
 
-            weight (float): the weight of that vehicle role
+        Returns
+        -------
+        TrafficDefinition
+            The updated TrafficDefinition object.
         """
         self.vehicle_roles_weights.append(convert_float(weight))
         self.vehicle_roles.append(convert_enum(vehicle_role, Role))
 
-    def add_controller(self, controller, weight):
-        """Adds a controller to the traffic distribution
+    def add_controller(
+        self, controller: Union[Controller, CatalogReference], weight: float
+    ) -> "TrafficDefinition":
+        """Adds a controller to the traffic distribution.
 
         Parameters
         ----------
-            controller (Controller or CatalogReference): a controller or catalog reference to a controller
+        controller : Controller or CatalogReference
+            A controller or catalog reference to a controller.
+        weight : float
+            The corresponding weight for the controller.
 
-            weight (float): the corresponding weight for the controller
-
+        Returns
+        -------
+        TrafficDefinition
+            The updated TrafficDefinition object.
         """
-        if not (
-            isinstance(controller, Controller)
-            or isinstance(controller, CatalogReference)
-        ):
+        if not isinstance(controller, (Controller, CatalogReference)):
             raise TypeError(
                 "controller input not of type Controller or CatalogReference"
             )
@@ -1802,52 +2917,66 @@ class TrafficDefinition(VersionBase):
         self.controllerweights.append(weight)
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the TrafficDefinition"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TrafficDefinition as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TrafficDefinition.
+        """
         retdict = {}
         retdict["name"] = self.name
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the TrafficDefinition"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TrafficDefinition.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TrafficDefinition.
+        """
         if not self.controllers:
-            ValueError("No controllers defined for the TrafficDefinition")
+            raise ValueError(
+                "No controllers defined for the TrafficDefinition"
+            )
         if not self.vehiclecategories:
-            ValueError("No Vehicles defined for the TrafficDefinition")
+            raise ValueError("No Vehicles defined for the TrafficDefinition")
 
         element = ET.Element("TrafficDefinition", attrib=self.get_attributes())
 
         veh_element = ET.SubElement(element, "VehicleCategoryDistribution")
-        for i in range(len(self.vehiclecategories)):
+        for i, vehicle_category in enumerate(self.vehiclecategories):
             ET.SubElement(
                 veh_element,
                 "VehicleCategoryDistributionEntry",
                 attrib={
-                    "category": self.vehiclecategories[i].get_name(),
+                    "category": vehicle_category.get_name(),
                     "weight": str(self.vehicleweights[i]),
                 },
             )
 
         cnt_element = ET.SubElement(element, "ControllerDistribution")
-        for i in range(len(self.controllers)):
+        for i, controller in enumerate(self.controllers):
             tmp_controller = ET.SubElement(
                 cnt_element,
                 "ControllerDistributionEntry",
                 attrib={"weight": str(self.controllerweights[i])},
             )
-            tmp_controller.append(self.controllers[i].get_element())
+            tmp_controller.append(controller.get_element())
         if self.vehicle_roles:
             if self.version_minor < 2:
                 raise OpenSCENARIOVersionError(
                     "VehicleRoleDistribution was added in OSC V1.2"
                 )
             role_element = ET.SubElement(element, "VehicleRoleDistribution")
-            for i in range(len(self.vehicle_roles)):
+            for i, role in enumerate(self.vehicle_roles):
                 ET.SubElement(
                     role_element,
                     "VehicleRoleDistributionEntry",
                     attrib={
-                        "role": self.vehicle_roles[i].get_name(),
+                        "role": role.get_name(),
                         "weight": str(self.vehicle_roles_weights[i]),
                     },
                 )
@@ -1855,107 +2984,136 @@ class TrafficDefinition(VersionBase):
 
 
 class CatalogFile(VersionBase):
-    """The CatalogFile class handles any catalogs in open scenario, such as writing, and updating them
+    """The CatalogFile class handles any catalogs in OpenScenario, such as
+    writing, and updating them.
 
     Parameters
     ----------
-        prettyprint (boolean): if the final file should have prettyprint or not
-            Default: True
+    prettyprint : bool, optional
+        If the final file should have prettyprint or not. Default is True.
+    encoding : str, optional
+        The encoding of the file. Default is "utf-8".
 
     Attributes
     ----------
-        prettyprint: if the final file should have prettyprint or not
-
-        catalog_element (Element): the element that is worked with
-
-        filename (str): path to the file to be written to
+    prettyprint : bool
+        If the final file should have prettyprint or not.
+    catalog_element : ET.Element
+        The element that is worked with.
+    filename : str
+        Path to the file to be written to.
+    encoding : str
+        The encoding of the file.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        add_catalog(catalogname, path)
-            Adds a new catalog
+    get_element()
+        Returns the full ElementTree of the class.
+    add_to_catalog(obj)
+        Adds an element to the catalog.
+    open_catalog(filename)
+        Reads an existing catalog file.
+    create_catalog(filename, catalogtype, description, author)
+        Creates an empty catalog of a desired type.
+    create_catalog_element(catalogtype, description, author)
+        Creates an empty catalog element of a desired type.
+    dump()
+        Writes the new/updated catalog file.
     """
 
-    def __init__(self, prettyprint=True, encoding="utf-8"):
-        """initalize the CatalogFile class
+    def __init__(
+        self, prettyprint: bool = True, encoding: str = "utf-8"
+    ) -> None:
+        """Initializes the CatalogFile class.
 
         Parameters
         ----------
-            prettyprint (boolean): if the final file should have prettyprint or not
-                Default: True
+        prettyprint : bool, optional
+            If the final file should have prettyprint or not. Default is True.
+        encoding : str, optional
+            The encoding of the file. Default is "utf-8".
         """
         self.prettyprint = prettyprint
         self.catalog_element = None
         self.filename = ""
         self.encoding = encoding
 
-    def add_to_catalog(self, obj):
-        """add_to_catalog adds an element to the catalog
+    def add_to_catalog(self, obj: Any) -> "CatalogFile":
+        """Adds an element to the catalog.
 
         Parameters
         ----------
-            obj (*pyoscx): any pyoscx object (should be matching with the catalog)
+        obj : Any
+            Any xosc object (should be matching with the catalog).
 
-            osc_minor_version (int): the minor version of OpenSCENARIO to write to the catalog
-                Default: same as package
+        Returns
+        -------
+        CatalogFile
+            The updated CatalogFile object.
         """
-        if self.catalog_element == None:
-            OSError("No file has been created or opened")
-        fileheader = self.catalog_element.find("FileHeader")
+        if self.catalog_element is None:
+            raise OSError("No file has been created or opened")
+        fileheader = find_mandatory_field(self.catalog_element, "FileHeader")
 
         if convert_int(fileheader.attrib["revMinor"]) != obj.version_minor:
             warnings.warn(
                 "The Catalog and the added object does not have the same OpenSCENARIO version."
             )
-        catalogs = self.catalog_element.find("Catalog")
+        catalogs = find_mandatory_field(self.catalog_element, "Catalog")
         catalogs.append(obj.get_element())
         return self
 
-    def open_catalog(self, filename):
-        """open_catalog reads an existing catalog file
+    def open_catalog(self, filename: str) -> None:
+        """Reads an existing catalog file.
 
         Parameters
         ----------
-            filename (str): path to the catalog file
-
+        filename : str
+            Path to the catalog file.
         """
         self.filename = filename
         tree = ET.parse(self.filename)
         self.catalog_element = tree.getroot()
 
-    def create_catalog(self, filename, catalogtype, description, author):
-        """create_catalog_element creates an empty catalog of a desiered type,
+    def create_catalog(
+        self, filename: str, catalogtype: str, description: str, author: str
+    ) -> None:
+        """Creates an empty catalog of a desired type.
 
         Parameters
         ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
+        filename : str
+            Path of the new catalog file.
+        catalogtype : str
+            Name of the catalog.
+        description : str
+            Description of the catalog.
+        author : str
+            Author of the catalog.
         """
         self.filename = filename
         self.catalog_element = self.create_catalog_element(
             catalogtype, description, author
         )
 
-    def create_catalog_element(self, catalogtype, description, author):
-        """create_catalog_element creates an empty catalog of a desiered type,
+    def create_catalog_element(
+        self, catalogtype: str, description: str, author: str
+    ) -> ET.Element:
+        """Creates an empty catalog element of a desired type.
 
         Parameters
         ----------
-            catalogtype (str): name of the catalog
+        catalogtype : str
+            Name of the catalog.
+        description : str
+            Description of the catalog.
+        author : str
+            Author of the catalog.
 
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
+        Returns
+        -------
+        ET.Element
+            The created catalog element.
         """
         element = ET.Element(
             "OpenSCENARIO",
@@ -1970,91 +3128,33 @@ class CatalogFile(VersionBase):
 
         return element
 
-    def dump(self):
-        """writes the new/updated catalog file"""
+    def dump(self) -> None:
+        """Writes the new/updated catalog file."""
         printToFile(
-            self.catalog_element, self.filename, self.prettyprint, self.encoding
+            self.catalog_element,
+            self.filename,
+            self.prettyprint,
+            self.encoding,
         )
 
 
-class _BaseCatalog(VersionBase):
-    """the _BaseCatalog should be inherited by other classes that should be able to create catalogs from their elements"""
-
-    def __init__(self):
-        super().__init__()
-        self.parameters = ParameterDeclarations()
-
-    def add_parameter(self, parameter):
-        """adds a parameter to the Trajectory
-
-        Parameters
-        ----------
-            parameter (Parameter): the parameter to add
-
-        """
-        if not isinstance(parameter, Parameter):
-            raise TypeError("input parameter is not of type Parameter")
-        self.parameters.add_parameter(parameter)
-        return self
-
-    def add_parameters_to_element(self, element):
-        """adds the parameterdeclaration to the element"""
-        param_element = self.parameters.get_element()
-        if param_element:
-            element.append(param_element)
-
-    def dump_to_catalog(self, filename, catalogtype, description, author):
-        """dump_to_catalog creates a new catalog and adds the element to it
-
-        Parameters
-        ----------
-            filename (str): path of the new catalog file
-
-            catalogtype (str): name of the catalog
-
-            description (str): description of the catalog
-
-            author (str): author of the catalog
-
-        """
-        cf = CatalogFile()
-        cf.create_catalog(filename, catalogtype, description, author)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-    def append_to_catalog(self, filename):
-        """adds the the element to an existing catalog
-
-        Parameters
-        ----------
-            filename (str): path to the catalog file
-
-        """
-        cf = CatalogFile()
-        cf.open_catalog(filename)
-        cf.add_to_catalog(self)
-        cf.dump()
-
-
 class Catalog(VersionBase):
-    """The Catalog class creates the CatalogLocation of the OpenScenario input
-
-    Parameters
-    ----------
+    """The Catalog class creates the CatalogLocation of the OpenScenario input.
 
     Attributes
     ----------
-        catalogs: dict of catalogs to add, and their path
+    catalogs : dict
+        Dictionary of catalogs to add, and their path.
+
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        add_catalog(catalogname, path)
-            Adds a new catalog
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    add_catalog(catalogname, path)
+        Adds a new catalog.
     """
 
     _CATALOGS = [
@@ -2068,84 +3168,91 @@ class Catalog(VersionBase):
         "RouteCatalog",
     ]
 
-    def __init__(self):
-        """initalize the Catalog class"""
+    def __init__(self) -> None:
+        """Initializes the Catalog class."""
         self.catalogs = {}
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Catalog):
             if self.catalogs == other.catalogs:
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Catalog
+    def parse(element: ET.Element) -> "Catalog":
+        """Parses the XML element of Catalog.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A Catalog element (same as generated by the class itself)
+        element : ET.Element
+            A Catalog element (same as generated by the class itself).
 
         Returns
         -------
-            catalog (Catalog): a Catalog object
-
+        Catalog
+            A Catalog object.
         """
         catalog = Catalog()
 
         vc_element = element.find("VehicleCatalog")
         if vc_element is not None:
-            path = vc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(vc_element, "Directory").attrib["path"]
             catalog.add_catalog("VehicleCatalog", path)
 
         cc_element = element.find("ControllerCatalog")
         if cc_element is not None:
-            path = cc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(cc_element, "Directory").attrib["path"]
             catalog.add_catalog("ControllerCatalog", path)
 
         pc_element = element.find("PedestrianCatalog")
         if pc_element is not None:
-            path = pc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(pc_element, "Directory").attrib["path"]
             catalog.add_catalog("PedestrianCatalog", path)
 
         moc_element = element.find("MiscObjectCatalog")
         if moc_element is not None:
-            path = moc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(moc_element, "Directory").attrib[
+                "path"
+            ]
             catalog.add_catalog("MiscObjectCatalog", path)
 
         ec_element = element.find("EnvironmentCatalog")
         if ec_element is not None:
-            path = ec_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(ec_element, "Directory").attrib["path"]
             catalog.add_catalog("EnvironmentCatalog", path)
 
         mc_element = element.find("ManeuverCatalog")
         if mc_element is not None:
-            path = mc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(mc_element, "Directory").attrib["path"]
             catalog.add_catalog("ManeuverCatalog", path)
 
         tc_element = element.find("TrajectoryCatalog")
         if tc_element is not None:
-            path = tc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(tc_element, "Directory").attrib["path"]
             catalog.add_catalog("TrajectoryCatalog", path)
 
         rc_element = element.find("RouteCatalog")
         if rc_element is not None:
-            path = rc_element.find("Directory").attrib["path"]
+            path = find_mandatory_field(rc_element, "Directory").attrib["path"]
             catalog.add_catalog("RouteCatalog", path)
 
         return catalog
 
-    def add_catalog(self, catalogname, path):
-        """add new catalog to be used
+    def add_catalog(self, catalogname: str, path: str) -> "Catalog":
+        """Adds a new catalog to be used.
 
         Parameters
         ----------
-            catalogname (str): name of the catalog
+        catalogname : str
+            Name of the catalog.
+        path : str
+            Path to the catalog.
 
-            path (str): path to the catalog
-
+        Returns
+        -------
+        Catalog
+            The updated Catalog object.
         """
-
         if catalogname not in self._CATALOGS:
             raise ValueError(
                 f"Not a correct catalog, approved catalogs are: {', '.join(self._CATALOGS)}."
@@ -2154,273 +3261,190 @@ class Catalog(VersionBase):
         self.catalogs[catalogname] = path
         return self
 
-    def get_element(self):
-        """returns the elementTree of the Catalog"""
-
-        catloc = ET.Element("CatalogLocations")
-
-        for i in self.catalogs:
-            tmpel = ET.SubElement(catloc, i)
-            ET.SubElement(tmpel, "Directory", {"path": self.catalogs[i]})
-        return catloc
-
-
-class CatalogReference(VersionBase):
-    """CatalogReference creates an CatalogReference element of openscenario
-
-    Parameters
-    ----------
-        catalogname (str): name of the catalog
-
-        entryname (str): name of the entry in the catalog
-
-    Attributes
-    ----------
-        catalogname (str): name of the catalog
-
-        entryname (str): name of the entry in the catalog
-
-        parameterassignments (list of ParameterAssignment): the parameter assignments for the given catalogreference
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        add_parameter_assignment(parameterref,value)
-            Assigns a parameter with a value
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, catalogname, entryname):
-        """initalize the CatalogReference
-
-        Parameters
-        ----------
-            catalogname (str): name of the catalog
-
-            entryname (str): name of the entry in the catalog
-
-        """
-        self.catalogname = catalogname
-        self.entryname = entryname
-        self.parameterassignments = []
-
-    def __eq__(self, other):
-        if isinstance(other, CatalogReference):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameterassignments == other.parameterassignments
-            ):
-                return True
-        return False
-
-    # TODO: CatalogElement???
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of CatalogReference
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A catalog reference element (same as generated by the class itself)
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Catalog.
 
         Returns
         -------
-            reference (CatalogReference): a catalog reference object
-
+        ET.Element
+            The ElementTree representation of the Catalog.
         """
-        catalogname = element.attrib["catalogName"]
-        entryname = element.attrib["entryName"]
-        reference = CatalogReference(catalogname, entryname)
+        catloc = ET.Element("CatalogLocations")
 
-        parameter_assignments = element.find("ParameterAssignments")
-        if parameter_assignments != None:
-            parameters = parameter_assignments.findall("ParameterAssignment")
-            for parameter in parameters:
-                parameter_assignment = ParameterAssignment.parse(parameter)
-                reference.parameterassignments.append(parameter_assignment)
-
-        return reference
-
-    def add_parameter_assignment(self, parameterref, value):
-        """add_parameter_assignment adds a parameter and value to the catalog reference
-
-        Parameters
-        ----------
-            parameterref (str): name of the parameter
-
-            value (str): assigned value of the parameter
-        """
-        self.parameterassignments.append(ParameterAssignment(parameterref, value))
-        return self
-
-    def get_attributes(self):
-        """returns the attributes of the CatalogReference as a dict"""
-        return {"catalogName": self.catalogname, "entryName": self.entryname}
-
-    def get_element(self):
-        """returns the elementTree of the CatalogReference"""
-        element = ET.Element("CatalogReference", attrib=self.get_attributes())
-        if self.parameterassignments:
-            parameterassigns = ET.SubElement(element, "ParameterAssignments")
-        for parass in self.parameterassignments:
-            parameterassigns.append(parass.get_element())
-        return element
+        for i, catalog in self.catalogs.items():
+            tmpel = ET.SubElement(catloc, i)
+            ET.SubElement(tmpel, "Directory", {"path": catalog})
+        return catloc
 
 
 class ParameterAssignment(VersionBase):
-    """ParameterAssignment creates an ParameterAssignment element of openscenario
+    """ParameterAssignment creates a ParameterAssignment element of
+    OpenScenario.
 
     Parameters
     ----------
-        parameterref (str): name of the parameter
-
-        value (str): assigned value of the parameter
-
+    parameterref : str
+        Name of the parameter.
+    value : str
+        Assigned value of the parameter.
 
     Attributes
     ----------
-        parameterref (str): name of the parameter
-
-        value (str): assigned value of the parameter
+    parameterref : str
+        Name of the parameter.
+    value : str
+        Assigned value of the parameter.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, parameterref, value):
-        """initalize the ParameterAssignment
+    def __init__(self, parameterref: str, value: str) -> None:
+        """Initializes the ParameterAssignment.
 
         Parameters
         ----------
-            parameterref (str): name of the parameter
-
-            value (str): assigned value of the parameter
-
+        parameterref : str
+            Name of the parameter.
+        value : str
+            Assigned value of the parameter.
         """
         self.parameterref = parameterref
         self.value = value
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParameterAssignment):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of ParameterAssignment
+    def parse(element: ET.Element) -> "ParameterAssignment":
+        """Parses the XML element of ParameterAssignment.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A parameter assignment element (same as generated by the class itself)
+        element : ET.Element
+            A ParameterAssignment element (same as generated by the
+            class itself).
 
         Returns
         -------
-            parameterassignment (ParameterAssignment): a ParameterAssignment object
-
+        ParameterAssignment
+            A ParameterAssignment object.
         """
-
         value = element.attrib["value"]
         parameterref = element.attrib["parameterRef"]
 
         return ParameterAssignment(parameterref, value)
 
-    def get_attributes(self):
-        """returns the attributes of the ParameterAssignment as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the ParameterAssignment as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the ParameterAssignment.
+        """
         retdict = {}
         retdict["parameterRef"] = self.parameterref
         retdict["value"] = str(self.value)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the ParameterAssignment"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the ParameterAssignment.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the ParameterAssignment.
+        """
         return ET.Element("ParameterAssignment", attrib=self.get_attributes())
 
 
 class TimeOfDay(VersionBase):
-    """TimeOfDay creates an TimeOfDay element of openscenario
+    """TimeOfDay creates a TimeOfDay element of OpenScenario.
 
     Parameters
     ----------
-        animation (bool): if animation should be used
-
-        year (int): year
-
-        month (int): month
-
-        day (int): day
-
-        hour (int): hour
-
-        minute (int): minute
-
-        second (int): second
+    animation : bool
+        If animation should be used.
+    year : int
+        Year.
+    month : int
+        Month.
+    day : int
+        Day.
+    hour : int
+        Hour.
+    minute : int
+        Minute.
+    second : int
+        Second.
 
     Attributes
     ----------
-        animation (bool): if animation should be used
-
-        year (int): year
-
-        month (int): month
-
-        day (int): day
-
-        hour (int): hour
-
-        minute (int): minute
-
-        second (int): second
+    animation : bool
+        If animation should be used.
+    year : int
+        Year.
+    month : int
+        Month.
+    day : int
+        Day.
+    hour : int
+        Hour.
+    minute : int
+        Minute.
+    second : int
+        Second.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, animation, year, month, day, hour, minute, second):
-        """initalize the TimeOfDay
+    def __init__(
+        self,
+        animation: bool,
+        year: int,
+        month: int,
+        day: int,
+        hour: int,
+        minute: int,
+        second: int,
+    ) -> None:
+        """Initializes the TimeOfDay.
 
         Parameters
         ----------
-            animation (bool): if animation should be used
-
-            year (int): year
-
-            month (int): month
-
-            day (int): day
-
-            hour (int): hour
-
-            minute (int): minute
-
-            second (int): second
-
+        animation : bool
+            If animation should be used.
+        year : int
+            Year.
+        month : int
+            Month.
+        day : int
+            Day.
+        hour : int
+            Hour.
+        minute : int
+            Minute.
+        second : int
+            Second.
         """
         self.animation = convert_bool(animation)
         self.year = year
@@ -2430,23 +3454,25 @@ class TimeOfDay(VersionBase):
         self.minute = minute
         self.second = second
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeOfDay):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of TimeOfDay
+    def parse(element: ET.Element) -> "TimeOfDay":
+        """Parses the XML element of TimeOfDay.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A time of day element (same as generated by the class itself)
+        element : ET.Element
+            A TimeOfDay element (same as generated by the class itself).
 
         Returns
         -------
-            timeofday (TimeOfDay): a TimeOfDay object
+        TimeOfDay
+            A TimeOfDay object.
         """
         animation = convert_bool(element.attrib["animation"])
         var = element.attrib["dateTime"]
@@ -2460,9 +3486,15 @@ class TimeOfDay(VersionBase):
 
         return TimeOfDay(animation, year, month, day, hour, minute, second)
 
-    def get_attributes(self):
-        """returns the attributes of the TimeOfDay as a dict"""
-        dt = (
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TimeOfDay as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TimeOfDay.
+        """
+        tod = (
             str(self.year)
             + "-"
             + "{:0>2}".format(self.month)
@@ -2475,124 +3507,530 @@ class TimeOfDay(VersionBase):
             + ":"
             + "{:0>2}".format(self.second)
         )
-        return {"animation": get_bool_string(self.animation), "dateTime": dt}
+        return {"animation": get_bool_string(self.animation), "dateTime": tod}
 
-    def get_element(self):
-        """returns the elementTree of the TimeOfDay"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TimeOfDay.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TimeOfDay.
+        """
         return ET.Element("TimeOfDay", attrib=self.get_attributes())
 
 
-class Weather(VersionBase):
-    """Weather creates an Weather element of openscenario
+class Fog(VersionBase):
+    """Fog creates a Fog element used by the Weather element of OpenScenario.
 
     Parameters
     ----------
-        cloudstate (CloudState, or FractionalCloudCover): cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover (>V1.2 ))
-            Default: None
+    visual_range : int
+        Visual range of fog.
+    bounding_box : BoundingBox, optional
+        Bounding box of fog. Default is None.
 
-        atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
-            Default: None
-
-        temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
-            Default: None
-
-        sun (Sun): the sun position
-            Default: None
-
-        fog (Fog): fot state
-            Default: None
-
-        precipitation (Precipitation): the precipitation state
-            Default: None
-
-        wind (Wind): the wind (valid from OpenSCENARIO V1.1)
-            Default: None
-
-        dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
-            Default: None
-
-        dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
-            Default: None
     Attributes
     ----------
-        cloudstate (CloudState): cloudstate of the weather
-
-        atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
-
-        temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
-
-        sun (Sun): the sun position
-
-        fog (Fog): fot state
-
-        precipitation (Precipitation): the precipitation state
-
-        wind (Wind): the wind (valid from OpenSCENARIO V1.1)
-
-        dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
-
-        dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
+    visual_range : int
+        Visual range of fog.
+    bounding_box : BoundingBox, optional
+        Bounding box of fog.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
 
-        get_element()
-            Returns the full ElementTree of the class
+    def __init__(
+        self, visual_range: int, bounding_box: Optional[BoundingBox] = None
+    ) -> None:
+        """Initializes the Fog.
 
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+        Parameters
+        ----------
+        visual_range : int
+            Visual range of fog.
+        bounding_box : BoundingBox, optional
+            Bounding box of fog. Default is None.
+        """
+        self.visual_range = visual_range
+        if bounding_box and not isinstance(bounding_box, BoundingBox):
+            raise TypeError("bounding_box not of type BoundingBox")
+        self.bounding_box = bounding_box
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Fog):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.bounding_box == other.bounding_box
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Fog":
+        """Parses the XML element of Fog.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Fog element (same as generated by the class itself).
+
+        Returns
+        -------
+        Fog
+            A Fog object.
+        """
+        visual_range = element.attrib["visualRange"]
+        bounding_box = None
+        if element.find("BoundingBox") is not None:
+            bounding_box = BoundingBox.parse(
+                find_mandatory_field(element, "BoundingBox")
+            )
+
+        return Fog(visual_range, bounding_box)
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Fog as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Fog.
+        """
+        retdict = {}
+        retdict["visualRange"] = str(self.visual_range)
+
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Fog.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Fog.
+        """
+        element = ET.Element("Fog", attrib=self.get_attributes())
+        if self.bounding_box is not None:
+            element.append(self.bounding_box.get_element())
+
+        return element
+
+
+class Sun(VersionBase):
+    """Sun creates a Sun element used by the Weather element of OpenScenario.
+
+    Parameters
+    ----------
+    intensity : float
+        Intensity of the sun (in lux).
+    azimuth : float
+        Azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west.
+    elevation : float
+        Sun elevation angle 0 x/y plane, pi/2 zenith.
+
+    Attributes
+    ----------
+    intensity : float
+        Intensity of the sun (in lux).
+    azimuth : float
+        Azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west.
+    elevation : float
+        Sun elevation angle 0 x/y plane, pi/2 zenith.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self, intensity: float, azimuth: float, elevation: float
+    ) -> None:
+        """Initializes the Sun.
+
+        Parameters
+        ----------
+        intensity : float
+            Intensity of the sun (in lux).
+        azimuth : float
+            Azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west.
+        elevation : float
+            Sun elevation angle 0 x/y plane, pi/2 zenith.
+        """
+        self.azimuth = azimuth
+        self.intensity = intensity
+        self.elevation = elevation
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Sun):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Sun":
+        """Parses the XML element of Sun.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Sun element (same as generated by the class itself).
+
+        Returns
+        -------
+        Sun
+            A Sun object.
+        """
+        azimuth = element.attrib["azimuth"]
+        elevation = element.attrib["elevation"]
+        if "intensity" in element.attrib:
+            intensity = element.attrib["intensity"]
+        else:
+            intensity = element.attrib["illuminance"]
+
+        return Sun(intensity, azimuth, elevation)
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Sun as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Sun.
+        """
+        retdict = {}
+        retdict["azimuth"] = str(self.azimuth)
+        if self.isVersion(minor=2):
+            retdict["illuminance"] = str(self.intensity)
+        else:
+            retdict["intensity"] = str(self.intensity)
+        retdict["elevation"] = str(self.elevation)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Sun.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Sun.
+        """
+        element = ET.Element("Sun", attrib=self.get_attributes())
+
+        return element
+
+
+class Precipitation(VersionBase):
+    """Precipitation creates a Precipitation element used by the Weather
+    element of OpenScenario.
+
+    Parameters
+    ----------
+    precipitation : PrecipitationType
+        Dry, rain or snow.
+    intensity : float
+        Intensity of precipitation (0...1).
+
+    Attributes
+    ----------
+    precipitation : PrecipitationType
+        Dry, rain or snow.
+    intensity : float
+        Intensity of precipitation (0...1).
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self, precipitation: PrecipitationType, intensity: float
+    ) -> None:
+        """Initializes the Precipitation.
+
+        Parameters
+        ----------
+        precipitation : PrecipitationType
+            Dry, rain or snow.
+        intensity : float
+            Intensity of precipitation (0...1).
+        """
+        self.precipitation = convert_enum(
+            precipitation, PrecipitationType, False
+        )
+        self.intensity = convert_float(intensity)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Precipitation):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Precipitation":
+        """Parses the XML element of Precipitation.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Precipitation element (same as generated by the class
+            itself).
+
+        Returns
+        -------
+        Precipitation
+            A Precipitation object.
+        """
+        intesity = None
+        if "precipitationIntensity" in element.attrib:
+            intesity = element.attrib["precipitationIntensity"]
+        elif "intensity" in element.attrib:
+            intesity = element.attrib["intensity"]
+        precipitation = convert_enum(
+            element.attrib["precipitationType"], PrecipitationType, False
+        )
+
+        return Precipitation(precipitation, intesity)
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Precipitation as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Precipitation.
+        """
+        retdict = {}
+        retdict["precipitationType"] = self.precipitation.get_name()
+        if self.isVersion(minor=0):
+            retdict["intensity"] = str(self.intensity)
+        else:
+            retdict["precipitationIntensity"] = str(self.intensity)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Precipitation.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Precipitation.
+        """
+        element = ET.Element("Precipitation", attrib=self.get_attributes())
+
+        return element
+
+
+class Wind(VersionBase):
+    """Wind creates a Wind element used by the Weather element of OpenScenario.
+
+    Parameters
+    ----------
+    direction : float
+        Wind direction (radians).
+    speed : float
+        Wind speed (m/s).
+
+    Attributes
+    ----------
+    direction : float
+        Wind direction (radians).
+    speed : float
+        Wind speed (m/s).
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(self, direction: float, speed: float) -> None:
+        """Initializes the Wind.
+
+        Parameters
+        ----------
+        direction : float
+            Wind direction (radians).
+        speed : float
+            Wind speed (m/s).
+        """
+        self.direction = direction
+        self.speed = speed
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Wind):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Wind":
+        """Parses the XML element of Wind.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Wind element (same as generated by the class itself).
+
+        Returns
+        -------
+        Wind
+            A Wind object.
+        """
+        direction = element.attrib["direction"]
+        speed = element.attrib["speed"]
+
+        return Wind(direction, speed)
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Wind as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Wind.
+        """
+        return {"direction": str(self.direction), "speed": str(self.speed)}
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Wind.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Wind.
+        """
+        if self.isVersion(minor=0):
+            raise OpenSCENARIOVersionError("Wind was introduced in OSC 1.1")
+        element = ET.Element("Wind", attrib=self.get_attributes())
+
+        return element
+
+
+class Weather(VersionBase):
+    """Weather creates a Weather element of OpenScenario.
+
+    Parameters
+    ----------
+    cloudstate : Union[CloudState, FractionalCloudCover], optional
+        Cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover
+        (>V1.2)). Default is None.
+    atmosphericPressure : float, optional
+        Atmospheric pressure in Pa (valid from OpenSCENARIO V1.1). Default is None.
+    temperature : float, optional
+        Outside temperature (valid from OpenSCENARIO V1.1). Default is None.
+    sun : Sun, optional
+        The sun position. Default is None.
+    fog : Fog, optional
+        Fog state. Default is None.
+    precipitation : Precipitation, optional
+        The precipitation state. Default is None.
+    wind : Wind, optional
+        The wind (valid from OpenSCENARIO V1.1). Default is None.
+    dome_image : str, optional
+        Image file for the sky (valid from OpenSCENARIO V1.2). Default is None.
+    dome_azimuth_offset : float, optional
+        Offset for dome image (valid from OpenSCENARIO V1.2). Default is None.
+
+    Attributes
+    ----------
+    cloudstate : Union[CloudState, FractionalCloudCover], optional
+        Cloudstate of the weather.
+    atmosphericPressure : float, optional
+        Atmospheric pressure in Pa.
+    temperature : float, optional
+        Outside temperature.
+    sun : Sun, optional
+        The sun position.
+    fog : Fog, optional
+        Fog state.
+    precipitation : Precipitation, optional
+        The precipitation state.
+    wind : Wind, optional
+        The wind.
+    dome_image : str, optional
+        Image file for the sky.
+    dome_azimuth_offset : float, optional
+        Offset for dome image.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
     def __init__(
         self,
-        cloudstate=None,
-        atmosphericPressure=None,
-        temperature=None,
-        sun=None,
-        fog=None,
-        precipitation=None,
-        wind=None,
-        dome_image=None,
-        dome_azimuth_offset=None,
-    ):
-        """initalize the Weather
+        cloudstate: Optional[Union[CloudState, FractionalCloudCover]] = None,
+        atmosphericPressure: Optional[float] = None,
+        temperature: Optional[float] = None,
+        sun: Optional[Sun] = None,
+        fog: Optional[Fog] = None,
+        precipitation: Optional[Precipitation] = None,
+        wind: Optional[Wind] = None,
+        dome_image: Optional[str] = None,
+        dome_azimuth_offset: Optional[float] = None,
+    ) -> None:
+        """Initializes the Weather.
 
         Parameters
         ----------
-            cloudstate (CloudState, or FractionalCloudCover): cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover (>V1.2 ))
-                Default: None
-
-            atmosphericPressure (float): atmospheric pressure in Pa (valid from OpenSCENARIO V1.1)
-                Default: None
-
-            temperature (float): outside temperature (valid from OpenSCENARIO V1.1)
-                Default: None
-
-            sun (Sun): the sun position
-                Default: None
-
-            fog (Fog): fot state
-                Default: None
-
-            precipitation (Precipitation): the precipitation state
-                Default: None
-
-            wind (Wind): the wind (valid from OpenSCENARIO V1.1)
-                Default: None
-
-            dome_image (str): image file for the sky (valid from OpenSCENARIO V1.2)
-                Default: None
-
-            dome_azimuth_offset (float): offset for dome image (valid from OpenSCENARIO V1.2)
-                Default: None
+        cloudstate : Union[CloudState, FractionalCloudCover], optional
+            Cloudstate of the weather (CloudState (V1.0-1.1), FractionalCloudCover
+            (>V1.2)). Default is None.
+        atmosphericPressure : float, optional
+            Atmospheric pressure in Pa (valid from OpenSCENARIO V1.1). Default is None.
+        temperature : float, optional
+            Outside temperature (valid from OpenSCENARIO V1.1). Default is None.
+        sun : Sun, optional
+            The sun position. Default is None.
+        fog : Fog, optional
+            Fog state. Default is None.
+        precipitation : Precipitation, optional
+            The precipitation state. Default is None.
+        wind : Wind, optional
+            The wind (valid from OpenSCENARIO V1.1). Default is None.
+        dome_image : str, optional
+            Image file for the sky (valid from OpenSCENARIO V1.2). Default is None.
+        dome_azimuth_offset : float, optional
+            Offset for dome image (valid from OpenSCENARIO V1.2). Default is None.
         """
         try:
             self.cloudstate = convert_enum(cloudstate, CloudState, True)
-        except Exception as e:
-            self.cloudstate = convert_enum(cloudstate, FractionalCloudCover, True)
+        except (TypeError, ValueError):
+            self.cloudstate = convert_enum(
+                cloudstate, FractionalCloudCover, True
+            )
 
         if precipitation and not isinstance(precipitation, Precipitation):
             raise TypeError("precipitation input is not of type Precipitation")
@@ -2603,7 +4041,6 @@ class Weather(VersionBase):
         if sun and not isinstance(sun, Sun):
             raise TypeError("sun input is not of type Sun")
 
-        # self.cloudstate = cloudstate
         self.atmosphericPressure = atmosphericPressure
         self.temperature = temperature
         self.fog = fog
@@ -2613,7 +4050,7 @@ class Weather(VersionBase):
         self.dome_image = dome_image
         self.dome_azimuth_offset = convert_float(dome_azimuth_offset)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Weather):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -2628,17 +4065,18 @@ class Weather(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Weather
+    def parse(element: ET.Element) -> "Weather":
+        """Parses the XML element of Weather.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A weather element (same as generated by the class itself)
+        element : ET.Element
+            A Weather element (same as generated by the class itself).
 
         Returns
         -------
-            weather (Weather): a Weather object
-
+        Weather
+            A Weather object.
         """
         temperature = None
         atmosphericPressure = None
@@ -2655,25 +4093,36 @@ class Weather(VersionBase):
         if "atmosphericPressure" in element.attrib:
             atmosphericPressure = element.attrib["atmosphericPressure"]
         if "cloudState" in element.attrib:
-            cloudstate = convert_enum(element.attrib["cloudState"], CloudState, False)
+            cloudstate = convert_enum(
+                element.attrib["cloudState"], CloudState, False
+            )
         if "fractionalCloudCover" in element.attrib:
             cloudstate = convert_enum(
                 element.attrib["fractionalCloudCover"], FractionalCloudCover
             )
-        if element.find("Sun") != None:
-            sun = Sun.parse(element.find("Sun"))
-        if element.find("Fog") != None:
-            fog = Fog.parse(element.find("Fog"))
-        if element.find("Precipitation") != None:
-            precipitation = Precipitation.parse(element.find("Precipitation"))
-        if element.find("Wind") != None:
-            wind = Wind.parse(element.find("Wind"))
-        if element.find("DomeImage") != None:
-            dome_file = element.find("DomeImage").find("DomeFile").attrib["filepath"]
+        if element.find("Sun") is not None:
+            sun = Sun.parse(find_mandatory_field(element, "Sun"))
+        if element.find("Fog") is not None:
+            fog = Fog.parse(find_mandatory_field(element, "Fog"))
+        if element.find("Precipitation") is not None:
+            precipitation = Precipitation.parse(
+                find_mandatory_field(element, "Precipitation")
+            )
+        if element.find("Wind") is not None:
+            wind = Wind.parse(find_mandatory_field(element, "Wind"))
+        if element.find("DomeImage") is not None:
+            dome_file = find_mandatory_field(
+                find_mandatory_field(element, "DomeImage"), "DomeFile"
+            ).attrib["filepath"]
 
-            if "azimuthOffset" in element.find("DomeImage").attrib:
+            if (
+                "azimuthOffset"
+                in find_mandatory_field(element, "DomeImage").attrib
+            ):
                 dome_azimuth = convert_float(
-                    element.find("DomeImage").attrib["azimuthOffset"]
+                    find_mandatory_field(element, "DomeImage").attrib[
+                        "azimuthOffset"
+                    ]
                 )
         return Weather(
             cloudstate,
@@ -2687,8 +4136,14 @@ class Weather(VersionBase):
             dome_azimuth,
         )
 
-    def get_attributes(self):
-        """returns the attributes of the Weather as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Weather as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Weather.
+        """
         retdict = {}
         if self.cloudstate:
             if hasattr(CloudState, str(self.cloudstate)):
@@ -2705,7 +4160,9 @@ class Weather(VersionBase):
                 retdict["fractionalCloudCover"] = self.cloudstate.get_name()
             elif str(self.cloudstate)[0] == "$":
                 if self.isVersionEqLarger(minor=2):
-                    retdict["fractionalCloudCover"] = self.cloudstate.get_name()
+                    retdict["fractionalCloudCover"] = (
+                        self.cloudstate.get_name()
+                    )
                 else:
                     retdict["cloudState"] = self.cloudstate.get_name()
         if self.temperature is not None and not self.isVersion(minor=0):
@@ -2714,7 +4171,9 @@ class Weather(VersionBase):
             raise OpenSCENARIOVersionError(
                 "temperature was introduced in OpenSCENARIO V1.1"
             )
-        if self.atmosphericPressure is not None and not self.isVersion(minor=0):
+        if self.atmosphericPressure is not None and not self.isVersion(
+            minor=0
+        ):
             retdict["atmosphericPressure"] = str(self.atmosphericPressure)
         elif self.atmosphericPressure is not None and self.isVersion(minor=0):
             raise OpenSCENARIOVersionError(
@@ -2722,18 +4181,28 @@ class Weather(VersionBase):
             )
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the Weather"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Weather.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Weather.
+        """
         if self.isVersion(minor=0):
-            if self.sun == None:
-                raise OpenSCENARIOVersionError("In OpenScenario 1.0, Sun is required.")
-            if self.cloudstate == None:
+            if self.sun is None:
+                raise OpenSCENARIOVersionError(
+                    "In OpenScenario 1.0, Sun is required."
+                )
+            if self.cloudstate is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, CloudState is required."
                 )
-            if self.fog == None:
-                raise OpenSCENARIOVersionError("In OpenScenario 1.0, Fog is required.")
-            if self.precipitation == None:
+            if self.fog is None:
+                raise OpenSCENARIOVersionError(
+                    "In OpenScenario 1.0, Fog is required."
+                )
+            if self.precipitation is None:
                 raise OpenSCENARIOVersionError(
                     "In OpenScenario 1.0, Precipitation is required."
                 )
@@ -2747,8 +4216,12 @@ class Weather(VersionBase):
         if self.wind and not self.isVersion(minor=0):
             element.append(self.wind.get_element())
         if self.wind and self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError("Wind was introduced in OpenSCENARIO V1.1")
-        if self.dome_image and (self.isVersion(minor=0) or self.isVersion(minor=1)):
+            raise OpenSCENARIOVersionError(
+                "Wind was introduced in OpenSCENARIO V1.1"
+            )
+        if self.dome_image and (
+            self.isVersion(minor=0) or self.isVersion(minor=1)
+        ):
             raise OpenSCENARIOVersionError(
                 "DomeImage was introduced in OpenSCENARIO V1.2"
             )
@@ -2756,412 +4229,63 @@ class Weather(VersionBase):
             dome_attr = {}
             if self.dome_azimuth_offset:
                 dome_attr["azimuthOffset"] = str(self.dome_azimuth_offset)
-            dome_element = ET.SubElement(element, "DomeImage", attrib=dome_attr)
+            dome_element = ET.SubElement(
+                element, "DomeImage", attrib=dome_attr
+            )
             ET.SubElement(
                 dome_element, "DomeFile", attrib={"filepath": self.dome_image}
             )
         return element
 
 
-class Fog(VersionBase):
-    """Fog creates an Fog element used by the Weather element of openscenario
-
-    Parameters
-    ----------
-        visual_range (int): visual range of fog
-
-        bounding_box (BoundingBox): bounding box of fog
-            Default: None
-
-    Attributes
-    ----------
-        visual_range (int): visual range of fog
-
-        bounding_box (BoundingBox): bounding box of fog
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, visual_range, bounding_box=None):
-        """initalize the Fog
-
-        Parameters
-        ----------
-            visual_range (int): visual range of fog
-
-            bounding_box (BoundingBox): bounding box of fog
-                Default: None
-
-        """
-
-        self.visual_range = visual_range
-        if bounding_box and not isinstance(bounding_box, BoundingBox):
-            raise TypeError("bounding_box not of type BoundingBox")
-        self.bounding_box = bounding_box
-
-    def __eq__(self, other):
-        if isinstance(other, Fog):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.bounding_box == other.bounding_box
-            ):
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of Fog
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A fog element (same as generated by the class itself)
-
-        Returns
-        -------
-            fog (Fog): a Fog object
-
-        """
-
-        visual_range = element.attrib["visualRange"]
-        bounding_box = None
-        if element.find("BoundingBox") != None:
-            bounding_box = BoundingBox.parse(element.find("BoundingBox"))
-
-        return Fog(visual_range, bounding_box)
-
-    def get_attributes(self):
-        """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["visualRange"] = str(self.visual_range)
-
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the Fog"""
-        element = ET.Element("Fog", attrib=self.get_attributes())
-        if self.bounding_box is not None:
-            element.append(self.bounding_box.get_element())
-
-        return element
-
-
-class Sun(VersionBase):
-    """Sun creates an Sun element used by the Weather element of openscenario
-
-    Parameters
-    ----------
-        intensity (float): intensity of the sun (in lux)
-
-        azimuth (float): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
-
-        elevation (float): sun elevation angle 0 x/y plane, pi/2 zenith
-
-    Attributes
-    ----------
-        intensity (float): intensity of the sun (in lux)
-
-        azimuth (float): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
-
-        elevation (float): sun elevation angle 0 x/y plane, pi/2 zenith
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, intensity, azimuth, elevation):
-        """initalize the Sun
-
-        Parameters
-        ----------
-            intensity (float): intensity of the sun (in lux)
-
-            azimuth (float): azimuth of the sun 0 north, pi/2 east, pi south, 3/2pi west
-
-            elevation (float): sun elevation angle 0 x/y plane, pi/2 zenith
-
-        """
-
-        self.azimuth = azimuth
-        self.intensity = intensity
-        self.elevation = elevation
-
-    def __eq__(self, other):
-        if isinstance(other, Sun):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of Sun
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A sun element (same as generated by the class itself)
-
-        Returns
-        -------
-            sun (Sun): a Sun object
-
-        """
-        azimuth = element.attrib["azimuth"]
-        elevation = element.attrib["elevation"]
-        if "intensity" in element.attrib:
-            intensity = element.attrib["intensity"]
-        else:
-            intensity = element.attrib["illuminance"]
-
-        return Sun(intensity, azimuth, elevation)
-
-    def get_attributes(self):
-        """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["azimuth"] = str(self.azimuth)
-        if self.isVersion(minor=2):
-            retdict["illuminance"] = str(self.intensity)
-        else:
-            retdict["intensity"] = str(self.intensity)
-        retdict["elevation"] = str(self.elevation)
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the Sun"""
-        element = ET.Element("Sun", attrib=self.get_attributes())
-
-        return element
-
-
-class Precipitation(VersionBase):
-    """Precipitation creates an Precipitation element used by the Weather element of openscenario
-
-    Parameters
-    ----------
-        precipitation (PrecipitationType): dry, rain or snow
-
-        intensity (float): intensity of precipitation (0...1)
-
-    Attributes
-    ----------
-        precipitation (PrecipitationType): dry, rain or snow
-
-        intensity (float): intensity of precipitation (0...1)
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, precipitation, intensity):
-        """initalize the Precipitation
-
-        Parameters
-        ----------
-            precipitation (PrecipitationType): dry, rain or snow
-
-            intensity (float): intensity of precipitation (0...1)
-
-        """
-        self.precipitation = convert_enum(precipitation, PrecipitationType, False)
-        self.intensity = convert_float(intensity)
-
-    def __eq__(self, other):
-        if isinstance(other, Precipitation):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of Precipitation
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A precipitation element (same as generated by the class itself)
-
-        Returns
-        -------
-            precipitation (Precipitation): a Precipitation object
-
-        """
-        intesity = None
-        if "precipitationIntensity" in element.attrib:
-            intesity = element.attrib["precipitationIntensity"]
-        elif "intensity" in element.attrib:
-            intesity = element.attrib["intensity"]
-        precipitation = convert_enum(
-            element.attrib["precipitationType"], PrecipitationType, False
-        )
-
-        return Precipitation(precipitation, intesity)
-
-    def get_attributes(self):
-        """returns the attributes of the Precipitation as a dict"""
-        retdict = {}
-        retdict["precipitationType"] = self.precipitation.get_name()
-        if self.isVersion(minor=0):
-            retdict["intensity"] = str(self.intensity)
-        else:
-            retdict["precipitationIntensity"] = str(self.intensity)
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the Precipitation"""
-        element = ET.Element("Precipitation", attrib=self.get_attributes())
-
-        return element
-
-
-class Wind(VersionBase):
-    """Wind creates an Wind element used by the Weather element of openscenario
-
-    Parameters
-    ----------
-        direction (float): wind direction (radians)
-
-        speed (float): wind speed (m/s)
-
-    Attributes
-    ----------
-        direction (float): wind direction (radians)
-
-        speed (float): wind speed (m/s)
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, direction, speed):
-        """initalize the Wind
-
-        Parameters
-        ----------
-            direction (float): wind direction (radians)
-
-            speed (float): wind speed (m/s)
-
-        """
-        self.direction = direction
-        self.speed = speed
-
-    def __eq__(self, other):
-        if isinstance(other, Wind):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of Wind
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A wind element (same as generated by the class itself)
-
-        Returns
-        -------
-            wind (Wind): a Wind object
-
-        """
-        direction = element.attrib["direction"]
-        speed = element.attrib["speed"]
-
-        return Wind(direction, speed)
-
-    def get_attributes(self):
-        """returns the attributes of the Wind as a dict"""
-        return {"direction": str(self.direction), "speed": str(self.speed)}
-
-    def get_element(self):
-        """returns the elementTree of the Wind"""
-        if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError("Wind was introduced in OSC 1.1")
-        element = ET.Element("Wind", attrib=self.get_attributes())
-
-        return element
-
-
 class RoadCondition(VersionBase):
-    """Weather creates an Weather element of openscenario
+    """RoadCondition creates a RoadCondition element of OpenScenario.
 
     Parameters
     ----------
-        friction_scale_factor (float): scale factor of the friction
-
-        properties (Properties): properties of the roadcondition
-            Default: None
-
-        wetness (Wetness): wetness of the road
-            Default: None
+    friction_scale_factor : float
+        Scale factor of the friction.
+    properties : Properties, optional
+        Properties of the road condition. Default is None.
+    wetness : Wetness, optional
+        Wetness of the road. Default is None.
 
     Attributes
     ----------
-        friction_scale_factor (float): scale factor of the friction
-
-        properties (Properties): properties of the roadcondition
-
-        wetness (Wetness): wetness of the road
+    friction_scale_factor : float
+        Scale factor of the friction.
+    properties : Properties, optional
+        Properties of the road condition.
+    wetness : Wetness, optional
+        Wetness of the road.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, friction_scale_factor, properties=None, wetness=None):
-        """initalize the Weather
+    def __init__(
+        self,
+        friction_scale_factor: float,
+        properties: Optional[Properties] = None,
+        wetness: Optional[Wetness] = None,
+    ) -> None:
+        """Initializes the RoadCondition.
 
         Parameters
         ----------
-            friction_scale_factor (float): scale factor of the friction
-
-            properties (Properties): properties of the roadcondition
-                Default: None
-
-            wetness (Wetness): wetness of the road
-                Default: None
+        friction_scale_factor : float
+            Scale factor of the friction.
+        properties : Properties, optional
+            Properties of the road condition. Default is None.
+        wetness : Wetness, optional
+            Wetness of the road. Default is None.
         """
         self.friction_scale_factor = convert_float(friction_scale_factor)
         if properties is not None and not isinstance(properties, Properties):
@@ -3169,7 +4293,7 @@ class RoadCondition(VersionBase):
         self.properties = properties
         self.wetness = convert_enum(wetness, Wetness, True)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadCondition):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -3179,105 +4303,125 @@ class RoadCondition(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of RoadCondition
+    def parse(element: ET.Element) -> "RoadCondition":
+        """Parses the XML element of RoadCondition.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A road condition element (same as generated by the class itself)
+        element : ET.Element
+            A RoadCondition element (same as generated by the class
+            itself).
 
         Returns
         -------
-            roadcondition (RoadCondition): a RoadCondition object
-
+        RoadCondition
+            A RoadCondition object.
         """
         friction_scale_factor = element.attrib["frictionScaleFactor"]
 
         properties = None
         wetness = None
-        if element.find("Properties") != None:
-            properties = Properties.parse(element.find("Properties"))
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         if "wetness" in element.attrib:
             wetness = convert_enum(element.attrib["wetness"], Wetness, False)
         return RoadCondition(friction_scale_factor, properties, wetness)
 
-    def get_attributes(self):
-        """returns the attributes of the RoadCondition as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the RoadCondition as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the RoadCondition.
+        """
         retdict = {"frictionScaleFactor": str(self.friction_scale_factor)}
         if self.wetness:
             retdict["wetness"] = self.wetness.get_name()
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the RoadCondition"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the RoadCondition.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the RoadCondition.
+        """
         element = ET.Element("RoadCondition", attrib=self.get_attributes())
         if self.properties:
             element.append(self.properties.get_element())
         return element
 
 
-# TODO: add name (string)
 class Environment(_BaseCatalog):
-    """The Environment class creates a environment used by Environment
+    """The Environment class creates an environment used by Environment.
 
     Parameters
     ----------
-        name (string): Name of the environment. If used in catalog name is required.
-
-        timeofday (TimeOfDay): time of day for the environment
-
-        weather (Weather): weather of the environment
-
-        roadcondition (RoadCondition): road condition of the environment
-
-        parameters (ParameterDeclarations): the parameters to be used in the scenario
-            Default: None
+    name : str
+        Name of the environment. If used in catalog name is required.
+    timeofday : TimeOfDay, optional
+        Time of day for the environment. Default is None.
+    weather : Weather, optional
+        Weather of the environment. Default is None.
+    roadcondition : RoadCondition, optional
+        Road condition of the environment. Default is None.
+    parameters : ParameterDeclarations, optional
+        The parameters to be used in the scenario. Default is None.
 
     Attributes
     ----------
-        name (string): Name of the environment. If used in catalog name is required.
-
-        timeofday (TimeOfDay): time of day for the environment
-
-        weather (Weather): weather of the environment
-
-        roadcondition (RoadCondition): road condition of the environment
-
-        parameters (ParameterDeclarations): the parameters to be used in the scenario
+    name : str
+        Name of the environment.
+    timeofday : TimeOfDay, optional
+        Time of day for the environment.
+    weather : Weather, optional
+        Weather of the environment.
+    roadcondition : RoadCondition, optional
+        Road condition of the environment.
+    parameters : ParameterDeclarations, optional
+        The parameters to be used in the scenario.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        append_to_catalog(filename)
-            adds the vehicle to an existing catalog
-
-        dump_to_catalog(filename,name,description,author)
-            crates a new catalog with the vehicle
-
-        get_element()
-            Returns the full ElementTree of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    append_to_catalog(filename)
+        Adds the environment to an existing catalog.
+    dump_to_catalog(filename, catalogtype, description, author)
+        Creates a new catalog with the environment.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
     def __init__(
-        self, name, timeofday=None, weather=None, roadcondition=None, parameters=None
-    ):
-        """initalize the Environment
+        self,
+        name: str,
+        timeofday: Optional[TimeOfDay] = None,
+        weather: Optional[Weather] = None,
+        roadcondition: Optional[RoadCondition] = None,
+        parameters: Optional[ParameterDeclarations] = None,
+    ) -> None:
+        """Initializes the Environment.
 
         Parameters
         ----------
-            name (string): Name of the environment. If used in catalog name is required.
-
-            timeofday (TimeOfDay): time of day for the environment
-
-            weather (Weather): weather of the environment
-
-            roadcondition (RoadCondition): road condition of the environment
-
-            parameters (ParameterDeclarations): the parameters to be used in the scenario
-                Default: None
+        name : str
+            Name of the environment. If used in catalog name is required.
+        timeofday : TimeOfDay, optional
+            Time of day for the environment. Default is None.
+        weather : Weather, optional
+            Weather of the environment. Default is None.
+        roadcondition : RoadCondition, optional
+            Road condition of the environment. Default is None.
+        parameters : ParameterDeclarations, optional
+            The parameters to be used in the scenario. Default is None.
         """
         super().__init__()
         self.name = name
@@ -3285,17 +4429,23 @@ class Environment(_BaseCatalog):
             raise TypeError("timeofday input is not of type TimeOfDay")
         if weather is not None and not isinstance(weather, Weather):
             raise TypeError("weather input is not of type Weather")
-        if roadcondition is not None and not isinstance(roadcondition, RoadCondition):
+        if roadcondition is not None and not isinstance(
+            roadcondition, RoadCondition
+        ):
             raise TypeError("roadcondition input is not of type RoadCondition")
-        if parameters is not None and not isinstance(parameters, ParameterDeclarations):
-            raise TypeError("parameters input is not of type ParameterDeclarations")
+        if parameters is not None and not isinstance(
+            parameters, ParameterDeclarations
+        ):
+            raise TypeError(
+                "parameters input is not of type ParameterDeclarations"
+            )
         self.timeofday = timeofday
         self.weather = weather
         self.roadcondition = roadcondition
         if parameters is not None:
             self.parameters = parameters
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Environment):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -3308,17 +4458,19 @@ class Environment(_BaseCatalog):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Environment
+    def parse(element: ET.Element) -> "Environment":
+        """Parses the XML element of Environment.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A environment element (same as generated by the class itself)
+        element : ET.Element
+            An Environment element (same as generated by the class
+            itself).
 
         Returns
         -------
-            environment (Environment): a Environment object
-
+        Environment
+            An Environment object.
         """
         name = element.attrib["name"]
         parameters = None
@@ -3326,25 +4478,41 @@ class Environment(_BaseCatalog):
         timeofday = None
         roadcondition = None
 
-        if element.find("ParameterDeclarations") != None:
+        if element.find("ParameterDeclarations") is not None:
             parameters = ParameterDeclarations.parse(
-                element.find("ParameterDeclarations")
+                find_mandatory_field(element, "ParameterDeclarations")
             )
-        if element.find("TimeOfDay") != None:
-            timeofday = TimeOfDay.parse(element.find("TimeOfDay"))
-        if element.find("Weather") != None:
-            weather = Weather.parse(element.find("Weather"))
-        if element.find("RoadCondition") != None:
-            roadcondition = RoadCondition.parse(element.find("RoadCondition"))
+        if element.find("TimeOfDay") is not None:
+            timeofday = TimeOfDay.parse(
+                find_mandatory_field(element, "TimeOfDay")
+            )
+        if element.find("Weather") is not None:
+            weather = Weather.parse(find_mandatory_field(element, "Weather"))
+        if element.find("RoadCondition") is not None:
+            roadcondition = RoadCondition.parse(
+                find_mandatory_field(element, "RoadCondition")
+            )
 
         return Environment(name, timeofday, weather, roadcondition, parameters)
 
-    def get_attributes(self):
-        """returns the attributes of the Environment as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Environment as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Environment.
+        """
         return {"name": str(self.name)}
 
-    def get_element(self):
-        """returns the elementTree of the Environment"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Environment.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Environment.
+        """
         element = ET.Element("Environment", attrib=self.get_attributes())
         if self.timeofday:
             element.append(self.timeofday.get_element())
@@ -3356,543 +4524,441 @@ class Environment(_BaseCatalog):
         return element
 
 
-class Controller(_BaseCatalog):
-    """the Controller class creates a controller of openScenario
-
-    Parameters
-    ----------
-        name (str): name of the object
-
-        properties (Properties): properties of the controller
-
-        controller_type (ControllerType): controller type (valid from V1.2)
-            Default: None
-
-    Attributes
-    ----------
-        parameters (ParameterDeclaration): Parameter declarations of the vehicle
-
-        properties (Properties): additional properties of the vehicle
-
-        controller_type (ControllerType): controller type
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        add_parameter(parameter)
-            adds a parameter declaration to the Controller
-
-        append_to_catalog(filename)
-            adds the vehicle to an existing catalog
-
-        dump_to_catalog(filename,name,description,author)
-            crates a new catalog with the vehicle
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    def __init__(self, name, properties, controller_type=None):
-        """initalzie the Controller Class
-
-        Parameters
-        ----------
-            name (str): name of the object
-
-            properties (Properties): properties of the Controller
-
-            controller_type (ControllerType): controller type (valid from V1.2)
-                Default: None
-        """
-        super().__init__()
-        self.name = name
-
-        if not isinstance(properties, Properties):
-            raise TypeError("properties input is not of type Properties")
-        self.properties = properties
-        self.controller_type = convert_enum(controller_type, ControllerType, True)
-
-    def __eq__(self, other):
-        if isinstance(other, Controller):
-            if (
-                self.properties == other.properties
-                and self.parameters == other.parameters
-                and self.name == other.name
-                and self.controller_type == other.controller_type
-            ):
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of Controller
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A controller element (same as generated by the class itself)
-
-        Returns
-        -------
-            controller (Controller): a Controller object
-
-        """
-        name = element.attrib["name"]
-        properties_element = element.find("Properties")
-        properties = Properties.parse(properties_element)
-        cnt_type = None
-        if "controllerType" in element.attrib:
-            cnt_type = convert_enum(
-                element.attrib["controllerType"], ControllerType, False
-            )
-        controller = Controller(name, properties, cnt_type)
-
-        parameters_element = element.find("ParameterDeclarations")
-        if parameters_element:
-            controller.parameters = ParameterDeclarations.parse(parameters_element)
-
-        return controller
-
-    def get_attributes(self):
-        """returns the attributes of the Controller as a dict"""
-        retdict = {"name": self.name}
-        if self.controller_type:
-            if self.isVersion(minor=2):
-                retdict["controllerType"] = self.controller_type.get_name()
-            else:
-                raise OpenSCENARIOVersionError(
-                    "controllerType was introduced in OSC v1.2"
-                )
-
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the Controller"""
-        element = ET.Element("Controller", attrib=self.get_attributes())
-        self.add_parameters_to_element(element)
-        element.append(self.properties.get_element())
-
-        return element
-
-
-class BoundingBox(VersionBase):
-    """the Dimensions describes the size of an entity
-
-    Parameters
-    ----------
-        width (float): the width of the entity
-
-        length (float): the lenght of the entity
-
-        height (float): the height of the entity
-
-        x_center (float): x distance from back axel to center
-
-        y_center (float): y distance from back axel to clas
-
-        z_center (float): z distance from back axel to center
-
-
-    Attributes
-    ----------
-        dimensions (Dimensions): the dimensions of the entity
-
-        center (Center): the center of the object relative the the back axel
-
-    Methods
-    -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class itself
-
-
-    """
-
-    def __init__(self, width, length, height, x_center, y_center, z_center):
-        """initalzie the Dimensions
-
-        Parameters
-        ----------
-            width (float): the width of the entity
-
-            length (float): the lenght of the entity
-
-            height (float): the height of the entity
-
-            x_center (float): x distance from back axel to center
-
-            y_center (float): y distance from back axel to center
-
-            z_center (float): z distance from back axel to center
-
-        """
-        self.boundingbox = Dimensions(width, length, height)
-        self.center = Center(x_center, y_center, z_center)
-
-    def __eq__(self, other):
-        if isinstance(other, BoundingBox):
-            if self.boundingbox == other.boundingbox and self.center == other.center:
-                return True
-        return False
-
-    def get_element(self):
-        """returns the elementTree of the Dimensions"""
-        element = ET.Element("BoundingBox")
-        element.append(self.center.get_element())
-        element.append(self.boundingbox.get_element())
-        return element
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of BoundingBox
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A orientation element (same as generated by the class itself)
-
-        Returns
-        -------
-            boundingBox (BoundingBox): a BoundingBox object
-
-        """
-        center = Center.parse(element.find("Center"))
-        cen_dict = center.get_attributes()
-        dimension = Dimensions.parse(element.find("Dimensions"))
-        dim_dict = dimension.get_attributes()
-        return BoundingBox(
-            dim_dict["width"],
-            dim_dict["length"],
-            dim_dict["height"],
-            cen_dict["x"],
-            cen_dict["y"],
-            cen_dict["z"],
-        )
-
-
 class Center(VersionBase):
-    """the Center Class creates a centerpoint for a bounding box, reference point of a vehicle is the back axel
+    """The Center class creates a center point for a bounding box, reference
+    point of a vehicle is the back axle.
 
     Parameters
     ----------
-        x (float): x distance from back axel to center
-
-        y (float): y distance from back axel to center
-
-        z (float): z distance from back axel to center
-
+    x : float
+        X distance from back axle to center.
+    y : float
+        Y distance from back axle to center.
+    z : float
+        Z distance from back axle to center.
 
     Attributes
     ----------
-        x (float): x distance from back axel to center
-
-        y (float): y distance from back axel to center
-
-        z (float): z distance from back axel to center
+    x : float
+        X distance from back axle to center.
+    y : float
+        Y distance from back axle to center.
+    z : float
+        Z distance from back axle to center.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class itself
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, x, y, z):
-        """initalzie the Center Class
+    def __init__(self, x: float, y: float, z: float) -> None:
+        """Initializes the Center.
 
         Parameters
         ----------
-            x (float): x distance from back axel to center
-
-            y (float): y distance from back axel to center
-
-            z (float): z distance from back axel to center
-
+        x : float
+            X distance from back axle to center.
+        y : float
+            Y distance from back axle to center.
+        z : float
+            Z distance from back axle to center.
         """
         self.x = convert_float(x)
         self.y = convert_float(y)
         self.z = convert_float(z)
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element to Center
+    def parse(element: ET.Element) -> "Center":
+        """Parses the XML element of Center.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A center element (same as generated by the class itself)
+        element : ET.Element
+            A Center element (same as generated by the class itself).
 
         Returns
-        ------
-            center (Center): a Center object
-
+        -------
+        Center
+            A Center object.
         """
         x = convert_float(element.attrib["x"])
         y = convert_float(element.attrib["y"])
         z = convert_float(element.attrib["z"])
         return Center(x, y, z)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Center):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """returns the attributes as a dict of the Center"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Center as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Center.
+        """
         return {"x": str(self.x), "y": str(self.y), "z": str(self.z)}
 
-    def get_element(self):
-        """returns the elementTree of the Center"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Center.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Center.
+        """
         element = ET.Element("Center", attrib=self.get_attributes())
         return element
 
 
 class Dimensions(VersionBase):
-    """the Dimensions describes the size of an entity
+    """The Dimensions class describes the size of an entity.
 
     Parameters
     ----------
-        width (float): the width of the entity
-
-        length (float): the lenght of the entity
-
-        height (float): the height of the entity
-
+    width : float
+        The width of the entity.
+    length : float
+        The length of the entity.
+    height : float
+        The height of the entity.
 
     Attributes
     ----------
-        width (float): the width of the entity
-
-        length (float): the lenght of the entity
-
-        height (float): the height of the entity
+    width : float
+        The width of the entity.
+    length : float
+        The length of the entity.
+    height : float
+        The height of the entity.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class itself
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, width, length, height):
-        """initalzie the Dimensions
+    def __init__(self, width: float, length: float, height: float) -> None:
+        """Initializes the Dimensions.
 
         Parameters
         ----------
-            width (float): the width of the entity
-
-            length (float): the lenght of the entity
-
-            height (float): the height of the entity
-
+        width : float
+            The width of the entity.
+        length : float
+            The length of the entity.
+        height : float
+            The height of the entity.
         """
         self.width = convert_float(width)
         self.length = convert_float(length)
         self.height = convert_float(height)
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element to Dimensions
+    def parse(element: ET.Element) -> "Dimensions":
+        """Parses the XML element of Dimensions.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A MiscObject element (same as generated by the class itself)
+        element : ET.Element
+            A Dimensions element (same as generated by the class itself).
 
         Returns
-        ------
-            dimension (Dimensions): a Dimensions object
-
+        -------
+        Dimensions
+            A Dimensions object.
         """
         width = convert_float(element.attrib["width"])
         height = convert_float(element.attrib["height"])
         length = convert_float(element.attrib["length"])
         return Dimensions(width, length, height)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Dimensions):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """returns the attributes as a dict of the Dimensions"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Dimensions as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Dimensions.
+        """
         return {
             "width": str(self.width),
             "length": str(self.length),
             "height": str(self.height),
         }
 
-    def get_element(self):
-        """returns the elementTree of the Dimensions"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Dimensions.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Dimensions.
+        """
         element = ET.Element("Dimensions", attrib=self.get_attributes())
         return element
 
 
-class Properties(VersionBase):
-    """the Properties contains are for user defined properties of an object
+class TargetDistanceSteadyState(VersionBase):
+    """TargetDistanceSteadyState creates a TargetDistanceSteadyState element of
+    OpenScenario (valid from OpenSCENARIO V1.1).
+
+    Parameters
+    ----------
+    distance : float
+        Distance to target for the steady state.
 
     Attributes
     ----------
-        files (list of str): arbitrary files with properties
-
-        properties (list of tuple(str,str)): properties in name/value pairs
+    distance : float
+        Distance to target for the steady state.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        add_file(file)
-            adds a file with properties
-
-        add_property(name,value)
-            adds a property pair, with name and value
-
-        get_element()
-            Returns the full ElementTree of the class
-
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self):
-        """initalzie the Properties"""
-        self.files = []
-        self.properties = []
+    def __init__(self, distance: float) -> None:
+        """Initializes the TargetDistanceSteadyState.
 
-    def __eq__(self, other):
-        if isinstance(other, Properties):
-            if self.files == other.files and self.properties == other.properties:
+        Parameters
+        ----------
+        distance : float
+            Distance to target for the steady state.
+        """
+        self.distance = distance
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, TargetDistanceSteadyState):
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of class Properties:
-
+    def parse(element: ET.Element) -> "TargetDistanceSteadyState":
+        """Parses the XML element of TargetDistanceSteadyState.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A position element (same as generated by the class itself)
+        element : ET.Element
+            A TargetDistanceSteadyState element (same as generated by
+            the class itself).
 
         Returns
         -------
-            properties (Properties): a Properties object
-
+        TargetDistanceSteadyState
+            A TargetDistanceSteadyState object.
         """
-        properties = Properties()
-        files = element.findall("File")
-        if files != None:
-            for file in files:
-                filepath = file.attrib["filepath"]
-                properties.add_file(filepath)
-        props = element.findall("Property")
-        if props != None:
-            for property in props:
-                name = property.attrib["name"]
-                value = property.attrib["value"]
-                properties.add_property(name, value)
+        distance = element.attrib["distance"]
+        return TargetDistanceSteadyState(distance)
 
-        return properties
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TargetDistanceSteadyState as a
+        dictionary.
 
-    def add_file(self, filename):
-        """adds a property file
-
-        Parameters
-        ----------
-            filename (str): name of the file
-
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TargetDistanceSteadyState.
         """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError(
+                "TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1"
+            )
+        return {"distance": str(self.distance)}
 
-        self.files.append(filename)
-        return self
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TargetDistanceSteadyState.
 
-    def add_property(self, name, value):
-        """adds a property pair
-
-        Parameters
-        ----------
-            name (str): name of the property
-
-            value (str): value of the property
-
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TargetDistanceSteadyState.
         """
-        self.properties.append((name, value))
-        return self
-
-    def get_element(self):
-        """returns the elementTree of the Properties"""
-        element = ET.Element("Properties")
-        for p in self.properties:
-            ET.SubElement(element, "Property", attrib={"name": p[0], "value": p[1]})
-        for f in self.files:
-            ET.SubElement(element, "File", attrib={"filepath": f})
-
-        return element
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError(
+                "TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1"
+            )
+        return ET.Element(
+            "TargetDistanceSteadyState", attrib=self.get_attributes()
+        )
 
 
-class AbsoluteSpeed(VersionBase):
-    """
+class TargetTimeSteadyState(VersionBase):
+    """TargetTimeSteadyState creates a TargetTimeSteadyState element of
+    OpenScenario (valid from OpenSCENARIO V1.1).
+
     Parameters
     ----------
-        value (float): absolute speed [m/s]
-
-        steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
+    time_gap : float
+        Time gap to target for the steady state.
 
     Attributes
     ----------
-        value (float): absolute speed [m/s]
-
-        steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
+    time_gap : float
+        Time gap to target for the steady state.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns the attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, value, steadyState=None):
-        """initalzie the AbsoluteSpeed
+    def __init__(self, time_gap: float) -> None:
+        """Initializes the TargetTimeSteadyState.
 
         Parameters
         ----------
-            value (float): absolute speed [m/s]
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState) Final phase of constant (final) speed, start of which defined by distance or time. (Valid from OpenSCENARIO V1.1)
+        time_gap : float
+            Time gap to target for the steady state.
+        """
+        self.time_gap = time_gap
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, TargetTimeSteadyState):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "TargetTimeSteadyState":
+        """Parses the XML element of TargetTimeSteadyState.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A TargetTimeSteadyState element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        TargetTimeSteadyState
+            A TargetTimeSteadyState object.
+        """
+        time = element.attrib["time"]
+        return TargetTimeSteadyState(time)
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the TargetTimeSteadyState as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the TargetTimeSteadyState.
+        """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError(
+                "TargetTimeSteadyState was introduced in OpenSCENARIO V1.1"
+            )
+        return {"time": str(self.time_gap)}
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TargetTimeSteadyState.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the TargetTimeSteadyState.
+        """
+        if self.isVersion(1, 0):
+            raise OpenSCENARIOVersionError(
+                "TargetTimeSteadyState was introduced in OpenSCENARIO V1.1"
+            )
+        return ET.Element(
+            "TargetTimeSteadyState", attrib=self.get_attributes()
+        )
+
+
+class AbsoluteSpeed(VersionBase):
+    """AbsoluteSpeed creates an AbsoluteSpeed element of OpenScenario.
+
+    Parameters
+    ----------
+    value : float
+        Absolute speed [m/s].
+    steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+        Final phase of constant (final) speed, start of which defined
+        by distance or time (valid from OpenSCENARIO V1.1). Default is None.
+
+    Attributes
+    ----------
+    value : float
+        Absolute speed [m/s].
+    steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+        Final phase of constant (final) speed, start of which defined
+        by distance or time.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self,
+        value: float,
+        steadyState: Optional[
+            Union[TargetTimeSteadyState, TargetDistanceSteadyState]
+        ] = None,
+    ) -> None:
+        """Initializes the AbsoluteSpeed.
+
+        Parameters
+        ----------
+        value : float
+            Absolute speed [m/s].
+        steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+            Final phase of constant (final) speed, start of which defined
+            by distance or time (valid from OpenSCENARIO V1.1). Default is None.
         """
         self.value = value
         if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
+            if not isinstance(
+                steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+                    "steadyState input is not an TargetTimeSteadyState or "
+                    "TargetDistanceSteadyState input"
                 )
         self.steadyState = steadyState
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AbsoluteSpeed):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -3902,40 +4968,60 @@ class AbsoluteSpeed(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of AbsoluteSpeed
+    def parse(element: ET.Element) -> "AbsoluteSpeed":
+        """Parses the XML element of AbsoluteSpeed.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A absolute speed element (same as generated by the class itself)
+        element : ET.Element
+            An AbsoluteSpeed element (same as generated by the class
+            itself).
 
         Returns
         -------
-            absolutespeed (AbsoluteSpeed): a AbsoluteSpeed object
-
+        AbsoluteSpeed
+            An AbsoluteSpeed object.
         """
-        absolute_speed_element = element.find("AbsoluteSpeed")
+        absolute_speed_element = find_mandatory_field(element, "AbsoluteSpeed")
         value = absolute_speed_element.attrib["value"]
 
         state = None
-        if absolute_speed_element.find("TargetDistanceSteadyState") != None:
+        if (
+            absolute_speed_element.find("TargetDistanceSteadyState")
+            is not None
+        ):
             state = TargetDistanceSteadyState.parse(
-                absolute_speed_element.find("TargetDistanceSteadyState")
+                find_mandatory_field(
+                    absolute_speed_element, "TargetDistanceSteadyState"
+                )
             )
-        elif absolute_speed_element.find("TargetTimeSteadyState") != None:
+        elif absolute_speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
-                absolute_speed_element.find("TargetTimeSteadyState")
+                find_mandatory_field(
+                    absolute_speed_element, "TargetTimeSteadyState"
+                )
             )
 
         return AbsoluteSpeed(value, state)
 
-    def get_attributes(self):
-        """returns the attributes of the AbsoluteSpeed"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the AbsoluteSpeed as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the AbsoluteSpeed.
+        """
         return {"value": str(self.value)}
 
-    def get_element(self):
-        """returns the elementTree of the AbsoluteSpeed"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the AbsoluteSpeed.
 
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the AbsoluteSpeed.
+        """
         elementFinalSpeed = ET.Element("FinalSpeed")
         elementAbsoluteSpeed = ET.SubElement(
             elementFinalSpeed, "AbsoluteSpeed", attrib=self.get_attributes()
@@ -3955,61 +5041,74 @@ class AbsoluteSpeed(VersionBase):
 
 
 class RelativeSpeedToMaster(VersionBase):
-    """
+    """RelativeSpeedToMaster creates a RelativeSpeedToMaster element of
+    OpenScenario.
+
     Parameters
     ----------
-        value (float): Relative speed. Unit: m/s.
-
-        speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-
-        steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
+    value : float
+        Relative speed. Unit: m/s.
+    speedTargetValueType : SpeedTargetValueType
+        The semantics of the value (delta, offset, factor).
+    steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+        Optional final phase of constant (final) speed (valid from
+        OpenSCENARIO V1.1). Default is None.
 
     Attributes
     ----------
-        value (float): Relative speed. Unit: m/s.
-
-        speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-
-        steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed. (Valid from OpenSCENARIO V1.1)
+    value : float
+        Relative speed. Unit: m/s.
+    speedTargetValueType : SpeedTargetValueType
+        The semantics of the value (delta, offset, factor).
+    steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+        Optional final phase of constant (final) speed.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class itself
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns the attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, value, speedTargetValueType, steadyState=None):
-        """
+    def __init__(
+        self,
+        value: float,
+        speedTargetValueType: SpeedTargetValueType,
+        steadyState: Optional[
+            Union[TargetTimeSteadyState, TargetDistanceSteadyState]
+        ] = None,
+    ) -> None:
+        """Initializes the RelativeSpeedToMaster.
 
         Parameters
         ----------
-            value (float): Relative speed. Unit: m/s.
-
-            speedTargetValueType (SpeedTargetValueType): The semantics of the value (delta, offset, factor).
-
-            steadyState (TargetTimeSteadyState / TargetDistanceSteadyState): Optional final phase of constant (final) speed.
+        value : float
+            Relative speed. Unit: m/s.
+        speedTargetValueType : SpeedTargetValueType
+            The semantics of the value (delta, offset, factor).
+        steadyState : Union[TargetTimeSteadyState, TargetDistanceSteadyState], optional
+            Optional final phase of constant (final) speed (valid from
+            OpenSCENARIO V1.1). Default is None.
         """
         self.value = value
         if steadyState:
-            if not (
-                isinstance(steadyState, TargetTimeSteadyState)
-                or isinstance(steadyState, TargetDistanceSteadyState)
+            if not isinstance(
+                steadyState, (TargetTimeSteadyState, TargetDistanceSteadyState)
             ):
                 raise TypeError(
-                    "steadyState input is not an TargetTimeSteadyState or TargetDistanceSteadyState input"
+                    "steadyState input is not an TargetTimeSteadyState or "
+                    "TargetDistanceSteadyState input"
                 )
         self.steadyState = steadyState
         self.speedTargetValueType = convert_enum(
             speedTargetValueType, SpeedTargetValueType
         )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RelativeSpeedToMaster):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4019,48 +5118,66 @@ class RelativeSpeedToMaster(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element to RelativeSpeedToMaster
+    def parse(element: ET.Element) -> "RelativeSpeedToMaster":
+        """Parses the XML element of RelativeSpeedToMaster.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A RelativeSpeedToMaster element (same as generated by the class itself)
+        element : ET.Element
+            A RelativeSpeedToMaster element (same as generated by the
+            class itself).
 
         Returns
-        ------
-            rstm (RelativeSpeedToMaster): a RelativeSpeedToMaster object
-
+        -------
+        RelativeSpeedToMaster
+            A RelativeSpeedToMaster object.
         """
-        speed_element = element.find("RelativeSpeedToMaster")
+        speed_element = find_mandatory_field(element, "RelativeSpeedToMaster")
 
         value = speed_element.attrib["value"]
         speedTargetValueType = convert_enum(
             speed_element.attrib["speedTargetValueType"], SpeedTargetValueType
         )
         state = None
-        if speed_element.find("TargetDistanceSteadyState") != None:
+        if speed_element.find("TargetDistanceSteadyState") is not None:
             state = TargetDistanceSteadyState.parse(
-                speed_element.find("TargetDistanceSteadyState")
+                find_mandatory_field(
+                    speed_element, "TargetDistanceSteadyState"
+                )
             )
-        elif speed_element.find("TargetTimeSteadyState") != None:
+        elif speed_element.find("TargetTimeSteadyState") is not None:
             state = TargetTimeSteadyState.parse(
-                speed_element.find("TargetTimeSteadyState")
+                find_mandatory_field(speed_element, "TargetTimeSteadyState")
             )
 
         return RelativeSpeedToMaster(value, speedTargetValueType, state)
 
-    def get_attributes(self):
-        """returns the attributes of the RelativeSpeedToMaster"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the RelativeSpeedToMaster as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the RelativeSpeedToMaster.
+        """
         return {
             "speedTargetValueType": str(self.speedTargetValueType),
             "value": str(self.value),
         }
 
-    def get_element(self):
-        """returns the elementTree of the RelativeSpeedToMaster"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the RelativeSpeedToMaster.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the RelativeSpeedToMaster.
+        """
         elementFinalSpeed = ET.Element("FinalSpeed")
         elementRelativeSpeed = ET.SubElement(
-            elementFinalSpeed, "RelativeSpeedToMaster", attrib=self.get_attributes()
+            elementFinalSpeed,
+            "RelativeSpeedToMaster",
+            attrib=self.get_attributes(),
         )
         if self.steadyState:
             if self.isVersion(minor=0):
@@ -4075,150 +5192,19 @@ class RelativeSpeedToMaster(VersionBase):
         return elementFinalSpeed
 
 
-class TargetDistanceSteadyState(VersionBase):
-    """the TargetDistanceSteadyState describes a SteadyState of type TargetDistanceSteadyState
-    (Valid from OpenSCENARIO V1.1)
+def merge_dicts(*dict_args: dict) -> dict:
+    """Merges multiple dictionaries into one.
 
     Parameters
     ----------
-        distance (float): distance to target for the steady state
+    *dict_args : dict
+        The dictionaries to merge.
 
-    Attributes
-    ----------
-        distance (float): distance to target for the steady state
-
-    Methods
+    Returns
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
+    dict
+        The merged dictionary.
     """
-
-    def __init__(self, distance):
-        """initalzie the TargetDistanceSteadyState
-
-        Parameters
-        ----------
-            distance (float): distance to target for the steady state
-
-        """
-        self.distance = distance
-
-    def __eq__(self, other):
-        if isinstance(other, TargetDistanceSteadyState):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of TargetDistanceSteadyState
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A TargetDistanceSteadyState element (same as generated by the class itself)
-
-        Returns
-        -------
-            tdss (TargetDistanceSteadyState): a TargetDistanceSteadyState object
-
-        """
-        distance = element.attrib["distance"]
-        return TargetDistanceSteadyState(distance)
-
-    def get_attributes(self):
-        """returns the attributes of the TargetDistanceSteadyState"""
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError(
-                "TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1"
-            )
-        return {"distance": str(self.distance)}
-
-    def get_element(self):
-        """returns the elementTree of the TargetDistanceSteadyState"""
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError(
-                "TargetDistanceSteadyState was introduced in OpenSCENARIO V1.1"
-            )
-        return ET.Element("TargetDistanceSteadyState", attrib=self.get_attributes())
-
-
-class TargetTimeSteadyState(VersionBase):
-    """the TargetTimeSteadyState describes a SteadyState of type TargetTimeSteadyState
-    (Valid from OpenSCENARIO V1.1)
-
-    Parameters
-    ----------
-        time_gap (float): time_gap to target for the steady state
-
-    Attributes
-    ----------
-        time_gap (float): time_gap to target for the steady state
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element()
-            Returns the full ElementTree of the class
-
-    """
-
-    def __init__(self, time_gap):
-        """initalzie the TargetTimeSteadyState
-
-        Parameters
-        ----------
-            time_gap (float): time_gap to target for the steady state
-
-        """
-        self.time_gap = time_gap
-
-    def __eq__(self, other):
-        if isinstance(other, TargetTimeSteadyState):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of TargetTimeSteadyState
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A TargetTimeSteadyState element (same as generated by the class itself)
-
-        Returns
-        -------
-            ttss (TargetTimeSteadyState): a TargetTimeSteadyState object
-
-        """
-        time = element.attrib["time"]
-        return TargetTimeSteadyState(time)
-
-    def get_attributes(self):
-        """returns the attributes of the TargetTimeSteadyState"""
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError(
-                "TargetTimeSteadyState was introduced in OpenSCENARIO V1.1"
-            )
-        return {"time": str(self.time_gap)}
-
-    def get_element(self):
-        """returns the elementTree of the TargetTimeSteadyState"""
-        if self.isVersion(1, 0):
-            raise OpenSCENARIOVersionError(
-                "TargetTimeSteadyState was introduced in OpenSCENARIO V1.1"
-            )
-        return ET.Element("TargetTimeSteadyState", attrib=self.get_attributes())
-
-
-def merge_dicts(*dict_args):
-    """Funciton to merge dicts"""
     retdict = {}
     for d in dict_args:
         retdict.update(d)
@@ -4226,85 +5212,140 @@ def merge_dicts(*dict_args):
     return retdict
 
 
-def convert_bool(value):
-    """Method to transform booleans to correct xml version (lower case)
+def convert_bool(value: Union[bool, str]) -> bool:
+    """Converts a value to a boolean.
 
-    Parameter
-    ---------
-        value (bool): the boolean
+    Parameters
+    ----------
+    value : bool or str
+        The value to convert.
 
-    Return
+    Returns
+    -------
+    bool
+        The converted boolean value.
+
+    Raises
     ------
-        boolean (str)
+    ValueError
+        If the value is not a valid boolean.
     """
     if isinstance(value, str):
-        if value == "true" or value == "1":
+        if value in ("true", "1"):
             return True
-        elif value == "false" or value == "0":
+        elif value in ("false", "0"):
             return False
         elif value[0] == "$":
             return value
         else:
             raise ValueError(
                 value
-                + "is not a valid type of boolean input to openscenario, if a string is used as a boolean value (parameter or expression), it should have a $ as the first char.."
+                + " is not a valid type of boolean input to openscenario, "
+                "if a string is used as a boolean value "
+                "(parameter or expression), "
+                "it should have a $ as the first char.."
             )
 
     if value:
         return True
-    elif value == None:
+    elif value is None:
         return None
-    else:
-        return False
+
+    return False
 
 
-def get_bool_string(value):
+def get_bool_string(value: Union[bool, str]) -> str:
+    """Converts a boolean value to a string.
+
+    Parameters
+    ----------
+    value : bool or str
+        The boolean value to convert.
+
+    Returns
+    -------
+    str
+        The converted string value.
+    """
     if isinstance(value, str) and value[0] == "$":
         return value
     elif value:
         return "true"
-    else:
-        return "false"
+
+    return "false"
 
 
-def convert_enum(value, enumtype, none_ok=False):
+def convert_enum(
+    value: Union[_OscEnum, str],
+    enumtype: Type[_OscEnum],
+    none_ok: bool = False,
+) -> _OscEnum:
+    """Converts a value to an enumeration.
+
+    Parameters
+    ----------
+    value : _OscEnum or str
+        The value to convert.
+    enumtype : Type[_OscEnum]
+        The enumeration type to convert to.
+    none_ok : bool, optional
+        Whether None is a valid value. Default is False.
+
+    Returns
+    -------
+    _OscEnum
+        The converted enumeration value.
+
+    Raises
+    ------
+    TypeError
+        If the value is not a valid enumeration or string.
+    ValueError
+        If the value is not a valid string input for the enumeration type.
+    """
     if isinstance(value, _OscEnum):
         if hasattr(enumtype, str(value)) or "$" == str(value)[0]:
             return value
-        else:
-            raise TypeError(
-                value.get_name() + " is not of Enumeration type :" + str(enumtype)
-            )
-    elif isinstance(value, str):
+
+        raise TypeError(
+            value.get_name() + " is not of Enumeration type :" + str(enumtype)
+        )
+    if isinstance(value, str):
         if hasattr(enumtype, value):
             return _OscEnum(enumtype.__name__, value)
         elif "$" == value[0]:
             return _OscEnum(enumtype.__name__, value)
-        else:
-            raise ValueError(
-                value
-                + " is not a valid string input for Enumeration type "
-                + str(enumtype)
-            )
-    elif value == None:
+        raise ValueError(
+            value
+            + " is not a valid string input for Enumeration type "
+            + str(enumtype)
+        )
+    if value is None:
         if none_ok:
             return None
-        else:
-            raise TypeError("None value not a valid option for: " + str(enumtype))
+
+        raise TypeError("None value not a valid option for: " + str(enumtype))
 
     raise TypeError(str(value) + " is not of a valid enumeration or str type.")
 
 
-def convert_float(value):
-    """Method to ensure floats are floats, will take care of None values aswell
+def convert_float(value: Union[float, str, int, None]) -> Optional[float]:
+    """Converts a value to a float.
 
-    Parameter
-    ---------
-        value (float/str/int/None): a value to transform to float
+    Parameters
+    ----------
+    value : float, str, int or None
+        The value to convert.
 
-    Return
+    Returns
+    -------
+    float or None
+        The converted float value, or None if the value is None.
+
+    Raises
     ------
-        value (float/None)
+    ValueError
+        If the value is not a valid float.
     """
     if isinstance(value, str):
         if value[0] == "$":
@@ -4313,8 +5354,10 @@ def convert_float(value):
             float(value)
         except ValueError:
             raise ValueError(
-                value
-                + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
+                value + " is not a valid type of float input to openscenario, "
+                "if a string is used as a float value "
+                "(parameter or expression), "
+                "it should have a $ as the first char.."
             )
 
     if value is not None:
@@ -4323,16 +5366,23 @@ def convert_float(value):
         return None
 
 
-def convert_int(value):
-    """Method to ensure ints are ints, will take care of None values aswell
+def convert_int(value: Union[int, str, None]) -> Optional[int]:
+    """Converts a value to an int.
 
-    Parameter
-    ---------
-        value (float/str/int/None): a value to transform to int
+    Parameters
+    ----------
+    value : int, str or None
+        The value to convert.
 
-    Return
+    Returns
+    -------
+    int or None
+        The converted int value, or None if the value is None.
+
+    Raises
     ------
-        value (int/None)
+    ValueError
+        If the value is not a valid int.
     """
     if isinstance(value, str):
         if value[0] == "$":
@@ -4341,8 +5391,10 @@ def convert_int(value):
             int(value)
         except ValueError:
             raise ValueError(
-                value
-                + "is not a valid type of int input to openscenario, if a string is used as a int value (parameter or expression), it should have a $ as the first char."
+                value + " is not a valid type of int input to openscenario, "
+                "if a string is used as a int value "
+                "(parameter or expression), "
+                "it should have a $ as the first char."
             )
 
     if value is not None:
@@ -4351,262 +5403,108 @@ def convert_int(value):
         return None
 
 
-class ValueConstraintGroup(VersionBase):
-    """Creates the the ValueConstraintGroup file for open scenario
-
-    Parameters
-    ----------
-        None
-
-    Attributes
-    ----------
-        value_constraint (ValueConstraint): logical constraint, needed to evaluate to true for a defined parameter to start the simulation.
-
-
-    Methods
-    -------
-        add_value_constraint(value_constraint)
-            adds value constraint to the value constraint group
-
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-    """
-
-    def __init__(self):
-        self.value_constraints = []
-
-    def __eq__(self, other):
-        if isinstance(other, ValueConstraintGroup):
-            if self.value_constraints == other.value_constraints:
-                return True
-        return False
-
-    def add_value_constraint(self, value_constraint):
-        """adds a value constraint to the value constraint group
-
-        Parameters
-        ----------
-            value_constraint (ValueConstraint): the value constraint to be added
-
-        """
-        if not isinstance(value_constraint, ValueConstraint):
-            raise TypeError("value_conatraint input is not of type ValueConstraint")
-        self.value_constraints.append(value_constraint)
-        return self
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of ValueConstraintGroup
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A ValueConstraintGroup element (same as generated by the class itself)
-
-        Returns
-        -------
-            group (ValueConstraintGroup): a ValueConstraintGroup object
-
-        """
-        value_constraints = ValueConstraintGroup()
-        constraints = element.findall("ValueConstraint")
-        for constraint in constraints:
-            value_constraint = ValueConstraint.parse(constraint)
-            value_constraints.add_value_constraint(value_constraint)
-        return value_constraints
-
-    def get_element(self):
-        """returns the elementTree of the ValueConstraintGroup"""
-        if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "ValueConstraintGroup was introduced in OpenSCENARIO V1.1"
-            )
-        element = ET.Element("ConstraintGroup")
-        if not self.value_constraints:
-            raise ValueError("No Value Constraints in the Value Contraint Group")
-        for value_constraint in self.value_constraints:
-            element.append(value_constraint.get_element())
-        return element
-
-
-class ValueConstraint(VersionBase):
-    """Creates the the ValueConstraint file for open scenario
-
-    Parameters
-    ----------
-        rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
-
-        value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
-
-    Attributes
-    ----------
-        rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
-
-        value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
-
-
-    Methods
-    -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-    """
-
-    # TODO: Only equalTo and notEqualTo test
-    def __init__(self, rule, value):
-        """initalzie the ValueConstraint Class
-
-        Parameters
-        ----------
-            rule (Rule): available operators for the validation of the constraint. Note that either "equalTo" or "notEqualTo" must be used in the parameter declaration of type "string"
-
-            value (string): a constant value, parameter or parameter expression. The value must match the enclosing parameter declaration.
-        """
-        self.value = value
-        self.rule = convert_enum(rule, Rule)
-
-    def __eq__(self, other):
-        if isinstance(other, ValueConstraint):
-            if self.get_attributes() == other.get_attributes():
-                return True
-        return False
-
-    @staticmethod
-    def parse(element):
-        """Parses the xml element of ValueConstraint
-
-        Parameters
-        ----------
-            element (xml.etree.ElementTree.Element): A value constraint element (same as generated by the class itself)
-
-        Returns
-        -------
-            constraint (ValueConstraint): ValueConstraint object
-
-        """
-        value = element.attrib["value"]
-        rule = convert_enum(element.attrib["rule"], Rule)
-        return ValueConstraint(rule, value)
-
-    def get_attributes(self):
-        """returns the attributes of the ValueConstraint as a dict"""
-        retdict = {}
-        retdict["rule"] = self.rule.get_name()
-        retdict["value"] = str(self.value)
-        return retdict
-
-    def get_element(self):
-        """returns the elementTree of the ValueConstraint"""
-        if self.isVersion(minor=0):
-            raise OpenSCENARIOVersionError(
-                "ValueConstraint was introduced in OpenSCENARIO V1.1"
-            )
-        element = ET.Element("ValueConstraint", attrib=self.get_attributes())
-        return element
-
-
 class _ColorDefinition(VersionBase):
-    """color definition used only for inheritance"""
+    """Color definition used only for inheritance."""
 
 
 class ColorRGB(_ColorDefinition):
-    """Creates the RGB Color element in OpenSCENARIO
+    """ColorRGB creates a ColorRGB element of OpenSCENARIO (valid from
+    OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        red (float): red component (0..1)
-            Default: 0
-
-        green (float): green component (0..1)
-            Default: 0
-
-        blue (float): blue component (0..1)
-            Default: 0
-
+    red : float, optional
+        Red component (0..1). Default is 0.
+    green : float, optional
+        Green component (0..1). Default is 0.
+    blue : float, optional
+        Blue component (0..1). Default is 0.
 
     Attributes
     ----------
-        red (float): red component (0..1)
-
-        green (float): green component (0..1)
-
-        blue (float): blue component (0..1)
+    red : float
+        Red component (0..1).
+    green : float
+        Green component (0..1).
+    blue : float
+        Blue component (0..1).
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, red=0, green=0, blue=0):
-        """initalzie the ColorRGB Class
+    def __init__(
+        self, red: float = 0, green: float = 0, blue: float = 0
+    ) -> None:
+        """Initializes the ColorRGB.
 
         Parameters
         ----------
-            red (float): red component (0..1)
-                Default: 0
-
-            green (float): green component (0..1)
-                Default: 0
-
-            blue (float): blue component (0..1)
-                Default: 0
+        red : float, optional
+            Red component (0..1). Default is 0.
+        green : float, optional
+            Green component (0..1). Default is 0.
+        blue : float, optional
+            Blue component (0..1). Default is 0.
         """
         self.red = red
         self.green = green
         self.blue = blue
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ColorRGB):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of ColorRGB
+    def parse(element: ET.Element) -> "ColorRGB":
+        """Parses the XML element of ColorRGB.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A value constraint element (same as generated by the class itself)
+        element : ET.Element
+            A ColorRGB element (same as generated by the class itself).
 
         Returns
         -------
-            color (ColorRGB): ColorRGB object
-
+        ColorRGB
+            A ColorRGB object.
         """
-
         red = element.attrib["red"]
         green = element.attrib["green"]
         blue = element.attrib["blue"]
         return ColorRGB(red, green, blue)
 
-    def get_attributes(self):
-        """returns the attributes of the ValueConstraint as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the ColorRGB as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the ColorRGB.
+        """
         retdict = {}
         retdict["red"] = str(self.red)
         retdict["green"] = str(self.green)
         retdict["blue"] = str(self.blue)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the ValueConstraint"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the ColorRGB.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the ColorRGB.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorRGB was introduced in OpenSCENARIO V1.2"
@@ -4616,95 +5514,101 @@ class ColorRGB(_ColorDefinition):
 
 
 class ColorCMYK(_ColorDefinition):
-    """Creates the CMYK Color element in OpenSCENARIO
+    """ColorCMYK creates a ColorCMYK element of OpenSCENARIO (valid from
+    OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        cyan (float): cyan component (0..1)
-            Default: 0
-
-        magenta (float): magenta component (0..1)
-            Default: 0
-
-        yellow (float): yellow component (0..1)
-            Default: 0
-
-        key (float): black component (0..1)
-            Default: 0
+    cyan : float, optional
+        Cyan component (0..1). Default is 0.
+    magenta : float, optional
+        Magenta component (0..1). Default is 0.
+    yellow : float, optional
+        Yellow component (0..1). Default is 0.
+    key : float, optional
+        Black component (0..1). Default is 0.
 
     Attributes
     ----------
-        cyan (float): cyan component (0..1)
-
-        magenta (float): magenta component (0..1)
-
-        yellow (float): yellow component (0..1)
-
-        key (float): black component (0..1)
+    cyan : float
+        Cyan component (0..1).
+    magenta : float
+        Magenta component (0..1).
+    yellow : float
+        Yellow component (0..1).
+    key : float
+        Black component (0..1).
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, cyan=0, magenta=0, yellow=0, key=0):
-        """initalzie the ColorCMYK Class
+    def __init__(
+        self,
+        cyan: float = 0,
+        magenta: float = 0,
+        yellow: float = 0,
+        key: float = 0,
+    ) -> None:
+        """Initializes the ColorCMYK.
 
         Parameters
         ----------
-            cyan (float): cyan component (0..1)
-                Default: 0
-
-            magenta (float): magenta component (0..1)
-                Default: 0
-
-            yellow (float): yellow component (0..1)
-                Default: 0
-
-            key (float): black component (0..1)
-                Default: 0
+        cyan : float, optional
+            Cyan component (0..1). Default is 0.
+        magenta : float, optional
+            Magenta component (0..1). Default is 0.
+        yellow : float, optional
+            Yellow component (0..1). Default is 0.
+        key : float, optional
+            Black component (0..1). Default is 0.
         """
         self.cyan = cyan
         self.magenta = magenta
         self.yellow = yellow
         self.key = key
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ColorCMYK):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of ColorCMYK
+    def parse(element: ET.Element) -> "ColorCMYK":
+        """Parses the XML element of ColorCMYK.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A value constraint element (same as generated by the class itself)
+        element : ET.Element
+            A ColorCMYK element (same as generated by the class itself).
 
         Returns
         -------
-            color (ColorCMYK): ColorCMYK object
-
+        ColorCMYK
+            A ColorCMYK object.
         """
-
         cyan = element.attrib["cyan"]
         magenta = element.attrib["magenta"]
         yellow = element.attrib["yellow"]
         key = element.attrib["key"]
         return ColorCMYK(cyan, magenta, yellow, key)
 
-    def get_attributes(self):
-        """returns the attributes of the ColorCMYK as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the ColorCMYK as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the ColorCMYK.
+        """
         retdict = {}
         retdict["cyan"] = str(self.cyan)
         retdict["magenta"] = str(self.magenta)
@@ -4712,8 +5616,14 @@ class ColorCMYK(_ColorDefinition):
         retdict["key"] = str(self.key)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the ColorCMYK"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the ColorCMYK.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the ColorCMYK.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorCMYK was introduced in OpenSCENARIO V1.2"
@@ -4723,49 +5633,52 @@ class ColorCMYK(_ColorDefinition):
 
 
 class Color(VersionBase):
-    """Creates the Color element in OpenSCENARIO
+    """Color creates a Color element of OpenSCENARIO (valid from OpenSCENARIO
+    V1.2).
 
     Parameters
     ----------
-        color_type (ColorType): semantic value of color
-
-        color_definition (_ColorDefinition): the color definition
+    color_type : ColorType
+        Semantic value of color.
+    color_definition : _ColorDefinition
+        The color definition.
 
     Attributes
     ----------
-        color_type (ColorType): semantic value of color
-
-        color_definition (_ColorDefinition): the color definition
+    color_type : ColorType
+        Semantic value of color.
+    color_definition : _ColorDefinition
+        The color definition.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, color_type, color_definition):
-        """initalzie the Color Class
+    def __init__(
+        self, color_type: ColorType, color_definition: _ColorDefinition
+    ) -> None:
+        """Initializes the Color.
 
         Parameters
         ----------
-            color_type (ColorType): semantic value of color
-
-            color_definition (ColorRGB or ColorCmyk): the color definition
-
+        color_type : ColorType
+            Semantic value of color.
+        color_definition : _ColorDefinition
+            The color definition.
         """
         self.color_type = convert_enum(color_type, ColorType, False)
         if not isinstance(color_definition, _ColorDefinition):
             raise TypeError("input is not a color definition")
         self.color_definition = color_definition
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Color):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -4775,97 +5688,127 @@ class Color(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of Color
+    def parse(element: ET.Element) -> "Color":
+        """Parses the XML element of Color.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): A value constraint element (same as generated by the class itself)
+        element : ET.Element
+            A Color element (same as generated by the class itself).
 
         Returns
         -------
-            color (Color): Color object
-
+        Color
+            A Color object.
         """
-
         color_type = convert_enum(element.attrib["colorType"], ColorType)
         if element.find("ColorRgb") is not None:
-            color_def = ColorRGB.parse(element.find("ColorRgb"))
+            color_def = ColorRGB.parse(
+                find_mandatory_field(element, "ColorRgb")
+            )
         elif element.find("ColorCmyk") is not None:
-            color_def = ColorCMYK.parse(element.find("ColorCmyk"))
+            color_def = ColorCMYK.parse(
+                find_mandatory_field(element, "ColorCmyk")
+            )
         return Color(color_type, color_def)
 
-    def get_attributes(self):
-        """returns the attributes of the Color as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Color as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Color.
+        """
         retdict = {}
         retdict["colorType"] = self.color_type.get_name()
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the Color"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Color.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Color.
+        """
         if not self.isVersion(minor=2):
-            raise OpenSCENARIOVersionError("Color was introduced in OpenSCENARIO V1.2")
+            raise OpenSCENARIOVersionError(
+                "Color was introduced in OpenSCENARIO V1.2"
+            )
         element = ET.Element("Color", attrib=self.get_attributes())
         element.append(self.color_definition.get_element())
         return element
 
 
 class UserDefinedLight(VersionBase):
-    """The CustomCommandAction creates a simulator defined action
-
+    """UserDefinedLight creates a UserDefinedLight element of OpenSCENARIO
+    (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        user_defined_type (str): string of the user defined light
+    user_defined_type : str
+        String of the user-defined light.
 
     Attributes
     ----------
-
-        type (str): type of the custom command
+    type : str
+        Type of the user-defined light.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
     """
 
-    def __init__(self, user_defined_type):
-        """initalize the UserDefinedLight
+    def __init__(self, user_defined_type: str) -> None:
+        """Initializes the UserDefinedLight.
 
         Parameters
         ----------
-            user_defined_type (str): type of the custom command
-
+        user_defined_type : str
+            Type of the user-defined light.
         """
         self.type = user_defined_type
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, UserDefinedLight):
             if other.type == self.type:
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parsese the xml element of a UserDefinedLight
+    def parse(element: ET.Element) -> "UserDefinedLight":
+        """Parses the XML element of UserDefinedLight.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedLight element
+        element : ET.Element
+            A UserDefinedLight element (same as generated by the class
+            itself).
 
         Returns
         -------
-            UserDefinedLight (UserDefinedLight): a UserDefinedLight object
-
+        UserDefinedLight
+            A UserDefinedLight object.
         """
-
         return UserDefinedLight(element.attrib["userDefinedLightType"])
 
-    def get_element(self):
-        """returns the elementTree of the UserDefinedLight"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the UserDefinedLight.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the UserDefinedLight.
+        """
         if self.isVersionEqLess(minor=1):
-            raise OpenSCENARIOVersionError("UserDefinedLight was introduced in OSC 1.2")
+            raise OpenSCENARIOVersionError(
+                "UserDefinedLight was introduced in OSC 1.2"
+            )
         element = ET.Element(
             "UserDefinedLight", attrib={"userDefinedLightType": self.type}
         )
@@ -4873,51 +5816,74 @@ class UserDefinedLight(VersionBase):
 
 
 class _LightState(VersionBase):
-    """The _LightState creates a LightState element used by LightStateAction
+    """_LightState creates a LightState element used by LightStateAction (valid
+    from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        mode (LightMode): the new mode of the light
-
-        color (Color): the color of the light
-
-        intensity (float): the luminous intensity of the light
-
-        flashing_on_duration (float): how long the light should be on when when LightMode is set to "flashing"
-
-        flashing_off_duration (float): how long the light should be off when LightMode is set to "flashing"
+    mode : LightMode
+        The new mode of the light.
+    color : Color, optional
+        The color of the light. Default is None.
+    intensity : float, optional
+        The luminous intensity of the light. Default is None.
+    flashing_on_duration : float, optional
+        How long the light should be on when LightMode is set to
+        "flashing". Default is None.
+    flashing_off_duration : float, optional
+        How long the light should be off when LightMode is set to
+        "flashing". Default is None.
 
     Attributes
     ----------
-
-        type (str): type of the custom command
+    mode : LightMode
+        The new mode of the light.
+    color : Color, optional
+        The color of the light.
+    intensity : float, optional
+        The luminous intensity of the light.
+    flashing_on_duration : float, optional
+        How long the light should be on when LightMode is set to
+        "flashing".
+    flashing_off_duration : float, optional
+        How long the light should be off when LightMode is set to
+        "flashing".
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
     def __init__(
         self,
-        mode,
-        color=None,
-        intensity=None,
-        flashing_off_duration=None,
-        flashing_on_duration=None,
-    ):
-        """initalize the _LightState
+        mode: LightMode,
+        color: Optional[Color] = None,
+        intensity: Optional[float] = None,
+        flashing_off_duration: Optional[float] = None,
+        flashing_on_duration: Optional[float] = None,
+    ) -> None:
+        """Initializes the _LightState.
 
         Parameters
         ----------
-            user_defined_type (str): type of the custom command
-
+        mode : LightMode
+            The new mode of the light.
+        color : Color, optional
+            The color of the light. Default is None.
+        intensity : float, optional
+            The luminous intensity of the light. Default is None.
+        flashing_on_duration : float, optional
+            How long the light should be on when LightMode is set to
+            "flashing". Default is None.
+        flashing_off_duration : float, optional
+            How long the light should be off when LightMode is set to
+            "flashing". Default is None.
         """
         if color and not isinstance(color, Color):
             raise TypeError("color input is not of type Color")
@@ -4928,13 +5894,13 @@ class _LightState(VersionBase):
         self.flash_on_duration = convert_float(flashing_on_duration)
         self.flash_off_duration = convert_float(flashing_off_duration)
 
-        if flashing_on_duration == None and self.mode == LightMode.flashing:
+        if flashing_on_duration is None and self.mode == LightMode.flashing:
             self.flash_on_duration = 0.5
 
-        if flashing_off_duration == None and self.mode == LightMode.flashing:
+        if flashing_off_duration is None and self.mode == LightMode.flashing:
             self.flash_off_duration = 0.5
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _LightState):
             if (
                 other.get_attributes() == self.get_attributes()
@@ -4944,17 +5910,19 @@ class _LightState(VersionBase):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parsese the xml element of a _LightState
+    def parse(element: ET.Element) -> "_LightState":
+        """Parses the XML element of _LightState.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a _LightState element
+        element : ET.Element
+            A _LightState element (same as generated by the class
+            itself).
 
         Returns
         -------
-            LightState (_LightState): a _LightState object
-
+        _LightState
+            A _LightState object.
         """
         flashing_on = None
         flashing_off = None
@@ -4970,13 +5938,19 @@ class _LightState(VersionBase):
         if "luminousIntensity" in element.attrib:
             intensity = convert_float(element.attrib["luminousIntensity"])
 
-        if element.find("Color") != None:
-            color = Color.parse(element.find("Color"))
+        if element.find("Color") is not None:
+            color = Color.parse(find_mandatory_field(element, "Color"))
         mode = convert_enum(element.attrib["mode"], LightMode)
         return _LightState(mode, color, intensity, flashing_off, flashing_on)
 
-    def get_attributes(self):
-        """returns the attributes of the ValueConstraint as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the _LightState as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the _LightState.
+        """
         retdict = {}
 
         if self.flash_on_duration is not None:
@@ -4989,8 +5963,14 @@ class _LightState(VersionBase):
         retdict["mode"] = self.mode.get_name()
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the _LightState"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the _LightState.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the _LightState.
+        """
         element = ET.Element("LightState", attrib=self.get_attributes())
         if self.color:
             element.append(self.color.get_element())
@@ -4998,45 +5978,48 @@ class _LightState(VersionBase):
 
 
 class AnimationFile(_AnimationType):
-    """The AnimationFile creates a AnimationFile element used by AnimationType
+    """AnimationFile creates an AnimationFile element of OpenSCENARIO (valid
+    from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        file (string): filepath of the annimation / motion file
-
-        timeOffset (float): time offset from beginning of animation
+    file : str
+        Filepath of the animation/motion file.
+    timeOffset : float, optional
+        Time offset from beginning of animation. Default is None.
 
     Attributes
     ----------
-
-        timeOffset (float): time offset from beginning of animation
+    file : str
+        Filepath of the animation/motion file.
+    timeOffset : float, optional
+        Time offset from beginning of animation.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, file, timeOffset=None):
-        """initalizes the AnimationFile
+    def __init__(self, file: str, timeOffset: Optional[float] = None) -> None:
+        """Initializes the AnimationFile.
 
         Parameters
         ----------
-        file (string): filepath of the annimation / motion file
-
-        timeOffset (float): time offset from beginning of animation
-
+        file : str
+            Filepath of the animation/motion file.
+        timeOffset : float, optional
+            Time offset from beginning of animation. Default is None.
         """
         self.file = file
         self.timeOffset = convert_float(timeOffset)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, AnimationFile):
             if (
                 other.get_attributes() == self.get_attributes()
@@ -5046,35 +6029,48 @@ class AnimationFile(_AnimationType):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a AnimationFile
+    def parse(element: ET.Element) -> "AnimationFile":
+        """Parses the XML element of AnimationFile.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a AnimationFile element
+        element : ET.Element
+            An AnimationFile element (same as generated by the class
+            itself).
 
         Returns
         -------
-            AnimationFile (AnimationFile): a AnimationFile object
-
+        AnimationFile
+            An AnimationFile object.
         """
-
         timeOffset = None
         if element.find("File") is not None:
-            file = element.find("File").attrib["filepath"]
+            file = find_mandatory_field(element, "File").attrib["filepath"]
         if "timeOffset" in element.attrib:
             timeOffset = convert_float(element.attrib["timeOffset"])
         return AnimationFile(file, timeOffset)
 
-    def get_attributes(self):
-        """returns the attributes of the AnimationFile as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the AnimationFile as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the AnimationFile.
+        """
         retdict = {}
         if self.timeOffset is not None:
             retdict["timeOffset"] = str(self.timeOffset)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the AnimationFile"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the AnimationFile.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the AnimationFile.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "AnimationFile was introduced in OpenSCENARIO V1.2"
@@ -5087,78 +6083,93 @@ class AnimationFile(_AnimationType):
 
 
 class DirectionOfTravelDistribution(VersionBase):
-    """The DirectionOfTravelDistribution is used by SwarmTraffic to define how the traffic should flow
+    """DirectionOfTravelDistribution creates a DirectionOfTravelDistribution
+    element of OpenSCENARIO (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        opposite (float): weight of traffic going against the reference entity
-
-        same (float): weight of traffic going the same way the reference entity
+    opposite : float
+        Weight of traffic going against the reference entity.
+    same : float
+        Weight of traffic going the same way as the reference entity.
 
     Attributes
     ----------
-
-        opposite (float): weight of traffic going against the reference entity
-
-        same (float): weight of traffic going the same way the reference entity
+    opposite : float
+        Weight of traffic going against the reference entity.
+    same : float
+        Weight of traffic going the same way as the reference entity.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, opposite, same):
-        """initalizes the DirectionOfTravelDistribution
+    def __init__(self, opposite: float, same: float) -> None:
+        """Initializes the DirectionOfTravelDistribution.
 
         Parameters
         ----------
-        opposite (float): weight of traffic going against the reference entity
-
-        same (float): weight of traffic going the same way the reference entity
-
+        opposite : float
+            Weight of traffic going against the reference entity.
+        same : float
+            Weight of traffic going the same way as the reference entity.
         """
         self.opposite = convert_float(opposite)
         self.same = convert_float(same)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, DirectionOfTravelDistribution):
             if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a DirectionOfTravelDistribution
+    def parse(element: ET.Element) -> "DirectionOfTravelDistribution":
+        """Parses the XML element of DirectionOfTravelDistribution.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a DirectionOfTravelDistribution element
+        element : ET.Element
+            A DirectionOfTravelDistribution element (same as generated
+            by the class itself).
 
         Returns
         -------
-            DirectionOfTravelDistribution (DirectionOfTravelDistribution): a DirectionOfTravelDistribution object
-
+        DirectionOfTravelDistribution
+            A DirectionOfTravelDistribution object.
         """
-
         return DirectionOfTravelDistribution(
             convert_float(element.attrib["opposite"]),
             convert_float(element.attrib["same"]),
         )
 
-    def get_attributes(self):
-        """returns the attributes of the DirectionOfTravelDistribution as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the DirectionOfTravelDistribution as a
+        dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the DirectionOfTravelDistribution.
+        """
         retdict = {"opposite": str(self.opposite), "same": str(self.same)}
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the DirectionOfTravelDistribution"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the DirectionOfTravelDistribution.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the DirectionOfTravelDistribution.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
@@ -5171,199 +6182,241 @@ class DirectionOfTravelDistribution(VersionBase):
 
 
 class UserDefinedAnimation(_AnimationType):
-    """The UserDefinedAnimation creates a UserDefinedAnimation element used by AnimationType
+    """UserDefinedAnimation creates a UserDefinedAnimation element of
+    OpenSCENARIO (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
+    userDefinedAnimationType : str
+        The available user-defined animation types are subject to a
+        contract between the simulation environment provider and the
+        scenario author.
 
     Attributes
     ----------
-
-        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
+    userDefinedAnimationType : str
+        The available user-defined animation types are subject to a
+        contract between the simulation environment provider and the
+        scenario author.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, type):
-        """initalizes the UserDefinedAnimation
+    def __init__(self, type: str) -> None:
+        """Initializes the UserDefinedAnimation.
 
         Parameters
         ----------
-        userDefinedAnimationType (str): the available user defined animation types are subject of a contract between simulation environment provider and scenario author.
-
+        userDefinedAnimationType : str
+            The available user-defined animation types are subject to a
+            contract between the simulation environment provider and the
+            scenario author.
         """
         self.type = type
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, UserDefinedAnimation):
             if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a UserDefinedAnimation
+    def parse(element: ET.Element) -> "UserDefinedAnimation":
+        """Parses the XML element of UserDefinedAnimation.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+        element : ET.Element
+            A UserDefinedAnimation element (same as generated by the
+            class itself).
 
         Returns
         -------
-            UserDefinedAnimation (UserDefinedAnimation): a UserDefinedAnimation object
-
+        UserDefinedAnimation
+            A UserDefinedAnimation object.
         """
-
         return UserDefinedAnimation(element.attrib["userDefinedAnimationType"])
 
-    def get_attributes(self):
-        """returns the attributes of the UserDefinedAnimation as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the UserDefinedAnimation as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the UserDefinedAnimation.
+        """
         retdict = {}
         retdict["userDefinedAnimationType"] = self.type
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the UserDefinedAnimation"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the UserDefinedAnimation.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the UserDefinedAnimation.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedAnimation was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("UserDefinedAnimation", attrib=self.get_attributes())
+        element = ET.Element(
+            "UserDefinedAnimation", attrib=self.get_attributes()
+        )
         return element
 
 
 class UserDefinedComponent(_AnimationType):
-    """The UserDefinedComponent creates a UserDefinedComponent as part of a ComponentAnimation
+    """UserDefinedComponent creates a UserDefinedComponent element of
+    OpenSCENARIO (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        userDefinedComponentType (str): User defined component type.
+    userDefinedComponentType : str
+        User-defined component type.
 
     Attributes
     ----------
-
-        userDefinedComponentType (str): User defined component type.
+    userDefinedComponentType : str
+        User-defined component type.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, type):
-        """initalizes the UserDefinedComponent
+    def __init__(self, type: str) -> None:
+        """Initializes the UserDefinedComponent.
 
         Parameters
         ----------
-        userDefinedComponentType (str): User defined component type.
-
+        userDefinedComponentType : str
+            User-defined component type.
         """
         self.type = type
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, UserDefinedComponent):
             if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a UserDefinedComponent
+    def parse(element: ET.Element) -> "UserDefinedComponent":
+        """Parses the XML element of UserDefinedComponent.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedComponent element
+        element : ET.Element
+            A UserDefinedComponent element (same as generated by the
+            class itself).
 
         Returns
         -------
-            UserDefinedComponent (UserDefinedComponent): a UserDefinedComponent object
-
+        UserDefinedComponent
+            A UserDefinedComponent object.
         """
-
         return UserDefinedComponent(element.attrib["userDefinedComponentType"])
 
-    def get_attributes(self):
-        """returns the attributes of the UserDefinedComponent as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the UserDefinedComponent as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the UserDefinedComponent.
+        """
         retdict = {}
         retdict["userDefinedComponentType"] = self.type
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the UserDefinedComponent"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the UserDefinedComponent.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the UserDefinedComponent.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedComponent was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("UserDefinedComponent", attrib=self.get_attributes())
+        element = ET.Element(
+            "UserDefinedComponent", attrib=self.get_attributes()
+        )
         return element
 
 
 class PedestrianAnimation(_AnimationType):
-    """The PedestrianAnimation creates a PedestrianAnimation element used by AnimationType
+    """PedestrianAnimation creates a PedestrianAnimation element of
+    OpenSCENARIO (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        motion (PedestrianMotionType): Motion of a pedestrian
-
-        userDefinedPedestrianAnimation (str): User defined pedestrian animation
+    motion : PedestrianMotionType, optional
+        Motion of a pedestrian. Default is None.
+    userDefinedPedestrianAnimation : str, optional
+        User-defined pedestrian animation. Default is None.
 
     Attributes
     ----------
-
-        motion (PedestrianMotionType): Motion of a pedestrian
-
-        userDefinedPedestrianAnimation (str): User defined pedestrian animation
-
-        gestures (list of PedestrianGestureTpe): Gestures of a pedestrian
+    motion : PedestrianMotionType, optional
+        Motion of a pedestrian.
+    userDefinedPedestrianAnimation : str, optional
+        User-defined pedestrian animation.
+    gestures : list of PedestrianGestureType
+        Gestures of a pedestrian.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        add_gesture(gesture)
-            Adds a pedestrian gesture to the pedestrian animation
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    add_gesture(gesture)
+        Adds a pedestrian gesture to the pedestrian animation.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, motion=None, animation=None):
-        """initalizes the PedestrianAnimation
+    def __init__(
+        self,
+        motion: Optional[PedestrianMotionType] = None,
+        animation: Optional[str] = None,
+    ) -> None:
+        """Initializes the PedestrianAnimation.
 
         Parameters
         ----------
-        motion (PedestrianMotionType): Motion of a pedestrian
-
-        userDefinedPedestrianAnimation (str): User defined pedestrian animation
-
+        motion : PedestrianMotionType, optional
+            Motion of a pedestrian. Default is None.
+        userDefinedPedestrianAnimation : str, optional
+            User-defined pedestrian animation. Default is None.
         """
         self.motion = convert_enum(motion, PedestrianMotionType, True)
         self.animation = animation
         self.gestures = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PedestrianAnimation):
             if (
                 other.get_attributes() == self.get_attributes()
@@ -5373,17 +6426,19 @@ class PedestrianAnimation(_AnimationType):
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a PedestrianAnimation
+    def parse(element: ET.Element) -> "PedestrianAnimation":
+        """Parses the XML element of PedestrianAnimation.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a UserDefinedAnimation element
+        element : ET.Element
+            A PedestrianAnimation element (same as generated by the
+            class itself).
 
         Returns
         -------
-            PedestrianAnimation (PedestrianAnimation): a PedestrianAnimation object
-
+        PedestrianAnimation
+            A PedestrianAnimation object.
         """
         motion = convert_enum(element.attrib["motion"], PedestrianMotionType)
         animation = element.attrib["userDefinedPedestrianAnimation"]
@@ -5395,105 +6450,143 @@ class PedestrianAnimation(_AnimationType):
             )
         return pa
 
-    def add_gesture(self, gesture):
-        """adds a pedestrian gesture to the vehicle
+    def add_gesture(
+        self, gesture: PedestrianGestureType
+    ) -> "PedestrianAnimation":
+        """Adds a pedestrian gesture to the pedestrian animation.
 
         Parameters
         ----------
-            gesture (PedestrianGestureType): A new gesture of the pedestrian
+        gesture : PedestrianGestureType
+            A new gesture of the pedestrian.
 
+        Returns
+        -------
+        PedestrianAnimation
+            The updated PedestrianAnimation object.
         """
         self.gestures.append(convert_enum(gesture, PedestrianGestureType))
         return self
 
-    def get_attributes(self):
-        """returns the attributes of the PedestrianAnimation as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the PedestrianAnimation as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the PedestrianAnimation.
+        """
         retdict = {}
         retdict["motion"] = self.motion.get_name()
         retdict["userDefinedPedestrianAnimation"] = str(self.animation)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the PedestrianAnimation"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the PedestrianAnimation.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the PedestrianAnimation.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "PedestrianAnimation was introduced in OpenSCENARIO V1.2"
             )
 
-        element = ET.Element("PedestrianAnimation", attrib=self.get_attributes())
+        element = ET.Element(
+            "PedestrianAnimation", attrib=self.get_attributes()
+        )
         for gesture in self.gestures:
             ET.SubElement(
-                element, "PedestrianGesture", attrib={"gesture": gesture.get_name()}
+                element,
+                "PedestrianGesture",
+                attrib={"gesture": gesture.get_name()},
             )
         return element
 
 
 class _VehicleComponent(VersionBase):
-    """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
+    """_VehicleComponent creates a VehicleComponent element of OpenSCENARIO
+    (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
+    vehicleComponentType : VehicleComponentType
+        Available component types attached to a vehicle.
 
     Attributes
     ----------
-
-        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
+    vehicleComponentType : VehicleComponentType
+        Available component types attached to a vehicle.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, type):
-        """initalizes the VehicleComponent
+    def __init__(self, type: VehicleComponentType) -> None:
+        """Initializes the _VehicleComponent.
 
         Parameters
         ----------
-        vehicleComponenetType (VehicleComponentType): Available compopnent types attached to a vehicle.
-
+        vehicleComponentType : VehicleComponentType
+            Available component types attached to a vehicle.
         """
         self.type = convert_enum(type, VehicleComponentType)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _VehicleComponent):
             if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a VehicleComponent
+    def parse(element: ET.Element) -> "_VehicleComponent":
+        """Parses the XML element of _VehicleComponent.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a VehicleComponent element
+        element : ET.Element
+            A _VehicleComponent element (same as generated by the class
+            itself).
 
         Returns
         -------
-            VehicleComponent (VehicleComponent): a VehicleComponent object
-
+        _VehicleComponent
+            A _VehicleComponent object.
         """
         type = convert_enum(
             element.attrib["vehicleComponentType"], VehicleComponentType
         )
         return _VehicleComponent(type)
 
-    def get_attributes(self):
-        """returns the attributes of the VehicleComponent as a dict"""
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the _VehicleComponent as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the _VehicleComponent.
+        """
         retdict = {}
         retdict["vehicleComponentType"] = self.type.get_name()
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the VehicleComponent"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the _VehicleComponent.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the _VehicleComponent.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "VehicleComponent was introduced in OpenSCENARIO V1.2"
@@ -5504,72 +6597,92 @@ class _VehicleComponent(VersionBase):
 
 
 class _ComponentAnimation(_AnimationType):
-    """The VehicleComponent creates a VehicleComponent element used by ComponentAnimation
+    """_ComponentAnimation creates a ComponentAnimation element of OpenSCENARIO
+    (valid from OpenSCENARIO V1.2).
 
     Parameters
     ----------
-        vehicleComponent (_VehicleComponent): Available components types attached to a vehicle
-
-        userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
+    component : Union[_VehicleComponent, UserDefinedComponent]
+        Either available component types attached to the vehicle or a
+        user-defined component.
 
     Attributes
     ----------
-
-        vehicleComponent (_VehicleComponent): Available components types attached to a vehicle
-
-        userDefinedComponent (UserDefinedComponent): The component type is not covered by the above options and is therefore user defined
+    component : Union[_VehicleComponent, UserDefinedComponent]
+        Either available component types attached to the vehicle or a
+        user-defined component.
 
     Methods
     -------
-        parse(element)
-            parses a ElementTree created by the class and returns an instance of the class
-
-        get_element(elementname)
-            Returns the full ElementTree of the class
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
     """
 
-    def __init__(self, component):
-        """initalizes the VehicleComponent
+    def __init__(
+        self, component: Union[_VehicleComponent, UserDefinedComponent]
+    ) -> None:
+        """Initializes the _ComponentAnimation.
 
         Parameters
         ----------
-        component (vehicleComponent or UserDefinedComponent): Either available components types attached to the vehicle or a user defined component
+        component : Union[_VehicleComponent, UserDefinedComponent]
+            Either available component types attached to the vehicle or
+            a user-defined component.
         """
         if not isinstance(component, _VehicleComponent) and not isinstance(
             component, UserDefinedComponent
         ):
             raise TypeError(
-                component + " is not of type VehicleComponent or UserDefinedComponent"
+                component
+                + " is not of type VehicleComponent or UserDefinedComponent"
             )
         self.component = component
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _ComponentAnimation):
-            if other.component.get_attributes() == self.component.get_attributes():
+            if (
+                other.component.get_attributes()
+                == self.component.get_attributes()
+            ):
                 return True
         return False
 
     @staticmethod
-    def parse(element):
-        """Parses the xml element of a ComponentAnimation
+    def parse(element: ET.Element) -> "_ComponentAnimation":
+        """Parses the XML element of _ComponentAnimation.
 
         Parameters
         ----------
-            element (xml.etree.ElementTree.Element): a ComponentAnimation element
+        element : ET.Element
+            A _ComponentAnimation element (same as generated by the
+            class itself).
 
         Returns
         -------
-            ComponentAnimation (ComponentAnimation): a ComponentAnimation object
-
+        _ComponentAnimation
+            A _ComponentAnimation object.
         """
-        if element.find("VehicleComponent") != None:
-            component = _VehicleComponent.parse(element.find("VehicleComponent"))
+        if element.find("VehicleComponent") is not None:
+            component = _VehicleComponent.parse(
+                find_mandatory_field(element, "VehicleComponent")
+            )
         else:
-            component = UserDefinedComponent.parse(element.find("UserDefinedComponent"))
+            component = UserDefinedComponent.parse(
+                find_mandatory_field(element, "UserDefinedComponent")
+            )
         return _ComponentAnimation(component)
 
-    def get_element(self):
-        """returns the elementTree of the ComponentAnimation"""
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the _ComponentAnimation.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the _ComponentAnimation.
+        """
         if not self.isVersion(minor=2):
             raise OpenSCENARIOVersionError(
                 "ComponentAnimation was introduced in OpenSCENARIO V1.2"

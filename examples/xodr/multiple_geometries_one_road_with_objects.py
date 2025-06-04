@@ -109,7 +109,12 @@ class Scenario(ScenarioGenerator):
         road.add_object_roadside(guardrail, 0, 0, tOffset=0.8)
 
         delineator = xodr.Object(
-            0, 0, height=1, zOffset=0, Type=xodr.ObjectType.pole, name="delineator"
+            0,
+            0,
+            height=1,
+            zOffset=0,
+            Type=xodr.ObjectType.pole,
+            name="delineator",
         )
         road.add_object_roadside(delineator, 50, sOffset=25, tOffset=0.85)
 

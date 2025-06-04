@@ -10,13 +10,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright (c) 2022 The scenariogeneration Authors.
 
 """
-from .utils import *
 from .actions import *
-from .position import *
-from .triggers import *
-from .scenario import *
-from .storyboard import *
 from .entities import *
 from .enumerations import *
-from .xosc_reader import *
 from .parameters import *
+from .position import *
+from .scenario import *
+from .storyboard import *
+from .triggers import *
+from .utils import *
+from .xosc_reader import *

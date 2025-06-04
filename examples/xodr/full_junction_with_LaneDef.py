@@ -58,8 +58,12 @@ class Scenario(ScenarioGenerator):
         jc.add_incoming_road_cartesian_geometry(
             road4, 5, 30, -np.pi / 2 - 0.1, "successor"
         )
-        jc.add_incoming_road_cartesian_geometry(road3, -20, 0, 0, "predecessor")
-        jc.add_incoming_road_cartesian_geometry(road2, 20, 0, np.pi, "predecessor")
+        jc.add_incoming_road_cartesian_geometry(
+            road3, -20, 0, 0, "predecessor"
+        )
+        jc.add_incoming_road_cartesian_geometry(
+            road2, 20, 0, np.pi, "predecessor"
+        )
 
         jc.add_connection(1, 2)
         jc.add_connection(3, 1)

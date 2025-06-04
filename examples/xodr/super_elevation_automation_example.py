@@ -13,7 +13,11 @@ class Scenario(ScenarioGenerator):
             xodr.Line(50), 0, left_lanes=3, right_lanes=3, lane_width=3
         )
         main_road = xodr.create_road(
-            xodr.Spiral(0.00001, 0.01, 50), 1, left_lanes=3, right_lanes=3, lane_width=3
+            xodr.Spiral(0.00001, 0.01, 50),
+            1,
+            left_lanes=3,
+            right_lanes=3,
+            lane_width=3,
         )
         suc_road = xodr.create_road(
             xodr.Line(50), 2, left_lanes=2, right_lanes=2, lane_width=3
@@ -45,16 +49,28 @@ class Scenario(ScenarioGenerator):
         continuation2.add_elevation(0, 6, 0, 0, 0)
 
         ## add successors and predecessors
-        start_road.add_successor(xodr.ElementType.road, 1, xodr.ContactPoint.start)
-        main_road.add_predecessor(xodr.ElementType.road, 0, xodr.ContactPoint.end)
+        start_road.add_successor(
+            xodr.ElementType.road, 1, xodr.ContactPoint.start
+        )
+        main_road.add_predecessor(
+            xodr.ElementType.road, 0, xodr.ContactPoint.end
+        )
         main_road.add_successor(xodr.ElementType.junction, 100)
         suc_road.add_successor(xodr.ElementType.junction, 100)
         offramp1.add_predecessor(xodr.ElementType.junction, 100)
         offramp2.add_predecessor(xodr.ElementType.junction, 100)
-        offramp1.add_successor(xodr.ElementType.road, 5, xodr.ContactPoint.start)
-        offramp2.add_successor(xodr.ElementType.road, 6, xodr.ContactPoint.start)
-        continuation1.add_predecessor(xodr.ElementType.road, 3, xodr.ContactPoint.end)
-        continuation2.add_predecessor(xodr.ElementType.road, 4, xodr.ContactPoint.end)
+        offramp1.add_successor(
+            xodr.ElementType.road, 5, xodr.ContactPoint.start
+        )
+        offramp2.add_successor(
+            xodr.ElementType.road, 6, xodr.ContactPoint.start
+        )
+        continuation1.add_predecessor(
+            xodr.ElementType.road, 3, xodr.ContactPoint.end
+        )
+        continuation2.add_predecessor(
+            xodr.ElementType.road, 4, xodr.ContactPoint.end
+        )
 
         ## create the direct junction
         jc = xodr.DirectJunctionCreator(100, "my junc")

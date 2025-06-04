@@ -79,7 +79,9 @@ class Scenario(ScenarioGenerator):
 
         ### create an event for the red car
 
-        r_trigcond = xosc.TimeHeadwayCondition(redname, 0.1, xosc.Rule.greaterThan)
+        r_trigcond = xosc.TimeHeadwayCondition(
+            redname, 0.1, xosc.Rule.greaterThan
+        )
         r_trigger = xosc.EntityTrigger(
             "redtrigger", 0.2, xosc.ConditionEdge.rising, r_trigcond, egoname
         )
@@ -90,7 +92,9 @@ class Scenario(ScenarioGenerator):
             xosc.AbsoluteLaneChangeAction(
                 -4,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 4
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    4,
                 ),
             ),
         )
@@ -116,7 +120,9 @@ class Scenario(ScenarioGenerator):
 
         ## create an event for the yellow car
 
-        y_trigcond = xosc.TimeHeadwayCondition(redname, 0.5, xosc.Rule.greaterThan)
+        y_trigcond = xosc.TimeHeadwayCondition(
+            redname, 0.5, xosc.Rule.greaterThan
+        )
         y_trigger = xosc.EntityTrigger(
             "yellow_trigger", 0, xosc.ConditionEdge.rising, y_trigcond, yelname
         )
@@ -129,7 +135,9 @@ class Scenario(ScenarioGenerator):
             xosc.AbsoluteLaneChangeAction(
                 -3,
                 xosc.TransitionDynamics(
-                    xosc.DynamicsShapes.sinusoidal, xosc.DynamicsDimension.time, 2
+                    xosc.DynamicsShapes.sinusoidal,
+                    xosc.DynamicsDimension.time,
+                    2,
                 ),
             ),
         )

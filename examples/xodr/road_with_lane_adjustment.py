@@ -128,8 +128,12 @@ class Scenario(ScenarioGenerator):
         junc2.add_incoming_road_cartesian_geometry(
             road2, 0, 0, -3.14 * 3 / 2, "successor"
         )
-        junc2.add_incoming_road_cartesian_geometry(road5, 30, 20, -3.14, "successor")
-        junc2.add_incoming_road_cartesian_geometry(road6, -30, 20, 0, "predecessor")
+        junc2.add_incoming_road_cartesian_geometry(
+            road5, 30, 20, -3.14, "successor"
+        )
+        junc2.add_incoming_road_cartesian_geometry(
+            road6, -30, 20, 0, "predecessor"
+        )
 
         junc2.add_connection(2, 5)
         junc2.add_connection(2, 6)

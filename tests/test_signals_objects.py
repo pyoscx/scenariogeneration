@@ -24,7 +24,9 @@ def test_signal_validity():
     road.add_signal(signal)
     prettyprint(road.get_element())
     assert (
-        version_validation("t_road_signals_signal", signal, wanted_schema="xodr")
+        version_validation(
+            "t_road_signals_signal", signal, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
@@ -47,7 +49,9 @@ def test_object_validity():
     road.add_object(guardrail)
     prettyprint(road.get_element())
     assert (
-        version_validation("t_road_objects_object", guardrail, wanted_schema="xodr")
+        version_validation(
+            "t_road_objects_object", guardrail, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -277,7 +281,9 @@ def test_tunnel():
     assert tunnel1 != tunnel2
 
     assert (
-        version_validation("t_road_objects_tunnel", tunnel1, wanted_schema="xodr")
+        version_validation(
+            "t_road_objects_tunnel", tunnel1, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
@@ -315,9 +321,9 @@ def test_tunnel():
 
 
 def _is_sub_element_written(sub_element, element):
-    return prettify(sub_element.get_element(), xml_declaration=False) in prettify(
-        element.get_element(), xml_declaration=True
-    )
+    return prettify(
+        sub_element.get_element(), xml_declaration=False
+    ) in prettify(element.get_element(), xml_declaration=True)
 
 
 def test_repeated_object():
@@ -441,7 +447,9 @@ def test_outline():
     assert outline != outline4
     assert (
         version_validation(
-            "t_road_objects_object_outlines_outline", outline, wanted_schema="xodr"
+            "t_road_objects_object_outlines_outline",
+            outline,
+            wanted_schema="xodr",
         )
         == ValidationResponse.OK
     )

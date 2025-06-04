@@ -51,8 +51,12 @@ class Scenario(ScenarioGenerator):
         odr.add_road(road_second)
 
         # Link roads
-        road_first.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
-        road_second.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+        road_first.add_successor(
+            xodr.ElementType.road, 2, xodr.ContactPoint.start
+        )
+        road_second.add_predecessor(
+            xodr.ElementType.road, 1, xodr.ContactPoint.end
+        )
 
         # Link lanes but do not link the newly beginning lane
         link_lane_ids_first = [2, 1, -1, -2, -3]

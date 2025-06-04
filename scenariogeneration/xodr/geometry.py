@@ -11,15 +11,17 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
+from typing import List, Optional, Union
 
 import numpy as np
 import pyclothoids as pcloth
+from scipy.integrate import quad
+
 from .exceptions import (
+    MixOfGeometryAddition,
     NotEnoughInputArguments,
     ToManyOptionalArguments,
-    MixOfGeometryAddition,
 )
-from scipy.integrate import quad
 from .utils import XodrBase
 
 
@@ -28,23 +30,74 @@ def wrap_pi(angle):
 
 
 class _BaseGeometry(XodrBase):
-    """base class for geometries"""
+    """Base class for geometries."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
 
 class AdjustablePlanview:
-    """AdjustablePlanview can be used to fit a geometry between two fixed roads."""
+    """AdjustablePlanview can be used to fit a geometry between two fixed
+    roads.
+
+    Parameters
+    ----------
+    left_lane_defs : optional
+        Definitions for the left lanes.
+    right_lane_defs : optional
+        Definitions for the right lanes.
+    center_road_mark : optional
+        Definition for the center road marking.
+    lane_width : optional
+        Width of the lanes at the start.
+    lane_width_end : optional
+        Width of the lanes at the end.
+
+    Attributes
+    ----------
+    fixed : bool
+        Indicates whether the planview is fixed.
+    adjusted : bool
+        Indicates whether the planview has been adjusted.
+    left_lane_defs : optional
+        Definitions for the left lanes.
+    right_lane_defs : optional
+        Definitions for the right lanes.
+    center_road_mark : optional
+        Definition for the center road marking.
+    lane_width : optional
+        Width of the lanes at the start.
+    lane_width_end : optional
+        Width of the lanes at the end.
+    """
 
     def __init__(
         self,
-        left_lane_defs=None,
-        right_lane_defs=None,
-        center_road_mark=None,
-        lane_width=None,
-        lane_width_end=None,
-    ):
+        left_lane_defs: Optional[List] = None,
+        right_lane_defs: Optional[List] = None,
+        center_road_mark: Optional[str] = None,
+        lane_width: Optional[float] = None,
+        lane_width_end: Optional[float] = None,
+    ) -> None:
+        """Initialize the `AdjustablePlanview` instance.
+
+        Parameters
+        ----------
+        left_lane_defs : list, optional
+            Definitions for the left lanes. Default is None.
+        right_lane_defs : list, optional
+            Definitions for the right lanes. Default is None.
+        center_road_mark : str, optional
+            Definition for the center road marking. Default is None.
+        lane_width : float, optional
+            Width of the lanes at the start. Default is None.
+        lane_width_end : float, optional
+            Width of the lanes at the end. Default is None.
+
+        Returns
+        -------
+        None
+        """
         self.fixed = False
         self.adjusted = False
         self.left_lane_defs = left_lane_defs
@@ -55,60 +108,71 @@ class AdjustablePlanview:
 
 
 class PlanView(XodrBase):
-    """the PlanView is the geometrical description of a road,
+    """The PlanView is the geometrical description of a road.
 
     Parameters
     ----------
-        x_start (float): start x coordinate of the first geometry
-            Default: None
-
-        y_start (float): start y coordinate of the first geometry
-            Default: None
-
-        h_start (float): starting heading of the first geometry
-            Default: None
+    x_start : float, optional
+        Start x coordinate of the first geometry. Default is None.
+    y_start : float, optional
+        Start y coordinate of the first geometry. Default is None.
+    h_start : float, optional
+        Starting heading of the first geometry. Default is None.
 
     Attributes
     ----------
-        present_x (float): the start x coordinate of the next geometry added
-
-        present_y (float): the y coordinate of the next geometry added
-
-        present_h (float): the heading coordinate of the next geometry added
-
-        present_s (float): the along road measure of the next geometry added
+    present_x : float
+        The start x coordinate of the next geometry added.
+    present_y : float
+        The y coordinate of the next geometry added.
+    present_h : float
+        The heading coordinate of the next geometry added.
+    present_s : float
+        The along-road measure of the next geometry added.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_total_length()
-            Returns the full length of the PlanView
-
-        add_geometry(geom,lenght)
-            adds a new geometry entry to the planeview
-
-        set_start_point(x_start,y_start,h_start)
-            sets the start point and heading of the planview
-
-        adjust_geometries()
-            based on the start point, it will adjust all geometries in the planview
-
+    get_element(elementname)
+        Returns the full ElementTree of the class.
+    get_total_length()
+        Returns the full length of the PlanView.
+    add_geometry(geom, length)
+        Adds a new geometry entry to the PlanView.
+    set_start_point(x_start, y_start, h_start)
+        Sets the start point and heading of the PlanView.
+    adjust_geometries()
+        Adjusts all geometries in the PlanView based on the start point.
     """
 
-    def __init__(self, x_start=None, y_start=None, h_start=None):
-        """initalizes the PlanView
-        Note: if multiple roads are used, the start values can be recalculated.
+    def __init__(
+        self,
+        x_start: Optional[float] = None,
+        y_start: Optional[float] = None,
+        h_start: Optional[float] = None,
+    ) -> None:
+        """Initialize the PlanView.
 
+        Parameters
+        ----------
+        x_start : float, optional
+            Start x coordinate of the first geometry. Default is None.
+        y_start : float, optional
+            Start y coordinate of the first geometry. Default is None.
+        h_start : float, optional
+            Starting heading of the first geometry. Default is None.
 
+        Raises
+        ------
+        NotEnoughInputArguments
+            If only some of the start values are provided but not all.
         """
         super().__init__()
-        self.present_x = 0
-        self.present_y = 0
-        self.present_h = 0
-        self.present_s = 0
-        self.fixed = False
+        self.present_x: float = 0
+        self.present_y: float = 0
+        self.present_h: float = 0
+        self.present_s: float = 0
+        self.fixed: bool = False
+
         if all([x_start != None, y_start != None, h_start != None]):
             self.set_start_point(x_start, y_start, h_start)
         elif any([x_start != None, y_start != None, h_start != None]):
@@ -133,7 +197,7 @@ class PlanView(XodrBase):
 
         self._addition_mode = None
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PlanView) and super().__eq__(other):
             if self.adjusted and other.adjusted:
                 if self._adjusted_geometries == other._adjusted_geometries:
@@ -146,20 +210,38 @@ class PlanView(XodrBase):
 
         return False
 
-    def add_geometry(self, geom, heading=None):
-        """add_geometry adds a geometry to the planview and will stich together all geometries (in order the order added)
+    def add_geometry(
+        self, geom: _BaseGeometry, heading: Optional[float] = None
+    ) -> "PlanView":
+        """Add a geometry to the PlanView and stitch together all geometries in
+        the order they are added.
 
-            Should be used together with "adjust_roads_and_lanes" in the OpenDrive class.
+        This method should be used together with the
+        `adjust_roads_and_lanes` method in the OpenDrive class.
 
-            NOTE: DO NOT MIX WITH with add_fixed_geometry
+        Note
+        ----
+        Do not mix this method with `add_fixed_geometry`.
 
         Parameters
         ----------
-            geom (_BaseGeometry): the type of geometry
+        geom : _BaseGeometry
+            The geometry to add. Must be an instance of `_BaseGeometry`.
+        heading : float, optional
+            Override the previous heading (not recommended). If used, it
+            must be applied consistently for all geometries. Default is None.
 
-            heading (float): override the previous heading (optional), not recommended
-                if used, use for ALL geometries
+        Returns
+        -------
+        PlanView
+            The updated PlanView instance.
 
+        Raises
+        ------
+        MixOfGeometryAddition
+            If a fixed geometry has already been added.
+        TypeError
+            If `geom` is not an instance of `_BaseGeometry`.
         """
         if self._addition_mode == "add_fixed_geometry":
             raise MixOfGeometryAddition(
@@ -174,28 +256,48 @@ class PlanView(XodrBase):
         self._addition_mode = "add_geometry"
         return self
 
-    def add_fixed_geometry(self, geom, x_start, y_start, h_start, s=None):
-        """add_fixed_geometry adds a geometry to a certain point to the planview
+    def add_fixed_geometry(
+        self,
+        geom: Union["Line", "Spiral", "ParamPoly3", "Arc"],
+        x_start: float,
+        y_start: float,
+        h_start: float,
+        s: Optional[float] = None,
+    ) -> "PlanView":
+        """Add a fixed geometry to the PlanView at a specific point.
 
-            if s is used, the values will be coded and is up to the user to make correct, not for a correct opendrive file please add the geometires in order
-            if s is not used, the geometries are supposed to be added in order (and s will be calculated)
+        If `s` is provided, the values will be coded, and it is up to the
+        user to ensure correctness. If `s` is not provided, the geometries
+        are expected to be added in order, and `s` will be calculated.
 
-            NOTE: DO NOT MIX WITH the method add_geometry
+        Note
+        ----
+        Do not mix this method with `add_geometry`.
 
         Parameters
         ----------
-            geom (Line, Spiral, ParamPoly3, or Arc): the geometry to add
+        geom : Line, Spiral, ParamPoly3, or Arc
+            The geometry to add.
+        x_start : float
+            Start x position of the geometry.
+        y_start : float
+            Start y position of the geometry.
+        h_start : float
+            Start heading of the geometry.
+        s : float, optional
+            Start s value of the geometry. Default is None.
 
-            x_start (float): start x position of the geometry
+        Returns
+        -------
+        PlanView
+            The updated PlanView instance.
 
-            y_start (float): start y position of the geometry
-
-            h_start (float): start heading of the geometry
-
-            s (float): start s value of the geometry (optional)
-                Default: None
-
+        Raises
+        ------
+        MixOfGeometryAddition
+            If a geometry has already been added using `add_geometry`.
         """
+
         if self._addition_mode == "add_geometry":
             raise MixOfGeometryAddition(
                 "A geometry has already been added with add_geometry, please use either add_geometry, or add_fixed_geometry not both"
@@ -220,19 +322,23 @@ class PlanView(XodrBase):
         self._addition_mode = "add_fixed_geometry"
         return self
 
-    def set_start_point(self, x_start=0, y_start=0, h_start=0):
-        """sets the start point of the planview
+    def set_start_point(
+        self, x_start: float = 0, y_start: float = 0, h_start: float = 0
+    ) -> None:
+        """Set the start point of the PlanView.
 
         Parameters
         ----------
-        x_start (float): start x coordinate of the first geometry
-            Default: 0
+        x_start : float, optional
+            Start x coordinate of the first geometry. Default is 0.
+        y_start : float, optional
+            Start y coordinate of the first geometry. Default is 0.
+        h_start : float, optional
+            Starting heading of the first geometry. Default is 0.
 
-        y_start (float): start y coordinate of the first geometry
-            Default: 0
-
-        h_start (float): starting heading of the first geometry
-            Default: 0
+        Returns
+        -------
+        None
         """
 
         self.present_x = x_start
@@ -240,40 +346,59 @@ class PlanView(XodrBase):
         self.present_h = h_start
         self.fixed = True
 
-    def get_start_point(self):
-        """returns the start point of the planview
+    def get_start_point(
+        self,
+    ) -> tuple[Optional[float], Optional[float], Optional[float]]:
+        """Return the start point of the PlanView.
 
-        Parameters
-        ----------
+        Returns
+        -------
+        tuple of (float or None, float or None, float or None)
+            A tuple containing:
+            - x_start : float or None
+                The start x coordinate of the PlanView.
+            - y_start : float or None
+                The start y coordinate of the PlanView.
+            - h_start : float or None
+                The starting heading of the PlanView.
         """
 
         return self.x_start, self.y_start, self.h_start
         # return self._adjusted_geometries[-1].get_end_point
 
-    def get_end_point(self):
-        """sets the start point of the planview
+    def get_end_point(
+        self,
+    ) -> tuple[Optional[float], Optional[float], Optional[float]]:
+        """Return the end point of the PlanView.
 
-        Parameters
-        ----------
-        x_start (float): start x coordinate of the first geometry
-            Default: 0
-
-        y_start (float): start y coordinate of the first geometry
-            Default: 0
-
-        h_start (float): starting heading of the first geometry
-            Default: 0
+        Returns
+        -------
+        tuple of (float or None, float or None, float or None)
+            A tuple containing:
+            - x_end : float or None
+                The end x coordinate of the PlanView.
+            - y_end : float or None
+                The end y coordinate of the PlanView.
+            - h_end : float or None
+                The ending heading of the PlanView.
         """
 
         return self.x_end, self.y_end, self.h_end
 
-    def adjust_geometries(self, from_end=False):
-        """Adjusts all geometries to have the correct start point and heading
+    def adjust_geometries(self, from_end: bool = False) -> None:
+        """Adjust all geometries to have the correct start point and heading.
 
         Parameters
         ----------
-        from_end ([optional]bool): states if (self.present_x, self.present_y, self.present_h) are being interpreted as starting point or ending point of the geometry
+        from_end : bool, optional
+            Indicates whether `(self.present_x, self.present_y,
+            self.present_h)` are interpreted as the starting point
+            (`False`) or the ending point (`True`) of the geometry.
+            Default is `False`.
 
+        Returns
+        -------
+        None
         """
         if from_end == False:
             self.x_start = self.present_x
@@ -342,15 +467,34 @@ class PlanView(XodrBase):
         self.h_end = wrap_pi(self.h_end)
         self.adjusted = True
 
-    def get_total_length(self):
-        """returns the total length of the planView"""
+    def get_total_length(self) -> float:
+        """Return the total length of the PlanView.
+
+        If the geometries have been adjusted, the total length is
+        calculated based on the adjusted geometries. Otherwise, it is
+        calculated based on the raw geometries.
+
+        Returns
+        -------
+        float
+            The total length of the PlanView.
+        """
         if self.adjusted:
             return self.present_s
         else:
             return sum([x.length for x in self._raw_geometries])
 
-    def get_element(self):
-        """returns the elementTree of the WorldPostion"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the PlanView.
+
+        This method generates an XML element for the PlanView, including
+        all adjusted geometries.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the PlanView.
+        """
 
         element = ET.Element("planView")
         self._add_additional_data_to_element(element)
@@ -360,56 +504,69 @@ class PlanView(XodrBase):
 
 
 class _Geometry(XodrBase):
-    """the _Geometry describes the geometry entry of open drive
+    """The _Geometry class describes the geometry entry of OpenDRIVE.
 
     Parameters
     ----------
-        s (float): the start s value (along road) of the geometry
-
-        x (float): start x coordinate of the geometry
-
-        y (float):  start y coordinate of the geometry
-
-        heading (float): heading of the geometry
-
-        geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
+    s : float
+        The start s value (along the road) of the geometry.
+    x : float
+        Start x coordinate of the geometry.
+    y : float
+        Start y coordinate of the geometry.
+    heading : float
+        Heading of the geometry.
+    geom_type : Line, Spiral, ParamPoly3, or Arc
+        The type of geometry.
 
     Attributes
     ----------
-        s (float): the start s value (along road) of the geometry
-
-        x (float): start x coordinate of the geometry
-
-        y (float):  start y coordinate of the geometry
-
-        heading (float): heading of the geometry
-
-        geom_type (Line, Spiral,ParamPoly3, or Arc): the type of geometry
+    s : float
+        The start s value (along the road) of the geometry.
+    x : float
+        Start x coordinate of the geometry.
+    y : float
+        Start y coordinate of the geometry.
+    heading : float
+        Heading of the geometry.
+    geom_type : Line, Spiral, ParamPoly3, or Arc
+        The type of geometry.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Returns the full ElementTree representation of the geometry.
+    get_attributes()
+        Returns a dictionary of all attributes of the geometry.
     """
 
-    def __init__(self, s, x, y, heading, geom_type):
-        """initalizes the PlanView
+    def __init__(
+        self,
+        s: float,
+        x: float,
+        y: float,
+        heading: float,
+        geom_type: _BaseGeometry,
+    ) -> None:
+        """Initialize the _Geometry instance.
 
         Parameters
         ----------
-            s (float): the start s value (along road) of the geometry
+        s : float
+            The start s value (along the road) of the geometry.
+        x : float
+            Start x coordinate of the geometry.
+        y : float
+            Start y coordinate of the geometry.
+        heading : float
+            Heading of the geometry.
+        geom_type : _BaseGeometry
+            The type of geometry.
 
-            x (float): start x coordinate of the geometry
-
-            y (float):  start y coordinate of the geometry
-
-            heading (float): heading of the geometry
-
-            geom_type (_BaseGeometry): the type of geometry
-
+        Raises
+        ------
+        TypeError
+            If `geom_type` is not an instance of `_BaseGeometry`.
         """
         super().__init__()
         self.s = s
@@ -420,9 +577,11 @@ class _Geometry(XodrBase):
         if not isinstance(geom_type, _BaseGeometry):
             raise TypeError("geom_type is not of type _BaseGeometry.")
         self.geom_type = geom_type
-        _, _, _, self.length = self.geom_type.get_end_data(self.x, self.y, self.heading)
+        _, _, _, self.length = self.geom_type.get_end_data(
+            self.x, self.y, self.heading
+        )
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Geometry) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -431,10 +590,49 @@ class _Geometry(XodrBase):
                 return True
         return False
 
-    def get_end_data(self):
+    def get_end_data(self) -> tuple[float, float, float, float]:
+        """Return the end point of the geometry.
+
+        Parameters
+        ----------
+        x : float
+            The x start coordinate of the geometry.
+        y : float
+            The y start coordinate of the geometry.
+        h : float
+            The start heading of the geometry.
+
+        Returns
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_end : float
+                The x end coordinate of the geometry.
+            - y_end : float
+                The y end coordinate of the geometry.
+            - h_end : float
+                The end heading of the geometry.
+            - length : float
+                The length of the geometry.
+        """
         return self.geom_type.get_end_data(self.x, self.y, self.heading)
 
-    def get_start_data(self):
+    def get_start_data(self) -> tuple[float, float, float, float]:
+        """Return the start point of the geometry.
+
+        Returns
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_start : float
+                The start x coordinate of the geometry.
+            - y_start : float
+                The start y coordinate of the geometry.
+            - h_start : float
+                The start heading of the geometry.
+            - length : float
+                The length of the geometry.
+        """
         x, y, heading, self.length = self.geom_type.get_start_data(
             self.x, self.y, self.heading
         )
@@ -444,11 +642,38 @@ class _Geometry(XodrBase):
         self.s = None
         return x, y, heading, self.length
 
-    def set_s(self, s):
+    def set_s(self, s: float) -> None:
+        """Set the start s value (along the road) of the geometry.
+
+        Parameters
+        ----------
+        s : float
+            The start s value to set for the geometry.
+
+        Returns
+        -------
+        None
+        """
         self.s = s
 
-    def get_attributes(self):
-        """returns the attributes of the _Geometry as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `_Geometry` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `_Geometry`:
+            - "s" : str
+                The start s value of the geometry.
+            - "x" : str
+                The start x coordinate of the geometry.
+            - "y" : str
+                The start y coordinate of the geometry.
+            - "hdg" : str
+                The heading of the geometry.
+            - "length" : str
+                The length of the geometry.
+        """
         retdict = {}
         retdict["s"] = str(self.s)
         retdict["x"] = str(self.x)
@@ -457,8 +682,17 @@ class _Geometry(XodrBase):
         retdict["length"] = str(self.length)
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the _Geometry"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `_Geometry`.
+
+        This method generates an XML element for the `_Geometry`,
+        including its attributes and the associated geometry type.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the `_Geometry`.
+        """
         element = ET.Element("geometry", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         element.append(self.geom_type.get_element())
@@ -466,54 +700,72 @@ class _Geometry(XodrBase):
 
 
 class Line(_BaseGeometry):
-    """the line class creates a line type of geometry
+    """The `Line` class creates a line type of geometry.
 
     Parameters
     ----------
-        length (float): length of the line
+    length : float
+        The length of the line.
 
     Attributes
     ----------
-        length (float): length of the line
+    length : float
+        The length of the line.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_end_data(x,y,h)
-            Returns the end point of the geometry
-
+    get_element()
+        Returns the full ElementTree representation of the class.
+    get_end_data(x, y, h)
+        Returns the end point of the geometry.
+    get_start_data(end_x, end_y, end_h)
+        Returns the start point of the geometry.
     """
 
-    def __init__(self, length):
-        super().__init__()
-        self.length = length
-
-    def __eq__(self, other):
-        return super().__eq__(other)
-
-    def get_end_data(self, x, y, h):
-        """Returns the end point of the geometry
+    def __init__(self, length: float) -> None:
+        """Initialize the `Line` instance.
 
         Parameters
         ----------
-            x (float): x start point of the geometry
-
-            y (float): y start point of the geometry
-
-            h (float): start heading of the geometry
+        length : float
+            The length of the line.
 
         Returns
+        -------
+        None
+        """
+        super().__init__()
+        self.length = length
+
+    def __eq__(self, other: object) -> bool:
+        return super().__eq__(other)
+
+    def get_end_data(
+        self, x: float, y: float, h: float
+    ) -> tuple[float, float, float, float]:
+        """Return the end point of the geometry.
+
+        Parameters
         ----------
-            x (float): the final x point
+        x : float
+            The x start coordinate of the geometry.
+        y : float
+            The y start coordinate of the geometry.
+        h : float
+            The start heading of the geometry.
 
-            y (float): the final y point
-
-            h (float): the final heading
-
-            length (float): length of the road
-
+        Returns
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_end : float
+                The x end coordinate of the geometry.
+            - y_end : float
+                The y end coordinate of the geometry.
+            - h_end : float
+                The end heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
 
         new_x = self.length * np.cos(h) + x
@@ -522,27 +774,32 @@ class Line(_BaseGeometry):
 
         return new_x, new_y, new_h, self.length
 
-    def get_start_data(self, end_x, end_y, end_h):
-        """Returns the end point of the geometry
+    def get_start_data(
+        self, end_x: float, end_y: float, end_h: float
+    ) -> tuple[float, float, float, float]:
+        """Return the start point of the geometry.
 
         Parameters
         ----------
-            end_x (float): x end point of the geometry
-
-            end_y (float): y end point of the geometry
-
-            end_h (float): end heading of the geometry
+        end_x : float
+            The x end coordinate of the geometry.
+        end_y : float
+            The y end coordinate of the geometry.
+        end_h : float
+            The end heading of the geometry.
 
         Returns
-        ----------
-            x (float): the start x point
-
-            y (float): the start y point
-
-            h (float): the start heading
-
-            length (float): length of the road
-
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_start : float
+                The start x coordinate of the geometry.
+            - y_start : float
+                The start y coordinate of the geometry.
+            - h_start : float
+                The start heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
         start_x = self.length * np.cos(end_h) + end_x
         start_y = self.length * np.sin(end_h) + end_y
@@ -550,59 +807,86 @@ class Line(_BaseGeometry):
 
         return start_x, start_y, start_h, self.length
 
-    def get_element(self):
-        """returns the elementTree of the Line"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `Line`.
+
+        This method generates an XML element for the `Line`, including
+        any additional data.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the `Line`.
+        """
         element = ET.Element("line")
         self._add_additional_data_to_element(element)
         return element
 
 
 class Arc(_BaseGeometry):
-    """the Arc creates a arc type of geometry
+    """The `Arc` class creates an arc type of geometry.
 
     Parameters
     ----------
-        curvature (float): curvature of the arc
-
-        length (float): length of the arc (optional or use angle)
-
-        angle (float): angle of the arc (optional or use length)
+    curvature : float
+        The curvature of the arc.
+    length : float, optional
+        The length of the arc. Either `length` or `angle` must be provided.
+    angle : float, optional
+        The angle of the arc. Either `angle` or `length` must be provided.
 
     Attributes
     ----------
-        curvature (float): curvature of the arc
-
-        length (float): length of the arc
-
-        angle (float): angle of the arc
+    curvature : float
+        The curvature of the arc.
+    length : float
+        The length of the arc.
+    angle : float
+        The angle of the arc.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        get_end_data(x,y,h)
-            Returns the end point of the geometry
+    get_element()
+        Returns the full ElementTree representation of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    get_end_data(x, y, h)
+        Returns the end point of the geometry.
+    get_start_data(end_x, end_y, end_h)
+        Returns the start point of the geometry.
     """
 
-    def __init__(self, curvature, length=None, angle=None):
-        """initalizes the Arc
+    def __init__(
+        self,
+        curvature: float,
+        length: Optional[float] = None,
+        angle: Optional[float] = None,
+    ) -> None:
+        """Initialize the `Arc` instance.
 
         Parameters
         ----------
-            curvature (float): curvature of the arc
+        curvature : float
+            The curvature of the arc.
+        length : float, optional
+            The length of the arc. Either `length` or `angle` must be provided.
+        angle : float, optional
+            The angle of the arc. Either `angle` or `length` must be provided.
 
-            length (float): length of the arc (optional or use angle)
-
-            angle (float): angle of the arc (optional or use length)
-
+        Raises
+        ------
+        NotEnoughInputArguments
+            If neither `length` nor `angle` is provided.
+        ToManyOptionalArguments
+            If both `length` and `angle` are provided.
+        ValueError
+            If `curvature` is 0, as it would create a straight line.
         """
         super().__init__()
         if length == None and angle == None:
-            raise NotEnoughInputArguments("neither length nor angle defined, for arc")
+            raise NotEnoughInputArguments(
+                "neither length nor angle defined, for arc"
+            )
 
         if length != None and angle != None:
             raise ToManyOptionalArguments(
@@ -623,34 +907,38 @@ class Arc(_BaseGeometry):
         if self.angle:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Arc) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_end_data(self, x, y, h):
-        """Returns information about the end point of the geometry
+    def get_end_data(
+        self, x: float, y: float, h: float
+    ) -> tuple[float, float, float, float]:
+        """Return the end point of the geometry.
 
         Parameters
         ----------
-            x (float): x start point of the geometry
-
-            y (float): y start point of the geometry
-
-            h (float): start heading of the geometry
+        x : float
+            The x start coordinate of the geometry.
+        y : float
+            The y start coordinate of the geometry.
+        h : float
+            The start heading of the geometry.
 
         Returns
-        ---------
-
-            x (float): the final x point
-
-            y (float): the final y point
-
-            h (float): the final heading
-
-            length (float): length of the element
-
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_end : float
+                The x end coordinate of the geometry.
+            - y_end : float
+                The y end coordinate of the geometry.
+            - h_end : float
+                The end heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
         radius = 1 / np.abs(self.curvature)
         if self.curvature < 0:
@@ -677,28 +965,33 @@ class Arc(_BaseGeometry):
 
         return new_x, new_y, new_h, self.length
 
-    def get_start_data(self, end_x, end_y, end_h):
-        """Returns information about the end point of the geometry
+    def get_start_data(
+        self, end_x: float, end_y: float, end_h: float
+    ) -> tuple[float, float, float, float]:
+        """Returns information about the end point of the geometry.
 
         Parameters
         ----------
-            end_x (float): x final point of the geometry
+        end_x : float
+            The end x coordinate of the geometry
+        end_y : float
+            The end y coordinate of the geometry
 
-            end_y (float): y final point of the geometry
-
-            end_h (float): final heading of the geometry
+        end_h : float
+            The end h coordinate of the geometry
 
         Returns
         ---------
-
-            x (float): the start x point
-
-            y (float): the start y point
-
-            h (float): the start heading of the inverse geometry
-
-            length (float): length of the element
-
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_start : float
+                The x start coordinate of the geometry.
+            - y_start : float
+                The y start coordinate of the geometry.
+            - h_start : float
+                The start heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
         x = end_x
         y = end_y
@@ -727,108 +1020,139 @@ class Arc(_BaseGeometry):
         new_y = np.sin(new_ang) * radius + y_0
         return new_x, new_y, new_h, self.length
 
-    def get_attributes(self):
-        """returns the attributes of the Arc as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `Arc` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `Arc`:
+            - "curvature" : str
+                The curvature of the arc.
+        """
         return {"curvature": str(self.curvature)}
 
-    def get_element(self):
-        """returns the elementTree of the Arc"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `Arc`.
+
+        This method generates an XML element for the `Arc`, including
+        its attributes and any additional data.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the `Arc`.
+        """
         element = ET.Element("arc", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class ParamPoly3(_BaseGeometry):
-    """the ParamPoly3 class creates a parampoly3 type of geometry, in the coordinate systeme U (along road), V (normal to the road)
+    """The `ParamPoly3` class creates a parametric polynomial type of geometry
+    in the coordinate system U (along the road) and V (normal to the road).
 
-    the polynomials are on the form
-    uv(p) = a + b*p + c*p^2 + d*p^3
+    The polynomials are of the form:
+        uv(p) = a + b*p + c*p^2 + d*p^3
 
     Parameters
     ----------
-        au (float): coefficient a of the u polynomial
-
-        bu (float): coefficient b of the u polynomial
-
-        cu (float): coefficient c of the u polynomial
-
-        du (float): coefficient d of the u polynomial
-
-        av (float): coefficient a of the v polynomial
-
-        bv (float): coefficient b of the v polynomial
-
-        cv (float): coefficient c of the v polynomial
-
-        dv (float): coefficient d of the v polynomial
-
-        prange (str): "normalized" or "arcLength"
-            Default: "normalized"
-
-        length (float): total length of arc, used if prange == arcLength
+    au : float
+        Coefficient `a` of the `u` polynomial.
+    bu : float
+        Coefficient `b` of the `u` polynomial.
+    cu : float
+        Coefficient `c` of the `u` polynomial.
+    du : float
+        Coefficient `d` of the `u` polynomial.
+    av : float
+        Coefficient `a` of the `v` polynomial.
+    bv : float
+        Coefficient `b` of the `v` polynomial.
+    cv : float
+        Coefficient `c` of the `v` polynomial.
+    dv : float
+        Coefficient `d` of the `v` polynomial.
+    prange : str, optional
+        Either `"normalized"` or `"arcLength"`. Default is `"normalized"`.
+    length : float, optional
+        Total length of the arc, used if `prange == "arcLength"`.
 
     Attributes
     ----------
-        au (float): coefficient a of the u polynomial
-
-        bu (float): coefficient b of the u polynomial
-
-        cu (float): coefficient c of the u polynomial
-
-        du (float): coefficient d of the u polynomial
-
-        av (float): coefficient a of the v polynomial
-
-        bv (float): coefficient b of the v polynomial
-
-        cv (float): coefficient c of the v polynomial
-
-        dv (float): coefficient d of the v polynomial
-
-        prange (str): "normalized" or "arcLength"
-            Default: "normalized"
-
-        length (float): total length of arc, used if prange == arcLength
+    au : float
+        Coefficient `a` of the `u` polynomial.
+    bu : float
+        Coefficient `b` of the `u` polynomial.
+    cu : float
+        Coefficient `c` of the `u` polynomial.
+    du : float
+        Coefficient `d` of the `u` polynomial.
+    av : float
+        Coefficient `a` of the `v` polynomial.
+    bv : float
+        Coefficient `b` of the `v` polynomial.
+    cv : float
+        Coefficient `c` of the `v` polynomial.
+    dv : float
+        Coefficient `d` of the `v` polynomial.
+    prange : str
+        Either `"normalized"` or `"arcLength"`. Default is `"normalized"`.
+    length : float
+        Total length of the arc, used if `prange == "arcLength"`.
 
     Methods
     -------
-        get_element(elementname)
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        get_end_coordinate(length,x,y,h)
-            Returns the end point of the geometry
+    get_element(elementname)
+        Returns the full ElementTree representation of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    get_end_coordinate(length, x, y, h)
+        Returns the end point of the geometry.
     """
 
     def __init__(
-        self, au, bu, cu, du, av, bv, cv, dv, prange="normalized", length=None
-    ):
-        """initalizes the ParamPoly3
+        self,
+        au: float,
+        bu: float,
+        cu: float,
+        du: float,
+        av: float,
+        bv: float,
+        cv: float,
+        dv: float,
+        prange: str = "normalized",
+        length: Optional[float] = None,
+    ) -> None:
+        """Initialize the `ParamPoly3` instance.
 
         Parameters
         ----------
-            au (float): coefficient a of the u polynomial
+        au : float
+            Coefficient `a` of the `u` polynomial.
+        bu : float
+            Coefficient `b` of the `u` polynomial.
+        cu : float
+            Coefficient `c` of the `u` polynomial.
+        du : float
+            Coefficient `d` of the `u` polynomial.
+        av : float
+            Coefficient `a` of the `v` polynomial.
+        bv : float
+            Coefficient `b` of the `v` polynomial.
+        cv : float
+            Coefficient `c` of the `v` polynomial.
+        dv : float
+            Coefficient `d` of the `v` polynomial.
+        prange : str, optional
+            Either `"normalized"` or `"arcLength"`. Default is `"normalized"`.
+        length : float, optional
+            Total length of the arc, used if `prange == "arcLength"`.
 
-            bu (float): coefficient b of the u polynomial
-
-            cu (float): coefficient c of the u polynomial
-
-            du (float): coefficient d of the u polynomial
-
-            av (float): coefficient a of the v polynomial
-
-            bv (float): coefficient b of the v polynomial
-
-            cv (float): coefficient c of the v polynomial
-
-            dv (float): coefficient d of the v polynomial
-
-            prange (str): "normalized" or "arcLength"
-                Default: "normalized"
-
-            length (float): total length of arc, used if prange == arcLength
+        Raises
+        ------
+        ValueError
+            If `prange == "arcLength"` and `length` is not provided.
         """
         super().__init__()
         self.au = au
@@ -849,39 +1173,60 @@ class ParamPoly3(_BaseGeometry):
         else:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParamPoly3) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def _integrand(self, p):
-        """integral function to calulate length of polynomial,
-        #TODO: This is not tested or verified...
+    def _integrand(self, p: float) -> float:
+        """Integral function to calculate the length of the polynomial.
+
+        Note
+        ----
+        This method is not tested or verified.
+
+        Parameters
+        ----------
+        p : float
+            The parameter value for the polynomial.
+
+        Returns
+        -------
+        float
+            The value of the integral function at `p`.
         """
         return np.sqrt(
             (abs(3 * self.du * p**2 + 2 * self.cu * p + self.bu)) ** 2
             + (abs(3 * self.dv * p**2 + 2 * self.cv * p + self.bv)) ** 2
         )
 
-    def get_start_data(self, x, y, h):
-        """Returns the start point of the geometry
+    def get_start_data(
+        self, x: float, y: float, h: float
+    ) -> tuple[float, float, float, float]:
+        """Returns the start point of the geometry.
 
         Parameters
         ----------
-            x (float): x end point of the geometry
-
-            y (float): y end point of the geometry
-
-            h (float): end heading of the geometry
+        x : float
+            The x end coordinate of the geometry
+        y : float
+            The y end coordinate of the geometry
+        h : float
+            The x end heading of the geometry
 
         Returns
         ---------
-            x (float): the start x point
-            y (float): the start y point
-            h (float): the start heading
-            length (float): the length of the geometry
-
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_start : float
+                The start x coordinate of the geometry.
+            - y_start : float
+                The start y coordinate of the geometry.
+            - h_start : float
+                The start heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
         if self.prange == "normalized":
             p = 1
@@ -901,24 +1246,32 @@ class ParamPoly3(_BaseGeometry):
 
         return new_x, new_y, new_h, self.length
 
-    def get_end_data(self, x, y, h):
-        """Returns the end point of the geometry
+    def get_end_data(
+        self, x: float, y: float, h: float
+    ) -> tuple[float, float, float, float]:
+        """Returns the end point of the geometry.
 
         Parameters
         ----------
-            x (float): x final point of the geometry
-
-            y (float): y final point of the geometry
-
-            h (float): final heading of the geometry
+        x : float
+            The x start coordinate of the geometry.
+        y : float
+            The y start coordinate of the geometry.
+        h : float
+            The start heading of the geometry.
 
         Returns
-        ---------
-            x (float): the start x point
-            y (float): the start y point
-            h (float): the start heading of the inverse geometry
-            length (float): length of the polynomial
-
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_end : float
+                The x end coordinate of the geometry.
+            - y_end : float
+                The y end coordinate of the geometry.
+            - h_end : float
+                The end heading of the geometry.
+            - length : float
+                The length of the geometry.
         """
         if self.prange == "normalized":
             p = 1
@@ -938,8 +1291,33 @@ class ParamPoly3(_BaseGeometry):
 
         return new_x, new_y, new_h, self.length
 
-    def get_attributes(self):
-        """returns the attributes of the ParamPoly3 as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `ParamPoly3` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `ParamPoly3`:
+            - "aU" : str
+                Coefficient `a` of the `u` polynomial.
+            - "bU" : str
+                Coefficient `b` of the `u` polynomial.
+            - "cU" : str
+                Coefficient `c` of the `u` polynomial.
+            - "dU" : str
+                Coefficient `d` of the `u` polynomial.
+            - "aV" : str
+                Coefficient `a` of the `v` polynomial.
+            - "bV" : str
+                Coefficient `b` of the `v` polynomial.
+            - "cV" : str
+                Coefficient `c` of the `v` polynomial.
+            - "dV" : str
+                Coefficient `d` of the `v` polynomial.
+            - "pRange" : str
+                The range type of the polynomial
+                (`"normalized"` or `"arcLength"`).
+        """
         retdict = {}
         retdict["aU"] = str(self.au)
         retdict["bU"] = str(self.bu)
@@ -952,60 +1330,92 @@ class ParamPoly3(_BaseGeometry):
         retdict["pRange"] = self.prange
         return retdict
 
-    def get_element(self):
-        """returns the elementTree of the ParamPoly3"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `ParamPoly3`.
+
+        This method generates an XML element for the `ParamPoly3`,
+        including its attributes and any additional data.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the `ParamPoly3`.
+        """
         element = ET.Element("paramPoly3", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class Spiral(_BaseGeometry):
-    """the Spiral (Clothoid) creates a spiral type of geometry
+    """The `Spiral` (Clothoid) class creates a spiral type of geometry.
 
     Parameters
     ----------
-        curvstart (float): starting curvature of the Spiral
-
-        curvend (float): final curvature of the Spiral
-
-        length (float): length of the spiral (optional, or use, angle, or cdot)
-
-        angle (float): the angle of the spiral (optional, or use length, or cdot)
-
-        cdot (float): the curvature change of the spiral (optional, or use length, or angle)
+    curvstart : float
+        Starting curvature of the spiral.
+    curvend : float
+        Final curvature of the spiral.
+    length : float, optional
+        Length of the spiral. Either `length`, `angle`, or `cdot` must
+        be provided.
+    angle : float, optional
+        Angle of the spiral. Either `length`, `angle`, or `cdot` must
+        be provided.
+    cdot : float, optional
+        Curvature change of the spiral. Either `length`, `angle`, or
+        `cdot` must be provided.
 
     Attributes
     ----------
-        curvstart (float): starting curvature of the Spiral
-
-        curvend (float): final curvature of the Spiral
+    curvstart : float
+        Starting curvature of the spiral.
+    curvend : float
+        Final curvature of the spiral.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        get_end_data(x,y,h)
-            Returns the end point of the geometry
+    get_element()
+        Returns the full ElementTree representation of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    get_end_data(x, y, h)
+        Returns the end point of the geometry.
+    get_start_data(end_x, end_y, end_h)
+        Returns the start point of the geometry.
     """
 
-    def __init__(self, curvstart, curvend, length=None, angle=None, cdot=None):
-        """initalizes the Spline
+    def __init__(
+        self,
+        curvstart: float,
+        curvend: float,
+        length: Optional[float] = None,
+        angle: Optional[float] = None,
+        cdot: Optional[float] = None,
+    ) -> None:
+        """Initialize the `Spiral` instance.
 
         Parameters
         ----------
-            curvstart (float): starting curvature of the Spiral
+        curvstart : float
+            Starting curvature of the spiral.
+        curvend : float
+            Final curvature of the spiral.
+        length : float, optional
+            Length of the spiral. Either `length`, `angle`, or `cdot` must
+            be provided.
+        angle : float, optional
+            Angle of the spiral. Either `length`, `angle`, or `cdot` must
+            be provided.
+        cdot : float, optional
+            Curvature change of the spiral. Either `length`, `angle`, or
+            `cdot` must be provided.
 
-            curvend (float): final curvature of the Spiral
-
-            length (float): length of the spiral (optional, or use, angle, or cdot)
-
-            angle (float): the angle of the spiral (optional, or use length, or cdot)
-
-            cdot (float): the curvature change of the spiral (optional, or use length, or angle)
+        Raises
+        ------
+        NotEnoughInputArguments
+            If none of `length`, `angle`, or `cdot` is provided.
+        ToManyOptionalArguments
+            If more than one of `length`, `angle`, or `cdot` is provided.
         """
         super().__init__()
         self.curvstart = curvstart
@@ -1017,37 +1427,47 @@ class Spiral(_BaseGeometry):
                 "Spiral is overdefined, please use only one of the optional inputs"
             )
         if angle:
-            self.length = 2 * abs(angle) / np.maximum(abs(curvend), abs(curvstart))
+            self.length = (
+                2 * abs(angle) / np.maximum(abs(curvend), abs(curvstart))
+            )
 
         elif cdot:
             self.length = (self.curvend - self.curvstart) / cdot
         else:
             self.length = length
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Spiral) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_end_data(self, x, y, h):
-        """Returns the end point of the geometry
+    def get_end_data(
+        self, x: float, y: float, h: float
+    ) -> tuple[float, float, float, float]:
+        """Returns the end point of the geometry.
 
         Parameters
         ----------
-            x (float): x start point of the geometry
-
-            y (float): y start point of the geometry
-
-            h (float): start heading of the geometry
+        x : float
+            The x start coordinate of the geometry.
+        y : float
+            The y start coordinate of the geometry.
+        h : float
+            The start heading of the geometry.
 
         Returns
-        ---------
-
-            x (float): the final x point
-            y (float): the final y point
-            h (float): the final heading
-            l (float): length of the spiral
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_end : float
+                The x end coordinate of the geometry.
+            - y_end : float
+                The y end coordinate of the geometry.
+            - h_end : float
+                The end heading of the geometry.
+            - length : float
+                The length of the spiral.
         """
 
         cloth = pcloth.Clothoid.StandardParams(
@@ -1061,25 +1481,32 @@ class Spiral(_BaseGeometry):
 
         return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
 
-    def get_start_data(self, end_x, end_y, end_h):
-        """Returns the end point of the geometry
+    def get_start_data(
+        self, end_x: float, end_y: float, end_h: float
+    ) -> tuple[float, float, float, float]:
+        """Returns the start point of the geometry.
 
         Parameters
         ----------
-            end_x (float): x end point of the geometry
-
-            end_y (float): y end point of the geometry
-
-            end_h (float): end heading of the geometry
+        end_x : float
+            The x end coordinate of the geometry.
+        end_y : float
+            The y end coordinate of the geometry.
+        end_h : float
+            The end heading of the geometry.
 
         Returns
-        ---------
-
-            x (float): the start x point
-            y (float): the start y point
-            h (float): the start heading of the inverse geometry
-            l (float): length of the spiral
-
+        -------
+        tuple of (float, float, float, float)
+            A tuple containing:
+            - x_start : float
+                The start x coordinate of the geometry.
+            - y_start : float
+                The start y coordinate of the geometry.
+            - h_start : float
+                The start heading of the inverse geometry.
+            - length : float
+                The length of the spiral.
         """
         cloth = pcloth.Clothoid.StandardParams(
             end_x,
@@ -1092,12 +1519,31 @@ class Spiral(_BaseGeometry):
 
         return cloth.XEnd, cloth.YEnd, cloth.ThetaEnd, cloth.length
 
-    def get_attributes(self):
-        """returns the attributes of the Line as a dict"""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `Spiral` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `Spiral`:
+            - "curvStart" : str
+                Starting curvature of the spiral.
+            - "curvEnd" : str
+                Final curvature of the spiral.
+        """
         return {"curvStart": str(self.curvstart), "curvEnd": str(self.curvend)}
 
-    def get_element(self):
-        """returns the elementTree of the Line"""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `Spiral`.
+
+        This method generates an XML element for the `Spiral`, including
+        its attributes and any additional data.
+
+        Returns
+        -------
+        xml.etree.ElementTree.Element
+            The ElementTree representation of the `Spiral`.
+        """
         element = ET.Element("spiral", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
