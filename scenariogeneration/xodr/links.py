@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 
 import numpy as np
 
+from typing import Optional
 from ..helpers import enum2str
 from .enumerations import (
     ContactPoint,
@@ -34,41 +35,67 @@ from .utils import XodrBase
 
 
 class _Links(XodrBase):
-    """Link creates a Link element used for roadlinking in OpenDrive.
-
-    Parameters
-    ----------
+    """Create a Link element used for road linking in OpenDRIVE.
 
     Attributes
     ----------
-        links (_Link): all links added
+    links : list of _Link
+        All links added to this object.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        add_link(link)
-            adds a link to links
+    add_link(link)
+        Add a link to the list of links.
+    get_predecessor_contact_point()
+        Get the contact point of the predecessor link, if it exists.
+    get_successor_contact_point()
+        Get the contact point of the successor link, if it exists.
+    get_predecessor_type()
+        Get the type of the predecessor link, if it exists.
+    get_successor_type()
+        Get the type of the successor link, if it exists.
+    get_predecessor_id()
+        Get the ID of the predecessor link, if it exists.
+    get_successor_id()
+        Get the ID of the successor link, if it exists.
+    get_element()
+        Return the ElementTree representation of the `_Links` object.
     """
 
-    def __init__(self):
-        """Initalize the _Links."""
+    def __init__(self) -> None:
+        """Initialize the `_Links` object.
+
+        Attributes
+        ----------
+        links : list of _Link
+            A list to store all links added to this object.
+        """
         super().__init__()
         self.links = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Links) and super().__eq__(other):
             if self.links == other.links:
                 return True
         return False
 
-    def add_link(self, link):
-        """Adds a _Link.
+    def add_link(self, link: "_Link") -> "_Links":
+        """Add a `_Link` to the list of links.
 
         Parameters
         ----------
-            link (_Link): a link to be added to the Links
+        link : _Link
+            The link to be added.
+
+        Returns
+        -------
+        _Links
+            The updated `_Links` object.
+
+        Raises
+        ------
+        TypeError
+            If `link` is not of type `_Link`.
         """
         if not isinstance(link, _Link):
             raise TypeError("link input is not of type _Link")
@@ -93,10 +120,14 @@ class _Links(XodrBase):
             self.links.append(link)
         return self
 
-    def get_predecessor_contact_point(self):
-        """Returns the predecessor contact_point of the link (if exists)
+    def get_predecessor_contact_point(self) -> Optional[ContactPoint]:
+        """Get the contact point of the predecessor link, if it exists.
 
-        Return     id (int): id of the predecessor road
+        Returns
+        -------
+        ContactPoint or None
+            The contact point of the predecessor link, or None if it does
+            not exist.
         """
         retval = None
         for l in self.links:
@@ -104,11 +135,14 @@ class _Links(XodrBase):
                 retval = l.contact_point
         return retval
 
-    def get_successor_contact_point(self):
-        """Returns the successor contact_point of the link (if exists)
+    def get_successor_contact_point(self) -> Optional[ContactPoint]:
+        """Get the contact point of the successor link, if it exists.
 
-        Return     id (int): id of the successor road (None if no
-        successor available)
+        Returns
+        -------
+        ContactPoint or None
+            The contact point of the successor link, or None if it does
+            not exist.
         """
         retval = None
         for l in self.links:
@@ -116,10 +150,14 @@ class _Links(XodrBase):
                 retval = l.contact_point
         return retval
 
-    def get_predecessor_type(self):
-        """Returns the predecessor id of the link (if exists)
+    def get_predecessor_type(self) -> Optional[ElementType]:
+        """Get the type of the predecessor link, if it exists.
 
-        Return     id (int): id of the predecessor road
+        Returns
+        -------
+        ElementType or None
+            The type of the predecessor link, or None if it does not
+            exist.
         """
         retval = None
         for l in self.links:
@@ -127,11 +165,13 @@ class _Links(XodrBase):
                 retval = l.element_type
         return retval
 
-    def get_successor_type(self):
-        """Returns the successor id of the link (if exists)
+    def get_successor_type(self) -> Optional[ElementType]:
+        """Get the type of the successor link, if it exists.
 
-        Return     id (int): id of the successor road (None if no
-        successor available)
+        Returns
+        -------
+        ElementType or None
+            The type of the successor link, or None if it does not exist.
         """
         retval = None
         for l in self.links:
@@ -139,10 +179,13 @@ class _Links(XodrBase):
                 retval = l.element_type
         return retval
 
-    def get_predecessor_id(self):
-        """Returns the predecessor id of the link (if exists)
+    def get_predecessor_id(self) -> Optional[int]:
+        """Get the ID of the predecessor link, if it exists.
 
-        Return     id (int): id of the predecessor road
+        Returns
+        -------
+        int or None
+            The ID of the predecessor link, or None if it does not exist.
         """
         retval = None
         for l in self.links:
@@ -150,11 +193,13 @@ class _Links(XodrBase):
                 retval = l.element_id
         return retval
 
-    def get_successor_id(self):
-        """Returns the successor id of the link (if exists)
+    def get_successor_id(self) -> Optional[int]:
+        """Get the ID of the successor link, if it exists.
 
-        Return     id (int): id of the successor road (None if no
-        successor available)
+        Returns
+        -------
+        int or None
+            The ID of the successor link, or None if it does not exist.
         """
         retval = None
         for l in self.links:
@@ -162,8 +207,14 @@ class _Links(XodrBase):
                 retval = l.element_id
         return retval
 
-    def get_element(self):
-        """Returns the elementTree of the _Link."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `_Links` object.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `_Links` object.
+        """
         element = ET.Element("link")
         self._add_additional_data_to_element(element)
         # sort links alphabetically by link type to ensure predecessor
@@ -174,74 +225,75 @@ class _Links(XodrBase):
 
 
 class _Link(XodrBase):
-    """Link creates a predecessor/successor/neghbor element used for Links in
-    OpenDrive.
+    """Create a predecessor/successor/neighbor element used for links in
+    OpenDRIVE.
 
     Parameters
     ----------
-        link_type (str): the type of link (successor, predecessor, or neighbor)
-
-        element_id (str): name of the linked road
-
-        element_type (ElementType): type of element the linked road
-            Default: None
-
-        contact_point (ContactPoint): the contact point of the link
-            Default: None
-
-        direction (Direction): the direction of the link (used for neighbor)
-            Default: None
+    link_type : str
+        The type of link (successor, predecessor, or neighbor).
+    element_id : str
+        The name of the linked road.
+    element_type : ElementType, optional
+        The type of the linked road. Default is None.
+    contact_point : ContactPoint, optional
+        The contact point of the link. Default is None.
+    direction : Direction, optional
+        The direction of the link (used for neighbors). Default is None.
 
     Attributes
     ----------
-        link_type (str): the type of link (successor, predecessor, or neighbor)
-
-        element_type (ElementType): type of element the linked road
-
-        element_id (str): name of the linked road
-
-        contact_point (ContactPoint): the contact point of the link (used for successor and predecessor)
-
-        direction (Direction): the direction of the link (used for neighbor)
+    link_type : str
+        The type of link (successor, predecessor, or neighbor).
+    element_id : str
+        The name of the linked road.
+    element_type : ElementType
+        The type of the linked road.
+    contact_point : ContactPoint
+        The contact point of the link (used for successor and predecessor).
+    direction : Direction
+        The direction of the link (used for neighbors).
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Return the ElementTree representation of the `_Link`.
+    get_attributes()
+        Return the attributes of the `_Link` as a dictionary.
     """
 
     def __init__(
         self,
-        link_type,
-        element_id,
-        element_type=None,
-        contact_point=None,
-        direction=None,
-    ):
-        """Initalize the _Link.
+        link_type: str,
+        element_id: str,
+        element_type: Optional[ElementType] = None,
+        contact_point: Optional[ContactPoint] = None,
+        direction: Optional[Direction] = None,
+    ) -> None:
+        """Initialize the `_Link` object.
 
         Parameters
         ----------
-            link_type (str): the type of link (successor, predecessor, or neighbor)
+        link_type : str
+            The type of link (successor, predecessor, or neighbor).
+        element_id : str
+            The name of the linked road.
+        element_type : ElementType, optional
+            The type of the linked road. Default is None.
+        contact_point : ContactPoint, optional
+            The contact point of the link. Default is None.
+        direction : Direction, optional
+            The direction of the link (used for neighbors).
+            Default is None.
 
-            element_id (str): name of the linked road
-
-            element_type (ElementType): type of element the linked road
-                Default: None
-
-            contact_point (ContactPoint): the contact point of the link
-                Default: None
-
-            direction (Direction): the direction of the link (used for neighbor)
-                Default: None
+        Raises
+        ------
+        ValueError
+            If `link_type` is "neighbor" and `direction` is not provided.
         """
         super().__init__()
-        if link_type == "neighbor":
-            if direction == None:
-                raise ValueError("direction has to be defined for neighbor")
+        if link_type == "neighbor" and direction is None:
+            raise ValueError("direction has to be defined for neighbor")
 
         self.link_type = link_type
 
@@ -250,7 +302,7 @@ class _Link(XodrBase):
         self.contact_point = enumchecker(contact_point, ContactPoint, True)
         self.direction = enumchecker(direction, Direction, True)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Link) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -259,10 +311,16 @@ class _Link(XodrBase):
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the _Link."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the `_Link` as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the `_Link`.
+        """
         retdict = {}
-        if self.element_type == None:
+        if self.element_type is None:
             retdict["id"] = str(self.element_id)
         else:
             retdict["elementType"] = enum2str(self.element_type)
@@ -274,55 +332,119 @@ class _Link(XodrBase):
             retdict["direction"] = enum2str(self.direction)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the _Link."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the `_Link`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the `_Link`.
+        """
         element = ET.Element(self.link_type, attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class LaneLinker:
-    """LaneLinker stored information for linking lane sections
-    NOTE: Not part of OpenDRIVE, but a helper to link lanes for the user.
+    """Store information for linking lane sections.
 
-    Parameters
-    ----------
+    NOTE: This class is not part of OpenDRIVE but serves as a helper to
+    link lanes for the user.
 
     Attributes
     ----------
-        links: all lane links added (predlane (Lane), succlane (Lane), found=bool)
+    links : list of _lanelink
+        All lane links added, each represented as a tuple of predecessor
+        lane, successor lane, and a boolean indicating if the link is
+        found.
 
     Methods
     -------
-        add_link(predlane, succlane)
-            adds a lane link
-
+    add_link(predlane, succlane, connecting_road=None)
+        Add a lane link to the list.
     """
 
-    def __init__(self):
-        """Initalize the _Links."""
+    def __init__(self) -> None:
+        """Initialize the `LaneLinker` object.
+
+        Attributes
+        ----------
+        links : list of _lanelink
+            A list to store all lane links added to this object.
+        """
 
         self.links = []
 
-    def add_link(self, predlane, succlane, connecting_road=None):
-        """Adds a _Link.
+    def add_link(
+        self,
+        predlane: "Lane",
+        succlane: "Lane",
+        connecting_road: Optional[int] = None,
+    ) -> "LaneLinker":
+        """Add a lane link to the list.
 
         Parameters
         ----------
-            predlane (Lane): predecessor lane
+        predlane : Lane
+            The predecessor lane.
+        succlane : Lane
+            The successor lane.
+        connecting_road : int, optional
+            The ID of a connecting road (used for junctions). Default is None.
 
-            succlane (Lane): successor lane
-
-            connecting_road (id): id of a connecting road (used for junctions)
+        Returns
+        -------
+        LaneLinker
+            The updated `LaneLinker` object.
         """
         self.links.append(_lanelink(predlane, succlane, connecting_road))
         return self
 
 
 class _lanelink:
-    """Helper class for LaneLinker."""
+    """Helper class for `LaneLinker`.
 
-    def __init__(self, predecessor, successor, connecting_road):
+    This class represents a link between a predecessor lane and a
+    successor lane, optionally including a connecting road.
+
+    Parameters
+    ----------
+    predecessor : Lane
+        The predecessor lane.
+    successor : Lane
+        The successor lane.
+    connecting_road : int, optional
+        The ID of the connecting road (used for junctions).
+
+    Attributes
+    ----------
+    predecessor : Lane
+        The predecessor lane.
+    successor : Lane
+        The successor lane.
+    connecting_road : int or None
+        The ID of the connecting road, or None if not provided.
+    used : bool
+        Indicates whether the link has been used.
+    """
+
+    def __init__(
+        self,
+        predecessor: "Lane",
+        successor: "Lane",
+        connecting_road: Optional[int],
+    ) -> None:
+        """Initialize the `_lanelink` object.
+
+        Parameters
+        ----------
+        predecessor : Lane
+            The predecessor lane.
+        successor : Lane
+            The successor lane.
+        connecting_road : int, optional
+            The ID of the connecting road (used for junctions).
+        """
         self.predecessor = predecessor
         self.successor = successor
         self.connecting_road = connecting_road
@@ -330,54 +452,61 @@ class _lanelink:
 
 
 class Connection(XodrBase):
-    """Connection creates a connection as a base of junction.
+    """Create a connection as a base of a junction in OpenDRIVE.
 
     Parameters
     ----------
-        incoming_road (int): the id of the incoming road to the junction
-
-        connecting_road (int): id of the connecting road (type junction)
-
-        contact_point (ContactPoint): the contact point of the link
-
-        id (int): id of the junction (automated?)
+    incoming_road : int
+        The ID of the incoming road to the junction.
+    connecting_road : int
+        The ID of the connecting road (type junction).
+    contact_point : ContactPoint
+        The contact point of the link.
+    id : int, optional
+        The ID of the connection (automated). Default is None.
 
     Attributes
     ----------
-        incoming_road (int): the id of the incoming road to the junction
-
-        connecting_road (int): id of the connecting road (type junction)
-
-        contact_point (ContactPoint): the contact point of the link
-
-        id (int): id of the connection (automated?)
-
-        links (list of tuple(int) ): a list of all lanelinks in the connection
+    incoming_road : int
+        The ID of the incoming road to the junction.
+    connecting_road : int
+        The ID of the connecting road (type junction).
+    contact_point : ContactPoint
+        The contact point of the link.
+    id : int or None
+        The ID of the connection (automated).
+    links : list of tuple(int, int)
+        A list of all lane links in the connection.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_lanelink(in_lane,out_lane)
-            Adds a lane link to the connection
+    add_lanelink(in_lane, out_lane)
+        Add a lane link to the connection.
+    get_attributes(junctiontype=JunctionType.default)
+        Return the attributes of the connection as a dictionary.
+    get_element(junctiontype=JunctionType.default)
+        Return the ElementTree representation of the connection.
     """
 
-    def __init__(self, incoming_road, connecting_road, contact_point, id=None):
-        """Initalize the Connection.
+    def __init__(
+        self,
+        incoming_road: int,
+        connecting_road: int,
+        contact_point: ContactPoint,
+        id: Optional[int] = None,
+    ) -> None:
+        """Initialize the `Connection` object.
 
         Parameters
         ----------
-            incoming_road (int): the id of the incoming road to the junction
-
-            connecting_road (int): id of the connecting road (for junctiontypes virutal and default), or the linkedRoad (for junctiontype direct)
-
-            contact_point (ContactPoint): the contact point of the link
-
-            id (int): id of the junction (automated)
+        incoming_road : int
+            The ID of the incoming road to the junction.
+        connecting_road : int
+            The ID of the connecting road (type junction).
+        contact_point : ContactPoint
+            The contact point of the link.
+        id : int, optional
+            The ID of the connection (automated). Default is None.
         """
         super().__init__()
         self.incoming_road = incoming_road
@@ -386,7 +515,7 @@ class Connection(XodrBase):
         self.id = id
         self.links = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Connection) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -395,34 +524,50 @@ class Connection(XodrBase):
                 return True
         return False
 
-    def _set_id(self, id):
-        """Id is set.
+    def _set_id(self, id: int) -> None:
+        """Set the ID of the connection.
 
         Parameters
         ----------
-            id (int): the id of the connection
+        id : int
+            The ID to assign to the connection.
         """
         if self.id == None:
             self.id = id
 
-    def add_lanelink(self, in_lane, out_lane):
-        """Adds a new link to the connection.
+    def add_lanelink(self, in_lane: int, out_lane: int) -> "Connection":
+        """Add a new lane link to the connection.
 
         Parameters
         ----------
-            in_lane: lane id of the incoming road
+        in_lane : int
+            The lane ID of the incoming road.
+        out_lane : int
+            The lane ID of the outgoing road.
 
-            out_lane: lane id of the outgoing road
+        Returns
+        -------
+        Connection
+            The updated `Connection` object.
         """
         self.links.append((in_lane, out_lane))
         return self
 
-    def get_attributes(self, junctiontype=JunctionType.default):
-        """Returns the attributes as a dict of the Connection.
+    def get_attributes(
+        self, junctiontype: JunctionType = JunctionType.default
+    ) -> dict:
+        """Return the attributes of the connection as a dictionary.
 
         Parameters
         ----------
-            junctiontype (JunctionType): type of junction created (connections will be different)
+        junctiontype : JunctionType, optional
+            The type of junction created (connections will differ).
+            Default is `JunctionType.default`.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the connection.
         """
         retdict = {}
         retdict["incomingRoad"] = str(self.incoming_road)
@@ -434,12 +579,21 @@ class Connection(XodrBase):
             retdict["connectingRoad"] = str(self.connecting_road)
         return retdict
 
-    def get_element(self, junctiontype=JunctionType.default):
-        """Returns the elementTree of the Connection.
+    def get_element(
+        self, junctiontype: JunctionType = JunctionType.default
+    ) -> ET.Element:
+        """Return the ElementTree representation of the connection.
 
         Parameters
         ----------
-            junctiontype (JunctionType): type of junction created (connections will be different)
+        junctiontype : JunctionType, optional
+            The type of junction created (connections will differ).
+            Default is `JunctionType.default`.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the connection.
         """
 
         element = ET.Element(
@@ -456,89 +610,93 @@ class Connection(XodrBase):
 
 
 class Junction(XodrBase):
-    """Junction creates a junction of OpenDRIVE.
+    """Create a junction in OpenDRIVE.
 
     Parameters
     ----------
-        name (str): name of the junction
-
-        id (int): id of the junction
-
-        junction_type (JunctionType): type of junction
-            Default: JunctionType.default
-
-        orientation (Orientation): the orientation of the junction (only used for virtual junction)
-            Default: None
-
-        sstart (float): start of the virtual junction (only used for virtual junction)
-            Default: None
-
-        send (float): end of the virtual junction (only used for virtual junction)
-            Default: None
-
-        mainroad (int): main road for a virtual junction
-            Default: None
+    name : str
+        The name of the junction.
+    id : int
+        The ID of the junction.
+    junction_type : JunctionType, optional
+        The type of the junction. Default is `JunctionType.default`.
+    orientation : Orientation, optional
+        The orientation of the junction (used for virtual junctions).
+        Default is None.
+    sstart : float, optional
+        The start of the virtual junction (used for virtual junctions).
+        Default is None.
+    send : float, optional
+        The end of the virtual junction (used for virtual junctions).
+        Default is None.
+    mainroad : int, optional
+        The main road for a virtual junction. Default is None.
 
     Attributes
     ----------
-        name (str): name of the junction
-
-        id (int): id of the junction
-
-        connections (list of Connection): all the connections in the junction
-
-        junction_type (JunctionType): type of junction
-            Default: JunctionType.default
-
-        orientation (Orientation): the orientation of the junction (only used for virtual junction)
-
-        sstart (float): start of the virtual junction (only used for virtual junction)
-
-        send (float): end of the virtual junction (only used for virtual junction)
-
-        mainroad (int): main road for a virtual junction
-
+    name : str
+        The name of the junction.
+    id : int
+        The ID of the junction.
+    connections : list of Connection
+        All the connections in the junction.
+    junction_type : JunctionType
+        The type of the junction.
+    orientation : Orientation or None
+        The orientation of the junction (used for virtual junctions).
+    sstart : float or None
+        The start of the virtual junction (used for virtual junctions).
+    send : float or None
+        The end of the virtual junction (used for virtual junctions).
+    mainroad : int or None
+        The main road for a virtual junction.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_connection(connection)
-            Adds a connection to the junction
+    add_connection(connection)
+        Add a connection to the junction.
+    get_attributes()
+        Return the attributes of the junction as a dictionary.
+    get_element()
+        Return the ElementTree representation of the junction.
     """
 
     def __init__(
         self,
-        name,
-        id,
-        junction_type=JunctionType.default,
-        orientation=None,
-        sstart=None,
-        send=None,
-        mainroad=None,
-    ):
-        """Initalize the Junction.
+        name: str,
+        id: int,
+        junction_type: JunctionType = JunctionType.default,
+        orientation: Optional[Orientation] = None,
+        sstart: Optional[float] = None,
+        send: Optional[float] = None,
+        mainroad: Optional[int] = None,
+    ) -> None:
+        """Initialize the `Junction` object.
 
         Parameters
         ----------
-            name (str): name of the junction
+        name : str
+            The name of the junction.
+        id : int
+            The ID of the junction.
+        junction_type : JunctionType, optional
+            The type of the junction. Default is `JunctionType.default`.
+        orientation : Orientation, optional
+            The orientation of the junction (used for virtual junctions).
+            Default is None.
+        sstart : float, optional
+            The start of the virtual junction (used for virtual junctions).
+            Default is None.
+        send : float, optional
+            The end of the virtual junction (used for virtual junctions).
+            Default is None.
+        mainroad : int, optional
+            The main road for a virtual junction. Default is None.
 
-            id (int): id of the junction
-
-            junction_type (JunctionType): type of junction
-                Default: JunctionType.default
-
-            orientation (Orientation): the orientation of the junction (only used for virtual junction)
-
-            sstart (float): start of the virtual junction (only used for virtual junction)
-
-            send (float): end of the virtual junction (only used for virtual junction)
-
-            mainroad (int): main road for a virtual junction
+        Raises
+        ------
+        NotEnoughInputArguments
+            If required parameters for a virtual junction are missing.
         """
         super().__init__()
         self.name = name
@@ -562,7 +720,7 @@ class Junction(XodrBase):
         self.mainroad = mainroad
         self.orientation = enumchecker(orientation, Orientation, True)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Junction) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -571,12 +729,23 @@ class Junction(XodrBase):
                 return True
         return False
 
-    def add_connection(self, connection):
-        """Adds a new link to the Junction.
+    def add_connection(self, connection: Connection) -> "Junction":
+        """Add a new connection to the junction.
 
         Parameters
         ----------
-            connection (Connection): adds a connection to the junction
+        connection : Connection
+            The connection to add to the junction.
+
+        Returns
+        -------
+        Junction
+            The updated `Junction` object.
+
+        Raises
+        ------
+        TypeError
+            If `connection` is not of type `Connection`.
         """
         if not isinstance(connection, Connection):
             raise TypeError("connection is not of type Connection")
@@ -585,8 +754,14 @@ class Junction(XodrBase):
         self.connections.append(connection)
         return self
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the Junction."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the junction as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the junction.
+        """
         retdict = {}
         retdict["name"] = self.name
         retdict["id"] = str(self.id)
@@ -603,8 +778,14 @@ class Junction(XodrBase):
             retdict["mainRoad"] = str(self.mainroad)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the Junction."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the junction.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the junction.
+        """
         element = ET.Element("junction", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for con in self.connections:
@@ -616,17 +797,20 @@ class Junction(XodrBase):
 from .enumerations import ContactPoint
 
 
-def are_roads_consecutive(road1, road2):
-    """Checks if road2 follows road1.
+def are_roads_consecutive(road1: "Road", road2: "Road") -> bool:
+    """Check if `road2` follows `road1`.
 
     Parameters
     ----------
-        road1 (Road): the first road
+    road1 : Road
+        The first road.
+    road2 : Road
+        The second road.
 
-        road1 (Road): the second road
     Returns
     -------
-        bool
+    bool
+        True if `road2` follows `road1`, False otherwise.
     """
 
     if road1.successor is not None and road2.predecessor is not None:
@@ -643,18 +827,23 @@ def are_roads_consecutive(road1, road2):
     return False
 
 
-def are_roads_connected(road1, road2):
-    """Checks if road1 and road2 are connected as successor/successor or
+def are_roads_connected(road1: "Road", road2: "Road") -> tuple[bool, str]:
+    """Check if `road1` and `road2` are connected as successor/successor or
     predecessor/predecessor.
 
     Parameters
     ----------
-        road1 (Road): the first road
+    road1 : Road
+        The first road.
+    road2 : Road
+        The second road.
 
-        road1 (Road): the second road
     Returns
     -------
-        bool, str (successor or predecessor)
+    tuple[bool, str]
+        A tuple where the first element is a boolean indicating if the
+        roads are connected, and the second element is a string
+        ("successor" or "predecessor") describing the connection type.
     """
     if road1.successor is not None and road2.successor is not None:
         if (
@@ -679,23 +868,38 @@ def are_roads_connected(road1, road2):
     return False, ""
 
 
-def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
-    """Experimental function to connect lanes of two roads given the
-    corresponding lane IDs (numbers).
+def create_lane_links_from_ids(
+    road1: "Road",
+    road2: "Road",
+    road1_lane_ids: list[int],
+    road2_lane_ids: list[int],
+) -> None:
+    """Connect lanes of two roads given their corresponding lane IDs.
 
-    NOTE: Usually only necessary when there is not the same amount of lanes at the
-    connection of two roads or there are new lanes with zero width at the beginning of a
-    road.
+    NOTE: This function is typically used when the number of lanes at
+    the connection of two roads differs or when new lanes with zero
+    width exist at the beginning of a road.
 
     Parameters
     ----------
-        road1 (Road): the first road
+    road1 : Road
+        The first road.
+    road2 : Road
+        The second road.
+    road1_lane_ids : list of int
+        List of lane IDs for `road1` (do not include the center lane with ID 0).
+    road2_lane_ids : list of int
+        List of lane IDs for `road2` (do not include the center lane with ID 0).
 
-        road2 (Road): the second road
-
-        road1_lane_ids (list of int): list of the ids of road1 (do not use the 0 lane)
-
-        road2_lane_ids (list of int): list of the ids of road2 (do not use the 0 lane)
+    Raises
+    ------
+    GeneralIssueInputArguments
+        If the lengths of `road1_lane_ids` and `road2_lane_ids` differ.
+    ValueError
+        If the center lane (ID 0) is included in either `road1_lane_ids`
+        or `road2_lane_ids`.
+    NotImplementedError
+        If linking with junction connecting roads is not supported.
     """
     if len(road1_lane_ids) != len(road2_lane_ids):
         raise GeneralIssueInputArguments(
@@ -746,15 +950,16 @@ def create_lane_links_from_ids(road1, road2, road1_lane_ids, road2_lane_ids):
         )
 
 
-def create_lane_links(road1, road2):
-    """create_lane_links takes two roads and if they are connected, match their
-    lanes and creates lane links.
+def create_lane_links(road1: "Road", road2: "Road") -> None:
+    """Match lanes of two roads and create lane links if they are
+    connected.
 
     Parameters
     ----------
-        road1 (Road): first road to be lane linked
-
-        road2 (Road): second road to be lane linked
+    road1 : Road
+        The first road to be lane linked.
+    road2 : Road
+        The second road to be lane linked.
     """
     if road1.road_type == -1 and road2.road_type == -1:
         # both are roads
@@ -773,22 +978,22 @@ def create_lane_links(road1, road2):
         _create_links_connecting_road(road2, road1)
 
 
-def _create_links_connecting_road(connecting, road):
-    """_create_links_connecting_road will create lane links between a
-    connecting road and a normal road.
+def _create_links_connecting_road(connecting: "Road", road: "Road") -> None:
+    """Create lane links between a connecting road and a normal road.
 
     Parameters
     ----------
-        connecting (Road): a road of type connecting road (not -1)
-
-        road (Road): a that connects to the connecting road
+    connecting : Road
+        A road of type connecting road (not -1).
+    road : Road
+        A road that connects to the connecting road.
     """
     linktype, sign, connecting_lanesec = _get_related_lanesection(
         connecting, road
     )
     _, _, road_lanesection_id = _get_related_lanesection(road, connecting)
 
-    if connecting_lanesec != None:
+    if connecting_lanesec is not None:
         if connecting.lanes.lanesections[connecting_lanesec].leftlanes:
             # do left lanes
             for i in range(
@@ -852,24 +1057,28 @@ def _create_links_connecting_road(connecting, road):
                 ].add_link(linktype, linkid)
 
 
-def _get_related_lanesection(road, connected_road):
-    """_get_related_lanesection takes two roads, and gives the correct lane
-    section to use the type of link and if the sign of lanes should be
-    switched.
+def _get_related_lanesection(
+    road: "Road", connected_road: "Road"
+) -> tuple[Optional[str], Optional[int], Optional[int]]:
+    """Determine the correct lane section to use, the type of link, and
+    whether the sign of lanes should be switched between two roads.
 
     Parameters
     ----------
-        road (Road): the road that you want the information about
-
-        connected_road (Road): the connected road
+    road : Road
+        The road for which the information is required.
+    connected_road : Road
+        The road connected to `road`.
 
     Returns
     -------
-        linktype (str): the linktype of road to connected road (successor or predecessor)
-
-        sign (int): +1 or -1 depending on if the sign should change in the linking
-
-        road_lanesection_id (int): what lanesection in the road that should be used to link
+    tuple[Optional[str], Optional[int], Optional[int]]
+        A tuple containing:
+        - linktype (str or None): The type of link ("successor" or "predecessor").
+        - sign (int or None): +1 or -1 depending on whether the sign should
+          change in the linking.
+        - road_lanesection_id (int or None): The lane section ID in the road
+          to be used for linking.
     """
     linktype = None
     sign = None
@@ -973,17 +1182,27 @@ def _get_related_lanesection(road, connected_road):
     return linktype, sign, road_lanesection_id
 
 
-def _create_links_roads(pre_road, suc_road, same_type=""):
-    """_create_links_roads takes two roads and connect the lanes with links, if
-    they have the same amount.
+def _create_links_roads(
+    pre_road: "Road", suc_road: "Road", same_type: str = ""
+) -> None:
+    """Connect the lanes of two roads with links if they have the same
+    number of lanes.
 
     Parameters
     ----------
-        pre_road (Road): the predecessor road
+    pre_road : Road
+        The predecessor road.
+    suc_road : Road
+        The successor road.
+    same_type : str, optional
+        Specifies the type of connection ("predecessor" or "successor").
+        Default is an empty string, which indicates a general connection.
 
-        suc_road (Road): the successor road
-
-        same_type (str): used if the roads are connecting to the same type, predecessor or successor
+    Raises
+    ------
+    NotSameAmountOfLanesError
+        If the number of lanes in the predecessor and successor roads
+        does not match.
     """
     if same_type != "":
         if same_type == "successor":
@@ -1123,50 +1342,56 @@ def _create_links_roads(pre_road, suc_road, same_type=""):
 
 
 class JunctionGroup(XodrBase):
-    """JunctionGroup creates a JunctionGroup of OpenDRIVE.
+    """Create a JunctionGroup in OpenDRIVE.
 
     Parameters
     ----------
-        name (str): name of the junctiongroup
-
-        group_id (int): id of the junctiongroup
-
-        junction_type (JunctionGroupType): type of junction
-            Default: JunctionGroupType.roundabout
+    name : str
+        The name of the junction group.
+    group_id : int
+        The ID of the junction group.
+    junction_type : JunctionGroupType, optional
+        The type of the junction group.
+        Default is `JunctionGroupType.roundabout`.
 
     Attributes
     ----------
-        name (str): name of the junctiongroup
-
-        group_id (int): id of the junctiongroup
-
-        junctions (list of int): all the junctions in the junctiongroup
+    name : str
+        The name of the junction group.
+    group_id : int
+        The ID of the junction group.
+    junctions : list of int
+        All the junctions in the junction group.
+    junction_type : JunctionGroupType
+        The type of the junction group.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_junction(junction_id)
-            Adds a connection to the junction
+    add_junction(junction_id)
+        Add a junction to the junction group.
+    get_attributes()
+        Return the attributes of the junction group as a dictionary.
+    get_element()
+        Return the ElementTree representation of the junction group.
     """
 
     def __init__(
-        self, name, group_id, junction_type=JunctionGroupType.roundabout
-    ):
-        """Initalize the JunctionGroup.
+        self,
+        name: str,
+        group_id: int,
+        junction_type: JunctionGroupType = JunctionGroupType.roundabout,
+    ) -> None:
+        """Initialize the JunctionGroup.
 
         Parameters
         ----------
-            name (str): name of the junctiongroup
-
-            group_id (int): id of the junctiongroup
-
-            junction_type (JunctionGroupType): type of junction
-                Default: JunctionGroupType.roundabout
+        name : str
+            The name of the junction group.
+        group_id : int
+            The ID of the junction group.
+        junction_type : JunctionGroupType, optional
+            The type of the junction group.
+            Default is `JunctionGroupType.roundabout`.
         """
         super().__init__()
         self.name = name
@@ -1174,7 +1399,7 @@ class JunctionGroup(XodrBase):
         self.junctions = []
         self.junction_type = enumchecker(junction_type, JunctionGroupType)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, JunctionGroup) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1183,26 +1408,44 @@ class JunctionGroup(XodrBase):
                 return True
         return False
 
-    def add_junction(self, junction_id):
-        """Adds a new link to the JunctionGroup.
+    def add_junction(self, junction_id: int) -> "JunctionGroup":
+        """Add a new junction to the JunctionGroup.
 
         Parameters
         ----------
-            junction_id (int): adds a junction to the junctiongroup
+        junction_id : int
+            The ID of the junction to add.
+
+        Returns
+        -------
+        JunctionGroup
+            The updated JunctionGroup object.
         """
         self.junctions.append(junction_id)
         return self
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the JunctionGroup."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the JunctionGroup as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the JunctionGroup.
+        """
         retdict = {}
         retdict["name"] = self.name
         retdict["id"] = str(self.group_id)
         retdict["type"] = enum2str(self.junction_type)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the Junction."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the JunctionGroup.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the JunctionGroup.
+        """
         element = ET.Element("junctionGroup", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for j in self.junctions:
