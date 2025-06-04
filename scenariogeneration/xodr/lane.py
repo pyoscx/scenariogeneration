@@ -88,7 +88,7 @@ class Lanes(XodrBase):
         self.laneoffsets = []
         self.roadmarks_adjusted = False
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Lanes) and super().__eq__(other):
             if (
                 self.laneoffsets == other.laneoffsets
@@ -906,7 +906,7 @@ class LaneOffset(XodrBase):
         self.c = c
         self.d = d
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LaneOffset) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -1011,7 +1011,7 @@ class LaneSection(XodrBase):
         self._left_id = 1
         self._right_id = -1
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, LaneSection) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1324,7 +1324,7 @@ class Lane(XodrBase):
         self.links = _Links()
         self.materials = []
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Lane) and super().__eq__(other):
             if (
                 self.links == other.links
@@ -1753,7 +1753,7 @@ class RoadMark(XodrBase):
                 )
             )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadMark) and super().__eq__(other):
             if (
                 self._line == other._line
@@ -1966,7 +1966,7 @@ class RoadLine(XodrBase):
         self.color = enumchecker(color, RoadMarkColor, True)
         self._remainder = 0
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, RoadLine) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -2180,7 +2180,7 @@ class ExplicitRoadLine(XodrBase):
         self.width = width
         self._remainder = 0
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ExplicitRoadLine) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True

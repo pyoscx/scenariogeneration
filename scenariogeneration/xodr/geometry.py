@@ -197,7 +197,7 @@ class PlanView(XodrBase):
 
         self._addition_mode = None
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, PlanView) and super().__eq__(other):
             if self.adjusted and other.adjusted:
                 if self._adjusted_geometries == other._adjusted_geometries:
@@ -581,7 +581,7 @@ class _Geometry(XodrBase):
             self.x, self.y, self.heading
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Geometry) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -737,7 +737,7 @@ class Line(_BaseGeometry):
         super().__init__()
         self.length = length
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         return super().__eq__(other)
 
     def get_end_data(
@@ -907,7 +907,7 @@ class Arc(_BaseGeometry):
         if self.angle:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Arc) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -1173,7 +1173,7 @@ class ParamPoly3(_BaseGeometry):
         else:
             _, _, _, self.length = self.get_end_data(0, 0, 0)
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, ParamPoly3) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
@@ -1436,7 +1436,7 @@ class Spiral(_BaseGeometry):
         else:
             self.length = length
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Spiral) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True

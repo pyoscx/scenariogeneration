@@ -10,7 +10,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import numpy as np
 import pyclothoids as pcloth
