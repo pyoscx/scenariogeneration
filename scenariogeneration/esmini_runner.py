@@ -12,70 +12,75 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import os
 import subprocess
-
+from typing import Optional, Union
 from .scenario_generator import ScenarioGenerator
 from .xodr import OpenDrive
 from .xosc import Scenario
 
 
 def esmini(
-    generator,
-    esminipath="esmini",
-    window_size="60 60 800 400",
-    save_osi=False,
-    record=False,
-    disable_controllers=False,
-    args="",
-    index_to_run="first",
-    run_with_replayer=False,
-    generation_path="generated",
-    resource_path=None,
-    timestep=0.01,
-    car_density=15,
-    headless=False,
-):
-    """Write a scenario and runs it in esminis OpenDriveViewer with some random
+    generator: Union[OpenDrive, Scenario, ScenarioGenerator],
+    esminipath: str = "esmini",
+    window_size: str = "60 60 800 400",
+    save_osi: Optional[str] = None,
+    record: Optional[str] = "",
+    disable_controllers: bool = False,
+    args: str = "",
+    index_to_run: Union[str, int] = "first",
+    run_with_replayer: bool = False,
+    generation_path: str = "generated",
+    resource_path: Optional[str] = None,
+    timestep: float = 0.01,
+    car_density: int = 15,
+    headless: bool = False,
+) -> None:
+    """Write a scenario and run it in esmini's OpenDriveViewer with random
     traffic.
 
     Parameters
     ----------
-        generator (OpenDrive, Scenario, or ScenarioGenerator): the xodr road to run
+    generator : OpenDrive, Scenario, or ScenarioGenerator
+        The xodr road or scenario to run.
+    esminipath : str, optional
+        The path to the esmini executable. Default is "esmini".
+    window_size : str, optional
+        Sets the window size of the esmini viewer. Default is "60 60 800 400".
+    save_osi : str, optional
+        Name of the desired OSI file. If None, no OSI file is created.
+        Default is None.
+    record : str, optional
+        Name of the esmini `.dat` file to save. Default is an empty string
+        (no recording).
+    disable_controllers : bool, optional
+        Disable all controllers in the scenario and run with default behavior.
+        Default is False.
+    args : str, optional
+        Additional options to pass to esmini. Default is an empty string.
+    index_to_run : str or int, optional
+        If a class inheriting `ScenarioGenerator` is used as input and the
+        scenario is parametrized, this specifies which scenario to view.
+        Can be "first", "middle", "random", or an integer
+        Default is "first".
+    run_with_replayer : bool, optional
+        Run esmini in headless mode and then replay the viewer afterward.
+        Only used for scenarios, not roads. Default is False.
+    generation_path : str, optional
+        Path to where the files should be generated. Default is "generated".
+    resource_path : str, optional
+        Path to the catalogs/xodrs to add. Relative paths in the scenario
+        should be relative to this one. Default is None.
+    timestep : float, optional
+        Fixed timestep to use in combination with the replayer.
+        Default is 0.01.
+    car_density : int, optional
+        Density of fictitious cars (used only for pure OpenDRIVE cases).
+        Default is 15.
+    headless : bool, optional
+        Run esmini in headless mode (no viewer). Default is False.
 
-        esminipath (str): the path to esmini
-            Default: esmini
-
-        window_size (str): sets the window size of the esmini viewer
-            Default: 60 60 800 400
-
-        save_osi (str): name of the wanted osi file (None will not create a osi file)
-            Default: None
-
-        record (str): name of a esmini .dat file should be saved
-            Default: '' (no recording)
-
-        disable_controllers (bool): let esmini disable all controllers in the scenario and run with default behaviour
-            Default: False
-
-        args (str): additional options to esmini
-
-        index_to_run (str,int): if the a class inheriting ScenarioGenerator is used as input, and the scenario is parametrized
-                                this will make it possible to choose what scenario to view. can be: 'first','middle','random', or an int
-            Default: first
-
-        run_with_replayer (bool): bool to run esmini in headless mode and then run the viewer afterwards (only used for scenarios not for roads)
-            Default: False
-
-        generation_path (str): path to where the files should be generated
-            Default: generated
-
-        resource_path (str): path to the catalogs/xodrs that you want to add (relative path in scenario should be relative to this one)
-            Default: esminipath/resources/xosc
-
-        timestep (float): fixed timestep to use in combination with replayer
-
-        car_density (int): density of fictious cars (used only for pure OpenDRIVE cases)
-
-        headless (boolean): run esmini in headless mode (no viewer)
+    Returns
+    -------
+    None
     """
     additional_args = []
     # resource_path = os.path.join(esminipath,'resources')
