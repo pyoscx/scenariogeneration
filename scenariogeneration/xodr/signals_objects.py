@@ -12,6 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import xml.etree.ElementTree as ET
 
+from typing import Optional, Union
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
 from .enumerations import (
@@ -29,52 +30,60 @@ from .utils import XodrBase
 
 
 class _SignalObjectBase(XodrBase):
-    """Creates a common basis for Signal and Object shall not be instantiated
-    directly.
+    """Creates a common basis for Signal and Object. This class should not
+    be instantiated directly.
 
     Attributes
     ----------
-        s (float): s-coordinate of Signal / Object
-
-        t (float): t-coordinate of Signal / Object
-
-        id (string): id of Signal / Object
-
-        Type (ObjectType or string): type of the Signal (typically string) / Object (typically enum ObjectType)
-
-        subtype (string): subtype for further specification of Signal / Object
-
-        dynamic (Dynamic): specifies if Signal / Object is static (road sign) or dynamic (traffic light)
-
-        name (string): name for identification of Signal / Object
-
-        zOffset (float): vertical offset of Signal / Object with respect to centerline
-
-        orientation (Orientation): orientation of Signal / Object with respect to road
-
-        pitch (float): pitch angle (rad) of Signal / Object relative to the inertial system (xy-plane)
-
-        roll (float): roll angle (rad) of Signal / Object after applying pitch, relative to the inertial system (x’’y’’-plane)
-
-        width (float): width of the Signal / Object
-
-        height (float): height of Signal / Object
-
-        _usedIDs ({[str]}): dictionary with list of used IDs, keys are class names of child class (Object, Signal).
-        Shared among all instances of Signal/Object to auto-generate unique IDs.
-
-        _IDCounter ({int}): dictionary with counter for auto-generation of IDs, keys are class names of child class (Object, Signal).
-        Shared among all instances of Signal/Object to auto-generate unique IDs.
-
+    s : float
+        s-coordinate of Signal/Object.
+    t : float
+        t-coordinate of Signal/Object.
+    id : str
+        ID of Signal/Object.
+    Type : ObjectType or str
+        Type of the Signal (typically string) or Object (typically enum
+        ObjectType).
+    subtype : str
+        Subtype for further specification of Signal/Object.
+    dynamic : Dynamic
+        Specifies if Signal/Object is static (road sign) or dynamic
+        (traffic light).
+    name : str
+        Name for identification of Signal/Object.
+    zOffset : float
+        Vertical offset of Signal/Object with respect to the centerline.
+    orientation : Orientation
+        Orientation of Signal/Object with respect to the road.
+    pitch : float
+        Pitch angle (rad) of Signal/Object relative to the inertial
+        system (xy-plane).
+    roll : float
+        Roll angle (rad) of Signal/Object after applying pitch, relative
+        to the inertial system (x’’y’’-plane).
+    width : float
+        Width of the Signal/Object.
+    height : float
+        Height of Signal/Object.
+    length : float
+        Length of Signal/Object.
+    _usedIDs : dict[str, list[str]]
+        Dictionary with a list of used IDs. Keys are class names of child
+        classes (Object, Signal). Shared among all instances to
+        auto-generate unique IDs.
+    _IDCounter : dict[str, int]
+        Dictionary with counters for auto-generation of IDs. Keys are
+        class names of child classes (Object, Signal). Shared among all
+        instances to auto-generate unique IDs.
 
     Methods
     -------
-        get_common_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
-        _update_id()
-            Ensures that an ID is assigned if none was provided and that provided IDs are unique
-            Should be called when adding an Object or Signal to the road
+    get_common_attributes()
+        Returns a dictionary of all common attributes of Signal/Object.
+    _update_id()
+        Ensures that an ID is assigned if none was provided and that
+        provided IDs are unique. Should be called when adding an Object
+        or Signal to the road.
     """
 
     _usedIDs = {}
@@ -82,52 +91,58 @@ class _SignalObjectBase(XodrBase):
 
     def __init__(
         self,
-        s,
-        t,
-        id,
-        Type,
-        subtype,
-        dynamic,
-        name,
-        zOffset,
-        orientation,
-        pitch,
-        roll,
-        width,
-        height,
-        length,
-    ):
-        """Initalizes common attributes for Signal and Object.
+        s: float,
+        t: float,
+        id: Optional[str],
+        Type: ObjectType | str,
+        subtype: str,
+        dynamic: Dynamic,
+        name: Optional[str],
+        zOffset: float,
+        orientation: Orientation,
+        pitch: float,
+        roll: float,
+        width: Optional[float],
+        height: Optional[float],
+        length: Optional[float],
+    ) -> None:
+        """Initialize common attributes for Signal and Object.
 
         Parameters
         ----------
-            s (float): s-coordinate of Signal / Object
-
-            t (float): t-coordinate of Signal / Object
-
-            id (string): id of Signal / Object
-
-            Type (ObjectType or string): type of the Signal (typically string) / Object (typically enum ObjectType)
-
-            subtype (string): subtype for further specification of Signal / Object
-
-            dynamic (Dynamic): specifies if Signal / Object is static (road sign) or dynamic (traffic light)
-
-            name (string): name for identification of Signal / Object
-
-            zOffset (float): vertical offset of Signal / Object with respect to centerline
-
-            orientation (Orientation): orientation of Signal / Object with respect to road
-
-            pitch (float): pitch angle (rad) of Signal / Object relative to the inertial system (xy-plane)
-
-            roll (float): roll angle (rad) of Signal / Object after applying pitch, relative to the inertial system (x’’y’’-plane)
-
-            width (float): width of the Signal / Object
-
-            height (float): height of the Signal / Object
-
-            length (float): length of the Signal / Object
+        s : float
+            s-coordinate of Signal/Object.
+        t : float
+            t-coordinate of Signal/Object.
+        id : str, optional
+            ID of Signal/Object.
+        Type : ObjectType or str
+            Type of the Signal (typically string) or Object (typically
+            enum ObjectType).
+        subtype : str
+            Subtype for further specification of Signal/Object.
+        dynamic : Dynamic
+            Specifies if Signal/Object is static (road sign) or dynamic
+            (traffic light).
+        name : str, optional
+            Name for identification of Signal/Object.
+        zOffset : float
+            Vertical offset of Signal/Object with respect to the
+            centerline.
+        orientation : Orientation
+            Orientation of Signal/Object with respect to the road.
+        pitch : float
+            Pitch angle (rad) of Signal/Object relative to the inertial
+            system (xy-plane).
+        roll : float
+            Roll angle (rad) of Signal/Object after applying pitch,
+            relative to the inertial system (x’’y’’-plane).
+        width : float, optional
+            Width of the Signal/Object.
+        height : float, optional
+            Height of Signal/Object.
+        length : float, optional
+            Length of Signal/Object.
         """
         super().__init__()
         self.s = s
@@ -145,13 +160,15 @@ class _SignalObjectBase(XodrBase):
         self.length = length
         self.id = id
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _SignalObjectBase) and super().__eq__(other):
             if self.get_common_attributes() == other.get_common_attributes():
                 return True
         return False
 
-    def _update_id(self):
+    def _update_id(self) -> None:
+        """Ensure that an ID is assigned if none was provided and that
+        provided IDs are unique."""
         # ensure unique IDs
         try:
             if str(self.id) in self._usedIDs[self.__class__.__name__]:
@@ -179,8 +196,14 @@ class _SignalObjectBase(XodrBase):
 
         self._usedIDs[self.__class__.__name__].append(str(self.id))
 
-    def get_common_attributes(self):
-        """Returns common attributes of Signal and Object as a dict."""
+    def get_common_attributes(self) -> dict[str, str]:
+        """Return common attributes of Signal and Object as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the common attributes of Signal/Object.
+        """
         retdict = {}
         retdict["id"] = str(self.id)
         retdict["s"] = str(self.s)
@@ -213,126 +236,141 @@ class _SignalObjectBase(XodrBase):
 
 
 class Signal(_SignalObjectBase):
-    """Signal defines the signal element in Opendrive.
+    """Signal defines the signal element in OpenDRIVE.
 
     Attributes
     ----------
-        s (float): s-coordinate of Signal (init in base class)
-
-        t (float): t-coordinate of Signal (init in base class)
-
-        country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)
-
-        countryRevision (str): defines the year of the applied traffic rules and may be necessary to ensure unique sign interpretation together with country, type and subtype (optional)
-
-        Type (SignalType or str): type of Signal (str) (init in base class)
-
-        subtype (string): subtype for further specification of Signal (init in base class)
-
-        id (string): id of Signal (init in base class)
-
-        name (string): name for identification of Signal (init in base class)
-
-        dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
-
-        value (float): value for further specification of the signal
-
-        unit (str): unit, needs to be provided when value is given
-
-        zOffset (float): vertical offset of Signal with respect to centerline (init in base class)
-
-        orientation (Orientation): orientation of Signal with respect to road (init in base class)
-
-        hOffset (float): heading offset of the signal relative to orientation
-
-        pitch (float): pitch angle (rad) of Signal relative to the inertial system (xy-plane) (init in base class)
-
-        roll (float): roll angle (rad) of Signal after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-
-        width (float): width of the Signal (init in base class)
-
-        height (float): height of Signal (init in base class)
-
-        length (float): length of the Signal (init in base class)
-
-        validity (Validity): explicit validity information for a signal (optional)
+    s : float
+        s-coordinate of the Signal (inherited from base class).
+    t : float
+        t-coordinate of the Signal (inherited from base class).
+    country : str
+        Country code according to ISO 3166-1 (alpha-2 for OpenDRIVE 1.6,
+        alpha-3 for OpenDRIVE 1.4).
+    countryRevision : str, optional
+        Year of the applied traffic rules, ensuring unique sign
+        interpretation with country, type, and subtype.
+    Type : SignalType or str
+        Type of the Signal (inherited from base class).
+    subtype : str
+        Subtype for further specification of the Signal (inherited from
+        base class).
+    id : str, optional
+        ID of the Signal (inherited from base class).
+    name : str, optional
+        Name for identification of the Signal (inherited from base class).
+    dynamic : Dynamic
+        Specifies if the Signal is static or dynamic (inherited from base
+        class).
+    value : float, optional
+        Value for further specification of the Signal.
+    unit : str, optional
+        Unit of the value, required if `value` is provided.
+    zOffset : float
+        Vertical offset of the Signal with respect to the centerline
+        (inherited from base class).
+    orientation : Orientation
+        Orientation of the Signal with respect to the road (inherited from
+        base class).
+    hOffset : float
+        Heading offset of the Signal relative to its orientation.
+    pitch : float
+        Pitch angle (rad) of the Signal relative to the inertial system
+        (inherited from base class).
+    roll : float
+        Roll angle (rad) of the Signal after applying pitch (inherited
+        from base class).
+    width : float, optional
+        Width of the Signal (inherited from base class).
+    height : float, optional
+        Height of the Signal (inherited from base class).
+    length : float, optional
+        Length of the Signal (inherited from base class).
+    validity : Validity, optional
+        Explicit validity information for the Signal.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_validity(fromLane, toLane)
-            Adds a new validity between fromLane to toLane
+    get_element()
+        Returns the full ElementTree representation of the Signal.
+    get_attributes()
+        Returns a dictionary of all attributes of the Signal.
+    add_validity(fromLane, toLane)
+        Adds a new validity range for the Signal.
     """
 
     def __init__(
         self,
-        s,
-        t,
-        country,
-        Type,
-        subtype="-1",
-        countryRevision=None,
-        id=None,
-        name=None,
-        dynamic=Dynamic.no,
-        value=None,
-        unit=None,
-        zOffset=1.5,
-        orientation=Orientation.positive,
-        hOffset=0,
-        pitch=0,
-        roll=0,
-        height=None,
-        width=None,
-        length=None,
-    ):
-        """Initalizes the Signal.
+        s: float,
+        t: float,
+        country: str,
+        Type: Union[ObjectType, str],
+        subtype: str = "-1",
+        countryRevision: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        dynamic: Dynamic = Dynamic.no,
+        value: Optional[float] = None,
+        unit: Optional[str] = None,
+        zOffset: float = 1.5,
+        orientation: Orientation = Orientation.positive,
+        hOffset: float = 0,
+        pitch: float = 0,
+        roll: float = 0,
+        height: Optional[float] = None,
+        width: Optional[float] = None,
+        length: Optional[float] = None,
+    ) -> None:
+        """Initialize the Signal.
 
         Parameters
         ----------
-            s (float): s-coordinate of Signal (init in base class)
-
-            t (float): t-coordinate of Signal (init in base class)
-
-            country (str): country code according to ISO 3166-1 (alpha-2 with two letters for OpenDRIVE 1.6, alpha-3 with three letters for OpenDRIVE 1.4)
-
-            countryRevision (str): defines the year of the applied traffic rules and may be necessary to ensure unique sign interpretation together with country, type and subtype (optional)
-
-            Type (SignalType or str): type of Signal (str) (init in base class)
-
-            subtype (string): subtype for further specification of Signal (init in base class)
-                Default: "-1"
-            id (string): id of Signal (init in base class)
-                Default: None
-            name (string): name for identification of Signal (init in base class)
-                Default: None
-            dynamic (Dynamic): specifies if Signal is static or dynamic (init in base class)
-                Default: Dynamic.no
-            value (float): value for further specification of the signal
-                Default: None
-            unit (str): unit, needs to be provided when value is given
-                Default: None
-            zOffset (float): vertical offset of Signal with respect to centerline (init in base class)
-                Default: 0
-            orientation (Orientation): orientation of Signal with respect to road (init in base class)
-                Default: Orientation.none
-            hOffset (float): heading offset of the signal relative to orientation
-                Default: 0
-            pitch (float): pitch angle (rad) of Signal relative to the inertial system (xy-plane) (init in base class)
-                Default: 0
-            roll (float): roll angle (rad) of Signal after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-                Default: 0
-            width (float): width of the Signal (init in base class)
-                Default: None
-            height (float): height of Signal (init in base class)
-                Default: None
-            length (float): length of the Signal (init in base class)
-                Default: None
+        s : float
+            s-coordinate of the Signal.
+        t : float
+            t-coordinate of the Signal.
+        country : str
+            Country code according to ISO 3166-1 (alpha-2 for OpenDRIVE 1.6,
+            alpha-3 for OpenDRIVE 1.4).
+        Type : SignalType or str
+            Type of the Signal.
+        subtype : str, optional
+            Subtype for further specification of the Signal. Default is "-1".
+        countryRevision : str, optional
+            Year of the applied traffic rules. Default is None.
+        id : str, optional
+            ID of the Signal. Default is None.
+        name : str, optional
+            Name for identification of the Signal. Default is None.
+        dynamic : Dynamic, optional
+            Specifies if the Signal is static or dynamic. Default is
+            Dynamic.no.
+        value : float, optional
+            Value for further specification of the Signal. Default is None.
+        unit : str, optional
+            Unit of the value, required if `value` is provided. Default is
+            None.
+        zOffset : float, optional
+            Vertical offset of the Signal with respect to the centerline.
+            Default is 1.5.
+        orientation : Orientation, optional
+            Orientation of the Signal with respect to the road. Default is
+            Orientation.positive.
+        hOffset : float, optional
+            Heading offset of the Signal relative to its orientation.
+            Default is 0.
+        pitch : float, optional
+            Pitch angle (rad) of the Signal relative to the inertial system.
+            Default is 0.
+        roll : float, optional
+            Roll angle (rad) of the Signal after applying pitch. Default is
+            0.
+        height : float, optional
+            Height of the Signal. Default is None.
+        width : float, optional
+            Width of the Signal. Default is None.
+        length : float, optional
+            Length of the Signal. Default is None.
         """
 
         # get attributes that are common with signals
@@ -366,13 +404,20 @@ class Signal(_SignalObjectBase):
         self.hOffset = hOffset
         self.validity = None
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Signal) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Signal as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Signal.
+        """
         retdict = super().get_common_attributes()
         retdict["country"] = str(self.country).upper()
         retdict["type"] = str(self.type)
@@ -390,13 +435,39 @@ class Signal(_SignalObjectBase):
             retdict["unit"] = str(self.unit)
         return retdict
 
-    def add_validity(self, fromLane, toLane):
+    def add_validity(self, fromLane: int, toLane: int) -> "Signal":
+        """Add a validity range to the Signal.
+
+        Parameters
+        ----------
+        fromLane : int
+            The starting lane for the validity range.
+        toLane : int
+            The ending lane for the validity range.
+
+        Returns
+        -------
+        Signal
+            The updated Signal object.
+
+        Raises
+        ------
+        ValueError
+            If a validity range is already set for the Signal.
+        """
         if self.validity:
             raise ValueError("only one validity is allowed")
         self.validity = Validity(fromLane, toLane)
         return self
 
-    def get_element(self):
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Signal.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Signal.
+        """
         element = ET.Element("signal", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self.validity:
@@ -409,134 +480,161 @@ class Validity(XodrBase):
 
     Attributes
     ----------
-        fromLane (int): minimum id of the lanes for which the object is valid
-
-        toLane (int): maximum id of the lanes for which the object is valid
+    fromLane : int
+        Minimum ID of the lanes for which the object is valid.
+    toLane : int
+        Maximum ID of the lanes for which the object is valid.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Returns the full ElementTree representation of the Validity.
+    get_attributes()
+        Returns a dictionary of all attributes of the Validity.
     """
 
-    def __init__(self, fromLane, toLane):
-        """Initalize the Validity.
+    def __init__(self, fromLane: int, toLane: int) -> None:
+        """Initialize the Validity.
 
         Parameters
         ----------
-            fromLane (int): minimum id of the lanes for which the object is valid
-
-            toLane (int): maximum id of the lanes for which the object is valid
+        fromLane : int
+            Minimum ID of the lanes for which the object is valid.
+        toLane : int
+            Maximum ID of the lanes for which the object is valid.
         """
         super().__init__()
         self.fromLane = fromLane
         self.toLane = toLane
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Validity) and super().__eq__(other):
             if self.fromLane == other.fromLane and self.toLane == other.toLane:
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes of Validity as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of Validity as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Validity.
+        """
         retdict = {}
         retdict["fromLane"] = str(self.fromLane)
         retdict["toLane"] = str(self.toLane)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of Validity."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Validity.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Validity.
+        """
         element = ET.Element("validity", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class Dependency(XodrBase):
-    """Dependency defines the dependency element in Opendrive. It is placed
+    """Dependency defines the dependency element in OpenDRIVE. It is placed
     within the signal element.
 
-    Parameters
-        ----------
-            id (str): id of the controlled signal
-            type (str): type of dependency
+    Attributes
+    ----------
+    id : str
+        ID of the controlled signal.
+    type : str
+        Type of dependency.
 
-        Attributes
-        ----------
-            id (str): id of the controlled signal
-            type (str): type of dependency
-
-        Methods
-        -------
-            get_element()
-                Returns the full ElementTree of the class
-
-            get_attributes()
-                Returns a dictionary of all attributes of the class
+    Methods
+    -------
+    get_element()
+        Returns the full ElementTree representation of the Dependency.
+    get_attributes()
+        Returns a dictionary of all attributes of the Dependency.
     """
 
-    def __init__(self, id, type):
+    def __init__(self, id: str, type: str) -> None:
+        """Initialize the Dependency.
+
+        Parameters
+        ----------
+        id : str
+            ID of the controlled signal.
+        type : str
+            Type of dependency.
+        """
         super().__init__()
         self.id = id
         self.type = type
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Dependency) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Dependency as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Dependency.
+        """
         retdict = {"id": str(self.id), "type": str(self.type)}
         return retdict
 
-    def get_element(self):
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Dependency.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Dependency.
+        """
         element = ET.Element("dependency", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class SignalReference(XodrBase):
-    """Signal defines the signal element in Opendrive.
+    """SignalReference defines the signal reference element in OpenDRIVE.
 
     Attributes
     ----------
-        s (float): s-coordinate of Signal (init in base class)
-
-        t (float): t-coordinate of Signal (init in base class)
-
-        id (string): id of Signal (init in base class)
-
-        orientation (Orientation): orientation of Signal with respect to road (init in base class)
-
-        validity (Validity): explicit validity information for a signal (optional)
-
-        _usedIDs ({[str]}): dictionary with list of used IDs, keys are class name SignalReference.
-        Shared to auto-generate unique IDs.
-
-        _IDCounter ({int}): dictionary with counter for auto-generation of IDs, keys are class name SignalReference.
-        Shared to auto-generate unique IDs.
+    s : float
+        s-coordinate of the SignalReference.
+    t : float
+        t-coordinate of the SignalReference.
+    id : str, optional
+        ID of the SignalReference.
+    orientation : Orientation
+        Orientation of the SignalReference with respect to the road.
+    validity : Validity, optional
+        Explicit validity information for the SignalReference.
+    _usedIDs : dict[str, list[str]]
+        Dictionary with a list of used IDs. Keys are class names of
+        SignalReference. Shared to auto-generate unique IDs.
+    _IDCounter : dict[str, int]
+        Dictionary with counters for auto-generation of IDs. Keys are
+        class names of SignalReference. Shared to auto-generate unique IDs.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_validity(fromLane, toLane)
-            Adds a new validity between fromLane to toLane
-
-        get_common_attributes()
-            Returns a dictionary of all attributes of FileHeader
-
-        _update_id()
-            Ensures that an ID is assigned if none was provided and that provided IDs are unique
-            Should be called when adding an Object or Signal to the road
+    get_element()
+        Returns the full ElementTree representation of the SignalReference.
+    get_attributes()
+        Returns a dictionary of all attributes of the SignalReference.
+    add_validity(fromLane, toLane)
+        Adds a new validity range for the SignalReference.
+    _update_id()
+        Ensures that an ID is assigned if none was provided and that
+        provided IDs are unique.
     """
 
     _usedIDs = {}
@@ -544,24 +642,24 @@ class SignalReference(XodrBase):
 
     def __init__(
         self,
-        s,
-        t,
-        id=None,
-        orientation=Orientation.positive,
-    ):
-        """Initalizes the Signal.
+        s: float,
+        t: float,
+        id: Optional[str] = None,
+        orientation: Orientation = Orientation.positive,
+    ) -> None:
+        """Initialize the SignalReference.
 
         Parameters
         ----------
-            s (float): s-coordinate of SignalReference
-
-            t (float): t-coordinate of SignalReference
-
-            id (string): id of SignalReference
-                Default: None
-
-            orientation (Orientation): orientation of SignalReference with respect to road
-                Default: Orientation.none
+        s : float
+            s-coordinate of the SignalReference.
+        t : float
+            t-coordinate of the SignalReference.
+        id : str, optional
+            ID of the SignalReference. Default is None.
+        orientation : Orientation, optional
+            Orientation of the SignalReference with respect to the road.
+            Default is Orientation.positive.
         """
 
         # get attributes that are common with signals
@@ -572,13 +670,15 @@ class SignalReference(XodrBase):
         self.validity = None
         self.id = id
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, SignalReference) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def _update_id(self):
+    def _update_id(self) -> None:
+        """Ensure that an ID is assigned if none was provided and that
+        provided IDs are unique."""
         # ensure unique IDs
         try:
             if str(self.id) in self._usedIDs[self.__class__.__name__]:
@@ -606,8 +706,14 @@ class SignalReference(XodrBase):
 
         self._usedIDs[self.__class__.__name__].append(str(self.id))
 
-    def get_attributes(self):
-        """Returns attributes of SignalReference as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the SignalReference as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the SignalReference.
+        """
         retdict = {}
         retdict["id"] = str(self.id)
         retdict["s"] = str(self.s)
@@ -621,13 +727,39 @@ class SignalReference(XodrBase):
 
         return retdict
 
-    def add_validity(self, fromLane, toLane):
+    def add_validity(self, fromLane: int, toLane: int) -> "SignalReference":
+        """Add a validity range to the SignalReference.
+
+        Parameters
+        ----------
+        fromLane : int
+            The starting lane for the validity range.
+        toLane : int
+            The ending lane for the validity range.
+
+        Returns
+        -------
+        SignalReference
+            The updated SignalReference object.
+
+        Raises
+        ------
+        ValueError
+            If a validity range is already set for the SignalReference.
+        """
         if self.validity:
             raise ValueError("only one validity is allowed")
         self.validity = Validity(fromLane, toLane)
         return self
 
-    def get_element(self):
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the SignalReference.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the SignalReference.
+        """
         element = ET.Element("signalReference", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self.validity:
@@ -636,126 +768,123 @@ class SignalReference(XodrBase):
 
 
 class Object(_SignalObjectBase):
-    """Creates an Object.
-
-    Parameters
-    ----------
-        _SignalObjectBase: base class with common attributes of Signal / Object
+    """Creates an Object in OpenDRIVE.
 
     Attributes
     ----------
-        s (float): s-coordinate of Object (init in base class)
+    s : float
+        s-coordinate of the Object (inherited from base class).
+    t : float
+        t-coordinate of the Object (inherited from base class).
+    type : ObjectType or str
+        Type of the Object (typically enum ObjectType, inherited from base class).
+    subtype : str
+        Subtype for further specification of the Object (inherited from base class).
+    id : str, optional
+        ID of the Object (inherited from base class).
+    name : str, optional
+        Name for identification of the Object (inherited from base class).
+    dynamic : Dynamic
+        Specifies if the Object is static or dynamic (inherited from base class).
+    zOffset : float
+        Vertical offset of the Object with respect to the centerline (inherited from base class).
+    orientation : Orientation
+        Orientation of the Object with respect to the road (inherited from base class).
+    hdg : float
+        Heading angle (rad) of the Object relative to the road direction.
+    pitch : float
+        Pitch angle (rad) of the Object relative to the inertial system (inherited from base class).
+    roll : float
+        Roll angle (rad) of the Object after applying pitch (inherited from base class).
+    width : float, optional
+        Width of the Object (inherited from base class).
+    length : float, optional
+        Length of the Object (shall not be used with radius).
+    height : float, optional
+        Height of the Object (inherited from base class).
+    radius : float, optional
+        Radius of the Object (shall not be used with width/length).
+    validLength : float, optional
+        Validity of the Object along the s-coordinate.
+    _repeats : list[dict]
+        List of dictionaries containing attributes for repeating Objects.
+    validity : Validity, optional
+        Explicit validity information for the Object.
+    outlines : list[Outline]
+        List of outlines for the Object.
 
-        t (float): t-coordinate of Object (init in base class)
-
-        type (ObjectType or string): type of Object (typically enum ObjectType) (init in base class)
-
-        subtype (string): subtype for further specification of Object (init in base class)
-
-        id (string): id of Object (init in base class)
-
-        name (string): name for identification of Object (init in base class)
-
-        dynamic (Dynamic): specifies if Object is static or dynamic (init in base class)
-
-        zOffset (float): vertical offset of Object with respect to centerline (init in base class)
-
-        orientation (Orientation): orientation of Object with respect to road (init in base class)
-
-        hdg (float): heading angle (rad) of the Object relative to road direction
-
-        pitch (float): pitch angle (rad) of Object relative to the inertial system (xy-plane) (init in base class)
-
-        roll (float): roll angle (rad) of Object after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-
-        width (float): width of the Object (init in base class)
-
-        length (float): width of the Object (shall not be used with radius)
-
-        height (float): height of Object (init in base class)
-
-        radius (float): radius of the Object (shall not be used with width/length)
-
-        validLength (float): validLength
-
-        _repeats ([dict]): list of dictionary containing attributes for optional subelement for repeating Objects to be filled by repeat method
-
-        validity (Validity): explicit validity information for a signal (optional)
-
-        outlines (list of Outline): list of outlines for the object
     Methods
     -------
-        repeat()
-            adds a dictionary to _repeats[] list to create a subelement for repeating the Object
-
-        add_outline(outline)
-            adds a outline of the object
-
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
+    repeat(...)
+        Adds a dictionary to `_repeats` to create a subelement for repeating the Object.
+    add_outline(outline)
+        Adds an outline to the Object.
+    add_parking_space(parking_space)
+        Adds a parking space to the Object.
+    get_element()
+        Returns the full ElementTree representation of the Object.
+    get_attributes()
+        Returns a dictionary of all attributes of the Object.
     """
 
     def __init__(
         self,
-        s,
-        t,
-        Type=ObjectType.none,
-        subtype=None,
-        id=None,
-        name=None,
-        dynamic=Dynamic.no,
-        zOffset=0,
-        orientation=Orientation.none,
-        hdg=0,
-        pitch=0,
-        roll=0,
-        width=None,
-        length=None,
-        height=None,
-        radius=None,
-        validLength=None,
-    ):
-        """Initalizes the Object.
+        s: float,
+        t: float,
+        Type: ObjectType | str = ObjectType.none,
+        subtype: Optional[str] = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        dynamic: Dynamic = Dynamic.no,
+        zOffset: float = 0,
+        orientation: Orientation = Orientation.none,
+        hdg: float = 0,
+        pitch: float = 0,
+        roll: float = 0,
+        width: Optional[float] = None,
+        length: Optional[float] = None,
+        height: Optional[float] = None,
+        radius: Optional[float] = None,
+        validLength: Optional[float] = None,
+    ) -> None:
+        """Initialize the Object.
 
         Parameters
         ----------
-            s (float): s-coordinate of Object (init in base class)
-
-            t (float): t-coordinate of Object (init in base class)
-
-            Type (ObjectType or string): type of Object (typically enum ObjectType) (init in base class)
-                Default: ObjectType.none
-            subtype (string): subtype for further specification of Object (init in base class)
-                Default: None
-            id (string): id of Object (init in base class)
-                Default: None
-            name (string): name for identification of Object (init in base class)
-                Default: None
-            dynamic (Dynamic): specifies if Object is static or dynamic (init in base class)
-                Default: Dynamic.no
-            zOffset (float): vertical offset of Object with respect to centerline (init in base class)
-                Default: 0
-            orientation (Orientation): orientation of Object with respect to road (init in base class)
-                Default: Orientation.none
-            hdg (float): heading angle (rad) of the Object relative to road direction
-                Default: 0
-            pitch (float): pitch angle (rad) of Object relative to the inertial system (xy-plane) (init in base class)
-                Default: 0
-            roll (float): roll angle (rad) of Object after applying pitch, relative to the inertial system (x’’y’’-plane) (init in base class)
-                Default: 0
-            width (float): width of the Object (init in base class)
-                Default: None
-            length (float): length of the Object (shall not be used with radius)
-                Default: None
-            height (float): height of Object (init in base class)
-                Default: None
-            radius (float): radius of the Object (shall not be used with width/length)
-                Default: None
-            validLength (float): validity of object along s-coordinate
-                Default: None
+        s : float
+            s-coordinate of the Object.
+        t : float
+            t-coordinate of the Object.
+        Type : ObjectType or str, optional
+            Type of the Object. Default is ObjectType.none.
+        subtype : str, optional
+            Subtype for further specification of the Object. Default is None.
+        id : str, optional
+            ID of the Object. Default is None.
+        name : str, optional
+            Name for identification of the Object. Default is None.
+        dynamic : Dynamic, optional
+            Specifies if the Object is static or dynamic. Default is Dynamic.no.
+        zOffset : float, optional
+            Vertical offset of the Object with respect to the centerline. Default is 0.
+        orientation : Orientation, optional
+            Orientation of the Object with respect to the road. Default is Orientation.none.
+        hdg : float, optional
+            Heading angle (rad) of the Object relative to the road direction. Default is 0.
+        pitch : float, optional
+            Pitch angle (rad) of the Object relative to the inertial system. Default is 0.
+        roll : float, optional
+            Roll angle (rad) of the Object after applying pitch. Default is 0.
+        width : float, optional
+            Width of the Object. Default is None.
+        length : float, optional
+            Length of the Object. Default is None.
+        height : float, optional
+            Height of the Object. Default is None.
+        radius : float, optional
+            Radius of the Object. Default is None.
+        validLength : float, optional
+            Validity of the Object along the s-coordinate. Default is None.
         """
         # get attributes that are common with signals
         super().__init__(
@@ -813,7 +942,7 @@ class Object(_SignalObjectBase):
         else:
             pass
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Object) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -825,22 +954,57 @@ class Object(_SignalObjectBase):
 
     def repeat(
         self,
-        repeatLength,
-        repeatDistance,
-        sStart=None,
-        tStart=None,
-        tEnd=None,
-        heightStart=None,
-        heightEnd=None,
-        zOffsetStart=None,
-        zOffsetEnd=None,
-        widthStart=None,
-        widthEnd=None,
-        lengthStart=None,
-        lengthEnd=None,
-        radiusStart=None,
-        radiusEnd=None,
-    ):
+        repeatLength: float,
+        repeatDistance: float,
+        sStart: Optional[float] = None,
+        tStart: Optional[float] = None,
+        tEnd: Optional[float] = None,
+        heightStart: Optional[float] = None,
+        heightEnd: Optional[float] = None,
+        zOffsetStart: Optional[float] = None,
+        zOffsetEnd: Optional[float] = None,
+        widthStart: Optional[float] = None,
+        widthEnd: Optional[float] = None,
+        lengthStart: Optional[float] = None,
+        lengthEnd: Optional[float] = None,
+        radiusStart: Optional[float] = None,
+        radiusEnd: Optional[float] = None,
+    ) -> None:
+        """Add a repeat entry to the Object.
+
+        Parameters
+        ----------
+        repeatLength : float
+            Length of the repeat.
+        repeatDistance : float
+            Distance between repeats.
+        sStart : float, optional
+            Starting s-coordinate. Default is None.
+        tStart : float, optional
+            Starting t-coordinate. Default is None.
+        tEnd : float, optional
+            Ending t-coordinate. Default is None.
+        heightStart : float, optional
+            Starting height. Default is None.
+        heightEnd : float, optional
+            Ending height. Default is None.
+        zOffsetStart : float, optional
+            Starting z-offset. Default is None.
+        zOffsetEnd : float, optional
+            Ending z-offset. Default is None.
+        widthStart : float, optional
+            Starting width. Default is None.
+        widthEnd : float, optional
+            Ending width. Default is None.
+        lengthStart : float, optional
+            Starting length. Default is None.
+        lengthEnd : float, optional
+            Ending length. Default is None.
+        radiusStart : float, optional
+            Starting radius. Default is None.
+        radiusEnd : float, optional
+            Ending radius. Default is None.
+        """
         self._repeats.append({})
 
         self._repeats[-1]["length"] = str(repeatLength)
@@ -903,40 +1067,59 @@ class Object(_SignalObjectBase):
         if radiusEnd is not None:
             self._repeats[-1]["radiusEnd"] = str(radiusEnd)
 
-    def add_validity(self, fromLane, toLane):
-        """Adds a validity to the object.
+    def add_validity(self, fromLane: int, toLane: int) -> "Object":
+        """Add a validity range to the Object.
 
         Parameters
         ----------
-            fromLane (int): the from lane
+        fromLane : int
+            The starting lane for the validity range.
+        toLane : int
+            The ending lane for the validity range.
 
-            toLane (int): the to lane
+        Returns
+        -------
+        Object
+            The updated Object instance.
+
+        Raises
+        ------
+        ValueError
+            If a validity range is already set for the Object.
         """
         if self.validity:
             raise ValueError("only one validity is allowed")
         self.validity = Validity(fromLane, toLane)
         return self
 
-    def add_outline(self, outline):
-        """Adds an outline to the object.
+    def add_outline(self, outline: "Outline") -> None:
+        """Add an outline to the Object.
 
         Parameters
         ----------
-            outline (Outline): the outline to be added
+        outline : Outline
+            The outline to be added.
         """
         self.outlines.append(outline)
 
-    def add_parking_space(self, parking_space):
-        """Adds an parking space to the object.
+    def add_parking_space(self, parking_space: "ParkingSpace") -> None:
+        """Add a parking space to the Object.
 
         Parameters
         ----------
-            parking_space (ParkingSpace): the outline to be added
+        parking_space : ParkingSpace
+            The parking space to be added.
         """
         self.parking_space = parking_space
 
-    def get_attributes(self):
-        """Returns the attributes of the Object as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Object as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Object.
+        """
         retdict = super().get_common_attributes()
         if self.validLength is not None:
             retdict["validLength"] = str(self.validLength)
@@ -950,8 +1133,14 @@ class Object(_SignalObjectBase):
 
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the WorldPostion."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Object.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Object.
+        """
         element = ET.Element("object", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for _repeat in self._repeats:
@@ -972,27 +1161,27 @@ class Tunnel(XodrBase):
 
     Attributes
     ----------
-        s (float): s-coordinate of tunnel
-
-        length (float): length of tunnel
-
-        id (string): id of tunnel
-
-        name (string): name of the tunnel
-
-        tunnel_type (TunnelType): type of tunnel
-
-        daylight (float): value between 0.0 and 1.0 (application specific)
-
-        lighting (float): value between 0.0 and 1.0 (application specific)
+    s : float
+        s-coordinate of the tunnel.
+    length : float
+        Length of the tunnel.
+    id : str
+        ID of the tunnel.
+    name : str
+        Name of the tunnel.
+    tunnel_type : TunnelType
+        Type of the tunnel.
+    daylight : float
+        Value between 0.0 and 1.0 (application-specific).
+    lighting : float
+        Value between 0.0 and 1.0 (application-specific).
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all xml attributes
+    get_element()
+        Returns the full ElementTree representation of the Tunnel.
+    get_attributes()
+        Returns a dictionary of all XML attributes of the Tunnel.
     """
 
     def __init__(
@@ -1004,25 +1193,25 @@ class Tunnel(XodrBase):
         tunnel_type: TunnelType = TunnelType.standard,
         daylight: float = 0.5,
         lighting: float = 0.5,
-    ):
-        """Initialize a tunnel.
+    ) -> None:
+        """Initialize a Tunnel.
 
         Parameters
         ----------
-            s (float): s-coordinate of tunnel
-
-            length (float): length of tunnel
-
-            id (string): id of tunnel
-
-            name (string): name of the tunnel
-
-            tunnel_type (TunnelType): type of tunnel
-                Default: TunnelType
-            daylight (float): value between 0.0 and 1.0 (application specific)
-                Default: 0.5
-            lighting (float): value between 0.0 and 1.0 (application specific)
-                Default: 0.5
+        s : float
+            s-coordinate of the tunnel.
+        length : float
+            Length of the tunnel.
+        id : str
+            ID of the tunnel.
+        name : str
+            Name of the tunnel.
+        tunnel_type : TunnelType, optional
+            Type of the tunnel. Default is TunnelType.standard.
+        daylight : float, optional
+            Value between 0.0 and 1.0 (application-specific). Default is 0.5.
+        lighting : float, optional
+            Value between 0.0 and 1.0 (application-specific). Default is 0.5.
         """
         super().__init__()
         self.s = s
@@ -1033,14 +1222,20 @@ class Tunnel(XodrBase):
         self.daylight = daylight
         self.lighting = lighting
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Tunnel) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """Return a dictionary of all xml attributes."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return a dictionary of all XML attributes of the Tunnel.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Tunnel.
+        """
         retdict = {}
         retdict["s"] = str(self.s)
         retdict["length"] = str(self.length)
@@ -1051,62 +1246,64 @@ class Tunnel(XodrBase):
         retdict["lighting"] = str(self.lighting)
         return retdict
 
-    def get_element(self):
-        """Return the elementTree of the Tunnel."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Tunnel.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Tunnel.
+        """
         element = ET.Element("tunnel", attrib=self.get_attributes())
         return element
 
 
 class CornerLocal(XodrBase):
-    """CornerLocal is one way to describe outline in for objects.
-
-    Parameters
-    ----------
-        u (float): local u-coordinate
-
-        v (float): local v-coordinate
-
-        z (float): local z-coordinate
-
-        height (float): height of the object at this corner
-
-        id (int): id of the point (optional)
+    """CornerLocal is one way to describe an outline for objects.
 
     Attributes
     ----------
-        u (float): local u-coordinate
-
-        v (float): local v-coordinate
-
-        z (float): local z-coordinate
-
-        height (float): height of the object at this corner
-
-        id (int): id of the point (optional)
+    u : float
+        Local u-coordinate.
+    v : float
+        Local v-coordinate.
+    z : float
+        Local z-coordinate.
+    height : float
+        Height of the object at this corner.
+    id : int, optional
+        ID of the point.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Returns the full ElementTree representation of the CornerLocal.
+    get_attributes()
+        Returns a dictionary of all attributes of the CornerLocal.
     """
 
-    def __init__(self, u, v, z, height, id=None):
-        """Initalize the cornerLocal.
+    def __init__(
+        self,
+        u: float,
+        v: float,
+        z: float,
+        height: float,
+        id: Optional[int] = None,
+    ) -> None:
+        """Initialize the CornerLocal.
 
         Parameters
         ----------
-            u (float): local u-coordinate
-
-            v (float): local v-coordinate
-
-            z (float): local z-coordinate
-
-            height (float): height of the object at this corner
-
-            id (int): id of the point (optional)
+        u : float
+            Local u-coordinate.
+        v : float
+            Local v-coordinate.
+        z : float
+            Local z-coordinate.
+        height : float
+            Height of the object at this corner.
+        id : int, optional
+            ID of the point. Default is None.
         """
         super().__init__()
         self.u = u
@@ -1115,14 +1312,20 @@ class CornerLocal(XodrBase):
         self.height = height
         self.id = id
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, CornerLocal) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes of cornerLocal as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the CornerLocal as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the CornerLocal.
+        """
         retdict = {}
         retdict["u"] = str(self.u)
         retdict["v"] = str(self.v)
@@ -1132,62 +1335,65 @@ class CornerLocal(XodrBase):
             retdict["id"] = str(self.id)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of cornerLocal."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the CornerLocal.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the CornerLocal.
+        """
         element = ET.Element("cornerLocal", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
 
 
 class CornerRoad(XodrBase):
-    """CornerRoad is one way to describe outline in for objects.
-
-    Parameters
-    ----------
-        s (float): s-coordinate of the corner
-
-        t (float): t-coordinate of the corner
-
-        dz (float): z-coordinate relative to the road
-
-        height (float): height of the object at this corner
-
-        id (int): id of the point (optional)
+    """CornerRoad is one way to describe an outline for objects.
 
     Attributes
     ----------
-        s (float): s-coordinate of the corner
+    s : float
+        s-coordinate of the corner.
+    t : float
+        t-coordinate of the corner.
+    dz : float
+        z-coordinate relative to the road.
+    height : float
+        Height of the object at this corner.
+    id : int, optional
+        ID of the point.
 
-        t (float): t-coordinate of the corner
-
-        dz (float): z-coordinate relative to the road
-
-        height (float): height of the object at this corner
-
-        id (int): id of the point (optional)
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Returns the full ElementTree representation of the CornerRoad.
+    get_attributes()
+        Returns a dictionary of all attributes of the CornerRoad.
     """
 
-    def __init__(self, s, t, dz, height, id=None):
-        """Initalize the CornerRoad.
+    def __init__(
+        self,
+        s: float,
+        t: float,
+        dz: float,
+        height: float,
+        id: Optional[int] = None,
+    ) -> None:
+        """Initialize the CornerRoad.
 
         Parameters
         ----------
-            s (float): s-coordinate of the corner
-
-            t (float): t-coordinate of the corner
-
-            dz (float): z-coordinate relative to the road
-
-            height (float): height of the object at this corner
-
-            id (int): id of the point (optional)
+        s : float
+            s-coordinate of the corner.
+        t : float
+            t-coordinate of the corner.
+        dz : float
+            z-coordinate relative to the road.
+        height : float
+            Height of the object at this corner.
+        id : int, optional
+            ID of the point. Default is None.
         """
         super().__init__()
         self.s = s
@@ -1196,14 +1402,20 @@ class CornerRoad(XodrBase):
         self.height = height
         self.id = id
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, CornerRoad) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes of cornerRoad as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the CornerRoad as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the CornerRoad.
+        """
         retdict = {}
         retdict["s"] = str(self.s)
         retdict["t"] = str(self.t)
@@ -1213,8 +1425,14 @@ class CornerRoad(XodrBase):
             retdict["id"] = str(self.id)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of cornerRoad."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the CornerRoad.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the CornerRoad.
+        """
         element = ET.Element("cornerRoad", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         return element
@@ -1223,56 +1441,53 @@ class CornerRoad(XodrBase):
 class Outline(XodrBase):
     """Outline is used to wrap corners for an object in OpenDRIVE.
 
-    Parameters
-    ----------
-        closed (bool): if the outline is closed (optional)
-
-        fill_type (FillType): filling of the object (optional)
-
-        lane_type (LaneType): type of the outline (optional)
-
-        outer (bool): defines if the outline is the outer outline (optional)
-
-        id (int): id of the point (optional)
-
     Attributes
     ----------
-        closed (bool): if the outline is closed (optional)
+    closed : bool, optional
+        Indicates if the outline is closed.
+    fill_type : FillType, optional
+        Filling type of the object.
+    lane_type : LaneType, optional
+        Type of the outline.
+    outer : bool, optional
+        Defines if the outline is the outer outline.
+    id : int, optional
+        ID of the outline.
+    corners : list[CornerRoad | CornerLocal]
+        List of corners in the outline.
 
-        fill_type (FillType): filling of the object (optional)
-
-        lane_type (LaneType): type of the outline (optional)
-
-        outer (bool): defines if the outline is the outer outline (optional)
-
-        id (int): id of the point (optional)
-
-        corners (list of cornerRoad/cornerLocal): corners of the outline
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    add_corner(corner)
+        Adds a corner to the outline.
+    get_element()
+        Returns the full ElementTree representation of the Outline.
+    get_attributes()
+        Returns a dictionary of all attributes of the Outline.
     """
 
     def __init__(
-        self, closed=None, fill_type=None, lane_type=None, outer=None, id=None
-    ):
-        """Initalize the Outline.
+        self,
+        closed: Optional[bool] = None,
+        fill_type: Optional[FillType] = None,
+        lane_type: Optional[LaneType] = None,
+        outer: Optional[bool] = None,
+        id: Optional[int] = None,
+    ) -> None:
+        """Initialize the Outline.
 
         Parameters
         ----------
-            closed (bool): if the outline is closed (optional)
-
-            fill_type (FillType): filling of the object (optional)
-
-            lane_type (LaneType): type of the outline (optional)
-
-            outer (bool): defines if the outline is the outer outline (optional)
-
-            id (int): id of the point (optional)
+        closed : bool, optional
+            Indicates if the outline is closed. Default is None.
+        fill_type : FillType, optional
+            Filling type of the object. Default is None.
+        lane_type : LaneType, optional
+            Type of the outline. Default is None.
+        outer : bool, optional
+            Defines if the outline is the outer outline. Default is None.
+        id : int, optional
+            ID of the outline. Default is None.
         """
         super().__init__()
         self.closed = closed
@@ -1283,7 +1498,7 @@ class Outline(XodrBase):
         self.corners = []
         self._corner_type = None
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Outline) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -1292,14 +1507,22 @@ class Outline(XodrBase):
                 return True
         return False
 
-    def add_corner(self, corner):
-        """add_corner adds a corner to the outline.
+    def add_corner(self, corner: CornerRoad | CornerLocal) -> None:
+        """Add a corner to the outline.
 
-        Note: only the same typ of corners can be added
+        Note: Only the same type of corners can be added.
 
         Parameters
         ----------
-            corner (CornerRoad, CornerLocal)
+        corner : CornerRoad or CornerLocal
+            The corner to add.
+
+        Raises
+        ------
+        TypeError
+            If the corner is not a valid type.
+        GeneralIssueInputArguments
+            If a mix of corner types is attempted.
         """
         if not (
             isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)
@@ -1319,8 +1542,14 @@ class Outline(XodrBase):
                 "Mix of cornertypes not allowed. "
             )
 
-    def get_attributes(self):
-        """Returns the attributes of Outline as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Outline as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Outline.
+        """
         retdict = {}
         if self.closed is not None:
             retdict["closed"] = get_bool_string(self.closed)
@@ -1334,8 +1563,14 @@ class Outline(XodrBase):
             retdict["id"] = str(self.id)
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of Outline."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Outline.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Outline.
+        """
         element = ET.Element("outline", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for corner in self.corners:
@@ -1345,52 +1580,56 @@ class Outline(XodrBase):
 
 
 class ParkingSpace(XodrBase):
-    """ParkingSpace is used to define access and restrictions for objects in
-    OpenDRIVE.
-
-    Parameters
-    ----------
-        access (Access): type of access of the parking space (optional)
-
-        restrictions (string): restrictions of the parking space (optional)
-
+    """ParkingSpace is used to define access and restrictions for objects
+    in OpenDRIVE.
 
     Attributes
     ----------
-        access (Access): type of access of the parking space (optional)
-
-        restrictions (string): restrictions of the parking space (optional)
+    access : Access, optional
+        Type of access of the parking space.
+    restrictions : str, optional
+        Restrictions of the parking space.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
+    get_element()
+        Returns the full ElementTree representation of the ParkingSpace.
+    get_attributes()
+        Returns a dictionary of all attributes of the ParkingSpace.
     """
 
-    def __init__(self, access=None, restrictions=None):
-        """Initalize the ParkingSpace.
+    def __init__(
+        self,
+        access: Optional[Access] = None,
+        restrictions: Optional[str] = None,
+    ) -> None:
+        """Initialize the ParkingSpace.
 
         Parameters
         ----------
-            access (Access): type of access of the parking space (optional)
-
-            restrictions (string): restrictions of the parking space (optional)
+        access : Access, optional
+            Type of access of the parking space. Default is None.
+        restrictions : str, optional
+            Restrictions of the parking space. Default is None.
         """
         super().__init__()
         self.access = enumchecker(access, Access)
         self.restrictions = restrictions
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Outline) and super().__eq__(other):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes of ParkingSpace as a dict."""
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the ParkingSpace as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the ParkingSpace.
+        """
         retdict = {}
         if self.access is not None:
             retdict["access"] = enum2str(self.access)
@@ -1399,8 +1638,14 @@ class ParkingSpace(XodrBase):
 
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of ParkingSpace."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the ParkingSpace.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the ParkingSpace.
+        """
         element = ET.Element("parkingSpace", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
 
