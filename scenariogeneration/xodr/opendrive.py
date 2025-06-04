@@ -14,6 +14,7 @@ import copy as cpy
 import datetime as dt
 import xml.etree.ElementTree as ET
 from itertools import combinations
+from typing import Optional
 
 import numpy as np
 import pyclothoids as pcloth
@@ -54,53 +55,60 @@ class _Header:
 
     Parameters
     ----------
-        name (str): name of the road
-
-        revMajor (str): major revision of OpenDRIVE
-
-        revMinor (str): minor revision of OpenDRIVE
-
-        geo_reference (str): The information for geographic reference of a database
+    name : str
+        Name of the road.
+    revMajor : str
+        Major revision of OpenDRIVE.
+    revMinor : str
+        Minor revision of OpenDRIVE.
+    geo_reference : str, optional
+        Geographic reference information for the database. Default is None.
 
     Attributes
     ----------
-        name (str): name of the scenario
-
-        revMajor (str): major revision of OpenDRIVE
-
-        revMinor (str): minor revision of OpenDRIVE
-
-        geo_reference (str): The information for geographic reference of a database
+    name : str
+        Name of the scenario.
+    revMajor : str
+        Major revision of OpenDRIVE.
+    revMinor : str
+        Minor revision of OpenDRIVE.
+    geo_reference : str
+        Geographic reference information for the database.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of FileHeader
-
-        get_attributes()
-            Returns a dictionary of all attributes of FileHeader
+    get_element()
+        Returns the full ElementTree of the FileHeader.
+    get_attributes()
+        Returns a dictionary of all attributes of the FileHeader.
     """
 
-    def __init__(self, name, revMajor, revMinor, geo_reference=None):
-        """Initalize the Header.
+    def __init__(
+        self,
+        name: str,
+        revMajor: str,
+        revMinor: str,
+        geo_reference: Optional[str] = None,
+    ) -> None:
+        """Initialize the Header.
 
-         Parameters
+        Parameters
         ----------
-            name (str): name of the road
-
-            revMajor (str): major revision of OpenDRIVE
-
-            revMinor (str): minor revision of OpenDRIVE
-
-            geo_reference (str): The information for geographic reference of a database
-                Default: None
+        name : str
+            Name of the road.
+        revMajor : str
+            Major revision of OpenDRIVE.
+        revMinor : str
+            Minor revision of OpenDRIVE.
+        geo_reference : str, optional
+            Geographic reference information for the database. Default is None.
         """
         self.name = name
         self.revMajor = revMajor
         self.revMinor = revMinor
         self.geo_reference = geo_reference
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Header):
             if (
                 self.name == other.name
@@ -111,8 +119,14 @@ class _Header:
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the FileHeader."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the FileHeader as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the FileHeader.
+        """
         retdict = {}
         retdict["name"] = self.name
         retdict["revMajor"] = str(self.revMajor)
@@ -124,8 +138,14 @@ class _Header:
         retdict["west"] = "0.0"
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the FileHeader."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the FileHeader.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the FileHeader.
+        """
         element = ET.Element("header", attrib=self.get_attributes())
 
         if self.geo_reference is not None:
@@ -136,113 +156,118 @@ class _Header:
 
 
 class Road(XodrBase):
-    """Road defines the road element of OpenDrive.
+    """Road defines the road element of OpenDRIVE.
 
     Parameters
     ----------
-        road_id (int): identifier of the road
-
-        planview (PlanView): the planview of the road
-
-        lanes (Lanes): the lanes of the road
-
-        road_type (int): type of road (junction)
-            Default: -1
-
-        name (str): name of the road (optional)
-
-        rule (TrafficRule): traffic rule (optional)
-
-        signals (Signals): Contains a list of signal objects (optional)
+    road_id : int
+        Identifier of the road.
+    planview : PlanView
+        The planview of the road.
+    lanes : Lanes
+        The lanes of the road.
+    road_type : int, optional
+        Type of road (junction). Default is -1.
+    name : str, optional
+        Name of the road. Default is None.
+    rule : TrafficRule, optional
+        Traffic rule. Default is `TrafficRule.RHT`.
 
     Attributes
     ----------
-        id (int): identifier of the road
+    id : int
+        Identifier of the road.
+    planview : PlanView
+        The planview of the road.
+    lanes : Lanes
+        The lanes of the road.
+    road_type : int
+        Type of road (junction).
+    name : str
+        Name of the road.
+    rule : TrafficRule
+        Traffic rule.
+    links : _Links
+        Links associated with the road.
+    objects : list[Object]
+        List of objects on the road.
+    signals : list[Signal]
+        List of signals on the road.
+    types : list[_Type]
+        List of road types.
+    elevationprofile : ElevationProfile
+        Elevation profile of the road.
+    lateralprofile : LateralProfile
+        Lateral profile of the road.
+    successor : _Link or None
+        Successor link of the road.
+    predecessor : _Link or None
+        Predecessor link of the road.
 
-        planview (PlanView): the planview of the road
-
-        lanes (Lanes): the lanes of the road
-
-        road_type (int): type of road (junction)
-            Default: -1
-
-        name (str): name of the road
-
-        rule (TrafficRule): traffic rule
-
-        signals (Signal): Contains a list of Signal objects
-
-        objects (Object): Contains a list of Object objects
-
-        types (list of _Type): contans a list or _Type objects (optional)
-
-        elevationprofile (ElevationProfile): the elevation profile of the road
-
-        lateralprofile (LateralProfile): the lateral profile of the road
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of the class
-
-        get_attributes()
-            Returns a dictionary of all attributes of the class
-
-        add_successor (element_type,element_id,contact_point,lane_offset,direct_junction)
-            adds a successor for the road
-
-        add_predecessor (element_type,element_id,contact_point,lane_offset,direct_junction)
-            adds a predecessor for the road
-
-        add_neighbor (element_type,element_id,direction)
-            adds a neighbor for the road
-
-        add_object (road_object)
-            adds an object to the road
-
-        add_elevation(s,a,b,c,d)
-            adds an elevation profile to the road
-
-        add_superelevation(s,a,b,c,d)
-            adds a superelevation to the road
-
-        add_shape(s,t,a,b,c,d,e)
-            adds a lateral shape to the road
-
-        add_object_roadside (road_object_prototype, repeatDistance, sOffset=0, tOffset=0, side=RoadSide.both)
-            adds an repeated object to the road
-
-        add_signal (signal)
-            adds a signal to the road
-
-        get_end_point ()
-            returns the x, y and heading at the end of the road
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    add_successor(element_type, element_id, contact_point, lane_offset)
+        Adds a successor for the road.
+    add_predecessor(element_type, element_id, contact_point, lane_offset)
+        Adds a predecessor for the road.
+    add_neighbor(element_type, element_id, direction)
+        Adds a neighbor for the road.
+    add_object(road_object)
+        Adds an object to the road.
+    add_elevation(s, a, b, c, d)
+        Adds an elevation profile to the road.
+    add_superelevation(s, a, b, c, d)
+        Adds a superelevation to the road.
+    add_shape(s, t, a, b, c, d)
+        Adds a lateral shape to the road.
+    add_tunnel(tunnel)
+        Adds a tunnel or list of tunnels to a road.
+    add_object_roadside(road_object_prototype, repeatDistance, ...)
+        Adds a repeated object to the road.
+    add_signal(signal)
+        Adds a signal to the road.
+    add_type(road_type, s, country, speed, speed_unit)
+        Adds a type to the road (not to mix with junction or not as the
+        init)
+    get_end_point()
+        Returns the x, y, and heading at the end of the road.
     """
 
     def __init__(
         self,
-        road_id,
-        planview,
-        lanes,
-        road_type=-1,
-        name=None,
-        rule=TrafficRule.RHT,
-    ):
-        """Initalize the Road.
+        road_id: int,
+        planview: PlanView,
+        lanes: Lanes,
+        road_type: int = -1,
+        name: Optional[str] = None,
+        rule: TrafficRule = TrafficRule.RHT,
+    ) -> None:
+        """Initialize the Road.
 
         Parameters
         ----------
-            road_id (int): identifier of the road
+        road_id : int
+            Identifier of the road.
+        planview : PlanView
+            The planview of the road.
+        lanes : Lanes
+            The lanes of the road.
+        road_type : int, optional
+            Type of road (junction). Default is -1.
+        name : str, optional
+            Name of the road. Default is None.
+        rule : TrafficRule, optional
+            Traffic rule. Default is `TrafficRule.RHT`.
 
-            planview (PlanView): the planview of the road
-
-            lanes (Lanes): the lanes of the road
-
-            road_type (int): type of road (junction)
-                Default: -1
-
-            name (str): name of the road (optional)
-
-            rule (TrafficRule): traffic rule (optional)
+        Raises
+        ------
+        TypeError
+            If `planview` is not of type `PlanView` or `AdjustablePlanview`.
+            If `lanes` is not of type `Lanes`.
         """
         super().__init__()
         self.id = road_id
@@ -280,7 +305,7 @@ class Road(XodrBase):
         self._superelevation_adjusted = False
         self._shape_adjusted = False
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Road) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -302,18 +327,26 @@ class Road(XodrBase):
                 return True
         return False
 
-    def is_adjusted(self, domain="planview"):
-        """Help method to check if the road has been properly defined in the
+    def is_adjusted(self, domain: str = "planview") -> bool:
+        """Check if the road has been properly defined in the specified
         domain.
 
         Parameters
         ----------
-            domain (str): the domain to check, ok values: planview, elevation, superelevation, or shape
-                Default: planview
+        domain : str, optional
+            The domain to check. Valid values are "planview", "elevation",
+            "superelevation", or "shape". Default is "planview".
 
         Returns
         -------
-            boolean
+        bool
+            True if the road is properly defined in the specified domain,
+            False otherwise.
+
+        Raises
+        ------
+        ValueError
+            If the domain is not one of the valid values.
         """
         if domain == "planview":
             return self.planview.adjusted
@@ -331,22 +364,33 @@ class Road(XodrBase):
 
     def add_successor(
         self,
-        element_type,
-        element_id,
-        contact_point=None,
-        lane_offset=0,
-    ):
-        """add_successor adds a successor link to the road.
+        element_type: ElementType,
+        element_id: int | str,
+        contact_point: Optional[ContactPoint] = None,
+        lane_offset: int = 0,
+    ) -> "Road":
+        """Add a successor link to the road.
 
         Parameters
         ----------
-            element_type (ElementType): type of element the linked road
+        element_type : ElementType
+            The type of the linked road element.
+        element_id : int or str
+            The identifier of the linked road element.
+        contact_point : ContactPoint, optional
+            The contact point of the link. Default is None.
+        lane_offset : int, optional
+            The lane offset for the successor. Default is 0.
 
-            element_id (str/int): name of the linked road
+        Returns
+        -------
+        Road
+            The updated Road object.
 
-            contact_point (ContactPoint): the contact point of the link
-
-            direct_juction (dict {int, int}): list of dicts, {successor_id, lane offset}
+        Raises
+        ------
+        ValueError
+            If a successor already exists for the road.
         """
 
         if self.successor:
@@ -363,22 +407,33 @@ class Road(XodrBase):
 
     def add_predecessor(
         self,
-        element_type,
-        element_id,
-        contact_point=None,
-        lane_offset=0,
-    ):
-        """add_successor adds a successor link to the road.
+        element_type: ElementType,
+        element_id: int | str,
+        contact_point: Optional[ContactPoint] = None,
+        lane_offset: int = 0,
+    ) -> "Road":
+        """Add a predecessor link to the road.
 
         Parameters
         ----------
-            element_type (ElementType): type of element the linked road
+        element_type : ElementType
+            The type of the linked road element.
+        element_id : int or str
+            The identifier of the linked road element.
+        contact_point : ContactPoint, optional
+            The contact point of the link. Default is None.
+        lane_offset : int, optional
+            The lane offset for the predecessor. Default is 0.
 
-            element_id (str/int): name of the linked road
+        Returns
+        -------
+        Road
+            The updated Road object.
 
-            contact_point (ContactPoint): the contact point of the link
-
-            direct_juction (dict {int, int}):  {successor_id, lane offset}
+        Raises
+        ------
+        ValueError
+            If a predecessor already exists for the road.
         """
         if self.predecessor:
             raise ValueError("only one predecessor is allowed")
@@ -392,16 +447,32 @@ class Road(XodrBase):
         self.lane_offset_pred[str(element_id)] = lane_offset
         return self
 
-    def add_neighbor(self, element_type, element_id, direction):
-        """add_neighbor adds a neighbor to a road.
+    def add_neighbor(
+        self,
+        element_type: ElementType,
+        element_id: int | str,
+        direction: "Direction",
+    ) -> "Road":
+        """Add a neighbor to the road.
 
         Parameters
         ----------
-            element_type (ElementType): type of element the linked road
+        element_type : ElementType
+            The type of the linked road element.
+        element_id : int or str
+            The identifier of the linked road element.
+        direction : Direction
+            The direction of the link.
 
-            element_id (str/int): name of the linked road
+        Returns
+        -------
+        Road
+            The updated Road object.
 
-            direction (Direction): the direction of the link
+        Raises
+        ------
+        ValueError
+            If more than two neighbors are added to the road.
         """
         if self._neighbor_added > 1:
             raise ValueError("only two neighbors are allowed")
@@ -411,20 +482,28 @@ class Road(XodrBase):
         self._neighbor_added += 1
         return self
 
-    def add_elevation(self, s, a, b, c, d):
-        """Ads an elevation profile to the road (3-degree polynomial)
+    def add_elevation(
+        self, s: float, a: float, b: float, c: float, d: float
+    ) -> "Road":
+        """Add an elevation profile to the road (3-degree polynomial).
 
         Parameters
         ----------
-            s (float): s start coordinate of the elevation
+        s : float
+            The s-coordinate where the elevation starts.
+        a : float
+            The a coefficient of the polynomial.
+        b : float
+            The b coefficient of the polynomial.
+        c : float
+            The c coefficient of the polynomial.
+        d : float
+            The d coefficient of the polynomial.
 
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
+        Returns
+        -------
+        Road
+            The updated Road object.
         """
         self.elevationprofile.add_elevation(
             _Poly3Profile(s, a, b, c, d, elevation_type="elevation")
@@ -432,20 +511,28 @@ class Road(XodrBase):
         self._elevation_adjusted = True
         return self
 
-    def add_superelevation(self, s, a, b, c, d):
-        """Ads a superelevation profile to the road (3-degree polynomial)
+    def add_superelevation(
+        self, s: float, a: float, b: float, c: float, d: float
+    ) -> "Road":
+        """Add a superelevation profile to the road (3-degree polynomial).
 
         Parameters
         ----------
-            s (float): s start coordinate of the superelevation
+        s : float
+            The s-coordinate where the superelevation starts.
+        a : float
+            The a coefficient of the polynomial.
+        b : float
+            The b coefficient of the polynomial.
+        c : float
+            The c coefficient of the polynomial.
+        d : float
+            The d coefficient of the polynomial.
 
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
+        Returns
+        -------
+        Road
+            The updated Road object.
         """
         self.lateralprofile.add_superelevation(
             _Poly3Profile(s, a, b, c, d, elevation_type="superelevation")
@@ -453,22 +540,30 @@ class Road(XodrBase):
         self._superelevation_adjusted = True
         return self
 
-    def add_shape(self, s, t, a, b, c, d):
-        """Ads a superelevation profile to the road (3-degree polynomial)
+    def add_shape(
+        self, s: float, t: float, a: float, b: float, c: float, d: float
+    ) -> "Road":
+        """Add a lateral shape profile to the road (3-degree polynomial).
 
         Parameters
         ----------
-            s (float): s start coordinate of the superelevation
+        s : float
+            The s-coordinate where the shape starts.
+        t : float
+            The t-coordinate of the lateral profile.
+        a : float
+            The a coefficient of the polynomial.
+        b : float
+            The b coefficient of the polynomial.
+        c : float
+            The c coefficient of the polynomial.
+        d : float
+            The d coefficient of the polynomial.
 
-            t (flaot): the t start coordinate of the lateral profile
-
-            a (float): a coefficient of the polynomial
-
-            b (float): b coefficient of the polynomial
-
-            c (float): c coefficient of the polynomial
-
-            d (float): d coefficient of the polynomial
+        Returns
+        -------
+        Road
+            The updated Road object.
         """
         self.lateralprofile.add_shape(
             _Poly3Profile(s, a, b, c, d, t, elevation_type="shape")
@@ -476,13 +571,24 @@ class Road(XodrBase):
         self._shape_adjusted = True
         return self
 
-    def add_object(self, road_object):
-        """add_object adds an object to a road and calls a function that
-        ensures unique IDs.
+    def add_object(self, road_object: Object | list[Object]) -> "Road":
+        """Add an object or a list of objects to the road and ensure unique
+        IDs.
 
         Parameters
         ----------
-            road_object (Object/list(Object)): object(s) to be added to road
+        road_object : Object or list[Object]
+            The object(s) to be added to the road.
+
+        Returns
+        -------
+        Road
+            The updated Road object.
+
+        Raises
+        ------
+        TypeError
+            If `road_object` or any element in the list is not of type `Object`.
         """
         if isinstance(road_object, list):
             for single_object in road_object:
@@ -500,12 +606,23 @@ class Road(XodrBase):
             self.objects.append(road_object)
         return self
 
-    def add_tunnel(self, tunnel):
-        """Adds a tunnel or list of tunnels to a road.
+    def add_tunnel(self, tunnel: Tunnel | list[Tunnel]) -> "Road":
+        """Add a tunnel or a list of tunnels to the road.
 
         Parameters
         ----------
-            tunnel (Tunnel/list(Tunnel)): tunnel(s) to be added to road
+        tunnel : Tunnel or list[Tunnel]
+            The tunnel(s) to be added to the road.
+
+        Returns
+        -------
+        Road
+            The updated Road object.
+
+        Raises
+        ------
+        TypeError
+            If `tunnel` or any element in the list is not of type `Tunnel`.
         """
         if isinstance(tunnel, list):
             if any([not isinstance(x, Tunnel) for x in tunnel]):
@@ -521,54 +638,68 @@ class Road(XodrBase):
 
     def add_object_roadside(
         self,
-        road_object_prototype,
-        repeatDistance,
-        sOffset=0,
-        tOffset=0,
-        side=RoadSide.both,
-        widthStart=None,
-        widthEnd=None,
-        lengthStart=None,
-        lengthEnd=None,
-        radiusStart=None,
-        radiusEnd=None,
-    ):
-        """add_object_roadside is a convenience function to add a repeating
-        object on side of the road, which can only be used after
-        adjust_roads_and_lanes() has been performed.
+        road_object_prototype: Object,
+        repeatDistance: float,
+        sOffset: float = 0,
+        tOffset: float = 0,
+        side: RoadSide = RoadSide.both,
+        widthStart: Optional[float] = None,
+        widthEnd: Optional[float] = None,
+        lengthStart: Optional[float] = None,
+        lengthEnd: Optional[float] = None,
+        radiusStart: Optional[float] = None,
+        radiusEnd: Optional[float] = None,
+    ) -> "Road":
+        """Add a repeating object to the roadside.
+
+        This method is a convenience function to add a repeating object
+        on the side of the road. It can only be used after
+        `adjust_roads_and_lanes()` has been performed.
 
         Parameters
         ----------
-            road_object_prototype (Object): object that will be used as a basis for generation
+        road_object_prototype : Object
+            The object that will be used as a basis for generation.
+        repeatDistance : float
+            The distance between repeated objects. Use 0 for continuous.
+        sOffset : float, optional
+            The start s-coordinate of repeating objects. Default is 0.
+        tOffset : float, optional
+            The t-offset additional to lane width. The sign will be added
+            automatically (positive if further from the roadside).
+            Default is 0.
+        side : RoadSide, optional
+            Add objects on both, left, or right side. Default is both.
+        widthStart : float, optional
+            Width of the object at the start-coordinate. Default is None.
+        widthEnd : float, optional
+            Width of the object at the end-coordinate. If not equal to
+            `widthStart`, automatic linear width adaptation is applied
+            over the distance. Default is None.
+        lengthStart : float, optional
+            Length of the object at the start-coordinate. Default is None.
+        lengthEnd : float, optional
+            Length of the object at the end-coordinate. If not equal to
+            `lengthStart`, automatic linear length adaptation is applied
+            over the distance. Default is None.
+        radiusStart : float, optional
+            Radius of the object at the start-coordinate. Default is None.
+        radiusEnd : float, optional
+            Radius of the object at the end-coordinate. If not equal to
+            `radiusStart`, automatic linear radius adaptation is applied
+            over the distance. Default is None.
 
-            repeatDistance (float): distance between repeated Objects, 0 for continuous
+        Returns
+        -------
+        Road
+            The updated Road object.
 
-            sOffset (float): start s-coordinate of repeating Objects
-                Default: 0
-
-            tOffset (float): t-offset additional to lane width, sign will be added automatically (i.e. positive if further from roadside)
-                Default: 0
-
-            side (RoadSide): add Objects on both, left or right side
-                Default: both
-
-            widthStart (float) : width of object at start-coordinate (None follows .osgb)
-                Default: None
-
-            widthEnd (float) : width of object at end-coordinate (if not equal to widthStart, automatic linear width adapted over the distance)
-                Default: None
-
-            lengthStart (float) : length of object at start-coordinate (None follows .osgb)
-                Default: None
-
-            lengthEnd (float) : length of object at end-coordinate (if not equal to lengthStart, automatic linear length adapted over distance)
-                Default: None
-
-            radiusStart (float) : radius of object at start-coordinate (None follows .osgb)
-                Default: None
-
-            radiusEnd (float) : radius of object at end-coordinate (if not equal to radiusStart, automatic linear radius adapted over distance)
-                Default: None
+        Raises
+        ------
+        RoadsAndLanesNotAdjusted
+            If roads and lanes are not adjusted before calling this method.
+        TypeError
+            If `road_object_prototype` is not of type `Object`.
         """
         if not self.is_adjusted("planview"):
             raise RoadsAndLanesNotAdjusted(
@@ -685,8 +816,25 @@ class Road(XodrBase):
             self.add_object(road_objects[road_side])
         return self
 
-    def add_signal(self, signal):
-        """add_signal adds a signal to a road."""
+    def add_signal(self, signal: Signal | list[Signal]) -> "Road":
+        """Add a signal or a list of signals to the road.
+
+        Parameters
+        ----------
+        signal : Signal or list[Signal]
+            The signal(s) to be added to the road.
+
+        Returns
+        -------
+        Road
+            The updated Road object.
+
+        Raises
+        ------
+        TypeError
+            If `signal` or any element in the list is not of type `Signal` or
+            `SignalReference`.
+        """
         if isinstance(signal, list):
             if any(
                 [
@@ -713,35 +861,50 @@ class Road(XodrBase):
         return self
 
     def add_type(
-        self, road_type, s=0, country=None, speed=None, speed_unit="m/s"
-    ):
-        """Adds a type to the road (not to mix with junction or not as the
-        init)
+        self,
+        road_type: RoadType,
+        s: float = 0,
+        country: Optional[str] = None,
+        speed: Optional[float | str] = None,
+        speed_unit: str = "m/s",
+    ) -> "Road":
+        """Add a type to the road (not to mix with junction or
+        initialization).
 
         Parameters
         ----------
-            road_type (RoadType): the type of road
+        road_type : RoadType
+            The type of road.
+        s : float, optional
+            The distance where the type starts. Default is 0.
+        country : str, optional
+            Country code (should follow ISO 3166-1, alpha-2). Default is None.
+        speed : float or str, optional
+            The maximum speed allowed. Default is None.
+        speed_unit : str, optional
+            Unit of the speed. Can be 'm/s', 'mph', or 'kph'. Default is 'm/s'.
 
-            s (float): the distance where it starts
-                Default: 0
-
-            country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
-
-            speed (float/str): the maximum speed allowed
-
-            sped_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+        Returns
+        -------
+        Road
+            The updated Road object.
         """
         self.types.append(_Type(road_type, s, country, speed, speed_unit))
         return self
 
-    def get_end_point(self):
-        """Get the x, y, and heading, of the end of the road.
+    def get_end_point(self) -> tuple[float, float, float]:
+        """Get the x, y, and heading of the end of the road.
 
-        Return
-        ------
-            x (float): the end x coordinate
-            y (float): the end y coordinate
-            h (float): the end heading
+        Returns
+        -------
+        tuple[float, float, float]
+            A tuple containing:
+            - x : float
+                The end x-coordinate.
+            - y : float
+                The end y-coordinate.
+            - h : float
+                The end heading.
         """
         return (
             self.planview.present_x,
@@ -749,8 +912,14 @@ class Road(XodrBase):
             self.planview.present_h,
         )
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the Road."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the road as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the road.
+        """
         retdict = {}
         if self.name:
             retdict["name"] = self.name
@@ -761,8 +930,14 @@ class Road(XodrBase):
         retdict["length"] = str(self.planview.get_total_length())
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the road."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the road.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the road.
+        """
         element = ET.Element("road", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         element.append(self.links.get_element())
@@ -785,68 +960,74 @@ class Road(XodrBase):
 
 
 class OpenDrive(XodrBase):
-    """OpenDrive is the main class of the pyodrx to generate an OpenDrive road.
+    """OpenDrive is the main class of pyodrx to generate an OpenDrive road.
 
     Parameters
     ----------
-        name (str): name of the road
-
-        revMajor (str): major revision of OpenDRIVE written to header
-            Default: '1'
-
-        revMinor (str): minor revision of OpenDRIVE written to header
-            Default: '5'
-
-        geo_reference (str): The information for geographic reference of a database
-            Default: None
+    name : str
+        Name of the road.
+    revMajor : str, optional
+        Major revision of OpenDRIVE written to the header. Default is '1'.
+    revMinor : str, optional
+        Minor revision of OpenDRIVE written to the header. Default is '5'.
+    geo_reference : str, optional
+        Geographic reference information for the database. Default is None.
 
     Attributes
     ----------
-        name (str): name of the road
-
-        revMajor (str): major revision of OpenDRIVE written to header
-            Default: '1'
-
-        revMinor (str): minor revision of OpenDRIVE written to header
-            Default: '5'
-
-        geo_reference (str): The information for geographic reference of a database
-            Default: None
-
-        roads (list of Road): all roads
-
-        junctions (list of Junction): all junctions
+    name : str
+        Name of the road.
+    revMajor : str
+        Major revision of OpenDRIVE written to the header.
+    revMinor : str
+        Minor revision of OpenDRIVE written to the header.
+    geo_reference : str
+        Geographic reference information for the database.
+    roads : dict[str, Road]
+        All roads in the OpenDrive.
+    junctions : list[Junction]
+        All junctions in the OpenDrive.
 
     Methods
     -------
-        get_element()
-            Returns the full ElementTree of FileHeader
-
-        add_road(road)
-            Adds a road to the opendrive
-
-        add_junction(junction)
-            Adds a junction to the opendrive
-
-        add_junction_creator(junction_creator)
-            Adds the neccesary info from a junction creator to the opendrive
-
-        adjust_roads_and_lanes()
-            Adjust starting position of all geometries of all roads and try to link lanes in neighbouring roads
-
-        adjust_startpoints()
-            Adjust starting position of all geometries of all roads
-
-        write_xml(filename)
-            write a open scenario xml
+    get_element()
+        Returns the full ElementTree of the OpenDrive.
+    add_road(road)
+        Adds a road to the OpenDrive.
+    add_junction(junction)
+        Adds a junction to the OpenDrive.
+    add_junction_creator(junction_creator)
+        Adds necessary info from a junction creator to the OpenDrive.
+    adjust_roads_and_lanes()
+        Adjusts starting positions of all geometries of all roads and links
+        lanes in neighboring roads.
+    adjust_roadmarks()
+        Adjusts roadmarks along roads and lane sections.
+    adjust_startpoints()
+        Adjusts starting positions of all geometries of all roads.
+    write_xml(filename, prettyprint, encoding)
+        Writes the OpenDrive to an XML file.
     """
 
-    def __init__(self, name, revMajor="1", revMinor="5", geo_reference=None):
-        """Initalize the Header.
+    def __init__(
+        self,
+        name: str,
+        revMajor: str = "1",
+        revMinor: str = "5",
+        geo_reference: Optional[str] = None,
+    ) -> None:
+        """Initialize the OpenDrive.
 
         Parameters
         ----------
-        name (str): name of the road
+        name : str
+            Name of the road.
+        revMajor : str, optional
+            Major revision of OpenDRIVE. Default is '1'.
+        revMinor : str, optional
+            Minor revision of OpenDRIVE. Default is '5'.
+        geo_reference : str, optional
+            Geographic reference information for the database. Default is None.
         """
         super().__init__()
         self.name = name
@@ -859,7 +1040,7 @@ class OpenDrive(XodrBase):
         self.junctions = []
         # self.road_ids = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, OpenDrive) and super().__eq__(other):
             if (
                 self.roads == other.roads
@@ -869,12 +1050,27 @@ class OpenDrive(XodrBase):
                 return True
         return False
 
-    def add_road(self, road):
-        """Adds a new road to the opendrive.
+    def add_road(self, road: Road) -> "OpenDrive":
+        """Add a new road to the OpenDrive.
 
         Parameters
         ----------
-            road (Road): the road to add
+        road : Road
+            The road to add.
+
+        Returns
+        -------
+        OpenDrive
+            The updated OpenDrive object.
+
+        Raises
+        ------
+        TypeError
+            If the input is not of type `Road`.
+        ValueError
+            If the road has a predecessor but no roads have been added yet.
+        IdAlreadyExists
+            If a road with the same ID already exists.
         """
         if not isinstance(road, Road):
             raise TypeError("input road is not of type Road")
@@ -889,13 +1085,24 @@ class OpenDrive(XodrBase):
         self.roads[str(road.id)] = road
         return self
 
-    def add_junction_creator(self, junction_creator):
-        """add_junction_creator takes a CommonJunctionCreator as input and adds
-        all neccesary info (roads and junctions) to the opendrive.
+    def add_junction_creator(
+        self, junction_creator: "CommonJunctionCreator | DirectJunctionCreator"
+    ) -> "OpenDrive":
+        """Add a junction creator to the OpenDrive.
+
+        This method takes a `CommonJunctionCreator` or `DirectJunctionCreator`
+        as input and adds all necessary information (roads and junctions) to
+        the OpenDrive.
 
         Parameters
         ----------
-            junction_creator (CommonJunctionCreator/DirectJunctionCreator): the junction creator
+        junction_creator : CommonJunctionCreator or DirectJunctionCreator
+            The junction creator to add.
+
+        Returns
+        -------
+        OpenDrive
+            The updated OpenDrive object.
         """
         if junction_creator.junction.junction_type == JunctionType.default:
             for road in junction_creator.get_connecting_roads():
@@ -904,12 +1111,21 @@ class OpenDrive(XodrBase):
         self.add_junction(junction_creator.junction)
         return self
 
-    def adjust_roads_and_lanes(self):
-        """Adjust starting position of all geometries of all roads and try to
-        link all lanes in neighbouring roads.
+    def adjust_roads_and_lanes(self) -> None:
+        """Adjust the starting position of all geometries of all roads and
+        link all lanes in neighboring roads.
 
-        Parameters
-        ----------
+        This method adjusts the starting positions of all road geometries
+        and attempts to link lanes between neighboring roads.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        RoadsAndLanesNotAdjusted
+            If roads and lanes are not adjusted properly.
         """
         # adjust roads and their geometries
         self.adjust_startpoints()
@@ -922,10 +1138,23 @@ class OpenDrive(XodrBase):
                 self.roads[results[r][0]], self.roads[results[r][1]]
             )
 
-    def adjust_roadmarks(self):
-        """Tries to adjust broken roadmarks (if same definition) along roads
-        and lane sections."""
+    def adjust_roadmarks(self) -> None:
+        """Adjust broken roadmarks (if the same definition) along roads and
+        lane sections.
 
+        This method attempts to fix roadmarks across roads and lane
+        sections by ensuring continuity and consistency.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        RoadsAndLanesNotAdjusted
+            If roads and lanes are not adjusted properly before calling
+            this method.
+        """
         adjusted_road = self.roads[list(self.roads.keys())[0]]
         if not adjusted_road.is_adjusted("planview"):
             raise RoadsAndLanesNotAdjusted(
@@ -1083,25 +1312,45 @@ class OpenDrive(XodrBase):
                                     count_total_adjusted_roads += 1
 
     def _adjust_road_wrt_neighbour(
-        self, road_id, neighbour_id, contact_point, neighbour_type
-    ):
-        """Adjust geometries of road[road_id] taking as a successor/predecessor
-        the neighbouring road with id neighbour_id. NB Passing the type of
-        contact_point is necessary because we call this function also on roads
-        connecting to to a junction road (which means that the road itself do
-        not know the contact point of the junction road it connects to)
+        self,
+        road_id: int,
+        neighbour_id: int,
+        contact_point: ContactPoint,
+        neighbour_type: str,
+    ) -> None:
+        """Adjust geometries of a road using a neighboring road as a
+        reference.
+
+        This method adjusts the geometries of the road with `road_id` by
+        taking the neighboring road with `neighbour_id` as a reference.
+        The neighboring road can be a successor or predecessor. The type
+        of `contact_point` is necessary because this function is also
+        called on roads connecting to a junction road, where the road
+        itself does not know the contact point of the junction road it
+        connects to.
 
         Parameters
         ----------
-        road_id (int): id of the road we want to adjust
+        road_id : int
+            ID of the road to adjust.
+        neighbour_id : int
+            ID of the neighboring road used as a reference. The neighboring
+            road is assumed to be already adjusted.
+        contact_point : ContactPoint
+            The contact point with respect to the road being adjusted.
+        neighbour_type : str
+            Type of linking to the neighboring road. Can be 'successor' or
+            'predecessor'.
 
-        neighbour_id (int): id of the neighbour road we take as reference (we suppose the neighbour road is already adjusted)
+        Returns
+        -------
+        None
 
-        contact_point (ContactPoint): type of contact point with point of view of roads[road_id]
-
-        neighbour_type (str): 'successor'/'predecessor' type of linking to the neighbouring road
+        Raises
+        ------
+        ValueError
+            If the `contact_point` is unknown.
         """
-
         main_road = self.roads[str(road_id)]
 
         if contact_point == ContactPoint.start:
@@ -1149,16 +1398,37 @@ class OpenDrive(XodrBase):
             main_road.planview.adjust_geometries(True)
 
     def _calculate_lane_offset_width(
-        self, road_id, neighbour_id, num_lane_offsets, contact_point
-    ):
+        self,
+        road_id: int,
+        neighbour_id: int,
+        num_lane_offsets: int,
+        contact_point: ContactPoint,
+    ) -> float:
         """Calculate the width for shifting the road if a lane offset is
         present.
 
         Parameters
         ----------
-        neighbour_id(int): id of the neighbour road we take as reference (we suppose the neighbour road is already adjusted)
-        """
+        road_id : int
+            ID of the road being adjusted.
+        neighbour_id : int
+            ID of the neighboring road used as a reference. The neighboring
+            road is assumed to be already adjusted.
+        num_lane_offsets : int
+            Number of lane offsets to consider for the calculation.
+        contact_point : ContactPoint
+            The contact point with respect to the road being adjusted.
 
+        Returns
+        -------
+        float
+            The calculated offset width for shifting the road.
+
+        Raises
+        ------
+        ValueError
+            If the `contact_point` is invalid.
+        """
         relevant_lanesection, relevant_s = get_lane_sec_and_s_for_lane_calc(
             self.roads[str(neighbour_id)], contact_point
         )
@@ -1192,16 +1462,33 @@ class OpenDrive(XodrBase):
 
         return offset_width
 
-    def _connection_sanity_check(self, road_id, connection_type):
-        """_connection_sanity_check checks if a connection and input makes
-        sence, ie. checking that all predecessor and contact points are done
-        correctly.
+    def _connection_sanity_check(
+        self, road_id: str, connection_type: str
+    ) -> None:
+        """Check if a connection and its input make sense.
+
+        This method verifies that all predecessor and successor connections
+        and their contact points are correctly defined.
 
         Parameters
         ----------
-            road_id (str): id of the road of interest
+        road_id : str
+            ID of the road of interest.
+        connection_type : str
+            Specifies whether to check the predecessor or successor. Valid
+            values are 'predecessor' or 'successor'.
 
-            connection_type (str): if the predecessor or successor should be checked
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        GeneralIssueInputArguments
+            If the `connection_type` is unknown.
+        MixingDrivingDirection
+            If there is a mismatch in connections between the road and its
+            neighbor.
         """
         road_id = str(road_id)
         if connection_type == "predecessor":
@@ -1259,46 +1546,68 @@ class OpenDrive(XodrBase):
 
     def _create_adjustable_planview(
         self,
-        road_id,
-        predecessor_id,
-        predecessor_contact_point,
-        successor_id,
-        successor_contact_point,
-    ):
-        """Method used to create the geometry of a AdjustablePlanview type of
-        planview. note Both the predecessor and the successor of that road has
-        to be fixed/adjusted for this to work.
+        road_id: str,
+        predecessor_id: str,
+        predecessor_contact_point: ContactPoint,
+        successor_id: str,
+        successor_contact_point: ContactPoint,
+    ) -> None:
+        """Create the geometry of an AdjustablePlanview type of planview.
+
+        This method creates the geometry for a road with an
+        AdjustablePlanview. Both the predecessor and the successor of the
+        road must be fixed/adjusted for this to work.
 
         Parameters
         ----------
-            road_id (str): id of the road with a AdjustablePlanview
+        road_id : str
+            ID of the road with an AdjustablePlanview.
+        predecessor_id : str
+            ID of the predecessor road.
+        predecessor_contact_point : ContactPoint
+            The contact point of the predecessor.
+        successor_id : str
+            ID of the successor road.
+        successor_contact_point : ContactPoint
+            The contact point of the successor.
 
-            predecessor_id (str): id of the predecessor road
-
-            predecessor_contact_point (ContactPoint): the contact point of the predecessor
-
-            successor_id (str): id of the successor road
-
-            successor_contact_point (ContactPoint): the contact point of the successor
+        Returns
+        -------
+        None
         """
 
         def recalculate_xy(
-            lane_offset, road, lanesection, x, y, h, common_direct_signs=1
-        ):
-            """Helper funciton to recalculate x and y if an offset (in
-            junctions) is present.
+            lane_offset: int,
+            road: Road,
+            lanesection: int,
+            x: float,
+            y: float,
+            h: float,
+            common_direct_signs: int = 1,
+        ) -> tuple[float, float]:
+            """Recalculate x and y if an offset (in junctions) is present.
 
             Parameters
             ----------
-                lane_offset (int): lane offset of the road
+            lane_offset : int
+                Lane offset of the road.
+            road : Road
+                The connected road.
+            lanesection : int
+                The lane section index.
+            x : float
+                The reference line x-coordinate of the connected road.
+            y : float
+                The reference line y-coordinate of the connected road.
+            h : float
+                The heading of the connected road.
+            common_direct_signs : int, optional
+                Direction sign multiplier. Default is 1.
 
-                road (Road): the connected road
-
-                x (float): the reference line x coordinate of the connected road
-
-                y (float): the reference line y coordinate  of the connected road
-
-                h (float): the heading of the connected road
+            Returns
+            -------
+            tuple[float, float]
+                The recalculated x and y coordinates.
             """
             dist = 0
             start_offset = 0
@@ -1529,11 +1838,23 @@ class OpenDrive(XodrBase):
         self.roads[road_id].planview = pv
         self.roads[road_id].lanes = lanes
 
-    def adjust_startpoints(self):
-        """Adjust starting position of all geoemtries of all roads.
+    def adjust_startpoints(self) -> None:
+        """Adjust the starting position of all geometries of all roads.
 
-        Parameters
-        ----------
+        This method adjusts logically connected roads by moving them so
+        they connect geometrically. If no roads are fixed, the first road
+        is selected as the pivot road.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        UndefinedRoadNetwork
+            If roads are missing successors or predecessors to connect
+            properly, or if no start position is defined for disconnected
+            roads.
         """
 
         # Adjust logically connected roads, i.e. move them so they connect geometrically.
@@ -1881,7 +2202,23 @@ class OpenDrive(XodrBase):
                     "Roads are either missing successor, or predecessor to connect to the roads, \n if the roads are disconnected, please add a start position for one of the planviews."
                 )
 
-    def adjust_elevations(self):
+    def adjust_elevations(self) -> None:
+        """Adjust the elevation and superelevation profiles of all roads.
+
+        This method calculates and adjusts the elevation and superelevation
+        profiles for all roads in the OpenDrive. It ensures that connected
+        roads have consistent elevation profiles.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        UndefinedRoadNetwork
+            If the elevation profiles cannot be adjusted due to missing
+            connections or undefined profiles.
+        """
         elevation_calculators = []
         for k in self.roads:
             ec = ElevationCalculator(self.roads[k])
@@ -1965,12 +2302,25 @@ class OpenDrive(XodrBase):
                     break
                 count_total_adjusted_roads = new_count
 
-    def add_junction(self, junction):
-        """Adds a junction to the opendrive.
+    def add_junction(self, junction: Junction) -> "OpenDrive":
+        """Add a junction to the OpenDrive.
 
         Parameters
         ----------
-            junction (Junction): the junction to add
+        junction : Junction
+            The junction to add.
+
+        Returns
+        -------
+        OpenDrive
+            The updated OpenDrive object.
+
+        Raises
+        ------
+        TypeError
+            If the input is not of type `Junction`.
+        IdAlreadyExists
+            If a junction with the same ID already exists.
         """
         if not isinstance(junction, Junction):
             raise TypeError("junction input is not of type Junction")
@@ -1983,8 +2333,14 @@ class OpenDrive(XodrBase):
         self.junctions.append(junction)
         return self
 
-    def get_element(self):
-        """Returns the elementTree of the FileHeader."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the OpenDrive.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the OpenDrive.
+        """
         element = ET.Element("OpenDRIVE")
         self._add_additional_data_to_element(element)
         element.append(self._header.get_element())
@@ -1996,19 +2352,27 @@ class OpenDrive(XodrBase):
 
         return element
 
-    def write_xml(self, filename=None, prettyprint=True, encoding="utf-8"):
-        """write_xml writes the OpenDRIVE xml file.
+    def write_xml(
+        self,
+        filename: Optional[str] = None,
+        prettyprint: bool = True,
+        encoding: str = "utf-8",
+    ) -> None:
+        """Write the OpenDRIVE XML file.
 
         Parameters
         ----------
-            filename (str): path and filename of the wanted xml file
-                Default: name of the opendrive
+        filename : str, optional
+            Path and filename of the desired XML file. Default is the name
+            of the OpenDrive with a `.xodr` extension.
+        prettyprint : bool, optional
+            Whether to pretty-print the XML. Default is True.
+        encoding : str, optional
+            Specifies the output encoding. Default is 'utf-8'.
 
-            prettyprint (bool): pretty print or ugly print?
-                Default: True
-
-            encoding (str): specifies the output encoding
-                Default: 'utf-8'
+        Returns
+        -------
+        None
         """
         if filename == None:
             filename = self.name + ".xodr"
@@ -2016,52 +2380,72 @@ class OpenDrive(XodrBase):
 
 
 class _Type(XodrBase):
-    """Class to generate the type element of a road, (not the Enumeration it
-    self).
+    """Class to generate the type element of a road (not the enumeration
+    itself).
 
     Parameters
     ----------
-        road_type (RoadType): the type of road
-
-        s (float): the distance where it starts
-            Default: 0
-
-        country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
-
-        speed (float/str): the maximum speed allowed
-
-        speed_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+    road_type : RoadType
+        The type of road.
+    s : float, optional
+        The distance where it starts. Default is 0.
+    country : str, optional
+        Country code (should follow ISO 3166-1, alpha-2). Default is None.
+    speed : float or str, optional
+        The maximum speed allowed. Can be a float or the strings "no limit"
+        or "undefined". Default is None.
+    speed_unit : str, optional
+        Unit of the speed. Can be 'm/s', 'mph', or 'kph'. Default is 'm/s'.
 
     Attributes
     ----------
-        road_type (RoadType): the type of road
+    road_type : RoadType
+        The type of road.
+    s : float
+        The distance where it starts.
+    country : str, optional
+        Country code (should follow ISO 3166-1, alpha-2).
+    speed : float or str, optional
+        The maximum speed allowed.
+    speed_unit : str
+        Unit of the speed.
 
-        s (float): the distance where it starts
-
-        country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
-
-        speed (float/str): can either be a float or the following strings: "no limit" or "undefined"
-
-        speed_unit (str): unit of the speed
+    Methods
+    -------
+    get_attributes()
+        Return the attributes of the `_Type` as a dictionary.
+    get_element()
+        Return the ElementTree representation of the `_Type`.
     """
 
     def __init__(
-        self, road_type, s=0, country=None, speed=None, speed_unit="m/s"
-    ):
-        """Initalize the _Type.
+        self,
+        road_type: RoadType,
+        s: float = 0,
+        country: Optional[str] = None,
+        speed: Optional[float | str] = None,
+        speed_unit: str = "m/s",
+    ) -> None:
+        """Initialize the _Type.
 
         Parameters
         ----------
-            road_type (RoadType): the type of road
+        road_type : RoadType
+            The type of road.
+        s : float, optional
+            The distance where it starts. Default is 0.
+        country : str, optional
+            Country code (should follow ISO 3166-1, alpha-2). Default is None.
+        speed : float or str, optional
+            The maximum speed allowed. Can be a float or the strings "no limit"
+            or "undefined". Default is None.
+        speed_unit : str, optional
+            Unit of the speed. Can be 'm/s', 'mph', or 'kph'. Default is 'm/s'.
 
-            s (float): the distance where it starts
-                Default: 0
-
-            country (str): country code (should follow ISO 3166-1,alpha-2) (optional)
-
-            speed (float/str): the maximum speed allowed
-
-            speed_unit (str): unit of the speed, can be 'm/s','mph,'kph'
+        Raises
+        ------
+        ValueError
+            If `speed` is not a valid value or `speed_unit` is invalid.
         """
         super().__init__()
         self.road_type = enumchecker(road_type, RoadType)
@@ -2071,7 +2455,7 @@ class _Type(XodrBase):
             isinstance(speed, float)
             or isinstance(speed, int)
             or speed in ["no limit", "undefined"]
-            or speed == None
+            or speed is None
         ):
             self.speed = speed
         else:
@@ -2087,7 +2471,7 @@ class _Type(XodrBase):
             )
         self.speed_unit = speed_unit
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, _Type) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
@@ -2097,8 +2481,14 @@ class _Type(XodrBase):
                 return True
         return False
 
-    def get_attributes(self):
-        """Returns the attributes as a dict of the _Type."""
+    def get_attributes(self) -> dict:
+        """Return the attributes of the _Type as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the _Type.
+        """
         retdict = {}
 
         retdict["s"] = str(self.s)
@@ -2107,9 +2497,14 @@ class _Type(XodrBase):
             retdict["country"] = self.country
         return retdict
 
-    def get_element(self):
-        """Returns the elementTree of the _Type."""
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the _Type.
 
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the _Type.
+        """
         element = ET.Element("type", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self.speed:
