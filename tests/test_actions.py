@@ -625,6 +625,9 @@ def test_activate_controller_action():
     assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
 
+    aca.setVersion(minor=0)
+    acap = OSC.ActivateControllerAction.parse(aca.get_element())
+
 
 def test_assign_controller_action():
     prop = OSC.Properties()
