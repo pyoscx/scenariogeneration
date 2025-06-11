@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from .enumerations import (
     AutomaticGearType,
@@ -1955,7 +1955,7 @@ class AssignRouteAction(_PrivateActionType):
         Returns the full ElementTree representation of the class.
     """
 
-    def __init__(self, route: Route | CatalogReference):
+    def __init__(self, route: Union[Route, CatalogReference]):
         """Initializes the AssignRouteAction.
 
         Parameters
@@ -2149,7 +2149,7 @@ class FollowTrajectoryAction(_PrivateActionType):
 
     def __init__(
         self,
-        trajectory: Trajectory | CatalogReference,
+        trajectory: Union[Trajectory, CatalogReference],
         following_mode: FollowingMode,
         reference_domain: str = None,
         scale: float = None,
@@ -2711,7 +2711,7 @@ class AssignControllerAction(_PrivateActionType):
 
     def __init__(
         self,
-        controller: Controller | CatalogReference,
+        controller: Union[Controller, CatalogReference],
         activateLateral: bool = True,
         activateLongitudinal: bool = True,
         activateLighting: bool = False,
@@ -3313,7 +3313,7 @@ class OverrideControllerValueAction(_PrivateActionType):
         self.parkingbrake_force = interpret_as_force
 
     def set_gear(
-        self, active: bool, value: float | AutomaticGearType = 0
+        self, active: bool, value: Union[float, AutomaticGearType] = 0
     ) -> None:
         """Sets the gear value.
 
@@ -3743,7 +3743,9 @@ class SynchronizeAction(_PrivateActionType):
         target_PositionType: _PositionType,
         target_tolerance_master: Optional[float] = None,
         target_tolerance: Optional[float] = None,
-        final_speed: Optional[AbsoluteSpeed | RelativeSpeedToMaster] = None,
+        final_speed: Optional[
+            Union[AbsoluteSpeed, RelativeSpeedToMaster]
+        ] = None,
     ):
         """Initialize the SynchronizeAction.
 
@@ -3942,7 +3944,7 @@ class LightStateAction(_PrivateActionType):
 
     def __init__(
         self,
-        light_type: VehicleLightType | UserDefinedLight,
+        light_type: Union[VehicleLightType, UserDefinedLight],
         mode: LightMode,
         transition_time: float = 0,
         flashing_off_duration: Optional[float] = None,
@@ -4115,14 +4117,14 @@ class AnimationAction(_PrivateActionType):
 
     def __init__(
         self,
-        animation_type: (
-            VehicleComponentType
-            | UserDefinedComponent
-            | PedestrianAnimation
-            | AnimationFile
-            | UserDefinedAnimation
-            | _ComponentAnimation
-        ),
+        animation_type: Union[
+            VehicleComponentType,
+            UserDefinedComponent,
+            PedestrianAnimation,
+            AnimationFile,
+            UserDefinedAnimation,
+            _ComponentAnimation,
+        ],
         duration: Optional[float] = None,
         loop: Optional[bool] = None,
         state: Optional[float] = None,
@@ -5727,7 +5729,7 @@ class TrafficSwarmAction(_ActionType):
         numberofvehicles: int,
         centralobject: str,
         trafficdefinition: TrafficDefinition,
-        velocity: Optional[float | Range] = None,
+        velocity: Optional[Union[float, Range]] = None,
         name: Optional[str] = None,
         direction_of_travel: Optional[DirectionOfTravelDistribution] = None,
     ):
@@ -6039,7 +6041,7 @@ class EnvironmentAction(_ActionType):
         Returns the full ElementTree of the class.
     """
 
-    def __init__(self, environment: Environment | CatalogReference):
+    def __init__(self, environment: Union[Environment, CatalogReference]):
         """Initialize the EnvironmentAction.
 
         Parameters

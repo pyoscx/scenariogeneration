@@ -14,7 +14,7 @@ import copy as cpy
 import datetime as dt
 import xml.etree.ElementTree as ET
 from itertools import combinations
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import pyclothoids as pcloth
@@ -365,7 +365,7 @@ class Road(XodrBase):
     def add_successor(
         self,
         element_type: ElementType,
-        element_id: int | str,
+        element_id: Union[int, str],
         contact_point: Optional[ContactPoint] = None,
         lane_offset: int = 0,
     ) -> "Road":
@@ -408,7 +408,7 @@ class Road(XodrBase):
     def add_predecessor(
         self,
         element_type: ElementType,
-        element_id: int | str,
+        element_id: Union[int, str],
         contact_point: Optional[ContactPoint] = None,
         lane_offset: int = 0,
     ) -> "Road":
@@ -450,7 +450,7 @@ class Road(XodrBase):
     def add_neighbor(
         self,
         element_type: ElementType,
-        element_id: int | str,
+        element_id: Union[int, str],
         direction: "Direction",
     ) -> "Road":
         """Add a neighbor to the road.
@@ -571,7 +571,7 @@ class Road(XodrBase):
         self._shape_adjusted = True
         return self
 
-    def add_object(self, road_object: Object | list[Object]) -> "Road":
+    def add_object(self, road_object: Union[Object, list[Object]]) -> "Road":
         """Add an object or a list of objects to the road and ensure unique
         IDs.
 
@@ -606,7 +606,7 @@ class Road(XodrBase):
             self.objects.append(road_object)
         return self
 
-    def add_tunnel(self, tunnel: Tunnel | list[Tunnel]) -> "Road":
+    def add_tunnel(self, tunnel: Union[Tunnel, list[Tunnel]]) -> "Road":
         """Add a tunnel or a list of tunnels to the road.
 
         Parameters
@@ -816,7 +816,7 @@ class Road(XodrBase):
             self.add_object(road_objects[road_side])
         return self
 
-    def add_signal(self, signal: Signal | list[Signal]) -> "Road":
+    def add_signal(self, signal: Union[Signal, list[Signal]]) -> "Road":
         """Add a signal or a list of signals to the road.
 
         Parameters
@@ -865,7 +865,7 @@ class Road(XodrBase):
         road_type: RoadType,
         s: float = 0,
         country: Optional[str] = None,
-        speed: Optional[float | str] = None,
+        speed: Optional[Union[float, str]] = None,
         speed_unit: str = "m/s",
     ) -> "Road":
         """Add a type to the road (not to mix with junction or
@@ -1086,7 +1086,10 @@ class OpenDrive(XodrBase):
         return self
 
     def add_junction_creator(
-        self, junction_creator: "CommonJunctionCreator | DirectJunctionCreator"
+        self,
+        junction_creator: Union[
+            "CommonJunctionCreator", "DirectJunctionCreator"
+        ],
     ) -> "OpenDrive":
         """Add a junction creator to the OpenDrive.
 
@@ -2423,7 +2426,7 @@ class _Type(XodrBase):
         road_type: RoadType,
         s: float = 0,
         country: Optional[str] = None,
-        speed: Optional[float | str] = None,
+        speed: Optional[Union[float, str]] = None,
         speed_unit: str = "m/s",
     ) -> None:
         """Initialize the _Type.

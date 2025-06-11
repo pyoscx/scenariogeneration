@@ -13,6 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import os
 import subprocess
 from typing import Optional, Union
+
 from .scenario_generator import ScenarioGenerator
 from .xodr import OpenDrive
 from .xosc import Scenario

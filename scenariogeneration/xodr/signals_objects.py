@@ -11,8 +11,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-
 from typing import Optional, Union
+
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
 from .enumerations import (
@@ -94,7 +94,7 @@ class _SignalObjectBase(XodrBase):
         s: float,
         t: float,
         id: Optional[str],
-        Type: ObjectType | str,
+        Type: Union[ObjectType, str],
         subtype: str,
         dynamic: Dynamic,
         name: Optional[str],
@@ -831,7 +831,7 @@ class Object(_SignalObjectBase):
         self,
         s: float,
         t: float,
-        Type: ObjectType | str = ObjectType.none,
+        Type: Union[ObjectType, str] = ObjectType.none,
         subtype: Optional[str] = None,
         id: Optional[str] = None,
         name: Optional[str] = None,
@@ -1453,7 +1453,7 @@ class Outline(XodrBase):
         Defines if the outline is the outer outline.
     id : int, optional
         ID of the outline.
-    corners : list[CornerRoad | CornerLocal]
+    corners : list[Union[CornerRoad, CornerLocal]]
         List of corners in the outline.
 
     Methods
@@ -1507,7 +1507,7 @@ class Outline(XodrBase):
                 return True
         return False
 
-    def add_corner(self, corner: CornerRoad | CornerLocal) -> None:
+    def add_corner(self, corner: Union[CornerRoad, CornerLocal]) -> None:
         """Add a corner to the outline.
 
         Note: Only the same type of corners can be added.

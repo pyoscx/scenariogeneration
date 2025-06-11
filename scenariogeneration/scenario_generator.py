@@ -14,7 +14,7 @@ import itertools
 import os
 import sys
 from multiprocessing import Pool
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -148,7 +148,7 @@ class ScenarioGenerator:
         self._generation_folder = generation_folder
 
     def print_permutations(
-        self, override_parameters: Optional[list] | Optional[dict] = None
+        self, override_parameters: Optional[Union[list, dict]] = None
     ):
         """print_permutations will create a printout to view all permutations
         created.
@@ -305,8 +305,8 @@ class ScenarioGenerator:
     def generate_single(
         self,
         generation_folder: str,
-        order: str | int = "first",
-        override_parameters: Optional[list] | Optional[dict] = None,
+        order: Union[str, int] = "first",
+        override_parameters: Optional[Union[list, dict]] = None,
         write_relative_road_path: bool = True,
         name_separator: Optional[str] = None,
         prettyprint: bool = True,
@@ -375,7 +375,7 @@ class ScenarioGenerator:
     def generate(
         self,
         generation_folder: str,
-        override_parameters: Optional[list] | Optional[dict] = None,
+        override_parameters: Optional[Union[list, dict]] = None,
         write_relative_road_path: bool = True,
         name_separator: Optional[str] = None,
         prettyprint: bool = True,
