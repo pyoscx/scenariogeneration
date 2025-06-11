@@ -3743,7 +3743,9 @@ class SynchronizeAction(_PrivateActionType):
         target_PositionType: _PositionType,
         target_tolerance_master: Optional[float] = None,
         target_tolerance: Optional[float] = None,
-        final_speed: Optional[Union[AbsoluteSpeed,RelativeSpeedToMaster]] = None,
+        final_speed: Optional[
+            Union[AbsoluteSpeed, RelativeSpeedToMaster]
+        ] = None,
     ):
         """Initialize the SynchronizeAction.
 
@@ -4115,13 +4117,14 @@ class AnimationAction(_PrivateActionType):
 
     def __init__(
         self,
-        animation_type: Union[VehicleComponentType,
+        animation_type: Union[
+            VehicleComponentType,
             UserDefinedComponent,
             PedestrianAnimation,
             AnimationFile,
             UserDefinedAnimation,
             _ComponentAnimation,
-            ],
+        ],
         duration: Optional[float] = None,
         loop: Optional[bool] = None,
         state: Optional[float] = None,
@@ -6038,7 +6041,7 @@ class EnvironmentAction(_ActionType):
         Returns the full ElementTree of the class.
     """
 
-    def __init__(self, environment: Union[Environment ,CatalogReference]):
+    def __init__(self, environment: Union[Environment, CatalogReference]):
         """Initialize the EnvironmentAction.
 
         Parameters

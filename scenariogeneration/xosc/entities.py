@@ -1335,18 +1335,21 @@ class Entities(VersionBase):
     def add_scenario_object(
         self,
         name: str,
-        entityobject: Union[CatalogReference,
-            Vehicle,
-         Pedestrian,
-        MiscObject,
-         ExternalObjectReference,
-        ],
-        controller: Optional[Union[
+        entityobject: Union[
             CatalogReference,
-            Controller,
-            list[CatalogReference],
-            list[Controller],
-         ]] = None,
+            Vehicle,
+            Pedestrian,
+            MiscObject,
+            ExternalObjectReference,
+        ],
+        controller: Optional[
+            Union[
+                CatalogReference,
+                Controller,
+                list[CatalogReference],
+                list[Controller],
+            ]
+        ] = None,
     ) -> None:
         """Add a ScenarioObject to the scenario.
 
