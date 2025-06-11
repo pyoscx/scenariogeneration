@@ -12,10 +12,10 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import warnings
 import xml.etree.ElementTree as ET
+from typing import Optional
 
 import numpy as np
 
-from typing import Optional
 from ..helpers import enum2str
 from .enumerations import (
     ContactPoint,

@@ -11,8 +11,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-
 from typing import Optional, Union
+
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
 from .enumerations import (

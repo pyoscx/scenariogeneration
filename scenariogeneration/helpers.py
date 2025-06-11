@@ -13,6 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import os
 import xml.etree.ElementTree as ET
 from typing import Optional, Union
+
 from lxml import etree
 
 

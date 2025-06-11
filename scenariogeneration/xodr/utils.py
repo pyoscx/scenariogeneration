@@ -12,6 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import xml.etree.ElementTree as ET
 from typing import Optional
+
 import numpy as np
 
 from ..helpers import enum2str
