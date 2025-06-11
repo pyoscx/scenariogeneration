@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Optional
+from typing import Optional, Union
 
 from .enumerations import (
     MiscObjectCategory,
@@ -1335,19 +1335,18 @@ class Entities(VersionBase):
     def add_scenario_object(
         self,
         name: str,
-        entityobject: (
-            CatalogReference
-            | Vehicle
-            | Pedestrian
-            | MiscObject
-            | ExternalObjectReference
-        ),
-        controller: (
-            Optional[CatalogReference]
-            | Controller
-            | list[CatalogReference]
-            | list[Controller]
-        ) = None,
+        entityobject: Union[CatalogReference,
+            Vehicle,
+         Pedestrian,
+        MiscObject,
+         ExternalObjectReference,
+        ],
+        controller: Optional[Union[
+            CatalogReference,
+            Controller,
+            list[CatalogReference],
+            list[Controller],
+         ]] = None,
     ) -> None:
         """Add a ScenarioObject to the scenario.
 
@@ -1368,7 +1367,7 @@ class Entities(VersionBase):
         return self
 
     def add_entity_bytype(
-        self, name: str, object_type: ObjectType | list[ObjectType]
+        self, name: str, object_type: Union[ObjectType, list[ObjectType]]
     ) -> None:
         """Add an Entity to the scenario.
 
@@ -1451,19 +1450,19 @@ class ScenarioObject(VersionBase):
     def __init__(
         self,
         name: str,
-        entityobject: (
-            CatalogReference
-            | Vehicle
-            | Pedestrian
-            | MiscObject
-            | ExternalObjectReference
-        ),
-        controller: (
-            Optional[CatalogReference]
-            | Controller
-            | list[CatalogReference]
-            | list[Controller]
-        ) = None,
+        entityobject: Union[
+            CatalogReference,
+            Vehicle,
+            Pedestrian,
+            MiscObject,
+            ExternalObjectReference,
+        ],
+        controller: Union[
+            Optional[CatalogReference],
+            Controller,
+            list[CatalogReference],
+            list[Controller],
+        ] = None,
     ):
         """Initialize the ScenarioObject.
 

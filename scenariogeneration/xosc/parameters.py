@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Optional
+from typing import Optional, Union
 
 from ..helpers import printToFile
 from .enumerations import _MINOR_VERSION, XMLNS, XSI, VersionBase
@@ -1443,7 +1443,7 @@ class Deterministic(VersionBase):
     def add_single_distribution(
         self,
         parametername: str,
-        distribution: DistributionSet | DistributionRange,
+        distribution: Union[DistributionSet, DistributionRange],
     ) -> None:
         """Adds a parameter and a related distribution to it.
 
@@ -1538,7 +1538,7 @@ class ParameterValueDistribution(VersionBase):
         description: str,
         author: str,
         scenario_file: str,
-        parameter_distribution: Stochastic | Deterministic,
+        parameter_distribution: Union[Stochastic, Deterministic],
         osc_minor_version: int = _MINOR_VERSION,
         header_properties: Properties = None,
         license: License = None,
