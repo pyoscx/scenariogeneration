@@ -2617,7 +2617,11 @@ class Trajectory(_BaseCatalog):
         closed = convert_bool(element.attrib["closed"])
         pos_element = find_mandatory_field(element, "Shape")
         shape = _ShapeFactory.parse_shape(pos_element)
-        params = ParameterDeclarations.parse(element.find("ParameterDeclarations"))
+        params_element = element.find("ParameterDeclarations")
+        if type(params_element) is ET.Element:
+            params = ParameterDeclarations.parse(params_element)
+        else:
+            params = ParameterDeclarations()
         trajectory = Trajectory(name, closed)
         trajectory.add_shape(shape)
         for param in params.parameters:
