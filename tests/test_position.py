@@ -545,7 +545,9 @@ def test_trajectory(tmpdir):
     polyline = OSC.Polyline([0, 0.5], positionlist)
     traj = OSC.Trajectory("my_trajectory", False)
     traj.add_shape(polyline)
-    param = OSC.Parameter("my_param", OSC.ParameterType.string, "test parameter")
+    param = OSC.Parameter(
+        "my_param", OSC.ParameterType.string, "test parameter"
+    )
     traj.add_parameter(param)
     prettyprint(traj.get_element())
     traj2 = OSC.Trajectory("my_trajectory", False)
