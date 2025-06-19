@@ -24,6 +24,7 @@ from .exceptions import (
 from .utils import (
     CatalogReference,
     Orientation,
+    ParameterDeclarations,
     VersionBase,
     _BaseCatalog,
     _PositionType,
@@ -2616,8 +2617,15 @@ class Trajectory(_BaseCatalog):
         closed = convert_bool(element.attrib["closed"])
         pos_element = find_mandatory_field(element, "Shape")
         shape = _ShapeFactory.parse_shape(pos_element)
+        params_element = element.find("ParameterDeclarations")
+        if type(params_element) is ET.Element:
+            params = ParameterDeclarations.parse(params_element)
+        else:
+            params = ParameterDeclarations()
         trajectory = Trajectory(name, closed)
         trajectory.add_shape(shape)
+        for param in params.parameters:
+            trajectory.add_parameter(param)
         return trajectory
 
     def add_shape(self, shape: _TrajectoryShape) -> "Trajectory":

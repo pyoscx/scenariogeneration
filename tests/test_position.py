@@ -545,15 +545,21 @@ def test_trajectory(tmpdir):
     polyline = OSC.Polyline([0, 0.5], positionlist)
     traj = OSC.Trajectory("my_trajectory", False)
     traj.add_shape(polyline)
+    param = OSC.Parameter(
+        "my_param", OSC.ParameterType.string, "test parameter"
+    )
+    traj.add_parameter(param)
     prettyprint(traj.get_element())
     traj2 = OSC.Trajectory("my_trajectory", False)
     traj2.add_shape(polyline)
+    traj2.add_parameter(param)
     traj3 = OSC.Trajectory("my_trajectory2", False)
     assert traj == traj2
     assert traj != traj3
     traj4 = OSC.Trajectory.parse(traj.get_element())
     prettyprint(traj4.get_element())
     assert traj == traj4
+    assert param == traj4.parameters.parameters[0]
 
     assert version_validation("Trajectory", traj, 0) == ValidationResponse.OK
     assert version_validation("Trajectory", traj, 1) == ValidationResponse.OK
