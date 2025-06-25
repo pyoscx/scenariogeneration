@@ -2594,9 +2594,15 @@ class ActivateControllerAction(_PrivateActionType):
         animation = None
         lighting = None
         controllerRef = None
-        aca_element = find_mandatory_field(
-            element, "ControllerAction/ActivateControllerAction"
-        )
+        if element.find("ControllerAction") is not None:
+            aca_element = find_mandatory_field(
+                element, "ControllerAction/ActivateControllerAction"
+            )
+        else:
+            aca_element = find_mandatory_field(
+                element, "ActivateControllerAction"
+            )
+
         if "lateral" in aca_element.attrib:
             lateral = convert_bool(aca_element.attrib["lateral"])
         if "longitudinal" in aca_element.attrib:
