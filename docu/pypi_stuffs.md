@@ -1,7 +1,7 @@
 ## update documentation
 1.
 -change version in setup.py
-(both in version and download_url)
+(update the `version = "..."` field under `[project]`)
 
 -add release notes
 
@@ -21,7 +21,7 @@ git push --tags
 rm -rf dist
 
 6.
-python setup.py sdist
+python -m build
 
 7.
 twine upload dist/*
