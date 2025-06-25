@@ -20,9 +20,11 @@ Copyright (c) 2022 The scenariogeneration Authors.
   - create_road
 """
 
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
-import numpy as np
 import os
+
+import numpy as np
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

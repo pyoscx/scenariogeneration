@@ -10,12 +10,15 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import xml.etree.ElementTree as ET
+from copy import deepcopy
+
 import pytest
 
-from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
-import xml.etree.ElementTree as ET
-from .xml_validator import version_validation, ValidationResponse
+from scenariogeneration import xosc as OSC
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
@@ -1036,6 +1039,8 @@ def test_conditiongroup():
 
 
 def test_trigger():
+
+    trig = OSC.Trigger("stop")
     condgr = OSC.ConditionGroup()
 
     trig1 = OSC.EntityTrigger(
@@ -1059,6 +1064,7 @@ def test_trigger():
     )
 
     condgr.add_condition(trig1)
+    trig.add_conditiongroup(condgr)
     condgr.add_condition(trig2)
 
     condgr2 = OSC.ConditionGroup()
@@ -1086,17 +1092,15 @@ def test_trigger():
     condgr2.add_condition(trig3)
     condgr2.add_condition(trig4)
 
-    trig = OSC.Trigger()
-
-    trig.add_conditiongroup(condgr)
+    condgr3 = deepcopy(condgr2)
     trig.add_conditiongroup(condgr2)
     prettyprint(trig.get_element())
 
-    trig2 = OSC.Trigger()
+    trig2 = OSC.Trigger("stop")
     trig3 = OSC.Trigger()
     trig2.add_conditiongroup(condgr)
     trig2.add_conditiongroup(condgr2)
-    trig3.add_conditiongroup(condgr2)
+    trig3.add_conditiongroup(condgr3)
 
     assert trig == trig2
     assert trig != trig3
@@ -1195,9 +1199,13 @@ def test_equalities_trigger_vs_conditiongroup_vs_entity():
     enttrigger = OSC.EntityTrigger(
         "mytesttrigger", 0.2, OSC.ConditionEdge.rising, enttrigcond, "Target_1"
     )
-
+    enttrigger2 = OSC.EntityTrigger(
+        "mytesttrigger", 0.2, OSC.ConditionEdge.rising, enttrigcond, "Target_1"
+    )
     condgr = OSC.ConditionGroup()
     condgr.add_condition(enttrigger)
+    condgr2 = OSC.ConditionGroup()
+    condgr2.add_condition(enttrigger)
 
     trigger = OSC.Trigger()
     trigger.add_conditiongroup(condgr)
@@ -1208,20 +1216,39 @@ def test_equalities_trigger_vs_conditiongroup_vs_entity():
     assert trigger == enttrigger
     assert enttrigger == trigger
 
+    parsed_valtrigger = OSC.Trigger.parse(enttrigger2.get_element())
+
+    assert parsed_valtrigger == trigger
+    parsed_condgr = OSC.Trigger.parse(condgr2.get_element())
+
+    assert parsed_condgr == trigger
+
 
 def test_equalities_trigger_vs_conditiongroup_vs_value():
     trigcond = OSC.ParameterCondition("something", 2, OSC.Rule.equalTo)
+
     valtrigger = OSC.ValueTrigger(
         "myvaluetrigger",
         0.2,
         OSC.ConditionEdge.rising,
         trigcond,
-        triggeringpoint="start",
+        triggeringpoint="stop",
     )
-    condgr = OSC.ConditionGroup()
+
+    valtrigger2 = OSC.ValueTrigger(
+        "myvaluetrigger",
+        0.2,
+        OSC.ConditionEdge.rising,
+        trigcond,
+        triggeringpoint="stop",
+    )
+    condgr = OSC.ConditionGroup("stop")
     condgr.add_condition(valtrigger)
 
-    trigger = OSC.Trigger()
+    condgr2 = OSC.ConditionGroup("stop")
+    condgr2.add_condition(valtrigger)
+
+    trigger = OSC.Trigger("stop")
     trigger.add_conditiongroup(condgr)
     assert condgr == trigger
     assert trigger == condgr
@@ -1229,3 +1256,10 @@ def test_equalities_trigger_vs_conditiongroup_vs_value():
     assert valtrigger == condgr
     assert trigger == valtrigger
     assert valtrigger == trigger
+
+    parsed_valtrigger = OSC.Trigger.parse(valtrigger2.get_element())
+
+    assert parsed_valtrigger == trigger
+    parsed_condgr = OSC.Trigger.parse(condgr2.get_element())
+
+    assert parsed_condgr == trigger

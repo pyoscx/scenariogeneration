@@ -31,7 +31,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 speed_of_outer_car = 20
 
 import os
-from scenariogeneration import xosc, prettyprint, ScenarioGenerator
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xosc
 
 
 class Scenario(ScenarioGenerator):

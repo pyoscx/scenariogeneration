@@ -30,12 +30,13 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import os
+
 from scenariogeneration import (
-    xodr,
-    xosc,
+    ScenarioGenerator,
     esmini,
     prettyprint,
-    ScenarioGenerator,
+    xodr,
+    xosc,
 )
 
 

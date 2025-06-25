@@ -1,7 +1,9 @@
-import xmlschema
 import os
-from scenariogeneration.xosc import OpenSCENARIOVersionError
 from enum import Enum, auto
+
+import xmlschema
+
+from scenariogeneration.xosc import OpenSCENARIOVersionError
 
 
 class ValidationResponse(Enum):

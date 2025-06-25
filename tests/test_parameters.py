@@ -10,12 +10,14 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import pytest
 import xml.etree.ElementTree as ET
-from scenariogeneration import xosc as OSC
-from scenariogeneration import prettyprint
 
-from .xml_validator import version_validation, ValidationResponse
+import pytest
+
+from scenariogeneration import prettyprint
+from scenariogeneration import xosc as OSC
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)

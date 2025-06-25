@@ -1,7 +1,7 @@
-import pytest
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint
 import numpy as np
+import pytest
+
+from scenariogeneration import prettyprint, xodr
 
 
 @pytest.mark.parametrize(

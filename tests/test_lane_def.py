@@ -1,4 +1,4 @@
-from scenariogeneration import xodr, prettyprint
+from scenariogeneration import prettyprint, xodr
 
 
 def test_create_lane_lists_only_int():

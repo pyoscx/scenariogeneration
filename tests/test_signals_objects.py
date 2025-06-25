@@ -10,11 +10,11 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint, prettify
-
-from .xml_validator import version_validation, ValidationResponse
 import pytest
+
+from scenariogeneration import prettify, prettyprint, xodr
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_signal_validity():

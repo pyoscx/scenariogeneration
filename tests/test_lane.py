@@ -12,10 +12,9 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import pytest
 
+from scenariogeneration import prettyprint, xodr
 
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint
-from .xml_validator import version_validation, ValidationResponse
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_roadline():

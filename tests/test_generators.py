@@ -12,8 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import pytest
 
-
-from scenariogeneration import xodr, prettyprint
+from scenariogeneration import prettyprint, xodr
 
 
 def test_create_left_lane_split_first_lane():

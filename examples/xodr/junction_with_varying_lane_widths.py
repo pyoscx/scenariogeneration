@@ -17,10 +17,11 @@ Copyright (c) 2022 The scenariogeneration Authors.
   - Lane
 """
 
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
+import os
+
 import numpy as np
 
-import os
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

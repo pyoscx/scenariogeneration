@@ -10,13 +10,14 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import os
+
 import pytest
 
-
-from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
-from .xml_validator import version_validation, ValidationResponse
-import os
+from scenariogeneration import xosc as OSC
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)

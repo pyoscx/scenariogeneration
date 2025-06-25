@@ -10,14 +10,14 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from scenariogeneration.xodr.geometry import Line, PlanView
+import numpy as np
 import pytest
 
-import numpy as np
-
-from scenariogeneration import xodr as pyodrx
 from scenariogeneration import prettyprint
-from .xml_validator import version_validation, ValidationResponse
+from scenariogeneration import xodr as pyodrx
+from scenariogeneration.xodr.geometry import Line, PlanView
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_line():

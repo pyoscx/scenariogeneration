@@ -16,9 +16,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
   Will generate 12 different scenarios and 4 different roads.
 """
 
-from scenariogeneration import xodr
-from scenariogeneration import xosc, prettyprint
-from scenariogeneration import ScenarioGenerator
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr, xosc
 
 
 class Scenario(ScenarioGenerator):

@@ -11,12 +11,14 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 from tempfile import tempdir
-from scenariogeneration.xodr.opendrive import OpenDrive
-import pytest
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint
-from .xml_validator import version_validation, ValidationResponse
+
 import numpy as np
+import pytest
+
+from scenariogeneration import prettyprint, xodr
+from scenariogeneration.xodr.opendrive import OpenDrive
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_simple_road():

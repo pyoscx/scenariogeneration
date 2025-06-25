@@ -19,7 +19,7 @@ Copyright (c) 2023 The scenariogeneration Authors.
 
 """
 
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

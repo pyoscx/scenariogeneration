@@ -1,6 +1,8 @@
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
-import numpy as np
 import os
+
+import numpy as np
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

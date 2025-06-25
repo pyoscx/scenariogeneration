@@ -10,11 +10,12 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import pytest
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint
-from .xml_validator import version_validation, ValidationResponse
 import numpy as np
+import pytest
+
+from scenariogeneration import prettyprint, xodr
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_poly3profile():

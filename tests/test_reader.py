@@ -10,12 +10,12 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import os
+import xml.etree.ElementTree as ET
+
 import pytest
 
-import os
-from scenariogeneration import xosc
-from scenariogeneration import prettyprint
-import xml.etree.ElementTree as ET
+from scenariogeneration import prettyprint, xosc
 
 
 @pytest.fixture

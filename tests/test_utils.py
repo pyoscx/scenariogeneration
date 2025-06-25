@@ -10,19 +10,20 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import xml.etree.ElementTree as ET
-import pytest
 import datetime as dt
 import os
+import xml.etree.ElementTree as ET
 
-from scenariogeneration import xosc as OSC
+import pytest
+
 from scenariogeneration import prettyprint
+from scenariogeneration import xosc as OSC
 from scenariogeneration.xosc.utils import (
-    _TrafficSignalState,
     ValueConstraintGroup,
+    _TrafficSignalState,
 )
 
-from .xml_validator import version_validation, ValidationResponse
+from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)

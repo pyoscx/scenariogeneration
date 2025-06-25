@@ -1,9 +1,9 @@
+import importlib
 import os
 import sys
-import importlib
-import xmlschema
 
 import pytest
+import xmlschema
 
 
 @pytest.mark.parametrize(

@@ -23,8 +23,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import os
-from scenariogeneration import xosc, prettyprint
 
+from scenariogeneration import prettyprint, xosc
 
 # create a vehicle
 bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)

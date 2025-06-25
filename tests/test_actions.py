@@ -12,16 +12,14 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import pytest
 
-
-from scenariogeneration import xosc as OSC
 from scenariogeneration import prettyprint
+from scenariogeneration import xosc as OSC
 from scenariogeneration.helpers import prettify
 from scenariogeneration.xosc.actions import TrafficSignalControllerAction
-from scenariogeneration.xosc.enumerations import ReferenceContext
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION, ReferenceContext
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
-from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
-from .xml_validator import version_validation, ValidationResponse
+from .xml_validator import ValidationResponse, version_validation
 
 TD = OSC.TransitionDynamics(
     OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1.0
