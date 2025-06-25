@@ -15,7 +15,7 @@ description = "Generation of OpenSCENARIO and OpenDRIVE xml files"
 
 readme = "README.md"
 
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 
 # https://packaging.python.org/en/latest/specifications/core-metadata/#license
 license = { file = "LICENSE" }
@@ -27,9 +27,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
 
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
