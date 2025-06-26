@@ -27,12 +27,9 @@ import os
 
 import numpy as np
 
-from scenariogeneration import prettyprint, xosc
+from scenariogeneration import ScenarioGenerator, xodr, xosc
 
 acceleration_time = 5
-
-
-from scenariogeneration import ScenarioGenerator, prettyprint, xodr, xosc
 
 
 class Scenario(ScenarioGenerator):

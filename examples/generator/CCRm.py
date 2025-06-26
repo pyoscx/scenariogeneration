@@ -26,13 +26,10 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import os
 
-from scenariogeneration import prettyprint, xosc
+from scenariogeneration import ScenarioGenerator, xodr, xosc
 
 ttc_at_speed = 5
 acceleration_time = 5
-
-
-from scenariogeneration import ScenarioGenerator, prettyprint, xodr, xosc
 
 
 class Scenario(ScenarioGenerator):

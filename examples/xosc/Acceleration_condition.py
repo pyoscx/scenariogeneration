@@ -24,8 +24,6 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import os
-
 from scenariogeneration import ScenarioGenerator, prettyprint, xosc
 
 

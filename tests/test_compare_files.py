@@ -14,13 +14,11 @@ import importlib
 import os
 import sys
 from pathlib import Path
-from lxml import etree
 
 import pytest
-
+from lxml import etree
 
 from scenariogeneration import xosc
-
 
 OSC_FILES = {
     0: [

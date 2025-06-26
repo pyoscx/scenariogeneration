@@ -15,7 +15,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
   Will generate 9 scenarios
 """
 
-from scenariogeneration import ScenarioGenerator, prettyprint, xodr, xosc
+from scenariogeneration import ScenarioGenerator, xodr, xosc
 
 
 class Scenario(ScenarioGenerator):
