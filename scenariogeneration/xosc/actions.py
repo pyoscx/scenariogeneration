@@ -934,8 +934,7 @@ class SpeedProfileAction(_PrivateActionType):
         if "entityRef" in speed_profile_element.attrib:
             entity = speed_profile_element.attrib["entityRef"]
         if (
-            find_mandatory_field(speed_profile_element, "DynamicConstraints")
-            is not None
+            speed_profile_element.find("DynamicConstraints") is not None
         ):
             dynamics_constraint = DynamicsConstraints.parse(
                 find_mandatory_field(

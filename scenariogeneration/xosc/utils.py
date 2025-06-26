@@ -2083,8 +2083,8 @@ class FileHeader(VersionBase):
         """
         self.description = description
         self.author = author
-        self._revMajor = 1
-        self._revMinor = revMinor
+        # self._revMajor = 1
+        # self._revMinor = revMinor
         self.creation_date = creation_date
         self.setVersion(minor=revMinor)
         if license and not isinstance(license, License):
@@ -2099,8 +2099,9 @@ class FileHeader(VersionBase):
             if (
                 self.description == other.description
                 and self.author == other.author
-                and self._revMajor == other._revMajor
-                and self._revMinor == other._revMinor
+                # and self._revMajor == other._revMajor
+                # and self._revMinor == other._revMinor
+                and self.version_minor == other.version_minor
                 and self.properties == other.properties
             ):
                 # will not compare date, since this will never be the same
@@ -2126,9 +2127,9 @@ class FileHeader(VersionBase):
         license = None
         if element.find("license") is not None:
             license = License.parse(find_mandatory_field(element, "license"))
-
+        rev_minor = convert_int(element.attrib["revMinor"])
         return FileHeader(
-            author=author, description=description, license=license
+            author=author, description=description, license=license, revMinor=rev_minor
         )
 
     def get_attributes(self) -> dict[str, str]:

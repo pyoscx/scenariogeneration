@@ -519,6 +519,7 @@ def test_relativedistancecondition():
         True,
         False,
         routing_algorithm=OSC.RoutingAlgorithm.fastest,
+        coordinate_system=OSC.CoordinateSystem.trajectory,
     )
     prettyprint(cond.get_element())
     cond2 = OSC.RelativeDistanceCondition(
@@ -529,6 +530,7 @@ def test_relativedistancecondition():
         True,
         False,
         routing_algorithm=OSC.RoutingAlgorithm.fastest,
+        coordinate_system=OSC.CoordinateSystem.trajectory,
     )
     cond3 = OSC.RelativeDistanceCondition(
         1,

@@ -2793,6 +2793,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
             A RelativeDistanceCondition object.
         """
         condition = find_mandatory_field(element, "RelativeDistanceCondition")
+        # value = convert_float(condition.attrib["value"])
         value = condition.attrib["value"]
         rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])
