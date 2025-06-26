@@ -13,10 +13,12 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import os
+
 # Same approach to creating a junction as "full_junction.py" but with signals for each incoming road.
 import numpy as np
-import os
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

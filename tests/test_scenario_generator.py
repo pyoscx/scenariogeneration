@@ -10,12 +10,11 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import pytest
 import os
 
-from scenariogeneration import xosc
-from scenariogeneration import prettyprint
-from scenariogeneration import ScenarioGenerator
+import pytest
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xosc
 
 
 class writer_dummy:

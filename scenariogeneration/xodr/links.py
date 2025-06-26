@@ -913,9 +913,11 @@ def create_lane_links_from_ids(
         first_linktype, _, first_connecting_lanesec = _get_related_lanesection(
             road1, road2
         )
-        second_linktype, _, second_connecting_lanesec = (
-            _get_related_lanesection(road2, road1)
-        )
+        (
+            second_linktype,
+            _,
+            second_connecting_lanesec,
+        ) = _get_related_lanesection(road2, road1)
 
         # The road links need to be reciprocal for the lane linking to succeed
         if first_linktype == None or second_linktype == None:
@@ -1269,9 +1271,11 @@ def _create_links_roads(
             )
 
     else:
-        pre_linktype, pre_sign, pre_connecting_lanesec = (
-            _get_related_lanesection(pre_road, suc_road)
-        )
+        (
+            pre_linktype,
+            pre_sign,
+            pre_connecting_lanesec,
+        ) = _get_related_lanesection(pre_road, suc_road)
         suc_linktype, _, suc_connecting_lanesec = _get_related_lanesection(
             suc_road, pre_road
         )

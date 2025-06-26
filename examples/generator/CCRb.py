@@ -23,17 +23,13 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-from scenariogeneration import xosc, prettyprint
-import numpy as np
 import os
 
+import numpy as np
+
+from scenariogeneration import ScenarioGenerator, xodr, xosc
 
 acceleration_time = 5
-
-
-from scenariogeneration import xodr
-from scenariogeneration import xosc, prettyprint
-from scenariogeneration import ScenarioGenerator
 
 
 class Scenario(ScenarioGenerator):

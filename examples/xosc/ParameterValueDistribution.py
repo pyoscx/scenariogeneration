@@ -23,7 +23,8 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import os
-from scenariogeneration import xosc, prettyprint
+
+from scenariogeneration import prettyprint, xosc
 
 # some names used in both scenario and
 scenario_filename = "base_scenario.xosc"

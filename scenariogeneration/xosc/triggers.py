@@ -723,6 +723,7 @@ class ConditionGroup(_TriggerType):
                 "condition input not of type EntityTrigger or ValueTrigger"
             )
         condition._set_used_by_parent()
+        condition._triggerpoint = self._triggerpoint
         self.conditions.append(condition)
         self._used_by_parent = False
         return self
@@ -734,6 +735,8 @@ class ConditionGroup(_TriggerType):
         to a Trigger.
         """
         self._used_by_parent = True
+        for cond in self.conditions:
+            cond._triggerpoint = self._triggerpoint
 
     def get_element(self) -> ET.Element:
         """Constructs and returns an XML element representation of the
@@ -863,7 +866,11 @@ class Trigger(_TriggerType):
 
         conditiongroups = element.findall("ConditionGroup")
         for condgr in conditiongroups:
-            trigger.add_conditiongroup(ConditionGroup.parse(condgr))
+            tmp_condgr = ConditionGroup.parse(condgr)
+            tmp_condgr._triggerpoint = trigger._triggerpoint
+            for cond in tmp_condgr.conditions:
+                cond._triggerpoint = trigger._triggerpoint
+            trigger.add_conditiongroup(tmp_condgr)
 
         return trigger
 
@@ -882,7 +889,9 @@ class Trigger(_TriggerType):
         """
         if not isinstance(conditiongroup, ConditionGroup):
             raise TypeError("conditiongroup input not of type ConditionGroup")
+        conditiongroup._triggerpoint = self._triggerpoint
         conditiongroup._set_used_by_parent()
+
         self.conditiongroups.append(conditiongroup)
         return self
 
@@ -2784,6 +2793,7 @@ class RelativeDistanceCondition(_EntityTriggerType):
             A RelativeDistanceCondition object.
         """
         condition = find_mandatory_field(element, "RelativeDistanceCondition")
+        # value = convert_float(condition.attrib["value"])
         value = condition.attrib["value"]
         rule = convert_enum(condition.attrib["rule"], Rule)
         freespace = convert_bool(condition.attrib["freespace"])

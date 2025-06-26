@@ -10,7 +10,8 @@ Some features used:
 """
 
 import os
-from scenariogeneration import xosc, prettyprint, ScenarioGenerator
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xosc
 
 
 class Scenario(ScenarioGenerator):

@@ -19,10 +19,11 @@ Copyright (c) 2023 The scenariogeneration Authors.
 
 """
 
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
+import os
 
 import pyclothoids as pcloth
-import os
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

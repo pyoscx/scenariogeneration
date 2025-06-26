@@ -229,9 +229,9 @@ class Scenario(VersionBase):
             storyboard,
             roadnetwork,
             catalog,
-            header._revMinor,
-            header.properties,
-            variables,
+            license=header.license,
+            header_properties=header.properties,
+            variable_declaration=variables,
         )
 
     def get_element(self) -> ET.Element:

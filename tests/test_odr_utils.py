@@ -11,11 +11,10 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
+
 import pytest
 
-
-from scenariogeneration import xodr
-from scenariogeneration import prettyprint
+from scenariogeneration import prettyprint, xodr
 
 
 def test_userdata_no_extras():

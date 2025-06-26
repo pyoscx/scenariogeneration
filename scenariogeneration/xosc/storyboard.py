@@ -1135,6 +1135,8 @@ class StoryBoard(VersionBase):
         self.stories = []
 
     def __eq__(self, other: object) -> bool:
+        if not self.stories:
+            self.get_element()
         if isinstance(other, StoryBoard):
             if (
                 self.init == other.init

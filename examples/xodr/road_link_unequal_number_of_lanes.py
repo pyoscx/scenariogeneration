@@ -15,8 +15,9 @@ Copyright (c) 2022 The scenariogeneration Authors.
   a new lane section to change the number of lanes instead.
 """
 
-from scenariogeneration import xodr, prettyprint, ScenarioGenerator
 import os
+
+from scenariogeneration import ScenarioGenerator, prettyprint, xodr
 
 
 class Scenario(ScenarioGenerator):

@@ -10,11 +10,13 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-import pytest
-from scenariogeneration import xodr as pyodrx
-from scenariogeneration import prettyprint
 import numpy as np
-from .xml_validator import version_validation, ValidationResponse
+import pytest
+
+from scenariogeneration import prettyprint
+from scenariogeneration import xodr as pyodrx
+
+from .xml_validator import ValidationResponse, version_validation
 
 
 def test_link():
