@@ -2129,7 +2129,10 @@ class FileHeader(VersionBase):
             license = License.parse(find_mandatory_field(element, "license"))
         rev_minor = convert_int(element.attrib["revMinor"])
         return FileHeader(
-            author=author, description=description, license=license, revMinor=rev_minor
+            author=author,
+            description=description,
+            license=license,
+            revMinor=rev_minor,
         )
 
     def get_attributes(self) -> dict[str, str]:

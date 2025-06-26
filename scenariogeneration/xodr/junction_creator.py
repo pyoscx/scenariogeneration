@@ -241,9 +241,11 @@ class CommonJunctionCreator:
             incoming_sign,
             incoming_lane_section,
         ) = _get_related_lanesection(incoming_road, linked_road)
-        linked_connection, sign, linked_lane_section = (
-            _get_related_lanesection(linked_road, incoming_road)
-        )
+        (
+            linked_connection,
+            sign,
+            linked_lane_section,
+        ) = _get_related_lanesection(linked_road, incoming_road)
 
         incoming_left_lanes = len(
             incoming_road.lanes.lanesections[incoming_lane_section].leftlanes
@@ -1467,12 +1469,16 @@ class DirectJunctionCreator:
             - linked_lane_ids : list of int
                 Lane IDs for the linked road.
         """
-        incoming_connection, _, incoming_lane_section = (
-            _get_related_lanesection(incoming_road, linked_road)
-        )
-        linked_connection, sign, linked_lane_section = (
-            _get_related_lanesection(linked_road, incoming_road)
-        )
+        (
+            incoming_connection,
+            _,
+            incoming_lane_section,
+        ) = _get_related_lanesection(incoming_road, linked_road)
+        (
+            linked_connection,
+            sign,
+            linked_lane_section,
+        ) = _get_related_lanesection(linked_road, incoming_road)
 
         incoming_left_lanes = len(
             incoming_road.lanes.lanesections[incoming_lane_section].leftlanes
