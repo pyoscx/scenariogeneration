@@ -10,7 +10,7 @@ packages=["scenariogeneration","scenariogeneration.xosc","scenariogeneration.xod
 [project]
 name = "scenariogeneration" # REQUIRED, is the only field that cannot be marked as dynamic.
 
-version = "0.14.9"
+version = "0.15.0"
 description = "Generation of OpenSCENARIO and OpenDRIVE xml files"
 
 readme = "README.md"

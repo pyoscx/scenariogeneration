@@ -1,5 +1,28 @@
 ## scenariogeneration release notes
 
+### 2025-06-27 Version 0.15.0
+- General notes
+    - Docstrings have been updated to conform to the NumPy documentation standard.
+    - Added test matrix for python versions in github workflows
+- New features
+    - New Black formatting
+    - Switch to pyproject.toml
+    - Typehinting
+    - Add parsing of trajectory parameters
+    - Parsing with different versions now handled better
+- Bugfixes
+    - Parser ParameterDeclarations in class Environment
+    - ParseOpenScenario with encoding="utf-8"
+    - (CommonJunctionCreator): offset handling in both circular and cartesian coord
+    - Handling of deprication warning for ReachPositionCondition
+    - General linting fixes
+    - Version handling while parsing ActivateControllerAction
+    - Fix bug when comparison of triggers didn't work after parsing when having stop-trigger 
+- Test
+    - Fix test for ReachPositionCondition depricated
+- Examples
+    - New example added for varable usage (see examples/xosc/variable_usage.py)
+
 ### 2024-12-04 Version 0.14.9
 - New features
     - Extending Python version support. Now supporting 3.9-3.12.
