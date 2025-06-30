@@ -230,6 +230,7 @@ class Scenario(VersionBase):
             roadnetwork,
             catalog,
             license=header.license,
+            osc_minor_version=header.version_minor,
             header_properties=header.properties,
             variable_declaration=variables,
         )
