@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2025-06-30 Version 0.15.1
+- General notes
+    - Updated documentation for creating artifacts and generating documentation for https://github.com/pyoscx/pyoscx.github.io
+- Bugfixes
+    - Fix in improved version handling during scenario parsing
+
 ### 2025-06-27 Version 0.15.0
 - General notes
     - Docstrings have been updated to conform to the NumPy documentation standard.
