@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+### 2025-07-03 Version 0.15.2
+- Bugfixes
+    - Fix in pyproject.toml for installation of dependencies.
+
 ### 2025-06-30 Version 0.15.1
 - General notes
     - Updated documentation for creating artifacts and generating documentation for https://github.com/pyoscx/pyoscx.github.io
