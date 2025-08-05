@@ -17,7 +17,9 @@ import pytest
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
 
-from .xml_validator import ValidationResponse, version_validation
+from .xml_validator import version_validation, ValidationResponse
+import os
+import datetime as dt
 
 
 @pytest.fixture(autouse=True)
@@ -113,6 +115,9 @@ def test_maneuver(tmpdir):
         "ManeuverCatalog",
         "test catalog",
         "Mandolin",
+        licence=OSC.License("my lic"),
+        creation_date=dt.datetime.now(),
+        properties=OSC.Properties(),
     )
     with pytest.raises(TypeError):
         OSC.Maneuver("my man", "dummy")
