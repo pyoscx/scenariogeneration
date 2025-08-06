@@ -5635,7 +5635,7 @@ class ColorRGB(_ColorDefinition):
         ET.Element
             The ElementTree representation of the ColorRGB.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorRGB was introduced in OpenSCENARIO V1.2"
             )
@@ -5862,7 +5862,7 @@ class Color(VersionBase):
         ET.Element
             The ElementTree representation of the Color.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "Color was introduced in OpenSCENARIO V1.2"
             )
@@ -6300,7 +6300,7 @@ class DirectionOfTravelDistribution(VersionBase):
         ET.Element
             The ElementTree representation of the DirectionOfTravelDistribution.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
             )
@@ -6717,7 +6717,7 @@ class _VehicleComponent(VersionBase):
         ET.Element
             The ElementTree representation of the _VehicleComponent.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "VehicleComponent was introduced in OpenSCENARIO V1.2"
             )
@@ -6813,7 +6813,7 @@ class _ComponentAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the _ComponentAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ComponentAnimation was introduced in OpenSCENARIO V1.2"
             )

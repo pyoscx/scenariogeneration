@@ -202,9 +202,22 @@ def test_speedaction_abs():
     action = OSC.AbsoluteSpeedAction.parse(speedaction.get_element())
     prettyprint(action)
     assert speedaction == action
-    assert version_validation("PrivateAction", speedaction, 0)
-    assert version_validation("PrivateAction", speedaction, 1)
-    assert version_validation("PrivateAction", speedaction, 2)
+    assert (
+        version_validation("PrivateAction", speedaction, 0)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", speedaction, 1)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", speedaction, 2)
+        == ValidationResponse.OK
+    )
+    assert (
+        version_validation("PrivateAction", speedaction, 3)
+        == ValidationResponse.OK
+    )
     with pytest.raises(TypeError):
         OSC.AbsoluteSpeedAction(50, "dummy")
 
@@ -232,6 +245,7 @@ def test_speedaction_rel():
         version_validation("PrivateAction", speedaction, 2)
         == ValidationResponse.OK
     )
+    assert version_validation("PrivateAction", speedaction, 3)
     with pytest.raises(TypeError):
         OSC.RelativeSpeedAction(50, "Ego", "dummy")
 

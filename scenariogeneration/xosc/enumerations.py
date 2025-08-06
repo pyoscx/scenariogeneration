@@ -16,7 +16,7 @@ import warnings
 
 from .exceptions import OpenSCENARIOVersionError
 
-_MINOR_VERSION = 2
+_MINOR_VERSION = 3
 
 
 class VersionBase:

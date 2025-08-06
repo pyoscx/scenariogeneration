@@ -980,7 +980,7 @@ class SpeedProfileAction(_PrivateActionType):
         OpenSCENARIOVersionError
             If the OpenSCENARIO version is less than 1.2.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "SpeedProfileAction was introduced in OpenSCENARIO V1.2"
             )
@@ -2630,11 +2630,11 @@ class ActivateControllerAction(_PrivateActionType):
             retdict["lateral"] = get_bool_string(self.lateral)
         if self.longitudinal is not None:
             retdict["longitudinal"] = get_bool_string(self.longitudinal)
-        if self.animation is not None and self.isVersion(minor=2):
+        if self.animation is not None and self.isVersionEqLarger(minor=2):
             retdict["animation"] = get_bool_string(self.animation)
-        if self.lighting is not None and self.isVersion(minor=2):
+        if self.lighting is not None and self.isVersionEqLarger(minor=2):
             retdict["lighting"] = get_bool_string(self.lighting)
-        if self.controllerRef is not None and self.isVersion(minor=2):
+        if self.controllerRef is not None and self.isVersionEqLarger(minor=2):
             retdict["controllerRef"] = self.controllerRef
         return retdict
 

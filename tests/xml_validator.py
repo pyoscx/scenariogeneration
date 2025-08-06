@@ -31,7 +31,9 @@ schemas.append(
         os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd")
     )
 )
-
+schemas.append(
+    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_3_1.xsd"))
+)
 xodr_schema = xmlschema.XMLSchema(
     os.path.join("schemas", "opendrive_17_core.xsd")
 )
