@@ -3377,7 +3377,9 @@ class OverrideControllerValueAction(_PrivateActionType):
                 "active": get_bool_string(self.throttle_active),
                 "value": str(self.throttle_value),
             }
-            if self.throttle_rate is not None and self.isVersion(minor=2):
+            if self.throttle_rate is not None and self.isVersionEqLarger(
+                minor=2
+            ):
                 throttle_dict["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(
                 minor=2
@@ -3391,7 +3393,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 throttle_dict,
             )
         if self.brake_active is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 ET.SubElement(
                     overrideaction,
                     "Brake",
@@ -3419,7 +3421,9 @@ class OverrideControllerValueAction(_PrivateActionType):
                     )
 
         if self.clutch_active is not None:
-            if self.throttle_rate is not None and self.isVersion(minor=2):
+            if self.throttle_rate is not None and self.isVersionEqLarger(
+                minor=2
+            ):
                 throttle_dict["maxRate"] = str(self.throttle_rate)
             elif self.throttle_rate is not None and not self.isVersion(
                 minor=2
@@ -3431,9 +3435,13 @@ class OverrideControllerValueAction(_PrivateActionType):
                 "active": get_bool_string(self.clutch_active),
                 "value": str(self.clutch_value),
             }
-            if self.clutch_rate is not None and self.isVersion(minor=2):
+            if self.clutch_rate is not None and self.isVersionEqLarger(
+                minor=2
+            ):
                 clutch_dict["maxRate"] = str(self.clutch_rate)
-            elif self.clutch_rate is not None and not self.isVersion(minor=2):
+            elif self.clutch_rate is not None and not self.isVersionEqLarger(
+                minor=2
+            ):
                 raise OpenSCENARIOVersionError(
                     "maxRate was introduced in OpenSCENARIO v1.2"
                 )
@@ -3443,7 +3451,7 @@ class OverrideControllerValueAction(_PrivateActionType):
                 clutch_dict,
             )
         if self.parkingbrake_active is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 ET.SubElement(
                     overrideaction,
                     "ParkingBrake",
@@ -3479,14 +3487,14 @@ class OverrideControllerValueAction(_PrivateActionType):
                 "value": str(self.steeringwheel_value),
             }
             if self.steeringwheel_torque is not None:
-                if self.isVersion(minor=2):
+                if self.isVersionEqLarger(minor=2):
                     steering_dict["maxTorque"] = str(self.steeringwheel_torque)
                 else:
                     raise OpenSCENARIOVersionError(
                         "maxTorque was introduced in OpenSCENARIO v1.2"
                     )
             if self.steeringwheel_rate is not None:
-                if self.isVersion(minor=2):
+                if self.isVersionEqLarger(minor=2):
                     steering_dict["maxRate"] = str(self.steeringwheel_rate)
                 else:
                     raise OpenSCENARIOVersionError(
@@ -3499,7 +3507,7 @@ class OverrideControllerValueAction(_PrivateActionType):
             )
 
         if self.gear_active is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 ET.SubElement(
                     overrideaction,
                     "Gear",

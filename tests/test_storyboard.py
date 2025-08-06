@@ -10,6 +10,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import datetime as dt
 import os
 
 import pytest
@@ -17,9 +18,7 @@ import pytest
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
 
-from .xml_validator import version_validation, ValidationResponse
-import os
-import datetime as dt
+from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)

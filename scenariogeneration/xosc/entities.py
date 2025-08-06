@@ -28,6 +28,7 @@ from .utils import (
     Controller,
     DynamicsConstraints,
     EntityRef,
+    HitchCoupler,
     ParameterDeclarations,
     Properties,
     _BaseCatalog,
@@ -880,7 +881,13 @@ class Vehicle(_BaseCatalog):
     role : Role, optional
         The role of the Vehicle (valid from OpenSCENARIO V1.2). Default
         is None.
-
+    trailer_hitch : HitchCoupler, optional
+        Add an optional hitch to the vehicle, Default: None
+    trailer_coupler : HitchCoupler, optional
+        Add an optional coupler to the vehicle, Default: None
+    trailer : ScenarioObject | EntitiyRef
+        Add a scenario object or a name of a scenario object,
+        Default: None
     Attributes
     ----------
     name : str
@@ -903,6 +910,12 @@ class Vehicle(_BaseCatalog):
         Path to model file (valid from V1.1).
     role : Role
         The role of the Vehicle.
+    trailer_hitch : HitchCoupler, optional
+        Add an optional hitch to the vehicle
+    trailer_coupler : HitchCoupler, optional
+        Add an optional coupler to the vehicle
+    trailer : ScenarioObject | str
+        A scenario object or a name of a scenario object
 
     Methods
     -------
@@ -942,6 +955,9 @@ class Vehicle(_BaseCatalog):
         max_acceleration_rate: Optional[float] = None,
         max_deceleration_rate: Optional[float] = None,
         role: Optional[Role] = None,
+        trailer_hitch: Optional[HitchCoupler] = None,
+        trailer_coupler: Optional[HitchCoupler] = None,
+        trailer: Union[Optional[str], "ScenarioObject"] = None,
     ):
         """Initialize the Vehicle class.
 
@@ -977,6 +993,13 @@ class Vehicle(_BaseCatalog):
         role : Role, optional
             The role of the Vehicle (valid from OpenSCENARIO V1.2).
             Default is None.
+        trailer_hitch : HitchCoupler, optional
+            Add an optional hitch to the vehicle, Default: None
+        trailer_coupler : HitchCoupler, optional
+            Add an optional coupler to the vehicle, Default: None
+        trailer : ScenarioObject | EntitiyRef
+            Add a scenario object or a name of a scenario object,
+            Default: None
         """
         super().__init__()
         self.name = name
@@ -998,6 +1021,21 @@ class Vehicle(_BaseCatalog):
         self.mass = convert_float(mass)
         self.model3d = model3d
         self.role = convert_enum(role, Role, True)
+        if trailer_hitch is not None and not isinstance(
+            trailer_hitch, HitchCoupler
+        ):
+            raise TypeError("trailer hitch is not of type HitchCoupler")
+        if trailer_coupler is not None and not isinstance(
+            trailer_coupler, HitchCoupler
+        ):
+            raise TypeError("trailer hitch is not of type HitchCoupler")
+        if trailer is not None and not isinstance(
+            trailer, (str, ScenarioObject)
+        ):
+            raise TypeError("trailer is not of type str or ScenarioObject")
+        self.trailer_hitch = trailer_hitch
+        self.trailer_coupler = trailer_coupler
+        self.trailer = trailer
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Vehicle):
@@ -1010,6 +1048,9 @@ class Vehicle(_BaseCatalog):
                 and self.parameters == other.parameters
                 and self.mass == other.mass
                 and self.role == other.role
+                and self.trailer_coupler == other.trailer_coupler
+                and self.trailer_hitch == other.trailer_hitch
+                and self.trailer == other.trailer
             ):
                 return True
         return False
@@ -1069,6 +1110,29 @@ class Vehicle(_BaseCatalog):
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
+
+        trailer_hitch = None
+        trailer_coupler = None
+        trailer = None
+        if element.find("TrailerHitch") is not None:
+            trailer_hitch = HitchCoupler.parse(
+                find_mandatory_field(element, "TrailerHitch")
+            )
+        if element.find("TrailerCoupler") is not None:
+            trailer_coupler = HitchCoupler.parse(
+                find_mandatory_field(element, "TrailerCoupler")
+            )
+        if element.find("Trailer") is not None:
+            trailer_element = find_mandatory_field(element, "Trailer")
+            if trailer_element.find("Trailer"):
+                trailer = ScenarioObject.parse(
+                    find_mandatory_field(trailer_element, "Trailer")
+                )
+            else:
+                trailer = EntityRef.parse(
+                    find_mandatory_field(trailer_element, "TrailerRef")
+                ).entity
+
         vehicle = Vehicle(
             name,
             vehicle_type,
@@ -1083,6 +1147,9 @@ class Vehicle(_BaseCatalog):
             max_acc_rate,
             max_dec_rate,
             role,
+            trailer_hitch,
+            trailer_coupler,
+            trailer,
         )
         vehicle.properties = properties
         vehicle.parameters = parameters
@@ -1175,7 +1242,19 @@ class Vehicle(_BaseCatalog):
         element.append(self.dynamics.get_element("Performance"))
         element.append(self.axles.get_element())
         element.append(self.properties.get_element())
+        if self.trailer_hitch:
+            element.append(self.trailer_hitch.get_element("Hitch"))
+        if self.trailer_coupler:
+            element.append(self.trailer_coupler.get_element("Coupler"))
+        if self.trailer is not None:
 
+            trailer_element = ET.SubElement(element, "Trailer")
+            if isinstance(self.trailer, str):
+                trailer_element.append(
+                    EntityRef(self.trailer).get_element("TrailerRef")
+                )
+            else:
+                trailer_element.append(self.trailer.get_element("Trailer"))
         return element
 
 
@@ -1609,19 +1688,24 @@ class ScenarioObject(VersionBase):
         """
         return {"name": self.name}
 
-    def get_element(self) -> ET.Element:
+    def get_element(self, elementname: str = "ScenarioObject") -> ET.Element:
         """Return the ElementTree of the Entity.
 
+        Parameters
+        ----------
+        elementname : str
+            Used if another name is needed for the ScenarioObject. Default is
+            "ScenarioObject".
         Returns
         -------
         xml.etree.ElementTree.Element
             The ElementTree representation of the Entity.
         """
-        element = ET.Element("ScenarioObject", attrib=self.get_attributes())
+        element = ET.Element(elementname, attrib=self.get_attributes())
 
         element.append(self.entityobject.get_element())
         if self.controller:
-            if self.version_minor < 2 and len(self.controller) > 1:
+            if self.isVersionEqLess(minor=1) and len(self.controller) > 1:
                 raise OpenSCENARIOVersionError(
                     "multiple controllers were added in OSC V1.2"
                 )

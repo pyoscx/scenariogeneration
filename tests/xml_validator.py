@@ -44,6 +44,7 @@ def version_validation(
     scenariogeneration_object,
     osc_version=2,
     wanted_schema="xosc",
+    wanted_name_of_element=None,
 ):
     if wanted_schema == "xosc":
         schema = schemas[osc_version]
@@ -62,7 +63,12 @@ def version_validation(
         no_xsd = True
 
     try:
-        element_to_test = scenariogeneration_object.get_element()
+        if wanted_name_of_element is None:
+            element_to_test = scenariogeneration_object.get_element()
+        else:
+            element_to_test = scenariogeneration_object.get_element(
+                wanted_name_of_element
+            )
     except OpenSCENARIOVersionError as e:
         if validator or no_xsd:
             return ValidationResponse.OSC_VERSION

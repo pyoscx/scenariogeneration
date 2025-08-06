@@ -10,20 +10,20 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import copy
 import os
 
 import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc.utils import CatalogReference, EntityRef
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=3)
 
 
 def test_properties():
@@ -92,129 +92,270 @@ def test_axles():
         axles.add_axle("dummy")
 
 
-def test_vehicle(tmpdir):
-    bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
-    fa = OSC.Axle(2, 2, 2, 1, 1)
-    ba = OSC.Axle(1, 1, 2, 1, 1)
+class TestVehicle:
 
-    veh = OSC.Vehicle(
-        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
-    )
+    @pytest.fixture(name="bb")
+    def fix_bb(self):
+        return OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
 
-    prettyprint(veh.get_element())
-    veh.add_property_file("propfile.xml")
-    veh.add_property("myprop", "12")
-    veh.add_axle(ba)
-    param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
-    veh.add_parameter(param)
+    @pytest.fixture(name="fa")
+    def fix_fa(self):
+        return OSC.Axle(2, 2, 2, 1, 1)
 
-    prettyprint(veh.get_element())
+    @pytest.fixture(name="ba")
+    def fix_ba(self):
+        return OSC.Axle(1, 1, 2, 1, 1)
 
-    veh2 = OSC.Vehicle(
-        "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
-    )
-    veh2.add_property_file("propfile.xml")
-    veh2.add_property("myprop", "12")
-    veh2.add_axle(ba)
-    veh2.add_parameter(param)
-
-    veh3 = OSC.Vehicle(
-        "mycar",
-        OSC.VehicleCategory.car,
-        bb,
-        fa,
-        ba,
-        150,
-        10,
-        10,
-        2000,
-        "model",
-        1,
-        1,
-        OSC.Role.police,
-    )
-    prettyprint(veh3)
-    assert veh == veh2
-    assert veh != veh3
-
-    veh4 = OSC.Vehicle.parse(veh.get_element())
-    assert veh4 == veh
-    prettyprint(veh4.get_element())
-    veh5 = OSC.Vehicle.parse(veh3.get_element())
-    prettyprint(veh5)
-    assert veh5 == veh3
-
-    assert version_validation("Vehicle", veh, 0) == ValidationResponse.OK
-    assert version_validation("Vehicle", veh, 1) == ValidationResponse.OK
-    assert version_validation("Vehicle", veh, 2) == ValidationResponse.OK
-
-    assert (
-        version_validation("Vehicle", veh3, 0)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert (
-        version_validation("Vehicle", veh3, 1)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert version_validation("Vehicle", veh3, 2) == ValidationResponse.OK
-
-    veh6 = OSC.Vehicle(
-        "mycar",
-        OSC.VehicleCategory.car,
-        bb,
-        fa,
-        ba,
-        150,
-        10,
-        10,
-        2000,
-        "model",
-    )
-
-    assert (
-        version_validation("Vehicle", veh6, 0)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert version_validation("Vehicle", veh6, 1) == ValidationResponse.OK
-    assert version_validation("Vehicle", veh6, 2) == ValidationResponse.OK
-
-    veh.dump_to_catalog(
-        os.path.join(tmpdir, "my_catalog.xosc"),
-        "VehicleCatalog",
-        "test catalog",
-        "Mandolin",
-    )
-
-    with pytest.raises(ValueError):
-        OSC.Vehicle("car", "dummy", bb, fa, ba, 150, 10, 10)
-    with pytest.raises(TypeError):
-        OSC.Vehicle(
-            "car", OSC.VehicleCategory.bicycle, "dummy", fa, ba, 150, 10, 10
+    @pytest.fixture(name="simple_veh")
+    def fix_simple_veh(self, bb, fa, ba):
+        return OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
         )
-    with pytest.raises(TypeError):
-        OSC.Vehicle(
-            "car", OSC.VehicleCategory.bicycle, bb, "dummy", ba, 150, 10, 10
+
+    @pytest.fixture(name="simple_veh_mass")
+    def fix_simple_veh_mass(self, bb, fa, ba):
+        return OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10, 2000
         )
-    with pytest.raises(TypeError):
-        OSC.Vehicle(
-            "car", OSC.VehicleCategory.bicycle, bb, fa, "dummy", 150, 10, 10
-        )
-    with pytest.raises(ValueError):
-        OSC.Vehicle(
-            "car",
-            OSC.VehicleCategory.bicycle,
+
+    @pytest.fixture(name="extended_veh")
+    def fix_extended_veh(self, bb, fa, ba):
+        return OSC.Vehicle(
+            "mycar",
+            OSC.VehicleCategory.car,
             bb,
             fa,
             ba,
             150,
             10,
             10,
-            role="dummy",
+            2000,
+            "model",
+            1,
+            1,
+            OSC.Role.police,
         )
-    with pytest.raises(TypeError):
-        veh.add_parameter("dummy")
-    with pytest.raises(TypeError):
-        veh.add_axle("dummy")
+
+    @pytest.fixture(name="trailer_veh")
+    def fix_trailer_veh(self, bb, fa, ba):
+
+        return OSC.Vehicle(
+            "mycar",
+            OSC.VehicleCategory.car,
+            bb,
+            fa,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+            OSC.Role.police,
+            trailer_hitch=OSC.HitchCoupler(1),
+            trailer_coupler=OSC.HitchCoupler(2),
+            trailer="my_trailer",
+        )
+
+    @pytest.fixture(name="trailer_veh_sceobj")
+    def fix_trailer_veh_sceobj(self, bb, fa, ba):
+        sceobj = OSC.ScenarioObject(
+            "my_trailer",
+            OSC.CatalogReference("VehcileCatalog", "some_trailer"),
+        )
+        return OSC.Vehicle(
+            "mycar",
+            OSC.VehicleCategory.car,
+            bb,
+            fa,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+            OSC.Role.police,
+            trailer_hitch=OSC.HitchCoupler(1),
+            trailer_coupler=OSC.HitchCoupler(2),
+            trailer=sceobj,
+        )
+
+    @pytest.mark.parametrize(
+        "vehicle_to_parse",
+        [
+            "simple_veh",
+            "simple_veh_mass",
+            "extended_veh",
+            "trailer_veh",
+            "trailer_veh_sceobj",
+        ],
+    )
+    def test_base(self, vehicle_to_parse, request):
+        vehicle = request.getfixturevalue(vehicle_to_parse)
+        prettyprint(vehicle.get_element())
+
+    def test_base_property(self, simple_veh, ba):
+
+        simple_veh.add_property_file("propfile.xml")
+        simple_veh.add_property("myprop", "12")
+        simple_veh.add_axle(ba)
+        param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
+        simple_veh.add_parameter(param)
+
+        prettyprint(simple_veh.get_element())
+
+    @pytest.mark.parametrize(
+        "vehicle_to_parse",
+        [
+            "simple_veh",
+            "simple_veh_mass",
+            "extended_veh",
+            "trailer_veh",
+            "trailer_veh_sceobj",
+        ],
+    )
+    def test_eq_copy(self, vehicle_to_parse, request):
+        vehicle = request.getfixturevalue(vehicle_to_parse)
+        veh_copy = copy.deepcopy(vehicle)
+        assert vehicle == veh_copy
+
+    def test_eq(self, bb, ba, fa):
+        veh1 = OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+        )
+        veh2 = OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+        )
+        assert veh1 == veh2
+
+    def test_neq(self, bb, ba, fa):
+        veh1 = OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 11
+        )
+        veh2 = OSC.Vehicle(
+            "mycar", OSC.VehicleCategory.car, bb, fa, ba, 150, 10, 10
+        )
+        assert veh1 != veh2
+
+    def test_neq_extended(self, simple_veh, extended_veh):
+        assert simple_veh != extended_veh
+
+    def test_neq_trailer(self, trailer_veh, extended_veh):
+        assert trailer_veh != extended_veh
+
+    def test_type_error_bb(self, fa, ba):
+        with pytest.raises(TypeError):
+            OSC.Vehicle(
+                "car",
+                OSC.VehicleCategory.bicycle,
+                "dummy",
+                fa,
+                ba,
+                150,
+                10,
+                10,
+            )
+
+    def test_type_error_ba(self, bb, ba):
+        with pytest.raises(TypeError):
+            OSC.Vehicle(
+                "car",
+                OSC.VehicleCategory.bicycle,
+                bb,
+                "dummy",
+                ba,
+                150,
+                10,
+                10,
+            )
+
+    def test_type_error_fa(self, fa, bb):
+        with pytest.raises(TypeError):
+            OSC.Vehicle(
+                "car",
+                OSC.VehicleCategory.bicycle,
+                bb,
+                fa,
+                "dummy",
+                150,
+                10,
+                10,
+            )
+
+    def test_value_error_type(self, bb, fa, ba):
+        with pytest.raises(ValueError):
+            OSC.Vehicle("car", "dummy", bb, fa, ba, 150, 10, 10)
+
+    def test_wrong_param_addition(self, simple_veh):
+        with pytest.raises(TypeError):
+            simple_veh.add_parameter("dummy")
+
+    def test_wrong_axle_addition(self, simple_veh):
+        with pytest.raises(TypeError):
+            simple_veh.add_axle("dummy")
+
+    def test_role_error(self, bb, fa, ba):
+        with pytest.raises(ValueError):
+            OSC.Vehicle(
+                "car",
+                OSC.VehicleCategory.bicycle,
+                bb,
+                fa,
+                ba,
+                150,
+                10,
+                10,
+                role="dummy",
+            )
+
+    @pytest.mark.parametrize(
+        "vehicle_to_parse",
+        [
+            "simple_veh",
+            "simple_veh_mass",
+            "extended_veh",
+            "trailer_veh",
+            "trailer_veh_sceobj",
+        ],
+    )
+    def test_parse(self, vehicle_to_parse, request):
+        vehicle = request.getfixturevalue(vehicle_to_parse)
+        parsed_vehicle = OSC.Vehicle.parse(vehicle.get_element())
+        assert vehicle == parsed_vehicle
+
+    @pytest.mark.parametrize(
+        ["vehicle_to_validate", "version", "expected"],
+        [
+            ("simple_veh", 0, ValidationResponse.OK),
+            ("simple_veh", 1, ValidationResponse.OK),
+            ("simple_veh", 2, ValidationResponse.OK),
+            ("simple_veh", 3, ValidationResponse.OK),
+            ("simple_veh_mass", 0, ValidationResponse.OSC_VERSION),
+            ("simple_veh_mass", 1, ValidationResponse.OK),
+            ("simple_veh_mass", 2, ValidationResponse.OK),
+            ("simple_veh_mass", 3, ValidationResponse.OK),
+            ("extended_veh", 0, ValidationResponse.OSC_VERSION),
+            ("extended_veh", 1, ValidationResponse.OSC_VERSION),
+            ("extended_veh", 2, ValidationResponse.OK),
+            ("extended_veh", 3, ValidationResponse.OK),
+            ("trailer_veh", 0, ValidationResponse.OSC_VERSION),
+            ("trailer_veh", 1, ValidationResponse.OSC_VERSION),
+            ("trailer_veh", 2, ValidationResponse.OSC_VERSION),
+            ("trailer_veh", 3, ValidationResponse.OK),
+            ("trailer_veh_sceobj", 0, ValidationResponse.OSC_VERSION),
+            ("trailer_veh_sceobj", 1, ValidationResponse.OSC_VERSION),
+            ("trailer_veh_sceobj", 2, ValidationResponse.OSC_VERSION),
+            ("trailer_veh_sceobj", 3, ValidationResponse.OK),
+        ],
+    )
+    def test_xml_validation(
+        self, vehicle_to_validate, version, expected, request
+    ):
+        veh = request.getfixturevalue(vehicle_to_validate)
+        assert version_validation("Vehicle", veh, version) == expected
 
 
 def test_pedestrian(tmpdir):

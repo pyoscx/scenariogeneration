@@ -1160,7 +1160,7 @@ class Controller(_BaseCatalog):
         """
         retdict = {"name": self.name}
         if self.controller_type:
-            if self.isVersion(minor=2):
+            if self.isVersionEqLarger(minor=2):
                 retdict["controllerType"] = self.controller_type.get_name()
             else:
                 raise OpenSCENARIOVersionError(
@@ -1427,15 +1427,21 @@ class EntityRef(VersionBase):
         """
         return {"entityRef": self.entity}
 
-    def get_element(self) -> ET.Element:
+    def get_element(self, elementname: str = "EntityRef") -> ET.Element:
         """Returns the ElementTree of the EntityRef.
+
+        Parameters
+        ----------
+        elementname : str
+            Used if another name is needed for the EntityRef. Default is
+            "EntityRef".
 
         Returns
         -------
         ET.Element
             The ElementTree representation of the EntityRef.
         """
-        return ET.Element("EntityRef", attrib=self.get_attributes())
+        return ET.Element(elementname, attrib=self.get_attributes())
 
 
 class Orientation(VersionBase):
@@ -1865,13 +1871,13 @@ class DynamicsConstraints(VersionBase):
         if self.max_acceleration is not None:
             retdict["maxAcceleration"] = str(self.max_acceleration)
         if self.max_acceleration_rate is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 raise OpenSCENARIOVersionError(
                     "maxAccelerationRate was introduced in OpenSCENARIO V1.2"
                 )
             retdict["maxAccelerationRate"] = str(self.max_acceleration_rate)
         if self.max_deceleration_rate is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 raise OpenSCENARIOVersionError(
                     "maxDecelerationRate was introduced in OpenSCENARIO V1.2"
                 )
@@ -3844,7 +3850,7 @@ class Sun(VersionBase):
         """
         retdict = {}
         retdict["azimuth"] = str(self.azimuth)
-        if self.isVersion(minor=2):
+        if self.isVersionEqLarger(minor=2):
             retdict["illuminance"] = str(self.intensity)
         else:
             retdict["intensity"] = str(self.intensity)
@@ -5754,7 +5760,7 @@ class ColorCMYK(_ColorDefinition):
         ET.Element
             The ElementTree representation of the ColorCMYK.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorCMYK was introduced in OpenSCENARIO V1.2"
             )
@@ -6201,7 +6207,7 @@ class AnimationFile(_AnimationType):
         ET.Element
             The ElementTree representation of the AnimationFile.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "AnimationFile was introduced in OpenSCENARIO V1.2"
             )
@@ -6395,7 +6401,7 @@ class UserDefinedAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the UserDefinedAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedAnimation was introduced in OpenSCENARIO V1.2"
             )
@@ -6484,7 +6490,7 @@ class UserDefinedComponent(_AnimationType):
         ET.Element
             The ElementTree representation of the UserDefinedComponent.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedComponent was introduced in OpenSCENARIO V1.2"
             )
@@ -6619,7 +6625,7 @@ class PedestrianAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the PedestrianAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "PedestrianAnimation was introduced in OpenSCENARIO V1.2"
             )
@@ -6825,3 +6831,91 @@ class _ComponentAnimation(_AnimationType):
             element.append(self.component.get_element())
 
         return element
+
+
+class HitchCoupler(VersionBase):
+    """HitchCoupler represents the TrailerHitch and TrailerCoupler
+    classes in OpenScenario
+
+    Parameters
+    ----------
+    dx : float
+        the relative position in the x axis, relative to the vehicle
+    dz : float
+        the relative position in the z axis, relative to the vehicle,
+        default: None
+
+    Attributes
+    ----------
+    dx : float
+        the relative position in the x axis, relative to the vehicle
+    dz : float
+        the relative position in the z axis, relative to the vehicle
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    def __init__(self, dx: float, dz: Optional[float] = None):
+        self.dx = convert_float(dx)
+        self.dz = convert_float(dz)
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, HitchCoupler)
+            and self.get_attributes() == other.get_attributes()
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "HitchCoupler":
+        """Parses the XML element of HitchCoupler.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A HitchCoupler element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        HitchCoupler
+            A HitchCoupler object.
+        """
+        dz = element.attrib.get("dz")
+        return HitchCoupler(element.attrib["dx"], element.attrib.get("dz"))
+
+    def get_attributes(self) -> dict[str, str]:
+        """returns the attributes of the HitchCoupler"""
+        retdict = {"dx": str(self.dx)}
+        if self.dz is not None:
+            retdict["dz"] = str(self.dz)
+        return retdict
+
+    def get_element(self, element_name: str) -> ET.Element:
+        """Returns the ElementTree of the HitchCoupler.
+
+        Parameters
+        ----------
+        element_name:str
+            if it is a Hitch or a Coupler
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the HitchCoupler.
+        """
+        if element_name not in ["Hitch", "Coupler"]:
+            raise ValueError(
+                f"{element_name} has to be either Hitch or Coupler"
+            )
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                f"Trailer{element_name} was " "introduced in OpenScenario 1.3"
+            )
+        return ET.Element(
+            f"Trailer{element_name}", attrib=self.get_attributes()
+        )
