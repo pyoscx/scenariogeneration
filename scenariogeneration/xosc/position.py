@@ -2821,26 +2821,77 @@ class Nurbs(_TrajectoryShape):
 
 
 class ClothoidSplineSegment(VersionBase):
-    def __init__(self, curvature_end: float,
-                 curvature_start: float,
+    """
+    The ClothoidSplineSegment class creates a segment of a clothoid spline.
+
+     Parameters
+    ----------
+    curvature_start: float
+        Start curvature of the clothoid spline segment.unit:[1/m]
+    curvature_end: float
+        End curvature of the clothoid spline segment.unit:[1/m]
+    length: float
+        Length of the clothoid segment.unit: [m]
+    h_offset: float
+        Optional heading offset in radians of the clothoid segment relative to end of the
+         previous segment or to position_start if present. Default is 0.
+    time_start: float
+        Optional time specification at the start of the clothoid segment.unit: [s]
+    position_start:  list of _PositionType
+        optional starting position of a clothoid segment. If position_start is omitted for
+        the first segment, the entity's current position is used. For subsequent segments,
+        the end position of the previous segment is used.
+        If only the heading is omitted, the heading of the previous segment's end position
+        shall be used.
+
+    Attributes
+    ----------
+    curvature_start : float
+        Start curvature of the clothoid spline segment. unit: [1/m]
+    curvature_end : float
+        End curvature of the clothoid spline segment. unit: [1/m]
+    length : float
+        Length of the clothoid segment. unit: [m]
+    h_offset : float
+        Heading offset in radians of the clothoid segment relative to end of the previous segment
+        or to position_start if present.
+    time_start : float
+        Time specification at the start of the clothoid segment. unit: [s]
+    position_start : _PositionType
+        Starting position of a clothoid segment.
+
+    Methods
+    -------
+
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+
+    """
+
+    def __init__(self, curvature_start: float,
+                 curvature_end: float,
                  length: float,
                  h_offset: Optional[float] = None,
                  time_start: Optional[float] = None,
                  position_start: Optional[_PositionType] = None):
         """Initialize the ClothoidSplineSegment.
-            One segment of a clothoid spline.
 
         Parameters
         ----------
-        curvature_end: float
-            End curvature of the clothoid spline segment.unit:[1/m]
         curvature_start: float
             Start curvature of the clothoid spline segment.unit:[1/m]
+        curvature_end: float
+            End curvature of the clothoid spline segment.unit:[1/m]
         length: float
         	Length of the clothoid segment.unit: [m]
         h_offset: float
-            Optional heading offset in radians of the clothoid segment relative to end of the previous segment or
-            to position_start if present. Default is 0.
+            Optional heading offset in radians of the clothoid segment relative to end of the
+            previous segment or to position_start if present. Default is 0.
         time_start: float
         	Optional time specification at the start of the clothoid segment.unit: [s]
         position_start:  list of _PositionType
@@ -2858,9 +2909,23 @@ class ClothoidSplineSegment(VersionBase):
         self.length = convert_float(length)
         self.time_start = convert_float(time_start)
 
-        if position_start is not None and not isinstance(position_start, _PositionType):
-            raise TypeError("position_start must be of type _PositionType or None")
+        if position_start is not None:
+            if not isinstance(position_start, list) or not all(
+                    isinstance(pos, _PositionType) for pos in position_start):
+                raise TypeError("position_start elements must be of type _PositionType or None")
         self.position_start = position_start
+
+    def __eq__(self, other):
+        if not isinstance(other, ClothoidSplineSegment):
+            return False
+        return (
+                self.curvature_start == other.curvature_start and
+                self.curvature_end == other.curvature_end and
+                self.length == other.length and
+                self.h_offset == other.h_offset and
+                self.time_start == other.time_start and
+                self.position_start == other.position_start
+        )
 
     def get_attributes(self) -> dict:
         """Return the attributes of the ClothoidSplineSegment as a dictionary."""
@@ -2877,9 +2942,14 @@ class ClothoidSplineSegment(VersionBase):
 
     def get_element(self) -> ET.Element:
         """Return the ElementTree representation of the ClothoidSplineSegment."""
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "ClothoidSplineSegment was introduced in OpenSCENARIO V1.3"
+            )
         element = ET.Element("ClothoidSplineSegment", attrib=self.get_attributes())
         if self.position_start:
-            element.append(self.position_start.get_element("positionStart"))
+            for position in self.position_start:
+                element.append(position.get_element("PositionStart"))
         return element
 
     @staticmethod
@@ -2901,12 +2971,11 @@ class ClothoidSplineSegment(VersionBase):
         length = convert_float(element.attrib["length"])
         h_offset = convert_float(element.attrib.get("hOffset"))
         time_start = convert_float(element.attrib.get("timeStart"))
-        position_start = None
+        position_start = []
 
-        if element.find("positionStart") is not None:
-            position_start = _PositionFactory.parse_position(
-                element.find("positionStart")
-            )
+        pos_start_elem = element.find("PositionStart")
+        if pos_start_elem is not None:
+            position_start.append(_PositionFactory.parse_position(pos_start_elem))
 
         return ClothoidSplineSegment(
             curvature_end=curvature_end,
@@ -2919,6 +2988,35 @@ class ClothoidSplineSegment(VersionBase):
 
 
 class ClothoidSpline(_TrajectoryShape):
+    """
+    The ClothoidSpline class creates a ClothoidSpline shape.
+
+    Parameters
+    ----------
+    segments : List[ClothoidSplineSegment]
+        A list of ClothoidSplineSegments.
+    time_end : float
+        Optional time specification at the end of the clothoid spline curve.
+        Required if timeStart in ClothoidSplineSegment is specified.
+
+    Attributes
+    ----------
+    segments : List[ClothoidSplineSegment]
+        A list of ClothoidSplineSegment objects that define the segments of the clothoid spline.
+    time_end : float, optional
+        time specification at the end of the clothoid spline curve.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
     def __init__(self, segments: list[ClothoidSplineSegment], time_end: Optional[float] = None):
         """Initialize the ClothoidSpline.
 
@@ -2934,6 +3032,14 @@ class ClothoidSpline(_TrajectoryShape):
         self.segments = segments
         self.time_end = convert_float(time_end)
 
+    def __eq__(self, other):
+        if not isinstance(other, ClothoidSpline):
+            return False
+        return (
+                self.segments == other.segments and
+                self.time_end == other.time_end
+        )
+
     def get_attributes(self) -> dict:
         """Return the attributes of the ClothoidSpline as a dictionary."""
         attributes = {}
@@ -2943,10 +3049,16 @@ class ClothoidSpline(_TrajectoryShape):
 
     def get_element(self) -> ET.Element:
         """Return the ElementTree representation of the ClothoidSpline."""
-        element = ET.Element("ClothoidSpline", attrib=self.get_attributes())
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "ClothoidSpline was introduced in OpenSCENARIO V1.3"
+            )
+
+        shape = ET.Element("Shape")
+        element = ET.SubElement(shape, "ClothoidSpline", attrib=self.get_attributes())
         for segment in self.segments:
             element.append(segment.get_element())
-        return element
+        return shape
 
     @staticmethod
     def parse(element: ET.Element) -> "ClothoidSpline":
@@ -2962,10 +3074,11 @@ class ClothoidSpline(_TrajectoryShape):
         ClothoidSpline
             An instance of ClothoidSpline.
         """
-        time_end = convert_float(element.attrib.get("timeEnd"))
+        clothoid_spline_element = find_mandatory_field(element, "ClothoidSpline")
+        time_end = convert_float(clothoid_spline_element.attrib.get("timeEnd"))
         segments = []
 
-        for segment_element in element.findall("ClothoidSplineSegment"):
+        for segment_element in clothoid_spline_element.findall("ClothoidSplineSegment"):
             segments.append(ClothoidSplineSegment.parse(segment_element))
 
         return ClothoidSpline(segments=segments, time_end=time_end)

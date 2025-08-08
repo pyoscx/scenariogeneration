@@ -1,5 +1,27 @@
+"""
+scenariogeneration
+https://github.com/pyoscx/scenariogeneration
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+Copyright (c) 2022 The scenariogeneration Authors.
+
+  Simple example showing how to use a ClothoidSpline as a trajectory for a vehicle.
+
+  Some features used:
+
+  - ClothoidSplineSegment
+
+  - ClothoidSpline
+
+"""
+
+
 from scenariogeneration.xosc.position import ClothoidSplineSegment, ClothoidSpline
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
+
 
 class Scenario(ScenarioGenerator):
     def __init__(self):
@@ -74,7 +96,7 @@ class Scenario(ScenarioGenerator):
             length=10.0,
             h_offset=1.5,
             time_start=0.0,
-            position_start=position,
+            position_start=[position],
         )
         segments = [segment1, segment2]
         clothoid_spline = ClothoidSpline(segments=segments, time_end=5.0)
@@ -145,4 +167,3 @@ if __name__ == "__main__":
     import os
 
     esmini(sce, os.path.join('../../../esmini'), run_with_replayer=True, )
-
