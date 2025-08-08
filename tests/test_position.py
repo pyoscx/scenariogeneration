@@ -293,8 +293,8 @@ def test_geo_position():
     pos4 = OSC.GeoPosition.parse(pos.get_element())
     assert pos == pos4
     assert (
-        version_validation("Position", pos, 0)
-        == ValidationResponse.OSC_VERSION
+            version_validation("Position", pos, 0)
+            == ValidationResponse.OSC_VERSION
     )
     assert version_validation("Position", pos, 1) == ValidationResponse.OK
     assert version_validation("Position", pos, 2) == ValidationResponse.OK
@@ -595,3 +595,66 @@ def test_controlpoint():
     assert version_validation("ControlPoint", cp1, 2) == ValidationResponse.OK
     with pytest.raises(TypeError):
         OSC.ControlPoint("dummy")
+
+
+class TestClothoidSpline:
+
+    def setup_method(self):
+        self.first_segment_position = [
+            OSC.WorldPosition(0, 0, 0, 0, 0, 0),
+
+        ]
+        self.second_segment_position = [
+            OSC.WorldPosition(1, 1, 0, 0, 0, 0),
+        ]
+        self.segments = [
+            OSC.ClothoidSplineSegment(0.00, 0.01, 50.0, 0.0, 0.0,
+                                      self.first_segment_position),
+            OSC.ClothoidSplineSegment(0.01, 0.02, 50.0, 0.0, 0.0,
+                                      self.second_segment_position),
+        ]
+        self.clothoid_spline = OSC.ClothoidSpline(
+            segments=self.segments,
+            time_end=5.0
+        )
+        self.clothoid_spline.setVersion(1, 3)
+
+    def test_clothoid_spline_version_validation(self):
+        assert (
+                version_validation("Shape", self.clothoid_spline, 0)
+                == ValidationResponse.OSC_VERSION
+        )
+        assert (
+                version_validation("Shape", self.clothoid_spline, 1)
+                == ValidationResponse.OSC_VERSION
+        )
+        assert (
+                version_validation("Shape", self.clothoid_spline, 2)
+                == ValidationResponse.OSC_VERSION
+        )
+
+    def test_clothoid_spline_equality(self):
+        clothoid_spline2 = OSC.ClothoidSpline(
+            segments=self.segments,
+            time_end=5.0
+        )
+        assert self.clothoid_spline == clothoid_spline2
+
+        clothoid_spline3 = OSC.ClothoidSpline(
+            segments=self.segments,
+            time_end=6.0
+        )
+        assert self.clothoid_spline != clothoid_spline3
+
+    def test_clothoid_spline_parse(self):
+        clothoid_spline_element = self.clothoid_spline.get_element()
+        parsed_clothoid_spline = OSC.ClothoidSpline.parse(clothoid_spline_element)
+        assert self.clothoid_spline == parsed_clothoid_spline
+
+    def test_clothoid_spline_factory(self):
+        clothoid_spline_element = self.clothoid_spline.get_element()
+        factory_output = OSC.position._ShapeFactory.parse_shape(clothoid_spline_element)
+        assert self.clothoid_spline == factory_output
+
+    def test_clothoid_spline_prettyprint(self):
+        prettyprint(self.clothoid_spline)
