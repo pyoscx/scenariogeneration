@@ -159,7 +159,7 @@ def test_OSC_1_3(tmpdir, python_file):
             os.path.split(__file__)[0],
             os.pardir,
             "schemas",
-            "OpenSCENARIO_1_3.xsd",
+            "OpenSCENARIO_1_3_1.xsd",
         )
     )
     imp = importlib.import_module(python_file)
