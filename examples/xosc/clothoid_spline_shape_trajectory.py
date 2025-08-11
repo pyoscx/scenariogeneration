@@ -18,8 +18,10 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
-
-from scenariogeneration.xosc.position import ClothoidSplineSegment, ClothoidSpline
+from scenariogeneration.xosc.position import (
+    ClothoidSplineSegment,
+    ClothoidSpline,
+)
 from scenariogeneration import xosc, prettyprint, ScenarioGenerator
 
 
@@ -87,7 +89,9 @@ class Scenario(ScenarioGenerator):
         )
 
         ## create the clothoid segments
-        segment1 = ClothoidSplineSegment(curvature_start=0.1, curvature_end=0.2, length=10.0)
+        segment1 = ClothoidSplineSegment(
+            curvature_start=0.1, curvature_end=0.2, length=10.0
+        )
 
         position = xosc.LanePosition(20, 0, -4, 0)
         segment2 = ClothoidSplineSegment(
@@ -166,4 +170,8 @@ if __name__ == "__main__":
     from scenariogeneration import esmini
     import os
 
-    esmini(sce, os.path.join('../../../esmini'), run_with_replayer=True, )
+    esmini(
+        sce,
+        os.path.join("../../../esmini"),
+        run_with_replayer=True,
+    )

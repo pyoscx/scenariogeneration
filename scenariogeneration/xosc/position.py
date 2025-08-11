@@ -2873,12 +2873,15 @@ class ClothoidSplineSegment(VersionBase):
 
     """
 
-    def __init__(self, curvature_start: float,
-                 curvature_end: float,
-                 length: float,
-                 h_offset: Optional[float] = None,
-                 time_start: Optional[float] = None,
-                 position_start: Optional[_PositionType] = None):
+    def __init__(
+        self,
+        curvature_start: float,
+        curvature_end: float,
+        length: float,
+        h_offset: Optional[float] = None,
+        time_start: Optional[float] = None,
+        position_start: Optional[_PositionType] = None,
+    ):
         """Initialize the ClothoidSplineSegment.
 
         Parameters
@@ -2888,12 +2891,12 @@ class ClothoidSplineSegment(VersionBase):
         curvature_end: float
             End curvature of the clothoid spline segment.unit:[1/m]
         length: float
-        	Length of the clothoid segment.unit: [m]
+                Length of the clothoid segment.unit: [m]
         h_offset: float
             Optional heading offset in radians of the clothoid segment relative to end of the
             previous segment or to position_start if present. Default is 0.
         time_start: float
-        	Optional time specification at the start of the clothoid segment.unit: [s]
+                Optional time specification at the start of the clothoid segment.unit: [s]
         position_start:  list of _PositionType
             optional starting position of a clothoid segment. If position_start is omitted for
             the first segment, the entity's current position is used. For subsequent segments,
@@ -2905,26 +2908,31 @@ class ClothoidSplineSegment(VersionBase):
         self.curvature_start = convert_float(curvature_start)
         self.h_offset = convert_float(h_offset)
         if length <= 0:
-            raise ValueError("The clothoid segment length must be greater than zero")
+            raise ValueError(
+                "The clothoid segment length must be greater than zero"
+            )
         self.length = convert_float(length)
         self.time_start = convert_float(time_start)
 
         if position_start is not None:
             if not isinstance(position_start, list) or not all(
-                    isinstance(pos, _PositionType) for pos in position_start):
-                raise TypeError("position_start elements must be of type _PositionType or None")
+                isinstance(pos, _PositionType) for pos in position_start
+            ):
+                raise TypeError(
+                    "position_start elements must be of type _PositionType or None"
+                )
         self.position_start = position_start
 
     def __eq__(self, other):
         if not isinstance(other, ClothoidSplineSegment):
             return False
         return (
-                self.curvature_start == other.curvature_start and
-                self.curvature_end == other.curvature_end and
-                self.length == other.length and
-                self.h_offset == other.h_offset and
-                self.time_start == other.time_start and
-                self.position_start == other.position_start
+            self.curvature_start == other.curvature_start
+            and self.curvature_end == other.curvature_end
+            and self.length == other.length
+            and self.h_offset == other.h_offset
+            and self.time_start == other.time_start
+            and self.position_start == other.position_start
         )
 
     def get_attributes(self) -> dict:
@@ -2946,7 +2954,9 @@ class ClothoidSplineSegment(VersionBase):
             raise OpenSCENARIOVersionError(
                 "ClothoidSplineSegment was introduced in OpenSCENARIO V1.3"
             )
-        element = ET.Element("ClothoidSplineSegment", attrib=self.get_attributes())
+        element = ET.Element(
+            "ClothoidSplineSegment", attrib=self.get_attributes()
+        )
         if self.position_start:
             for position in self.position_start:
                 element.append(position.get_element("PositionStart"))
@@ -2975,7 +2985,9 @@ class ClothoidSplineSegment(VersionBase):
 
         pos_start_elem = element.find("PositionStart")
         if pos_start_elem is not None:
-            position_start.append(_PositionFactory.parse_position(pos_start_elem))
+            position_start.append(
+                _PositionFactory.parse_position(pos_start_elem)
+            )
 
         return ClothoidSplineSegment(
             curvature_end=curvature_end,
@@ -3017,7 +3029,11 @@ class ClothoidSpline(_TrajectoryShape):
         Returns a dictionary of all attributes of the class.
     """
 
-    def __init__(self, segments: list[ClothoidSplineSegment], time_end: Optional[float] = None):
+    def __init__(
+        self,
+        segments: list[ClothoidSplineSegment],
+        time_end: Optional[float] = None,
+    ):
         """Initialize the ClothoidSpline.
 
         Parameters
@@ -3036,8 +3052,7 @@ class ClothoidSpline(_TrajectoryShape):
         if not isinstance(other, ClothoidSpline):
             return False
         return (
-                self.segments == other.segments and
-                self.time_end == other.time_end
+            self.segments == other.segments and self.time_end == other.time_end
         )
 
     def get_attributes(self) -> dict:
@@ -3055,7 +3070,9 @@ class ClothoidSpline(_TrajectoryShape):
             )
 
         shape = ET.Element("Shape")
-        element = ET.SubElement(shape, "ClothoidSpline", attrib=self.get_attributes())
+        element = ET.SubElement(
+            shape, "ClothoidSpline", attrib=self.get_attributes()
+        )
         for segment in self.segments:
             element.append(segment.get_element())
         return shape
@@ -3074,11 +3091,15 @@ class ClothoidSpline(_TrajectoryShape):
         ClothoidSpline
             An instance of ClothoidSpline.
         """
-        clothoid_spline_element = find_mandatory_field(element, "ClothoidSpline")
+        clothoid_spline_element = find_mandatory_field(
+            element, "ClothoidSpline"
+        )
         time_end = convert_float(clothoid_spline_element.attrib.get("timeEnd"))
         segments = []
 
-        for segment_element in clothoid_spline_element.findall("ClothoidSplineSegment"):
+        for segment_element in clothoid_spline_element.findall(
+            "ClothoidSplineSegment"
+        ):
             segments.append(ClothoidSplineSegment.parse(segment_element))
 
         return ClothoidSpline(segments=segments, time_end=time_end)

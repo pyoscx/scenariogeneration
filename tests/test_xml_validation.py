@@ -129,13 +129,11 @@ def test_OSC_1_2(tmpdir, python_file):
     xosc, _ = sce.generate(tmpdir)
     validator.validate(xosc[0])
 
-@pytest.mark.skip(reason="OSC 1.3 is not yet supported fully in scenariogeneration")
-@pytest.mark.parametrize(
-    "python_file",
-    [
-        "clothoid_spline_shape_trajectory"
-    ]
+
+@pytest.mark.skip(
+    reason="OSC 1.3 is not yet supported fully in scenariogeneration"
 )
+@pytest.mark.parametrize("python_file", ["clothoid_spline_shape_trajectory"])
 def test_OSC_1_3(tmpdir, python_file):
     """
     Test OpenSCENARIO 1.3 examples.
@@ -167,6 +165,7 @@ def test_OSC_1_3(tmpdir, python_file):
     sce.open_scenario_version = 3
     xosc, _ = sce.generate(tmpdir)
     validator.validate(xosc[0])
+
 
 @pytest.mark.parametrize(
     "python_file",
