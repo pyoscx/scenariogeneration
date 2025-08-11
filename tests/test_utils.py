@@ -28,7 +28,7 @@ from .xml_validator import ValidationResponse, version_validation
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=3)
 
 
 def test_transition_dynamics():
@@ -997,7 +997,7 @@ def test_oscenum():
     enum1 = OSC.enumerations._OscEnum("classname", "testname")
     assert enum1.get_name() == "testname"
     enum2 = OSC.enumerations._OscEnum(
-        "classname", "testname", min_minor_version=3
+        "classname", "testname", min_minor_version=4
     )
     with pytest.raises(OSC.OpenSCENARIOVersionError):
         enum2.get_name()
@@ -1754,3 +1754,52 @@ def test_convert_enum():
     assert OSC.convert_enum(None, OSC.DynamicsDimension, True) == None
     with pytest.raises(TypeError):
         OSC.convert_enum(None, OSC.DynamicsDimension, False) == None
+
+
+class TestHitchCoupler:
+    @pytest.mark.parametrize("valid_names", ["Hitch", "Coupler"])
+    def test_base(self, valid_names):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        prettyprint(hc.get_element(valid_names))
+
+    def test_base_no_dz(self):
+        hc = OSC.HitchCoupler(1.0)
+        prettyprint(hc.get_element("Hitch"))
+
+    def test_base_wrong_name(self):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        with pytest.raises(ValueError):
+            hc.get_element("not correct string")
+
+    def test_eq(self):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        hc2 = OSC.HitchCoupler(1.0, 2.0)
+        assert hc == hc2
+
+    def test_neq(self):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        hc2 = OSC.HitchCoupler(1.0, 2.1)
+        assert hc != hc2
+
+    def test_parsing(self):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        hc2 = OSC.HitchCoupler.parse(hc.get_element("Hitch"))
+        assert hc2 == hc
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_versions(self, version, expected):
+        hc = OSC.HitchCoupler(1.0, 2.0)
+        assert (
+            version_validation(
+                "TrailerHitch", hc, version, wanted_name_of_element="Hitch"
+            )
+            == expected
+        )
