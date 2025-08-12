@@ -17,7 +17,7 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc import EmptyTrigger
+from scenariogeneration.xosc import EmptyTrigger, ValueTrigger, ConditionEdge, SimulationTimeCondition, Rule
 
 from .xml_validator import ValidationResponse, version_validation
 
@@ -261,6 +261,30 @@ class TestActAndStory:
     def test_add_invalid_act_to_add(self, story):
         with pytest.raises(TypeError):
             story.add_act("dummy")
+
+    def test_deafult_starttrigger_v3(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        act5.setVersion(1, 3)
+        act6.setVersion(1, 3)
+        assert act6 != act5
+
+    def test_deafult_starttrigger_v2(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        assert act6 == act5
 
 
 def test_init():

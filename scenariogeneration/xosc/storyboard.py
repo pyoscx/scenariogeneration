@@ -85,7 +85,7 @@ class Event(VersionBase):
     """
 
     def __init__(
-        self, name: str, priority: Priority, maxexecution: int = 1
+            self, name: str, priority: Priority, maxexecution: int = 1
     ) -> None:
         """Initializes the Event.
 
@@ -107,9 +107,9 @@ class Event(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Event):
             if (
-                self.get_attributes() == other.get_attributes()
-                and self.trigger == other.trigger
-                and self.action == other.action
+                    self.get_attributes() == other.get_attributes()
+                    and self.trigger == other.trigger
+                    and self.action == other.action
             ):
                 return True
         return False
@@ -250,9 +250,9 @@ class Init(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Init):
             if (
-                self.initactions == other.initactions
-                and self.global_actions == other.global_actions
-                and self.user_defined_actions == other.user_defined_actions
+                    self.initactions == other.initactions
+                    and self.global_actions == other.global_actions
+                    and self.user_defined_actions == other.user_defined_actions
             ):
                 return True
         return False
@@ -294,7 +294,7 @@ class Init(VersionBase):
         return init
 
     def add_init_action(
-        self, entityname: str, action: _PrivateActionType
+            self, entityname: str, action: _PrivateActionType
     ) -> None:
         """Adds a private action to the init.
 
@@ -418,8 +418,8 @@ class _Actors(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Actors):
             if (
-                self.get_attributes() == other.get_attributes()
-                and self.actors == other.actors
+                    self.get_attributes() == other.get_attributes()
+                    and self.actors == other.actors
             ):
                 return True
         return False
@@ -519,7 +519,7 @@ class Maneuver(_BaseCatalog):
     """
 
     def __init__(
-        self, name: str, parameters: Optional[ParameterDeclarations] = None
+            self, name: str, parameters: Optional[ParameterDeclarations] = None
     ) -> None:
         """Initializes the Maneuver.
 
@@ -532,7 +532,7 @@ class Maneuver(_BaseCatalog):
         """
         super().__init__()
         if parameters is not None and not isinstance(
-            parameters, ParameterDeclarations
+                parameters, ParameterDeclarations
         ):
             raise TypeError("parameters is not of type ParameterDeclarations")
         if parameters is not None:
@@ -543,9 +543,9 @@ class Maneuver(_BaseCatalog):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Maneuver):
             if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameters == other.parameters
-                and self.events == other.events
+                    self.get_attributes() == other.get_attributes()
+                    and self.parameters == other.parameters
+                    and self.events == other.events
             ):
                 return True
         return False
@@ -660,10 +660,10 @@ class ManeuverGroup(VersionBase):
     """
 
     def __init__(
-        self,
-        name: str,
-        maxexecution: int = 1,
-        selecttriggeringentities: bool = False,
+            self,
+            name: str,
+            maxexecution: int = 1,
+            selecttriggeringentities: bool = False,
     ) -> None:
         """Initializes the ManeuverGroup.
 
@@ -684,9 +684,9 @@ class ManeuverGroup(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, ManeuverGroup):
             if (
-                self.get_attributes() == other.get_attributes()
-                and self.actors == other.actors
-                and self.maneuvers == other.maneuvers
+                    self.get_attributes() == other.get_attributes()
+                    and self.actors == other.actors
+                    and self.maneuvers == other.maneuvers
             ):
                 return True
         return False
@@ -719,7 +719,7 @@ class ManeuverGroup(VersionBase):
         return maneuver_group
 
     def add_maneuver(
-        self, maneuver: Union[Maneuver, CatalogReference]
+            self, maneuver: Union[Maneuver, CatalogReference]
     ) -> "ManeuverGroup":
         """Adds a maneuver to the ManeuverGroup.
 
@@ -834,25 +834,18 @@ class Act(VersionBase):
             Stop trigger of the act. Default is EmptyTrigger("stop").
         """
         self.name = name
-
-        # if starttrigger is  None:
-            # if self.isVersionEqLarger(1,3):
-            #     self.starttrigger = None
-            # else:
-            #     self.starttrigger = starttrigger = ValueTrigger(
-            #         "act_start",
-            #         0,
-            #         ConditionEdge.none,
-            #         SimulationTimeCondition(0, Rule.greaterThan),
-            #     )
-        if starttrigger is not None and not isinstance(starttrigger, _TriggerType):
+        self._none_starttrigger_input = False
+        if starttrigger is None:
+            self._none_starttrigger_input = True
+            self._starttrigger = None
+        elif starttrigger is not None and not isinstance(starttrigger, _TriggerType):
             raise TypeError("starttrigger is not a valid TriggerType")
-        elif starttrigger is not None and  starttrigger._triggerpoint == "StopTrigger":
+        elif starttrigger is not None and starttrigger._triggerpoint == "StopTrigger":
             raise ValueError(
                 "the starttrigger provided does not have start as the triggeringpoint"
             )
         else:
-            self.starttrigger = starttrigger
+            self._starttrigger = starttrigger
 
         if stoptrigger is None:
             self.stoptrigger = EmptyTrigger("stop")
@@ -870,12 +863,47 @@ class Act(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Act):
             if (
-                    self.starttrigger == other.starttrigger
+                    self.check_starttrigger(other)
                     and self.stoptrigger == other.stoptrigger
                     and self.maneuvergroup == other.maneuvergroup
             ):
                 return True
         return False
+
+    @property
+    def starttrigger(self) -> Optional[_TriggerType | _ValueTriggerType]:
+        """Returns the start trigger of the act."""
+        if self._starttrigger is None:
+            if self.isVersionEqLarger(1, 3):
+                return None
+            else:
+                return self.deafult_starttrigger
+        return self._starttrigger
+
+    @starttrigger.setter
+    def starttrigger(self, value):
+
+        self._starttrigger = value
+
+    @property
+    def deafult_starttrigger(self) -> _ValueTriggerType:
+        """Returns the start trigger of the act."""
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        return start_trigger
+
+    def check_starttrigger(self, other) -> bool:
+
+        if self.isVersionEqLarger(1, 3):
+            if self._none_starttrigger_input:
+                return other.starttrigger is None
+            return self.starttrigger == other.starttrigger
+        else:
+            return self.starttrigger == other.starttrigger
 
     @staticmethod
     def parse(element: ET.Element) -> "Act":
@@ -893,6 +921,7 @@ class Act(VersionBase):
         """
         name = element.attrib["name"]
         stoptrigger = None
+        starttrigger = None
         if element.find("StopTrigger") is not None:
             stoptrigger = Trigger.parse(
                 find_mandatory_field(element, "StopTrigger")
@@ -943,19 +972,15 @@ class Act(VersionBase):
         element = ET.Element("Act", attrib=self.get_attributes())
         for mangr in self.maneuvergroup:
             element.append(mangr.get_element())
-        # if self.starttrigger is not None:
-        #     element.append(self.starttrigger.get_element())
-        trigger_to_use = self.starttrigger
-        if self.starttrigger is None:
-            if not self.isVersionEqLarger(1, 3):
-                trigger_to_use = ValueTrigger(
-                    "act_start",
-                    0,
-                    ConditionEdge.none,
-                    SimulationTimeCondition(0, Rule.greaterThan),
-                )
-        if trigger_to_use is not None:
-            element.append(trigger_to_use.get_element())
+
+        if self._none_starttrigger_input:
+            if self.isVersionEqLarger(1, 3):
+                self.starttrigger = None
+
+            else:
+                self.starttrigger = self.deafult_starttrigger
+        if self.starttrigger is not None:
+            element.append(self.starttrigger.get_element())
         element.append(self.stoptrigger.get_element())
         return element
 
@@ -994,9 +1019,9 @@ class Story(VersionBase):
     """
 
     def __init__(
-        self,
-        name: str,
-        parameters: ParameterDeclarations = ParameterDeclarations(),
+            self,
+            name: str,
+            parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> None:
         """Initializes the Story class.
 
@@ -1021,9 +1046,9 @@ class Story(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Story):
             if (
-                self.get_attributes() == other.get_attributes()
-                and self.parameter == other.parameter
-                and self.acts == other.acts
+                    self.get_attributes() == other.get_attributes()
+                    and self.parameter == other.parameter
+                    and self.acts == other.acts
             ):
                 return True
         return False
@@ -1127,9 +1152,9 @@ class StoryBoard(VersionBase):
     """
 
     def __init__(
-        self,
-        init: Init = Init(),
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
+            self,
+            init: Init = Init(),
+            stoptrigger: _TriggerType = EmptyTrigger("stop"),
     ) -> None:
         """Initializes the StoryBoard.
 
@@ -1159,9 +1184,9 @@ class StoryBoard(VersionBase):
             self.get_element()
         if isinstance(other, StoryBoard):
             if (
-                self.init == other.init
-                and self.stoptrigger == other.stoptrigger
-                and self.stories == other.stories
+                    self.init == other.init
+                    and self.stoptrigger == other.stoptrigger
+                    and self.stories == other.stories
             ):
                 return True
         return False
@@ -1205,9 +1230,9 @@ class StoryBoard(VersionBase):
         return self
 
     def add_act(
-        self,
-        act: Act,
-        parameters: ParameterDeclarations = ParameterDeclarations(),
+            self,
+            act: Act,
+            parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> "StoryBoard":
         """Adds a single act to one story. For multi-act scenarios, use Story
         instead.
@@ -1228,11 +1253,11 @@ class StoryBoard(VersionBase):
         return self
 
     def add_maneuver_group(
-        self,
-        maneuvergroup: ManeuverGroup,
-        starttrigger: Optional[_TriggerType] = None,
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
-        parameters: ParameterDeclarations = ParameterDeclarations(),
+            self,
+            maneuvergroup: ManeuverGroup,
+            starttrigger: Optional[_TriggerType] = None,
+            stoptrigger: _TriggerType = EmptyTrigger("stop"),
+            parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> "StoryBoard":
         """Adds a single maneuver group to one story. For multi maneuver group
         scenarios, use Act instead.
@@ -1277,12 +1302,12 @@ class StoryBoard(VersionBase):
         return self
 
     def add_maneuver(
-        self,
-        maneuver: Union[Maneuver, CatalogReference],
-        actors: Optional[Union[List[str], str]] = None,
-        starttrigger: Optional[_TriggerType] = None,
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
-        parameters: ParameterDeclarations = ParameterDeclarations(),
+            self,
+            maneuver: Union[Maneuver, CatalogReference],
+            actors: Optional[Union[List[str], str]] = None,
+            starttrigger: Optional[_TriggerType] = None,
+            stoptrigger: _TriggerType = EmptyTrigger("stop"),
+            parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> "StoryBoard":
         """Adds a single maneuver to one story. For multi-maneuver scenarios,
         use ManeuverGroup instead.
