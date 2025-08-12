@@ -876,7 +876,7 @@ class Act(VersionBase):
         return False
 
     @property
-    def starttrigger(self) -> Optional[_TriggerType | _ValueTriggerType]:
+    def starttrigger(self) -> Optional[Union[_TriggerType, _ValueTriggerType]]:
         """Returns the start trigger of the act."""
         if self._starttrigger is None:
             if self.isVersionEqLarger(1, 3):
