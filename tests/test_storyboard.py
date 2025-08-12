@@ -17,7 +17,13 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc import EmptyTrigger, ValueTrigger, ConditionEdge, SimulationTimeCondition, Rule
+from scenariogeneration.xosc import (
+    EmptyTrigger,
+    ValueTrigger,
+    ConditionEdge,
+    SimulationTimeCondition,
+    Rule,
+)
 
 from .xml_validator import ValidationResponse, version_validation
 
@@ -158,13 +164,13 @@ def test_maneuvergroup():
     mangr5.add_maneuver(OSC.CatalogReference("my_catalog", "cut-in"))
     prettyprint(mangr5.get_element())
     assert (
-            version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         mangr.add_maneuver("dummy")
@@ -217,7 +223,10 @@ class TestActAndStory:
         act4 = OSC.Act.parse(act.get_element())
         assert act4 == act
         for minor_version in range(4):
-            assert version_validation("Act", act, minor_version) == ValidationResponse.OK
+            assert (
+                version_validation("Act", act, minor_version)
+                == ValidationResponse.OK
+            )
 
     def test_invalid_starttrigger(self):
         with pytest.raises(TypeError):
@@ -252,7 +261,10 @@ class TestActAndStory:
         story4 = OSC.Story.parse(story.get_element())
         assert story == story4
         for minor_version in range(4):
-            assert version_validation("Story", story, minor_version) == ValidationResponse.OK
+            assert (
+                version_validation("Story", story, minor_version)
+                == ValidationResponse.OK
+            )
 
     def test_invalid_story(self):
         with pytest.raises(TypeError):

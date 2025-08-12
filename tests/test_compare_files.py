@@ -169,7 +169,7 @@ def test_OSC_1_0_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-            test_folder[0] / f"osc_version_0" / "xosc" / f"{python_file}0.xosc"
+        test_folder[0] / f"osc_version_0" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 0
@@ -191,7 +191,7 @@ def test_OSC_1_1_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-            test_folder[0] / f"osc_version_1" / "xosc" / f"{python_file}0.xosc"
+        test_folder[0] / f"osc_version_1" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 1
@@ -214,7 +214,7 @@ def test_OSC_1_2_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-            test_folder[0] / f"osc_version_2" / "xosc" / f"{python_file}0.xosc"
+        test_folder[0] / f"osc_version_2" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 2
