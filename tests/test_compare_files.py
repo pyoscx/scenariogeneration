@@ -175,9 +175,11 @@ def test_OSC_1_0_parsing(python_file, test_folder):
     assert old_osc.version_minor == 0
     imp = importlib.import_module(python_file)
     scegenerator = imp.Scenario()
+    scegenerator.open_scenario_version = 0
 
     sce = scegenerator.scenario()
     sce.setVersion(minor=0)
+    # sce.setVersion(minor=0)
 
     assert sce == old_osc
 

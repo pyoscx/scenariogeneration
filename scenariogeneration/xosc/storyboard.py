@@ -811,10 +811,10 @@ class Act(VersionBase):
     """
 
     def __init__(
-        self,
-        name: str,
-        starttrigger: Optional[_TriggerType] = None,
-        stoptrigger: Optional[_TriggerType] = None,
+            self,
+            name: str,
+            starttrigger: Optional[_TriggerType] = None,
+            stoptrigger: Optional[_TriggerType] = None,
     ) -> None:
         """Initializes the Act.
 
@@ -823,23 +823,31 @@ class Act(VersionBase):
         name : str
             Name of the act.
         starttrigger : _TriggerType, optional
-            Start trigger of the act. Default is
-            ValueTrigger('act_start', 0, ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan)).
+            Start trigger of the act. Default behavior depends on
+            the OpenSCENARIO version.
+            OpesnScenario 1.2 or less:
+                Default is ValueTrigger('act_start', 0, ConditionEdge.none,
+                SimulationTimeCondition(0, Rule.greaterThan)).
+            OpenScenario 1.3:
+                None. The act starts when the Storyboard enters runningState.
         stoptrigger : _TriggerType, optional
             Stop trigger of the act. Default is EmptyTrigger("stop").
         """
         self.name = name
-        if starttrigger is None:
-            self.starttrigger = starttrigger = ValueTrigger(
-                "act_start",
-                0,
-                ConditionEdge.none,
-                SimulationTimeCondition(0, Rule.greaterThan),
-            )
-        elif not isinstance(starttrigger, _TriggerType):
+
+        # if starttrigger is  None:
+            # if self.isVersionEqLarger(1,3):
+            #     self.starttrigger = None
+            # else:
+            #     self.starttrigger = starttrigger = ValueTrigger(
+            #         "act_start",
+            #         0,
+            #         ConditionEdge.none,
+            #         SimulationTimeCondition(0, Rule.greaterThan),
+            #     )
+        if starttrigger is not None and not isinstance(starttrigger, _TriggerType):
             raise TypeError("starttrigger is not a valid TriggerType")
-        elif starttrigger._triggerpoint == "StopTrigger":
+        elif starttrigger is not None and  starttrigger._triggerpoint == "StopTrigger":
             raise ValueError(
                 "the starttrigger provided does not have start as the triggeringpoint"
             )
@@ -862,9 +870,9 @@ class Act(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Act):
             if (
-                self.starttrigger == other.starttrigger
-                and self.stoptrigger == other.stoptrigger
-                and self.maneuvergroup == other.maneuvergroup
+                    self.starttrigger == other.starttrigger
+                    and self.stoptrigger == other.stoptrigger
+                    and self.maneuvergroup == other.maneuvergroup
             ):
                 return True
         return False
@@ -889,9 +897,10 @@ class Act(VersionBase):
             stoptrigger = Trigger.parse(
                 find_mandatory_field(element, "StopTrigger")
             )
-        starttrigger = Trigger.parse(
-            find_mandatory_field(element, "StartTrigger")
-        )
+        if element.find("StartTrigger") is not None:
+            starttrigger = Trigger.parse(
+                find_mandatory_field(element, "StartTrigger")
+            )
 
         act = Act(name, starttrigger, stoptrigger)
         for m in element.findall("ManeuverGroup"):
@@ -934,8 +943,19 @@ class Act(VersionBase):
         element = ET.Element("Act", attrib=self.get_attributes())
         for mangr in self.maneuvergroup:
             element.append(mangr.get_element())
-
-        element.append(self.starttrigger.get_element())
+        # if self.starttrigger is not None:
+        #     element.append(self.starttrigger.get_element())
+        trigger_to_use = self.starttrigger
+        if self.starttrigger is None:
+            if not self.isVersionEqLarger(1, 3):
+                trigger_to_use = ValueTrigger(
+                    "act_start",
+                    0,
+                    ConditionEdge.none,
+                    SimulationTimeCondition(0, Rule.greaterThan),
+                )
+        if trigger_to_use is not None:
+            element.append(trigger_to_use.get_element())
         element.append(self.stoptrigger.get_element())
         return element
 
