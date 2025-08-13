@@ -178,6 +178,8 @@ ass = OSC.AssignControllerAction(cnt)
             OSC.DynamicsConstraints(1, 1, 1),
             "ego",
         ),
+        OSC.ConnectTrailerAction("my_trailer"),
+        OSC.DisconnectTrailerAction(),
     ],
 )
 def test_private_action_factory(action):
@@ -1475,3 +1477,66 @@ def test_animation_action():
     )
     with pytest.raises(ValueError):
         OSC.AnimationAction("dummy")
+
+
+class TestConnectTrailerAction:
+    def test_base(self):
+        ta = OSC.ConnectTrailerAction("my Trailer")
+        prettyprint(ta)
+
+    def test_eq(self):
+        ta = OSC.ConnectTrailerAction("my Trailer")
+        ta2 = OSC.ConnectTrailerAction("my Trailer")
+        assert ta == ta2
+
+    def test_neq(self):
+        ta = OSC.ConnectTrailerAction("my Trailer")
+        ta2 = OSC.ConnectTrailerAction("my other Trailer")
+        assert ta != ta2
+
+    def test_parse(self):
+        ta = OSC.ConnectTrailerAction("my Trailer")
+        ta_parsed = OSC.ConnectTrailerAction.parse(ta.get_element())
+        assert ta == ta_parsed
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        ta = OSC.ConnectTrailerAction("my Trailer")
+        assert version_validation("PrivateAction", ta, version) == expected
+
+
+class TestDisconnectTrailerAction:
+    def test_base(self):
+        ta = OSC.DisconnectTrailerAction()
+        prettyprint(ta)
+
+    def test_eq(self):
+        ta = OSC.DisconnectTrailerAction()
+        ta2 = OSC.DisconnectTrailerAction()
+        assert ta == ta2
+
+    def test_parse(self):
+        ta = OSC.DisconnectTrailerAction()
+        ta2 = OSC.DisconnectTrailerAction.parse(ta.get_element())
+        assert ta == ta2
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        ta = OSC.DisconnectTrailerAction()
+        assert version_validation("PrivateAction", ta, version) == expected
