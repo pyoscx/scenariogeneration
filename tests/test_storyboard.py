@@ -274,7 +274,7 @@ class TestActAndStory:
         with pytest.raises(TypeError):
             story.add_act("dummy")
 
-    def test_deafult_starttrigger_v3(self):
+    def test_default_starttrigger_v3(self):
         start_trigger = ValueTrigger(
             "act_start",
             0,
@@ -287,7 +287,7 @@ class TestActAndStory:
         act6.setVersion(1, 3)
         assert act6 != act5
 
-    def test_deafult_starttrigger_v2(self):
+    def test_default_starttrigger_v2(self):
         start_trigger = ValueTrigger(
             "act_start",
             0,
