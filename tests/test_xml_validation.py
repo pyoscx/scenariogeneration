@@ -130,6 +130,43 @@ def test_OSC_1_2(tmpdir, python_file):
     validator.validate(xosc[0])
 
 
+@pytest.mark.skip(
+    reason="OSC 1.3 is not yet supported fully in scenariogeneration"
+)
+@pytest.mark.parametrize("python_file", ["clothoid_spline_shape_trajectory"])
+def test_OSC_1_3(tmpdir, python_file):
+    """
+    Test OpenSCENARIO 1.3 examples.
+    Parameters
+    ----------
+    tmpdir
+    python_file
+
+    Returns
+    -------
+
+    """
+    sys.path.insert(
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
+    )
+    validator = xmlschema.XMLSchema(
+        os.path.join(
+            os.path.split(__file__)[0],
+            os.pardir,
+            "schemas",
+            "OpenSCENARIO_1_3_1.xsd",
+        )
+    )
+    imp = importlib.import_module(python_file)
+    sce = imp.Scenario()
+    sce.open_scenario_version = 3
+    xosc, _ = sce.generate(tmpdir)
+    validator.validate(xosc[0])
+
+
 @pytest.mark.parametrize(
     "python_file",
     [
