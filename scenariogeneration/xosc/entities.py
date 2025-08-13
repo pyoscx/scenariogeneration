@@ -215,13 +215,12 @@ class Axles(VersionBase):
         self.additionals = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Axles):
-            if (
-                self.frontaxle == other.frontaxle
-                and self.rearaxle == other.rearaxle
-                and self.additionals == other.additionals
+        if (isinstance(other, Axles)
+            and self.frontaxle == other.frontaxle
+            and self.rearaxle == other.rearaxle
+            and self.additionals == other.additionals
             ):
-                return True
+            return True
         return False
 
     @staticmethod
@@ -350,13 +349,12 @@ class Entity(VersionBase):
             self.entity = None
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entity):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.object_type == other.object_type
-                and self.entity == other.entity
+        if (isinstance(other, Entity)
+            and self.get_attributes() == other.get_attributes()
+            and self.object_type == other.object_type
+            and self.entity == other.entity
             ):
-                return True
+            return True
         return False
 
     @staticmethod
@@ -526,15 +524,14 @@ class Pedestrian(_BaseCatalog):
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Pedestrian):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
-                and self.role == other.role
+        if (isinstance(other, Pedestrian)
+            and self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+            and self.role == other.role
             ):
-                return True
+            return True
         return False
 
     @staticmethod
@@ -739,14 +736,13 @@ class MiscObject(_BaseCatalog):
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, MiscObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
+        if (isinstance(other, MiscObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
             ):
-                return True
+            return True
         return False
 
     @staticmethod
@@ -1375,12 +1371,11 @@ class Entities(VersionBase):
         self.entities = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entities):
-            if (
-                self.scenario_objects == other.scenario_objects
-                and self.entities == other.entities
+        if (isinstance(other, Entities)
+            and self.scenario_objects == other.scenario_objects
+            and self.entities == other.entities
             ):
-                return True
+            return True
         return False
 
     @staticmethod
@@ -1596,13 +1591,11 @@ class ScenarioObject(VersionBase):
         self.entityobject = entityobject
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, ScenarioObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.controller == other.controller
-                and self.entityobject == other.entityobject
-            ):
-                return True
+        if (isinstance(other, ScenarioObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.controller == other.controller
+            and self.entityobject == other.entityobject):
+            return True
         return False
 
     @staticmethod
@@ -1714,4 +1707,171 @@ class ScenarioObject(VersionBase):
                 objcont = ET.SubElement(element, "ObjectController")
                 objcont.append(cnt.get_element())
 
+        return element
+
+class EntityDistribution:
+    def __init__(self):
+        self.entity_distribution_entries = []
+    def add_entity_distribution_entry(self, weight: float, entityobject: Union[
+            CatalogReference,
+            Vehicle,
+            Pedestrian,
+        ],
+        controller: Union[
+            Optional[CatalogReference],
+            Controller,
+            list[CatalogReference],
+            list[Controller],
+        ] = None,):
+        self.entity_distribution_entries.append(weight, entityobject, controller)
+
+    @staticmethod
+    def parse(element: ET.Element) -> "EntityDistribution":
+        """Parses the XML element of EntityDistribution.
+
+        Parameters
+        ----------
+        element : ET.Element
+            An EntityDistribution element.
+
+        Returns
+        -------
+        EntityDistribution
+            An EntityDistribution object.
+        """
+        ed = EntityDistribution()
+        for entry_el in element.findall("EntityDistributionEntry"):
+            weight = float(entry_el.attrib["weight"])
+            # Try all possible entity object types
+            entityobject = None
+            if entry_el.find("CatalogReference") is not None:
+                entityobject = CatalogReference.parse(entry_el.find("CatalogReference"))
+            elif entry_el.find("Vehicle") is not None:
+                entityobject = Vehicle.parse(entry_el.find("Vehicle"))
+            elif entry_el.find("Pedestrian") is not None:
+                entityobject = Pedestrian.parse(entry_el.find("Pedestrian"))
+            else:
+                raise XMLStructureError(
+                    "EntityDistributionEntry does not contain a valid EntityObject"
+                )
+        
+            controller = None
+            if element.find("ObjectController") is not None:
+                controller = []
+                for object_controller_element in element.findall(
+                    "ObjectController"
+                ):
+                    if object_controller_element.find("Controller") is not None:
+                        controller.append(
+                            Controller.parse(
+                                find_mandatory_field(
+                                    object_controller_element, "Controller"
+                                )
+                            )
+                        )
+                    elif (
+                        find_mandatory_field(
+                            object_controller_element, "CatalogReference"
+                        )
+                        is not None
+                    ):
+                        controller.append(
+                            CatalogReference.parse(
+                                find_mandatory_field(
+                                    object_controller_element, "CatalogReference"
+                                )
+                            )
+                        )
+            ed.add_entity_distribution_entry(weight, entityobject, controller)
+        return ed
+
+    def get_attributes(self) -> dict[str, str]:
+        pass
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the EntityDistribution.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the EntityDistribution.
+        """
+
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficDistribution was introduced in OpenSCENARIO V1.3"
+            )
+        
+        if not self.entity_distribution_entries:
+            raise ValueError("EntityDistribution must contain at least one EntityDistributionEntry")
+
+        element = ET.Element("EntityDistribution")
+        for entry in self.entity_distribution_entries:
+            # Unpack tuple: (weight, entityobject, controller)
+            weight, entityobject, controller = entry
+            entry_el = ET.Element("EntityDistributionEntry", attrib={"weight": str(weight)})
+            entry_el.append(entityobject.get_element())
+            if controller:
+                # Support both single and multiple controllers
+                controllers = controller if isinstance(controller, list) else [controller]
+                for cnt in controllers:
+                    objcont = ET.SubElement(entry_el, "ObjectController")
+                    objcont.append(cnt.get_element())
+            element.append(entry_el)
+        return element
+
+class TrafficDistribution:
+    def __init__(self) -> None:
+        self.traffic_distribution_entries = []
+    
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, TrafficDistribution) and self.traffic_distribution_entries == other.traffic_distribution_entries
+        
+    def add_traffic_distribution_entry(self, weight: float, entity_distribution: EntityDistribution, properties: Optional[Properties] = None) -> None:
+        self.traffic_distribution_entries.append((weight, entity_distribution, properties))
+
+    @staticmethod
+    def parse(element: ET.Element) -> "TrafficDistribution":
+        """Parses the XML element of TrafficDistribution.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A TrafficDistribution element.
+
+        Returns
+        -------
+        TrafficDistribution
+            A TrafficDistribution object.
+        """
+        td = TrafficDistribution()
+        for entry_el in element.findall("TrafficDistributionEntry"):
+            weight = float(entry_el.attrib["weight"])
+            entity_dist_el = entry_el.find("EntityDistribution")
+            entity_distribution = EntityDistribution.parse(entity_dist_el)
+            properties = None
+            properties_el = entry_el.find("Properties")
+            if properties_el is not None:
+                properties = Properties.parse(properties_el)
+            td.add_traffic_distribution_entry(weight, entity_distribution, properties)
+        return td
+    
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TrafficDistribution."""
+
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficDistribution was introduced in OpenSCENARIO V1.3"
+            )
+        if not self.traffic_distribution_entries:
+            raise ValueError(
+                "TrafficDistribution must contain at least one TrafficDistributionEntry"
+            )
+
+        element = ET.Element("TrafficDistribution")
+        for weight, entity_distribution, properties in self.traffic_distribution_entries:
+            entry_el = ET.Element("TrafficDistributionEntry", attrib={"weight": str(weight)})
+            entry_el.append(entity_distribution.get_element())
+            if properties is not None:
+                entry_el.append(properties.get_element())
+            element.append(entry_el)
         return element
