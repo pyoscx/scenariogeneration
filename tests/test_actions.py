@@ -1163,6 +1163,10 @@ def test_trafficsinkaction():
     with pytest.raises(TypeError):
         OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
 
+# class TestTrafficAreaAction:
+#     def test_base(self):
+#         taa = OSC.TrafficAreaAction(False, 0, OSC.TrafficDistribution(), OSC.TrafficArea())
+#         prettyprint(taa)
 
 def test_trafficswarmaction():
     prop = OSC.Properties()

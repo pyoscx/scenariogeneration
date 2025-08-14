@@ -1709,7 +1709,7 @@ class ScenarioObject(VersionBase):
 
         return element
 
-class EntityDistribution:
+class EntityDistribution(VersionBase):
     def __init__(self):
         self.entity_distribution_entries = []
     def add_entity_distribution_entry(self, weight: float, entityobject: Union[
@@ -1723,7 +1723,7 @@ class EntityDistribution:
             list[CatalogReference],
             list[Controller],
         ] = None,):
-        self.entity_distribution_entries.append(weight, entityobject, controller)
+        self.entity_distribution_entries.append([weight, entityobject, controller])
 
     @staticmethod
     def parse(element: ET.Element) -> "EntityDistribution":
@@ -1819,7 +1819,7 @@ class EntityDistribution:
             element.append(entry_el)
         return element
 
-class TrafficDistribution:
+class TrafficDistribution(VersionBase):
     def __init__(self) -> None:
         self.traffic_distribution_entries = []
     

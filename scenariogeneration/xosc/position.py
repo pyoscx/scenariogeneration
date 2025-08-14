@@ -2861,8 +2861,9 @@ class Polygon(VersionBase):
             A Polygon object.
         """
         positions = []
-        for pos_el in element.findall("Position"):
-            positions.append(_PositionType.parse(pos_el))
+        for pos_element in element.findall("Position"):
+            position = _PositionFactory.parse_position(pos_element)
+            positions.append(position)
         return Polygon(positions)
     
     def get_element(self) -> ET.Element:
@@ -2901,10 +2902,7 @@ class RoadRange(VersionBase):
     roadcursor : list of RoadCursor
         A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
     """
-    def __init__(
-        self,
-        length: float = None
-    ) -> None:
+    def __init__(self, length: Optional[float] = None, roadcursors: Optional[list] = None) -> None:
         """Initializes the RoadRange.
 
         Parameters
@@ -2914,8 +2912,8 @@ class RoadRange(VersionBase):
         roadcursors : list of RoadCursor
             A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
         """
-        self.roadcursors = []
         self.length = convert_float(length) if length is not None else None
+        self.roadcursors = roadcursors if roadcursors is not None else []
 
     def __eq__(self, other: object) -> bool:
         return (
@@ -2924,7 +2922,7 @@ class RoadRange(VersionBase):
             and self.roadcursors == other.roadcursors
         )
     
-    def add_cursor(self, roadid: str, s: Optional[float] = 0.0, lane: Optional[list[int]] = None) -> "RoadRange":
+    def add_cursor(self, roadid: str, s: Optional[float] = 0.0, lanes: Optional[list[int]] = None) -> "RoadRange":
         """Adds a road cursor to the road range.
 
         Parameters
@@ -2936,7 +2934,7 @@ class RoadRange(VersionBase):
         lane : list of int, optional
              	Restriction of the road cursor to specific lanes of a road. If omitted, road cursor is valid for all lanes of the road.
         """
-        self.roadcursors.append([roadid, s, lane])
+        self.roadcursors.append([roadid, s, lanes])
         return self
     
     @staticmethod
@@ -2953,17 +2951,25 @@ class RoadRange(VersionBase):
         RoadRange
             A RoadRange object.
         """
-        length = convert_float(find_mandatory_field(element, "Length"))
+        length_el = element.find("Length")
+        length = convert_float(length_el.text) if length_el is not None else None
         roadcursors = []
         for cursor in element.findall("RoadCursor"):
-            roadid = find_mandatory_field(cursor, "RoadId").text
-            s = cursor.find("S")
-            s_value = convert_float(s.text) if s is not None else 0.0
+            roadid_el = cursor.find("RoadId")
+            roadid = roadid_el.text if roadid_el is not None else ""
+            s_el = cursor.find("S")
+            s_value = convert_float(s_el.text) if s_el is not None else 0.0
             lane_elements = cursor.findall("Lane")
             lanes = [int(lane.text) for lane in lane_elements] if lane_elements else None
             roadcursors.append([roadid, s_value, lanes])
-
         return RoadRange(length, roadcursors)
+    
+    def get_attributes(self) -> dict:
+        """Returns the attributes of the RoadRange as a dictionary."""
+        retdict = {}
+        if self.length is not None:
+            retdict["length"] = str(self.length)
+        return retdict
     
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the RoadRange.
@@ -2974,18 +2980,18 @@ class RoadRange(VersionBase):
             The ElementTree representation of the RoadRange.
         """
         if not self.isVersionEqLarger(minor=3):
-            raise OpenSCENARIOVersionError(
-                "RoadRange was introduced in OpenSCENARIO V1.3"
-            )
-        
+            raise OpenSCENARIOVersionError("RoadRange was introduced in OpenSCENARIO V1.3")
         if len(self.roadcursors) < 2:
             raise ValueError("At least two road cursors are required for a RoadRange")
 
-        element = ET.Element("RoadRange")
-        if self.length is not None:
-            length_element = ET.SubElement(element, "Length")
-            length_element.text = str(self.length)
-        
+        element = ET.Element("RoadRange", attrib=self.get_attributes())
+
+        for roadid, s, lanes in self.roadcursors:
+            road_cursor_attributes = {"roadId": str(roadid), "s": str(s)}
+            cursor_el = ET.SubElement(element, "RoadCursor", attrib=road_cursor_attributes)
+            if lanes is not None:
+                for lane in lanes:
+                    ET.SubElement(cursor_el, "Lane", {"id": str(lane)})
         return element
 
 class TrafficArea(VersionBase):
