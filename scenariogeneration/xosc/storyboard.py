@@ -868,7 +868,7 @@ class Act(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Act):
             if (
-                self.check_starttrigger(other)
+                self._check_starttrigger(other)
                 and self.stoptrigger == other.stoptrigger
                 and self.maneuvergroup == other.maneuvergroup
             ):
@@ -882,7 +882,7 @@ class Act(VersionBase):
             if self.isVersionEqLarger(1, 3):
                 return None
             else:
-                return self.default_starttrigger
+                return self._default_starttrigger
         return self._starttrigger
 
     @starttrigger.setter
@@ -895,7 +895,7 @@ class Act(VersionBase):
         self._starttrigger = value
 
     @property
-    def default_starttrigger(self) -> _ValueTriggerType:
+    def _default_starttrigger(self) -> _ValueTriggerType:
         """Returns the start trigger of the act."""
         start_trigger = ValueTrigger(
             "act_start",
@@ -905,7 +905,7 @@ class Act(VersionBase):
         )
         return start_trigger
 
-    def check_starttrigger(self, other) -> bool:
+    def _check_starttrigger(self, other) -> bool:
 
         if self.isVersionEqLarger(1, 3):
             if self._none_starttrigger_input:
@@ -936,6 +936,8 @@ class Act(VersionBase):
                 find_mandatory_field(element, "StopTrigger")
             )
         if element.find("StartTrigger") is not None:
+            # TODO: If XML version is 1.3 or higher, starttrigger may be None;
+            #  for earlier versions, a _TriggerType is required.
             starttrigger = Trigger.parse(
                 find_mandatory_field(element, "StartTrigger")
             )
@@ -987,7 +989,7 @@ class Act(VersionBase):
                 starttrigger = None
 
             else:
-                starttrigger = self.default_starttrigger
+                starttrigger = self._default_starttrigger
         if starttrigger is not None:
             element.append(starttrigger.get_element())
         element.append(self.stoptrigger.get_element())
