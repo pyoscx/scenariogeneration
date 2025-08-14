@@ -2819,6 +2819,7 @@ class Nurbs(_TrajectoryShape):
 
         return shape
 
+
 class ClothoidSplineSegment(VersionBase):
     """
     The ClothoidSplineSegment class creates a segment of a clothoid spline.
