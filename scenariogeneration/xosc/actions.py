@@ -40,6 +40,7 @@ from .position import (
     _PositionFactory,
     Polygon,
     RoadRange,
+    TrafficArea
 )
 from .entities import (
     TrafficDistribution,
@@ -113,6 +114,8 @@ class _GlobalActionFactory:
             return TrafficSinkAction.parse(element)
         if element.findall("TrafficAction/TrafficSwarmAction"):
             return TrafficSwarmAction.parse(element)
+        if element.findall("TrafficAction/TrafficAreaAction"):
+            return TrafficAreaAction.parse(element)
         if element.findall("TrafficAction/TrafficStopAction"):
             return TrafficStopAction.parse(element)
 
@@ -5947,14 +5950,74 @@ class TrafficSwarmAction(_ActionType):
         return element
 
 class TrafficAreaAction(_ActionType):
+    """The TrafficAreaAction class creates a TrafficAction of the type
+    TrafficAreaAction.
+    
+    Parameters
+    ----------
+    continuous : bool
+        If False, traffic is spawned once and then the action ends.
+        If True, traffic is spawned continuously and despawned as it leaves the area.
+    numberofentities : int
+        Maximum number of spawned entities in the area.
+    trafficdistribution : TrafficDistribution
+        Distribution of the traffic in the area.
+    trafficarea : Polygon | RoadRange | list[RoadRange]
+        Area where the traffic is spawned.
+    name : str, optional
+        Name of the TrafficAction, can be used to stop the TrafficAction
+        (valid from V1.1). Default is None.
+    
+    Attributes
+    ----------
+    continuous : bool
+        If False, traffic is spawned once and then the action ends.
+        If True, traffic is spawned continuously and despawned as it leaves the area.
+    numberofentities : int
+        Maximum number of spawned entities in the area.
+    trafficdistribution : TrafficDistribution
+        Distribution of the traffic in the area.
+    trafficarea : Polygon | RoadRange | list[RoadRange]
+        Area where the traffic is spawned.
+    name : str, optional
+        Name of the TrafficAction, can be used to stop the TrafficAction
+        (valid from V1.1). Default is None.
+        
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+    
     def __init__(
         self,
         continuous: bool,
         numberofentities : int,
         trafficdistribution : TrafficDistribution,
-        trafficarea : Polygon | RoadRange | list[RoadRange],
+        trafficarea : TrafficArea,
         name: Optional[str] = None,
     ):
+        """Initialize the TrafficAreaAction.
+        Parameters
+        ----------
+        continuous : bool
+            If False, traffic is spawned once and then the action ends.
+            If True, traffic is spawned continuously and despawned as it leaves the area.
+        numberofentities : int
+            Maximum number of spawned entities in the area.
+        trafficdistribution : TrafficDistribution
+            Distribution of the traffic in the area.
+        trafficarea : Polygon | RoadRange | list[RoadRange]
+            Area where the traffic is spawned.
+        name : str, optional
+            Name of the TrafficAction, can be used to stop the TrafficAction
+            (valid from V1.1). Default is None.
+        """
         self.continuous = convert_bool(continuous)
         self.numberofentities = convert_int(numberofentities)
         if not isinstance(trafficdistribution, TrafficDistribution):
@@ -5962,7 +6025,7 @@ class TrafficAreaAction(_ActionType):
                 "trafficdistribution input is not of type TrafficDistribution"
             )
         self.trafficdistribution = trafficdistribution
-        if not isinstance(trafficarea, (Polygon | RoadRange | list[RoadRange])):
+        if not isinstance(trafficarea, TrafficArea):
             raise TypeError(
                 "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
             )
@@ -5994,7 +6057,7 @@ class TrafficAreaAction(_ActionType):
 
         taa_element = find_mandatory_field(ta_element, "TrafficAreaAction")
 
-        continuous = convert_float(taa_element.attrib["continuous"])
+        continuous = convert_bool(taa_element.attrib["continuous"])
         numberofentities = convert_int(taa_element.attrib["numberOfEntities"])
 
         trafficdistribution = TrafficDistribution.parse(
@@ -6003,10 +6066,7 @@ class TrafficAreaAction(_ActionType):
             )
         )
         trafficarea_element = find_mandatory_field(taa_element, "TrafficArea")
-        if Polygon.is_polygon_element(trafficarea_element):
-            trafficarea = Polygon.parse(trafficarea_element)
-        elif RoadRange.is_road_range_element(trafficarea_element):
-            trafficarea = RoadRange.parse(trafficarea_element)
+        trafficarea = TrafficArea.parse(trafficarea_element)
 
         taa_object = TrafficAreaAction(
             continuous,
@@ -6027,7 +6087,7 @@ class TrafficAreaAction(_ActionType):
             TrafficAreaAction.
         """
         retdict = {}
-        retdict["continuous"] = str(self.continuous)
+        retdict["continuous"] = get_bool_string(self.continuous)
         retdict["numberOfEntities"] = str(self.numberofentities)
         return retdict
 
@@ -6043,6 +6103,7 @@ class TrafficAreaAction(_ActionType):
             raise OpenSCENARIOVersionError(
                 "TrafficAreaAction was introduced in OpenSCENARIO V1.3"
             )
+        
         element = ET.Element("GlobalAction")
         traffic_attrib = {}
         if self.name and not self.isVersion(minor=0):
