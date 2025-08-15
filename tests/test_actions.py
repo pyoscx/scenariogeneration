@@ -1163,51 +1163,79 @@ def test_trafficsinkaction():
     with pytest.raises(TypeError):
         OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
 
+
 class TestTrafficAreaAction:
     def setup_method(self):
         self.entity_distribution = OSC.EntityDistribution()
         self.catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
-        self.entity_distribution.add_entity_distribution_entry(0.5, self.catalog_ref)
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref
+        )
         self.traffic_distribution = OSC.TrafficDistribution()
-        self.traffic_distribution.add_traffic_distribution_entry(0.5, self.entity_distribution)
+        self.traffic_distribution.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
 
-        self.polygon = OSC.Polygon([
-                    OSC.WorldPosition(0, 0, 0),
-                    OSC.WorldPosition(1, 0, 0),
-                    OSC.WorldPosition(1, 1, 0),
-                ])
+        self.polygon = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+            ]
+        )
         self.traffic_area = OSC.TrafficArea(self.polygon)
 
-
     def test_base(self):
-        taa = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
+        taa = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
         prettyprint(taa)
 
     def test_not_traffic_distribution(self):
         with pytest.raises(TypeError) as excinfo:
-            OSC.TrafficAreaAction(False, 2, "incorrect_input", self.traffic_area)
-        assert str(excinfo.value) == "trafficdistribution input is not of type TrafficDistribution"
-    
+            OSC.TrafficAreaAction(
+                False, 2, "incorrect_input", self.traffic_area
+            )
+        assert (
+            str(excinfo.value)
+            == "trafficdistribution input is not of type TrafficDistribution"
+        )
+
     def test_not_traffic_area(self):
         with pytest.raises(TypeError) as excinfo:
-            OSC.TrafficAreaAction(False, 2, self.traffic_distribution , "incorrect_input")
-        assert str(excinfo.value) == "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
-    
+            OSC.TrafficAreaAction(
+                False, 2, self.traffic_distribution, "incorrect_input"
+            )
+        assert (
+            str(excinfo.value)
+            == "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
+        )
+
     def test_eq(self):
-        taa1 = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
-        taa2 = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
+        taa1 = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
+        taa2 = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
         assert taa1 == taa2
-    
+
     def test_neq(self):
-        taa1 = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
-        taa2 = OSC.TrafficAreaAction(True, 2, self.traffic_distribution, self.traffic_area)
+        taa1 = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
+        taa2 = OSC.TrafficAreaAction(
+            True, 2, self.traffic_distribution, self.traffic_area
+        )
         assert taa1 != taa2
-    
+
     def test_parse(self):
-        taa = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
+        taa = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
         taa_parsed = OSC.TrafficAreaAction.parse(taa.get_element())
         assert taa == taa_parsed
-    
+
     @pytest.mark.parametrize(
         ["version", "expected"],
         [
@@ -1218,8 +1246,11 @@ class TestTrafficAreaAction:
         ],
     )
     def test_validate_xml(self, version, expected):
-        taa = OSC.TrafficAreaAction(False, 2, self.traffic_distribution, self.traffic_area)
+        taa = OSC.TrafficAreaAction(
+            False, 2, self.traffic_distribution, self.traffic_area
+        )
         assert version_validation("GlobalAction", taa, version) == expected
+
 
 def test_trafficswarmaction():
     prop = OSC.Properties()

@@ -34,12 +34,7 @@ from .exceptions import (
     ToManyOptionalArguments,
 )
 from .parameters import Range
-from .position import (
-    Route,
-    Trajectory,
-    _PositionFactory,
-    TrafficArea
-)
+from .position import Route, Trajectory, _PositionFactory, TrafficArea
 from .entities import TrafficDistribution
 from .utils import (
     AbsoluteSpeed,
@@ -5944,15 +5939,17 @@ class TrafficSwarmAction(_ActionType):
 
         return element
 
+
 class TrafficAreaAction(_ActionType):
     """The TrafficAreaAction class creates a TrafficAction of the type
     TrafficAreaAction.
-    
+
     Parameters
     ----------
     continuous : bool
         If False, traffic is spawned once and then the action ends.
-        If True, traffic is spawned continuously and despawned as it leaves the area.
+        If True, traffic is spawned continuously and despawned as it leaves
+        the area.
     numberofentities : int
         Maximum number of spawned entities in the area.
     trafficdistribution : TrafficDistribution
@@ -5962,12 +5959,13 @@ class TrafficAreaAction(_ActionType):
     name : str, optional
         Name of the TrafficAction, can be used to stop the TrafficAction
         (valid from V1.1). Default is None.
-    
+
     Attributes
     ----------
     continuous : bool
         If False, traffic is spawned once and then the action ends.
-        If True, traffic is spawned continuously and despawned as it leaves the area.
+        If True, traffic is spawned continuously and despawned as it leaves
+        the area.
     numberofentities : int
         Maximum number of spawned entities in the area.
     trafficdistribution : TrafficDistribution
@@ -5977,7 +5975,7 @@ class TrafficAreaAction(_ActionType):
     name : str, optional
         Name of the TrafficAction, can be used to stop the TrafficAction
         (valid from V1.1). Default is None.
-        
+
     Methods
     -------
     parse(element)
@@ -5988,13 +5986,13 @@ class TrafficAreaAction(_ActionType):
     get_element()
         Returns the full ElementTree of the class.
     """
-    
+
     def __init__(
         self,
         continuous: bool,
-        numberofentities : int,
-        trafficdistribution : TrafficDistribution,
-        trafficarea : TrafficArea,
+        numberofentities: int,
+        trafficdistribution: TrafficDistribution,
+        trafficarea: TrafficArea,
         name: Optional[str] = None,
     ):
         """Initialize the TrafficAreaAction.
@@ -6002,7 +6000,8 @@ class TrafficAreaAction(_ActionType):
         ----------
         continuous : bool
             If False, traffic is spawned once and then the action ends.
-            If True, traffic is spawned continuously and despawned as it leaves the area.
+            If True, traffic is spawned continuously and despawned as it
+            leaves the area.
         numberofentities : int
             Maximum number of spawned entities in the area.
         trafficdistribution : TrafficDistribution
@@ -6022,13 +6021,17 @@ class TrafficAreaAction(_ActionType):
         self.trafficdistribution = trafficdistribution
         if not isinstance(trafficarea, TrafficArea):
             raise TypeError(
-                "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
+                "trafficarea input is not of type Polygon, RoadRange or"
+                " list[RoadRange]"
             )
         self.trafficarea = trafficarea
         self.name = name
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, TrafficAreaAction) and self.get_attributes() == other.get_attributes()
+        return (
+            isinstance(other, TrafficAreaAction)
+            and self.get_attributes() == other.get_attributes()
+        )
 
     @staticmethod
     def parse(element: ET.Element) -> "TrafficAreaAction":
@@ -6056,9 +6059,7 @@ class TrafficAreaAction(_ActionType):
         numberofentities = convert_int(taa_element.attrib["numberOfEntities"])
 
         trafficdistribution = TrafficDistribution.parse(
-            find_mandatory_field(
-                taa_element, "TrafficDistribution"
-            )
+            find_mandatory_field(taa_element, "TrafficDistribution")
         )
         trafficarea_element = find_mandatory_field(taa_element, "TrafficArea")
         trafficarea = TrafficArea.parse(trafficarea_element)
@@ -6098,7 +6099,7 @@ class TrafficAreaAction(_ActionType):
             raise OpenSCENARIOVersionError(
                 "TrafficAreaAction was introduced in OpenSCENARIO V1.3"
             )
-        
+
         element = ET.Element("GlobalAction")
         traffic_attrib = {}
         if self.name and not self.isVersion(minor=0):

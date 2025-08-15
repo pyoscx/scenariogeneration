@@ -2819,6 +2819,7 @@ class Nurbs(_TrajectoryShape):
 
         return shape
 
+
 class Polygon(VersionBase):
     """The Polygon class creates a polygon used by the TrafficArea class.
 
@@ -2832,20 +2833,27 @@ class Polygon(VersionBase):
     positions : list of Position
         A list of positions that define the polygon.
     """
+
     def __init__(self, positions: list[_PositionType]) -> None:
         if len(positions) < 3:
             raise ValueError("Polygon must have at least 3 positions")
-        if not isinstance(positions, list) or not all(isinstance(p, _PositionType) for p in positions):
-            raise TypeError("positions input is not a list of PositionType objects")
+        if not isinstance(positions, list) or not all(
+            isinstance(p, _PositionType) for p in positions
+        ):
+            raise TypeError(
+                "positions input is not a list of PositionType objects"
+            )
         if positions:
             first_type = type(positions[0])
             if not all(isinstance(p, first_type) for p in positions):
-                raise TypeError("All positions in Polygon must be of the same type")
+                raise TypeError(
+                    "All positions in Polygon must be of the same type"
+                )
         self.positions = positions
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Polygon) and self.positions == other.positions
-    
+
     @staticmethod
     def parse(element: ET.Element) -> "Polygon":
         """Parses the XML element of Polygon.
@@ -2865,7 +2873,7 @@ class Polygon(VersionBase):
             position = _PositionFactory.parse_position(pos_element)
             positions.append(position)
         return Polygon(positions)
-    
+
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the Polygon.
 
@@ -2883,7 +2891,8 @@ class Polygon(VersionBase):
         for pos in self.positions:
             element.append(pos.get_element())
         return element
-    
+
+
 class RoadRange(VersionBase):
     """The RoadRange class creates a road range used by the TrafficArea class.
     Defines an area by a range on a specific road.
@@ -2891,7 +2900,7 @@ class RoadRange(VersionBase):
     Parameters
     ----------
     length : float
-         	Limits the length of the road range starting from the first road cursor. If omitted or if length exceeds last road cursor, then last road cursor defines the end of the road range. Unit: [m].
+                Limits the length of the road range starting from the first road cursor. If omitted or if length exceeds last road cursor, then last road cursor defines the end of the road range. Unit: [m].
     roadcursor : list of RoadCursor
         A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
 
@@ -2902,7 +2911,12 @@ class RoadRange(VersionBase):
     roadcursor : list of RoadCursor
         A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
     """
-    def __init__(self, length: Optional[float] = None, roadcursors: Optional[list] = None) -> None:
+
+    def __init__(
+        self,
+        length: Optional[float] = None,
+        roadcursors: Optional[list] = None,
+    ) -> None:
         """Initializes the RoadRange.
 
         Parameters
@@ -2921,8 +2935,13 @@ class RoadRange(VersionBase):
             and self.length == other.length
             and self.roadcursors == other.roadcursors
         )
-    
-    def add_cursor(self, roadid: str, s: Optional[float] = 0.0, lanes: Optional[list[int]] = None) -> "RoadRange":
+
+    def add_cursor(
+        self,
+        roadid: str,
+        s: Optional[float] = 0.0,
+        lanes: Optional[list[int]] = None,
+    ) -> "RoadRange":
         """Adds a road cursor to the road range.
 
         Parameters
@@ -2930,13 +2949,15 @@ class RoadRange(VersionBase):
         roadid : str
             The ID of the target road taken from the respective road network definition file.
         s : float, optional
-             	The s-coordinate taken along the road's reference line from the start point of the target road. If s is omitted and the road cursor depicts the start of a road range, then s=0 is assumed. If s is omitted and the road cursor depicts the end of a road range, then s=max_length is assumed. Unit: [m].
+                The s-coordinate taken along the road's reference line from the start point of the target road. If s is omitted and the road cursor depicts the start of a road range, then s=0 is assumed. If s is omitted and the road cursor depicts the end of a road range, then s=max_length is assumed. Unit: [m].
         lane : list of int, optional
-             	Restriction of the road cursor to specific lanes of a road. If omitted, road cursor is valid for all lanes of the road.
+                Restriction of the road cursor to specific lanes of a road. If omitted, road cursor is valid for all lanes of the road.
         """
-        self.roadcursors.append([roadid, s, lanes if lanes is not None else []])
+        self.roadcursors.append(
+            [roadid, s, lanes if lanes is not None else []]
+        )
         return self
-    
+
     @staticmethod
     def parse(element: ET.Element) -> "RoadRange":
         """Parses the XML element of RoadRange.
@@ -2957,17 +2978,21 @@ class RoadRange(VersionBase):
             roadid = cursor.attrib.get("roadId", "")
             s_value = convert_float(cursor.attrib.get("s", 0.0))
             lane_elements = cursor.findall("Lane")
-            lanes = [int(lane.attrib.get("id", "")) for lane in lane_elements] if lane_elements else []
+            lanes = (
+                [int(lane.attrib.get("id", "")) for lane in lane_elements]
+                if lane_elements
+                else []
+            )
             roadcursors.append([roadid, s_value, lanes])
         return RoadRange(length, roadcursors)
-    
+
     def get_attributes(self) -> dict:
         """Returns the attributes of the RoadRange as a dictionary."""
         retdict = {}
         if self.length is not None:
             retdict["length"] = str(self.length)
         return retdict
-    
+
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the RoadRange.
 
@@ -2977,19 +3002,26 @@ class RoadRange(VersionBase):
             The ElementTree representation of the RoadRange.
         """
         if not self.isVersionEqLarger(minor=3):
-            raise OpenSCENARIOVersionError("RoadRange was introduced in OpenSCENARIO V1.3")
+            raise OpenSCENARIOVersionError(
+                "RoadRange was introduced in OpenSCENARIO V1.3"
+            )
         if len(self.roadcursors) < 2:
-            raise ValueError("At least two road cursors are required for a RoadRange")
+            raise ValueError(
+                "At least two road cursors are required for a RoadRange"
+            )
 
         element = ET.Element("RoadRange", attrib=self.get_attributes())
 
         for roadid, s, lanes in self.roadcursors:
             road_cursor_attributes = {"roadId": str(roadid), "s": str(s)}
-            cursor_el = ET.SubElement(element, "RoadCursor", attrib=road_cursor_attributes)
+            cursor_el = ET.SubElement(
+                element, "RoadCursor", attrib=road_cursor_attributes
+            )
             if lanes is not None:
                 for lane in lanes:
                     ET.SubElement(cursor_el, "Lane", {"id": str(lane)})
         return element
+
 
 class TrafficArea(VersionBase):
     """The TrafficArea class creates a TrafficArea used by the different TrafficActions.
@@ -3008,6 +3040,7 @@ class TrafficArea(VersionBase):
     roadrange : RoadRange
         Defines an area by one or multiple road ranges. Suitable for highways, where only a few specific roads shall be populated.
     """
+
     def __init__(
         self,
         polygon: Optional[Polygon] = None,
@@ -3044,7 +3077,7 @@ class TrafficArea(VersionBase):
             and self.polygon == other.polygon
             and self.roadrange == other.roadrange
         )
-    
+
     @staticmethod
     def parse(element: ET.Element) -> "TrafficArea":
         """Parses the XML element of TrafficArea.
@@ -3065,10 +3098,12 @@ class TrafficArea(VersionBase):
 
         roadrange = None
         if element.find("RoadRange") is not None:
-            roadrange = RoadRange.parse(find_mandatory_field(element, "RoadRange"))
+            roadrange = RoadRange.parse(
+                find_mandatory_field(element, "RoadRange")
+            )
 
         return TrafficArea(polygon, roadrange)
-    
+
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the TrafficArea.
 
@@ -3088,6 +3123,7 @@ class TrafficArea(VersionBase):
         if self.roadrange is not None:
             element.append(self.roadrange.get_element())
         return element
+
 
 class ClothoidSplineSegment(VersionBase):
     """

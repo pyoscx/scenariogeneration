@@ -93,7 +93,6 @@ def test_axles():
 
 
 class TestVehicle:
-
     @pytest.fixture(name="bb")
     def fix_bb(self):
         return OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
@@ -709,11 +708,12 @@ def test_external_object():
         == ValidationResponse.OK
     )
 
+
 class TestEntityDistribution:
     def setup_method(self):
         self.empty_input = None
         self.catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
-    
+
         bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
         fa = OSC.Axle(2, 2, 2, 1, 1)
         ra = OSC.Axle(1, 1, 2, 1, 1)
@@ -725,7 +725,7 @@ class TestEntityDistribution:
             rearaxle=ra,
             max_speed=150,
             max_acceleration=10,
-            max_deceleration=10
+            max_deceleration=10,
         )
         bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
         self.pedestrian = OSC.Pedestrian(
@@ -740,9 +740,16 @@ class TestEntityDistribution:
         prop_2.add_property("myprop2", "2")
         self.controller_1 = OSC.Controller("MyController1", prop_1)
         self.controller_2 = OSC.Controller("MyController2", prop_2)
-        self.controller_catalog_1 = OSC.CatalogReference("ControllerCatalog", "MyControllerCatalog1")
-        self.controller_catalog_2 = OSC.CatalogReference("ControllerCatalog", "MyControllerCatalog2")
-        self.catalog_ref_list = [self.controller_catalog_1, self.controller_catalog_2]
+        self.controller_catalog_1 = OSC.CatalogReference(
+            "ControllerCatalog", "MyControllerCatalog1"
+        )
+        self.controller_catalog_2 = OSC.CatalogReference(
+            "ControllerCatalog", "MyControllerCatalog2"
+        )
+        self.catalog_ref_list = [
+            self.controller_catalog_1,
+            self.controller_catalog_2,
+        ]
         self.controller_list = [self.controller_1, self.controller_2]
 
         self.entity_distribution = OSC.EntityDistribution()
@@ -751,57 +758,98 @@ class TestEntityDistribution:
     @pytest.mark.parametrize(
         ["weight", "entityobject_key", "controller_key", "expected"],
         [
-            (-1, "empty_input", "empty_input", (True, ValueError, "Weight must be a non-negative value")),
-            (0.5, "empty_input", "empty_input", (True, TypeError, "entityobject must be of type CatalogReference, Vehicle, or Pedestrian")),
+            (
+                -1,
+                "empty_input",
+                "empty_input",
+                (True, ValueError, "Weight must be a non-negative value"),
+            ),
+            (
+                0.5,
+                "empty_input",
+                "empty_input",
+                (
+                    True,
+                    TypeError,
+                    "entityobject must be of type CatalogReference, Vehicle, or Pedestrian",
+                ),
+            ),
             (0.5, "catalog_ref", "empty_input", (False, None, None)),
             (0.5, "vehicle", "empty_input", (False, None, None)),
             (0.5, "pedestrian", "empty_input", (False, None, None)),
-            (0.5, "catalog_ref", "vehicle", (True, TypeError, "controller input is not of type CatalogReference or Controller")),
+            (
+                0.5,
+                "catalog_ref",
+                "vehicle",
+                (
+                    True,
+                    TypeError,
+                    "controller input is not of type CatalogReference or Controller",
+                ),
+            ),
             (0.5, "catalog_ref", "controller_catalog_1", (False, None, None)),
             (0.5, "catalog_ref", "controller_1", (False, None, None)),
             (0.5, "catalog_ref", "catalog_ref_list", (False, None, None)),
             (0.5, "catalog_ref", "controller_list", (False, None, None)),
         ],
     )
-    def test_add_entity_distribution(self, weight, entityobject_key, controller_key, expected):
+    def test_add_entity_distribution(
+        self, weight, entityobject_key, controller_key, expected
+    ):
         entityobject = getattr(self, entityobject_key)
         controller = getattr(self, controller_key)
         expect_throw, expected_exception, expected_message = expected
 
         if expect_throw:
             with pytest.raises(expected_exception) as excinfo:
-                self.entity_distribution.add_entity_distribution_entry(weight, entityobject, controller)
+                self.entity_distribution.add_entity_distribution_entry(
+                    weight, entityobject, controller
+                )
             assert str(excinfo.value) == expected_message
 
     def test_add_entity_distribution_valid(self):
-        self.entity_distribution.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
         prettyprint(self.entity_distribution.get_element())
 
     def test_eq(self):
         entity_distribution_1 = OSC.EntityDistribution()
         entity_distribution_1.setVersion(1, 3)
-        entity_distribution_1.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
+        entity_distribution_1.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
 
         entity_distribution_2 = OSC.EntityDistribution()
         entity_distribution_2.setVersion(1, 3)
-        entity_distribution_2.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
+        entity_distribution_2.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
 
         assert entity_distribution_1 == entity_distribution_2
-    
+
     def test_neq(self):
         entity_distribution_1 = OSC.EntityDistribution()
         entity_distribution_1.setVersion(1, 3)
-        entity_distribution_1.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
+        entity_distribution_1.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
 
         entity_distribution_2 = OSC.EntityDistribution()
         entity_distribution_2.setVersion(1, 3)
-        entity_distribution_2.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_2)
+        entity_distribution_2.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_2
+        )
 
         assert entity_distribution_1 != entity_distribution_2
 
     def test_parse(self):
-        self.entity_distribution.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
-        parsed_entity_distribution = OSC.EntityDistribution.parse(self.entity_distribution.get_element())
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
+        parsed_entity_distribution = OSC.EntityDistribution.parse(
+            self.entity_distribution.get_element()
+        )
         assert self.entity_distribution == parsed_entity_distribution
 
     @pytest.mark.parametrize(
@@ -814,8 +862,16 @@ class TestEntityDistribution:
         ],
     )
     def test_validate_xml(self, version, expected):
-        self.entity_distribution.add_entity_distribution_entry(0.5, self.catalog_ref, self.controller_catalog_1)
-        assert version_validation("EntityDistribution", self.entity_distribution, version) == expected
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref, self.controller_catalog_1
+        )
+        assert (
+            version_validation(
+                "EntityDistribution", self.entity_distribution, version
+            )
+            == expected
+        )
+
 
 class TestTrafficDistribution:
     def setup_method(self):
@@ -823,7 +879,9 @@ class TestTrafficDistribution:
         self.entity_distribution = OSC.EntityDistribution()
         self.entity_distribution.setVersion(1, 3)
         self.catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
-        self.entity_distribution.add_entity_distribution_entry(0.5, self.catalog_ref)
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref
+        )
 
         self.traffic_distribution = OSC.TrafficDistribution()
         self.traffic_distribution.setVersion(1, 3)
@@ -834,50 +892,90 @@ class TestTrafficDistribution:
     @pytest.mark.parametrize(
         "weight, entity_distribution, properties, expected_exception, expected_message",
         [
-            (-0.5, "entity_distribution", "properties", ValueError, "Weight must be a non-negative value"),
-            (0.5, "invalid_entity_distribution", "properties", TypeError, "entity_distribution must be of type EntityDistribution"),
-            (0.5, "entity_distribution", "invalid_properties", TypeError, "properties must be of type Properties or None"),
-        ]
+            (
+                -0.5,
+                "entity_distribution",
+                "properties",
+                ValueError,
+                "Weight must be a non-negative value",
+            ),
+            (
+                0.5,
+                "invalid_entity_distribution",
+                "properties",
+                TypeError,
+                "entity_distribution must be of type EntityDistribution",
+            ),
+            (
+                0.5,
+                "entity_distribution",
+                "invalid_properties",
+                TypeError,
+                "properties must be of type Properties or None",
+            ),
+        ],
     )
-    def test_add_traffic_distribution_entry_param(self, weight, entity_distribution, properties, expected_exception, expected_message):
+    def test_add_traffic_distribution_entry_param(
+        self,
+        weight,
+        entity_distribution,
+        properties,
+        expected_exception,
+        expected_message,
+    ):
         # Setup valid and invalid objects
         entity_distribution = getattr(self, entity_distribution)
         properties = getattr(self, properties)
 
         with pytest.raises(expected_exception) as excinfo:
-            self.traffic_distribution.add_traffic_distribution_entry(weight, entity_distribution, properties)
+            self.traffic_distribution.add_traffic_distribution_entry(
+                weight, entity_distribution, properties
+            )
         assert str(excinfo.value) == expected_message
-        
 
     def test_add_traffic_distribution_entry_valid(self):
-        self.traffic_distribution.add_traffic_distribution_entry(0.5, self.entity_distribution)
+        self.traffic_distribution.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
         prettyprint(self.entity_distribution.get_element())
 
     def test_eq(self):
         traffic_distribution_1 = OSC.TrafficDistribution()
         traffic_distribution_1.setVersion(1, 3)
-        traffic_distribution_1.add_traffic_distribution_entry(0.5, self.entity_distribution)
+        traffic_distribution_1.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
 
         traffic_distribution_2 = OSC.TrafficDistribution()
         traffic_distribution_2.setVersion(1, 3)
-        traffic_distribution_2.add_traffic_distribution_entry(0.5, self.entity_distribution)
+        traffic_distribution_2.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
 
         assert traffic_distribution_1 == traffic_distribution_2
 
     def test_neq(self):
         traffic_distribution_1 = OSC.TrafficDistribution()
         traffic_distribution_1.setVersion(1, 3)
-        traffic_distribution_1.add_traffic_distribution_entry(0.5, self.entity_distribution)
+        traffic_distribution_1.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
 
         traffic_distribution_2 = OSC.TrafficDistribution()
         traffic_distribution_2.setVersion(1, 3)
-        traffic_distribution_2.add_traffic_distribution_entry(1, self.entity_distribution)
+        traffic_distribution_2.add_traffic_distribution_entry(
+            1, self.entity_distribution
+        )
 
         assert traffic_distribution_1 != traffic_distribution_2
 
     def test_parse(self):
-        self.traffic_distribution.add_traffic_distribution_entry(0.5, self.entity_distribution)
-        parsed_traffic_distribution = OSC.TrafficDistribution.parse(self.traffic_distribution.get_element())
+        self.traffic_distribution.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
+        parsed_traffic_distribution = OSC.TrafficDistribution.parse(
+            self.traffic_distribution.get_element()
+        )
         assert self.traffic_distribution == parsed_traffic_distribution
 
     @pytest.mark.parametrize(
@@ -890,5 +988,12 @@ class TestTrafficDistribution:
         ],
     )
     def test_validate_xml(self, version, expected):
-        self.traffic_distribution.add_traffic_distribution_entry(0.5, self.entity_distribution)
-        assert version_validation("TrafficDistribution", self.traffic_distribution, version) == expected
+        self.traffic_distribution.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
+        assert (
+            version_validation(
+                "TrafficDistribution", self.traffic_distribution, version
+            )
+            == expected
+        )

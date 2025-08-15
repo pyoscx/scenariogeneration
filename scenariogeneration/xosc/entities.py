@@ -1716,6 +1716,7 @@ class ScenarioObject(VersionBase):
 
         return element
 
+
 class EntityDistribution(VersionBase):
     def __init__(self):
         self.entity_distribution_entries = []
@@ -1723,10 +1724,14 @@ class EntityDistribution(VersionBase):
     def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, EntityDistribution)
-            and self.entity_distribution_entries == other.entity_distribution_entries
+            and self.entity_distribution_entries
+            == other.entity_distribution_entries
         )
-    
-    def add_entity_distribution_entry(self, weight: float, entityobject: Union[
+
+    def add_entity_distribution_entry(
+        self,
+        weight: float,
+        entityobject: Union[
             CatalogReference,
             Vehicle,
             Pedestrian,
@@ -1736,16 +1741,19 @@ class EntityDistribution(VersionBase):
             Controller,
             list[CatalogReference],
             list[Controller],
-        ] = None,):
+        ] = None,
+    ):
         self.weight = convert_float(weight)
         if self.weight < 0:
             raise ValueError("Weight must be a non-negative value")
-        
-        if not isinstance(entityobject, (CatalogReference, Vehicle, Pedestrian)):
+
+        if not isinstance(
+            entityobject, (CatalogReference, Vehicle, Pedestrian)
+        ):
             raise TypeError(
                 "entityobject must be of type CatalogReference, Vehicle, or Pedestrian"
             )
-        
+
         if controller is not None:
             if not isinstance(controller, list):
                 controller = [controller]
@@ -1757,7 +1765,9 @@ class EntityDistribution(VersionBase):
                         "controller input is not of type CatalogReference or Controller"
                     )
 
-        self.entity_distribution_entries.append([self.weight, entityobject, controller])
+        self.entity_distribution_entries.append(
+            [self.weight, entityobject, controller]
+        )
 
     @staticmethod
     def parse(element: ET.Element) -> "EntityDistribution":
@@ -1777,27 +1787,44 @@ class EntityDistribution(VersionBase):
         ed = EntityDistribution()
         for entry_el in element.findall("EntityDistributionEntry"):
             weight = float(entry_el.attrib["weight"])
-            scenario_object_template_el = entry_el.find("ScenarioObjectTemplate")
+            scenario_object_template_el = entry_el.find(
+                "ScenarioObjectTemplate"
+            )
             # Try all possible entity object types
             entityobject = None
-            if scenario_object_template_el.find("CatalogReference") is not None:
-                entityobject = CatalogReference.parse(scenario_object_template_el.find("CatalogReference"))
+            if (
+                scenario_object_template_el.find("CatalogReference")
+                is not None
+            ):
+                entityobject = CatalogReference.parse(
+                    scenario_object_template_el.find("CatalogReference")
+                )
             elif scenario_object_template_el.find("Vehicle") is not None:
-                entityobject = Vehicle.parse(scenario_object_template_el.find("Vehicle"))
+                entityobject = Vehicle.parse(
+                    scenario_object_template_el.find("Vehicle")
+                )
             elif scenario_object_template_el.find("Pedestrian") is not None:
-                entityobject = Pedestrian.parse(scenario_object_template_el.find("Pedestrian"))
+                entityobject = Pedestrian.parse(
+                    scenario_object_template_el.find("Pedestrian")
+                )
             else:
                 raise XMLStructureError(
                     "EntityDistributionEntry does not contain a valid EntityObject"
                 )
-        
+
             controller = None
-            if scenario_object_template_el.find("ObjectController") is not None:
+            if (
+                scenario_object_template_el.find("ObjectController")
+                is not None
+            ):
                 controller = []
-                for object_controller_element in scenario_object_template_el.findall(
-                    "ObjectController"
-                ):
-                    if object_controller_element.find("Controller") is not None:
+                for (
+                    object_controller_element
+                ) in scenario_object_template_el.findall("ObjectController"):
+                    if (
+                        object_controller_element.find("Controller")
+                        is not None
+                    ):
                         controller.append(
                             Controller.parse(
                                 find_mandatory_field(
@@ -1814,7 +1841,8 @@ class EntityDistribution(VersionBase):
                         controller.append(
                             CatalogReference.parse(
                                 find_mandatory_field(
-                                    object_controller_element, "CatalogReference"
+                                    object_controller_element,
+                                    "CatalogReference",
                                 )
                             )
                         )
@@ -1834,44 +1862,70 @@ class EntityDistribution(VersionBase):
             raise OpenSCENARIOVersionError(
                 "EntityDistribution was introduced in OpenSCENARIO V1.3"
             )
-        
+
         if not self.entity_distribution_entries:
-            raise ValueError("EntityDistribution must contain at least one EntityDistributionEntry")
+            raise ValueError(
+                "EntityDistribution must contain at least one EntityDistributionEntry"
+            )
 
         element = ET.Element("EntityDistribution")
         for entry in self.entity_distribution_entries:
             # Unpack tuple: (weight, entityobject, controller)
             weight, entityobject, controller = entry
-            entry_el = ET.Element("EntityDistributionEntry", attrib={"weight": str(weight)})
-            scenario_object_template_element = ET.SubElement(entry_el, "ScenarioObjectTemplate")
+            entry_el = ET.Element(
+                "EntityDistributionEntry", attrib={"weight": str(weight)}
+            )
+            scenario_object_template_element = ET.SubElement(
+                entry_el, "ScenarioObjectTemplate"
+            )
             scenario_object_template_element.append(entityobject.get_element())
             if controller:
                 # Support both single and multiple controllers
-                controllers = controller if isinstance(controller, list) else [controller]
+                controllers = (
+                    controller
+                    if isinstance(controller, list)
+                    else [controller]
+                )
                 for cnt in controllers:
-                    objcont = ET.SubElement(scenario_object_template_element, "ObjectController")
+                    objcont = ET.SubElement(
+                        scenario_object_template_element, "ObjectController"
+                    )
                     objcont.append(cnt.get_element())
             element.append(entry_el)
         return element
 
+
 class TrafficDistribution(VersionBase):
     def __init__(self) -> None:
         self.traffic_distribution_entries = []
-    
+
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, TrafficDistribution) and self.traffic_distribution_entries == other.traffic_distribution_entries
-        
-    def add_traffic_distribution_entry(self, weight: float, entity_distribution: EntityDistribution, properties: Optional[Properties] = None) -> None:
+        return (
+            isinstance(other, TrafficDistribution)
+            and self.traffic_distribution_entries
+            == other.traffic_distribution_entries
+        )
+
+    def add_traffic_distribution_entry(
+        self,
+        weight: float,
+        entity_distribution: EntityDistribution,
+        properties: Optional[Properties] = None,
+    ) -> None:
         self.weight = convert_float(weight)
         if self.weight < 0:
             raise ValueError("Weight must be a non-negative value")
-        
+
         if not isinstance(entity_distribution, EntityDistribution):
-            raise TypeError("entity_distribution must be of type EntityDistribution")
+            raise TypeError(
+                "entity_distribution must be of type EntityDistribution"
+            )
         if properties is not None and not isinstance(properties, Properties):
             raise TypeError("properties must be of type Properties or None")
-        
-        self.traffic_distribution_entries.append((weight, entity_distribution, properties))
+
+        self.traffic_distribution_entries.append(
+            (weight, entity_distribution, properties)
+        )
 
     @staticmethod
     def parse(element: ET.Element) -> "TrafficDistribution":
@@ -1896,9 +1950,11 @@ class TrafficDistribution(VersionBase):
             properties_el = entry_el.find("Properties")
             if properties_el is not None:
                 properties = Properties.parse(properties_el)
-            td.add_traffic_distribution_entry(weight, entity_distribution, properties)
+            td.add_traffic_distribution_entry(
+                weight, entity_distribution, properties
+            )
         return td
-    
+
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the TrafficDistribution."""
 
@@ -1912,8 +1968,14 @@ class TrafficDistribution(VersionBase):
             )
 
         element = ET.Element("TrafficDistribution")
-        for weight, entity_distribution, properties in self.traffic_distribution_entries:
-            entry_el = ET.Element("TrafficDistributionEntry", attrib={"weight": str(weight)})
+        for (
+            weight,
+            entity_distribution,
+            properties,
+        ) in self.traffic_distribution_entries:
+            entry_el = ET.Element(
+                "TrafficDistributionEntry", attrib={"weight": str(weight)}
+            )
             entry_el.append(entity_distribution.get_element())
             if properties is not None:
                 entry_el.append(properties.get_element())
