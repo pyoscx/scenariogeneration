@@ -1715,7 +1715,6 @@ class ScenarioObject(VersionBase):
                 objcont.append(cnt.get_element())
 
         return element
-
 class EntityDistribution(VersionBase):
     def __init__(self):
         self.entity_distribution_entries = []
