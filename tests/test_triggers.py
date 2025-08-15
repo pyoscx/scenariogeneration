@@ -1350,3 +1350,136 @@ class TestAngleCondition:
             0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
         )
         assert cond3 == cond2
+
+    class TestRelativeAngleCondition:
+        def setup_method(self):
+            OSC.VersionBase().setVersion(minor=3)
+
+        @pytest.fixture()
+        def entity_ref(self):
+            entity = OSC.Entity("Ego", OSC.ObjectType.vehicle)
+            enity_ref = OSC.EntityRef(entity.name)
+            return enity_ref
+
+        @pytest.fixture()
+        def rel_angle_cond(self, entity_ref):
+            return OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+
+        def test_rel_angle_cond_prettyprint(self, rel_angle_cond):
+            prettyprint(rel_angle_cond.get_element())
+
+        def test_rel_angle_cond_eq(self, rel_angle_cond, entity_ref):
+            cond2 = OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+            assert rel_angle_cond == cond2
+
+        def test_rel_angle_cond_neq(self, rel_angle_cond, entity_ref):
+            cond3 = OSC.RelativeAngleCondition(
+                0.8,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+            assert rel_angle_cond != cond3
+
+            cond3.angle = 0.7
+            cond3.coordinate_system = OSC.CoordinateSystem.trajectory
+            assert rel_angle_cond != cond3
+
+            cond3.coordinate_system = OSC.CoordinateSystem.world
+            cond3.angle_type = OSC.AngleType.pitch
+            assert rel_angle_cond != cond3
+
+        @pytest.mark.parametrize(
+            ["osc_version", "expected_response"],
+            [
+                (0, ValidationResponse.OSC_VERSION),
+                (1, ValidationResponse.OSC_VERSION),
+                (2, ValidationResponse.OSC_VERSION),
+                (3, ValidationResponse.OK),
+            ],
+        )
+        def test_rel_angle_cond_version_validation(
+            self, osc_version, expected_response, rel_angle_cond
+        ):
+            assert (
+                version_validation(
+                    "EntityCondition", rel_angle_cond, osc_version
+                )
+                == expected_response
+            )
+
+        def test_rel_angle_cond_parse(self, rel_angle_cond):
+            cond2 = OSC.RelativeAngleCondition.parse(
+                rel_angle_cond.get_element()
+            )
+            assert rel_angle_cond == cond2
+
+        def test_rel_angle_cond_invalid_args(self, entity_ref):
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1,
+                    0.1,
+                    "dummy",
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1, 0.1, OSC.AngleType.heading, entity_ref.entity, "dummy"
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    "dummy",
+                    0.1,
+                    OSC.AngleType.pitch,
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1,
+                    "dummy",
+                    OSC.AngleType.roll,
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(TypeError):
+                OSC.RelativeAngleCondition(1, "dummy")
+
+        def test_rel_angle_cond_args(self, entity_ref):
+            cond = OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.lane,
+            )
+            assert cond.angle_type == OSC.AngleType.heading
+            assert cond.coordinate_system == OSC.CoordinateSystem.lane
+
+            cond2 = OSC.RelativeAngleCondition(
+                0.7, 0.1, OSC.AngleType.heading, entity_ref.entity
+            )
+            assert cond2.coordinate_system == OSC.CoordinateSystem.entity
+
+            cond3 = OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.entity,
+            )
+            assert cond3 == cond2
