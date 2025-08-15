@@ -823,28 +823,34 @@ class Act(VersionBase):
         name : str
             Name of the act.
         starttrigger : _TriggerType, optional
-            Start trigger of the act. Default is
-            ValueTrigger('act_start', 0, ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan)).
+            Start trigger of the act. Default behavior depends on
+            the OpenSCENARIO version.
+            OpenSCENARIO 1.2 or less:
+                Default is ValueTrigger('act_start', 0, ConditionEdge.none,
+                SimulationTimeCondition(0, Rule.greaterThan)).
+            OpenSCENARIO 1.3:
+                None. The act starts when the Storyboard enters runningState.
         stoptrigger : _TriggerType, optional
             Stop trigger of the act. Default is EmptyTrigger("stop").
         """
         self.name = name
+        self._none_starttrigger_input = False
         if starttrigger is None:
-            self.starttrigger = starttrigger = ValueTrigger(
-                "act_start",
-                0,
-                ConditionEdge.none,
-                SimulationTimeCondition(0, Rule.greaterThan),
-            )
-        elif not isinstance(starttrigger, _TriggerType):
+            self._none_starttrigger_input = True
+            self._starttrigger = None
+        elif starttrigger is not None and not isinstance(
+            starttrigger, _TriggerType
+        ):
             raise TypeError("starttrigger is not a valid TriggerType")
-        elif starttrigger._triggerpoint == "StopTrigger":
+        elif (
+            starttrigger is not None
+            and starttrigger._triggerpoint == "StopTrigger"
+        ):
             raise ValueError(
                 "the starttrigger provided does not have start as the triggeringpoint"
             )
         else:
-            self.starttrigger = starttrigger
+            self._starttrigger = starttrigger
 
         if stoptrigger is None:
             self.stoptrigger = EmptyTrigger("stop")
@@ -862,12 +868,51 @@ class Act(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Act):
             if (
-                self.starttrigger == other.starttrigger
+                self._check_starttrigger(other)
                 and self.stoptrigger == other.stoptrigger
                 and self.maneuvergroup == other.maneuvergroup
             ):
                 return True
         return False
+
+    @property
+    def starttrigger(self) -> Optional[Union[_TriggerType, _ValueTriggerType]]:
+        """Returns the start trigger of the act."""
+        if self._starttrigger is None:
+            if self.isVersionEqLarger(1, 3):
+                return None
+            else:
+                return self._default_starttrigger
+        return self._starttrigger
+
+    @starttrigger.setter
+    def starttrigger(self, value):
+        if value is not None and not isinstance(value, _TriggerType):
+            raise TypeError(
+                f"starttrigger must be None, _TriggerType, or _ValueTriggerType, not {type(value).__name__}"
+            )
+
+        self._starttrigger = value
+
+    @property
+    def _default_starttrigger(self) -> _ValueTriggerType:
+        """Returns the start trigger of the act."""
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        return start_trigger
+
+    def _check_starttrigger(self, other) -> bool:
+
+        if self.isVersionEqLarger(1, 3):
+            if self._none_starttrigger_input:
+                return other.starttrigger is None
+            return self.starttrigger == other.starttrigger
+        else:
+            return self.starttrigger == other.starttrigger
 
     @staticmethod
     def parse(element: ET.Element) -> "Act":
@@ -885,13 +930,17 @@ class Act(VersionBase):
         """
         name = element.attrib["name"]
         stoptrigger = None
+        starttrigger = None
         if element.find("StopTrigger") is not None:
             stoptrigger = Trigger.parse(
                 find_mandatory_field(element, "StopTrigger")
             )
-        starttrigger = Trigger.parse(
-            find_mandatory_field(element, "StartTrigger")
-        )
+        if element.find("StartTrigger") is not None:
+            # TODO: If XML version is 1.3 or higher, starttrigger may be None;
+            #  for earlier versions, a _TriggerType is required.
+            starttrigger = Trigger.parse(
+                find_mandatory_field(element, "StartTrigger")
+            )
 
         act = Act(name, starttrigger, stoptrigger)
         for m in element.findall("ManeuverGroup"):
@@ -934,8 +983,15 @@ class Act(VersionBase):
         element = ET.Element("Act", attrib=self.get_attributes())
         for mangr in self.maneuvergroup:
             element.append(mangr.get_element())
+        starttrigger = self.starttrigger
+        if self._none_starttrigger_input:
+            if self.isVersionEqLarger(1, 3):
+                starttrigger = None
 
-        element.append(self.starttrigger.get_element())
+            else:
+                starttrigger = self._default_starttrigger
+        if starttrigger is not None:
+            element.append(starttrigger.get_element())
         element.append(self.stoptrigger.get_element())
         return element
 

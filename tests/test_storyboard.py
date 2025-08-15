@@ -17,6 +17,13 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
+from scenariogeneration.xosc import (
+    EmptyTrigger,
+    ValueTrigger,
+    ConditionEdge,
+    SimulationTimeCondition,
+    Rule,
+)
 
 from .xml_validator import ValidationResponse, version_validation
 
@@ -169,69 +176,141 @@ def test_maneuvergroup():
         mangr.add_maneuver("dummy")
 
 
-def test_actandstory():
-    event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-    event.add_trigger(trigger)
-    event.add_action("newspeed", speedaction)
-    man = OSC.Maneuver("my maneuver")
-    man.add_event(event)
-    # prettyprint(man.get_element())
+class TestActAndStory:
+    """Test Act and Story classes."""
 
-    mangr = OSC.ManeuverGroup("mangroup")
-    mangr.add_actor("Ego")
-    mangr.add_maneuver(man)
-    # prettyprint(mangr.get_element())
+    @pytest.fixture(name="maneuver_group")
+    def fixture_maneuver_group(self):
+        event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
+        event.add_trigger(trigger)
+        event.add_action("newspeed", speedaction)
+        man = OSC.Maneuver("my maneuver")
+        man.add_event(event)
 
-    act = OSC.Act("my act", trigger)
-    act.add_maneuver_group(mangr)
-    prettyprint(act.get_element())
+        mangr = OSC.ManeuverGroup("mangroup")
+        mangr.add_actor("Ego")
+        mangr.add_maneuver(man)
+        return mangr
 
-    act2 = OSC.Act("my act", trigger)
-    act2.add_maneuver_group(mangr)
+    @pytest.fixture(name="act")
+    def fixture_act(self, maneuver_group):
+        act = OSC.Act("my act", trigger)
+        act.add_maneuver_group(maneuver_group)
+        return act
 
-    act3 = OSC.Act("my act", trigger)
-    act3.add_maneuver_group(mangr)
-    act3.add_maneuver_group(mangr)
-    assert act == act2
-    assert act != act3
+    @pytest.fixture(name="act3")
+    def fixture_act3(self, maneuver_group):
+        act3 = OSC.Act("my act", trigger)
+        act3.add_maneuver_group(maneuver_group)
+        act3.add_maneuver_group(maneuver_group)
+        return act3
 
-    act4 = OSC.Act.parse(act3.get_element())
+    @pytest.fixture(name="story")
+    def fixture_story(self, act):
+        story = OSC.Story("mystory")
+        story.add_act(act)
+        return story
 
-    assert act4 == act3
-    assert version_validation("Act", act3, 0) == ValidationResponse.OK
-    assert version_validation("Act", act3, 1) == ValidationResponse.OK
-    assert version_validation("Act", act3, 2) == ValidationResponse.OK
+    def test_eq(self, act, maneuver_group):
+        act2 = OSC.Act("my act", trigger)
+        act2.add_maneuver_group(maneuver_group)
+        assert act == act2
 
-    with pytest.raises(TypeError):
-        OSC.Act("act", "dummy")
-    with pytest.raises(TypeError):
-        OSC.Act("act", trigger, "dummy")
-    with pytest.raises(TypeError):
-        act.add_maneuver_group("dummy")
+    def test_not_eq(self, act, act3):
+        assert act != act3
 
-    story = OSC.Story("mystory")
-    story.add_act(act)
-    prettyprint(story.get_element())
+    def test_parse(self, act):
+        act4 = OSC.Act.parse(act.get_element())
+        assert act4 == act
+        for minor_version in range(4):
+            assert (
+                version_validation("Act", act, minor_version)
+                == ValidationResponse.OK
+            )
 
-    story2 = OSC.Story("mystory")
-    story2.add_act(act)
+    def test_invalid_starttrigger(self):
+        with pytest.raises(TypeError):
+            OSC.Act("act", "dummy")
+        with pytest.raises(TypeError):
+            OSC.Act("act", trigger, "dummy")
 
-    story3 = OSC.Story("mystory")
-    story3.add_act(act3)
+    def test_add_invalid_maneuver_group(self, act):
+        with pytest.raises(TypeError):
+            act.add_maneuver_group("dummy")
 
-    assert story == story2
-    assert story != story3
+    def test_optional_attr(self):
+        action = OSC.Act("my act")
+        action.setVersion(1, 3)
+        assert action.starttrigger is None
+        assert action.stoptrigger == EmptyTrigger("stop")
 
-    story4 = OSC.Story.parse(story.get_element())
-    assert story == story4
-    assert version_validation("Story", story, 0) == ValidationResponse.OK
-    assert version_validation("Story", story, 1) == ValidationResponse.OK
-    assert version_validation("Story", story, 2) == ValidationResponse.OK
+    def test_story_pretty_print(self, story):
+        prettyprint(story.get_element())
 
-    with pytest.raises(TypeError):
-        OSC.Story("name", "dummy")
-    with pytest.raises(TypeError):
-        story.add_act("dummy")
+    def test_story_eq(self, act, story):
+        story2 = OSC.Story("mystory")
+        story2.add_act(act)
+        assert story == story2
+
+    def test_story_not_eq(self, act3, story):
+        story3 = OSC.Story("mystory")
+        story3.add_act(act3)
+        assert story != story3
+
+    def test_story_parse(self, story):
+        story4 = OSC.Story.parse(story.get_element())
+        assert story == story4
+        for minor_version in range(4):
+            assert (
+                version_validation("Story", story, minor_version)
+                == ValidationResponse.OK
+            )
+
+    def test_invalid_story(self):
+        with pytest.raises(TypeError):
+            OSC.Story("name", "dummy")
+
+    def test_add_invalid_act_to_add(self, story):
+        with pytest.raises(TypeError):
+            story.add_act("dummy")
+
+    def test_default_starttrigger_v3(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        act5.setVersion(1, 3)
+        act6.setVersion(1, 3)
+        assert act6 != act5
+
+    def test_default_starttrigger_v2(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        assert act6 == act5
+
+    def test_get_starttrigger(self, act):
+        default_start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act7 = OSC.Act("my act7")
+        assert act7.isVersionEqLess(1, 2)
+        assert act7.starttrigger == default_start_trigger
+        act8 = OSC.Act("my act8")
+        act8.setVersion(1, 3)
+        assert act8.starttrigger is None
 
 
 def test_init():
