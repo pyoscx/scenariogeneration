@@ -744,16 +744,28 @@ class TestRoadRange:
 
 
 class TestTrafficArea:
+    def setup_method(self):
+        self.polygon = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+            ]
+        )
+        self.traffic_area_polygon = OSC.TrafficArea(
+            area_definition=self.polygon
+        )
+        self.traffic_area_polygon.setVersion(1, 3)
+        self.roadrange = OSC.RoadRange("10").add_cursor("0").add_cursor("1")
+        self.traffic_area_roadrange = OSC.TrafficArea(
+            area_definition=self.roadrange
+        )
+        self.traffic_area_roadrange.setVersion(1, 3)
+
     @pytest.mark.parametrize(
-        "polygon, roadrange, expected_exception, expected_message",
+        ["area_definition", "expected_exception", "expected_message"],
         [
             (
-                None,
-                None,
-                ValueError,
-                "At least one of polygon or roadrange must be provided",
-            ),
-            (
                 OSC.Polygon(
                     [
                         OSC.WorldPosition(0, 0, 0),
@@ -763,49 +775,28 @@ class TestTrafficArea:
                 ),
                 None,
                 None,
-                None,
             ),
             (
-                None,
                 OSC.RoadRange("10").add_cursor("0").add_cursor("1"),
                 None,
                 None,
             ),
             (
-                OSC.Polygon(
-                    [
-                        OSC.WorldPosition(0, 0, 0),
-                        OSC.WorldPosition(1, 0, 0),
-                        OSC.WorldPosition(1, 1, 0),
-                    ]
-                ),
-                OSC.RoadRange("10").add_cursor("0").add_cursor("1"),
-                ValueError,
-                "Only one of polygon or roadrange can be provided, not both",
-            ),
-            (
-                "not polygon",
                 None,
                 TypeError,
-                "polygon input is not of type Polygon",
-            ),
-            (
-                None,
-                "not roadrange",
-                TypeError,
-                "roadrange input is not of type RoadRange",
+                "area_definition input is not a valid Polygon or RoadRange",
             ),
         ],
     )
     def test_traffic_area_init(
-        self, polygon, roadrange, expected_exception, expected_message
+        self, area_definition, expected_exception, expected_message
     ):
         if expected_exception:
             with pytest.raises(expected_exception) as excinfo:
-                OSC.TrafficArea(polygon=polygon, roadrange=roadrange)
+                OSC.TrafficArea(area_definition)
             assert str(excinfo.value) == expected_message
         else:
-            ta = OSC.TrafficArea(polygon=polygon, roadrange=roadrange)
+            ta = OSC.TrafficArea(area_definition)
             ta.setVersion(1, 3)
             prettyprint(ta.get_element())
 
@@ -824,15 +815,15 @@ class TestTrafficArea:
                 OSC.WorldPosition(1, 1, 0),
             ]
         )
-        ta1 = OSC.TrafficArea(polygon=polygon1)
-        ta2 = OSC.TrafficArea(polygon=polygon2)
+        ta1 = OSC.TrafficArea(area_definition=polygon1)
+        ta2 = OSC.TrafficArea(area_definition=polygon2)
         assert ta1 == ta2
 
     def test_eq_roadrange(self):
         roadrange1 = OSC.RoadRange("10").add_cursor("0").add_cursor("1")
         roadrange2 = OSC.RoadRange("10").add_cursor("0").add_cursor("1")
-        ta1 = OSC.TrafficArea(roadrange=roadrange1)
-        ta2 = OSC.TrafficArea(roadrange=roadrange2)
+        ta1 = OSC.TrafficArea(area_definition=roadrange1)
+        ta2 = OSC.TrafficArea(area_definition=roadrange2)
         assert ta1 == ta2
 
     @pytest.mark.parametrize(
@@ -845,156 +836,24 @@ class TestTrafficArea:
         ],
     )
     def test_validate_xml(self, version, expected):
-        polygon = OSC.Polygon(
-            [
-                OSC.WorldPosition(0, 0, 0),
-                OSC.WorldPosition(1, 0, 0),
-                OSC.WorldPosition(1, 1, 0),
-            ]
-        )
-        traffic_area = OSC.TrafficArea(polygon=polygon)
         assert (
-            version_validation("TrafficArea", traffic_area, version)
+            version_validation(
+                "TrafficArea", self.traffic_area_polygon, version
+            )
             == expected
         )
 
     def test_parse_polygon(self):
-        polygon = OSC.Polygon(
-            [
-                OSC.WorldPosition(0, 0, 0),
-                OSC.WorldPosition(1, 0, 0),
-                OSC.WorldPosition(1, 1, 0),
-            ]
+        parsed_traffic_area = OSC.TrafficArea.parse(
+            self.traffic_area_polygon.get_element()
         )
-        traffic_area = OSC.TrafficArea(polygon=polygon)
-        traffic_area.setVersion(1, 3)
-        parsed_traffic_area = OSC.TrafficArea.parse(traffic_area.get_element())
-        assert traffic_area == parsed_traffic_area
+        assert self.traffic_area_polygon == parsed_traffic_area
 
     def test_parse_roadrange(self):
-        roadrange = (
-            OSC.RoadRange("10")
-            .add_cursor("roadA", 0.0, [1, 2])
-            .add_cursor("roadA", 100.0, [2])
+        parsed_traffic_area = OSC.TrafficArea.parse(
+            self.traffic_area_roadrange.get_element()
         )
-        traffic_area = OSC.TrafficArea(roadrange=roadrange)
-        traffic_area.setVersion(1, 3)
-        parsed_traffic_area = OSC.TrafficArea.parse(traffic_area.get_element())
-        assert traffic_area == parsed_traffic_area
-
-    def test_polygon_to_few_points(self):
-        with pytest.raises(ValueError):
-            OSC.Polygon([OSC.WorldPosition(0, 0, 0)])
-
-    def test_polugon_input_not_positions(self):
-        with pytest.raises(TypeError):
-            OSC.Polygon(
-                [
-                    OSC.WorldPosition(0, 0, 0),
-                    OSC.WorldPosition(0, 0, 0),
-                    "dummy",
-                ]
-            )
-
-    def test_polygon_equality(self):
-        polygon2 = OSC.Polygon(
-            [
-                OSC.WorldPosition(0, 0, 0),
-                OSC.WorldPosition(1, 0, 0),
-                OSC.WorldPosition(1, 1, 0),
-                OSC.WorldPosition(0, 1, 0),
-            ]
-        )
-        assert self.polygon == polygon2
-
-        polygon3 = OSC.Polygon(
-            [
-                OSC.WorldPosition(0, 0, 0),
-                OSC.WorldPosition(1, 1, 0),
-                OSC.WorldPosition(1, 2, 0),
-                OSC.WorldPosition(0, 2, 0),
-            ]
-        )
-        assert self.polygon != polygon3
-
-    def test_polygon_parse(self):
-        polygon = self.polygon.get_element()
-        parsed_polygon = OSC.Polygon.parse(polygon)
-        assert self.polygon == parsed_polygon
-
-    @pytest.mark.parametrize(
-        ["version", "expected"],
-        [
-            (0, ValidationResponse.OSC_VERSION),
-            (1, ValidationResponse.OSC_VERSION),
-            (2, ValidationResponse.OSC_VERSION),
-            (3, ValidationResponse.OK),
-        ],
-    )
-    def test_validate_xml(self, version, expected):
-        assert version_validation("Polygon", self.polygon, version) == expected
-
-
-class TestRoadRange:
-    def setup_method(self):
-        self.roadrange = OSC.RoadRange()
-        self.roadrange.add_cursor("0")
-        self.roadrange.add_cursor("1")
-        self.roadrange.setVersion(1, 3)
-
-    def test_add_cursor(self):
-        self.roadrange.add_cursor("2")
-        assert len(self.roadrange.roadcursors) == 3
-
-    def test_parse(self):
-        element = self.roadrange.get_element()
-        parsed_roadrange = OSC.RoadRange.parse(element)
-        print("Original:", self.roadrange.roadcursors)
-        print("Parsed:  ", parsed_roadrange.roadcursors)
-        print("Original length:", self.roadrange.length)
-        print("Parsed length:  ", parsed_roadrange.length)
-        assert self.roadrange == parsed_roadrange
-
-    @pytest.mark.parametrize(
-        ["version", "expected"],
-        [
-            (0, ValidationResponse.OSC_VERSION),
-            (1, ValidationResponse.OSC_VERSION),
-            (2, ValidationResponse.OSC_VERSION),
-            (3, ValidationResponse.OK),
-        ],
-    )
-    def test_validate_xml(self, version, expected):
-        assert (
-            version_validation("RoadRange", self.roadrange, version)
-            == expected
-        )
-
-    def test_number_of_road_cursors(self):
-        self.roadrange_basic = OSC.RoadRange()
-        self.roadrange_basic.setVersion(1, 3)
-        assert len(self.roadrange_basic.roadcursors) == 0
-        with pytest.raises(ValueError) as to_few_cursors:
-            self.roadrange_basic.get_element()
-        assert (
-            str(to_few_cursors.value)
-            == "At least two road cursors are required for a RoadRange"
-        )
-        self.roadrange_basic.add_cursor("0")
-        assert len(self.roadrange_basic.roadcursors) == 1
-        with pytest.raises(ValueError) as to_few_cursors:
-            self.roadrange_basic.get_element()
-        assert (
-            str(to_few_cursors.value)
-            == "At least two road cursors are required for a RoadRange"
-        )
-        self.roadrange_basic.add_cursor("1")
-        assert len(self.roadrange_basic.roadcursors) == 2
-        self.roadrange_basic.get_element()  # Should not raise an error now
-
-
-class TestTrafficArea:
-    pass
+        assert self.traffic_area_roadrange == parsed_traffic_area
 
 
 class TestClothoidSpline:

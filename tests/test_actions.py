@@ -1220,12 +1220,72 @@ class TestTrafficAreaAction:
         )
         assert taa1 == taa2
 
-    def test_neq(self):
+    @pytest.mark.parametrize(
+        "diff_field, val1, val2",
+        [
+            ("continuous", False, True),
+            ("number_of_entities", 2, 1),
+            ("traffic_distribution_weight", 0.5, 1.0),
+            ("traffic_area_x", 1, 2),
+        ],
+    )
+    def test_neq(self, diff_field, val1, val2):
+        # Common setup
+        entity_distribution = OSC.EntityDistribution()
+        catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+        entity_distribution.add_entity_distribution_entry(0.5, catalog_ref)
+
+        # TrafficDistribution
+        td1 = OSC.TrafficDistribution()
+        td2 = OSC.TrafficDistribution()
+        td_weight1 = 0.5
+        td_weight2 = 0.5
+        if diff_field == "traffic_distribution_weight":
+            td_weight1 = val1
+            td_weight2 = val2
+        td1.add_traffic_distribution_entry(td_weight1, entity_distribution)
+        td2.add_traffic_distribution_entry(td_weight2, entity_distribution)
+
+        # TrafficArea
+        ta_x1 = 1
+        ta_x2 = 1
+        if diff_field == "traffic_area_x":
+            ta_x1 = val1
+            ta_x2 = val2
+        polygon_1 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(ta_x1, 0, 0),
+                OSC.WorldPosition(ta_x1, ta_x1, 0),
+            ]
+        )
+        polygon_2 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(ta_x2, 0, 0),
+                OSC.WorldPosition(ta_x2, ta_x2, 0),
+            ]
+        )
+        traffic_area_1 = OSC.TrafficArea(polygon_1)
+        traffic_area_2 = OSC.TrafficArea(polygon_2)
+
+        # continuous and number_of_entities
+        continuous1 = False
+        continuous2 = False
+        number_of_entities1 = 2
+        number_of_entities2 = 2
+        if diff_field == "continuous":
+            continuous1 = val1
+            continuous2 = val2
+        if diff_field == "number_of_entities":
+            number_of_entities1 = val1
+            number_of_entities2 = val2
+
         taa1 = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            continuous1, number_of_entities1, td1, traffic_area_1
         )
         taa2 = OSC.TrafficAreaAction(
-            True, 2, self.traffic_distribution, self.traffic_area
+            continuous2, number_of_entities2, td2, traffic_area_2
         )
         assert taa1 != taa2
 

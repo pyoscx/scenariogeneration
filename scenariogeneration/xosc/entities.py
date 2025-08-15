@@ -1944,7 +1944,9 @@ class TrafficDistribution(VersionBase):
         td = TrafficDistribution()
         for entry_el in element.findall("TrafficDistributionEntry"):
             weight = float(entry_el.attrib["weight"])
-            entity_dist_el = entry_el.find("EntityDistribution")
+            entity_dist_el = find_mandatory_field(
+                entry_el, "EntityDistribution"
+            )
             entity_distribution = EntityDistribution.parse(entity_dist_el)
             properties = None
             properties_el = entry_el.find("Properties")

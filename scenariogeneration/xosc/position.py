@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Optional
+from typing import Optional, Union
 
 from .enumerations import RouteStrategy
 from .exceptions import (
@@ -3028,54 +3028,36 @@ class TrafficArea(VersionBase):
 
     Parameters
     ----------
-    polygon : Polygon
-        Defines an area by a polygon. Suitable for urban areas, where all roads within an area shall be populated.
-    roadrange : RoadRange
-        Defines an area by one or multiple road ranges. Suitable for highways, where only a few specific roads shall be populated.
+    area_definition : Union[Polygon, RoadRange]
+        Defines an area by either a polygon or a road range. Suitable for urban areas (polygon) or highways (road range).
 
     Attributes
     ----------
-    polygon : Polygon
-        Defines an area by a polygon. Suitable for urban areas, where all roads within an area shall be populated.
-    roadrange : RoadRange
-        Defines an area by one or multiple road ranges. Suitable for highways, where only a few specific roads shall be populated.
+    area_definition : Union[Polygon, RoadRange]
+        Defines an area by either a polygon or a road range. Suitable for urban areas (polygon) or highways (road range).
     """
 
-    def __init__(
-        self,
-        polygon: Optional[Polygon] = None,
-        roadrange: Optional[RoadRange] = None,
-    ) -> None:
+    def __init__(self, area_definition: Union[Polygon, RoadRange]) -> None:
         """Initializes the TrafficArea.
 
         Parameters
         ----------
-        polygon : Polygon, optional
-            Defines an area by a polygon. Default is None.
-        roadrange : RoadRange, optional
-            Defines an area by one or multiple road ranges. Default is None.
-        """
+        area_definition : Union[Polygon, RoadRange]
+            Defines an area by either a polygon or a road range. Suitable for urban areas (polygon) or highways (road range).
 
-        if polygon is None and roadrange is None:
-            raise ValueError(
-                "At least one of polygon or roadrange must be provided"
+        """
+        print("Area definition:", area_definition)
+
+        if not isinstance(area_definition, (Polygon, RoadRange)):
+            raise TypeError(
+                "area_definition input is not a valid Polygon or RoadRange"
             )
-        if polygon is not None and roadrange is not None:
-            raise ValueError(
-                "Only one of polygon or roadrange can be provided, not both"
-            )
-        if polygon is not None and not isinstance(polygon, Polygon):
-            raise TypeError("polygon input is not of type Polygon")
-        if roadrange is not None and not isinstance(roadrange, RoadRange):
-            raise TypeError("roadrange input is not of type RoadRange")
-        self.polygon = polygon
-        self.roadrange = roadrange
+        self.area_definition = area_definition
 
     def __eq__(self, other: object) -> bool:
         return (
             isinstance(other, TrafficArea)
-            and self.polygon == other.polygon
-            and self.roadrange == other.roadrange
+            and self.area_definition == other.area_definition
         )
 
     @staticmethod
@@ -3092,17 +3074,17 @@ class TrafficArea(VersionBase):
         TrafficArea
             A TrafficArea object.
         """
-        polygon = None
+        area_definition = None
         if element.find("Polygon") is not None:
-            polygon = Polygon.parse(find_mandatory_field(element, "Polygon"))
-
-        roadrange = None
-        if element.find("RoadRange") is not None:
-            roadrange = RoadRange.parse(
+            area_definition = Polygon.parse(
+                find_mandatory_field(element, "Polygon")
+            )
+        elif element.find("RoadRange") is not None:
+            area_definition = RoadRange.parse(
                 find_mandatory_field(element, "RoadRange")
             )
 
-        return TrafficArea(polygon, roadrange)
+        return TrafficArea(area_definition)
 
     def get_element(self) -> ET.Element:
         """Returns the ElementTree of the TrafficArea.
@@ -3118,10 +3100,7 @@ class TrafficArea(VersionBase):
             )
 
         element = ET.Element("TrafficArea")
-        if self.polygon is not None:
-            element.append(self.polygon.get_element())
-        if self.roadrange is not None:
-            element.append(self.roadrange.get_element())
+        element.append(self.area_definition.get_element())
         return element
 
 

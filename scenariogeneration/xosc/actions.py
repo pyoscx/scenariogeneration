@@ -6031,6 +6031,9 @@ class TrafficAreaAction(_ActionType):
         return (
             isinstance(other, TrafficAreaAction)
             and self.get_attributes() == other.get_attributes()
+            and self.trafficdistribution == other.trafficdistribution
+            and self.trafficarea == other.trafficarea
+            and self.name == other.name
         )
 
     @staticmethod
