@@ -684,6 +684,7 @@ class ColorType:
     grey = _OscEnum("ColorType", "grey", min_minor_version=2)
     white = _OscEnum("ColorType", "white", min_minor_version=2)
 
+
 class AngleType:
     heading = _OscEnum("AngleType", "heading", min_minor_version=3)
     pitch = _OscEnum("AngleType", "pitch", min_minor_version=3)

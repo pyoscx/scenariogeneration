@@ -86,8 +86,8 @@ class EmptyTrigger(_TriggerType):
                 return True
         elif isinstance(other, Trigger):
             if (
-                    len(other.conditiongroups) == 0
-                    and self._triggerpoint == other._triggerpoint
+                len(other.conditiongroups) == 0
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         return False
@@ -236,14 +236,14 @@ class EntityTrigger(_TriggerType):
     """
 
     def __init__(
-            self,
-            name: str,
-            delay: float,
-            conditionedge: ConditionEdge,
-            entitycondition: _EntityTriggerType,
-            triggerentity: str,
-            triggeringrule: TriggeringEntitiesRule = TriggeringEntitiesRule.any,
-            triggeringpoint: str = "start",
+        self,
+        name: str,
+        delay: float,
+        conditionedge: ConditionEdge,
+        entitycondition: _EntityTriggerType,
+        triggerentity: str,
+        triggeringrule: TriggeringEntitiesRule = TriggeringEntitiesRule.any,
+        triggeringpoint: str = "start",
     ) -> None:
         """Initialize the EntityTrigger.
 
@@ -287,27 +287,27 @@ class EntityTrigger(_TriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, EntityTrigger):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.triggerentity == other.triggerentity
-                    and self.entitycondition == other.entitycondition
-                    and self._triggerpoint == other._triggerpoint
+                self.get_attributes() == other.get_attributes()
+                and self.triggerentity == other.triggerentity
+                and self.entitycondition == other.entitycondition
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         elif isinstance(other, Trigger):
             if (
-                    len(other.conditiongroups) == 1
-                    and len(other.conditiongroups[0].conditions) == 1
+                len(other.conditiongroups) == 1
+                and len(other.conditiongroups[0].conditions) == 1
             ):
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and other.conditiongroups[0].conditions[0] == self
+                    self._triggerpoint == other._triggerpoint
+                    and other.conditiongroups[0].conditions[0] == self
                 ):
                     return True
         elif isinstance(other, ConditionGroup):
             if len(other.conditions) == 1:
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and other.conditions[0] == self
+                    self._triggerpoint == other._triggerpoint
+                    and other.conditions[0] == self
                 ):
                     return True
         return False
@@ -467,12 +467,12 @@ class ValueTrigger(_TriggerType):
     """
 
     def __init__(
-            self,
-            name: str,
-            delay: float,
-            conditionedge: ConditionEdge,
-            valuecondition: _ValueTriggerType,
-            triggeringpoint: str = "start",
+        self,
+        name: str,
+        delay: float,
+        conditionedge: ConditionEdge,
+        valuecondition: _ValueTriggerType,
+        triggeringpoint: str = "start",
     ) -> None:
         """Initialize the ValueTrigger.
 
@@ -513,26 +513,26 @@ class ValueTrigger(_TriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, ValueTrigger):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.valuecondition == other.valuecondition
-                    and self._triggerpoint == other._triggerpoint
+                self.get_attributes() == other.get_attributes()
+                and self.valuecondition == other.valuecondition
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         elif isinstance(other, Trigger):
             if (
-                    len(other.conditiongroups) == 1
-                    and len(other.conditiongroups[0].conditions) == 1
+                len(other.conditiongroups) == 1
+                and len(other.conditiongroups[0].conditions) == 1
             ):
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and other.conditiongroups[0].conditions[0] == self
+                    self._triggerpoint == other._triggerpoint
+                    and other.conditiongroups[0].conditions[0] == self
                 ):
                     return True
         elif isinstance(other, ConditionGroup):
             if len(other.conditions) == 1:
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and other.conditions[0] == self
+                    self._triggerpoint == other._triggerpoint
+                    and other.conditions[0] == self
                 ):
                     return True
         return False
@@ -665,22 +665,22 @@ class ConditionGroup(_TriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, ConditionGroup):
             if (
-                    self.conditions == other.conditions
-                    and self._triggerpoint == other._triggerpoint
+                self.conditions == other.conditions
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         elif isinstance(other, Trigger):
             if len(other.conditiongroups) == 1:
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and other.conditiongroups[0] == self
+                    self._triggerpoint == other._triggerpoint
+                    and other.conditiongroups[0] == self
                 ):
                     return True
         elif isinstance(other, (EntityTrigger, ValueTrigger)):
             if len(self.conditions) == 1:
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and self.conditions[0] == other
+                    self._triggerpoint == other._triggerpoint
+                    and self.conditions[0] == other
                 ):
                     return True
 
@@ -709,7 +709,7 @@ class ConditionGroup(_TriggerType):
         return condgr
 
     def add_condition(
-            self, condition: Union[EntityTrigger, ValueTrigger]
+        self, condition: Union[EntityTrigger, ValueTrigger]
     ) -> "ConditionGroup":
         """Adds a condition (EntityTrigger or ValueTrigger) to the
         ConditionGroup.
@@ -818,31 +818,31 @@ class Trigger(_TriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Trigger):
             if (
-                    self.conditiongroups == other.conditiongroups
-                    and self._triggerpoint == other._triggerpoint
+                self.conditiongroups == other.conditiongroups
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         elif isinstance(other, (EntityTrigger, ValueTrigger)):
             if (
-                    len(self.conditiongroups) == 1
-                    and len(self.conditiongroups[0].conditions) == 1
+                len(self.conditiongroups) == 1
+                and len(self.conditiongroups[0].conditions) == 1
             ):
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and self.conditiongroups[0].conditions[0] == other
+                    self._triggerpoint == other._triggerpoint
+                    and self.conditiongroups[0].conditions[0] == other
                 ):
                     return True
         elif isinstance(other, ConditionGroup):
             if len(self.conditiongroups) == 1:
                 if (
-                        self._triggerpoint == other._triggerpoint
-                        and self.conditiongroups[0] == other
+                    self._triggerpoint == other._triggerpoint
+                    and self.conditiongroups[0] == other
                 ):
                     return True
         elif isinstance(other, EmptyTrigger):
             if (
-                    len(self.conditiongroups) == 0
-                    and self._triggerpoint == other._triggerpoint
+                len(self.conditiongroups) == 0
+                and self._triggerpoint == other._triggerpoint
             ):
                 return True
         return False
@@ -956,8 +956,8 @@ class TriggeringEntities(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TriggeringEntities):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.entity == other.entity
+                self.get_attributes() == other.get_attributes()
+                and self.entity == other.entity
             ):
                 return True
         return False
@@ -1348,15 +1348,15 @@ class TimeHeadwayCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            entity: str,
-            value: float,
-            rule: Rule,
-            alongroute: bool = True,
-            freespace: bool = True,
-            distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
-            coordinate_system: CoordinateSystem = CoordinateSystem.road,
-            routing_algorithm: Union[RoutingAlgorithm, None] = None,
+        self,
+        entity: str,
+        value: float,
+        rule: Rule,
+        alongroute: bool = True,
+        freespace: bool = True,
+        distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
+        coordinate_system: CoordinateSystem = CoordinateSystem.road,
+        routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
         """Initalize the TimeHeadwayCondition.
 
@@ -1552,16 +1552,16 @@ class TimeToCollisionCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            alongroute: bool = True,
-            freespace: bool = True,
-            entity: Union[str, None] = None,
-            position: Union[_PositionType, None] = None,
-            distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
-            coordinate_system: CoordinateSystem = CoordinateSystem.road,
-            routing_algorithm: Union[RoutingAlgorithm, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        alongroute: bool = True,
+        freespace: bool = True,
+        entity: Union[str, None] = None,
+        position: Union[_PositionType, None] = None,
+        distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
+        coordinate_system: CoordinateSystem = CoordinateSystem.road,
+        routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
         """Initialize the TimeToCollisionCondition.
 
@@ -1625,15 +1625,15 @@ class TimeToCollisionCondition(_EntityTriggerType):
         if isinstance(other, TimeToCollisionCondition):
             if self.get_attributes() == other.get_attributes():
                 if (
-                        self.use_entity
-                        and other.use_entity
-                        and self.entity
-                        and other.entity
+                    self.use_entity
+                    and other.use_entity
+                    and self.entity
+                    and other.entity
                 ) or (
-                        not self.use_entity
-                        and not other.use_entity
-                        and self.position
-                        and other.position
+                    not self.use_entity
+                    and not other.use_entity
+                    and self.position
+                    and other.position
                 ):
                     return True
         return False
@@ -1678,8 +1678,8 @@ class TimeToCollisionCondition(_EntityTriggerType):
         entity = None
         position = None
         if (
-                condition.find("TimeToCollisionConditionTarget/EntityRef")
-                is not None
+            condition.find("TimeToCollisionConditionTarget/EntityRef")
+            is not None
         ):
             entityref = EntityRef.parse(
                 find_mandatory_field(
@@ -1688,8 +1688,8 @@ class TimeToCollisionCondition(_EntityTriggerType):
             )
             entity = entityref.entity
         elif (
-                condition.find("TimeToCollisionConditionTarget/Position")
-                is not None
+            condition.find("TimeToCollisionConditionTarget/Position")
+            is not None
         ):
             position = _PositionFactory.parse_position(
                 find_mandatory_field(
@@ -1803,10 +1803,10 @@ class AccelerationCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            direction: Union[DirectionalDimension, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        direction: Union[DirectionalDimension, None] = None,
     ) -> None:
         """The AccelerationCondition class is an Entity Condition used by the
         EntityTrigger.
@@ -2020,10 +2020,10 @@ class SpeedCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            directional_dimension: Union[DirectionalDimension, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        directional_dimension: Union[DirectionalDimension, None] = None,
     ) -> None:
         """Initialize the SpeedCondition class.
 
@@ -2145,11 +2145,11 @@ class RelativeSpeedCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            entity: str,
-            directional_dimension: Union[DirectionalDimension, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        entity: str,
+        directional_dimension: Union[DirectionalDimension, None] = None,
     ) -> None:
         """Initialize the RelativeSpeedCondition.
 
@@ -2387,8 +2387,8 @@ class ReachPositionCondition(_EntityTriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, ReachPositionCondition):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.position == other.position
+                self.get_attributes() == other.get_attributes()
+                and self.position == other.position
             ):
                 return True
         return False
@@ -2505,15 +2505,15 @@ class DistanceCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            position: _PositionType,
-            alongroute: bool = True,
-            freespace: bool = True,
-            distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
-            coordinate_system: CoordinateSystem = CoordinateSystem.road,
-            routing_algorithm: Union[RoutingAlgorithm, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        position: _PositionType,
+        alongroute: bool = True,
+        freespace: bool = True,
+        distance_type: RelativeDistanceType = RelativeDistanceType.longitudinal,
+        coordinate_system: CoordinateSystem = CoordinateSystem.road,
+        routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
         """Initialize the DistanceCondition.
 
@@ -2561,8 +2561,8 @@ class DistanceCondition(_EntityTriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, DistanceCondition):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.position == other.position
+                self.get_attributes() == other.get_attributes()
+                and self.position == other.position
             ):
                 return True
         return False
@@ -2728,15 +2728,15 @@ class RelativeDistanceCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            value: float,
-            rule: Rule,
-            dist_type: RelativeDistanceType,
-            entity: str,
-            alongroute: bool = True,
-            freespace: bool = True,
-            coordinate_system: CoordinateSystem = CoordinateSystem.entity,
-            routing_algorithm: Union[RoutingAlgorithm, None] = None,
+        self,
+        value: float,
+        rule: Rule,
+        dist_type: RelativeDistanceType,
+        entity: str,
+        alongroute: bool = True,
+        freespace: bool = True,
+        coordinate_system: CoordinateSystem = CoordinateSystem.entity,
+        routing_algorithm: Union[RoutingAlgorithm, None] = None,
     ) -> None:
         """Initialize the RelativeDistanceCondition.
 
@@ -2928,11 +2928,11 @@ class RelativeClearanceCondition(_EntityTriggerType):
     """
 
     def __init__(
-            self,
-            opposite_lanes: bool,
-            distance_backward: float = 0,
-            distance_forward: float = 0,
-            freespace: bool = True,
+        self,
+        opposite_lanes: bool,
+        distance_backward: float = 0,
+        distance_forward: float = 0,
+        freespace: bool = True,
     ) -> None:
         """Initialize the RelativeDistanceCondition.
 
@@ -2960,9 +2960,9 @@ class RelativeClearanceCondition(_EntityTriggerType):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, RelativeClearanceCondition):
             if (
-                    self.get_attributes() == other.get_attributes()
-                    and self.entities == other.entities
-                    and self.lane_ranges == other.lane_ranges
+                self.get_attributes() == other.get_attributes()
+                and self.entities == other.entities
+                and self.lane_ranges == other.lane_ranges
             ):
                 return True
         return False
@@ -3334,14 +3334,14 @@ class TimeOfDayCondition(_ValueTriggerType):
     """
 
     def __init__(
-            self,
-            rule: Rule,
-            year: int,
-            month: int,
-            day: int,
-            hour: int,
-            minute: int,
-            second: int,
+        self,
+        rule: Rule,
+        year: int,
+        month: int,
+        day: int,
+        hour: int,
+        minute: int,
+        second: int,
     ) -> None:
         """Initialize the TimeOfDayCondition.
 
@@ -3412,17 +3412,17 @@ class TimeOfDayCondition(_ValueTriggerType):
         """
         basedict = {}
         dt = (
-                str(self.year)
-                + "-"
-                + "{:0>2}".format(self.month)
-                + "-"
-                + "{:0>2}".format(self.day)
-                + "T"
-                + "{:0>2}".format(self.hour)
-                + ":"
-                + "{:0>2}".format(self.minute)
-                + ":"
-                + "{:0>2}".format(self.second)
+            str(self.year)
+            + "-"
+            + "{:0>2}".format(self.month)
+            + "-"
+            + "{:0>2}".format(self.day)
+            + "T"
+            + "{:0>2}".format(self.hour)
+            + ":"
+            + "{:0>2}".format(self.minute)
+            + ":"
+            + "{:0>2}".format(self.second)
         )
         basedict["dateTime"] = dt
         basedict["rule"] = self.rule.get_name()
@@ -3566,10 +3566,10 @@ class StoryboardElementStateCondition(_ValueTriggerType):
     """
 
     def __init__(
-            self,
-            element: StoryboardElementType,
-            reference: str,
-            state: StoryboardElementState,
+        self,
+        element: StoryboardElementType,
+        reference: str,
+        state: StoryboardElementState,
     ) -> None:
         """Initialize the StoryboardElementStateCondition.
 
@@ -3909,9 +3909,15 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
             "TrafficSignalControllerCondition", attrib=self.get_attributes()
         )
 
+
 class AngleCondition(_EntityTriggerType):
-    def __init__(self, angle: float, angle_tolerance: float, angle_type: AngleType,
-                 coordinate_system: CoordinateSystem = CoordinateSystem.world) -> None:
+    def __init__(
+        self,
+        angle: float,
+        angle_tolerance: float,
+        angle_type: AngleType,
+        coordinate_system: CoordinateSystem = CoordinateSystem.world,
+    ) -> None:
         """Initialize the AngleCondition.
 
         Parameters
@@ -3944,7 +3950,9 @@ class AngleCondition(_EntityTriggerType):
         self.angle = convert_float(angle)
         self.angle_tolerance = convert_float(angle_tolerance)
         self.angle_type = convert_enum(angle_type, AngleType, False)
-        self.coordinate_system = convert_enum(coordinate_system, CoordinateSystem, True)
+        self.coordinate_system = convert_enum(
+            coordinate_system, CoordinateSystem, True
+        )
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, AngleCondition):
@@ -3969,11 +3977,15 @@ class AngleCondition(_EntityTriggerType):
         condition = find_mandatory_field(element, "AngleCondition")
         angle = convert_float(condition.attrib["angle"])
         angle_tolerance = convert_float(condition.attrib["angleTolerance"])
-        angle_type = convert_enum(condition.attrib["angleType"], AngleType, False)
+        angle_type = convert_enum(
+            condition.attrib["angleType"], AngleType, False
+        )
         coordinate_system = convert_enum(
             condition.attrib.get("coordinateSystem"), CoordinateSystem, True
         )
-        return AngleCondition(angle, angle_tolerance, angle_type, coordinate_system)
+        return AngleCondition(
+            angle, angle_tolerance, angle_type, coordinate_system
+        )
 
     def get_attributes(self) -> dict[str, str]:
         """Returns the attributes of the AngleCondition as a dict.
@@ -4000,9 +4012,9 @@ class AngleCondition(_EntityTriggerType):
             The XML element representing the AngleCondition.
         """
         if self.isVersionEqLess(minor=2):
-            raise OpenSCENARIOVersionError("AngleCondition was added in OSC 1.3")
+            raise OpenSCENARIOVersionError(
+                "AngleCondition was added in OSC 1.3"
+            )
         element = ET.Element("EntityCondition")
-        ET.SubElement(
-            element, "AngleCondition", attrib=self.get_attributes()
-        )
+        ET.SubElement(element, "AngleCondition", attrib=self.get_attributes())
         return element

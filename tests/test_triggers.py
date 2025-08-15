@@ -39,13 +39,13 @@ def test_endofroadcond():
     assert cond == cond4
 
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -64,13 +64,13 @@ def test_collision_condition():
     assert cond4 == cond1
 
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -85,13 +85,13 @@ def test_offroadcondition():
     cond4 = OSC.OffroadCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -113,26 +113,26 @@ def test_timeheadwaycondition():
     cond4 = OSC.TimeHeadwayCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.TimeHeadwayCondition(
@@ -179,26 +179,26 @@ def test_timetocollisioncondition():
     assert cond5 == cond3
 
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.TimeToCollisionCondition(
@@ -247,26 +247,26 @@ def test_accelerationcondition():
     assert cond5 == cond7
 
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond5, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond5, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond5, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond5, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond5, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond5, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.AccelerationCondition(
@@ -286,13 +286,13 @@ def test_standstillcondition():
     cond4 = OSC.StandStillCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -312,28 +312,28 @@ def test_speedcondition():
     assert cond == cond4
 
     assert (
-            version_validation("EntityCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.SpeedCondition(1, "dummy", OSC.DirectionalDimension.lateral)
@@ -356,28 +356,28 @@ def test_relativespeedcondition():
     cond4 = OSC.RelativeSpeedCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("EntityCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.RelativeSpeedCondition(1, OSC.Rule.lessThan, "Ego", "dummy")
@@ -399,13 +399,13 @@ def test_traveleddistancecondition():
     assert cond == cond4
 
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -421,10 +421,10 @@ def test_reachpositioncondition():
     cond4 = OSC.ReachPositionCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 1) == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         OSC.ReachPositionCondition("dummy", 1)
@@ -458,28 +458,28 @@ def test_distancecondition():
     assert cond == cond4
 
     assert (
-            version_validation("EntityCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.DistanceCondition(
@@ -547,28 +547,28 @@ def test_relativedistancecondition():
     assert cond == cond4
 
     assert (
-            version_validation("EntityCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
     assert (
-            version_validation("EntityCondition", cond3, 0)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 1)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("EntityCondition", cond3, 2)
-            == ValidationResponse.OK
+        version_validation("EntityCondition", cond3, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.RelativeDistanceCondition(
@@ -615,17 +615,17 @@ def test_parametercondition():
     assert cond == cond4
 
     assert (
-            version_validation("ParameterCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("ParameterCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("ParameterCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("ParameterCondition", cond, 1)
+        == ValidationResponse.OK
     )
     ## Here a OSC_VERSION should be added
     assert (
-            version_validation("ParameterCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("ParameterCondition", cond, 2)
+        == ValidationResponse.OK
     )
 
     with pytest.raises(ValueError):
@@ -643,16 +643,16 @@ def test_variablecondition():
     cond4 = OSC.VariableCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("VariableCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("VariableCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("VariableCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("VariableCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("VariableCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("VariableCondition", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.VariableCondition("asdf", 1, "dummy")
@@ -670,16 +670,16 @@ def test_timeofdaycondition():
     assert cond == cond4
 
     assert (
-            version_validation("TimeOfDayCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("TimeOfDayCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TimeOfDayCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("TimeOfDayCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TimeOfDayCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("TimeOfDayCondition", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.TimeOfDayCondition("dummy", 2023, 3, 9, 12, 20, 32)
@@ -696,16 +696,16 @@ def test_simulationtimecondition():
     cond4 = OSC.SimulationTimeCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("SimulationTimeCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("SimulationTimeCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("SimulationTimeCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("SimulationTimeCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("SimulationTimeCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("SimulationTimeCondition", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.SimulationTimeCondition(1.3, "dummy")
@@ -734,16 +734,16 @@ def test_storyboardelementstatecondition():
     cond4 = OSC.StoryboardElementStateCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("StoryboardElementStateCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("StoryboardElementStateCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("StoryboardElementStateCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("StoryboardElementStateCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("StoryboardElementStateCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("StoryboardElementStateCondition", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.StoryboardElementStateCondition(
@@ -766,16 +766,16 @@ def test_userdefinedcondition():
     cond4 = OSC.UserDefinedValueCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("UserDefinedValueCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("UserDefinedValueCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("UserDefinedValueCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("UserDefinedValueCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("UserDefinedValueCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("UserDefinedValueCondition", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.UserDefinedValueCondition("mytrigger", 10, "dummy")
@@ -792,16 +792,16 @@ def test_trafficsignalcondition():
     cond4 = OSC.TrafficSignalCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("TrafficSignalCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TrafficSignalCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TrafficSignalCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalCondition", cond, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -832,15 +832,15 @@ def test_relaticeclearancecondition():
     prettyprint(cond5.get_element())
     assert cond3 == cond5
     assert (
-            version_validation("EntityCondition", cond, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("EntityCondition", cond, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
+        version_validation("EntityCondition", cond, 2) == ValidationResponse.OK
     )
 
 
@@ -855,16 +855,16 @@ def test_trafficsignalconditioncontroller():
     cond4 = OSC.TrafficSignalControllerCondition.parse(cond.get_element())
     assert cond == cond4
     assert (
-            version_validation("TrafficSignalControllerCondition", cond, 0)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalControllerCondition", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TrafficSignalControllerCondition", cond, 1)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalControllerCondition", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TrafficSignalControllerCondition", cond, 2)
-            == ValidationResponse.OK
+        version_validation("TrafficSignalControllerCondition", cond, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -886,16 +886,16 @@ def test_triggeringentities():
     cond5 = OSC.TriggeringEntities.parse(cond3.get_element())
     assert cond5 == cond3
     assert (
-            version_validation("TriggeringEntities", cond, 0)
-            == ValidationResponse.OK
+        version_validation("TriggeringEntities", cond, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TriggeringEntities", cond, 1)
-            == ValidationResponse.OK
+        version_validation("TriggeringEntities", cond, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("TriggeringEntities", cond, 2)
-            == ValidationResponse.OK
+        version_validation("TriggeringEntities", cond, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.TriggeringEntities("dummy")
@@ -1174,7 +1174,7 @@ def test_entity_condition_factory(osc_version, entitytrigger):
 
     # Skip ReachPositionCondition for OSC version 2
     if osc_version == 2 and isinstance(
-            entitytrigger, OSC.ReachPositionCondition
+        entitytrigger, OSC.ReachPositionCondition
     ):
         return
     # element = ET.Element('ByEntityCondition')
@@ -1272,17 +1272,23 @@ class TestAngleCondition:
 
     @pytest.fixture()
     def angle_cond(self):
-        return OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world)
+        return OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
 
     def test_angle_condition_prettyprint(self, angle_cond):
         prettyprint(angle_cond.get_element())
 
     def test_angle_condition_eq(self, angle_cond):
-        cond2 = OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world)
+        cond2 = OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
         assert angle_cond == cond2
 
     def test_angle_condition_neq(self, angle_cond):
-        cond3 = OSC.AngleCondition(0.8, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world)
+        cond3 = OSC.AngleCondition(
+            0.8, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
         assert angle_cond != cond3
 
         cond3.angle = 0.7
@@ -1293,14 +1299,21 @@ class TestAngleCondition:
         cond3.angle_type = OSC.AngleType.pitch
         assert angle_cond != cond3
 
-    @pytest.mark.parametrize(["osc_version", "expected_response"], [
-        (0, ValidationResponse.OSC_VERSION),
-        (1, ValidationResponse.OSC_VERSION),
-        (2, ValidationResponse.OSC_VERSION),
-        (3, ValidationResponse.OK)])
-    def test_angle_condition_version_validation(self, osc_version, expected_response, angle_cond):
+    @pytest.mark.parametrize(
+        ["osc_version", "expected_response"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_angle_condition_version_validation(
+        self, osc_version, expected_response, angle_cond
+    ):
         assert (
-                version_validation("EntityCondition", angle_cond, osc_version) == expected_response
+            version_validation("EntityCondition", angle_cond, osc_version)
+            == expected_response
         )
 
     def test_angle_condition_parse(self, angle_cond):
@@ -1313,19 +1326,27 @@ class TestAngleCondition:
         with pytest.raises(ValueError):
             OSC.AngleCondition(1, 0.1, OSC.AngleType.heading, "dummy")
         with pytest.raises(ValueError):
-            OSC.AngleCondition("dummy", 0.1, OSC.AngleType.pitch, OSC.CoordinateSystem.world)
+            OSC.AngleCondition(
+                "dummy", 0.1, OSC.AngleType.pitch, OSC.CoordinateSystem.world
+            )
         with pytest.raises(ValueError):
-            OSC.AngleCondition(1, "dummy", OSC.AngleType.roll, OSC.CoordinateSystem.world)
+            OSC.AngleCondition(
+                1, "dummy", OSC.AngleType.roll, OSC.CoordinateSystem.world
+            )
         with pytest.raises(TypeError):
             OSC.AngleCondition(1, "dummy")
 
     def test_optional_args(self):
-        cond = OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.lane)
+        cond = OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.lane
+        )
         assert cond.angle_type == OSC.AngleType.heading
         assert cond.coordinate_system == OSC.CoordinateSystem.lane
 
         cond2 = OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading)
         assert cond2.coordinate_system == OSC.CoordinateSystem.world
 
-        cond3 = OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world)
+        cond3 = OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
         assert cond3 == cond2
