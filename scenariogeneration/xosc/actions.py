@@ -38,14 +38,9 @@ from .position import (
     Route,
     Trajectory,
     _PositionFactory,
-    Polygon,
-    RoadRange,
     TrafficArea
 )
-from .entities import (
-    TrafficDistribution,
-    EntityDistribution,
-)
+from .entities import TrafficDistribution
 from .utils import (
     AbsoluteSpeed,
     AnimationFile,
@@ -5557,7 +5552,7 @@ class TrafficSinkAction(_ActionType):
         self,
         radius: float,
         position: _PositionType,
-        trafficdefinition: TrafficDefinition | TrafficDistribution,
+        trafficdefinition: TrafficDefinition,
         rate: Optional[float] = None,
         name: Optional[str] = None,
     ):
@@ -5582,7 +5577,7 @@ class TrafficSinkAction(_ActionType):
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
 
-        if not isinstance(trafficdefinition, (TrafficDefinition,TrafficDistribution)):
+        if not isinstance(trafficdefinition, TrafficDefinition):
             raise TypeError(
                 "trafficdefinition input is not of type TrafficDefinition"
             )

@@ -2638,7 +2638,7 @@ class Trajectory(_BaseCatalog):
         shape : _TrajectoryShape
             The shape to be added to the trajectory.
         """
-        if not isinstance(shape, (Polyline, Clothoid, Nurbs, ClothoidSpline)):
+        if not isinstance(shape, (Polyline, Clothoid, Nurbs)):
             raise TypeError("shape input neither of type _TrajectoryShape")
         self.shapes = shape
         return self

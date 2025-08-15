@@ -215,12 +215,13 @@ class Axles(VersionBase):
         self.additionals = []
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, Axles)
-            and self.frontaxle == other.frontaxle
-            and self.rearaxle == other.rearaxle
-            and self.additionals == other.additionals
+        if isinstance(other, Axles):
+            if (
+                self.frontaxle == other.frontaxle
+                and self.rearaxle == other.rearaxle
+                and self.additionals == other.additionals
             ):
-            return True
+                return True
         return False
 
     @staticmethod
@@ -349,12 +350,13 @@ class Entity(VersionBase):
             self.entity = None
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, Entity)
-            and self.get_attributes() == other.get_attributes()
-            and self.object_type == other.object_type
-            and self.entity == other.entity
+        if isinstance(other, Entity):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.object_type == other.object_type
+                and self.entity == other.entity
             ):
-            return True
+                return True
         return False
 
     @staticmethod
@@ -524,14 +526,15 @@ class Pedestrian(_BaseCatalog):
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, Pedestrian)
-            and self.get_attributes() == other.get_attributes()
-            and self.boundingbox == other.boundingbox
-            and self.properties == other.properties
-            and self.parameters == other.parameters
-            and self.role == other.role
+        if isinstance(other, Pedestrian):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.boundingbox == other.boundingbox
+                and self.properties == other.properties
+                and self.parameters == other.parameters
+                and self.role == other.role
             ):
-            return True
+                return True
         return False
 
     @staticmethod
@@ -736,13 +739,14 @@ class MiscObject(_BaseCatalog):
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, MiscObject)
-            and self.get_attributes() == other.get_attributes()
-            and self.boundingbox == other.boundingbox
-            and self.properties == other.properties
-            and self.parameters == other.parameters
+        if isinstance(other, MiscObject):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.boundingbox == other.boundingbox
+                and self.properties == other.properties
+                and self.parameters == other.parameters
             ):
-            return True
+                return True
         return False
 
     @staticmethod
@@ -1371,11 +1375,12 @@ class Entities(VersionBase):
         self.entities = []
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, Entities)
-            and self.scenario_objects == other.scenario_objects
-            and self.entities == other.entities
+        if isinstance(other, Entities):
+            if (
+                self.scenario_objects == other.scenario_objects
+                and self.entities == other.entities
             ):
-            return True
+                return True
         return False
 
     @staticmethod
@@ -1591,11 +1596,13 @@ class ScenarioObject(VersionBase):
         self.entityobject = entityobject
 
     def __eq__(self, other: object) -> bool:
-        if (isinstance(other, ScenarioObject)
-            and self.get_attributes() == other.get_attributes()
-            and self.controller == other.controller
-            and self.entityobject == other.entityobject):
-            return True
+        if isinstance(other, ScenarioObject):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.controller == other.controller
+                and self.entityobject == other.entityobject
+            ):
+                return True
         return False
 
     @staticmethod
@@ -1708,6 +1715,7 @@ class ScenarioObject(VersionBase):
                 objcont.append(cnt.get_element())
 
         return element
+<<<<<<< HEAD
 
 class EntityDistribution(VersionBase):
     def __init__(self):
@@ -1912,3 +1920,5 @@ class TrafficDistribution(VersionBase):
                 entry_el.append(properties.get_element())
             element.append(entry_el)
         return element
+=======
+>>>>>>> origin/impl_1_3
