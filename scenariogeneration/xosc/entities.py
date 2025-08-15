@@ -864,6 +864,7 @@ class Vehicle(_BaseCatalog):
         The bounding box of the vehicle.
     frontaxle : Axle
         The front axle properties of the vehicle.
+        (optional since OpenScenario V1.3)
     rearaxle : Axle
         The back axle properties of the vehicle.
     max_speed : float
@@ -950,8 +951,8 @@ class Vehicle(_BaseCatalog):
         name: str,
         vehicle_type: VehicleCategory,
         boundingbox: BoundingBox,
-        frontaxle: Axle,
-        rearaxle: Optional[Axle],
+        frontaxle: Optional[Axle],
+        rearaxle: Axle,
         max_speed: float,
         max_acceleration: float,
         max_deceleration: float,
