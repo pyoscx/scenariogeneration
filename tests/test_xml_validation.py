@@ -130,7 +130,6 @@ def test_OSC_1_2(tmpdir, python_file):
     validator.validate(xosc[0])
 
 
-
 @pytest.mark.parametrize(
     "python_file",
     [
@@ -151,7 +150,7 @@ def test_OSC_1_2(tmpdir, python_file):
         "withcontroller",
         "variable_usage",
         "angle_condition_trigger",
-        "clothoid_spline_shape_trajectory"
+        "clothoid_spline_shape_trajectory",
     ],
 )
 def test_OSC_1_3(tmpdir, python_file):

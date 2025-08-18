@@ -19,7 +19,6 @@ class Scenario(ScenarioGenerator):
         super().__init__()
         self.open_scenario_version = 3
 
-
     def scenario(self, **kwargs):
         # Catalogs
         catalog = xosc.Catalog()
