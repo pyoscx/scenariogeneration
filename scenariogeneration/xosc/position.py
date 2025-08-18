@@ -3046,8 +3046,6 @@ class TrafficArea(VersionBase):
             Defines an area by either a polygon or a road range. Suitable for urban areas (polygon) or highways (road range).
 
         """
-        print("Area definition:", area_definition)
-
         if not isinstance(area_definition, (Polygon, RoadRange)):
             raise TypeError(
                 "area_definition input is not a valid Polygon or RoadRange"

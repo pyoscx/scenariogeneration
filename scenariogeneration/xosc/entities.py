@@ -1718,6 +1718,25 @@ class ScenarioObject(VersionBase):
 
 
 class EntityDistribution(VersionBase):
+    """The EntityDistribution class creates the entity distribution
+    for OpenScenario.
+
+    Attributes
+    ----------
+    entity_distribution_entries :
+        List of EntityDistributionEntry objects.
+
+    Methods
+    -------
+    add_entity_distribution_entry(weight, entityobject, controller=None)
+        Adds an EntityDistributionEntry to the EntityDistribution.
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
     def __init__(self):
         self.entity_distribution_entries = []
 
@@ -1896,6 +1915,23 @@ class EntityDistribution(VersionBase):
 
 
 class TrafficDistribution(VersionBase):
+    """The TrafficDistribution class creates the traffic distribution
+
+    Attributes
+    ----------
+    traffic_distribution_entries :
+        List of TrafficDistributionEntry objects.
+
+    Methods
+    -------
+    add_traffic_distribution_entry(weight, entity_distribution, properties=None)
+        Adds a TrafficDistributionEntry to the TrafficDistribution.
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class."""
+
     def __init__(self) -> None:
         self.traffic_distribution_entries = []
 

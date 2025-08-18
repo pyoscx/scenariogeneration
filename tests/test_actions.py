@@ -43,6 +43,12 @@ traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
 traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 env = OSC.Environment("Env_name", tod, weather, rc)
 
+entity_distribution = OSC.EntityDistribution()
+catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+entity_distribution.add_entity_distribution_entry(0.5, catalog_ref)
+traffic_distribution = OSC.TrafficDistribution()
+traffic_distribution.add_traffic_distribution_entry(0.5, entity_distribution)
+
 
 @pytest.fixture(autouse=True)
 def reset_version():
@@ -71,14 +77,30 @@ def reset_version():
         ],
         [
             OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
+            2,
+        ],
+        [
+            OSC.TrafficSourceAction(
+                10, 10, OSC.WorldPosition(), traffic_distribution, 100
+            ),
             _MINOR_VERSION,
         ],
         [
             OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10),
+            2,
+        ],
+        [
+            OSC.TrafficSinkAction(10, OSC.WorldPosition()),
             _MINOR_VERSION,
         ],
         [
             OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic),
+            2,
+        ],
+        [
+            OSC.TrafficSwarmAction(
+                10, 20, 10, 2, 10, "Ego", traffic_distribution
+            ),
             _MINOR_VERSION,
         ],
         [OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION],
@@ -1064,104 +1086,348 @@ def test_trafficsignalcontrolleraction():
     )
 
 
-def test_trafficsourceaction():
-    prop = OSC.Properties()
-    prop.add_file("mycontrollerfile.xml")
-    controller = OSC.Controller("mycontroller", prop)
+class TestTrafficSourceAction:
+    def setup_method(self):
+        self.prop = OSC.Properties()
+        self.prop.add_file("mycontrollerfile.xml")
+        self.controller = OSC.Controller("mycontroller", self.prop)
+        self.traffic = OSC.TrafficDefinition("my traffic")
+        self.traffic.add_controller(self.controller, 0.5)
+        self.traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+        self.traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        self.traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 
-    traffic = OSC.TrafficDefinition("my traffic")
-    traffic.add_controller(controller, 0.5)
-    traffic.add_controller(
-        OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        self.entity_distribution = OSC.EntityDistribution()
+        self.catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+        self.entity_distribution.add_entity_distribution_entry(
+            0.5, self.catalog_ref
+        )
+        self.traffic_distribution = OSC.TrafficDistribution()
+        self.traffic_distribution.add_traffic_distribution_entry(
+            0.5, self.entity_distribution
+        )
+        self.rate = 1
+        self.radius = 1
+        self.position = OSC.WorldPosition()
+        self.velocity = 10
+
+    def test_prettyprint(self):
+        traffic_source_12 = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, self.traffic
+        )
+        traffic_source_12.setVersion(minor=2)
+        prettyprint(traffic_source_12.get_element())
+        traffic_source_13 = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, self.traffic_distribution
+        )
+        traffic_source_13.setVersion(minor=3)
+        prettyprint(traffic_source_13.get_element())
+
+    @pytest.mark.parametrize(
+        "rate, radius, position, traffic_obj",
+        [
+            (1, 1, OSC.WorldPosition(), "traffic"),
+            (1, 1, OSC.WorldPosition(), "traffic_distribution"),
+        ],
     )
+    def test_eq(self, rate, radius, position, traffic_obj):
+        traffic = getattr(self, traffic_obj)
+        traffic_source = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, traffic
+        )
+        traffic_source_copy = OSC.TrafficSourceAction(
+            rate, radius, position, traffic
+        )
+        assert traffic_source == traffic_source_copy
 
-    traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
-    traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
-
-    source_action = OSC.TrafficSourceAction(
-        10, 10, OSC.WorldPosition(), traffic, 100
+    @pytest.mark.parametrize(
+        "rate, radius, position, traffic_obj, velocity",
+        [
+            (2, 1, OSC.WorldPosition(0, 0), "traffic", 10),
+            (1, 2, OSC.WorldPosition(0, 0), "traffic", 10),
+            (1, 1, OSC.WorldPosition(1, 0), "traffic", 10),
+            (1, 1, OSC.WorldPosition(0, 0), "traffic", 11),
+            (2, 1, OSC.WorldPosition(0, 0), "traffic_distribution", 10),
+            (1, 2, OSC.WorldPosition(0, 0), "traffic_distribution", 10),
+            (1, 1, OSC.WorldPosition(1, 0), "traffic_distribution", 10),
+            (1, 1, OSC.WorldPosition(0, 0), "traffic_distribution", 11),
+        ],
     )
+    def test_neq(self, rate, radius, position, traffic_obj, velocity):
+        traffic = getattr(self, traffic_obj)
 
-    # prettyprint(source_action.get_element())
+        traffic_source = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, traffic, self.velocity
+        )
 
-    source_action = OSC.TrafficSourceAction(
-        10, 10, OSC.WorldPosition(), traffic
+        traffic_source_copy = OSC.TrafficSourceAction(
+            rate, radius, position, traffic, velocity
+        )
+
+        assert traffic_source != traffic_source_copy
+
+    @pytest.mark.parametrize(
+        "traffic_obj, attributes",
+        [
+            ("traffic", {"rate": "1.0", "radius": "1.0", "velocity": "10.0"}),
+            (
+                "traffic_distribution",
+                {"rate": "1.0", "radius": "1.0", "speed": "10.0"},
+            ),
+        ],
     )
-    prettyprint(source_action.get_element())
+    def test_get_attributes(self, traffic_obj, attributes):
+        traffic = getattr(self, traffic_obj)
+        traffic_source = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, traffic, self.velocity
+        )
+        if traffic_obj == "traffic":
+            traffic_source.setVersion(minor=1)
+        assert traffic_source.get_attributes() == attributes
 
-    source_action2 = OSC.TrafficSourceAction(
-        10, 10, OSC.WorldPosition(), traffic
+    @pytest.mark.parametrize(
+        "traffic_obj",
+        [
+            ("traffic"),
+            ("traffic_distribution"),
+        ],
     )
-    source_action3 = OSC.TrafficSourceAction(
-        10, 1, OSC.WorldPosition(), traffic
+    def test_parse(self, traffic_obj):
+        traffic = getattr(self, traffic_obj)
+        traffic_source = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, traffic, self.velocity
+        )
+        if traffic_obj == "traffic":
+            traffic_source.setVersion(minor=2)
+        parsed = OSC.TrafficSourceAction.parse(traffic_source.get_element())
+        assert parsed == traffic_source
+
+    @pytest.mark.parametrize(
+        "traffic_obj, version, expected",
+        [
+            ("traffic", 2, ValidationResponse.OK),
+            ("traffic", 3, ValidationResponse.OSC_VERSION),
+            ("traffic_distribution", 2, ValidationResponse.OSC_VERSION),
+            ("traffic_distribution", 3, ValidationResponse.OK),
+        ],
     )
-    assert source_action == source_action2
-    assert source_action != source_action3
+    def test_version_validation(self, traffic_obj, version, expected):
+        traffic = getattr(self, traffic_obj)
+        traffic_source = OSC.TrafficSourceAction(
+            self.rate, self.radius, self.position, traffic, self.velocity
+        )
+        traffic_source.setVersion(minor=version)
+        assert (
+            version_validation("GlobalAction", traffic_source, version)
+            == expected
+        )
 
-    source_action4 = OSC.TrafficSourceAction.parse(source_action.get_element())
-    prettyprint(source_action4.get_element())
-    assert source_action == source_action4
-    assert (
-        version_validation("GlobalAction", source_action, 0)
-        == ValidationResponse.OK
+    def test_not_position(self):
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSourceAction(
+                self.rate,
+                self.radius,
+                "dummy",
+                self.traffic_distribution,
+                self.velocity,
+            )
+        assert str(excinfo.value) == "position input is not a valid Position"
+
+    def test_not_correct_traffic(self):
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSourceAction(
+                self.rate, self.radius, self.position, "dummy", self.velocity
+            )
+        assert (
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+        )
+
+
+class TestTrafficSinkAction:
+
+    @pytest.fixture
+    def traffic_sink_action_12(self):
+        prop = OSC.Properties()
+        prop.add_file("mycontrollerfile.xml")
+        controller = OSC.Controller("mycontroller", prop)
+
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+
+        traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+
+        traffic_sink_action = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), traffic, 1
+        )
+        traffic_sink_action.setVersion(minor=2)
+        return traffic_sink_action
+
+    @pytest.fixture
+    def traffic_sink_action_13(self):
+        traffic_sink_action = OSC.TrafficSinkAction(10, OSC.WorldPosition())
+        return traffic_sink_action
+
+    @pytest.fixture
+    def traffic_sink_action(self, request):
+        return request.getfixturevalue(request.param)
+
+    @pytest.mark.parametrize(
+        "traffic_sink_action",
+        ["traffic_sink_action_12", "traffic_sink_action_13"],
+        indirect=True,
     )
-    assert (
-        version_validation("GlobalAction", source_action, 1)
-        == ValidationResponse.OK
+    def test_prettyprint(self, traffic_sink_action):
+        prettyprint(traffic_sink_action.get_element())
+
+    def test_eq(self, traffic_sink_action_12):
+        prop = OSC.Properties()
+        prop.add_file("mycontrollerfile.xml")
+        controller = OSC.Controller("mycontroller", prop)
+
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+
+        traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+
+        traffic_sink_action = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), traffic, 1
+        )
+        traffic_sink_action.setVersion(minor=2)
+        assert traffic_sink_action == traffic_sink_action_12
+
+    def test_neq(self, traffic_sink_action_12):
+        prop = OSC.Properties()
+        prop.add_file("mycontrollerfile.xml")
+        controller = OSC.Controller("mycontroller", prop)
+
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+
+        traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+
+        traffic_sink_action_radius = OSC.TrafficSinkAction(
+            11, OSC.WorldPosition(), traffic, 1
+        )
+        traffic_sink_action_rate = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), traffic, rate=2
+        )
+
+        traffic.add_vehicle(OSC.VehicleCategory.truck, 0.1)
+
+        traffic_sink_action_traffic = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), traffic, 1
+        )
+
+        assert traffic_sink_action_radius != traffic_sink_action_12
+        assert traffic_sink_action_rate != traffic_sink_action_12
+        assert traffic_sink_action_traffic != traffic_sink_action_12
+
+    def test_eq(self, traffic_sink_action_13):
+        traffic_sink_action = OSC.TrafficSinkAction(10, OSC.WorldPosition())
+        assert traffic_sink_action == traffic_sink_action_13
+
+    def test_neq(self, traffic_sink_action_13):
+        traffic_sink_action_radius = OSC.TrafficSinkAction(
+            11, OSC.WorldPosition()
+        )
+        traffic_sink_action_rate = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), rate=2
+        )
+
+        assert traffic_sink_action_radius != traffic_sink_action_13
+        assert traffic_sink_action_rate != traffic_sink_action_13
+
+    @pytest.mark.parametrize(
+        ["traffic_sink_action", "attributes"],
+        [
+            ("traffic_sink_action_12", {"rate": "1.0", "radius": "10.0"}),
+            ("traffic_sink_action_13", {"radius": "10.0"}),
+        ],
+        indirect=["traffic_sink_action"],
     )
-    assert (
-        version_validation("GlobalAction", source_action, 2)
-        == ValidationResponse.OK
+    def test_get_attribute(self, traffic_sink_action, attributes):
+        assert traffic_sink_action.get_attributes() == attributes
+
+    @pytest.mark.parametrize(
+        "traffic_sink_action",
+        ["traffic_sink_action_12", "traffic_sink_action_13"],
+        indirect=True,
     )
+    def test_parse(self, traffic_sink_action):
+        parsed = OSC.TrafficSinkAction.parse(traffic_sink_action.get_element())
+        assert parsed == traffic_sink_action
 
-    with pytest.raises(TypeError):
-        OSC.TrafficSourceAction(10, 10, "dummy", traffic)
-    with pytest.raises(TypeError):
-        OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), "dummy")
-
-
-def test_trafficsinkaction():
-    prop = OSC.Properties()
-    prop.add_file("mycontrollerfile.xml")
-    controller = OSC.Controller("mycontroller", prop)
-
-    traffic = OSC.TrafficDefinition("my traffic")
-    traffic.add_controller(controller, 0.5)
-    traffic.add_controller(
-        OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+    @pytest.mark.parametrize(
+        ["traffic_sink_action", "version", "expected"],
+        [
+            ("traffic_sink_action_12", 0, ValidationResponse.OK),
+            ("traffic_sink_action_12", 1, ValidationResponse.OK),
+            ("traffic_sink_action_12", 2, ValidationResponse.OK),
+            ("traffic_sink_action_12", 3, ValidationResponse.OSC_VERSION),
+            ("traffic_sink_action_13", 0, ValidationResponse.OK),
+            ("traffic_sink_action_13", 1, ValidationResponse.OK),
+            ("traffic_sink_action_13", 2, ValidationResponse.OK),
+            ("traffic_sink_action_13", 3, ValidationResponse.OK),
+        ],
+        indirect=["traffic_sink_action"],
     )
+    def test_version_validation(self, traffic_sink_action, version, expected):
+        assert (
+            version_validation("GlobalAction", traffic_sink_action, version)
+            == expected
+        )
 
-    traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
-    traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+    def test_deprication_error(self):
+        prop = OSC.Properties()
+        prop.add_file("mycontrollerfile.xml")
+        controller = OSC.Controller("mycontroller", prop)
 
-    sink_action = OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10)
-    prettyprint(sink_action.get_element())
-    sink_action2 = OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10)
-    sink_action3 = OSC.TrafficSinkAction(9, OSC.WorldPosition(), traffic, 10)
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
 
-    assert sink_action == sink_action2
-    assert sink_action != sink_action3
+        traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
 
-    sink_action4 = OSC.TrafficSinkAction.parse(sink_action.get_element())
-    prettyprint(sink_action4.get_element())
-    assert sink_action == sink_action4
-    assert (
-        version_validation("GlobalAction", sink_action, 0)
-        == ValidationResponse.OK
-    )
-    assert (
-        version_validation("GlobalAction", sink_action, 1)
-        == ValidationResponse.OK
-    )
-    assert (
-        version_validation("GlobalAction", sink_action, 2)
-        == ValidationResponse.OK
-    )
+        traffic_sink_action = OSC.TrafficSinkAction(
+            10, OSC.WorldPosition(), traffic
+        )
+        with pytest.raises(OSC.OpenSCENARIOVersionError) as excinfo:
+            traffic_sink_action.get_element()
+        assert (
+            str(excinfo.value)
+            == "TrafficSinkAction with TrafficDefinition was depricated in OSC 1.3"
+        )
 
-    with pytest.raises(TypeError):
-        OSC.TrafficSinkAction(10, "dummy", traffic)
-    with pytest.raises(TypeError):
-        OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
+    def test_not_position_error(self):
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSinkAction(10, "dummy")
+        assert str(excinfo.value) == "position input is not a valid Position"
+
+    def test_not_traffic_definition_error(self):
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
+        assert (
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinition"
+        )
 
 
 class TestTrafficAreaAction:
@@ -1312,63 +1578,621 @@ class TestTrafficAreaAction:
         assert version_validation("GlobalAction", taa, version) == expected
 
 
-def test_trafficswarmaction():
+def make_traffic(kind):
     prop = OSC.Properties()
     prop.add_file("mycontrollerfile.xml")
     controller = OSC.Controller("mycontroller", prop)
-    dot = OSC.DirectionOfTravelDistribution(0.5, 0.5)
+    if kind == "traffic_definition_diff":
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+        traffic.add_vehicle(OSC.VehicleCategory.car, 1)
+    elif kind == "traffic_definition":
+        traffic = OSC.TrafficDefinition("my traffic")
+        traffic.add_controller(controller, 0.5)
+        traffic.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+        traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+    elif kind == "traffic_distribution":
+        entity_distribution = OSC.EntityDistribution()
+        catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+        entity_distribution.add_entity_distribution_entry(0.5, catalog_ref)
+        traffic = OSC.TrafficDistribution()
+        traffic.add_traffic_distribution_entry(0.5, entity_distribution)
+    elif kind == "traffic_distribution_diff":
+        entity_distribution = OSC.EntityDistribution()
+        catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+        entity_distribution.add_entity_distribution_entry(0.5, catalog_ref)
+        traffic = OSC.TrafficDistribution()
+        traffic.add_traffic_distribution_entry(1, entity_distribution)
+    else:
+        raise ValueError(f"Unknown traffic kind: {kind}")
+    return traffic
 
-    traffic = OSC.TrafficDefinition("my traffic")
-    traffic.add_controller(controller, 0.5)
-    traffic.add_controller(
-        OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+
+class TestTrafficSwarmAction:
+
+    @pytest.fixture
+    def shared_data(self):
+        return (1, 1, 1, 1, 1, "test")
+
+    @pytest.fixture
+    def attributes_dict(self):
+        return {
+            "semiMajorAxis": "1.0",
+            "semiMinorAxis": "1.0",
+            "innerRadius": "1.0",
+            "offset": "1.0",
+            "numberOfVehicles": "1",
+        }
+
+    @pytest.fixture
+    def traffic_definition(self):
+        prop = OSC.Properties()
+        prop.add_file("mycontrollerfile.xml")
+        controller = OSC.Controller("mycontroller", prop)
+        traffic_def = OSC.TrafficDefinition("my traffic")
+        traffic_def.add_controller(controller, 0.5)
+        traffic_def.add_controller(
+            OSC.CatalogReference("ControllerCatalog", "my controller"), 0.5
+        )
+        traffic_def.add_vehicle(OSC.VehicleCategory.car, 0.9)
+        traffic_def.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
+        return traffic_def
+
+    @pytest.fixture
+    def traffic_distribution(self):
+        entity_distribution = OSC.EntityDistribution()
+        catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")
+        entity_distribution.add_entity_distribution_entry(0.5, catalog_ref)
+        traffic_dist = OSC.TrafficDistribution()
+        traffic_dist.add_traffic_distribution_entry(0.5, entity_distribution)
+        return traffic_dist
+
+    @pytest.fixture
+    def traffic(self, request):
+        return request.getfixturevalue(request.param)
+
+    @pytest.fixture
+    def direction_of_travel(self):
+        return OSC.DirectionOfTravelDistribution(0.5, 0.5)
+
+    @pytest.fixture
+    def tsa_11(self, shared_data, traffic_definition):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+        velocity = 1
+        tsa = OSC.TrafficSwarmAction(
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+            traffic_definition,
+            velocity,
+        )
+        tsa.setVersion(minor=1)
+        return tsa
+
+    @pytest.fixture
+    def tsa_12(self, shared_data, traffic_definition, direction_of_travel):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+        vel_range = OSC.Range(1, 2)
+        tsa = OSC.TrafficSwarmAction(
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+            traffic_definition,
+            vel_range,
+            direction_of_travel=direction_of_travel,
+        )
+        tsa.setVersion(minor=2)
+        return tsa
+
+    @pytest.fixture
+    def tsa_13(self, shared_data, traffic_distribution, direction_of_travel):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+        vel_range = OSC.Range(1, 2)
+        tsa = OSC.TrafficSwarmAction(
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+            traffic_distribution,
+            vel_range,
+            direction_of_travel=direction_of_travel,
+        )
+        return tsa
+
+    @pytest.fixture
+    def traffic_swarm_action(self, request):
+        return request.getfixturevalue(request.param)
+
+    @pytest.mark.parametrize(
+        "traffic_swarm_action",
+        [
+            "tsa_11",
+            "tsa_12",
+            "tsa_13",
+        ],
+        indirect=True,
     )
+    def test_prettyprint(self, traffic_swarm_action):
+        prettyprint(traffic_swarm_action.get_element())
 
-    traffic.add_vehicle(OSC.VehicleCategory.car, 0.9)
-    traffic.add_vehicle(OSC.VehicleCategory.bicycle, 0.1)
-
-    swarm_action = OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic)
-    # prettyprint(swarm_action.get_element())
-
-    swarm_action2 = OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic)
-
-    swarm_action3 = OSC.TrafficSwarmAction(
-        10,
-        20,
-        10,
-        2,
-        10,
-        "Ego",
+    @pytest.mark.parametrize(
+        [
+            "traffic_swarm_action",
+            "shared_data",
+            "traffic",
+            "velocity",
+            "direction_of_travel",
+        ],
+        [
+            ("tsa_11", "shared_data", "traffic_definition", 1, None),
+            (
+                "tsa_12",
+                "shared_data",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                "shared_data",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+        ],
+        indirect=["traffic_swarm_action", "shared_data", "traffic"],
+    )
+    def test_eq(
+        self,
+        traffic_swarm_action,
+        shared_data,
         traffic,
-        OSC.Range(10, 20),
-        "Traffic_name",
+        velocity,
+        direction_of_travel,
+    ):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+        tsa_copy = OSC.TrafficSwarmAction(
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+            traffic,
+            velocity,
+            direction_of_travel=direction_of_travel,
+        )
+
+        assert traffic_swarm_action == tsa_copy
+
+    @pytest.mark.parametrize(
+        [
+            "traffic_swarm_action",
+            "semimajoraxis",
+            "semiminoraxis",
+            "innerradius",
+            "offset",
+            "numberofvehicles",
+            "centralobject",
+            "traffic",
+            "velocity",
+            "dot",
+        ],
+        [
+            ("tsa_11", 2, 1, 1, 1, 1, "test", "traffic_definition", 1, None),
+            ("tsa_11", 1, 2, 1, 1, 1, "test", "traffic_definition", 1, None),
+            ("tsa_11", 1, 1, 2, 1, 1, "test", "traffic_definition", 1, None),
+            ("tsa_11", 1, 1, 1, 2, 1, "test", "traffic_definition", 1, None),
+            ("tsa_11", 1, 1, 1, 1, 2, "test", "traffic_definition", 1, None),
+            (
+                "tsa_11",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_definition",
+                1,
+                None,
+            ),
+            (
+                "tsa_11",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition_diff",
+                1,
+                None,
+            ),
+            ("tsa_11", 1, 1, 1, 1, 1, "test", "traffic_definition", 2, None),
+            (
+                "tsa_12",
+                2,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                2,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                2,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                2,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                2,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition_diff",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(2, 3),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.2, 0.8),
+            ),
+            (
+                "tsa_13",
+                2,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                2,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                2,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                2,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                2,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution_diff",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(2, 3),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
+            ),
+            (
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.2, 0.8),
+            ),
+        ],
+        indirect=["traffic_swarm_action"],
+    )
+    def test_neq(
+        self,
+        traffic_swarm_action,
+        semimajoraxis,
+        semiminoraxis,
+        innerradius,
+        offset,
+        numberofvehicles,
+        centralobject,
+        traffic,
+        velocity,
         dot,
-    )
-    prettyprint(swarm_action3.get_element())
+    ):
+        traffic = make_traffic(traffic)
 
-    assert swarm_action == swarm_action2
-    assert swarm_action != swarm_action3
+        tsa_copy = OSC.TrafficSwarmAction(
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+            traffic,
+            velocity,
+            direction_of_travel=dot,
+        )
+        assert traffic_swarm_action != tsa_copy
 
-    swarm_action4 = OSC.TrafficSwarmAction.parse(swarm_action3.get_element())
-    prettyprint(swarm_action4.get_element())
-    assert swarm_action3 == swarm_action4
-    assert (
-        version_validation("GlobalAction", swarm_action, 0)
-        == ValidationResponse.OK
+    @pytest.mark.parametrize(
+        "traffic_swarm_action", ["tsa_11", "tsa_12", "tsa_13"], indirect=True
     )
-    assert (
-        version_validation("GlobalAction", swarm_action, 1)
-        == ValidationResponse.OK
+    def test_parse(self, traffic_swarm_action):
+        parsed = OSC.TrafficSwarmAction.parse(
+            traffic_swarm_action.get_element()
+        )
+        assert parsed == traffic_swarm_action
+
+    @pytest.mark.parametrize(
+        ["traffic_swarm_action", "attributes_dict", "velocity"],
+        [
+            ("tsa_11", "attributes_dict", True),
+            ("tsa_12", "attributes_dict", False),
+            ("tsa_13", "attributes_dict", False),
+        ],
+        indirect=["traffic_swarm_action", "attributes_dict"],
     )
-    assert (
-        version_validation("GlobalAction", swarm_action, 2)
-        == ValidationResponse.OK
+    def test_get_attributes(
+        self, traffic_swarm_action, attributes_dict, velocity
+    ):
+        if velocity:
+            attributes_dict["velocity"] = "1.0"
+        assert traffic_swarm_action.get_attributes() == attributes_dict
+
+    @pytest.mark.parametrize(
+        ["traffic_swarm_action", "version", "expected"],
+        [
+            ("tsa_11", 1, ValidationResponse.OK),
+            ("tsa_11", 2, ValidationResponse.OSC_VERSION),
+            ("tsa_11", 3, ValidationResponse.OSC_VERSION),
+            ("tsa_12", 1, ValidationResponse.OSC_VERSION),
+            ("tsa_12", 2, ValidationResponse.OK),
+            ("tsa_12", 3, ValidationResponse.OSC_VERSION),
+            ("tsa_13", 1, ValidationResponse.OSC_VERSION),
+            ("tsa_13", 2, ValidationResponse.OSC_VERSION),
+            ("tsa_13", 3, ValidationResponse.OK),
+        ],
+        indirect=["traffic_swarm_action"],
     )
-    with pytest.raises(TypeError):
-        OSC.TrafficSwarmAction(1, 1, 1, 1, 1, "ego", "dummy")
-    with pytest.raises(TypeError):
-        OSC.TrafficSwarmAction(
-            1, 1, 1, 1, 1, "ego", traffic, direction_of_travel="dummy"
+    def test_version_validation(self, traffic_swarm_action, version, expected):
+        assert (
+            version_validation("GlobalAction", traffic_swarm_action, version)
+            == expected
+        )
+
+    def test_not_traffic_distribution(self, shared_data):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSwarmAction(
+                semimajoraxis,
+                semiminoraxis,
+                innerradius,
+                offset,
+                numberofvehicles,
+                centralobject,
+                "dummy",
+            )
+        assert (
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+        )
+
+    def test_not_direction_of_travel(self, shared_data, traffic_distribution):
+        (
+            semimajoraxis,
+            semiminoraxis,
+            innerradius,
+            offset,
+            numberofvehicles,
+            centralobject,
+        ) = shared_data
+
+        with pytest.raises(TypeError) as excinfo:
+            OSC.TrafficSwarmAction(
+                semimajoraxis,
+                semiminoraxis,
+                innerradius,
+                offset,
+                numberofvehicles,
+                centralobject,
+                traffic_distribution,
+                direction_of_travel="dummy",
+            )
+        assert (
+            str(excinfo.value)
+            == "direction_of_travel is not of type DirectionOfTravelDistribution"
         )
 
 
