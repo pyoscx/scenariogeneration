@@ -4296,9 +4296,9 @@ class Weather(VersionBase):
                 retdict["fractionalCloudCover"] = self.cloudstate.get_name()
             elif str(self.cloudstate)[0] == "$":
                 if self.isVersionEqLarger(minor=2):
-                    retdict[
-                        "fractionalCloudCover"
-                    ] = self.cloudstate.get_name()
+                    retdict["fractionalCloudCover"] = (
+                        self.cloudstate.get_name()
+                    )
                 else:
                     retdict["cloudState"] = self.cloudstate.get_name()
         if self.temperature is not None and not self.isVersion(minor=0):

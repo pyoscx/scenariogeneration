@@ -1734,25 +1734,25 @@ class DirectJunctionCreator:
             incoming_road.predecessor
             and incoming_road.predecessor.element_id == self.id
         ):
-            incoming_road.pred_direct_junction[
-                linked_road.id
-            ] = inc_lane_offset
+            incoming_road.pred_direct_junction[linked_road.id] = (
+                inc_lane_offset
+            )
         else:
-            incoming_road.succ_direct_junction[
-                linked_road.id
-            ] = inc_lane_offset
+            incoming_road.succ_direct_junction[linked_road.id] = (
+                inc_lane_offset
+            )
 
         if (
             linked_road.predecessor
             and linked_road.predecessor.element_id == self.id
         ):
-            linked_road.pred_direct_junction[
-                incoming_road.id
-            ] = linked_lane_offset
+            linked_road.pred_direct_junction[incoming_road.id] = (
+                linked_lane_offset
+            )
         else:
-            linked_road.succ_direct_junction[
-                incoming_road.id
-            ] = linked_lane_offset
+            linked_road.succ_direct_junction[incoming_road.id] = (
+                linked_lane_offset
+            )
 
         connection = Connection(
             incoming_road.id,

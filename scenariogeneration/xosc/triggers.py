@@ -1463,9 +1463,9 @@ class TimeHeadwayCondition(_EntityTriggerType):
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
-            basedict[
-                "relativeDistanceType"
-            ] = self.relative_distance_type.get_name()
+            basedict["relativeDistanceType"] = (
+                self.relative_distance_type.get_name()
+            )
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
         basedict["freespace"] = get_bool_string(self.freespace)
         basedict["rule"] = self.rule.get_name()
@@ -2642,9 +2642,9 @@ class DistanceCondition(_EntityTriggerType):
         if self.isVersion(minor=0):
             basedict["alongRoute"] = get_bool_string(self.alongroute)
         else:
-            basedict[
-                "relativeDistanceType"
-            ] = self.relative_distance_type.get_name()
+            basedict["relativeDistanceType"] = (
+                self.relative_distance_type.get_name()
+            )
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
         if self.routing_algorithm is not None:
             if self.isVersionEqLess(minor=1):
@@ -2854,9 +2854,9 @@ class RelativeDistanceCondition(_EntityTriggerType):
             basedict["coordinateSystem"] = self.coordinate_system.get_name()
         if self.routing_algorithm:
             if self.isVersionEqLarger(minor=2):
-                basedict[
-                    "routingAlgorithm"
-                ] = self.routing_algorithm.get_name()
+                basedict["routingAlgorithm"] = (
+                    self.routing_algorithm.get_name()
+                )
             else:
                 raise OpenSCENARIOVersionError(
                     "RoutingAlgorithm was introduced in V1.2"

@@ -484,9 +484,9 @@ class DataQuality:
                 "source": enum2str(self.source),
             }
             if self.post_processing_comment is not None:
-                raw_data_attrib[
-                    "postProcessingComment"
-                ] = self.post_processing_comment
+                raw_data_attrib["postProcessingComment"] = (
+                    self.post_processing_comment
+                )
             if self.source_comment is not None:
                 raw_data_attrib["sourceComment"] = self.source_comment
 
