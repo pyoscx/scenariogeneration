@@ -17,14 +17,13 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc import CoordinateSystem
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=3)
 
 
 def test_endofroadcond():
@@ -1144,69 +1143,91 @@ def test_value_condition_factory(valuetrigger):
     assert valuetrigger == factoryoutput
 
 
-@pytest.mark.parametrize("osc_version", [1, 2])
-@pytest.mark.parametrize(
-    "entitytrigger",
-    [
-        OSC.EndOfRoadCondition(2),
-        OSC.CollisionCondition("hej"),
-        OSC.OffroadCondition(3),
-        OSC.TimeHeadwayCondition("my entity", 2, OSC.Rule.greaterOrEqual),
-        OSC.TimeToCollisionCondition(
-            1, OSC.Rule.greaterOrEqual, entity="target"
-        ),
-        OSC.AccelerationCondition(2, OSC.Rule.greaterOrEqual),
-        OSC.StandStillCondition(5),
-        OSC.SpeedCondition(15, OSC.Rule.greaterOrEqual),
-        OSC.RelativeSpeedCondition(1, OSC.Rule.greaterOrEqual, "target"),
-        OSC.TraveledDistanceCondition(59),
-        OSC.ReachPositionCondition(OSC.WorldPosition(), 4),
-        OSC.DistanceCondition(4, OSC.Rule.greaterOrEqual, OSC.WorldPosition()),
-        OSC.RelativeDistanceCondition(
-            2,
-            OSC.Rule.greaterOrEqual,
-            OSC.RelativeDistanceType.lateral,
-            "target",
-        ),
-    ],
-)
-def test_entity_condition_factory(osc_version, entitytrigger):
-    OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+class TestEntityConditionFactory:
 
-    # Skip ReachPositionCondition for OSC version 2
-    if osc_version == 2 and isinstance(
-            entitytrigger, OSC.ReachPositionCondition
-    ):
-        return
-    # element = ET.Element('ByEntityCondition')
-    # element.append(entitytrigger.get_element())
-    factoryoutput = (
-        OSC.triggers._EntityConditionFactory.parse_entity_condition(
-            entitytrigger.get_element()
-        )
+    def idfn(val):
+        return f"EntityTrigger: {val.__class__.__name__}"
+
+    @pytest.mark.parametrize("osc_version", [1, 2, 3])
+    @pytest.mark.parametrize(
+        "entitytrigger",
+        [
+            OSC.EndOfRoadCondition(2),
+            OSC.CollisionCondition("hej"),
+            OSC.OffroadCondition(3),
+            OSC.TimeHeadwayCondition("my entity", 2, OSC.Rule.greaterOrEqual),
+            OSC.TimeToCollisionCondition(
+                1, OSC.Rule.greaterOrEqual, entity="target"
+            ),
+            OSC.AccelerationCondition(2, OSC.Rule.greaterOrEqual),
+            OSC.StandStillCondition(5),
+            OSC.SpeedCondition(15, OSC.Rule.greaterOrEqual),
+            OSC.RelativeSpeedCondition(1, OSC.Rule.greaterOrEqual, "target"),
+            OSC.TraveledDistanceCondition(59),
+            OSC.DistanceCondition(4, OSC.Rule.greaterOrEqual, OSC.WorldPosition()),
+            OSC.RelativeDistanceCondition(
+                2,
+                OSC.Rule.greaterOrEqual,
+                OSC.RelativeDistanceType.lateral,
+                "target",
+            ),
+        ],
+        ids=idfn
     )
-    prettyprint(entitytrigger, None)
-    prettyprint(factoryoutput, None)
-    assert entitytrigger == factoryoutput
+    def test_entity_condition_factory(self, osc_version, entitytrigger):
+        OSC.enumerations.VersionBase().setVersion(minor=osc_version)
 
-
-class TestE_EntityConditionFactory:
-
-    @pytest.fixture()
-    def set_version_2(self):
-        OSC.enumerations.VersionBase().setVersion(minor=2)
-
-    @pytest.fixture()
-    def set_version_3(self):
-        OSC.enumerations.VersionBase().setVersion(minor=3)
-
-    def test_end_of_road_condition(self, set_version_2):
-        road_cond = OSC.EndOfRoadCondition(2)
-        OSC.triggers._EntityConditionFactory.parse_entity_condition(
-            road_cond.get_element()
+        factoryoutput = (
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(
+                entitytrigger.get_element()
+            )
         )
+        prettyprint(entitytrigger, None)
+        prettyprint(factoryoutput, None)
+        assert entitytrigger == factoryoutput
 
+    @pytest.mark.parametrize(
+        "condition",
+        [
+            OSC.TraveledDistanceCondition(59),
+            OSC.ReachPositionCondition(OSC.WorldPosition(1, 1), 4)
+        ],
+        ids=idfn
+    )
+    def test_entity_condition_factory_osc_v1(self, condition):
+        OSC.enumerations.VersionBase().setVersion(minor=1)
+        element = condition.get_element()
+        parsed = OSC.triggers._EntityConditionFactory.parse_entity_condition(element)
+        prettyprint(condition)
+        prettyprint(parsed)
+        assert parsed == condition
 
+    @pytest.mark.parametrize(
+        "condition",
+
+        [OSC.RelativeAngleCondition(0.5, 0.1, OSC.AngleType.heading, "Ego", OSC.CoordinateSystem.world),
+         OSC.AngleCondition(0.5, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world),
+         ],
+        ids=idfn
+    )
+    def test_entity_condition_factory_osc_v3(self, condition):
+        OSC.enumerations.VersionBase().setVersion(minor=3)
+        element = condition.get_element()
+        parsed = OSC.triggers._EntityConditionFactory.parse_entity_condition(element)
+        prettyprint(condition)
+        prettyprint(parsed)
+        assert parsed == condition
+
+    @pytest.mark.parametrize("osc_version", [1, 2, 3])
+    def test_invalid_entity_condition(self, osc_version):
+        OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+        element = ET.Element("EntityCondition")
+        with pytest.raises(OSC.exceptions.NotAValidElement):
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(element)
+
+        element = ET.Element("ByValueCondition")
+        with pytest.raises(OSC.exceptions.NotAValidElement):
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(element)
 
 
 def test_equalities_trigger_vs_conditiongroup_vs_entity():
