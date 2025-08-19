@@ -6971,11 +6971,7 @@ class MonitorDeclaration(VersionBase):
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, MonitorDeclaration):
-            if (
-                other.get_attributes() == self.get_attributes()
-                and other.value == self.value
-                and other.name == self.name
-            ):
+            if other.get_attributes() == self.get_attributes():
                 return True
         return False
 
