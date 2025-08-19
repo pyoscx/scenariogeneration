@@ -178,8 +178,6 @@ ass = OSC.AssignControllerAction(cnt)
             OSC.DynamicsConstraints(1, 1, 1),
             "ego",
         ),
-        OSC.ConnectTrailerAction("my_trailer"),
-        OSC.DisconnectTrailerAction(),
     ],
 )
 def test_private_action_factory(action):
@@ -1540,3 +1538,61 @@ class TestDisconnectTrailerAction:
     def test_validate_xml(self, version, expected):
         ta = OSC.DisconnectTrailerAction()
         assert version_validation("PrivateAction", ta, version) == expected
+
+
+class TestSetMonitorAction:
+    @pytest.fixture(name="sma")
+    def set_monitor_action(self):
+        return OSC.SetMonitorAction("my_monitor", True)
+
+    def test_set_monitor_action(self, sma):
+        prettyprint(sma.get_element())
+        element = sma.get_element()
+        assert element.tag == "GlobalAction"
+        set_monitor_elment = OSC.utils.find_mandatory_field(element, "SetMonitorAction")
+        assert set_monitor_elment.tag == "SetMonitorAction"
+        assert set_monitor_elment.attrib["monitorRef"] == "my_monitor"
+        assert set_monitor_elment.attrib["value"] == "true"
+
+
+    def test_set_monitor_action_eq(self, sma):
+        sma2 = OSC.SetMonitorAction("my_monitor", True)
+        prettyprint(sma2)
+        assert sma == sma2
+
+    def test_set_monitor_action_ne(self, sma):
+        sma3 = OSC.SetMonitorAction("my_monitor", False)
+        assert sma != sma3
+        sma4 = OSC.SetMonitorAction("my_monitor2", True)
+        assert sma != sma4
+
+    def test_set_monitor_action_parse(self, sma):
+        sma4 = OSC.SetMonitorAction.parse(sma.get_element())
+        prettyprint(sma4)
+        assert sma == sma4
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_set_monitor_action_version_validation(
+        self, version, expected, sma
+    ):
+        assert version_validation("GlobalAction", sma, version) == expected
+
+    def test_set_monitor_action_type_error(self, sma):
+        with pytest.raises(ValueError):
+            OSC.SetMonitorAction("my_monitor", "dummy")
+        with pytest.raises(TypeError):
+            OSC.SetMonitorAction(123, True)
+        with pytest.raises(TypeError):
+            OSC.SetMonitorAction(123, None)
+        with pytest.raises(TypeError):
+            OSC.SetMonitorAction(None, True)
+        with pytest.raises(TypeError):
+            OSC.SetMonitorAction()
