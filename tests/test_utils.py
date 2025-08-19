@@ -22,14 +22,13 @@ from scenariogeneration.xosc.utils import (
     ValueConstraintGroup,
     _TrafficSignalState,
 )
-
-
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=3)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 def test_transition_dynamics():

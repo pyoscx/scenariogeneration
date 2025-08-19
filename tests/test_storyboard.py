@@ -24,13 +24,13 @@ from scenariogeneration.xosc import (
     SimulationTimeCondition,
     Rule,
 )
-
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 TD = OSC.TransitionDynamics(
@@ -283,8 +283,8 @@ class TestActAndStory:
         )
         act5 = OSC.Act("my act", starttrigger=start_trigger)
         act6 = OSC.Act("my act")
-        act5.setVersion(1, 3)
-        act6.setVersion(1, 3)
+        # act5.setVersion(1, 3)
+        # act6.setVersion(1, 3)
         assert act6 != act5
 
     def test_default_starttrigger_v2(self):
@@ -296,6 +296,8 @@ class TestActAndStory:
         )
         act5 = OSC.Act("my act", starttrigger=start_trigger)
         act6 = OSC.Act("my act")
+        act5.setVersion(1, 2)
+        act6.setVersion(1, 2)
         assert act6 == act5
 
     def test_get_starttrigger(self, act):
@@ -306,7 +308,7 @@ class TestActAndStory:
             SimulationTimeCondition(0, Rule.greaterThan),
         )
         act7 = OSC.Act("my act7")
-        assert act7.isVersionEqLess(1, 2)
+        act7.setVersion(1, 2)
         assert act7.starttrigger == default_start_trigger
         act8 = OSC.Act("my act8")
         act8.setVersion(1, 3)
