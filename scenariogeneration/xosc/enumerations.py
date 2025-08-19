@@ -406,6 +406,7 @@ class CoordinateSystem(metaclass=_EnumMeta):
     trajectory = _OscEnum(
         "CoordinateSystem", "trajectory", min_minor_version=1
     )
+    world = _OscEnum("CoordinateSystem", "world", min_minor_version=3)
 
 
 class LateralDisplacement(metaclass=_EnumMeta):
@@ -682,3 +683,9 @@ class ColorType:
     black = _OscEnum("ColorType", "black", min_minor_version=2)
     grey = _OscEnum("ColorType", "grey", min_minor_version=2)
     white = _OscEnum("ColorType", "white", min_minor_version=2)
+
+
+class AngleType:
+    heading = _OscEnum("AngleType", "heading", min_minor_version=3)
+    pitch = _OscEnum("AngleType", "pitch", min_minor_version=3)
+    roll = _OscEnum("AngleType", "roll", min_minor_version=3)
