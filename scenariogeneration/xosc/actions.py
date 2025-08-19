@@ -106,7 +106,8 @@ class _GlobalActionFactory:
             return TrafficSwarmAction.parse(element)
         if element.findall("TrafficAction/TrafficStopAction"):
             return TrafficStopAction.parse(element)
-
+        if element.findall("SetMonitorAction"):
+            return SetMonitorAction.parse(element)
         raise NotAValidElement(
             "element ", element, "is not a valid GlobalAction"
         )
