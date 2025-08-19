@@ -23,6 +23,7 @@ from scenariogeneration.xosc.utils import (
     _TrafficSignalState,
 )
 
+
 from .xml_validator import ValidationResponse, version_validation
 
 
@@ -1803,3 +1804,56 @@ class TestHitchCoupler:
             )
             == expected
         )
+
+
+class TestMonitorDeclaration:
+    @pytest.fixture(name="md")
+    def monitor_declaration(self):
+        return OSC.MonitorDeclaration("my_monitor", True)
+
+    def test_monitor_declaration_eq(self, md):
+        md2 = OSC.MonitorDeclaration("my_monitor", True)
+        prettyprint(md.get_element())
+        assert md == md2
+
+    def test_monitor_declaration_neq(self, md):
+        md3 = OSC.MonitorDeclaration("my_monitor2", True)
+        assert md != md3
+        md4 = OSC.MonitorDeclaration("my_monitor", False)
+        assert md != md4
+
+    def test_monitor_declaration_parse(self, md):
+        md4 = OSC.MonitorDeclaration.parse(md.get_element())
+        prettyprint(md4.get_element())
+        assert md4 == md
+
+    def test_monitor_declaration_early_versions(self, md):
+        OSC.VersionBase().setVersion(minor=2)
+        with pytest.raises(OSC.exceptions.OpenSCENARIOVersionError):
+            OSC.MonitorDeclaration.parse(md.get_element())
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_monitor_declaration_versions(self, version, expected):
+        monitor_dec = OSC.MonitorDeclaration("my_monitor", True)
+        assert (
+            version_validation("MonitorDeclaration", monitor_dec, version)
+            == expected
+        )
+
+    def test_monitor_declaration_wrong_type(self):
+        with pytest.raises(ValueError):
+            OSC.MonitorDeclaration("my_monitor", "not a bool")
+        with pytest.raises(TypeError):
+            OSC.MonitorDeclaration("my_monitor", None)
+        with pytest.raises(TypeError):
+            OSC.MonitorDeclaration(1, True)
+        with pytest.raises(TypeError):
+            OSC.MonitorDeclaration(None, True)
