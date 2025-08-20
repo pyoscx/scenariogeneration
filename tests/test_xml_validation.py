@@ -151,6 +151,7 @@ def test_OSC_1_2(tmpdir, python_file):
         "variable_usage",
         "angle_condition_trigger",
         "clothoid_spline_shape_trajectory",
+        "trailer_example",
     ],
 )
 def test_OSC_1_3(tmpdir, python_file):
