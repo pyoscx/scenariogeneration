@@ -283,8 +283,6 @@ class TestActAndStory:
         )
         act5 = OSC.Act("my act", starttrigger=start_trigger)
         act6 = OSC.Act("my act")
-        # act5.setVersion(1, 3)
-        # act6.setVersion(1, 3)
         assert act6 != act5
 
     def test_default_starttrigger_v2(self):
