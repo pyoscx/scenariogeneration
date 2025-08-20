@@ -1539,6 +1539,7 @@ class TestDisconnectTrailerAction:
         ta = OSC.DisconnectTrailerAction()
         assert version_validation("PrivateAction", ta, version) == expected
 
+
 class TestSetMonitorAction:
     @pytest.fixture(name="sma")
     def set_monitor_action(self):
