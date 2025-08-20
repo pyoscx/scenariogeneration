@@ -1242,7 +1242,7 @@ class TestTrafficSourceAction:
             )
         assert (
             str(excinfo.value)
-            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            == "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
 
@@ -1449,19 +1449,25 @@ class TestTrafficAreaAction:
                 OSC.WorldPosition(1, 1, 0),
             ]
         )
-        self.traffic_area = OSC.TrafficArea(self.polygon)
+        self.roadrange = OSC.RoadRange("10").add_cursor("0").add_cursor("1")
+        self.roadrange_list = [
+            self.roadrange,
+            OSC.RoadRange("10").add_cursor("1").add_cursor("2"),
+        ]
 
-    def test_base(self):
+    @pytest.mark.parametrize(
+        "trafficarea_attr", ["polygon", "roadrange", "roadrange_list"]
+    )
+    def test_base(self, trafficarea_attr):
+        trafficarea = getattr(self, trafficarea_attr)
         taa = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            False, 2, self.traffic_distribution, trafficarea
         )
         prettyprint(taa)
 
     def test_not_traffic_distribution(self):
         with pytest.raises(TypeError) as excinfo:
-            OSC.TrafficAreaAction(
-                False, 2, "incorrect_input", self.traffic_area
-            )
+            OSC.TrafficAreaAction(False, 2, "incorrect_input", self.polygon)
         assert (
             str(excinfo.value)
             == "trafficdistribution input is not of type TrafficDistribution"
@@ -1477,12 +1483,16 @@ class TestTrafficAreaAction:
             == "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
         )
 
-    def test_eq(self):
+    @pytest.mark.parametrize(
+        "trafficarea_attr", ["polygon", "roadrange", "roadrange_list"]
+    )
+    def test_eq(self, trafficarea_attr):
+        trafficarea = getattr(self, trafficarea_attr)
         taa1 = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            False, 2, self.traffic_distribution, trafficarea
         )
         taa2 = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            False, 2, self.traffic_distribution, trafficarea
         )
         assert taa1 == taa2
 
@@ -1532,8 +1542,6 @@ class TestTrafficAreaAction:
                 OSC.WorldPosition(ta_x2, ta_x2, 0),
             ]
         )
-        traffic_area_1 = OSC.TrafficArea(polygon_1)
-        traffic_area_2 = OSC.TrafficArea(polygon_2)
 
         # continuous and number_of_entities
         continuous1 = False
@@ -1548,16 +1556,16 @@ class TestTrafficAreaAction:
             number_of_entities2 = val2
 
         taa1 = OSC.TrafficAreaAction(
-            continuous1, number_of_entities1, td1, traffic_area_1
+            continuous1, number_of_entities1, td1, polygon_1
         )
         taa2 = OSC.TrafficAreaAction(
-            continuous2, number_of_entities2, td2, traffic_area_2
+            continuous2, number_of_entities2, td2, polygon_2
         )
         assert taa1 != taa2
 
     def test_parse(self):
         taa = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            False, 2, self.traffic_distribution, self.polygon
         )
         taa_parsed = OSC.TrafficAreaAction.parse(taa.get_element())
         assert taa == taa_parsed
@@ -1573,7 +1581,7 @@ class TestTrafficAreaAction:
     )
     def test_validate_xml(self, version, expected):
         taa = OSC.TrafficAreaAction(
-            False, 2, self.traffic_distribution, self.traffic_area
+            False, 2, self.traffic_distribution, self.polygon
         )
         assert version_validation("GlobalAction", taa, version) == expected
 
@@ -2166,7 +2174,7 @@ class TestTrafficSwarmAction:
             )
         assert (
             str(excinfo.value)
-            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            == "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
     def test_not_direction_of_travel(self, shared_data, traffic_distribution):
