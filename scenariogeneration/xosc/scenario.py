@@ -29,6 +29,7 @@ from .utils import (
     TrafficSignalController,
     VariableDeclarations,
     find_mandatory_field,
+    MonitorDeclaration,
 )
 
 
@@ -102,6 +103,7 @@ class Scenario(VersionBase):
         creation_date: Optional[datetime.datetime] = None,
         header_properties: Optional[Properties] = None,
         variable_declaration: Optional[VariableDeclarations] = None,
+        monitor_declarations: Optional[MonitorDeclaration] = None,
     ) -> None:
         """Initializes the Scenario class and creates the header.
 
@@ -135,6 +137,8 @@ class Scenario(VersionBase):
             from OSC V1.2). Default is None.
         variable_declaration : VariableDeclarations, optional
             Variable declarations (valid from OSC V1.2).
+        monitor_declarations : MonitorDeclaration, optional
+            Monitor declarations (valid from OSC V1.3).
         """
         if not isinstance(entities, Entities):
             raise TypeError("entities input is not of type Entities")
@@ -155,7 +159,14 @@ class Scenario(VersionBase):
             raise TypeError(
                 "variable_declaration input is not of type VariableDeclarations"
             )
+        if monitor_declarations and not isinstance(
+            monitor_declarations, MonitorDeclaration
+        ):
+            raise TypeError(
+                "monitor_declarations input is not of type MonitorDeclaration"
+            )
         self.variable_declaration = variable_declaration
+        self.monitor_declarations = monitor_declarations
         self.entities = entities
         self.storyboard = storyboard
         self.roadnetwork = roadnetwork
@@ -180,6 +191,7 @@ class Scenario(VersionBase):
                 and self.header == other.header
                 and self.parameters == other.parameters
                 and self.variable_declaration == other.variable_declaration
+                and self.monitor_declarations == other.monitor_declarations
             ):
                 return True
         return False
@@ -221,6 +233,12 @@ class Scenario(VersionBase):
             variables = VariableDeclarations.parse(
                 find_mandatory_field(element, "VariableDeclarations")
             )
+
+        monitor = None
+        if element.find("MonitorDeclarations") is not None:
+            monitor = MonitorDeclaration.parse(
+                find_mandatory_field(element, "MonitorDeclarations")
+            )
         return Scenario(
             header.description,
             header.author,
@@ -233,6 +251,7 @@ class Scenario(VersionBase):
             osc_minor_version=header.version_minor,
             header_properties=header.properties,
             variable_declaration=variables,
+            monitor_declarations=monitor,
         )
 
     def get_element(self) -> ET.Element:
@@ -255,7 +274,8 @@ class Scenario(VersionBase):
             element.append(self.parameters.get_element())
         if self.variable_declaration:
             element.append(self.variable_declaration.get_element())
-
+        if self.monitor_declarations:
+            element.append(self.monitor_declarations.get_element())
         element.append(self.catalog.get_element())
         element.append(self.roadnetwork.get_element())
         element.append(self.entities.get_element())

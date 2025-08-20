@@ -24,13 +24,13 @@ from scenariogeneration.xosc import (
     SimulationTimeCondition,
     Rule,
 )
-
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 TD = OSC.TransitionDynamics(
