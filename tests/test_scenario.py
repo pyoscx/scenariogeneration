@@ -256,9 +256,9 @@ class TestScenario:
             OSC.ParameterDeclarations(),
             entities=sce3.entities,
             storyboard=sce3.storyboard,
-            roadnetwork=sce3.road,
+            roadnetwork=sce3.roadnetwork,
             catalog=sce3.catalog,
-            variable_declaration=sce3.variables,
+            variable_declaration=sce3.variable_declaration,
             monitor_declarations=monitor,
         )
         assert sce3 != sce4
