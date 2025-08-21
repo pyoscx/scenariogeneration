@@ -6425,7 +6425,7 @@ class SetMonitorAction(_ActionType):
 
     Attributes
     ----------
-    monitor_ref : Monitor
+    monitor_ref : str
         The referenced monitor to set the value for.
     value : bool
         The new value of the monitor.

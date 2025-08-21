@@ -5348,7 +5348,7 @@ def merge_dicts(*dict_args: dict) -> dict:
     return retdict
 
 
-def convert_bool(value: Union[bool, str]) -> bool:
+def convert_bool(value: Union[bool, str, int]) -> bool:
     """Converts a value to a boolean.
 
     Parameters
@@ -5367,9 +5367,9 @@ def convert_bool(value: Union[bool, str]) -> bool:
         If the value is not a valid boolean.
     """
     if isinstance(value, str):
-        if value in ("true", "1"):
+        if value.lower() in (["true", "1"]):
             return True
-        elif value in ("false", "0"):
+        elif value.lower() in (["false", "0"]):
             return False
         elif value[0] == "$":
             return value
@@ -6922,7 +6922,7 @@ class HitchCoupler(VersionBase):
 
 
 class Monitor(VersionBase):
-    """Monitor is a declaration of an entry in MonitorDeclaration.
+    """Monitor is a declaration of an entry in MonitorDeclarations.
 
     Parameters
     ----------
@@ -7085,7 +7085,7 @@ class MonitorDeclarations(VersionBase):
         Parameters
         ----------
         monitor : Monitor
-            A new monitor.
+            A new monitor to be added to a MonitorDeclarations object.
 
         Returns
         -------
