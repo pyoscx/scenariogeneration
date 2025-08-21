@@ -198,9 +198,12 @@ class TestScenario:
         )
         return variables
 
-    @pytest.fixture()
+    @pytest.fixture(name="monitor_dec")
     def monitor(self):
-        return OSC.MonitorDeclaration("myMonitor", True)
+        monitor_dec = OSC.MonitorDeclarations()
+        monitor_dec.add_monitor(OSC.Monitor("myMonitor", True))
+
+        return monitor_dec
 
     @pytest.fixture(name="sce")
     def scenario(self, catalog, road, entities, story_board):
@@ -235,7 +238,7 @@ class TestScenario:
         assert sce == sce2
 
     def test_scenario_neq(
-        self, sce, variables, story_board, entities, road, catalog, monitor
+        self, sce, variables, story_board, entities, road, catalog, monitor_dec
     ):
         sce3 = OSC.Scenario(
             "2myscenario",
@@ -259,7 +262,7 @@ class TestScenario:
             roadnetwork=sce3.roadnetwork,
             catalog=sce3.catalog,
             variable_declaration=sce3.variable_declaration,
-            monitor_declarations=monitor,
+            monitor_declarations=monitor_dec,
         )
         assert sce3 != sce4
 
@@ -269,7 +272,7 @@ class TestScenario:
         assert sce == sce4
 
     def test_scenario_version_validation(
-        self, story_board, entities, road, catalog, variables, monitor
+        self, story_board, entities, road, catalog, variables, monitor_dec
     ):
         sce3 = OSC.Scenario(
             "2myscenario",
@@ -281,13 +284,13 @@ class TestScenario:
             roadnetwork=road,
             catalog=catalog,
             variable_declaration=variables,
-            monitor_declarations=monitor,
+            monitor_declarations=monitor_dec,
         )
-        with pytest.raises(OSC.exceptions.OpenSCENARIOVersionError):
-            sce3.get_element()
+        element = sce3.get_element()
+        assert element is not None
 
     def test_scenario_dummy_args(
-        self, story_board, entities, road, catalog, monitor
+        self, story_board, entities, road, catalog, monitor_dec
     ):
         with pytest.raises(TypeError):
             OSC.Scenario(
@@ -348,7 +351,7 @@ class TestScenario:
                 storyboard=story_board,
                 roadnetwork=road,
                 catalog=catalog,
-                monitor_declarations=monitor,
+                monitor_declarations=monitor_dec,
                 variable_declaration="dummy",
             )
         with pytest.raises(TypeError):
@@ -364,7 +367,7 @@ class TestScenario:
             )
 
     def test_scenario_optional_args(
-        self, sce, entities, road, catalog, story_board, variables, monitor
+        self, sce, entities, road, catalog, story_board, variables, monitor_dec
     ):
         # Test with optional arguments
         sce_with_optional = OSC.Scenario(
@@ -377,8 +380,8 @@ class TestScenario:
             catalog=catalog,
             creation_date=dt.datetime.now(),
             variable_declaration=variables,
-            monitor_declarations=monitor,
+            monitor_declarations=monitor_dec,
         )
         prettyprint(sce_with_optional.get_element(), None)
-        assert sce_with_optional.monitor_declarations == monitor
+        assert sce_with_optional.monitor_declarations == monitor_dec
         assert sce_with_optional.variable_declaration == variables

@@ -197,7 +197,12 @@ def convert_bool(value: Union[bool, str]) -> Union[str, bool]:
                 + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
             )
 
-    if value:
-        return "true"
+    elif isinstance(value, bool):
+        if value:
+            return "true"
+        else:
+            return "false"
     else:
-        return "false"
+        raise ValueError(
+            "The value %s is not a valid type of boolean or string. " % value
+        )

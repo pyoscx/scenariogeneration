@@ -63,7 +63,7 @@ from .utils import (
     convert_int,
     find_mandatory_field,
     get_bool_string,
-    MonitorDeclaration,
+    Monitor,
 )
 
 
@@ -6413,19 +6413,19 @@ class SetMonitorAction(_ActionType):
     """The SetMonitorAction class creates a GlobalAction of the type
     SetMonitorAction.
 
-    Action used to set the value of a monitor. If it is set to false by this action,
+    Action used to set the value of an existing monitor. If it is set to false by this action,
     that indicates the scenario was not executed as expected.
 
     Parameters
     ----------
-    monitor_ref : MonitorDeclaration
+    monitor_ref : Monitor
         Name of the referenced monitor.
     value: bool
         New value of the monitor.
 
     Attributes
     ----------
-    monitor_ref : MonitorDeclaration
+    monitor_ref : Monitor
         The referenced monitor to set the value for.
     value : bool
         The new value of the monitor.
@@ -6447,7 +6447,7 @@ class SetMonitorAction(_ActionType):
             value, (str, bool, int)
         ):
             raise TypeError(
-                "monitor_ref must be an string (name of the refrenced Monitor) and value must be a bool/str/int"
+                "monitor_ref must be a string (name of the referenced Monitor) and value must be a bool/str/int"
             )
         self.monitor_ref = str(monitor_ref)
         self.value = convert_bool(value)

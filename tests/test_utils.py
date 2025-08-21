@@ -1805,31 +1805,31 @@ class TestHitchCoupler:
         )
 
 
-class TestMonitorDeclaration:
+class TestMonitor:
     @pytest.fixture(name="md")
-    def monitor_declaration(self):
-        return OSC.MonitorDeclaration("my_monitor", True)
+    def monitor(self):
+        return OSC.Monitor("my_monitor", True)
 
-    def test_monitor_declaration_eq(self, md):
-        md2 = OSC.MonitorDeclaration("my_monitor", True)
+    def test_monitor_eq(self, md):
+        md2 = OSC.Monitor("my_monitor", True)
         prettyprint(md.get_element())
         assert md == md2
 
-    def test_monitor_declaration_neq(self, md):
-        md3 = OSC.MonitorDeclaration("my_monitor2", True)
+    def test_monitor_neq(self, md):
+        md3 = OSC.Monitor("my_monitor2", True)
         assert md != md3
-        md4 = OSC.MonitorDeclaration("my_monitor", False)
+        md4 = OSC.Monitor("my_monitor", False)
         assert md != md4
 
-    def test_monitor_declaration_parse(self, md):
-        md4 = OSC.MonitorDeclaration.parse(md.get_element())
+    def test_monitor_parse(self, md):
+        md4 = OSC.Monitor.parse(md.get_element())
         prettyprint(md4.get_element())
         assert md4 == md
 
-    def test_monitor_declaration_early_versions(self, md):
+    def test_monitor_early_versions(self, md):
         OSC.VersionBase().setVersion(minor=2)
         with pytest.raises(OSC.exceptions.OpenSCENARIOVersionError):
-            OSC.MonitorDeclaration.parse(md.get_element())
+            OSC.Monitor.parse(md.get_element())
 
     @pytest.mark.parametrize(
         ["version", "expected"],
@@ -1841,7 +1841,7 @@ class TestMonitorDeclaration:
         ],
     )
     def test_monitor_declaration_versions(self, version, expected):
-        monitor_dec = OSC.MonitorDeclaration("my_monitor", True)
+        monitor_dec = OSC.Monitor("my_monitor", True)
         assert (
             version_validation("MonitorDeclaration", monitor_dec, version)
             == expected
@@ -1849,10 +1849,88 @@ class TestMonitorDeclaration:
 
     def test_monitor_declaration_wrong_type(self):
         with pytest.raises(ValueError):
-            OSC.MonitorDeclaration("my_monitor", "not a bool")
+            OSC.Monitor("my_monitor", "not a bool")
         with pytest.raises(TypeError):
-            OSC.MonitorDeclaration("my_monitor", None)
+            OSC.Monitor("my_monitor", None)
         with pytest.raises(TypeError):
-            OSC.MonitorDeclaration(1, True)
+            OSC.Monitor(1, True)
         with pytest.raises(TypeError):
-            OSC.MonitorDeclaration(None, True)
+            OSC.Monitor(None, True)
+
+
+class TestMonitorDeclarations:
+
+    @pytest.fixture(name="monitor")
+    def monitor(self):
+        return OSC.Monitor("my_monitor", True)
+
+    @pytest.fixture(name="fmonitor")
+    def false_monitor(self):
+        return OSC.Monitor("my_monitor", False)
+
+    @pytest.fixture(name="md")
+    def monitor_declarations(self, monitor):
+        md = OSC.MonitorDeclarations()
+        md.add_monitor(monitor)
+        return md
+
+    def test_monitor_declarations_eq(self, md, monitor):
+        md2 = OSC.MonitorDeclarations()
+        md2.add_monitor(monitor)
+        prettyprint(md.get_element())
+        assert md == md2
+
+    def test_monitor_declarations_neq(self, md):
+        monitor3 = OSC.Monitor("my_monitor2", True)
+        md3 = OSC.MonitorDeclarations()
+        md3.add_monitor(monitor3)
+        assert md != md3
+        monitor4 = OSC.Monitor("my_monitor", False)
+        md4 = OSC.MonitorDeclarations()
+        md4.add_monitor(monitor4)
+        assert md != md4
+
+    def test_monitor_declarations_parse(self, md):
+        md4 = OSC.MonitorDeclarations.parse(md.get_element())
+        prettyprint(md4.get_element())
+        assert md4 == md
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_monitor_declarations_version_validation(
+        self, version, expected, md
+    ):
+        OSC.VersionBase().setVersion(minor=version)
+        assert (
+            version_validation("MonitorDeclarations", md, osc_version=version)
+            == expected
+        )
+        assert (
+            version_validation("MonitorDeclaration", md, osc_version=3)
+            == ValidationResponse.XSD_FAILURE
+        )
+
+    def test_monitor_declarations_add_monitor(self, md, monitor, fmonitor):
+        md5 = OSC.MonitorDeclarations()
+        md5.add_monitor(monitor)
+        assert len(md5.monitors) == 1
+        md5.add_monitor(fmonitor)
+        assert len(md5.monitors) == 2
+
+    def test_monitor_declarations_add_monitor_wrong_type(self):
+        md6 = OSC.MonitorDeclarations()
+        with pytest.raises(TypeError):
+            md6.add_monitor("not a monitor")
+        with pytest.raises(TypeError):
+            md6.add_monitor(None)
+        with pytest.raises(TypeError):
+            md6.add_monitor(1)
+        with pytest.raises(TypeError):
+            md6.add_monitor()

@@ -14,8 +14,7 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.helpers import prettify
-from scenariogeneration.xosc.actions import TrafficSignalControllerAction
+
 from scenariogeneration.xosc.enumerations import (
     _MINOR_VERSION,
     ReferenceContext,
