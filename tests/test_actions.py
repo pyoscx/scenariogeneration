@@ -14,8 +14,7 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.helpers import prettify
-from scenariogeneration.xosc.actions import TrafficSignalControllerAction
+
 from scenariogeneration.xosc.enumerations import (
     _MINOR_VERSION,
     ReferenceContext,
@@ -49,50 +48,84 @@ def reset_version():
     OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
-@pytest.mark.parametrize(
-    "input",
-    [
-        [OSC.EnvironmentAction(env), _MINOR_VERSION],
-        [
-            OSC.AddEntityAction("my new thingy", OSC.WorldPosition()),
-            _MINOR_VERSION,
-        ],
-        [OSC.DeleteEntityAction("my new thingy"), _MINOR_VERSION],
-        [OSC.ParameterAddAction("Myparam", 3), 1],
-        [OSC.ParameterMultiplyAction("Myparam", 3), 1],
-        [OSC.ParameterSetAction("Myparam", 3), 1],
-        [OSC.VariableAddAction("Myparam", 3), _MINOR_VERSION],
-        [OSC.VariableMultiplyAction("Myparam", 3), _MINOR_VERSION],
-        [OSC.VariableSetAction("Myparam", 3), _MINOR_VERSION],
-        [OSC.TrafficSignalStateAction("my signal", "red"), _MINOR_VERSION],
-        [
-            OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"),
-            _MINOR_VERSION,
-        ],
-        [
-            OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
-            _MINOR_VERSION,
-        ],
-        [
-            OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10),
-            _MINOR_VERSION,
-        ],
-        [
-            OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic),
-            _MINOR_VERSION,
-        ],
-        [OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION],
-    ],
-)
-def test_global_action_factory(input):
-    action = input[0]
-    action.setVersion(minor=input[1])
-    factoryoutput = OSC.actions._GlobalActionFactory.parse_globalaction(
-        action.get_element()
+actions_and_versions = [
+    (OSC.EnvironmentAction(env), 2),
+    (OSC.EnvironmentAction(env), _MINOR_VERSION),
+    (
+        OSC.AddEntityAction("my new thingy", OSC.WorldPosition()),
+        _MINOR_VERSION,
+    ),
+    (OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), 1),
+    (OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), 2),
+    (OSC.DeleteEntityAction("my new thingy"), _MINOR_VERSION),
+    (OSC.DeleteEntityAction("my new thingy"), 1),
+    (OSC.DeleteEntityAction("my new thingy"), 2),
+    (OSC.ParameterAddAction("Myparam", 3), 1),
+    (OSC.ParameterMultiplyAction("Myparam", 3), 1),
+    (OSC.ParameterSetAction("Myparam", 3), 1),
+    (OSC.VariableAddAction("Myparam", 3), _MINOR_VERSION),
+    (OSC.VariableAddAction("Myparam", 3), 2),
+    (OSC.VariableMultiplyAction("Myparam", 3), _MINOR_VERSION),
+    (OSC.VariableMultiplyAction("Myparam", 3), 2),
+    (OSC.VariableSetAction("Myparam", 3), _MINOR_VERSION),
+    (OSC.VariableSetAction("Myparam", 3), 2),
+    (OSC.TrafficSignalStateAction("my signal", "red"), _MINOR_VERSION),
+    (OSC.TrafficSignalStateAction("my signal", "red"), 1),
+    (OSC.TrafficSignalStateAction("my signal", "red"), 2),
+    (
+        OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"),
+        _MINOR_VERSION,
+    ),
+    (OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), 1),
+    (OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), 2),
+    (
+        OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100),
+        _MINOR_VERSION,
+    ),
+    (OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100), 1),
+    (OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100), 2),
+    (
+        OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10),
+        _MINOR_VERSION,
+    ),
+    (OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), 1),
+    (OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), 2),
+    (
+        OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic),
+        _MINOR_VERSION,
+    ),
+    (OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), 1),
+    (OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), 2),
+    (OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION),
+    (OSC.TrafficStopAction("Stop_Action"), 1),
+    (OSC.TrafficStopAction("Stop_Action"), 2),
+    (OSC.SetMonitorAction("MyMonitor", True), _MINOR_VERSION),
+]
+
+
+def idfn(action, osc_version):
+    return f"GlobalAction: {action.__class__.__name__}_osc {osc_version}"
+
+
+ids = [
+    idfn(action, osc_version) for action, osc_version in actions_and_versions
+]
+
+
+class TestGlobalActionFactory:
+    @pytest.mark.parametrize(
+        "action, osc_version",
+        actions_and_versions,
+        ids=ids,
     )
-    prettyprint(action, None)
-    prettyprint(factoryoutput, None)
-    assert action == factoryoutput
+    def test_global_action_factory(self, action, osc_version):
+        action.setVersion(minor=osc_version)
+        factoryoutput = OSC.actions._GlobalActionFactory.parse_globalaction(
+            action.get_element()
+        )
+        prettyprint(action, None)
+        prettyprint(factoryoutput, None)
+        assert action == factoryoutput
 
 
 route = OSC.Route("myroute")
