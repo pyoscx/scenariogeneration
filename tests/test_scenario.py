@@ -271,7 +271,7 @@ class TestScenario:
         prettyprint(sce4.get_element(), None)
         assert sce == sce4
 
-    def test_scenario_version_validation(
+    def test_scenario_version_2(
         self, story_board, entities, road, catalog, variables, monitor_dec
     ):
         sce3 = OSC.Scenario(

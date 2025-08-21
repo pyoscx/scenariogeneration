@@ -1374,11 +1374,17 @@ def test_convert_int():
 
 def test_convert_bool():
     assert OSC.convert_bool(1) == True
+    assert OSC.convert_bool(0) == False
+    assert OSC.convert_bool(222) == True
 
-    assert OSC.convert_bool(False) == False
     assert OSC.convert_bool("$asdf") == "$asdf"
     assert OSC.convert_bool("0") == False
     assert OSC.convert_bool("1") == True
+
+    assert OSC.convert_bool("true") == True
+    assert OSC.convert_bool("false") == False
+    assert OSC.convert_bool("False") == False
+    assert OSC.convert_bool("True") == True
 
     with pytest.raises(ValueError):
         OSC.convert_bool("asdf")
@@ -1856,6 +1862,8 @@ class TestMonitor:
             OSC.Monitor(1, True)
         with pytest.raises(TypeError):
             OSC.Monitor(None, True)
+
+        OSC.Monitor("my_monitor", 123)
 
 
 class TestMonitorDeclarations:
