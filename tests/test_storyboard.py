@@ -18,38 +18,135 @@ import pytest
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
 from scenariogeneration.xosc import (
-    EmptyTrigger,
+    Trigger,
     ValueTrigger,
     ConditionEdge,
     SimulationTimeCondition,
     Rule,
 )
-
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 from .xml_validator import ValidationResponse, version_validation
+
+EGO_NAME = "Ego"
+TARGET_NAME = "target"
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
-TD = OSC.TransitionDynamics(
-    OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
-)
-speedaction = OSC.AbsoluteSpeedAction(50, TD)
-trigcond = OSC.TimeToCollisionCondition(
-    10,
-    OSC.Rule.equalTo,
-    position=OSC.WorldPosition(),
-    freespace=False,
-)
-
-trigger = OSC.EntityTrigger(
-    "mytesttrigger", 0.2, OSC.ConditionEdge.rising, trigcond, "Target_1"
-)
+@pytest.fixture(name="TD")
+def transition_dynamics():
+    td = OSC.TransitionDynamics(
+        OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+    )
+    return td
 
 
-def test_event():
+@pytest.fixture(name="trigcond")
+def trigger_condition():
+    trigcond = OSC.TimeToCollisionCondition(
+        10,
+        OSC.Rule.equalTo,
+        position=OSC.WorldPosition(),
+        freespace=False,
+    )
+    return trigcond
+
+
+@pytest.fixture(name="speedaction")
+def speed_action(TD):
+    return OSC.AbsoluteSpeedAction(50, TD)
+
+
+@pytest.fixture(name="trigger", autouse=True)
+def test_trigger(trigcond):
+    return OSC.EntityTrigger(
+        "mytesttrigger", 0.2, OSC.ConditionEdge.rising, trigcond, "Target_1"
+    )
+
+
+@pytest.fixture(autouse=True)
+def init():
+    init = OSC.Init()
+    step_time = OSC.TransitionDynamics(
+        OSC.DynamicsShapes.step, OSC.DynamicsDimension.time, 1
+    )
+
+    egospeed = OSC.AbsoluteSpeedAction(0, step_time)
+    egostart = OSC.TeleportAction(OSC.LanePosition(25, 0, -3, 0))
+
+    targetspeed = OSC.AbsoluteSpeedAction(0, step_time)
+    targetstart = OSC.TeleportAction(OSC.LanePosition(15, 0, -2, 0))
+
+    init.add_init_action(EGO_NAME, egospeed)
+    init.add_init_action(EGO_NAME, egostart)
+    init.add_init_action(TARGET_NAME, targetspeed)
+    init.add_init_action(TARGET_NAME, targetstart)
+    return init
+
+
+@pytest.fixture(name="default_trigger", autouse=True)
+def default_trigger():
+    trigger = OSC.ValueTrigger(
+        "starttrigger",
+        0,
+        OSC.ConditionEdge.rising,
+        OSC.SimulationTimeCondition(3, OSC.Rule.greaterThan),
+    )
+    return trigger
+
+
+@pytest.fixture()
+def event(default_trigger):
+    _event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
+    _event.add_trigger(default_trigger)
+    action = OSC.LongitudinalDistanceAction(
+        EGO_NAME, max_deceleration=3, max_speed=50, distance=-4
+    )
+    _event.add_action("newspeed", action)
+    return _event
+
+
+@pytest.fixture(name="man")
+def maneuver(event):
+    man = OSC.Maneuver("my_maneuver")
+    man.add_event(event)
+    return man
+
+
+@pytest.fixture(name="maneuver_group")
+def fixture_maneuver_group_ego(man):
+    mangr = OSC.ManeuverGroup("mangroup")
+    mangr.add_actor(EGO_NAME)
+    mangr.add_maneuver(man)
+    return mangr
+
+
+@pytest.fixture(name="maneuver_group_target")
+def fixture_maneuver_group_target(man):
+    mangr = OSC.ManeuverGroup("mangroup")
+    mangr.add_actor(TARGET_NAME)
+    mangr.add_maneuver
+    return mangr
+
+
+@pytest.fixture(name="act")
+def fixture_act(maneuver_group, default_trigger):
+    act = OSC.Act("my act", default_trigger)
+    act.add_maneuver_group(maneuver_group)
+    return act
+
+
+@pytest.fixture(name="story")
+def fixture_story(act):
+    story = OSC.Story("mystory")
+    story.add_act(act)
+    return story
+
+
+def test_event(trigger, speedaction):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
 
@@ -95,7 +192,7 @@ def test_event():
         event.add_trigger(OSC.SpeedCondition(5, OSC.Rule.greaterOrEqual))
 
 
-def test_maneuver(tmpdir):
+def test_maneuver(tmpdir, trigger, speedaction):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action("newspeed", speedaction)
@@ -133,7 +230,7 @@ def test_maneuver(tmpdir):
         man.add_parameter("dummy")
 
 
-def test_maneuvergroup():
+def test_maneuvergroup(trigger,speedaction ):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action("newspeed", speedaction)
@@ -164,13 +261,13 @@ def test_maneuvergroup():
     mangr5.add_maneuver(OSC.CatalogReference("my_catalog", "cut-in"))
     prettyprint(mangr5.get_element())
     assert (
-        version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
+            version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
     )
     assert (
-        version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
+            version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
     )
     assert (
-        version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+            version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         mangr.add_maneuver("dummy")
@@ -179,40 +276,25 @@ def test_maneuvergroup():
 class TestActAndStory:
     """Test Act and Story classes."""
 
-    @pytest.fixture(name="maneuver_group")
-    def fixture_maneuver_group(self):
-        event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-        event.add_trigger(trigger)
-        event.add_action("newspeed", speedaction)
-        man = OSC.Maneuver("my maneuver")
-        man.add_event(event)
-
-        mangr = OSC.ManeuverGroup("mangroup")
-        mangr.add_actor("Ego")
-        mangr.add_maneuver(man)
-        return mangr
-
-    @pytest.fixture(name="act")
-    def fixture_act(self, maneuver_group):
-        act = OSC.Act("my act", trigger)
-        act.add_maneuver_group(maneuver_group)
-        return act
+    @pytest.fixture(name="default_act_trigger")
+    def default_starttrigger(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        return start_trigger
 
     @pytest.fixture(name="act3")
-    def fixture_act3(self, maneuver_group):
-        act3 = OSC.Act("my act", trigger)
+    def fixture_act3(self, maneuver_group, default_act_trigger):
+        act3 = OSC.Act("my act", default_act_trigger)
         act3.add_maneuver_group(maneuver_group)
         act3.add_maneuver_group(maneuver_group)
         return act3
 
-    @pytest.fixture(name="story")
-    def fixture_story(self, act):
-        story = OSC.Story("mystory")
-        story.add_act(act)
-        return story
-
-    def test_eq(self, act, maneuver_group):
-        act2 = OSC.Act("my act", trigger)
+    def test_eq(self, act, maneuver_group, default_trigger):
+        act2 = OSC.Act("my act", default_trigger)
         act2.add_maneuver_group(maneuver_group)
         assert act == act2
 
@@ -224,26 +306,45 @@ class TestActAndStory:
         assert act4 == act
         for minor_version in range(4):
             assert (
-                version_validation("Act", act, minor_version)
-                == ValidationResponse.OK
+                    version_validation("Act", act, minor_version)
+                    == ValidationResponse.OK
             )
 
-    def test_invalid_starttrigger(self):
+    def test_invalid_starttrigger(self, default_act_trigger):
         with pytest.raises(TypeError):
             OSC.Act("act", "dummy")
         with pytest.raises(TypeError):
-            OSC.Act("act", trigger, "dummy")
+            OSC.Act("act", default_act_trigger, "dummy")
 
     def test_add_invalid_maneuver_group(self, act):
         with pytest.raises(TypeError):
             act.add_maneuver_group("dummy")
 
-    def test_optional_attr(self):
+    def test_optional_attr_v3(self):
+        OSC.VersionBase().setVersion(minor=3)
         action = OSC.Act("my act")
-        action.setVersion(1, 3)
         assert action.starttrigger is None
-        assert action.stoptrigger == EmptyTrigger("stop")
+        assert action.stoptrigger == Trigger("stop")
 
+    def test_optional_attr_v2(self, default_act_trigger):
+        OSC.VersionBase().setVersion(minor=2)
+        action = OSC.Act("my act")
+        assert action.starttrigger == default_act_trigger
+        assert action.stoptrigger == Trigger("stop")
+
+    def test_default_triggers_v3(self, default_act_trigger):
+        act5 = OSC.Act("my act", starttrigger=default_act_trigger)
+        act6 = OSC.Act("my act")
+        assert act6 != act5
+
+    def test_default_starttrigger_v2(self, default_act_trigger):
+        OSC.VersionBase().setVersion(minor=2)
+        act5 = OSC.Act("my act", starttrigger=default_act_trigger)
+        act6 = OSC.Act("my act")
+        assert act6 == act5
+
+
+class TestStory:
     def test_story_pretty_print(self, story):
         prettyprint(story.get_element())
 
@@ -252,7 +353,11 @@ class TestActAndStory:
         story2.add_act(act)
         assert story == story2
 
-    def test_story_not_eq(self, act3, story):
+    def test_story_not_eq(self, default_trigger, maneuver_group, story):
+        act3 = OSC.Act("my act", default_trigger)
+        act3.add_maneuver_group(maneuver_group)
+        act3.add_maneuver_group(maneuver_group)
+
         story3 = OSC.Story("mystory")
         story3.add_act(act3)
         assert story != story3
@@ -262,8 +367,8 @@ class TestActAndStory:
         assert story == story4
         for minor_version in range(4):
             assert (
-                version_validation("Story", story, minor_version)
-                == ValidationResponse.OK
+                    version_validation("Story", story, minor_version)
+                    == ValidationResponse.OK
             )
 
     def test_invalid_story(self):
@@ -273,44 +378,6 @@ class TestActAndStory:
     def test_add_invalid_act_to_add(self, story):
         with pytest.raises(TypeError):
             story.add_act("dummy")
-
-    def test_default_starttrigger_v3(self):
-        start_trigger = ValueTrigger(
-            "act_start",
-            0,
-            ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan),
-        )
-        act5 = OSC.Act("my act", starttrigger=start_trigger)
-        act6 = OSC.Act("my act")
-        act5.setVersion(1, 3)
-        act6.setVersion(1, 3)
-        assert act6 != act5
-
-    def test_default_starttrigger_v2(self):
-        start_trigger = ValueTrigger(
-            "act_start",
-            0,
-            ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan),
-        )
-        act5 = OSC.Act("my act", starttrigger=start_trigger)
-        act6 = OSC.Act("my act")
-        assert act6 == act5
-
-    def test_get_starttrigger(self, act):
-        default_start_trigger = ValueTrigger(
-            "act_start",
-            0,
-            ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan),
-        )
-        act7 = OSC.Act("my act7")
-        assert act7.isVersionEqLess(1, 2)
-        assert act7.starttrigger == default_start_trigger
-        act8 = OSC.Act("my act8")
-        act8.setVersion(1, 3)
-        assert act8.starttrigger is None
 
 
 def test_init():
@@ -384,316 +451,293 @@ def test_init():
         init.add_user_defined_action("dummy")
 
 
-def test_storyboard_story_input():
-    init = OSC.Init()
-    TD = OSC.TransitionDynamics(
-        OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+class TestStoryBoardStory:
+    @pytest.fixture()
+    def init_story(self):
+        init = OSC.Init()
+        TD = OSC.TransitionDynamics(
+            OSC.DynamicsShapes.step, OSC.DynamicsDimension.rate, 1
+        )
+        egospeed = OSC.AbsoluteSpeedAction(10, TD)
+
+        init.add_init_action("Ego", egospeed)
+        init.add_init_action(
+            "Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0))
+        )
+        init.add_init_action("Target_1", egospeed)
+        init.add_init_action(
+            "Target_1", OSC.TeleportAction(OSC.WorldPosition(1, 5, 3, 0, 0, 0))
+        )
+        init.add_init_action("Target_2", egospeed)
+        init.add_init_action(
+            "Target_2", OSC.TeleportAction(OSC.WorldPosition(10, 2, 3, 0, 0, 0))
+        )
+        return init
+
+    @pytest.fixture(name="act_story")
+    def _act_story(self, trigger, speedaction):
+        event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
+        event.add_trigger(trigger)
+        event.add_action("newspeed", speedaction)
+        man = OSC.Maneuver("my maneuver")
+        man.add_event(event)
+
+        mangr = OSC.ManeuverGroup("mangroup")
+        mangr.add_actor("Ego")
+        mangr.add_maneuver(man)
+
+        act = OSC.Act("my act", trigger)
+        act.add_maneuver_group(mangr)
+        return act
+
+    @pytest.fixture(name="story")
+    def _story(self, act_story):
+        story = OSC.Story("mystory")
+        story.add_act(act_story)
+        return story
+
+    @pytest.fixture(name="storyboard_story")
+    def _storyboard_story(self, init_story, story):
+        sb = OSC.StoryBoard(init_story)
+        sb.add_story(story)
+        return sb
+
+    def test_storyboard_story_prettyprint(self, storyboard_story):
+        prettyprint(storyboard_story.get_element())
+
+    def test_storyboard_story_eq(self, storyboard_story, init_story, story):
+        sb2 = OSC.StoryBoard(init_story)
+        sb2.add_story(story)
+        assert sb2 == storyboard_story
+
+    def test_storyboard_story_not_eq(self, storyboard_story, init_story, story):
+        sb3 = OSC.StoryBoard(init_story)
+        sb3.add_story(story)
+        sb3.add_story(story)
+        assert storyboard_story != sb3
+
+    def test_storyboard_story_parse(self, storyboard_story):
+        sb4 = OSC.StoryBoard.parse(storyboard_story.get_element())
+        assert storyboard_story == sb4
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    egospeed = OSC.AbsoluteSpeedAction(10, TD)
+    def test_storyboard_story_version_validation(self, version, expected, storyboard_story):
+        assert version_validation("Storyboard", storyboard_story, version) == expected
 
-    init.add_init_action("Ego", egospeed)
-    init.add_init_action(
-        "Ego", OSC.TeleportAction(OSC.WorldPosition(1, 2, 3, 0, 0, 0))
+    def test_storyboard_story_invalid(self, storyboard_story, story):
+        with pytest.raises(TypeError):
+            storyboard_story.add_story("dummy")
+
+
+class TestStoryboardAct:
+    @pytest.fixture()
+    def _act(self, man):
+        mangr = OSC.ManeuverGroup("mangroup")
+        mangr.add_actor(TARGET_NAME)
+        mangr.add_maneuver(man)
+        starttrigger = OSC.ValueTrigger(
+            "starttrigger",
+            0,
+            OSC.ConditionEdge.rising,
+            OSC.SimulationTimeCondition(0, OSC.Rule.greaterThan),
+        )
+        act = OSC.Act("my_act", starttrigger)
+        act.add_maneuver_group(mangr)
+        return act
+
+    @pytest.fixture(name="sb_act")
+    def _story_board_act(self, init, _act):
+        sb = OSC.StoryBoard(init)
+        sb.add_act(_act)
+        return sb
+
+    def test_storyboard_act_prettyprint(self, sb_act):
+        prettyprint(sb_act.get_element())
+
+    def test_storyboard_act_eq(self, sb_act, init, _act):
+        sb2 = OSC.StoryBoard(init)
+        sb2.add_act(_act)
+        assert sb2 == sb_act
+
+    def test_storyboard_act_not_eq(self, sb_act, init, _act):
+        sb3 = OSC.StoryBoard(init)
+        sb3.add_act(_act)
+        sb3.add_act(_act)
+
+        assert sb_act != sb3
+
+    def test_storyboard_act_parse(self, sb_act):
+        sb4 = OSC.StoryBoard.parse(sb_act.get_element())
+        assert sb_act == sb4
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    init.add_init_action("Target_1", egospeed)
-    init.add_init_action(
-        "Target_1", OSC.TeleportAction(OSC.WorldPosition(1, 5, 3, 0, 0, 0))
+    def test_storyboard_act_version_validation(self, version, expected, sb_act):
+        assert version_validation("Storyboard", sb_act, version) == expected
+
+    def test_storyboard_act_invalid(self, sb_act, _act):
+        with pytest.raises(TypeError):
+            sb_act.add_act("dummy")
+        with pytest.raises(TypeError):
+            sb_act.add_act(_act, "dummy")
+
+
+class TestStoryboardManeuverGroup:
+    @pytest.fixture(name="sb_mangr")
+    def storyboard_maneuver_group(self, init, maneuver_group_target):
+        sb = OSC.StoryBoard(init)
+        sb.add_maneuver_group(maneuver_group_target)
+        return sb
+
+    def test_storyboard_maneuver_group_prettyprint(self, sb_mangr):
+        prettyprint(sb_mangr.get_element())
+
+    def test_storyboard_maneuver_group_eq(self, sb_mangr, init, maneuver_group_target):
+        sb2 = OSC.StoryBoard(init)
+        sb2.add_maneuver_group(maneuver_group_target)
+        assert sb_mangr == sb2
+
+    def test_storyboard_maneuver_group_not_eq(self, sb_mangr, init, maneuver_group_target):
+        sb3 = OSC.StoryBoard(init)
+        sb3.add_maneuver_group(maneuver_group_target)
+        sb3.add_maneuver_group(maneuver_group_target)
+        assert sb_mangr != sb3
+
+    def test_storyboard_maneuver_group_parse(self, sb_mangr):
+        sb4 = OSC.StoryBoard.parse(sb_mangr.get_element())
+        assert sb_mangr == sb4
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    init.add_init_action("Target_2", egospeed)
-    init.add_init_action(
-        "Target_2", OSC.TeleportAction(OSC.WorldPosition(10, 2, 3, 0, 0, 0))
+    def test_storyboard_maneuver_group_version_validation(self, version, expected, sb_mangr):
+        assert version_validation("Storyboard", sb_mangr, version) == expected
+
+    def test_storyboard_maneuver_group_invalid(self, sb_mangr, maneuver_group_target):
+        with pytest.raises(TypeError):
+            sb_mangr.add_maneuver_group("dummy")
+        with pytest.raises(TypeError):
+            sb_mangr.add_maneuver_group(maneuver_group_target, "dummy")
+        with pytest.raises(TypeError):
+            sb_mangr.add_maneuver_group(maneuver_group_target, stoptrigger="dummy")
+        with pytest.raises(TypeError):
+            sb_mangr.add_maneuver_group(maneuver_group_target, parameters="dummy")
+
+
+class TestStoryboardEmpty:
+    """Test StoryBoard with no elements."""
+
+    @pytest.fixture(name="empty_storyboard")
+    def storyboard_empty(self):
+        return OSC.StoryBoard(OSC.Init())
+
+    def test_empty_storyboard_prettyprint(self, empty_storyboard):
+        prettyprint(empty_storyboard.get_element())
+
+    @pytest.mark.parametrize(
+        "version", [2, 3])
+    def test_empty_storyboard_eq(self, version):
+        OSC.VersionBase().setVersion(minor=version)
+        sb1 = OSC.StoryBoard()
+        sb2 = OSC.StoryBoard()
+        assert sb1 == sb2
+
+    def test_empty_storyboard_not_eq(self, empty_storyboard):
+        sb3 = OSC.StoryBoard()
+        sb3.add_maneuver_group(OSC.ManeuverGroup("dummy"))
+        assert empty_storyboard != sb3
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    prettyprint(init.get_element())
+    def test_empty_version_validation(self, version, expected, empty_storyboard):
+        assert version_validation("Storyboard", empty_storyboard, version) == expected
 
-    event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-    event.add_trigger(trigger)
-    event.add_action("newspeed", speedaction)
-    man = OSC.Maneuver("my maneuver")
-    man.add_event(event)
-    prettyprint(man.get_element())
+    def test_empty_storyboard_stoptrigger_v2(self, empty_storyboard):
+        OSC.VersionBase().setVersion(minor=2)
+        assert empty_storyboard.stoptrigger == Trigger("stop")
+        sb = OSC.StoryBoard(OSC.Init(), stoptrigger=Trigger("stop"))
+        assert sb == empty_storyboard
 
-    mangr = OSC.ManeuverGroup("mangroup")
-    mangr.add_actor("Ego")
-    mangr.add_maneuver(man)
-    prettyprint(mangr.get_element())
-
-    act = OSC.Act("my act", trigger)
-    act.add_maneuver_group(mangr)
-    prettyprint(act.get_element())
-
-    story = OSC.Story("mystory")
-    story.add_act(act)
-    prettyprint(story.get_element())
-
-    sb = OSC.StoryBoard(init)
-    sb.add_story(story)
-    prettyprint(sb.get_element())
-    sb2 = OSC.StoryBoard(init)
-    sb2.add_story(story)
-    sb3 = OSC.StoryBoard(init)
-    sb3.add_story(story)
-    sb3.add_story(story)
-
-    assert sb == sb2
-    assert sb != sb3
-
-    sb4 = OSC.StoryBoard.parse(sb3.get_element())
-    assert sb3 == sb4
-
-    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
-
-    with pytest.raises(TypeError):
-        sb.add_story("dummy")
+    def test_empty_storyboard_stoptrigger_v3(self, empty_storyboard):
+        OSC.VersionBase().setVersion(minor=3)
+        assert empty_storyboard.stoptrigger == None
 
 
-def test_storyboard_act_input():
-    egoname = "Ego"
-    targetname = "target"
+class TestStoryBoardManeuver:
+    def setup_method(self):
+        self.egoname = "Ego"
+        self.targetname = "target"
 
-    init = OSC.Init()
-    step_time = OSC.TransitionDynamics(
-        OSC.DynamicsShapes.step, OSC.DynamicsDimension.time, 1
+    @pytest.fixture(name="sb_mng")
+    def storyboard_manuver_group(self, init, man):
+        sb = OSC.StoryBoard(init)
+        sb.add_maneuver(man, self.targetname)
+        return sb
+
+    def test_storyboard_maneuver_prettyprint(self, sb_mng):
+        prettyprint(sb_mng.get_element())
+
+    def test_storyboard_maneuver_eq(self, sb_mng, init, man):
+        sb2 = OSC.StoryBoard(init)
+        sb2.add_maneuver(man, self.targetname)
+        assert sb_mng == sb2
+
+    def test_storyboard_maneuver_not_eq(self, init, man, sb_mng):
+        sb3 = OSC.StoryBoard(init)
+        sb3.add_maneuver(man, self.targetname)
+        sb3.add_maneuver(
+            OSC.CatalogReference("mancatalog", "my_maneuver"), self.targetname
+        )
+        assert sb_mng != sb3
+
+    def test_storyboard_maneuver_parse(self, sb_mng):
+        sb4 = OSC.StoryBoard.parse(sb_mng.get_element())
+        assert sb_mng == sb4
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
+    def test_storyboard_maneuver_validation(self, version, expected, sb_mng):
+        assert version_validation("Storyboard", sb_mng, 0) == expected
 
-    egospeed = OSC.AbsoluteSpeedAction(0, step_time)
-    egostart = OSC.TeleportAction(OSC.LanePosition(25, 0, -3, 0))
-
-    targetspeed = OSC.AbsoluteSpeedAction(0, step_time)
-    targetstart = OSC.TeleportAction(OSC.LanePosition(15, 0, -2, 0))
-
-    init.add_init_action(egoname, egospeed)
-    init.add_init_action(egoname, egostart)
-    init.add_init_action(targetname, targetspeed)
-    init.add_init_action(targetname, targetstart)
-
-    ### create an event
-
-    # trigcond = OSC.TimeHeadwayCondition(targetname,0.1,OSC.Rule.greaterThan)
-
-    # trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,egoname)
-    trigger = OSC.ValueTrigger(
-        "starttrigger",
-        0,
-        OSC.ConditionEdge.rising,
-        OSC.SimulationTimeCondition(3, OSC.Rule.greaterThan),
-    )
-    event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-    event.add_trigger(trigger)
-
-    # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(
-        egoname, max_deceleration=3, max_speed=50, distance=-4
-    )
-    event.add_action("newspeed", action)
-
-    ## create the act,
-    man = OSC.Maneuver("my_maneuver")
-    man.add_event(event)
-
-    mangr = OSC.ManeuverGroup("mangroup")
-    mangr.add_actor(targetname)
-    mangr.add_maneuver(man)
-
-    starttrigger = OSC.ValueTrigger(
-        "starttrigger",
-        0,
-        OSC.ConditionEdge.rising,
-        OSC.SimulationTimeCondition(0, OSC.Rule.greaterThan),
-    )
-    act = OSC.Act("my_act", starttrigger)
-    act.add_maneuver_group(mangr)
-
-    ## create the storyboard
-    sb = OSC.StoryBoard(init)
-    sb.add_act(act)
-
-    prettyprint(sb.get_element())
-
-    sb2 = OSC.StoryBoard(init)
-    sb2.add_act(act)
-
-    sb3 = OSC.StoryBoard(init)
-    sb3.add_act(act)
-    sb3.add_act(act)
-
-    assert sb == sb2
-    assert sb != sb3
-
-    sb4 = OSC.StoryBoard.parse(sb3.get_element())
-    assert sb3 == sb4
-    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
-
-    with pytest.raises(TypeError):
-        sb.add_act("dummy")
-    with pytest.raises(TypeError):
-        sb.add_act(act, "dummy")
-
-
-def test_storyboard_mangr_input():
-    egoname = "Ego"
-    targetname = "target"
-
-    init = OSC.Init()
-    step_time = OSC.TransitionDynamics(
-        OSC.DynamicsShapes.step, OSC.DynamicsDimension.time, 1
-    )
-
-    egospeed = OSC.AbsoluteSpeedAction(0, step_time)
-    egostart = OSC.TeleportAction(OSC.LanePosition(25, 0, -3, 0))
-
-    targetspeed = OSC.AbsoluteSpeedAction(0, step_time)
-    targetstart = OSC.TeleportAction(OSC.LanePosition(15, 0, -2, 0))
-
-    init.add_init_action(egoname, egospeed)
-    init.add_init_action(egoname, egostart)
-    init.add_init_action(targetname, targetspeed)
-    init.add_init_action(targetname, targetstart)
-
-    ### create an event
-
-    # trigcond = OSC.TimeHeadwayCondition(targetname,0.1,OSC.Rule.greaterThan)
-
-    # trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,egoname)
-    trigger = OSC.ValueTrigger(
-        "starttrigger",
-        0,
-        OSC.ConditionEdge.rising,
-        OSC.SimulationTimeCondition(3, OSC.Rule.greaterThan),
-    )
-    event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-    event.add_trigger(trigger)
-
-    # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(
-        egoname, max_deceleration=3, max_speed=50, distance=-4
-    )
-    event.add_action("newspeed", action)
-
-    ## create the ManeuverGroup,
-    man = OSC.Maneuver("my_maneuver")
-    man.add_event(event)
-
-    mangr = OSC.ManeuverGroup("mangroup")
-    mangr.add_actor(targetname)
-    mangr.add_maneuver(man)
-
-    ## create the storyboard
-    sb = OSC.StoryBoard(init)
-    sb.add_maneuver_group(mangr)
-
-    prettyprint(sb.get_element())
-
-    sb2 = OSC.StoryBoard(init)
-    sb2.add_maneuver_group(mangr)
-    sb3 = OSC.StoryBoard(init)
-    sb3.add_maneuver_group(mangr)
-    sb3.add_maneuver_group(mangr)
-
-    assert sb == sb2
-    assert sb != sb3
-
-    sb4 = OSC.StoryBoard.parse(sb3.get_element())
-    assert sb3 == sb4
-
-    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
-
-    with pytest.raises(TypeError):
-        sb.add_maneuver_group("dummy")
-    with pytest.raises(TypeError):
-        sb.add_maneuver_group(mangr, "dummy")
-    with pytest.raises(TypeError):
-        sb.add_maneuver_group(mangr, stoptrigger="dummy")
-    with pytest.raises(TypeError):
-        sb.add_maneuver_group(mangr, parameters="dummy")
-
-
-def test_storyboard_man_input():
-    egoname = "Ego"
-    targetname = "target"
-
-    init = OSC.Init()
-    step_time = OSC.TransitionDynamics(
-        OSC.DynamicsShapes.step, OSC.DynamicsDimension.time, 1
-    )
-
-    egospeed = OSC.AbsoluteSpeedAction(0, step_time)
-    egostart = OSC.TeleportAction(OSC.LanePosition(25, 0, -3, 0))
-
-    targetspeed = OSC.AbsoluteSpeedAction(0, step_time)
-    targetstart = OSC.TeleportAction(OSC.LanePosition(15, 0, -2, 0))
-
-    init.add_init_action(egoname, egospeed)
-    init.add_init_action(egoname, egostart)
-    init.add_init_action(targetname, targetspeed)
-    init.add_init_action(targetname, targetstart)
-
-    ### create an event
-
-    # trigcond = OSC.TimeHeadwayCondition(targetname,0.1,OSC.Rule.greaterThan)
-
-    # trigger = OSC.EntityTrigger('mytesttrigger',0.2,OSC.ConditionEdge.rising,trigcond,egoname)
-    trigger = OSC.ValueTrigger(
-        "starttrigger",
-        0,
-        OSC.ConditionEdge.rising,
-        OSC.SimulationTimeCondition(3, OSC.Rule.greaterThan),
-    )
-    event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
-    event.add_trigger(trigger)
-
-    # sin_time = OSC.TransitionDynamics(OSC.DynamicsShapes.linear,OSC.DynamicsDimension.time,3)
-    action = OSC.LongitudinalDistanceAction(
-        egoname, max_deceleration=3, max_speed=50, distance=-4
-    )
-    event.add_action("newspeed", action)
-
-    ## create the maneuver,
-    man = OSC.Maneuver("my_maneuver")
-    man.add_event(event)
-
-    ## create the storyboard
-    sb = OSC.StoryBoard(init)
-    sb.add_maneuver(man, targetname)
-
-    prettyprint(sb.get_element())
-
-    sb2 = OSC.StoryBoard(init)
-    sb2.add_maneuver(man, targetname)
-
-    sb3 = OSC.StoryBoard(init)
-    sb3.add_maneuver(man, targetname)
-    sb3.add_maneuver(
-        OSC.CatalogReference("mancatalog", "my_maneuver"), targetname
-    )
-
-    assert sb == sb2
-    assert sb != sb3
-
-    sb4 = OSC.StoryBoard.parse(sb3.get_element())
-    assert sb3 == sb4
-    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
-
-    with pytest.raises(TypeError):
-        sb.add_maneuver("dummy", "actor")
-
-
-def test_empty_storyboard():
-    ## create the storyboard
-    sb = OSC.StoryBoard()
-
-    prettyprint(sb.get_element())
-
-    assert version_validation("Storyboard", sb, 0) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 1) == ValidationResponse.OK
-    assert version_validation("Storyboard", sb, 2) == ValidationResponse.OK
+    def test_storyboard_maneuver_invalid(self, sb_mng):
+        with pytest.raises(TypeError):
+            sb_mng.add_maneuver("dummy", "actor")
 
 
 def test_actors():
