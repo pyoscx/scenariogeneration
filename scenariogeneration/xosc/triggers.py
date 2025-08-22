@@ -9,6 +9,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 import warnings
 import xml.etree.ElementTree as ET
 from typing import Union, Optional
@@ -855,7 +856,6 @@ class Trigger(_TriggerType):
             An XML element containing the trigger point and its associated
             condition groups.
         """
-
 
         element = ET.Element(self._triggerpoint)
         for c in self.conditiongroups:

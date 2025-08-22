@@ -1173,7 +1173,7 @@ class StoryBoard(VersionBase):
             OpenSCENARIO 1.3:
                 None. The Storyboard will never be stopped.
         """
-        self._none_stoptrigger_input=False
+        self._none_stoptrigger_input = False
         if not isinstance(init, Init):
             raise TypeError("init is not of type Init")
         if stoptrigger is None:

@@ -230,7 +230,7 @@ def test_maneuver(tmpdir, trigger, speedaction):
         man.add_parameter("dummy")
 
 
-def test_maneuvergroup(trigger,speedaction ):
+def test_maneuvergroup(trigger, speedaction):
     event = OSC.Event("myfirstevent", OSC.Priority.overwrite)
     event.add_trigger(trigger)
     event.add_action("newspeed", speedaction)
@@ -261,13 +261,13 @@ def test_maneuvergroup(trigger,speedaction ):
     mangr5.add_maneuver(OSC.CatalogReference("my_catalog", "cut-in"))
     prettyprint(mangr5.get_element())
     assert (
-            version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 0) == ValidationResponse.OK
     )
     assert (
-            version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
+        version_validation("ManeuverGroup", mangr3, 2) == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         mangr.add_maneuver("dummy")
@@ -306,8 +306,8 @@ class TestActAndStory:
         assert act4 == act
         for minor_version in range(4):
             assert (
-                    version_validation("Act", act, minor_version)
-                    == ValidationResponse.OK
+                version_validation("Act", act, minor_version)
+                == ValidationResponse.OK
             )
 
     def test_invalid_starttrigger(self, default_act_trigger):
@@ -367,8 +367,8 @@ class TestStory:
         assert story == story4
         for minor_version in range(4):
             assert (
-                    version_validation("Story", story, minor_version)
-                    == ValidationResponse.OK
+                version_validation("Story", story, minor_version)
+                == ValidationResponse.OK
             )
 
     def test_invalid_story(self):
@@ -470,7 +470,8 @@ class TestStoryBoardStory:
         )
         init.add_init_action("Target_2", egospeed)
         init.add_init_action(
-            "Target_2", OSC.TeleportAction(OSC.WorldPosition(10, 2, 3, 0, 0, 0))
+            "Target_2",
+            OSC.TeleportAction(OSC.WorldPosition(10, 2, 3, 0, 0, 0)),
         )
         return init
 
@@ -510,7 +511,9 @@ class TestStoryBoardStory:
         sb2.add_story(story)
         assert sb2 == storyboard_story
 
-    def test_storyboard_story_not_eq(self, storyboard_story, init_story, story):
+    def test_storyboard_story_not_eq(
+        self, storyboard_story, init_story, story
+    ):
         sb3 = OSC.StoryBoard(init_story)
         sb3.add_story(story)
         sb3.add_story(story)
@@ -522,7 +525,6 @@ class TestStoryBoardStory:
 
     @pytest.mark.parametrize(
         ["version", "expected"],
-
         [
             (0, ValidationResponse.OK),
             (1, ValidationResponse.OK),
@@ -530,8 +532,13 @@ class TestStoryBoardStory:
             (3, ValidationResponse.OK),
         ],
     )
-    def test_storyboard_story_version_validation(self, version, expected, storyboard_story):
-        assert version_validation("Storyboard", storyboard_story, version) == expected
+    def test_storyboard_story_version_validation(
+        self, version, expected, storyboard_story
+    ):
+        assert (
+            version_validation("Storyboard", storyboard_story, version)
+            == expected
+        )
 
     def test_storyboard_story_invalid(self, storyboard_story, story):
         with pytest.raises(TypeError):
@@ -588,7 +595,9 @@ class TestStoryboardAct:
             (3, ValidationResponse.OK),
         ],
     )
-    def test_storyboard_act_version_validation(self, version, expected, sb_act):
+    def test_storyboard_act_version_validation(
+        self, version, expected, sb_act
+    ):
         assert version_validation("Storyboard", sb_act, version) == expected
 
     def test_storyboard_act_invalid(self, sb_act, _act):
@@ -608,12 +617,16 @@ class TestStoryboardManeuverGroup:
     def test_storyboard_maneuver_group_prettyprint(self, sb_mangr):
         prettyprint(sb_mangr.get_element())
 
-    def test_storyboard_maneuver_group_eq(self, sb_mangr, init, maneuver_group_target):
+    def test_storyboard_maneuver_group_eq(
+        self, sb_mangr, init, maneuver_group_target
+    ):
         sb2 = OSC.StoryBoard(init)
         sb2.add_maneuver_group(maneuver_group_target)
         assert sb_mangr == sb2
 
-    def test_storyboard_maneuver_group_not_eq(self, sb_mangr, init, maneuver_group_target):
+    def test_storyboard_maneuver_group_not_eq(
+        self, sb_mangr, init, maneuver_group_target
+    ):
         sb3 = OSC.StoryBoard(init)
         sb3.add_maneuver_group(maneuver_group_target)
         sb3.add_maneuver_group(maneuver_group_target)
@@ -632,18 +645,26 @@ class TestStoryboardManeuverGroup:
             (3, ValidationResponse.OK),
         ],
     )
-    def test_storyboard_maneuver_group_version_validation(self, version, expected, sb_mangr):
+    def test_storyboard_maneuver_group_version_validation(
+        self, version, expected, sb_mangr
+    ):
         assert version_validation("Storyboard", sb_mangr, version) == expected
 
-    def test_storyboard_maneuver_group_invalid(self, sb_mangr, maneuver_group_target):
+    def test_storyboard_maneuver_group_invalid(
+        self, sb_mangr, maneuver_group_target
+    ):
         with pytest.raises(TypeError):
             sb_mangr.add_maneuver_group("dummy")
         with pytest.raises(TypeError):
             sb_mangr.add_maneuver_group(maneuver_group_target, "dummy")
         with pytest.raises(TypeError):
-            sb_mangr.add_maneuver_group(maneuver_group_target, stoptrigger="dummy")
+            sb_mangr.add_maneuver_group(
+                maneuver_group_target, stoptrigger="dummy"
+            )
         with pytest.raises(TypeError):
-            sb_mangr.add_maneuver_group(maneuver_group_target, parameters="dummy")
+            sb_mangr.add_maneuver_group(
+                maneuver_group_target, parameters="dummy"
+            )
 
 
 class TestStoryboardEmpty:
@@ -656,8 +677,7 @@ class TestStoryboardEmpty:
     def test_empty_storyboard_prettyprint(self, empty_storyboard):
         prettyprint(empty_storyboard.get_element())
 
-    @pytest.mark.parametrize(
-        "version", [2, 3])
+    @pytest.mark.parametrize("version", [2, 3])
     def test_empty_storyboard_eq(self, version):
         OSC.VersionBase().setVersion(minor=version)
         sb1 = OSC.StoryBoard()
@@ -678,8 +698,13 @@ class TestStoryboardEmpty:
             (3, ValidationResponse.OK),
         ],
     )
-    def test_empty_version_validation(self, version, expected, empty_storyboard):
-        assert version_validation("Storyboard", empty_storyboard, version) == expected
+    def test_empty_version_validation(
+        self, version, expected, empty_storyboard
+    ):
+        assert (
+            version_validation("Storyboard", empty_storyboard, version)
+            == expected
+        )
 
     def test_empty_storyboard_stoptrigger_v2(self, empty_storyboard):
         OSC.VersionBase().setVersion(minor=2)
