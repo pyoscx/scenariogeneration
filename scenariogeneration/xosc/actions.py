@@ -1527,9 +1527,7 @@ class RelativeLaneOffsetAction(_PrivateActionType):
         self.continuous = convert_bool(continuous)
         self.value = convert_float(value)
         self.target = entity
-        if not hasattr(DynamicsShapes, str(shape)):
-            raise ValueError(shape + "; is not a valid shape.")
-        self.dynshape = shape
+        self.dynshape = convert_enum(shape, DynamicsShapes)
         self.maxlatacc = convert_float(maxlatacc)
 
     def __eq__(self, other: object) -> bool:
@@ -1568,8 +1566,8 @@ class RelativeLaneOffsetAction(_PrivateActionType):
             loa_element, "LaneOffsetActionDynamics"
         )
         maxacc = convert_float(load_element.attrib["maxLateralAcc"])
-        dynamics = getattr(
-            DynamicsShapes, load_element.attrib["dynamicsShape"]
+        dynamics = convert_enum(
+            load_element.attrib["dynamicsShape"], DynamicsShapes
         )
 
         rtlo_element = find_mandatory_field(
