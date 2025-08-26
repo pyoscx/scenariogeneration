@@ -13,6 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import importlib
 import os
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -108,8 +109,7 @@ ODR_FILES = [
 
 
 @pytest.fixture(scope="session", name="test_folder")
-def test_create_test_files(tmp_path_factory):
-
+def create_test_files(tmp_path_factory):
     regression_test_folder = None
     """ Uncomment the line below to generate files that will be used for
     regression tests. Then the files will be compared between two versions
@@ -169,7 +169,7 @@ def test_OSC_1_0_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-        test_folder[0] / f"osc_version_0" / "xosc" / f"{python_file}0.xosc"
+            test_folder[0] / f"osc_version_0" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 0
@@ -191,7 +191,7 @@ def test_OSC_1_1_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-        test_folder[0] / f"osc_version_1" / "xosc" / f"{python_file}0.xosc"
+            test_folder[0] / f"osc_version_1" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 1
@@ -214,7 +214,7 @@ def test_OSC_1_2_parsing(python_file, test_folder):
     )
 
     xosc_file = (
-        test_folder[0] / f"osc_version_2" / "xosc" / f"{python_file}0.xosc"
+            test_folder[0] / f"osc_version_2" / "xosc" / f"{python_file}0.xosc"
     )
     old_osc = xosc.ParseOpenScenario(xosc_file)
     assert old_osc.version_minor == 2
@@ -248,3 +248,30 @@ def test_ODR(python_file, test_folder, tmpdir):
     old_xodr.find("header").attrib["date"] = ""
     new_xodr.find("header").attrib["date"] = ""
     assert etree.tostring(old_xodr) == etree.tostring(new_xodr)
+
+
+params = []
+ids = []
+for version, files in OSC_FILES.items():
+    for file_name in files:
+        params.append((file_name, version))
+        ids.append(f"{file_name}_v{version}")
+
+@pytest.mark.parametrize("params", params, ids=ids)
+def test_xosc_schema_validation(params, test_folder):
+    sys.path.insert(
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
+    )
+    python_file , version = params[0], params[1]
+
+    xosc_file = (
+            test_folder[0] / f"osc_version_{version}" / "xosc" / f"{python_file}0.xosc"
+    )
+
+    with open(xosc_file, "r", encoding="utf-8") as f:
+        loaded_xosc = ET.parse(f)
+    scenario = xosc.validate_schema(loaded_xosc)
+    assert scenario is True
