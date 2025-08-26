@@ -12,6 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import xml.etree.ElementTree as ET
 from typing import Optional, Union
+from collections import namedtuple
 
 from .enumerations import (
     MiscObjectCategory,
@@ -1716,7 +1717,7 @@ class ScenarioObject(VersionBase):
 
         return element
 
-
+EntityDistributionEntry = namedtuple('EntityDistributionEntry', 'weight, entityobject controller')
 class EntityDistribution(VersionBase):
     """The EntityDistribution class creates the entity distribution
     for OpenScenario.
@@ -1762,8 +1763,8 @@ class EntityDistribution(VersionBase):
             list[Controller],
         ] = None,
     ):
-        self.weight = convert_float(weight)
-        if self.weight < 0:
+        weight = convert_float(weight)
+        if weight < 0:
             raise ValueError("Weight must be a non-negative value")
 
         if not isinstance(
@@ -1785,7 +1786,7 @@ class EntityDistribution(VersionBase):
                     )
 
         self.entity_distribution_entries.append(
-            [self.weight, entityobject, controller]
+            EntityDistributionEntry(weight, entityobject, controller)
         )
 
     @staticmethod
@@ -1890,20 +1891,20 @@ class EntityDistribution(VersionBase):
         element = ET.Element("EntityDistribution")
         for entry in self.entity_distribution_entries:
             # Unpack tuple: (weight, entityobject, controller)
-            weight, entityobject, controller = entry
+            # weight, entityobject, controller = entry
             entry_el = ET.Element(
-                "EntityDistributionEntry", attrib={"weight": str(weight)}
+                "EntityDistributionEntry", attrib={"weight": str(entry.weight)}
             )
             scenario_object_template_element = ET.SubElement(
                 entry_el, "ScenarioObjectTemplate"
             )
-            scenario_object_template_element.append(entityobject.get_element())
-            if controller:
+            scenario_object_template_element.append(entry.entityobject.get_element())
+            if entry.controller:
                 # Support both single and multiple controllers
                 controllers = (
-                    controller
-                    if isinstance(controller, list)
-                    else [controller]
+                    entry.controller
+                    if isinstance(entry.controller, list)
+                    else [entry.controller]
                 )
                 for cnt in controllers:
                     objcont = ET.SubElement(

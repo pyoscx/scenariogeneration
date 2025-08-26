@@ -1242,7 +1242,7 @@ class TestTrafficSourceAction:
             )
         assert (
             str(excinfo.value)
-            == "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
 
@@ -2174,7 +2174,7 @@ class TestTrafficSwarmAction:
             )
         assert (
             str(excinfo.value)
-            == "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
     def test_not_direction_of_travel(self, shared_data, traffic_distribution):

@@ -5337,7 +5337,7 @@ class TrafficSourceAction(_ActionType):
         The radius of the source around the position.
     position : _PositionType
         Any Position to define the source.
-    trafficdistribution : TrafficDefinition or TrafficDistribution
+    trafficdefinition : TrafficDefinition or TrafficDistribution
         Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float, optional
         Starting velocity of the traffic. Default is None.
@@ -5353,7 +5353,7 @@ class TrafficSourceAction(_ActionType):
         The radius of the source around the position.
     position : _PositionType
         Any Position to define the source.
-    trafficdistribution : TrafficDefinition or TrafficDistribution
+    trafficdefinition : TrafficDefinition or TrafficDistribution
         Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float, optional
         Starting velocity of the traffic. Default is None.
@@ -5377,7 +5377,7 @@ class TrafficSourceAction(_ActionType):
         rate: float,
         radius: float,
         position: _PositionType,
-        trafficdistribution: Union[TrafficDefinition, TrafficDistribution],
+        trafficdefinition: Union[TrafficDefinition, TrafficDistribution],
         velocity: Optional[float] = None,
         name: Optional[str] = None,
     ):
@@ -5391,7 +5391,7 @@ class TrafficSourceAction(_ActionType):
             The radius of the source around the position.
         position : _PositionType
             Any Position to define the source.
-        trafficdistribution : TrafficDefinition
+        trafficdefinition : TrafficDefinition
             Definition of the traffic.
         velocity : float, optional
             Starting velocity of the traffic. Default is None.
@@ -5405,13 +5405,13 @@ class TrafficSourceAction(_ActionType):
             raise TypeError("position input is not a valid Position")
 
         if not isinstance(
-            trafficdistribution, (TrafficDefinition, TrafficDistribution)
+            trafficdefinition, (TrafficDefinition, TrafficDistribution)
         ):
             raise TypeError(
-                "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+                "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
             )
         self.position = position
-        self.trafficdistribution = trafficdistribution
+        self.trafficdefinition = trafficdefinition
         self.velocity = convert_float(velocity)
         self.name = name
 
@@ -5420,7 +5420,7 @@ class TrafficSourceAction(_ActionType):
             isinstance(other, TrafficSourceAction)
             and self.get_attributes() == other.get_attributes()
             and self.position == other.position
-            and self.trafficdistribution == other.trafficdistribution
+            and self.trafficdefinition == other.trafficdefinition
             and self.name == other.name
         ):
             return True
@@ -5498,13 +5498,13 @@ class TrafficSourceAction(_ActionType):
             traffic_attrib = {"trafficName": self.name}
 
         if isinstance(
-            self.trafficdistribution, TrafficDefinition
+            self.trafficdefinition, TrafficDefinition
         ) and self.isVersionEqLarger(minor=3):
             raise OpenSCENARIOVersionError(
                 "TrafficSourceAction with TrafficDefinition was depricated in OSC 1.3"
             )
         if isinstance(
-            self.trafficdistribution, TrafficDistribution
+            self.trafficdefinition, TrafficDistribution
         ) and self.isVersionEqLess(minor=2):
             raise OpenSCENARIOVersionError(
                 "TrafficSourceAction with TrafficDistribution was first introduced in OSC 1.3"
@@ -5517,7 +5517,7 @@ class TrafficSourceAction(_ActionType):
             trafficaction, "TrafficSourceAction", attrib=self.get_attributes()
         )
         sourceaction.append(self.position.get_element())
-        sourceaction.append(self.trafficdistribution.get_element())
+        sourceaction.append(self.trafficdefinition.get_element())
 
         return element
 
@@ -5534,7 +5534,7 @@ class TrafficSinkAction(_ActionType):
         The radius of the sink around the position.
     position : _PositionType
         Any Position to define the sink.
-    trafficdistribution : TrafficDefinition
+    trafficdefinition : TrafficDefinition
         Definition of the traffic.
     name : str, optional
         Name of the TrafficAction, can be used to stop the TrafficAction
@@ -5548,7 +5548,7 @@ class TrafficSinkAction(_ActionType):
         The radius of the sink around the position.
     position : _PositionType
         Any Position to define the sink.
-    trafficdistribution : TrafficDefinition
+    trafficdefinition : TrafficDefinition
         Definition of the traffic.
     name : str
         Name of the TrafficAction, can be used to stop the TrafficAction
@@ -5717,7 +5717,7 @@ class TrafficSwarmAction(_ActionType):
         Maximum number of vehicles around the entity.
     centralobject : str
         Entity to swarm around.
-    trafficdistribution : TrafficDefinition or TrafficDistribution
+    trafficdefinition : TrafficDefinition or TrafficDistribution
         Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float or Range, optional
         Starting velocity (Range replaces velocity in OSC V1.2).
@@ -5743,7 +5743,7 @@ class TrafficSwarmAction(_ActionType):
         Maximum number of vehicles around the entity.
     centralobject : str
         Entity to swarm around.
-    trafficdistribution : TrafficDefinition or TrafficDistribution
+    trafficdefinition : TrafficDefinition or TrafficDistribution
         Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float or Range, optional
         Starting velocity. Default is None.
@@ -5773,7 +5773,7 @@ class TrafficSwarmAction(_ActionType):
         offset: float,
         numberofvehicles: int,
         centralobject: str,
-        trafficdistribution: Union[TrafficDefinition, TrafficDistribution],
+        trafficdefinition: Union[TrafficDefinition, TrafficDistribution],
         velocity: Optional[Union[float, Range]] = None,
         name: Optional[str] = None,
         direction_of_travel: Optional[DirectionOfTravelDistribution] = None,
@@ -5794,7 +5794,7 @@ class TrafficSwarmAction(_ActionType):
             Maximum number of vehicles around the entity.
         centralobject : str
             Entity to swarm around.
-        trafficdistribution : TrafficDefinition or TrafficDistribution
+        trafficdefinition : TrafficDefinition or TrafficDistribution
         Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
         velocity : float, optional
             Starting velocity. Default is None.
@@ -5812,12 +5812,12 @@ class TrafficSwarmAction(_ActionType):
         self.numberofvehicles = convert_int(numberofvehicles)
         self.centralobject = centralobject
         if not isinstance(
-            trafficdistribution, (TrafficDefinition, TrafficDistribution)
+            trafficdefinition, (TrafficDefinition, TrafficDistribution)
         ):
             raise TypeError(
-                "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+                "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
             )
-        self.trafficdistribution = trafficdistribution
+        self.trafficdefinition = trafficdefinition
         if velocity is not None:
             if isinstance(velocity, Range):
                 self.velocity = velocity
@@ -5839,7 +5839,7 @@ class TrafficSwarmAction(_ActionType):
             isinstance(other, TrafficSwarmAction)
             and self.get_attributes() == other.get_attributes()
             and self.centralobject == other.centralobject
-            and self.trafficdistribution == other.trafficdistribution
+            and self.trafficdefinition == other.trafficdefinition
             and self.velocity == other.velocity
             and self.direction_of_travel == other.direction_of_travel
         ):
@@ -5954,18 +5954,18 @@ class TrafficSwarmAction(_ActionType):
         )
 
         if isinstance(
-            self.trafficdistribution, TrafficDefinition
+            self.trafficdefinition, TrafficDefinition
         ) and self.isVersionEqLarger(minor=3):
             raise OpenSCENARIOVersionError(
                 "TrafficSourceAction with TrafficDefinition was depricated in OSC 1.3"
             )
         if isinstance(
-            self.trafficdistribution, TrafficDistribution
+            self.trafficdefinition, TrafficDistribution
         ) and self.isVersionEqLess(minor=2):
             raise OpenSCENARIOVersionError(
                 "TrafficSourceAction with TrafficDistribution was first introduced in OSC 1.3"
             )
-        swarmaction.append(self.trafficdistribution.get_element())
+        swarmaction.append(self.trafficdefinition.get_element())
         ET.SubElement(
             swarmaction,
             "CentralObject",
