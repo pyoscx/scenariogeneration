@@ -13,7 +13,6 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import importlib
 import os
 import sys
-import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -248,30 +247,3 @@ def test_ODR(python_file, test_folder, tmpdir):
     old_xodr.find("header").attrib["date"] = ""
     new_xodr.find("header").attrib["date"] = ""
     assert etree.tostring(old_xodr) == etree.tostring(new_xodr)
-
-
-params = []
-ids = []
-for version, files in OSC_FILES.items():
-    for file_name in files:
-        params.append((file_name, version))
-        ids.append(f"{file_name}_v{version}")
-
-@pytest.mark.parametrize("params", params, ids=ids)
-def test_xosc_schema_validation(params, test_folder):
-    sys.path.insert(
-        1,
-        os.path.join(
-            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
-        ),
-    )
-    python_file , version = params[0], params[1]
-
-    xosc_file = (
-            test_folder[0] / f"osc_version_{version}" / "xosc" / f"{python_file}0.xosc"
-    )
-
-    with open(xosc_file, "r", encoding="utf-8") as f:
-        loaded_xosc = ET.parse(f)
-    scenario = xosc.validate_schema(loaded_xosc)
-    assert scenario is True

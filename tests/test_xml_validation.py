@@ -4,11 +4,12 @@ import sys
 
 import pytest
 import xmlschema
+import xml.etree.ElementTree as ET
 
+from scenariogeneration import xosc
 
-@pytest.mark.parametrize(
-    "python_file",
-    [
+OSC_FILES = {
+    0: [
         "Acceleration_condition",
         "end_of_road_reset_traffic",
         "multi_conditional_and_triggers",
@@ -23,32 +24,7 @@ import xmlschema
         "trajectory_example",
         "withcontroller",
     ],
-)
-def test_OSC_1_0(tmpdir, python_file):
-    sys.path.insert(
-        1,
-        os.path.join(
-            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
-        ),
-    )
-    validator = xmlschema.XMLSchema(
-        os.path.join(
-            os.path.split(__file__)[0],
-            os.pardir,
-            "schemas",
-            "OpenSCENARIO_1_0.xsd",
-        )
-    )
-    imp = importlib.import_module(python_file)
-    sce = imp.Scenario()
-    sce.open_scenario_version = 0
-    xosc, _ = sce.generate(tmpdir)
-    validator.validate(xosc[0])
-
-
-@pytest.mark.parametrize(
-    "python_file",
-    [
+    1: [
         "Acceleration_condition",
         "end_of_road_reset_traffic",
         "multi_conditional_and_triggers",
@@ -64,32 +40,7 @@ def test_OSC_1_0(tmpdir, python_file):
         "trajectory_example",
         "withcontroller",
     ],
-)
-def test_OSC_1_1(tmpdir, python_file):
-    sys.path.insert(
-        1,
-        os.path.join(
-            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
-        ),
-    )
-    validator = xmlschema.XMLSchema(
-        os.path.join(
-            os.path.split(__file__)[0],
-            os.pardir,
-            "schemas",
-            "OpenSCENARIO_1_1.xsd",
-        )
-    )
-    imp = importlib.import_module(python_file)
-    sce = imp.Scenario()
-    sce.open_scenario_version = 1
-    xosc, _ = sce.generate(tmpdir)
-    validator.validate(xosc[0])
-
-
-@pytest.mark.parametrize(
-    "python_file",
-    [
+    2: [
         "Acceleration_condition",
         "end_of_road_reset_traffic",
         "multi_conditional_and_triggers",
@@ -107,32 +58,7 @@ def test_OSC_1_1(tmpdir, python_file):
         "withcontroller",
         "variable_usage",
     ],
-)
-def test_OSC_1_2(tmpdir, python_file):
-    sys.path.insert(
-        1,
-        os.path.join(
-            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
-        ),
-    )
-    validator = xmlschema.XMLSchema(
-        os.path.join(
-            os.path.split(__file__)[0],
-            os.pardir,
-            "schemas",
-            "OpenSCENARIO_1_2.xsd",
-        )
-    )
-    imp = importlib.import_module(python_file)
-    sce = imp.Scenario()
-    sce.open_scenario_version = 2
-    xosc, _ = sce.generate(tmpdir)
-    validator.validate(xosc[0])
-
-
-@pytest.mark.parametrize(
-    "python_file",
-    [
+    3:    [
         "Acceleration_condition",
         "end_of_road_reset_traffic",
         "multi_conditional_and_triggers",
@@ -153,28 +79,82 @@ def test_OSC_1_2(tmpdir, python_file):
         "clothoid_spline_shape_trajectory",
         "trailer_example",
     ],
-)
-def test_OSC_1_3(tmpdir, python_file):
+}
+
+@pytest.fixture(scope="session", name="test_folder")
+def create_test_files(tmp_path_factory):
+
+    """ Uncomment the line below to generate files that will be used for
+    regression tests. Then the files will be compared between two versions
+    of scenariogeneration. Can be used as robustness tests
+    """
+    regression_test_folder = None
+    # regression_test_folder = Path("regression_files")
+
     sys.path.insert(
         1,
         os.path.join(
             os.path.split(__file__)[0], os.pardir, "examples", "xosc"
         ),
     )
-    validator = xmlschema.XMLSchema(
+    sys.path.insert(
+        1,
         os.path.join(
-            os.path.split(__file__)[0],
-            os.pardir,
-            "schemas",
-            "OpenSCENARIO_1_3_1.xsd",
-        )
+            os.path.split(__file__)[0], os.pardir, "examples", "xodr"
+        ),
     )
-    imp = importlib.import_module(python_file)
-    sce = imp.Scenario()
-    sce.open_scenario_version = 3
-    xosc, _ = sce.generate(tmpdir)
-    validator.validate(xosc[0])
 
+    def generate_files(test_folder):
+        for version, files in OSC_FILES.items():
+            version_dir = test_folder / f"osc_version_{version}"
+            version_dir.mkdir(exist_ok=True)
+            for file_name in files:
+                try:
+                    imp = importlib.import_module(file_name)
+                    sce = imp.Scenario()
+                    sce.open_scenario_version = version
+                    xosc, _ = sce.generate(version_dir)
+                except Exception as e:
+                    print(f"Error generating {file_name} for version {version}: {e}")
+
+    if regression_test_folder is None:
+        regression_test_folder = tmp_path_factory.mktemp("test_dir")
+        generate_files(regression_test_folder)
+        use_as_regression = False
+    else:
+        if not regression_test_folder.exists():
+            regression_test_folder.mkdir()
+            generate_files(regression_test_folder)
+        use_as_regression = True
+
+    return regression_test_folder.absolute(), use_as_regression
+
+
+params = []
+ids = []
+for version, files in OSC_FILES.items():
+    for file_name in files:
+        params.append((file_name, version))
+        ids.append(f"{file_name}_v{version}")
+
+@pytest.mark.parametrize("params", params, ids=ids)
+def test_xosc_schema_validation(params, test_folder):
+    sys.path.insert(
+        1,
+        os.path.join(
+            os.path.split(__file__)[0], os.pardir, "examples", "xosc"
+        ),
+    )
+    python_file , version = params[0], params[1]
+
+    xosc_file = (
+            test_folder[0] / f"osc_version_{version}" / "xosc" / f"{python_file}0.xosc"
+    )
+
+    with open(xosc_file, "r", encoding="utf-8") as f:
+        loaded_xosc = ET.parse(f)
+    scenario = xosc.validate_schema(loaded_xosc)
+    assert scenario is True
 
 @pytest.mark.parametrize(
     "python_file",
