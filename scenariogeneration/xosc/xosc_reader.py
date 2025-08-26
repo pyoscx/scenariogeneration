@@ -166,8 +166,8 @@ def CatalogReader(catalog_reference, catalog_path):
     loaded_catalog = catalog_reference.catalogname
 
     with open(
-            os.path.join(catalog_path, catalog_reference.catalogname + ".xosc"),
-            "r",
+        os.path.join(catalog_path, catalog_reference.catalogname + ".xosc"),
+        "r",
     ) as f:
         loaded_catalog = ET.parse(f)
 
@@ -226,6 +226,7 @@ def ParameterDeclarationReader(file_path):
 
     return param_decl
 
+
 def validate_schema(loaded_xosc: ET.ElementTree) -> bool:
     """validate_schema checks if the loaded xosc file is valid according to
     the OpenSCENARIO schema. It returns True if valid, False otherwise.
@@ -245,15 +246,12 @@ def validate_schema(loaded_xosc: ET.ElementTree) -> bool:
     xsd_path = os.path.join(
         Path.cwd(),
         "schemas",
-        "OpenSCENARIO_"
-        + major_version
-        + "_"
-        + minor_version
-        + ".xsd",
+        "OpenSCENARIO_" + major_version + "_" + minor_version + ".xsd",
     )
     schema = xmlschema.XMLSchema(xsd_path)
     matched = schema.is_valid(loaded_xosc)
     return matched
+
 
 def ParseOpenScenario(file_path):
     """ParseOpenScenario parses a openscenario file (of any type) and returns
@@ -270,7 +268,9 @@ def ParseOpenScenario(file_path):
     with open(file_path, "r", encoding="utf-8") as f:
         loaded_xosc = ET.parse(f)
         if not validate_schema(loaded_xosc):
-            warnings.warn("The provided file is not valid according to the OpenSCENARIO schema.")
+            warnings.warn(
+                "The provided file is not valid according to the OpenSCENARIO schema."
+            )
         if loaded_xosc.find("ParameterValueDistribution") is not None:
             return ParameterValueDistribution.parse(loaded_xosc)
         elif loaded_xosc.find("Catalog") is not None:

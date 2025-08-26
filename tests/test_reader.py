@@ -377,6 +377,7 @@ def test_osc_reader_parameter(tmpdir, parameter_fixture):
     prettyprint(scenario)
     assert parameter_fixture == scenario
 
+
 def test_schema_validation(tmpdir, parameter_fixture):
     tmpfile = os.path.join(tmpdir, "myscenario.xosc")
     parameter_fixture.write_xml(tmpfile)

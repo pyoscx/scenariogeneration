@@ -58,7 +58,7 @@ OSC_FILES = {
         "withcontroller",
         "variable_usage",
     ],
-    3:    [
+    3: [
         "Acceleration_condition",
         "end_of_road_reset_traffic",
         "multi_conditional_and_triggers",
@@ -81,10 +81,10 @@ OSC_FILES = {
     ],
 }
 
+
 @pytest.fixture(scope="session", name="test_folder")
 def create_test_files(tmp_path_factory):
-
-    """ Uncomment the line below to generate files that will be used for
+    """Uncomment the line below to generate files that will be used for
     regression tests. Then the files will be compared between two versions
     of scenariogeneration. Can be used as robustness tests
     """
@@ -115,7 +115,9 @@ def create_test_files(tmp_path_factory):
                     sce.open_scenario_version = version
                     xosc, _ = sce.generate(version_dir)
                 except Exception as e:
-                    print(f"Error generating {file_name} for version {version}: {e}")
+                    print(
+                        f"Error generating {file_name} for version {version}: {e}"
+                    )
 
     if regression_test_folder is None:
         regression_test_folder = tmp_path_factory.mktemp("test_dir")
@@ -137,6 +139,7 @@ for version, files in OSC_FILES.items():
         params.append((file_name, version))
         ids.append(f"{file_name}_v{version}")
 
+
 @pytest.mark.parametrize("params", params, ids=ids)
 def test_xosc_schema_validation(params, test_folder):
     sys.path.insert(
@@ -145,16 +148,20 @@ def test_xosc_schema_validation(params, test_folder):
             os.path.split(__file__)[0], os.pardir, "examples", "xosc"
         ),
     )
-    python_file , version = params[0], params[1]
+    python_file, version = params[0], params[1]
 
     xosc_file = (
-            test_folder[0] / f"osc_version_{version}" / "xosc" / f"{python_file}0.xosc"
+        test_folder[0]
+        / f"osc_version_{version}"
+        / "xosc"
+        / f"{python_file}0.xosc"
     )
 
     with open(xosc_file, "r", encoding="utf-8") as f:
         loaded_xosc = ET.parse(f)
     scenario = xosc.validate_schema(loaded_xosc)
     assert scenario is True
+
 
 @pytest.mark.parametrize(
     "python_file",
