@@ -34,7 +34,8 @@ from .exceptions import (
     ToManyOptionalArguments,
 )
 from .parameters import Range
-from .position import Route, Trajectory, _PositionFactory
+from .position import Route, Trajectory, _PositionFactory, Polygon, RoadRange
+from .entities import TrafficDistribution
 from .utils import (
     AbsoluteSpeed,
     AnimationFile,
@@ -103,6 +104,8 @@ class _GlobalActionFactory:
             return TrafficSinkAction.parse(element)
         if element.findall("TrafficAction/TrafficSwarmAction"):
             return TrafficSwarmAction.parse(element)
+        if element.findall("TrafficAction/TrafficAreaAction"):
+            return TrafficAreaAction.parse(element)
         if element.findall("TrafficAction/TrafficStopAction"):
             return TrafficStopAction.parse(element)
 
@@ -5482,8 +5485,8 @@ class TrafficSourceAction(_ActionType):
         The radius of the source around the position.
     position : _PositionType
         Any Position to define the source.
-    trafficdefinition : TrafficDefinition
-        Definition of the traffic.
+    trafficdistribution : TrafficDefinition or TrafficDistribution
+        Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float, optional
         Starting velocity of the traffic. Default is None.
     name : str, optional
@@ -5498,8 +5501,8 @@ class TrafficSourceAction(_ActionType):
         The radius of the source around the position.
     position : _PositionType
         Any Position to define the source.
-    trafficdefinition : TrafficDefinition
-        Definition of the traffic.
+    trafficdistribution : TrafficDefinition or TrafficDistribution
+        Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float, optional
         Starting velocity of the traffic. Default is None.
     name : str, optional
@@ -5522,7 +5525,7 @@ class TrafficSourceAction(_ActionType):
         rate: float,
         radius: float,
         position: _PositionType,
-        trafficdefinition: TrafficDefinition,
+        trafficdistribution: Union[TrafficDefinition, TrafficDistribution],
         velocity: Optional[float] = None,
         name: Optional[str] = None,
     ):
@@ -5536,7 +5539,7 @@ class TrafficSourceAction(_ActionType):
             The radius of the source around the position.
         position : _PositionType
             Any Position to define the source.
-        trafficdefinition : TrafficDefinition
+        trafficdistribution : TrafficDefinition
             Definition of the traffic.
         velocity : float, optional
             Starting velocity of the traffic. Default is None.
@@ -5549,24 +5552,26 @@ class TrafficSourceAction(_ActionType):
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
 
-        if not isinstance(trafficdefinition, TrafficDefinition):
+        if not isinstance(
+            trafficdistribution, (TrafficDefinition, TrafficDistribution)
+        ):
             raise TypeError(
-                "trafficdefinition input is not of type TrafficDefinition"
+                "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
             )
         self.position = position
-        self.trafficdefinition = trafficdefinition
+        self.trafficdistribution = trafficdistribution
         self.velocity = convert_float(velocity)
         self.name = name
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, TrafficSourceAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-                and self.trafficdefinition == other.trafficdefinition
-                and self.name == other.name
-            ):
-                return True
+        if (
+            isinstance(other, TrafficSourceAction)
+            and self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+            and self.trafficdistribution == other.trafficdistribution
+            and self.name == other.name
+        ):
+            return True
         return False
 
     @staticmethod
@@ -5600,12 +5605,19 @@ class TrafficSourceAction(_ActionType):
         position = _PositionFactory.parse_position(
             find_mandatory_field(tsa_element, "Position")
         )
-        trafficdefinition = TrafficDefinition.parse(
-            find_mandatory_field(tsa_element, "TrafficDefinition")
-        )
+
+        traffic = None
+        if tsa_element.find("TrafficDefinition") is not None:
+            traffic = TrafficDefinition.parse(
+                find_mandatory_field(tsa_element, "TrafficDefinition")
+            )
+        elif tsa_element.find("TrafficDistribution") is not None:
+            traffic = TrafficDistribution.parse(
+                find_mandatory_field(tsa_element, "TrafficDistribution")
+            )
 
         return TrafficSourceAction(
-            rate, radius, position, trafficdefinition, velocity, name
+            rate, radius, position, traffic, velocity, name
         )
 
     def get_attributes(self) -> dict:
@@ -5633,6 +5645,19 @@ class TrafficSourceAction(_ActionType):
         if self.name and not self.isVersion(minor=0):
             traffic_attrib = {"trafficName": self.name}
 
+        if isinstance(
+            self.trafficdistribution, TrafficDefinition
+        ) and self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficSourceAction with TrafficDefinition was depricated in OSC 1.3"
+            )
+        if isinstance(
+            self.trafficdistribution, TrafficDistribution
+        ) and self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "TrafficSourceAction with TrafficDistribution was first introduced in OSC 1.3"
+            )
+
         trafficaction = ET.SubElement(
             element, "TrafficAction", attrib=traffic_attrib
         )
@@ -5640,7 +5665,7 @@ class TrafficSourceAction(_ActionType):
             trafficaction, "TrafficSourceAction", attrib=self.get_attributes()
         )
         sourceaction.append(self.position.get_element())
-        sourceaction.append(self.trafficdefinition.get_element())
+        sourceaction.append(self.trafficdistribution.get_element())
 
         return element
 
@@ -5657,7 +5682,7 @@ class TrafficSinkAction(_ActionType):
         The radius of the sink around the position.
     position : _PositionType
         Any Position to define the sink.
-    trafficdefinition : TrafficDefinition
+    trafficdistribution : TrafficDefinition
         Definition of the traffic.
     name : str, optional
         Name of the TrafficAction, can be used to stop the TrafficAction
@@ -5671,7 +5696,7 @@ class TrafficSinkAction(_ActionType):
         The radius of the sink around the position.
     position : _PositionType
         Any Position to define the sink.
-    trafficdefinition : TrafficDefinition
+    trafficdistribution : TrafficDefinition
         Definition of the traffic.
     name : str
         Name of the TrafficAction, can be used to stop the TrafficAction
@@ -5692,7 +5717,7 @@ class TrafficSinkAction(_ActionType):
         self,
         radius: float,
         position: _PositionType,
-        trafficdefinition: TrafficDefinition,
+        trafficdefinition: Optional[TrafficDefinition] = None,
         rate: Optional[float] = None,
         name: Optional[str] = None,
     ):
@@ -5717,7 +5742,9 @@ class TrafficSinkAction(_ActionType):
         if not isinstance(position, _PositionType):
             raise TypeError("position input is not a valid Position")
 
-        if not isinstance(trafficdefinition, TrafficDefinition):
+        if trafficdefinition and not isinstance(
+            trafficdefinition, TrafficDefinition
+        ):
             raise TypeError(
                 "trafficdefinition input is not of type TrafficDefinition"
             )
@@ -5726,13 +5753,13 @@ class TrafficSinkAction(_ActionType):
         self.name = name
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, TrafficSinkAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.position == other.position
-                and self.trafficdefinition == other.trafficdefinition
-            ):
-                return True
+        if (
+            isinstance(other, TrafficSinkAction)
+            and self.get_attributes() == other.get_attributes()
+            and self.position == other.position
+            and self.trafficdefinition == other.trafficdefinition
+        ):
+            return True
         return False
 
     @staticmethod
@@ -5760,7 +5787,7 @@ class TrafficSinkAction(_ActionType):
         rate = None
         if "rate" in tsa_element.attrib:
             rate = convert_float(tsa_element.attrib["rate"])
-
+        trafficdefinition = None
         if tsa_element.find("TrafficDefinition") is not None:
             trafficdefinition = TrafficDefinition.parse(
                 find_mandatory_field(tsa_element, "TrafficDefinition")
@@ -5783,8 +5810,8 @@ class TrafficSinkAction(_ActionType):
             A dictionary containing the attributes of the TrafficSinkAction.
         """
         retdict = {}
-
-        retdict["rate"] = str(self.rate)
+        if self.rate:
+            retdict["rate"] = str(self.rate)
         retdict["radius"] = str(self.radius)
         return retdict
 
@@ -5796,6 +5823,12 @@ class TrafficSinkAction(_ActionType):
         ET.Element
             The XML element representing the TrafficSinkAction.
         """
+        if self.trafficdefinition is not None and self.isVersionEqLarger(
+            minor=3
+        ):
+            raise OpenSCENARIOVersionError(
+                "TrafficSinkAction with TrafficDefinition was depricated in OSC 1.3"
+            )
 
         element = ET.Element("GlobalAction")
         traffic_attrib = {}
@@ -5808,7 +5841,8 @@ class TrafficSinkAction(_ActionType):
             trafficaction, "TrafficSinkAction", attrib=self.get_attributes()
         )
         sinkaction.append(self.position.get_element())
-        sinkaction.append(self.trafficdefinition.get_element())
+        if self.trafficdefinition:
+            sinkaction.append(self.trafficdefinition.get_element())
 
         return element
 
@@ -5831,8 +5865,8 @@ class TrafficSwarmAction(_ActionType):
         Maximum number of vehicles around the entity.
     centralobject : str
         Entity to swarm around.
-    trafficdefinition : TrafficDefinition
-        Definition of the traffic.
+    trafficdistribution : TrafficDefinition or TrafficDistribution
+        Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float or Range, optional
         Starting velocity (Range replaces velocity in OSC V1.2).
         Default is None.
@@ -5857,8 +5891,8 @@ class TrafficSwarmAction(_ActionType):
         Maximum number of vehicles around the entity.
     centralobject : str
         Entity to swarm around.
-    trafficdefinition : TrafficDefinition
-        Definition of the traffic.
+    trafficdistribution : TrafficDefinition or TrafficDistribution
+        Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
     velocity : float or Range, optional
         Starting velocity. Default is None.
     name : str, optional
@@ -5887,7 +5921,7 @@ class TrafficSwarmAction(_ActionType):
         offset: float,
         numberofvehicles: int,
         centralobject: str,
-        trafficdefinition: TrafficDefinition,
+        trafficdistribution: Union[TrafficDefinition, TrafficDistribution],
         velocity: Optional[Union[float, Range]] = None,
         name: Optional[str] = None,
         direction_of_travel: Optional[DirectionOfTravelDistribution] = None,
@@ -5908,8 +5942,8 @@ class TrafficSwarmAction(_ActionType):
             Maximum number of vehicles around the entity.
         centralobject : str
             Entity to swarm around.
-        trafficdefinition : TrafficDefinition
-            Definition of the traffic.
+        trafficdistribution : TrafficDefinition or TrafficDistribution
+        Definition of the traffic. TrafficDistribution replace TrafficDefinition from V1.3
         velocity : float, optional
             Starting velocity. Default is None.
         name : str, optional
@@ -5925,11 +5959,13 @@ class TrafficSwarmAction(_ActionType):
         self.offset = convert_float(offset)
         self.numberofvehicles = convert_int(numberofvehicles)
         self.centralobject = centralobject
-        if not isinstance(trafficdefinition, TrafficDefinition):
+        if not isinstance(
+            trafficdistribution, (TrafficDefinition, TrafficDistribution)
+        ):
             raise TypeError(
-                "trafficdefinition input is not of type TrafficDefinition"
+                "trafficdistribution input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
             )
-        self.trafficdefinition = trafficdefinition
+        self.trafficdistribution = trafficdistribution
         if velocity is not None:
             if isinstance(velocity, Range):
                 self.velocity = velocity
@@ -5947,14 +5983,15 @@ class TrafficSwarmAction(_ActionType):
         self.direction_of_travel = direction_of_travel
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, TrafficSwarmAction):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.centralobject == other.centralobject
-                and self.trafficdefinition == other.trafficdefinition
-                and self.name == other.name
-            ):
-                return True
+        if (
+            isinstance(other, TrafficSwarmAction)
+            and self.get_attributes() == other.get_attributes()
+            and self.centralobject == other.centralobject
+            and self.trafficdistribution == other.trafficdistribution
+            and self.velocity == other.velocity
+            and self.direction_of_travel == other.direction_of_travel
+        ):
+            return True
         return False
 
     @staticmethod
@@ -5987,14 +6024,21 @@ class TrafficSwarmAction(_ActionType):
         velocity = None
         if "velocity" in tsa_element.attrib:
             velocity = convert_float(tsa_element.attrib["velocity"])
-        elif tsa_element.find("InitalSpeedRange") is not None:
+        elif tsa_element.find("InitialSpeedRange") is not None:
             velocity = Range.parse(
-                find_mandatory_field(tsa_element, "InitalSpeedRange")
+                find_mandatory_field(tsa_element, "InitialSpeedRange")
             )
 
-        trafficdefinition = TrafficDefinition.parse(
-            find_mandatory_field(tsa_element, "TrafficDefinition")
-        )
+        traffic = None
+        if tsa_element.find("TrafficDefinition") is not None:
+            traffic = TrafficDefinition.parse(
+                find_mandatory_field(tsa_element, "TrafficDefinition")
+            )
+        elif tsa_element.find("TrafficDistribution") is not None:
+            traffic = TrafficDistribution.parse(
+                find_mandatory_field(tsa_element, "TrafficDistribution")
+            )
+
         dot = None
         if tsa_element.find("DirectionOfTravelDistribution") is not None:
             dot = DirectionOfTravelDistribution.parse(
@@ -6004,7 +6048,6 @@ class TrafficSwarmAction(_ActionType):
             )
         central_element = find_mandatory_field(tsa_element, "CentralObject")
         centralobject = central_element.attrib["entityRef"]
-
         tsa_object = TrafficSwarmAction(
             semimajoraxis,
             semiminoraxis,
@@ -6012,7 +6055,7 @@ class TrafficSwarmAction(_ActionType):
             offset,
             numberofvehicles,
             centralobject,
-            trafficdefinition,
+            traffic,
             velocity,
             name,
             dot,
@@ -6057,7 +6100,20 @@ class TrafficSwarmAction(_ActionType):
         swarmaction = ET.SubElement(
             trafficaction, "TrafficSwarmAction", attrib=self.get_attributes()
         )
-        swarmaction.append(self.trafficdefinition.get_element())
+
+        if isinstance(
+            self.trafficdistribution, TrafficDefinition
+        ) and self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficSourceAction with TrafficDefinition was depricated in OSC 1.3"
+            )
+        if isinstance(
+            self.trafficdistribution, TrafficDistribution
+        ) and self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "TrafficSourceAction with TrafficDistribution was first introduced in OSC 1.3"
+            )
+        swarmaction.append(self.trafficdistribution.get_element())
         ET.SubElement(
             swarmaction,
             "CentralObject",
@@ -6081,6 +6137,216 @@ class TrafficSwarmAction(_ActionType):
                     "DirectionOfTravelDistribution was added in OSC V1.2"
                 )
             swarmaction.append(self.direction_of_travel.get_element())
+
+        return element
+
+
+class TrafficAreaAction(_ActionType):
+    """The TrafficAreaAction class creates a TrafficAction of the type
+    TrafficAreaAction.
+
+    Parameters
+    ----------
+    continuous : bool
+        If False, traffic is spawned once and then the action ends.
+        If True, traffic is spawned continuously and despawned as it leaves
+        the area.
+    numberofentities : int
+        Maximum number of spawned entities in the area.
+    trafficdistribution : TrafficDistribution
+        Distribution of the traffic in the area.
+    trafficarea : Polygon | RoadRange | list[RoadRange]
+        Area where the traffic is spawned.
+    name : str, optional
+        Name of the TrafficAction, can be used to stop the TrafficAction
+        (valid from V1.1). Default is None.
+
+    Attributes
+    ----------
+    continuous : bool
+        If False, traffic is spawned once and then the action ends.
+        If True, traffic is spawned continuously and despawned as it leaves
+        the area.
+    numberofentities : int
+        Maximum number of spawned entities in the area.
+    trafficdistribution : TrafficDistribution
+        Distribution of the traffic in the area.
+    trafficarea : Polygon | RoadRange | list[RoadRange]
+        Area where the traffic is spawned.
+    name : str, optional
+        Name of the TrafficAction, can be used to stop the TrafficAction
+        (valid from V1.1). Default is None.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    def __init__(
+        self,
+        continuous: bool,
+        numberofentities: int,
+        trafficdistribution: TrafficDistribution,
+        trafficarea: Union[Polygon, RoadRange, list[RoadRange]],
+        name: Optional[str] = None,
+    ):
+        """Initialize the TrafficAreaAction.
+        Parameters
+        ----------
+        continuous : bool
+            If False, traffic is spawned once and then the action ends.
+            If True, traffic is spawned continuously and despawned as it
+            leaves the area.
+        numberofentities : int
+            Maximum number of spawned entities in the area.
+        trafficdistribution : TrafficDistribution
+            Distribution of the traffic in the area.
+        trafficarea : Polygon | RoadRange | list[RoadRange]
+            Area where the traffic is spawned.
+        name : str, optional
+            Name of the TrafficAction, can be used to stop the TrafficAction
+            (valid from V1.1). Default is None.
+        """
+        self.continuous = convert_bool(continuous)
+        self.numberofentities = convert_int(numberofentities)
+        if not isinstance(trafficdistribution, TrafficDistribution):
+            raise TypeError(
+                "trafficdistribution input is not of type TrafficDistribution"
+            )
+        self.trafficdistribution = trafficdistribution
+        if not (
+            isinstance(trafficarea, (Polygon, RoadRange))
+            or (
+                isinstance(trafficarea, list)
+                and all(isinstance(x, RoadRange) for x in trafficarea)
+            )
+        ):
+            raise TypeError(
+                "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
+            )
+        self.trafficarea = trafficarea
+        self.name = name
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, TrafficAreaAction)
+            and self.get_attributes() == other.get_attributes()
+            and self.trafficdistribution == other.trafficdistribution
+            and self.trafficarea == other.trafficarea
+            and self.name == other.name
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "TrafficAreaAction":
+        """Parse the XML element of TrafficAreaAction.
+
+        Parameters
+        ----------
+        element : xml.etree.ElementTree.Element
+            A TrafficAreaAction element (same as generated by the class
+            itself).
+
+        Returns
+        -------
+        TrafficAreaAction
+            A TrafficAreaAction object.
+        """
+        ta_element = find_mandatory_field(element, "TrafficAction")
+        name = None
+        if "trafficName" in ta_element.attrib:
+            name = ta_element.attrib["trafficName"]
+
+        taa_element = find_mandatory_field(ta_element, "TrafficAreaAction")
+
+        for elem in taa_element:
+            print(elem.tag)
+
+        continuous = convert_bool(taa_element.attrib["continuous"])
+        numberofentities = convert_int(taa_element.attrib["numberOfEntities"])
+
+        trafficdistribution = TrafficDistribution.parse(
+            find_mandatory_field(taa_element, "TrafficDistribution")
+        )
+        trafficarea_element = find_mandatory_field(taa_element, "TrafficArea")
+
+        if trafficarea_element.find("Polygon") is not None:
+            trafficarea = Polygon.parse(
+                find_mandatory_field(trafficarea_element, "Polygon")
+            )
+        elif trafficarea_element.findall("RoadRange"):
+            road_ranges = [
+                RoadRange.parse(rr)
+                for rr in trafficarea_element.findall("RoadRange")
+            ]
+            trafficarea = (
+                road_ranges if len(road_ranges) > 1 else road_ranges[0]
+            )
+
+        taa_object = TrafficAreaAction(
+            continuous,
+            numberofentities,
+            trafficdistribution,
+            trafficarea,
+            name,
+        )
+        return taa_object
+
+    def get_attributes(self) -> dict:
+        """Returns the attributes of the TrafficAreaAction as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the
+            TrafficAreaAction.
+        """
+        retdict = {}
+        retdict["continuous"] = get_bool_string(self.continuous)
+        retdict["numberOfEntities"] = str(self.numberofentities)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the elementTree of the TrafficAreaAction.
+
+        Returns
+        -------
+        ET.Element
+            The XML element representing the TrafficAreaAction.
+        """
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficAreaAction was introduced in OpenSCENARIO V1.3"
+            )
+
+        element = ET.Element("GlobalAction")
+        traffic_attrib = {}
+        if self.name and not self.isVersion(minor=0):
+            traffic_attrib = {"trafficName": self.name}
+        trafficaction = ET.SubElement(
+            element, "TrafficAction", attrib=traffic_attrib
+        )
+
+        areaaction = ET.SubElement(
+            trafficaction, "TrafficAreaAction", attrib=self.get_attributes()
+        )
+
+        trafficarea = ET.SubElement(areaaction, "TrafficArea")
+        if isinstance(self.trafficarea, Polygon):
+            trafficarea.append(self.trafficarea.get_element())
+        elif isinstance(self.trafficarea, RoadRange):
+            trafficarea.append(self.trafficarea.get_element())
+        elif isinstance(self.trafficarea, list):
+            for rr in self.trafficarea:
+                trafficarea.append(rr.get_element())
+
+        areaaction.append(self.trafficdistribution.get_element())
+        # areaaction.append(self.trafficarea.get_element())
 
         return element
 
