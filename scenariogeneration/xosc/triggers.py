@@ -10,6 +10,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import warnings
 import xml.etree.ElementTree as ET
 from typing import Union, Optional
 
@@ -47,60 +48,6 @@ from .utils import (
     find_mandatory_field,
     get_bool_string,
 )
-
-
-class EmptyTrigger(_TriggerType):
-    """EmptyTrigger creates an empty trigger.
-
-    Parameters
-    ----------
-    triggeringpoint : str, optional
-        Start or stop. Default is "start".
-
-    Methods
-    -------
-    get_element()
-        Returns the full ElementTree of the class.
-    """
-
-    def __init__(self, triggeringpoint: str = "start") -> None:
-        """Initializes the empty trigger.
-
-        Parameters
-        ----------
-        triggeringpoint : str, optional
-            Start or stop. Default is "start".
-        """
-        if triggeringpoint not in ["start", "stop"]:
-            raise ValueError(
-                "not a valid triggering point, valid start or stop"
-            )
-        if triggeringpoint == "start":
-            self._triggerpoint = "StartTrigger"
-        else:
-            self._triggerpoint = "StopTrigger"
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, EmptyTrigger):
-            if self._triggerpoint == other._triggerpoint:
-                return True
-        elif isinstance(other, Trigger):
-            if (
-                len(other.conditiongroups) == 0
-                and self._triggerpoint == other._triggerpoint
-            ):
-                return True
-        return False
-
-    def get_element(self) -> ET.Element:
-        """Generate an XML element for the trigger point.
-
-        Returns
-        -------
-        xml.etree.ElementTree.Element
-            The XML element representing the trigger point.
-        """
-        return ET.Element(self._triggerpoint)
 
 
 class _EntityConditionFactory:
@@ -909,11 +856,20 @@ class Trigger(_TriggerType):
             An XML element containing the trigger point and its associated
             condition groups.
         """
-        """Returns the elementTree of the Trigger."""
+
         element = ET.Element(self._triggerpoint)
         for c in self.conditiongroups:
             element.append(c.get_element())
         return element
+
+
+class EmptyTrigger(Trigger):
+
+    def __init__(self, triggeringpoint: str = "start"):
+        warnings.warn(
+            "The EmptyTrigger class will be deprecated soon, please use Trigger instead"
+        )
+        super().__init__(triggeringpoint)
 
 
 class TriggeringEntities(VersionBase):
