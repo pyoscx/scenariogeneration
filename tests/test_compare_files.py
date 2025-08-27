@@ -108,8 +108,7 @@ ODR_FILES = [
 
 
 @pytest.fixture(scope="session", name="test_folder")
-def test_create_test_files(tmp_path_factory):
-
+def create_test_files(tmp_path_factory):
     regression_test_folder = None
     """ Uncomment the line below to generate files that will be used for
     regression tests. Then the files will be compared between two versions
