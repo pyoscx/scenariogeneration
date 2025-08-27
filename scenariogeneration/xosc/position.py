@@ -1750,6 +1750,9 @@ class GeoPosition(_PositionType):
         Height above surface. Default is None.
     orientation : Orientation, optional
         Orientation of the entity. Default is Orientation().
+    vertical_road_selection : int, optional
+        Specifies which road to choose at a given lat/lon when multiple roads overlap,
+         with 0 for the top road and negative values for roads below. Default is 0.
 
     Attributes
     ----------
@@ -1761,6 +1764,8 @@ class GeoPosition(_PositionType):
         Height above surface. Default is None.
     orientation : Orientation
         Orientation of the entity.
+    vertical_road_selection : int
+       Road selected at the given lat/lon when multiple roads overlap.
 
     Methods
     -------
@@ -1779,6 +1784,7 @@ class GeoPosition(_PositionType):
         longitude: float,
         height: Optional[float] = None,
         orientation: Orientation = Orientation(),
+        vertical_road_selection: int = None,
     ) -> None:
         """Initialize the GeoPosition class.
 
@@ -1792,6 +1798,9 @@ class GeoPosition(_PositionType):
             Height above surface. Default is None.
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
+        vertical_road_selection : int, optional
+            Specifies which road to choose at a given lat/lon when multiple roads overlap,
+             with 0 for the top road and negative values for roads below. Default is 0.
         """
         self.longitude = convert_float(longitude)
         self.latitude = convert_float(latitude)
@@ -1799,6 +1808,7 @@ class GeoPosition(_PositionType):
         if not isinstance(orientation, Orientation):
             raise TypeError("input orientation is not of type Orientation")
         self.orientation = orientation
+        self.vertical_road_selection = convert_int(vertical_road_selection)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, GeoPosition):
@@ -1845,13 +1855,21 @@ class GeoPosition(_PositionType):
         else:
             height = None
 
+        vertical_road_selection = None
+        if "verticalRoadSelection" in position_element.attrib:
+            vertical_road_selection = convert_int(
+                position_element.attrib["verticalRoadSelection"]
+            )
+
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
-        return GeoPosition(latitude, longitude, height, orientation)
+        return GeoPosition(
+            latitude, longitude, height, orientation, vertical_road_selection
+        )
 
     def get_attributes(self) -> dict:
         """Return the attributes of the GeoPosition as a dictionary.
@@ -1872,6 +1890,11 @@ class GeoPosition(_PositionType):
             retdict["latitudeDeg"] = str(self.latitude)
             if self.height is not None:
                 retdict["altitude"] = str(self.height)
+            if self.isVersionEqLarger(minor=3):
+                if self.vertical_road_selection is not None:
+                    retdict["verticalRoadSelection"] = str(
+                        self.vertical_road_selection
+                    )
         return retdict
 
     def get_element(self, elementname: str = "Position") -> ET.Element:
@@ -1886,7 +1909,6 @@ class GeoPosition(_PositionType):
             raise OpenSCENARIOVersionError(
                 "GeoPosition was introduced in OpenSCENARIO V1.1"
             )
-
         element = ET.Element(elementname)
         traj_element = ET.SubElement(
             element, "GeoPosition", self.get_attributes()
