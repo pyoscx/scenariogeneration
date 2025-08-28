@@ -211,6 +211,7 @@ ass = OSC.AssignControllerAction(cnt)
             OSC.DynamicsConstraints(1, 1, 1),
             "ego",
         ),
+        OSC.RandomRouteAction(),
     ],
 )
 def test_private_action_factory(action):
@@ -558,6 +559,48 @@ def test_teleport():
         version_validation("PrivateAction", teleport, 2)
         == ValidationResponse.OK
     )
+
+
+class TestRandomRouteAction:
+
+    def test_base(self):
+        ra = OSC.RandomRouteAction()
+        prettyprint(ra.get_element())
+
+    def test_eq(self):
+        ra = OSC.RandomRouteAction()
+        ra2 = OSC.RandomRouteAction()
+        assert ra == ra2
+
+    def test_neq(self):
+        ra = OSC.RandomRouteAction()
+        route = OSC.Route("myroute")
+        route.add_waypoint(
+            OSC.WorldPosition(0, 0, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+        )
+        route.add_waypoint(
+            OSC.WorldPosition(1, 1, 0, 0, 0, 0), OSC.RouteStrategy.shortest
+        )
+        ara = OSC.AssignRouteAction(route)
+        assert ra != ara
+
+    def test_parse(self):
+        ra = OSC.RandomRouteAction()
+        parsed_ra = OSC.RandomRouteAction.parse(ra.get_element())
+        assert ra == parsed_ra
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_osc_versions(self, version, expected):
+        ra = OSC.RandomRouteAction()
+        assert version_validation("PrivateAction", ra, version) == expected
 
 
 def test_assign_route():
