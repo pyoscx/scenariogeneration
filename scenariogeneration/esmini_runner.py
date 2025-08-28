@@ -170,8 +170,8 @@ def esmini(
     if disable_controllers:
         additional_args += ["--disable_controllers"]
 
-    if timestep != None:
-        additional_args += ["--fixed_timestep", str(timestep)]
+    if timestep != None and not run_with_replayer:
+        additional_args += ["--fixed_timestep", str(ts)]
 
     additional_args += [args, "--path", resource_path]
 
@@ -201,7 +201,7 @@ def esmini(
         cmd_and_args = [
             replay_executable,
             "--file",
-            record,
+            f"{record}.dat",
             "--res_path",
             os.path.join(resource_path, os.pardir),
             "--window",
