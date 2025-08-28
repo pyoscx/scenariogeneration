@@ -16,14 +16,14 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc.position import WorldPosition
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 def test_worldposition_noinput():
@@ -302,12 +302,12 @@ class TestGeoPosition:
         assert "verticalRoadSelection" not in attrs
 
     def test_equality(self, geo_pos):
-        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0)
+        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
         assert geo_pos == pos2
 
     def test_equality_v2(self, geo_pos):
         OSC.VersionBase().setVersion(minor=2)
-        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
+        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0)
         assert geo_pos == pos3
 
     def test_neq(self, geo_pos):
