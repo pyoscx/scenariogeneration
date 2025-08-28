@@ -274,6 +274,44 @@ class TestActAndStory:
         with pytest.raises(TypeError):
             story.add_act("dummy")
 
+    def test_default_starttrigger_v3(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        assert act6 != act5
+
+    def test_default_starttrigger_v2(self):
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act5 = OSC.Act("my act", starttrigger=start_trigger)
+        act6 = OSC.Act("my act")
+        act5.setVersion(1, 2)
+        act6.setVersion(1, 2)
+        assert act6 == act5
+
+    def test_get_starttrigger(self, act):
+        default_start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        act7 = OSC.Act("my act7")
+        act7.setVersion(1, 2)
+        assert act7.starttrigger == default_start_trigger
+        act8 = OSC.Act("my act8")
+        act8.setVersion(1, 3)
+        assert act8.starttrigger is None
+
 
 def test_init():
     init = OSC.Init()
