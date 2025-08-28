@@ -6418,7 +6418,7 @@ class SetMonitorAction(_ActionType):
 
     Parameters
     ----------
-    monitor_ref : Monitor
+    monitor_ref : str
         Name of the referenced monitor.
     value: bool
         New value of the monitor.
