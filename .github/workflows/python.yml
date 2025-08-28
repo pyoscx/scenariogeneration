@@ -5,10 +5,12 @@ on:
     paths:
       - .github/workflows/python.yml
       - '**.py'
+      - requirements.txt
   pull_request:
     paths:
       - .github/workflows/python.yml
       - '**.py'
+      - requirements.txt
   workflow_dispatch:
 
 jobs:
