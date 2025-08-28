@@ -302,12 +302,12 @@ class TestGeoPosition:
         assert "verticalRoadSelection" not in attrs
 
     def test_equality(self, geo_pos):
-        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0)
+        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
         assert geo_pos == pos2
 
     def test_equality_v2(self, geo_pos):
         OSC.VersionBase().setVersion(minor=2)
-        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
+        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0)
         assert geo_pos == pos3
 
     def test_neq(self, geo_pos):
