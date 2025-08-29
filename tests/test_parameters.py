@@ -65,28 +65,87 @@ def test_Stochastic():
         stoc.add_distribution("param", "dummy")
 
 
-def test_normaldistribution():
-    nd = OSC.NormalDistribution(0, 1)
-    nd2 = OSC.NormalDistribution(0, 1)
-    nd3 = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
-    prettyprint(nd)
-    prettyprint(nd3)
-    assert nd == nd2
-    assert nd != nd3
-    nd4 = OSC.NormalDistribution.parse(nd.get_element())
-    assert nd4 == nd
-    nd5 = OSC.NormalDistribution.parse(nd3.get_element())
-    assert nd5 == nd3
-    assert (
-        version_validation("NormalDistribution", nd, 1)
-        == ValidationResponse.OK
+class TestNormalDistribution:
+
+    def test_base_no_range(self):
+        nd = OSC.NormalDistribution(0, 1)
+        prettyprint(nd.get_element())
+
+    def test_base_w_range(self):
+        nd = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        prettyprint(nd.get_element())
+
+    def test_eq(self):
+        nd1 = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        nd2 = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        assert nd1 == nd2
+
+    def test_neq(self):
+        nd1 = OSC.NormalDistribution(0, 1)
+        nd2 = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        assert nd1 != nd2
+
+    def test_parse(self):
+        nd = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        parsed_nd = OSC.NormalDistribution.parse(nd.get_element())
+
+        assert nd == parsed_nd
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    assert (
-        version_validation("NormalDistribution", nd, 2)
-        == ValidationResponse.OK
+    def test_validate_xml(self, version, expected):
+        nd = OSC.NormalDistribution(0, 1, OSC.Range(0, 1))
+        assert (
+            version_validation("NormalDistribution", nd, version) == expected
+        )
+
+
+class TestLogNormalDistribution:
+
+    def test_base_no_range(self):
+        nd = OSC.LogNormalDistribution(0, 1)
+        prettyprint(nd.get_element())
+
+    def test_base_w_range(self):
+        nd = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        prettyprint(nd.get_element())
+
+    def test_eq(self):
+        nd1 = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        nd2 = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        assert nd1 == nd2
+
+    def test_neq(self):
+        nd1 = OSC.LogNormalDistribution(0, 1)
+        nd2 = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        assert nd1 != nd2
+
+    def test_parse(self):
+        nd = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        parsed_nd = OSC.LogNormalDistribution.parse(nd.get_element())
+
+        assert nd == parsed_nd
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
     )
-    with pytest.raises(TypeError):
-        OSC.NormalDistribution(1, 2, "dummy")
+    def test_validate_xml(self, version, expected):
+        nd = OSC.LogNormalDistribution(0, 1, OSC.Range(0, 1))
+        assert (
+            version_validation("LogNormalDistribution", nd, version)
+            == expected
+        )
 
 
 def test_poissondistribution():
@@ -432,6 +491,7 @@ prob.add_set("2", 0.3)
     "distribution",
     [
         OSC.NormalDistribution(1, 2),
+        OSC.LogNormalDistribution(1, 2),
         OSC.UniformDistribution(OSC.Range(3, 5)),
         OSC.PoissonDistribution(3),
         hist,
