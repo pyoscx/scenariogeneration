@@ -1718,11 +1718,6 @@ class ScenarioObject(VersionBase):
         return element
 
 
-EntityDistributionEntry = namedtuple(
-    "EntityDistributionEntry", "weight, entityobject controller"
-)
-
-
 class EntityDistribution(VersionBase):
     """The EntityDistribution class creates the entity distribution
     for OpenScenario.
@@ -1742,6 +1737,10 @@ class EntityDistribution(VersionBase):
     get_element()
         Returns the full ElementTree of the class.
     """
+
+    _EntityDistributionEntry = namedtuple(
+        "EntityDistributionEntry", "weight, entityobject controller"
+    )
 
     def __init__(self):
         self.entity_distribution_entries = []
@@ -1791,7 +1790,7 @@ class EntityDistribution(VersionBase):
                     )
 
         self.entity_distribution_entries.append(
-            EntityDistributionEntry(weight, entityobject, controller)
+            self._EntityDistributionEntry(weight, entityobject, controller)
         )
 
     @staticmethod
