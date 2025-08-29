@@ -574,8 +574,8 @@ class NormalDistribution(_StochasticDistributionType):
         """
         if range and not isinstance(range, Range):
             raise TypeError("range input is not of type Range")
-        self.expected_value = expected_value
-        self.variance = variance
+        self.expected_value = convert_float(expected_value)
+        self.variance = convert_float(variance)
         self.range = range
 
     def __eq__(self, other: object) -> bool:
@@ -691,8 +691,14 @@ class LogNormalDistribution(_StochasticDistributionType):
         """
         if range and not isinstance(range, Range):
             raise TypeError("range input is not of type Range")
-        self.expected_value = expected_value
-        self.variance = variance
+        self.expected_value = convert_float(expected_value)
+        if variance < 0:
+            raise ValueError("Variance cannot be negative")
+        self.variance = convert_float(variance)
+        if range is not None and range.lower < 0:
+            raise ValueError(
+                "For lognormal, the lower limit has to be positive."
+            )
         self.range = range
 
     def __eq__(self, other: object) -> bool:
@@ -724,7 +730,9 @@ class LogNormalDistribution(_StochasticDistributionType):
         else:
             range = None
         nd = LogNormalDistribution(
-            element.attrib["expectedValue"], element.attrib["variance"], range
+            convert_float(element.attrib["expectedValue"]),
+            convert_float(element.attrib["variance"]),
+            range,
         )
         return nd
 
