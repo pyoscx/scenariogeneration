@@ -1717,7 +1717,12 @@ class ScenarioObject(VersionBase):
 
         return element
 
-EntityDistributionEntry = namedtuple('EntityDistributionEntry', 'weight, entityobject controller')
+
+EntityDistributionEntry = namedtuple(
+    "EntityDistributionEntry", "weight, entityobject controller"
+)
+
+
 class EntityDistribution(VersionBase):
     """The EntityDistribution class creates the entity distribution
     for OpenScenario.
@@ -1898,7 +1903,9 @@ class EntityDistribution(VersionBase):
             scenario_object_template_element = ET.SubElement(
                 entry_el, "ScenarioObjectTemplate"
             )
-            scenario_object_template_element.append(entry.entityobject.get_element())
+            scenario_object_template_element.append(
+                entry.entityobject.get_element()
+            )
             if entry.controller:
                 # Support both single and multiple controllers
                 controllers = (
