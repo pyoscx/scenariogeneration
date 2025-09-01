@@ -64,54 +64,47 @@ actions_and_versions = [
     ),
     (OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), 1),
     (OSC.AddEntityAction("my new thingy", OSC.WorldPosition()), 2),
-
     (OSC.DeleteEntityAction("my new thingy"), _MINOR_VERSION),
     (OSC.DeleteEntityAction("my new thingy"), 1),
     (OSC.DeleteEntityAction("my new thingy"), 2),
-
     (OSC.ParameterAddAction("Myparam", 3), 1),
     (OSC.ParameterMultiplyAction("Myparam", 3), 1),
     (OSC.ParameterSetAction("Myparam", 3), 1),
-
     (OSC.VariableAddAction("Myparam", 3), _MINOR_VERSION),
     (OSC.VariableAddAction("Myparam", 3), 2),
     (OSC.VariableMultiplyAction("Myparam", 3), _MINOR_VERSION),
     (OSC.VariableMultiplyAction("Myparam", 3), 2),
     (OSC.VariableSetAction("Myparam", 3), _MINOR_VERSION),
     (OSC.VariableSetAction("Myparam", 3), 2),
-
     (OSC.TrafficSignalStateAction("my signal", "red"), _MINOR_VERSION),
     (OSC.TrafficSignalStateAction("my signal", "red"), 1),
     (OSC.TrafficSignalStateAction("my signal", "red"), 2),
-
     (
         OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"),
         _MINOR_VERSION,
     ),
     (OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), 1),
     (OSC.TrafficSignalControllerAction("Phase", "TSCRef_Name"), 2),
-
     (OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100), 1),
     (OSC.TrafficSourceAction(10, 10, OSC.WorldPosition(), traffic, 100), 2),
-    (OSC.TrafficSourceAction(
-        10, 10, OSC.WorldPosition(), traffic_distribution, 100
+    (
+        OSC.TrafficSourceAction(
+            10, 10, OSC.WorldPosition(), traffic_distribution, 100
+        ),
+        _MINOR_VERSION,
     ),
-     _MINOR_VERSION,),
     (OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), 1),
     (OSC.TrafficSinkAction(10, OSC.WorldPosition(), traffic, 10), 2),
     (OSC.TrafficSinkAction(10, OSC.WorldPosition()), _MINOR_VERSION),
-
     (OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), 1),
     (OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic), 2),
-    (OSC.TrafficSwarmAction(
-        10, 20, 10, 2, 10, "Ego", traffic_distribution
+    (
+        OSC.TrafficSwarmAction(10, 20, 10, 2, 10, "Ego", traffic_distribution),
+        _MINOR_VERSION,
     ),
-     _MINOR_VERSION),
-
     (OSC.TrafficStopAction("Stop_Action"), _MINOR_VERSION),
     (OSC.TrafficStopAction("Stop_Action"), 1),
     (OSC.TrafficStopAction("Stop_Action"), 2),
-
     (OSC.SetMonitorAction("MyMonitor", True), _MINOR_VERSION),
 ]
 
@@ -250,20 +243,20 @@ def test_speedaction_abs():
     prettyprint(action)
     assert speedaction == action
     assert (
-            version_validation("PrivateAction", speedaction, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", speedaction, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", speedaction, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 2)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", speedaction, 3)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 3)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         OSC.AbsoluteSpeedAction(50, "dummy")
@@ -281,16 +274,16 @@ def test_speedaction_rel():
     speedaction4 = OSC.RelativeSpeedAction.parse(speedaction.get_element())
     assert speedaction == speedaction4
     assert (
-            version_validation("PrivateAction", speedaction, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", speedaction, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", speedaction, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", speedaction, 2)
+        == ValidationResponse.OK
     )
     assert version_validation("PrivateAction", speedaction, 3)
     with pytest.raises(TypeError):
@@ -322,20 +315,20 @@ def test_longdistaction_dist():
     assert longdist == longdist4
     assert longdist3 == longdist5
     assert (
-            version_validation("PrivateAction", longdist, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", longdist, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", longdist, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 2)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", longdist3, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist3, 2)
+        == ValidationResponse.OK
     )
 
     with pytest.raises(ValueError):
@@ -364,16 +357,16 @@ def test_longdistaction_time():
     prettyprint(longdist4.get_element())
     assert longdist == longdist4
     assert (
-            version_validation("PrivateAction", longdist, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", longdist, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", longdist, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", longdist, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -388,16 +381,16 @@ def test_lanechange_abs():
     lanechange4 = OSC.AbsoluteLaneChangeAction.parse(lanechange.get_element())
     assert lanechange == lanechange4
     assert (
-            version_validation("PrivateAction", lanechange, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", lanechange, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", lanechange, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         OSC.AbsoluteLaneChangeAction(1, "dummy")
@@ -415,16 +408,16 @@ def test_lanechange_rel():
     prettyprint(lanechange4.get_element(), None)
     assert lanechange4 == lanechange
     assert (
-            version_validation("PrivateAction", lanechange, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", lanechange, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", lanechange, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", lanechange, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         OSC.RelativeLaneChangeAction(1, "Ego", "dummy", 0.2)
@@ -449,16 +442,16 @@ def test_laneoffset_abs():
     prettyprint(laneoffset.get_element(), None)
     assert laneoffset == laneoffset4
     assert (
-            version_validation("PrivateAction", laneoffset, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", laneoffset, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", laneoffset, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.AbsoluteLaneOffsetAction(1, "dummy")
@@ -482,16 +475,16 @@ def test_laneoffset_rel():
     prettyprint(laneoffset4.get_element(), None)
     assert laneoffset4 == laneoffset
     assert (
-            version_validation("PrivateAction", laneoffset, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", laneoffset, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", laneoffset, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", laneoffset, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
         OSC.RelativeLaneOffsetAction(1, "ego", "dummy")
@@ -509,16 +502,16 @@ def test_lateraldistance_noconst():
     prettyprint(latdist4.get_element(), None)
     assert latdist4 == latdist
     assert (
-            version_validation("PrivateAction", latdist, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", latdist, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", latdist, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 2)
+        == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.LateralDistanceAction("Ego", 1, coordinate_system="dummy")
@@ -538,16 +531,16 @@ def test_lateraldistance_const():
     prettyprint(latdist4.get_element(), None)
     assert latdist4 == latdist
     assert (
-            version_validation("PrivateAction", latdist, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", latdist, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", latdist, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", latdist, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -561,16 +554,16 @@ def test_teleport():
     teleport4 = OSC.TeleportAction.parse(teleport.get_element())
     assert teleport == teleport4
     assert (
-            version_validation("PrivateAction", teleport, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", teleport, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", teleport, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", teleport, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", teleport, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", teleport, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -759,8 +752,8 @@ def test_assign_controller_action():
     prettyprint(aca4.get_element(), None)
     assert aca4 == aca
     assert (
-            version_validation("PrivateAction", aca, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", aca, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
     assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
@@ -800,14 +793,14 @@ def test_override_controller():
     prettyprint(ocva4.get_element(), None)
     assert ocva4 == ocva
     assert (
-            version_validation("PrivateAction", ocva, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", ocva, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", ocva, 1) == ValidationResponse.OK
+        version_validation("PrivateAction", ocva, 1) == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", ocva, 2) == ValidationResponse.OK
+        version_validation("PrivateAction", ocva, 2) == ValidationResponse.OK
     )
 
 
@@ -825,8 +818,8 @@ def test_visual_action():
     prettyprint(va4.get_element(), None)
     assert va4 == va
     assert (
-            version_validation("PrivateAction", va, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", va, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("PrivateAction", va3, 0) == ValidationResponse.OK
     assert version_validation("PrivateAction", va3, 1) == ValidationResponse.OK
@@ -937,16 +930,16 @@ def test_follow_traj_action_polyline():
     prettyprint(trajact4.get_element(), None)
     assert trajact4 == trajact
     assert (
-            version_validation("PrivateAction", trajact, 0)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", trajact, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", trajact, 1)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", trajact, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("PrivateAction", trajact, 2)
-            == ValidationResponse.OK
+        version_validation("PrivateAction", trajact, 2)
+        == ValidationResponse.OK
     )
 
     with pytest.raises(TypeError):
@@ -971,8 +964,8 @@ def testParameterAddActions():
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
     assert (
-            version_validation("GlobalAction", pa, 2)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
     )
 
 
@@ -990,8 +983,8 @@ def testParameterMultiplyActions():
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
     assert (
-            version_validation("GlobalAction", pa, 2)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
     )
 
 
@@ -1009,8 +1002,8 @@ def testParameterSetActions():
     assert version_validation("GlobalAction", pa, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", pa, 1) == ValidationResponse.OK
     assert (
-            version_validation("GlobalAction", pa, 2)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 2)
+        == ValidationResponse.OSC_VERSION
     )
 
 
@@ -1025,12 +1018,12 @@ def testVariableAddActions():
     pa4 = OSC.VariableAddAction.parse(pa.get_element())
     assert pa == pa4
     assert (
-            version_validation("GlobalAction", pa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("GlobalAction", pa, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
@@ -1046,12 +1039,12 @@ def testVariableMultiplyActions():
     pa4 = OSC.VariableMultiplyAction.parse(pa.get_element())
     assert pa == pa4
     assert (
-            version_validation("GlobalAction", pa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("GlobalAction", pa, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
@@ -1067,12 +1060,12 @@ def testVariableSetActions():
     pa4 = OSC.VariableSetAction.parse(pa.get_element())
     assert pa == pa4
     assert (
-            version_validation("GlobalAction", pa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("GlobalAction", pa, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", pa, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("GlobalAction", pa, 2) == ValidationResponse.OK
 
@@ -1140,16 +1133,16 @@ def test_trafficsignalcontrolleraction():
     )
     assert tsc_action == tsc_action4
     assert (
-            version_validation("GlobalAction", tsc_action, 0)
-            == ValidationResponse.OK
+        version_validation("GlobalAction", tsc_action, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("GlobalAction", tsc_action, 1)
-            == ValidationResponse.OK
+        version_validation("GlobalAction", tsc_action, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("GlobalAction", tsc_action, 2)
-            == ValidationResponse.OK
+        version_validation("GlobalAction", tsc_action, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -1240,8 +1233,8 @@ class TestTrafficSourceAction:
         [
             ("traffic", {"rate": "1.0", "radius": "1.0", "velocity": "10.0"}),
             (
-                    "traffic_distribution",
-                    {"rate": "1.0", "radius": "1.0", "speed": "10.0"},
+                "traffic_distribution",
+                {"rate": "1.0", "radius": "1.0", "speed": "10.0"},
             ),
         ],
     )
@@ -1287,8 +1280,8 @@ class TestTrafficSourceAction:
         )
         traffic_source.setVersion(minor=version)
         assert (
-                version_validation("GlobalAction", traffic_source, version)
-                == expected
+            version_validation("GlobalAction", traffic_source, version)
+            == expected
         )
 
     def test_not_position(self):
@@ -1308,8 +1301,8 @@ class TestTrafficSourceAction:
                 self.rate, self.radius, self.position, "dummy", self.velocity
             )
         assert (
-                str(excinfo.value)
-                == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
 
@@ -1455,8 +1448,8 @@ class TestTrafficSinkAction:
     )
     def test_version_validation(self, traffic_sink_action, version, expected):
         assert (
-                version_validation("GlobalAction", traffic_sink_action, version)
-                == expected
+            version_validation("GlobalAction", traffic_sink_action, version)
+            == expected
         )
 
     def test_deprication_error(self):
@@ -1479,8 +1472,8 @@ class TestTrafficSinkAction:
         with pytest.raises(OSC.OpenSCENARIOVersionError) as excinfo:
             traffic_sink_action.get_element()
         assert (
-                str(excinfo.value)
-                == "TrafficSinkAction with TrafficDefinition was depricated in OSC 1.3"
+            str(excinfo.value)
+            == "TrafficSinkAction with TrafficDefinition was depricated in OSC 1.3"
         )
 
     def test_not_position_error(self):
@@ -1492,8 +1485,8 @@ class TestTrafficSinkAction:
         with pytest.raises(TypeError) as excinfo:
             OSC.TrafficSinkAction(10, OSC.WorldPosition(), "dummy")
         assert (
-                str(excinfo.value)
-                == "trafficdefinition input is not of type TrafficDefinition"
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinition"
         )
 
 
@@ -1536,8 +1529,8 @@ class TestTrafficAreaAction:
         with pytest.raises(TypeError) as excinfo:
             OSC.TrafficAreaAction(False, 2, "incorrect_input", self.polygon)
         assert (
-                str(excinfo.value)
-                == "trafficdistribution input is not of type TrafficDistribution"
+            str(excinfo.value)
+            == "trafficdistribution input is not of type TrafficDistribution"
         )
 
     def test_not_traffic_area(self):
@@ -1546,8 +1539,8 @@ class TestTrafficAreaAction:
                 False, 2, self.traffic_distribution, "incorrect_input"
             )
         assert (
-                str(excinfo.value)
-                == "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
+            str(excinfo.value)
+            == "trafficarea input is not of type Polygon, RoadRange or list[RoadRange]"
         )
 
     @pytest.mark.parametrize(
@@ -1836,29 +1829,29 @@ class TestTrafficSwarmAction:
         [
             ("tsa_11", "shared_data", "traffic_definition", 1, None),
             (
-                    "tsa_12",
-                    "shared_data",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                "shared_data",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    "shared_data",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                "shared_data",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
         ],
         indirect=["traffic_swarm_action", "shared_data", "traffic"],
     )
     def test_eq(
-            self,
-            traffic_swarm_action,
-            shared_data,
-            traffic,
-            velocity,
-            direction_of_travel,
+        self,
+        traffic_swarm_action,
+        shared_data,
+        traffic,
+        velocity,
+        direction_of_travel,
     ):
         (
             semimajoraxis,
@@ -1902,261 +1895,261 @@ class TestTrafficSwarmAction:
             ("tsa_11", 1, 1, 1, 2, 1, "test", "traffic_definition", 1, None),
             ("tsa_11", 1, 1, 1, 1, 2, "test", "traffic_definition", 1, None),
             (
-                    "tsa_11",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test_diff",
-                    "traffic_definition",
-                    1,
-                    None,
+                "tsa_11",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_definition",
+                1,
+                None,
             ),
             (
-                    "tsa_11",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition_diff",
-                    1,
-                    None,
+                "tsa_11",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition_diff",
+                1,
+                None,
             ),
             ("tsa_11", 1, 1, 1, 1, 1, "test", "traffic_definition", 2, None),
             (
-                    "tsa_12",
-                    2,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                2,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    2,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                2,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    2,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                2,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    2,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                1,
+                2,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    1,
-                    2,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                2,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test_diff",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition_diff",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition_diff",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(2, 3),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(2, 3),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_12",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_definition",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.2, 0.8),
+                "tsa_12",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_definition",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.2, 0.8),
             ),
             (
-                    "tsa_13",
-                    2,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                2,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    2,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                2,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    2,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                2,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    2,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                1,
+                2,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    1,
-                    2,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                2,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test_diff",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test_diff",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution_diff",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution_diff",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(2, 3),
-                    OSC.DirectionOfTravelDistribution(0.5, 0.5),
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(2, 3),
+                OSC.DirectionOfTravelDistribution(0.5, 0.5),
             ),
             (
-                    "tsa_13",
-                    1,
-                    1,
-                    1,
-                    1,
-                    1,
-                    "test",
-                    "traffic_distribution",
-                    OSC.Range(1, 2),
-                    OSC.DirectionOfTravelDistribution(0.2, 0.8),
+                "tsa_13",
+                1,
+                1,
+                1,
+                1,
+                1,
+                "test",
+                "traffic_distribution",
+                OSC.Range(1, 2),
+                OSC.DirectionOfTravelDistribution(0.2, 0.8),
             ),
         ],
         indirect=["traffic_swarm_action"],
     )
     def test_neq(
-            self,
-            traffic_swarm_action,
-            semimajoraxis,
-            semiminoraxis,
-            innerradius,
-            offset,
-            numberofvehicles,
-            centralobject,
-            traffic,
-            velocity,
-            dot,
+        self,
+        traffic_swarm_action,
+        semimajoraxis,
+        semiminoraxis,
+        innerradius,
+        offset,
+        numberofvehicles,
+        centralobject,
+        traffic,
+        velocity,
+        dot,
     ):
         traffic = make_traffic(traffic)
 
@@ -2192,7 +2185,7 @@ class TestTrafficSwarmAction:
         indirect=["traffic_swarm_action", "attributes_dict"],
     )
     def test_get_attributes(
-            self, traffic_swarm_action, attributes_dict, velocity
+        self, traffic_swarm_action, attributes_dict, velocity
     ):
         if velocity:
             attributes_dict["velocity"] = "1.0"
@@ -2215,8 +2208,8 @@ class TestTrafficSwarmAction:
     )
     def test_version_validation(self, traffic_swarm_action, version, expected):
         assert (
-                version_validation("GlobalAction", traffic_swarm_action, version)
-                == expected
+            version_validation("GlobalAction", traffic_swarm_action, version)
+            == expected
         )
 
     def test_not_traffic_distribution(self, shared_data):
@@ -2240,8 +2233,8 @@ class TestTrafficSwarmAction:
                 "dummy",
             )
         assert (
-                str(excinfo.value)
-                == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
+            str(excinfo.value)
+            == "trafficdefinition input is not of type TrafficDefinitioon or TrafficDistribution. Should be TrafficDefinition for  version <= v1.2, TrafficDistribution otherwise"
         )
 
     def test_not_direction_of_travel(self, shared_data, traffic_distribution):
@@ -2266,8 +2259,8 @@ class TestTrafficSwarmAction:
                 direction_of_travel="dummy",
             )
         assert (
-                str(excinfo.value)
-                == "direction_of_travel is not of type DirectionOfTravelDistribution"
+            str(excinfo.value)
+            == "direction_of_travel is not of type DirectionOfTravelDistribution"
         )
 
 
@@ -2294,12 +2287,12 @@ def test_environmentaction():
     prettyprint(ea4.get_element())
     assert ea == ea4
     assert (
-            version_validation("GlobalAction", ea, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", ea, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("GlobalAction", ea, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", ea, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("GlobalAction", ea, 2) == ValidationResponse.OK
     weather2 = OSC.Weather(
@@ -2314,8 +2307,8 @@ def test_environmentaction():
     assert version_validation("GlobalAction", ea5, 0) == ValidationResponse.OK
     assert version_validation("GlobalAction", ea5, 1) == ValidationResponse.OK
     assert (
-            version_validation("GlobalAction", ea5, 2)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", ea5, 2)
+        == ValidationResponse.OSC_VERSION
     )
 
     with pytest.raises(TypeError):
@@ -2334,8 +2327,8 @@ def test_trafficstopaction():
     prettyprint(tsa4.get_element())
     assert tsa == tsa4
     assert (
-            version_validation("GlobalAction", tsa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("GlobalAction", tsa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert version_validation("GlobalAction", tsa, 1) == ValidationResponse.OK
     assert version_validation("GlobalAction", tsa, 2) == ValidationResponse.OK
@@ -2353,16 +2346,16 @@ def test_customcommandaction():
     assert cca == cca4
 
     assert (
-            version_validation("CustomCommandAction", cca, 0)
-            == ValidationResponse.OK
+        version_validation("CustomCommandAction", cca, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("CustomCommandAction", cca, 1)
-            == ValidationResponse.OK
+        version_validation("CustomCommandAction", cca, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("CustomCommandAction", cca, 2)
-            == ValidationResponse.OK
+        version_validation("CustomCommandAction", cca, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -2379,16 +2372,16 @@ def test_userdefinedaction():
     prettyprint(uda4)
     assert uda4 == uda
     assert (
-            version_validation("UserDefinedAction", uda, 0)
-            == ValidationResponse.OK
+        version_validation("UserDefinedAction", uda, 0)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("UserDefinedAction", uda, 1)
-            == ValidationResponse.OK
+        version_validation("UserDefinedAction", uda, 1)
+        == ValidationResponse.OK
     )
     assert (
-            version_validation("UserDefinedAction", uda, 2)
-            == ValidationResponse.OK
+        version_validation("UserDefinedAction", uda, 2)
+        == ValidationResponse.OK
     )
 
 
@@ -2420,16 +2413,16 @@ def test_lightstateaction():
     lsa5 = OSC.LightStateAction.parse(lsa3.get_element())
     assert lsa5 == lsa3
     assert (
-            version_validation("PrivateAction", lsa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", lsa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", lsa, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", lsa, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", lsa, 2)
-            == ValidationResponse.XSD_FAILURE
+        version_validation("PrivateAction", lsa, 2)
+        == ValidationResponse.XSD_FAILURE
     )
 
     with pytest.raises(TypeError):
@@ -2468,15 +2461,15 @@ def test_speedprofileaction():
     prettyprint(spa4)
     assert spa == spa4
     assert (
-            version_validation("PrivateAction", spa3, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", spa3, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", spa3, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", spa3, 1)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", spa3, 2) == ValidationResponse.OK
+        version_validation("PrivateAction", spa3, 2) == ValidationResponse.OK
     )
     with pytest.raises(ValueError):
         OSC.SpeedProfileAction([1, 1, 1], "dummy")
@@ -2508,17 +2501,17 @@ def test_animation_action():
     prettyprint(aa4)
     assert aa == aa4
     assert (
-            version_validation("PrivateAction", aa, 0)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", aa, 0)
+        == ValidationResponse.OSC_VERSION
     )
     assert (
-            version_validation("PrivateAction", aa, 1)
-            == ValidationResponse.OSC_VERSION
+        version_validation("PrivateAction", aa, 1)
+        == ValidationResponse.OSC_VERSION
     )
     # BUG IN XSD
     assert (
-            version_validation("PrivateAction", aa, 2)
-            == ValidationResponse.XSD_FAILURE
+        version_validation("PrivateAction", aa, 2)
+        == ValidationResponse.XSD_FAILURE
     )
     with pytest.raises(ValueError):
         OSC.AnimationAction("dummy")
@@ -2629,7 +2622,7 @@ class TestSetMonitorAction:
         ],
     )
     def test_set_monitor_action_version_validation(
-            self, version, expected, sma
+        self, version, expected, sma
     ):
         assert version_validation("GlobalAction", sma, version) == expected
 
