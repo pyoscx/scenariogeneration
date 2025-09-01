@@ -10,8 +10,9 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 """
 
+import warnings
 import xml.etree.ElementTree as ET
-from typing import Union
+from typing import Union, Optional
 
 from .enumerations import (
     ConditionEdge,
@@ -25,6 +26,7 @@ from .enumerations import (
     StoryboardElementType,
     TriggeringEntitiesRule,
     VersionBase,
+    AngleType,
 )
 from .exceptions import (
     NotAValidElement,
@@ -46,60 +48,6 @@ from .utils import (
     find_mandatory_field,
     get_bool_string,
 )
-
-
-class EmptyTrigger(_TriggerType):
-    """EmptyTrigger creates an empty trigger.
-
-    Parameters
-    ----------
-    triggeringpoint : str, optional
-        Start or stop. Default is "start".
-
-    Methods
-    -------
-    get_element()
-        Returns the full ElementTree of the class.
-    """
-
-    def __init__(self, triggeringpoint: str = "start") -> None:
-        """Initializes the empty trigger.
-
-        Parameters
-        ----------
-        triggeringpoint : str, optional
-            Start or stop. Default is "start".
-        """
-        if triggeringpoint not in ["start", "stop"]:
-            raise ValueError(
-                "not a valid triggering point, valid start or stop"
-            )
-        if triggeringpoint == "start":
-            self._triggerpoint = "StartTrigger"
-        else:
-            self._triggerpoint = "StopTrigger"
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, EmptyTrigger):
-            if self._triggerpoint == other._triggerpoint:
-                return True
-        elif isinstance(other, Trigger):
-            if (
-                len(other.conditiongroups) == 0
-                and self._triggerpoint == other._triggerpoint
-            ):
-                return True
-        return False
-
-    def get_element(self) -> ET.Element:
-        """Generate an XML element for the trigger point.
-
-        Returns
-        -------
-        xml.etree.ElementTree.Element
-            The XML element representing the trigger point.
-        """
-        return ET.Element(self._triggerpoint)
 
 
 class _EntityConditionFactory:
@@ -131,6 +79,10 @@ class _EntityConditionFactory:
             return DistanceCondition.parse(element)
         if element.find("RelativeDistanceCondition") is not None:
             return RelativeDistanceCondition.parse(element)
+        if element.find("AngleCondition") is not None:
+            return AngleCondition.parse(element)
+        if element.find("RelativeAngleCondition") is not None:
+            return RelativeAngleCondition.parse(element)
         raise NotAValidElement(
             "element ", element, "is not a valid entity condition"
         )
@@ -904,11 +856,20 @@ class Trigger(_TriggerType):
             An XML element containing the trigger point and its associated
             condition groups.
         """
-        """Returns the elementTree of the Trigger."""
+
         element = ET.Element(self._triggerpoint)
         for c in self.conditiongroups:
             element.append(c.get_element())
         return element
+
+
+class EmptyTrigger(Trigger):
+
+    def __init__(self, triggeringpoint: str = "start"):
+        warnings.warn(
+            "The EmptyTrigger class will be deprecated soon, please use Trigger instead"
+        )
+        super().__init__(triggeringpoint)
 
 
 class TriggeringEntities(VersionBase):
@@ -3907,3 +3868,246 @@ class TrafficSignalControllerCondition(_ValueTriggerType):
         return ET.Element(
             "TrafficSignalControllerCondition", attrib=self.get_attributes()
         )
+
+
+class AngleCondition(_EntityTriggerType):
+    def __init__(
+        self,
+        angle: float,
+        angle_tolerance: float,
+        angle_type: AngleType,
+        coordinate_system: Optional[CoordinateSystem] = None,
+    ) -> None:
+        """Initialize the AngleCondition.
+
+        Parameters
+        ----------
+        angle : float [Radians]. Range: [-pi, pi]
+            The angle value that will be compared to the triggering entity's orientation.
+
+        angle_tolerance : str [Radians]. Range: [0, pi]
+            Tolerance around the given angle value.
+        angle_type : AngleType
+            The type of the angle coordinate.
+
+        coordinate_system : optional
+            Define which coordinate system is used to measure the angle of the triggering entity.
+            Note that if set to “entity” the measured angle is always zero.
+            Default is 'world'
+
+        Attributes
+        ----------
+        angle : float [Radians].
+            The angle value.
+        angle_tolerance : str [Radians]
+            The tolerance around the angle value.
+        angle_type : AngleType
+            The type of the angle coordinate.
+        coordinate_system : CoordinateSystem or None
+            Define which coordinate system is used to measure the angle of the triggering entity.
+
+        """
+        self.angle = convert_float(angle)
+        self.angle_tolerance = convert_float(angle_tolerance)
+        self.angle_type = convert_enum(angle_type, AngleType, False)
+        self.coordinate_system = convert_enum(
+            coordinate_system, CoordinateSystem, True
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, AngleCondition):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "AngleCondition":
+        """Parse the XML element of AngleCondition.
+
+        Parameters
+        ----------
+        element : xml.etree.ElementTree.Element
+            A position element (same as generated by the class itself).
+
+        Returns
+        -------
+        AngleCondition
+            An AngleCondition object.
+        """
+        condition = find_mandatory_field(element, "AngleCondition")
+        angle = convert_float(condition.attrib["angle"])
+        angle_tolerance = convert_float(condition.attrib["angleTolerance"])
+        angle_type = convert_enum(
+            condition.attrib["angleType"], AngleType, False
+        )
+
+        coordinate_system = convert_enum(
+            condition.attrib.get("coordinateSystem"), CoordinateSystem, True
+        )
+        return AngleCondition(
+            angle, angle_tolerance, angle_type, coordinate_system
+        )
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the AngleCondition as a dict.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the AngleCondition.
+        """
+        attributes = {
+            "angle": str(self.angle),
+            "angleTolerance": str(self.angle_tolerance),
+            "angleType": self.angle_type.get_name(),
+            "coordinateSystem": (
+                self.coordinate_system.get_name()
+                if self.coordinate_system
+                else None
+            ),
+        }
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        """Returns the elementTree of the AngleCondition.
+
+        Returns
+        -------
+        ET.Element
+            The XML element representing the AngleCondition.
+        """
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "AngleCondition was added in OSC 1.3"
+            )
+        element = ET.Element("EntityCondition")
+        ET.SubElement(element, "AngleCondition", attrib=self.get_attributes())
+        return element
+
+
+class RelativeAngleCondition(_EntityTriggerType):
+    def __init__(
+        self,
+        angle: float,
+        angle_tolerance: float,
+        angle_type: AngleType,
+        entity_ref: str,
+        coordinate_system: Optional[CoordinateSystem] = None,
+    ) -> None:
+        """Initialize the RelativeAngleCondition.
+
+        Parameters
+        ----------
+        angle : float [Radians]. Range: [-pi, pi]
+            The angle value that will be compared to the triggering entity's orientation.
+
+        angle_tolerance : str [Radians]. Range: [0, pi]
+            Tolerance around the given angle value.
+        angle_type : AngleType
+            The type of the angle coordinate.
+        entity_ref: str
+            Name of the referenced entity to compare the angle to.
+        coordinate_system : optional
+            Define which coordinate system is used to measure the angles of the reference entity and
+            the triggering entity. Default is 'entity'.
+
+        Attributes
+        ----------
+        angle : float [Radians].
+            The angle value.
+        angle_tolerance : str [Radians]
+            The tolerance around the angle value.
+        angle_type : AngleType
+            The type of the angle coordinate.
+        entity_ref: str
+            Name of the referenced entity to compare the angle to.
+        coordinate_system : CoordinateSystem or None
+            Define which coordinate system is used to measure the angle of the triggering entity.
+
+        """
+        self.angle = convert_float(angle)
+        self.angle_tolerance = convert_float(angle_tolerance)
+        self.angle_type = convert_enum(angle_type, AngleType, False)
+        self.coordinate_system = convert_enum(
+            coordinate_system, CoordinateSystem, True
+        )
+        self.entity_ref = EntityRef(
+            entity_ref
+        )  # TODO: check if this entity exists (?)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, RelativeAngleCondition):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.entity_ref == other.entity_ref
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "RelativeAngleCondition":
+        """Parse the XML element of RelativeAngleCondition.
+
+        Parameters
+        ----------
+        element : xml.etree.ElementTree.Element
+            A position element (same as generated by the class itself).
+
+        Returns
+        -------
+        RelativeAngleCondition
+            An RelativeAngleCondition object.
+        """
+        condition = find_mandatory_field(element, "RelativeAngleCondition")
+        angle = convert_float(condition.attrib["angle"])
+        angle_tolerance = convert_float(condition.attrib["angleTolerance"])
+        angle_type = convert_enum(
+            condition.attrib["angleType"], AngleType, False
+        )
+
+        coordinate_system = convert_enum(
+            condition.attrib.get("coordinateSystem"), CoordinateSystem, True
+        )
+        entity_ref = condition.attrib["entityRef"]
+        return RelativeAngleCondition(
+            angle, angle_tolerance, angle_type, entity_ref, coordinate_system
+        )
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the RelativeAngleCondition as a dict.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the attributes of the RelativeAngleCondition.
+        """
+        attributes = {
+            "angle": str(self.angle),
+            "angleTolerance": str(self.angle_tolerance),
+            "angleType": self.angle_type.get_name(),
+            "coordinateSystem": (
+                self.coordinate_system.get_name()
+                if self.coordinate_system
+                else None
+            ),
+            "entityRef": self.entity_ref.entity,
+        }
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        """Returns the elementTree of the RelativeAngleCondition.
+
+        Returns
+        -------
+        ET.Element
+            The XML element representing the RelativeAngleCondition.
+        """
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "RelativeAngleCondition was added in OSC 1.3"
+            )
+        element = ET.Element("EntityCondition")
+        ET.SubElement(
+            element, "RelativeAngleCondition", attrib=self.get_attributes()
+        )
+        return element

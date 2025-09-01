@@ -207,7 +207,7 @@ class Axles(VersionBase):
         rearaxle : Axle
             Axle properties of the rear axle.
         """
-        if not isinstance(frontaxle, Axle):
+        if frontaxle and not isinstance(frontaxle, Axle):
             raise TypeError("frontaxle input is not of type Axle")
         if not isinstance(rearaxle, Axle):
             raise TypeError("rearaxle input is not of type Axle")
@@ -216,13 +216,13 @@ class Axles(VersionBase):
         self.additionals = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Axles):
-            if (
-                self.frontaxle == other.frontaxle
-                and self.rearaxle == other.rearaxle
-                and self.additionals == other.additionals
-            ):
-                return True
+        if (
+            isinstance(other, Axles)
+            and self.frontaxle == other.frontaxle
+            and self.rearaxle == other.rearaxle
+            and self.additionals == other.additionals
+        ):
+            return True
         return False
 
     @staticmethod
@@ -270,7 +270,12 @@ class Axles(VersionBase):
             The ElementTree representation of the Axles.
         """
         element = ET.Element("Axles")
-        element.append(self.frontaxle.get_element(elementname="FrontAxle"))
+        if self.frontaxle is None and self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "A front axle is required for OSC versions up to 1.2."
+            )
+        if self.frontaxle:
+            element.append(self.frontaxle.get_element(elementname="FrontAxle"))
         element.append(self.rearaxle.get_element(elementname="RearAxle"))
         for ax in self.additionals:
             element.append(ax.get_element())
@@ -351,13 +356,13 @@ class Entity(VersionBase):
             self.entity = None
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entity):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.object_type == other.object_type
-                and self.entity == other.entity
-            ):
-                return True
+        if (
+            isinstance(other, Entity)
+            and self.get_attributes() == other.get_attributes()
+            and self.object_type == other.object_type
+            and self.entity == other.entity
+        ):
+            return True
         return False
 
     @staticmethod
@@ -740,14 +745,14 @@ class MiscObject(_BaseCatalog):
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, MiscObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
-            ):
-                return True
+        if (
+            isinstance(other, MiscObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+        ):
+            return True
         return False
 
     @staticmethod
@@ -860,6 +865,7 @@ class Vehicle(_BaseCatalog):
         The bounding box of the vehicle.
     frontaxle : Axle
         The front axle properties of the vehicle.
+        (optional since OpenScenario V1.3)
     rearaxle : Axle
         The back axle properties of the vehicle.
     max_speed : float
@@ -946,7 +952,7 @@ class Vehicle(_BaseCatalog):
         name: str,
         vehicle_type: VehicleCategory,
         boundingbox: BoundingBox,
-        frontaxle: Axle,
+        frontaxle: Optional[Axle],
         rearaxle: Axle,
         max_speed: float,
         max_acceleration: float,
@@ -1376,12 +1382,12 @@ class Entities(VersionBase):
         self.entities = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entities):
-            if (
-                self.scenario_objects == other.scenario_objects
-                and self.entities == other.entities
-            ):
-                return True
+        if (
+            isinstance(other, Entities)
+            and self.scenario_objects == other.scenario_objects
+            and self.entities == other.entities
+        ):
+            return True
         return False
 
     @staticmethod
@@ -1597,13 +1603,13 @@ class ScenarioObject(VersionBase):
         self.entityobject = entityobject
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, ScenarioObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.controller == other.controller
-                and self.entityobject == other.entityobject
-            ):
-                return True
+        if (
+            isinstance(other, ScenarioObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.controller == other.controller
+            and self.entityobject == other.entityobject
+        ):
+            return True
         return False
 
     @staticmethod

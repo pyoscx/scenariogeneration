@@ -16,14 +16,14 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc.position import WorldPosition
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 def test_worldposition_noinput():
@@ -282,25 +282,69 @@ def test_trajectory_position():
         OSC.TrajectoryPosition(traj, 0, 0, "dummy")
 
 
-def test_geo_position():
-    pos = OSC.GeoPosition(1, 1)
-    pos2 = OSC.GeoPosition(1, 1)
-    pos3 = OSC.GeoPosition(1, 1, 1)
-    prettyprint(pos)
-    assert pos == pos2
-    assert pos != pos3
+class TestGeoPosition:
+    @pytest.fixture(name="geo_pos")
+    def geo_pos(self):
+        return OSC.GeoPosition(
+            52.1, 13.4, 100.0, OSC.Orientation(), vertical_road_selection=2
+        )
 
-    pos4 = OSC.GeoPosition.parse(pos.get_element())
-    assert pos == pos4
-    assert (
-        version_validation("Position", pos, 0)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert version_validation("Position", pos, 1) == ValidationResponse.OK
-    assert version_validation("Position", pos, 2) == ValidationResponse.OK
+    def test_init_and_attributes(self, geo_pos):
+        assert geo_pos.latitude == 52.1
+        assert geo_pos.longitude == 13.4
+        assert geo_pos.height == 100.0
+        assert isinstance(geo_pos.orientation, OSC.Orientation)
+        assert geo_pos.vertical_road_selection == 2
 
-    with pytest.raises(TypeError):
-        OSC.GeoPosition(1, 1, 1, "dummy")
+    def test_attributes_v2(self, geo_pos):
+        OSC.VersionBase().setVersion(minor=2)
+        attrs = geo_pos.get_attributes()
+        assert "verticalRoadSelection" not in attrs
+
+    def test_equality(self, geo_pos):
+        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
+        assert geo_pos == pos2
+
+    def test_equality_v2(self, geo_pos):
+        OSC.VersionBase().setVersion(minor=2)
+        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0)
+        assert geo_pos == pos3
+
+    def test_neq(self, geo_pos):
+        pos3 = OSC.GeoPosition(52.1, 13.4, 101.0)
+        assert geo_pos != pos3
+
+    def test_parse_and_get_element(self, geo_pos):
+        element = geo_pos.get_element()
+        parsed = OSC.GeoPosition.parse(element)
+        assert geo_pos == parsed
+
+    def test_missing_attributes(self):
+        pos = OSC.GeoPosition(52.1, 13.4)
+        assert pos.height is None
+        assert pos.orientation == OSC.Orientation()
+        assert pos.vertical_road_selection is None
+
+    def test_valid_and_invalid_types(self):
+        OSC.GeoPosition("52.1", 13.4)
+        OSC.GeoPosition(52.1, "13.4")
+        OSC.GeoPosition(52.1, 13.4, "100.0")
+
+        with pytest.raises(TypeError):
+            OSC.GeoPosition(52.1, 13.4, 100.0, orientation="dummy")
+        with pytest.raises(TypeError):
+            OSC.GeoPosition(52.1, 13.4, 100.0, orientation="invalid")
+        with pytest.raises(ValueError):
+            OSC.GeoPosition(
+                52.1, 13.4, 100.0, vertical_road_selection="invalid"
+            )
+
+    @pytest.mark.parametrize("version", [1, 2, 3])
+    def test_version_validation(self, version, geo_pos):
+        assert (
+            version_validation("Position", geo_pos, version)
+            == ValidationResponse.OK
+        )
 
 
 # some fixtures for the factory test

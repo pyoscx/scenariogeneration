@@ -13,6 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 from .actions import *
 from .entities import *
 from .enumerations import *
+from .exceptions import *
 from .parameters import *
 from .position import *
 from .scenario import *

@@ -17,13 +17,14 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 def test_endofroadcond():
@@ -1041,7 +1042,6 @@ def test_conditiongroup():
 
 
 def test_trigger():
-
     trig = OSC.Trigger("stop")
     condgr = OSC.ConditionGroup()
 
@@ -1144,50 +1144,109 @@ def test_value_condition_factory(valuetrigger):
     assert valuetrigger == factoryoutput
 
 
-@pytest.mark.parametrize("osc_version", [1, 2])
-@pytest.mark.parametrize(
-    "entitytrigger",
-    [
-        OSC.EndOfRoadCondition(2),
-        OSC.CollisionCondition("hej"),
-        OSC.OffroadCondition(3),
-        OSC.TimeHeadwayCondition("my entity", 2, OSC.Rule.greaterOrEqual),
-        OSC.TimeToCollisionCondition(
-            1, OSC.Rule.greaterOrEqual, entity="target"
-        ),
-        OSC.AccelerationCondition(2, OSC.Rule.greaterOrEqual),
-        OSC.StandStillCondition(5),
-        OSC.SpeedCondition(15, OSC.Rule.greaterOrEqual),
-        OSC.RelativeSpeedCondition(1, OSC.Rule.greaterOrEqual, "target"),
-        OSC.TraveledDistanceCondition(59),
-        OSC.ReachPositionCondition(OSC.WorldPosition(), 4),
-        OSC.DistanceCondition(4, OSC.Rule.greaterOrEqual, OSC.WorldPosition()),
-        OSC.RelativeDistanceCondition(
-            2,
-            OSC.Rule.greaterOrEqual,
-            OSC.RelativeDistanceType.lateral,
-            "target",
-        ),
-    ],
-)
-def test_entity_condition_factory(osc_version, entitytrigger):
-    OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+class TestEntityConditionFactory:
 
-    # Skip ReachPositionCondition for OSC version 2
-    if osc_version == 2 and isinstance(
-        entitytrigger, OSC.ReachPositionCondition
-    ):
-        return
-    # element = ET.Element('ByEntityCondition')
-    # element.append(entitytrigger.get_element())
-    factoryoutput = (
-        OSC.triggers._EntityConditionFactory.parse_entity_condition(
-            entitytrigger.get_element()
-        )
+    def idfn(val):
+        return f"EntityTrigger: {val.__class__.__name__}"
+
+    @pytest.mark.parametrize("osc_version", [1, 2, 3])
+    @pytest.mark.parametrize(
+        "entitytrigger",
+        [
+            OSC.EndOfRoadCondition(2),
+            OSC.CollisionCondition("hej"),
+            OSC.OffroadCondition(3),
+            OSC.TimeHeadwayCondition("my entity", 2, OSC.Rule.greaterOrEqual),
+            OSC.TimeToCollisionCondition(
+                1, OSC.Rule.greaterOrEqual, entity="target"
+            ),
+            OSC.AccelerationCondition(2, OSC.Rule.greaterOrEqual),
+            OSC.StandStillCondition(5),
+            OSC.SpeedCondition(15, OSC.Rule.greaterOrEqual),
+            OSC.RelativeSpeedCondition(1, OSC.Rule.greaterOrEqual, "target"),
+            OSC.TraveledDistanceCondition(59),
+            OSC.DistanceCondition(
+                4, OSC.Rule.greaterOrEqual, OSC.WorldPosition()
+            ),
+            OSC.RelativeDistanceCondition(
+                2,
+                OSC.Rule.greaterOrEqual,
+                OSC.RelativeDistanceType.lateral,
+                "target",
+            ),
+        ],
+        ids=idfn,
     )
-    prettyprint(entitytrigger, None)
-    prettyprint(factoryoutput, None)
-    assert entitytrigger == factoryoutput
+    def test_entity_condition_factory(self, osc_version, entitytrigger):
+        OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+
+        factoryoutput = (
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(
+                entitytrigger.get_element()
+            )
+        )
+        prettyprint(entitytrigger, None)
+        prettyprint(factoryoutput, None)
+        assert entitytrigger == factoryoutput
+
+    @pytest.mark.parametrize(
+        "condition",
+        [
+            OSC.TraveledDistanceCondition(59),
+            OSC.ReachPositionCondition(OSC.WorldPosition(1, 1), 4),
+        ],
+        ids=idfn,
+    )
+    def test_entity_condition_factory_osc_v1(self, condition):
+        OSC.enumerations.VersionBase().setVersion(minor=1)
+        element = condition.get_element()
+        parsed = OSC.triggers._EntityConditionFactory.parse_entity_condition(
+            element
+        )
+        prettyprint(condition)
+        prettyprint(parsed)
+        assert parsed == condition
+
+    @pytest.mark.parametrize(
+        "condition",
+        [
+            OSC.RelativeAngleCondition(
+                0.5,
+                0.1,
+                OSC.AngleType.heading,
+                "Ego",
+                OSC.CoordinateSystem.world,
+            ),
+            OSC.AngleCondition(
+                0.5, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+            ),
+        ],
+        ids=idfn,
+    )
+    def test_entity_condition_factory_osc_v3(self, condition):
+        OSC.enumerations.VersionBase().setVersion(minor=3)
+        element = condition.get_element()
+        parsed = OSC.triggers._EntityConditionFactory.parse_entity_condition(
+            element
+        )
+        prettyprint(condition)
+        prettyprint(parsed)
+        assert parsed == condition
+
+    @pytest.mark.parametrize("osc_version", [1, 2, 3])
+    def test_invalid_entity_condition(self, osc_version):
+        OSC.enumerations.VersionBase().setVersion(minor=osc_version)
+        element = ET.Element("EntityCondition")
+        with pytest.raises(OSC.exceptions.NotAValidElement):
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(
+                element
+            )
+
+        element = ET.Element("ByValueCondition")
+        with pytest.raises(OSC.exceptions.NotAValidElement):
+            OSC.triggers._EntityConditionFactory.parse_entity_condition(
+                element
+            )
 
 
 def test_equalities_trigger_vs_conditiongroup_vs_entity():
@@ -1265,3 +1324,213 @@ def test_equalities_trigger_vs_conditiongroup_vs_value():
     parsed_condgr = OSC.Trigger.parse(condgr2.get_element())
 
     assert parsed_condgr == trigger
+
+
+class TestAngleCondition:
+    def setup_method(self):
+        OSC.VersionBase().setVersion(minor=3)
+
+    @pytest.fixture()
+    def angle_cond(self):
+        return OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
+
+    def test_angle_condition_prettyprint(self, angle_cond):
+        prettyprint(angle_cond.get_element())
+
+    def test_angle_condition_eq(self, angle_cond):
+        cond2 = OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
+        assert angle_cond == cond2
+
+    def test_angle_condition_neq(self, angle_cond):
+        cond3 = OSC.AngleCondition(
+            0.8, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.world
+        )
+        assert angle_cond != cond3
+
+        cond3.angle = 0.7
+        cond3.coordinate_system = OSC.CoordinateSystem.trajectory
+        assert angle_cond != cond3
+
+        cond3.coordinate_system = OSC.CoordinateSystem.world
+        cond3.angle_type = OSC.AngleType.pitch
+        assert angle_cond != cond3
+
+    @pytest.mark.parametrize(
+        ["osc_version", "expected_response"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_angle_condition_version_validation(
+        self, osc_version, expected_response, angle_cond
+    ):
+        assert (
+            version_validation("EntityCondition", angle_cond, osc_version)
+            == expected_response
+        )
+
+    def test_angle_condition_parse(self, angle_cond):
+        cond2 = OSC.AngleCondition.parse(angle_cond.get_element())
+        assert angle_cond == cond2
+
+    def test_angle_condition_invalid_args(self):
+        with pytest.raises(ValueError):
+            OSC.AngleCondition(1, 0.1, "dummy", OSC.CoordinateSystem.world)
+        with pytest.raises(ValueError):
+            OSC.AngleCondition(1, 0.1, OSC.AngleType.heading, "dummy")
+        with pytest.raises(ValueError):
+            OSC.AngleCondition(
+                "dummy", 0.1, OSC.AngleType.pitch, OSC.CoordinateSystem.world
+            )
+        with pytest.raises(ValueError):
+            OSC.AngleCondition(
+                1, "dummy", OSC.AngleType.roll, OSC.CoordinateSystem.world
+            )
+        with pytest.raises(TypeError):
+            OSC.AngleCondition(1, "dummy")
+
+    def test_optional_args(self):
+        cond = OSC.AngleCondition(
+            0.7, 0.1, OSC.AngleType.heading, OSC.CoordinateSystem.lane
+        )
+        assert cond.angle_type == OSC.AngleType.heading
+        assert cond.coordinate_system == OSC.CoordinateSystem.lane
+
+        cond2 = OSC.AngleCondition(0.7, 0.1, OSC.AngleType.heading)
+        assert cond2.coordinate_system is None
+
+        cond3 = OSC.AngleCondition.parse(cond2.get_element())
+        assert cond3 == cond2
+
+    class TestRelativeAngleCondition:
+        def setup_method(self):
+            OSC.VersionBase().setVersion(minor=3)
+
+        @pytest.fixture()
+        def entity_ref(self):
+            entity = OSC.Entity("Ego", OSC.ObjectType.vehicle)
+            enity_ref = OSC.EntityRef(entity.name)
+            return enity_ref
+
+        @pytest.fixture()
+        def rel_angle_cond(self, entity_ref):
+            return OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+
+        def test_rel_angle_cond_prettyprint(self, rel_angle_cond):
+            prettyprint(rel_angle_cond.get_element())
+
+        def test_rel_angle_cond_eq(self, rel_angle_cond, entity_ref):
+            cond2 = OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+            assert rel_angle_cond == cond2
+
+        def test_rel_angle_cond_neq(self, rel_angle_cond, entity_ref):
+            cond3 = OSC.RelativeAngleCondition(
+                0.8,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.world,
+            )
+            assert rel_angle_cond != cond3
+
+            cond3.angle = 0.7
+            cond3.coordinate_system = OSC.CoordinateSystem.trajectory
+            assert rel_angle_cond != cond3
+
+            cond3.coordinate_system = OSC.CoordinateSystem.world
+            cond3.angle_type = OSC.AngleType.pitch
+            assert rel_angle_cond != cond3
+
+        @pytest.mark.parametrize(
+            ["osc_version", "expected_response"],
+            [
+                (0, ValidationResponse.OSC_VERSION),
+                (1, ValidationResponse.OSC_VERSION),
+                (2, ValidationResponse.OSC_VERSION),
+                (3, ValidationResponse.OK),
+            ],
+        )
+        def test_rel_angle_cond_version_validation(
+            self, osc_version, expected_response, rel_angle_cond
+        ):
+            assert (
+                version_validation(
+                    "EntityCondition", rel_angle_cond, osc_version
+                )
+                == expected_response
+            )
+
+        def test_rel_angle_cond_parse(self, rel_angle_cond):
+            cond2 = OSC.RelativeAngleCondition.parse(
+                rel_angle_cond.get_element()
+            )
+            assert rel_angle_cond == cond2
+
+        def test_rel_angle_cond_invalid_args(self, entity_ref):
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1,
+                    0.1,
+                    "dummy",
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1, 0.1, OSC.AngleType.heading, entity_ref.entity, "dummy"
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    "dummy",
+                    0.1,
+                    OSC.AngleType.pitch,
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(ValueError):
+                OSC.RelativeAngleCondition(
+                    1,
+                    "dummy",
+                    OSC.AngleType.roll,
+                    entity_ref.entity,
+                    OSC.CoordinateSystem.world,
+                )
+            with pytest.raises(TypeError):
+                OSC.RelativeAngleCondition(1, "dummy")
+
+        def test_rel_angle_cond_args(self, entity_ref):
+            cond = OSC.RelativeAngleCondition(
+                0.7,
+                0.1,
+                OSC.AngleType.heading,
+                entity_ref.entity,
+                OSC.CoordinateSystem.lane,
+            )
+            assert cond.angle_type == OSC.AngleType.heading
+            assert cond.coordinate_system == OSC.CoordinateSystem.lane
+
+            cond2 = OSC.RelativeAngleCondition(
+                0.7, 0.1, OSC.AngleType.heading, entity_ref.entity
+            )
+            assert cond2.coordinate_system is None
+            cond3 = OSC.RelativeAngleCondition.parse(cond2.get_element())
+            assert cond3 == cond2
