@@ -641,8 +641,153 @@ def test_controlpoint():
         OSC.ControlPoint("dummy")
 
 
-class TestClothoidSpline:
+class TestPolygon:
+    def setup_method(self):
+        self.polygon = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(0, 1, 0),
+            ]
+        )
+        self.polygon.setVersion(1, 3)
 
+    def test_polygon_base(self):
+        prettyprint(self.polygon)
+
+    def test_polygon_to_few_points(self):
+        with pytest.raises(ValueError):
+            OSC.Polygon([OSC.WorldPosition(0, 0, 0)])
+
+    def test_polugon_input_not_positions(self):
+        with pytest.raises(TypeError):
+            OSC.Polygon(
+                [
+                    OSC.WorldPosition(0, 0, 0),
+                    OSC.WorldPosition(0, 0, 0),
+                    "dummy",
+                ]
+            )
+
+    def test_polygon_equality(self):
+        polygon2 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(0, 1, 0),
+            ]
+        )
+        assert self.polygon == polygon2
+
+        polygon3 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(1, 2, 0),
+                OSC.WorldPosition(0, 2, 0),
+            ]
+        )
+        assert self.polygon != polygon3
+
+    def test_polygon_parse(self):
+        polygon = self.polygon.get_element()
+        parsed_polygon = OSC.Polygon.parse(polygon)
+        assert self.polygon == parsed_polygon
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        assert version_validation("Polygon", self.polygon, version) == expected
+
+
+class TestRoadRange:
+    def setup_method(self):
+        self.roadrange = OSC.RoadRange("10")
+        self.roadrange.add_cursor("0")
+        self.roadrange.add_cursor("1")
+        self.roadrange.setVersion(1, 3)
+
+        self.to_few_cursors = (
+            "At least two road cursors are required for a RoadRange"
+        )
+
+    def test_roadrange_base(self):
+        prettyprint(self.roadrange.get_element())
+
+    def test_roadrange_equality(self):
+        roadrange2 = OSC.RoadRange("10")
+        roadrange2.add_cursor("0")
+        roadrange2.add_cursor("1")
+        assert self.roadrange == roadrange2
+
+        roadrange3 = OSC.RoadRange("20")
+        roadrange3.add_cursor("0")
+        roadrange3.add_cursor("1")
+        assert self.roadrange != roadrange3
+
+    def test_add_cursor(self):
+        self.roadrange.add_cursor("2")
+        assert len(self.roadrange.roadcursors) == 3
+
+    def test_parse(self):
+        road_range = self.roadrange.get_element()
+        parsed_roadrange = OSC.RoadRange.parse(road_range)
+        assert self.roadrange == parsed_roadrange
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        assert (
+            version_validation("RoadRange", self.roadrange, version)
+            == expected
+        )
+
+    def test_number_of_road_cursors(self):
+        self.roadrange_basic = OSC.RoadRange()
+        self.roadrange_basic.setVersion(1, 3)
+        assert len(self.roadrange_basic.roadcursors) == 0
+        with pytest.raises(ValueError) as to_few_cursors:
+            self.roadrange_basic.get_element()
+        assert str(to_few_cursors.value) == self.to_few_cursors
+
+        self.roadrange_basic.add_cursor("0")
+        assert len(self.roadrange_basic.roadcursors) == 1
+        with pytest.raises(ValueError) as to_few_cursors:
+            self.roadrange_basic.get_element()
+        assert str(to_few_cursors.value) == self.to_few_cursors
+        self.roadrange_basic.add_cursor("1")
+        assert len(self.roadrange_basic.roadcursors) == 2
+        self.roadrange_basic.get_element()
+
+    def test_road_range_with_lanes(self):
+        rr = OSC.RoadRange("10")
+        rr.add_cursor("roadA", 0.0, [1, 2])
+        rr.add_cursor("roadA", 100.0, [2])
+        rr.setVersion(1, 3)
+        element = rr.get_element()
+        parsed = OSC.RoadRange.parse(element)
+        assert rr == parsed
+        assert parsed.roadcursors[0][2] == [1, 2]
+        assert parsed.roadcursors[1][2] == [2]
+
+
+class TestClothoidSpline:
     def setup_method(self):
         self.first_segment_position = [
             OSC.WorldPosition(0, 0, 0, 0, 0, 0),
