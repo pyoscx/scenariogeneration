@@ -308,3 +308,12 @@ class RawDataSource(Enum):
     cadaster = auto()
     custom = auto()
     sensor = auto()
+
+
+class SideType(Enum):
+    """Enum of the sideType"""
+
+    front = auto()
+    left = auto()
+    rear = auto()
+    right = auto()
