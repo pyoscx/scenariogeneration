@@ -2677,7 +2677,8 @@ class ActivateControllerAction(_PrivateActionType):
             lighting = convert_bool(aca_element.attrib["lighting"])
         if "controllerRef" in aca_element.attrib:
             controllerRef = aca_element.attrib["controllerRef"]
-
+        elif "objectControllerRef" in aca_element.attrib:
+            controllerRef = aca_element.attrib["objectControllerRef"]
         return ActivateControllerAction(
             lateral, longitudinal, animation, lighting, controllerRef
         )
@@ -2701,8 +2702,10 @@ class ActivateControllerAction(_PrivateActionType):
             retdict["animation"] = get_bool_string(self.animation)
         if self.lighting is not None and self.isVersionEqLarger(minor=2):
             retdict["lighting"] = get_bool_string(self.lighting)
-        if self.controllerRef is not None and self.isVersionEqLarger(minor=2):
+        if self.controllerRef is not None and self.isVersion(minor=2):
             retdict["controllerRef"] = self.controllerRef
+        if self.controllerRef is not None and self.isVersionEqLarger(minor=3):
+            retdict["objectControllerRef"] = self.controllerRef
         return retdict
 
     def get_element(self) -> ET.Element:
