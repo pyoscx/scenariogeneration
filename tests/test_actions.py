@@ -158,13 +158,14 @@ ocv_action = OSC.OverrideControllerValueAction()
 ocv_action.set_brake(True, 2)
 aca = OSC.ActivateControllerAction(True, True)
 ass = OSC.AssignControllerAction(cnt)
+object_controller = OSC.ObjectController(
+    name="my_obj_controller", controller=cnt
+)
 
-
-@pytest.mark.parametrize(
-    "action",
-    [
-        OSC.AbsoluteSpeedAction(50.0, TD),
-        OSC.RelativeSpeedAction(1, "Ego", TD),
+private_actions_and_version = [
+    (OSC.AbsoluteSpeedAction(50.0, TD), _MINOR_VERSION),
+    (OSC.RelativeSpeedAction(1, "Ego", TD), _MINOR_VERSION),
+    (
         OSC.LongitudinalDistanceAction(
             "Ego",
             max_acceleration=3,
@@ -172,14 +173,23 @@ ass = OSC.AssignControllerAction(cnt)
             max_speed=4,
             distance=1,
         ),
-        OSC.AbsoluteLaneChangeAction(1, TD),
-        OSC.RelativeLaneChangeAction(1, "Ego", TD, 0.2),
+        _MINOR_VERSION,
+    ),
+    (OSC.AbsoluteLaneChangeAction(1, TD), _MINOR_VERSION),
+    (OSC.RelativeLaneChangeAction(1, "Ego", TD, 0.2), _MINOR_VERSION),
+    (
         OSC.AbsoluteLaneOffsetAction(1, OSC.DynamicsShapes.step, 3, False),
+        _MINOR_VERSION,
+    ),
+    (
         OSC.RelativeLaneOffsetAction(
             1, "Ego", OSC.DynamicsShapes.step, 3, False
         ),
-        OSC.LateralDistanceAction("Ego", 3, max_speed=50),
-        OSC.VisibilityAction(True, False, True),
+        _MINOR_VERSION,
+    ),
+    (OSC.LateralDistanceAction("Ego", 3, max_speed=50), _MINOR_VERSION),
+    (OSC.VisibilityAction(True, False, True), _MINOR_VERSION),
+    (
         OSC.SynchronizeAction(
             "Ego",
             OSC.WorldPosition(0, 0, 0, 0, 0, 0),
@@ -187,12 +197,16 @@ ass = OSC.AssignControllerAction(cnt)
             target_tolerance=1,
             target_tolerance_master=2,
         ),
-        OSC.ControllerAction(ass, ocv_action, aca),
-        OSC.AssignControllerAction(cnt),
-        ocv_action,
-        OSC.ActivateControllerAction(True, False),
-        OSC.TeleportAction(OSC.WorldPosition(1)),
-        OSC.AssignRouteAction(route),
+        _MINOR_VERSION,
+    ),
+    (OSC.ControllerAction(ass, ocv_action, aca), 2),
+    (OSC.AssignControllerAction(object_controller), _MINOR_VERSION),
+    (ocv_action, _MINOR_VERSION),
+    (OSC.ActivateControllerAction(True, False), _MINOR_VERSION),
+    (OSC.AssignControllerAction(cnt), 2),
+    (OSC.TeleportAction(OSC.WorldPosition(1)), _MINOR_VERSION),
+    (OSC.AssignRouteAction(route), _MINOR_VERSION),
+    (
         OSC.FollowTrajectoryAction(
             traj,
             OSC.FollowingMode.position,
@@ -200,16 +214,28 @@ ass = OSC.AssignControllerAction(cnt)
             offset=3,
             scale=4,
         ),
+        _MINOR_VERSION,
+    ),
+    (
         OSC.AcquirePositionAction(OSC.WorldPosition(1, 1, 0, 0, 0, 0)),
+        _MINOR_VERSION,
+    ),
+    (
         OSC.AnimationAction(
             OSC.VehicleComponentType.doorFrontRight, 1, False, 1
         ),
+        _MINOR_VERSION,
+    ),
+    (
         OSC.LightStateAction(
             OSC.VehicleLightType.brakeLights,
             OSC.LightMode.on,
             transition_time=0.1,
             color=OSC.Color(OSC.ColorType.black, OSC.ColorRGB(0, 0, 0)),
         ),
+        _MINOR_VERSION,
+    ),
+    (
         OSC.SpeedProfileAction(
             [5, 4, 3],
             OSC.FollowingMode.follow,
@@ -217,18 +243,41 @@ ass = OSC.AssignControllerAction(cnt)
             OSC.DynamicsConstraints(1, 1, 1),
             "ego",
         ),
-        OSC.RandomRouteAction(),
-    ],
-)
-def test_private_action_factory(action):
-    factoryoutput = OSC.actions._PrivateActionFactory.parse_privateaction(
-        action.get_element()
-    )
-    prettyprint(action, None)
-    prettyprint(factoryoutput, None)
+        _MINOR_VERSION,
+    ),
+    (OSC.RandomRouteAction(), _MINOR_VERSION),
+]
 
-    assert action == factoryoutput
-    assert factoryoutput == action
+
+def idfn(private_action, osc_version):
+    return (
+        f"PrivateAction: {private_action.__class__.__name__}_osc {osc_version}"
+    )
+
+
+ids = [
+    idfn(private_action, osc_version)
+    for private_action, osc_version in private_actions_and_version
+]
+
+
+class TestPrivateActionFactory:
+
+    @pytest.mark.parametrize(
+        "private_action, osc_version",
+        private_actions_and_version,
+        ids=ids,
+    )
+    def test_private_action_factory(self, private_action, osc_version):
+        private_action.setVersion(minor=osc_version)
+        factoryoutput = OSC.actions._PrivateActionFactory.parse_privateaction(
+            private_action.get_element()
+        )
+        prettyprint(private_action, None)
+        prettyprint(factoryoutput, None)
+
+        assert private_action == factoryoutput
+        assert factoryoutput == private_action
 
 
 def test_speedaction_abs():
@@ -661,105 +710,235 @@ def test_aqcuire_position_route():
         OSC.AcquirePositionAction("dummy")
 
 
-def test_controller_action():
-    aca = OSC.ActivateControllerAction(True, True)
-    prop = OSC.Properties()
-    prop.add_property("mything", "2")
-    prop.add_property("theotherthing", "true")
-    cnt = OSC.Controller("mycontroller", prop)
+class TestControllerAction:
+    @pytest.fixture(name="aca")
+    def activate_controller_action(self):
+        aca = OSC.ActivateControllerAction(True, True)
+        return aca
 
-    ass = OSC.AssignControllerAction(cnt)
+    @pytest.fixture(name="ca")
+    def controller_action(self, aca):
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+        cnt = OSC.Controller("mycontroller", prop)
+        object_controller = OSC.ObjectController(
+            name="my_obj_controller", controller=cnt
+        )
+        ass = OSC.AssignControllerAction(object_controller)
+        ocva = OSC.OverrideControllerValueAction()
+        ocva.set_brake(True, 2)
+        ca = OSC.ControllerAction(ass, ocva, aca)
+        return ca
 
-    ocva = OSC.OverrideControllerValueAction()
-    ocva.set_brake(True, 2)
-    ca = OSC.ControllerAction(ass, ocva, aca)
-    ca2 = OSC.ControllerAction.parse(ca.get_element())
-    prettyprint(ca.get_element(), None)
-    prettyprint(ca2.get_element(), None)
-    assert ca == ca2
-    assert version_validation("PrivateAction", aca, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
-    with pytest.raises(TypeError):
-        OSC.ControllerAction(assignControllerAction="dummy")
-    with pytest.raises(TypeError):
-        OSC.ControllerAction(activateControllerAction="dummy")
-    with pytest.raises(TypeError):
-        OSC.ControllerAction(overrideControllerValueAction="dummy")
+    @pytest.fixture(name="ca_v3")
+    def controller_action_v3(self):
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+        cnt = OSC.Controller("mycontroller", prop)
+        object_controller = OSC.ObjectController(
+            name="my_obj_controller", controller=cnt
+        )
+        ass = OSC.AssignControllerAction(object_controller)
+        ca = OSC.ControllerAction(ass)
+        return ca
 
+    @pytest.fixture(name="ca_v2")
+    def controller_action_v2(self, aca):
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+        cnt = OSC.Controller("mycontroller", prop)
+        ass = OSC.AssignControllerAction(cnt)
+        ocva = OSC.OverrideControllerValueAction()
+        ocva.set_brake(True, 2)
+        ca = OSC.ControllerAction(ass, ocva, aca)
+        return ca
 
-def test_activate_controller_action():
-    aca = OSC.ActivateControllerAction(True, True)
-    prettyprint(aca.get_element(), None)
-    aca2 = OSC.ActivateControllerAction(True, True)
-    aca3 = OSC.ActivateControllerAction(True, False)
+    def test_eq_controller_action(self, ca):
+        ca2 = OSC.ControllerAction.parse(ca.get_element())
+        prettyprint(ca.get_element(), None)
+        prettyprint(ca2.get_element(), None)
+        assert ca == ca2
 
-    assert aca == aca2
-    assert aca != aca3
+    def test_eq_controller_action_v2(self, ca):
+        ca.setVersion(minor=2)
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+        cnt = OSC.Controller("mycontroller", prop)
+        ca.assignControllerAction.controller = cnt
+        ca3 = OSC.ControllerAction.parse(ca.get_element())
+        assert ca == ca3
 
-    aca4 = OSC.ActivateControllerAction.parse(aca.get_element())
-    prettyprint(aca4.get_element(), None)
-    assert aca4 == aca
-    aca5 = OSC.ActivateControllerAction()
-    prettyprint(aca5)
-    aca6 = OSC.ActivateControllerAction.parse(aca5.get_element())
-
-    aca5 = OSC.ActivateControllerAction(
-        True, True, True, True, "controller_name"
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+        ],
     )
-    aca6 = OSC.ActivateControllerAction(
-        True, True, True, True, "controller_name2"
+    def test_version_validation(self, version, expected, ca_v2):
+        ca_v2.setVersion(minor=version)
+        prettyprint(ca_v2.get_element(), None)
+        assert version_validation("PrivateAction", ca_v2, version) == expected
+
+    def test_version_validation_v3(self, ca_v3, ca):
+        prettyprint(ca_v3.get_element(), None)
+        assert (
+            version_validation("PrivateAction", ca_v3, 3)
+            == ValidationResponse.OK
+        )
+        assert (
+            version_validation("PrivateAction", ca, 3)
+            == ValidationResponse.XSD_FAILURE
+        )
+
+    def test_invalid_input(self):
+        with pytest.raises(TypeError):
+            OSC.ControllerAction(assignControllerAction="dummy")
+        with pytest.raises(TypeError):
+            OSC.ControllerAction(activateControllerAction="dummy")
+        with pytest.raises(TypeError):
+            OSC.ControllerAction(overrideControllerValueAction="dummy")
+
+
+class TestActivateControllerAction:
+    @pytest.fixture(name="aca")
+    def activate_controller_action(self):
+        aca = OSC.ActivateControllerAction(True, True)
+        return aca
+
+    def test_prettyprint(self, aca):
+        prettyprint(aca.get_element(), None)
+
+    def test_eq(self, aca):
+        aca2 = OSC.ActivateControllerAction(True, True)
+        assert aca == aca2
+
+    def test_neq(self, aca):
+        aca3 = OSC.ActivateControllerAction(True, False)
+        assert aca != aca3
+
+    def test_neq_v2(self):
+        OSC.VersionBase().setVersion(minor=2)
+        aca5 = OSC.ActivateControllerAction(
+            True, True, True, True, "controller_name"
+        )
+        aca6 = OSC.ActivateControllerAction(
+            True, True, True, True, "controller_name2"
+        )
+        assert aca5 != aca6
+        aca7 = OSC.ActivateControllerAction(
+            True, True, True, False, "controller_name"
+        )
+        assert aca5 != aca7
+
+    def test_parse(self, aca):
+        aca4 = OSC.ActivateControllerAction.parse(aca.get_element())
+        prettyprint(aca4.get_element(), None)
+        assert aca4 == aca
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    assert aca5 != aca6
-    aca7 = OSC.ActivateControllerAction(
-        True, True, True, False, "controller_name"
+    def test_version_validation(self, version, expected, aca):
+        assert version_validation("PrivateAction", aca, version) == expected
+
+
+class TestAssignControllerAction:
+    @pytest.fixture(name="aca")
+    def assign_controller_action(self):
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+
+        cnt = OSC.Controller("mycontroller", prop)
+        object_controller = OSC.ObjectController(
+            name="my_obj_controller", controller=cnt
+        )
+        aca = OSC.AssignControllerAction(object_controller)
+        return aca
+
+    @pytest.fixture(name="aca_v2")
+    def assign_controller_action_v2(self):
+        OSC.VersionBase().setVersion(minor=2)
+        prop = OSC.Properties()
+        prop.add_property("mything", "2")
+        prop.add_property("theotherthing", "true")
+
+        cnt = OSC.Controller("mycontroller", prop)
+        aca = OSC.AssignControllerAction(cnt)
+        return aca
+
+    def test_prettyprint(self, aca):
+        prettyprint(aca.get_element(), None)
+
+    def test_eq(self, aca):
+        prop2 = OSC.Properties()
+        prop2.add_property("mything", "3")
+        prop2.add_property("theotherthing", "true")
+        object_controller = OSC.ObjectController(
+            name="my_obj_controller", controller=cnt
+        )
+        aca2 = OSC.AssignControllerAction(object_controller)
+        assert aca == aca2
+
+    def test_neq(self, aca):
+        prop2 = OSC.Properties()
+        prop2.add_property("mything", "3")
+        prop2.add_property("theotherthing", "true")
+
+        cnt2 = OSC.Controller("mycontroller", prop2)
+        object_controller = OSC.ObjectController(
+            name="my_obj_controller2", controller=cnt2
+        )
+
+        aca3 = OSC.AssignControllerAction(
+            object_controller, True, True, True, True
+        )
+        prettyprint(aca3.get_element(), None)
+        assert aca != aca3
+
+    def test_parse(self, aca):
+        aca4 = OSC.AssignControllerAction.parse(aca.get_element())
+        prettyprint(aca4.get_element(), None)
+        assert aca4 == aca
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OSC_VERSION),
+        ],
     )
-    assert aca5 != aca7
-    aca8 = OSC.ActivateControllerAction.parse(aca5.get_element())
-    prettyprint(aca5.get_element())
-    assert aca5 == aca8
-    assert version_validation("PrivateAction", aca, 0) == ValidationResponse.OK
-    assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
+    def test_version_validation(self, version, expected, aca_v2):
+        assert version_validation("PrivateAction", aca_v2, version) == expected
 
-    aca.setVersion(minor=0)
-    acap = OSC.ActivateControllerAction.parse(aca.get_element())
-
-
-def test_assign_controller_action():
-    prop = OSC.Properties()
-    prop.add_property("mything", "2")
-    prop.add_property("theotherthing", "true")
-
-    cnt = OSC.Controller("mycontroller", prop)
-
-    aca = OSC.AssignControllerAction(cnt)
-    prettyprint(aca.get_element(), None)
-
-    prop2 = OSC.Properties()
-    prop2.add_property("mything", "3")
-    prop2.add_property("theotherthing", "true")
-
-    cnt2 = OSC.Controller("mycontroller", prop2)
-
-    aca2 = OSC.AssignControllerAction(cnt)
-    aca3 = OSC.AssignControllerAction(cnt2, True, True, True, True)
-    prettyprint(aca3.get_element(), None)
-    assert aca == aca2
-    assert aca != aca3
-
-    aca4 = OSC.AssignControllerAction.parse(aca.get_element())
-    prettyprint(aca4.get_element(), None)
-    assert aca4 == aca
-    assert (
-        version_validation("PrivateAction", aca, 0)
-        == ValidationResponse.OSC_VERSION
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.XSD_FAILURE),
+            (2, ValidationResponse.XSD_FAILURE),
+            (3, ValidationResponse.OK),
+        ],
     )
-    assert version_validation("PrivateAction", aca, 1) == ValidationResponse.OK
-    assert version_validation("PrivateAction", aca, 2) == ValidationResponse.OK
+    def test_version_validation_v3(self, version, expected, aca):
+        assert version_validation("PrivateAction", aca, version) == expected
 
-    with pytest.raises(TypeError):
-        OSC.AssignControllerAction("dummy")
+    def test_invalid_input(self):
+        with pytest.raises(TypeError):
+            OSC.AssignControllerAction("dummy")
 
 
 def test_override_controller():
