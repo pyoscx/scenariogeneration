@@ -2556,7 +2556,7 @@ class ControllerAction(_PrivateActionType):
         return element
 
 
-class ObjectController(VersionBase):
+class _ObjectController(VersionBase):
     """
     A controller of a scenario object.
     Parameters
@@ -2615,13 +2615,13 @@ class ObjectController(VersionBase):
         self.controller = controller
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, ObjectController):
+        if isinstance(other, _ObjectController):
             if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
     @staticmethod
-    def parse(element: ET.Element) -> "ObjectController":
+    def parse(element: ET.Element) -> "_ObjectController":
         """Parses the XML element of _ObjectController.
 
         Parameters
@@ -2646,7 +2646,7 @@ class ObjectController(VersionBase):
             controller = Controller.parse(
                 find_mandatory_field(element, "Controller")
             )
-        return ObjectController(name, catalog_ref, controller)
+        return _ObjectController(name, catalog_ref, controller)
 
     def get_attributes(self) -> dict:
         """Returns the attributes of the _ObjectController as a dictionary.
@@ -2690,11 +2690,8 @@ class ActivateControllerAction(_PrivateActionType):
         Activate or deactivate an animation.
     lighting : bool
         Activate or deactivate lights.
-    controllerRef : Controller, optional
+    controllerRef : str
         Reference to a controller assigned to the entity.
-        Deprecated in version 1.3.
-    obj_controller_ref: str , optional
-        Reference to an object controller which is assigned to the entity.
 
     Attributes
     ----------
@@ -2708,8 +2705,6 @@ class ActivateControllerAction(_PrivateActionType):
         Activate or deactivate lights.
     controllerRef : Controller
         Reference to a controller assigned to the entity.
-    obj_controller_ref: str
-        Reference to an object controller which is assigned to the entity.
 
     Methods
     -------
@@ -2728,8 +2723,7 @@ class ActivateControllerAction(_PrivateActionType):
         longitudinal: Optional[bool] = None,
         animation: Optional[bool] = None,
         lighting: Optional[bool] = None,
-        controllerRef: Optional[Controller] = None,
-        obj_controller_ref: Optional[str] = None,
+        controllerRef: Optional[str] = None,
     ):
         """Initializes the ActivateControllerAction.
 
@@ -2745,15 +2739,12 @@ class ActivateControllerAction(_PrivateActionType):
             Activate or deactivate lights.
         controllerRef : Controller
             Reference to a controller assigned to the entity.
-        obj_controller_ref: str
-            Reference to an object controller which is assigned to the entity.
         """
         self.lateral = convert_bool(lateral)
         self.longitudinal = convert_bool(longitudinal)
         self.animation = convert_bool(animation)
         self.lighting = convert_bool(lighting)
         self.controllerRef = controllerRef
-        self.obj_controller_ref = obj_controller_ref
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, ActivateControllerAction):
@@ -2787,7 +2778,6 @@ class ActivateControllerAction(_PrivateActionType):
         animation = None
         lighting = None
         controllerRef = None
-        obj_controller_ref = None
         if element.find("ControllerAction") is not None:
             aca_element = find_mandatory_field(
                 element, "ControllerAction/ActivateControllerAction"
@@ -2807,16 +2797,10 @@ class ActivateControllerAction(_PrivateActionType):
             lighting = convert_bool(aca_element.attrib["lighting"])
         if "controllerRef" in aca_element.attrib:
             controllerRef = aca_element.attrib["controllerRef"]
-        if "objectControllerRef" in aca_element.attrib:
-            obj_controller_ref = aca_element.attrib["objectControllerRef"]
-
+        elif "objectControllerRef" in aca_element.attrib:
+            controllerRef = aca_element.attrib["objectControllerRef"]
         return ActivateControllerAction(
-            lateral,
-            longitudinal,
-            animation,
-            lighting,
-            controllerRef,
-            obj_controller_ref,
+            lateral, longitudinal, animation, lighting, controllerRef
         )
 
     def get_attributes(self) -> dict:
@@ -2840,10 +2824,8 @@ class ActivateControllerAction(_PrivateActionType):
             retdict["lighting"] = get_bool_string(self.lighting)
         if self.controllerRef is not None and self.isVersion(minor=2):
             retdict["controllerRef"] = self.controllerRef
-        if self.obj_controller_ref is not None and self.isVersionEqLarger(
-            minor=3
-        ):
-            retdict["objControllerRef"] = self.obj_controller_ref
+        if self.controllerRef is not None and self.isVersionEqLarger(minor=3):
+            retdict["objectControllerRef"] = self.controllerRef
         return retdict
 
     def get_element(self) -> ET.Element:
@@ -2922,7 +2904,7 @@ class AssignControllerAction(_PrivateActionType):
 
     def __init__(
         self,
-        controller: Union[Controller, CatalogReference, ObjectController],
+        controller: Union[Controller, CatalogReference, _ObjectController],
         activateLateral: bool = True,
         activateLongitudinal: bool = True,
         activateLighting: bool = False,
@@ -2946,10 +2928,10 @@ class AssignControllerAction(_PrivateActionType):
             If the animation control should be activated
         """
         if not isinstance(
-            controller, (Controller, CatalogReference, ObjectController)
+            controller, (Controller, CatalogReference, _ObjectController)
         ):
             raise TypeError(
-                "route input not of type Route or CatalogReference or ObjectController"
+                "route input not of type Route or CatalogReference or _ObjectController"
             )
         self.controller = controller
         self.activateLateral = convert_bool(activateLateral)
@@ -3008,7 +2990,6 @@ class AssignControllerAction(_PrivateActionType):
                 aca_element.attrib["activateAnimation"]
             )
         controller = None
-        # obj_controller = None
         if aca_element.find("Controller") is not None:
             controller = Controller.parse(
                 find_mandatory_field(aca_element, "Controller")
@@ -3018,7 +2999,7 @@ class AssignControllerAction(_PrivateActionType):
                 find_mandatory_field(aca_element, "CatalogReference")
             )
         elif aca_element.find("ObjectController") is not None:
-            controller = ObjectController.parse(
+            controller = _ObjectController.parse(
                 find_mandatory_field(aca_element, "ObjectController")
             )
         else:
@@ -3086,9 +3067,9 @@ class AssignControllerAction(_PrivateActionType):
             controlleraction, "AssignControllerAction", self.get_attributes()
         )
         if self.isVersionEqLarger(minor=3):
-            if not isinstance(self.controller, ObjectController):
+            if not isinstance(self.controller, _ObjectController):
                 raise OpenSCENARIOVersionError(
-                    "In version 1.3 and higher, controller must be of type ObjectController."
+                    "In version 1.3 and higher, controller must be of type _ObjectController."
                 )
 
         assigncontrolleraction.append(self.controller.get_element())
