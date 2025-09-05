@@ -528,7 +528,8 @@ class Pedestrian(_BaseCatalog):
             raise TypeError("boundingbox input is not of type BoundingBox")
 
         self.boundingbox = boundingbox
-        self.properties = Properties()
+        self._none_properties = True
+        self.properties = None
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other: object) -> bool:
@@ -576,9 +577,11 @@ class Pedestrian(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
@@ -598,6 +601,9 @@ class Pedestrian(_BaseCatalog):
         value : str
             Value of the property.
         """
+        if self._none_properties:
+            self.properties = Properties()
+            self._none_properties = False
         self.properties.add_property(name, value)
         return self
 
@@ -609,6 +615,9 @@ class Pedestrian(_BaseCatalog):
         filename : str
             Filename of a property file.
         """
+        if self._none_properties:
+            self.properties = Properties()
+            self._none_properties = False
         self.properties.add_file(filename)
         return self
 
@@ -627,7 +636,7 @@ class Pedestrian(_BaseCatalog):
         if self.isVersion(minor=0) and self.model is None:
             raise OpenSCENARIOVersionError("model is required for OSC 1.0")
 
-        if self.model is not None:
+        if self.model is not None and self.isVersionEqLess(minor=2):
             if self.isVersion(minor=0):
                 retdict["model"] = self.model
             else:
@@ -652,7 +661,14 @@ class Pedestrian(_BaseCatalog):
         element = ET.Element("Pedestrian", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+
+        if self._none_properties:
+            if self.isVersionEqLarger(1, 3):
+                self.properties = None
+            else:
+                self.properties = Properties()
+        if self.properties is not None:
+            element.append(self.properties.get_element())
 
         return element
 
@@ -741,7 +757,8 @@ class MiscObject(_BaseCatalog):
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
         self.boundingbox = boundingbox
-        self.properties = Properties()
+        self._none_properties = True
+        self.properties = None
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
@@ -774,9 +791,11 @@ class MiscObject(_BaseCatalog):
             model3d = element.attrib["model3d"]
         mass = convert_float(element.attrib["mass"])
         name = element.attrib["name"]
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
@@ -796,7 +815,7 @@ class MiscObject(_BaseCatalog):
         obj.properties = properties
         return obj
 
-    def add_property(self, name: str, value: str) -> None:
+    def add_property(self, name: str, value: str):
         """Add a single property to the MiscObject.
 
         Parameters
@@ -806,8 +825,11 @@ class MiscObject(_BaseCatalog):
         value : str
             Value of the property.
         """
+        if self._none_properties:
+            self.properties = Properties()
+            self._none_properties = False
+
         self.properties.add_property(name, value)
-        return self
 
     def add_property_file(self, filename: str) -> None:
         """Add a property file to the MiscObject.
@@ -817,8 +839,10 @@ class MiscObject(_BaseCatalog):
         filename : str
             Filename of a property file.
         """
+        if self._none_properties:
+            self.properties = Properties()
+            self._none_properties = False
         self.properties.add_file(filename)
-        return self
 
     def get_attributes(self) -> dict:
         """Return the attributes as a dictionary of the MiscObject.
@@ -847,7 +871,14 @@ class MiscObject(_BaseCatalog):
         element = ET.Element("MiscObject", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+
+        if self._none_properties:
+            if self.isVersionEqLarger(1, 3):
+                self.properties = None
+            else:
+                self.properties = Properties()
+        if self.properties is not None:
+            element.append(self.properties.get_element())
 
         return element
 
