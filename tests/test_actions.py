@@ -159,9 +159,7 @@ ocv_action = OSC.OverrideControllerValueAction()
 ocv_action.set_brake(True, 2)
 aca = OSC.ActivateControllerAction(True, True)
 ass = OSC.AssignControllerAction(cnt)
-object_controller = _ObjectController(
-    name="my_obj_controller", controller=cnt
-)
+object_controller = _ObjectController(name="my_obj_controller", controller=cnt)
 
 private_actions_and_version = [
     (OSC.AbsoluteSpeedAction(50.0, TD), _MINOR_VERSION),
@@ -902,6 +900,7 @@ class TestAssignControllerAction:
             name="my_obj_controller", controller=cnt
         )
         aca2 = OSC.AssignControllerAction(object_controller)
+
         assert aca == aca2
 
     def test_neq(self, aca):
