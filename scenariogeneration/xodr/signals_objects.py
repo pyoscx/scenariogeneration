@@ -819,6 +819,8 @@ class Object(_SignalObjectBase):
         List of markings for the Object.
     parking_space : ParkingSpace, optional
         Parking space information for the Object.
+    materials : list[Material]
+        List of materials for the Object.
 
     Methods
     -------
