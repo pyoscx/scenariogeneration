@@ -1758,9 +1758,9 @@ class Marking(XodrBase):
     stopOffset : float
         Lateral offset in u-direction from end of bounding box side where the
         marking ends
-    weight : str, optional
-        Optical "weight" of the marking
     weight : RoadMarkWeight, optional
+        Optical "weight" of the marking
+    width : float, optional
         Width of the marking
     zOffset : float, optional
         Height of road mark above the road, i.e. thickness of the road mark
