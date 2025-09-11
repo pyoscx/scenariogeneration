@@ -528,8 +528,7 @@ class Pedestrian(_BaseCatalog):
             raise TypeError("boundingbox input is not of type BoundingBox")
 
         self.boundingbox = boundingbox
-        self._none_properties = True
-        self.properties = None
+        self.properties = Properties()
         self.role = convert_enum(role, Role, True)
 
     def __eq__(self, other: object) -> bool:
@@ -587,7 +586,8 @@ class Pedestrian(_BaseCatalog):
             role = convert_enum(element.attrib["role"], Role)
         pedestrian = Pedestrian(name, mass, category, boundingbox, model, role)
         pedestrian.parameters = parameters
-        pedestrian.properties = properties
+        if properties is not None:
+            pedestrian.properties = properties
 
         return pedestrian
 
@@ -601,9 +601,6 @@ class Pedestrian(_BaseCatalog):
         value : str
             Value of the property.
         """
-        if self._none_properties:
-            self.properties = Properties()
-            self._none_properties = False
         self.properties.add_property(name, value)
         return self
 
@@ -615,9 +612,6 @@ class Pedestrian(_BaseCatalog):
         filename : str
             Filename of a property file.
         """
-        if self._none_properties:
-            self.properties = Properties()
-            self._none_properties = False
         self.properties.add_file(filename)
         return self
 
@@ -661,14 +655,9 @@ class Pedestrian(_BaseCatalog):
         element = ET.Element("Pedestrian", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-
-        if self._none_properties:
-            if self.isVersionEqLarger(1, 3):
-                self.properties = None
-            else:
-                self.properties = Properties()
-        if self.properties is not None:
-            element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -757,8 +746,7 @@ class MiscObject(_BaseCatalog):
         if not isinstance(boundingbox, BoundingBox):
             raise TypeError("boundingbox input is not of type BoundingBox")
         self.boundingbox = boundingbox
-        self._none_properties = True
-        self.properties = None
+        self.properties = Properties()
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
@@ -812,7 +800,8 @@ class MiscObject(_BaseCatalog):
 
         obj = MiscObject(name, mass, category, boundingbox, model3d)
         obj.parameters = parameters
-        obj.properties = properties
+        if properties is not None:
+            obj.properties = properties
         return obj
 
     def add_property(self, name: str, value: str):
@@ -825,10 +814,6 @@ class MiscObject(_BaseCatalog):
         value : str
             Value of the property.
         """
-        if self._none_properties:
-            self.properties = Properties()
-            self._none_properties = False
-
         self.properties.add_property(name, value)
 
     def add_property_file(self, filename: str) -> None:
@@ -839,9 +824,6 @@ class MiscObject(_BaseCatalog):
         filename : str
             Filename of a property file.
         """
-        if self._none_properties:
-            self.properties = Properties()
-            self._none_properties = False
         self.properties.add_file(filename)
 
     def get_attributes(self) -> dict:
@@ -871,14 +853,9 @@ class MiscObject(_BaseCatalog):
         element = ET.Element("MiscObject", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-
-        if self._none_properties:
-            if self.isVersionEqLarger(1, 3):
-                self.properties = None
-            else:
-                self.properties = Properties()
-        if self.properties is not None:
-            element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -1126,9 +1103,11 @@ class Vehicle(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
 
         performance = DynamicsConstraints.parse(
             find_mandatory_field(element, "Performance")
@@ -1189,7 +1168,8 @@ class Vehicle(_BaseCatalog):
             trailer_coupler,
             trailer,
         )
-        vehicle.properties = properties
+        if properties is not None:
+            vehicle.properties = properties
         vehicle.parameters = parameters
 
         additional_axles = axles_element.findall("AdditionalAxle")
@@ -1279,7 +1259,9 @@ class Vehicle(_BaseCatalog):
         element.append(self.boundingbox.get_element())
         element.append(self.dynamics.get_element("Performance"))
         element.append(self.axles.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
         if self.trailer_hitch:
             element.append(self.trailer_hitch.get_element("Hitch"))
         if self.trailer_coupler:

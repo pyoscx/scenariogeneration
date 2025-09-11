@@ -596,7 +596,7 @@ class TestMiscObject:
             "myobstacle", 100, OSC.MiscObjectCategory.obstacle, bb
         )
         parsed_obj = OSC.MiscObject.parse(misc_obj6.get_element())
-        assert parsed_obj.properties is None
+        assert parsed_obj.properties == OSC.Properties()
         OSC.VersionBase().setVersion(minor=2)
         parsed_obj2 = OSC.MiscObject.parse(misc_obj6.get_element())
         assert len(parsed_obj2.properties.properties) == 0
