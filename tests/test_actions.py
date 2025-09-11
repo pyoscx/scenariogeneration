@@ -20,7 +20,7 @@ from scenariogeneration.xosc.enumerations import (
     _MINOR_VERSION,
     ReferenceContext,
 )
-from scenariogeneration.xosc.actions import _ObjectController
+from scenariogeneration.xosc.actions import ObjectController
 from scenariogeneration.xosc.exceptions import NoActionsDefinedError
 
 from .xml_validator import ValidationResponse, version_validation
@@ -159,7 +159,7 @@ ocv_action = OSC.OverrideControllerValueAction()
 ocv_action.set_brake(True, 2)
 aca = OSC.ActivateControllerAction(True, True)
 ass = OSC.AssignControllerAction(cnt)
-object_controller = _ObjectController(name="my_obj_controller", controller=cnt)
+object_controller = ObjectController(name="my_obj_controller", controller=cnt)
 
 private_actions_and_version = [
     (OSC.AbsoluteSpeedAction(50.0, TD), _MINOR_VERSION),
@@ -721,7 +721,7 @@ class TestControllerAction:
         prop.add_property("mything", "2")
         prop.add_property("theotherthing", "true")
         cnt = OSC.Controller("mycontroller", prop)
-        object_controller = _ObjectController(
+        object_controller = ObjectController(
             name="my_obj_controller", controller=cnt
         )
         ass = OSC.AssignControllerAction(object_controller)
@@ -736,7 +736,7 @@ class TestControllerAction:
         prop.add_property("mything", "2")
         prop.add_property("theotherthing", "true")
         cnt = OSC.Controller("mycontroller", prop)
-        object_controller = _ObjectController(
+        object_controller = ObjectController(
             name="my_obj_controller", controller=cnt
         )
         ass = OSC.AssignControllerAction(object_controller)
@@ -872,7 +872,7 @@ class TestAssignControllerAction:
         prop.add_property("theotherthing", "true")
 
         cnt = OSC.Controller("mycontroller", prop)
-        object_controller = _ObjectController(
+        object_controller = ObjectController(
             name="my_obj_controller", controller=cnt
         )
         aca = OSC.AssignControllerAction(object_controller)
@@ -896,7 +896,7 @@ class TestAssignControllerAction:
         prop2 = OSC.Properties()
         prop2.add_property("mything", "3")
         prop2.add_property("theotherthing", "true")
-        object_controller = _ObjectController(
+        object_controller = ObjectController(
             name="my_obj_controller", controller=cnt
         )
         aca2 = OSC.AssignControllerAction(object_controller)
@@ -909,7 +909,7 @@ class TestAssignControllerAction:
         prop2.add_property("theotherthing", "true")
 
         cnt2 = OSC.Controller("mycontroller", prop2)
-        object_controller = _ObjectController(
+        object_controller = ObjectController(
             name="my_obj_controller2", controller=cnt2
         )
 
