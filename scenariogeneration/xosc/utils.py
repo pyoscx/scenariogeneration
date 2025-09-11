@@ -236,9 +236,9 @@ class Properties(VersionBase):
         """
         element = ET.Element("Properties")
         if (
-                len(self.files) == 0
-                and len(self.properties) == 0
-                and self.isVersionEqLarger(minor=3)
+            len(self.files) == 0
+            and len(self.properties) == 0
+            and self.isVersionEqLarger(minor=3)
         ):
             return None
         for p in self.properties:
