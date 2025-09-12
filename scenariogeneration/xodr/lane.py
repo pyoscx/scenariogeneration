@@ -1609,7 +1609,7 @@ class RoadMark(XodrBase):
     marking_weight : RoadMarkWeight, optional
         The weight of the marking. Default is `RoadMarkWeight.standard`.
     height : float, optional
-        The thickness of the marking. Default is 0.02.
+        The thickness of the marking. Default is None.
     laneChange : LaneChange, optional
         Indicates the direction in which lane changes are allowed.
         Default is None.
@@ -1662,7 +1662,7 @@ class RoadMark(XodrBase):
         rule: Optional[MarkRule] = None,
         color: RoadMarkColor = RoadMarkColor.standard,
         marking_weight: RoadMarkWeight = RoadMarkWeight.standard,
-        height: float = 0.02,
+        height: Optional[float] = None,
         laneChange: Optional[LaneChange] = None,
     ) -> None:
         """Initialize the `RoadMark` class.
@@ -1691,7 +1691,7 @@ class RoadMark(XodrBase):
             The weight of the marking. Default is
             `RoadMarkWeight.standard`.
         height : float, optional
-            The thickness of the marking. Default is 0.02.
+            The thickness of the marking. Default is None.
         laneChange : LaneChange, optional
             Indicates the direction in which lane changes are allowed.
             Default is None.
@@ -1823,7 +1823,8 @@ class RoadMark(XodrBase):
         retdict["type"] = enum2str(self.marking_type)
         retdict["weight"] = enum2str(self.marking_weight)
         retdict["color"] = enum2str(self.color)
-        retdict["height"] = str(self.height)
+        if self.height is not None:
+            retdict["height"] = str(self.height)
         if self.width is not None:
             retdict["width"] = str(self.width)
         if self.laneChange is not None:
