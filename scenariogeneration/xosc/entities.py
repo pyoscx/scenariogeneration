@@ -576,15 +576,18 @@ class Pedestrian(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
         pedestrian = Pedestrian(name, mass, category, boundingbox, model, role)
         pedestrian.parameters = parameters
-        pedestrian.properties = properties
+        if properties is not None:
+            pedestrian.properties = properties
 
         return pedestrian
 
@@ -627,7 +630,7 @@ class Pedestrian(_BaseCatalog):
         if self.isVersion(minor=0) and self.model is None:
             raise OpenSCENARIOVersionError("model is required for OSC 1.0")
 
-        if self.model is not None:
+        if self.model is not None and self.isVersionEqLess(minor=2):
             if self.isVersion(minor=0):
                 retdict["model"] = self.model
             else:
@@ -652,7 +655,9 @@ class Pedestrian(_BaseCatalog):
         element = ET.Element("Pedestrian", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -774,9 +779,11 @@ class MiscObject(_BaseCatalog):
             model3d = element.attrib["model3d"]
         mass = convert_float(element.attrib["mass"])
         name = element.attrib["name"]
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
@@ -793,10 +800,11 @@ class MiscObject(_BaseCatalog):
 
         obj = MiscObject(name, mass, category, boundingbox, model3d)
         obj.parameters = parameters
-        obj.properties = properties
+        if properties is not None:
+            obj.properties = properties
         return obj
 
-    def add_property(self, name: str, value: str) -> None:
+    def add_property(self, name: str, value: str):
         """Add a single property to the MiscObject.
 
         Parameters
@@ -807,7 +815,6 @@ class MiscObject(_BaseCatalog):
             Value of the property.
         """
         self.properties.add_property(name, value)
-        return self
 
     def add_property_file(self, filename: str) -> None:
         """Add a property file to the MiscObject.
@@ -818,7 +825,6 @@ class MiscObject(_BaseCatalog):
             Filename of a property file.
         """
         self.properties.add_file(filename)
-        return self
 
     def get_attributes(self) -> dict:
         """Return the attributes as a dictionary of the MiscObject.
@@ -847,7 +853,9 @@ class MiscObject(_BaseCatalog):
         element = ET.Element("MiscObject", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -1095,9 +1103,11 @@ class Vehicle(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
 
         performance = DynamicsConstraints.parse(
             find_mandatory_field(element, "Performance")
@@ -1158,7 +1168,8 @@ class Vehicle(_BaseCatalog):
             trailer_coupler,
             trailer,
         )
-        vehicle.properties = properties
+        if properties is not None:
+            vehicle.properties = properties
         vehicle.parameters = parameters
 
         additional_axles = axles_element.findall("AdditionalAxle")
@@ -1248,7 +1259,9 @@ class Vehicle(_BaseCatalog):
         element.append(self.boundingbox.get_element())
         element.append(self.dynamics.get_element("Performance"))
         element.append(self.axles.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
         if self.trailer_hitch:
             element.append(self.trailer_hitch.get_element("Hitch"))
         if self.trailer_coupler:

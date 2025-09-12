@@ -26,6 +26,12 @@ def reset_version():
     OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
+@pytest.fixture(name="bb", autouse=True)
+def bounding_box():
+    bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
+    return bb
+
+
 def test_properties():
     prop = OSC.Properties()
     prop.add_file("myprops.xml")
@@ -137,7 +143,6 @@ class TestVehicle:
 
     @pytest.fixture(name="trailer_veh")
     def fix_trailer_veh(self, bb, fa, ba):
-
         return OSC.Vehicle(
             "mycar",
             OSC.VehicleCategory.car,
@@ -197,7 +202,6 @@ class TestVehicle:
         prettyprint(vehicle.get_element())
 
     def test_base_property(self, simple_veh, ba):
-
         simple_veh.add_property_file("propfile.xml")
         simple_veh.add_property("myprop", "12")
         simple_veh.add_axle(ba)
@@ -357,126 +361,245 @@ class TestVehicle:
         assert version_validation("Vehicle", veh, version) == expected
 
 
-def test_pedestrian(tmpdir):
-    bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
-    ped = OSC.Pedestrian(
-        "myped",
-        100,
-        OSC.PedestrianCategory.pedestrian,
-        bb,
-        "ped",
-        OSC.Role.police,
-    )
+class TestPedestrian:
 
-    prettyprint(ped.get_element())
-    ped.add_property_file("propfile.xml")
-    ped.add_property("myprop", "12")
-    param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
-    ped.add_parameter(param)
-
-    prettyprint(ped.get_element())
-
-    ped2 = OSC.Pedestrian(
-        "myped",
-        100,
-        OSC.PedestrianCategory.pedestrian,
-        bb,
-        "ped",
-        OSC.Role.police,
-    )
-    ped2.add_property_file("propfile.xml")
-    ped2.add_property("myprop", "12")
-    ped2.add_parameter(param)
-    ped3 = OSC.Pedestrian(
-        "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "test_model"
-    )
-
-    assert ped == ped2
-    assert ped != ped3
-
-    ped4 = OSC.Pedestrian.parse(ped.get_element())
-    assert ped4 == ped
-    ped.dump_to_catalog(
-        os.path.join(tmpdir, "my_catalog.xosc"),
-        "PedestrianCatalog",
-        "test catalog",
-        "Mandolin",
-    )
-    assert (
-        version_validation("Pedestrian", ped, 0)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert (
-        version_validation("Pedestrian", ped, 1)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert version_validation("Pedestrian", ped, 2) == ValidationResponse.OK
-
-    assert version_validation("Pedestrian", ped3, 0) == ValidationResponse.OK
-    assert version_validation("Pedestrian", ped3, 1) == ValidationResponse.OK
-    assert version_validation("Pedestrian", ped3, 2) == ValidationResponse.OK
-
-    with pytest.raises(ValueError):
-        OSC.Pedestrian("myped", 100, "dummy", bb, "ped", OSC.Role.police)
-    with pytest.raises(TypeError):
-        OSC.Pedestrian(
+    @pytest.fixture()
+    def ped(self, bb):
+        ped = OSC.Pedestrian(
             "myped",
             100,
             OSC.PedestrianCategory.pedestrian,
-            "dummy",
+            bb,
             "ped",
             OSC.Role.police,
         )
-    with pytest.raises(ValueError):
-        OSC.Pedestrian(
-            "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "ped", "dummy"
+        return ped
+
+    @pytest.fixture(name="ped3")
+    def pedestrian_3(self, bb):
+        ped3 = OSC.Pedestrian(
+            "myped", 100, OSC.PedestrianCategory.pedestrian, bb, "test_model"
         )
-    with pytest.raises(TypeError):
-        ped.add_parameter("dummy")
+        return ped3
+
+    def test_prettyprint(self, ped):
+        prettyprint(ped.get_element())
+
+    def test_add_property_file(self, ped):
+        ped.add_property_file("propfile.xml")
+        prettyprint(ped.get_element())
+        assert ped.properties is not None
+
+    def test_add_property(self, ped):
+        ped.add_property("myprop", "12")
+        prettyprint(ped.get_element())
+        assert ped.properties is not None
+
+    def test_add_parameter(self, ped):
+        param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
+        ped.add_parameter(param)
+        prettyprint(ped.get_element())
+        assert ped.parameters is not None
+
+    def test_eq(self, ped, bb):
+        param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
+        ped2 = OSC.Pedestrian(
+            "myped",
+            100,
+            OSC.PedestrianCategory.pedestrian,
+            bb,
+            "ped",
+            OSC.Role.police,
+        )
+        ped2.add_property_file("propfile.xml")
+        ped2.add_property("myprop", "12")
+        ped2.add_parameter(param)
+
+        ped.add_property_file("propfile.xml")
+        ped.add_property("myprop", "12")
+        ped.add_parameter(param)
+        assert ped == ped2
+
+    def test_neq(self, ped3, ped):
+        assert ped != ped3
+
+    def test_parse(self, ped):
+        ped4 = OSC.Pedestrian.parse(ped.get_element())
+        assert ped4 == ped
+
+    def test_dump_to_catalog(self, ped, tmpdir):
+        ped.dump_to_catalog(
+            os.path.join(tmpdir, "my_catalog.xosc"),
+            "PedestrianCatalog",
+            "test catalog",
+            "Mandolin",
+        )
+
+    def version_validation(self, ped, ped3):
+        assert (
+            version_validation("Pedestrian", ped, 0)
+            == ValidationResponse.OSC_VERSION
+        )
+        assert (
+            version_validation("Pedestrian", ped, 1)
+            == ValidationResponse.OSC_VERSION
+        )
+        assert (
+            version_validation("Pedestrian", ped, 2) == ValidationResponse.OK
+        )
+
+        assert (
+            version_validation("Pedestrian", ped3, 0) == ValidationResponse.OK
+        )
+        assert (
+            version_validation("Pedestrian", ped3, 1) == ValidationResponse.OK
+        )
+        assert (
+            version_validation("Pedestrian", ped3, 2) == ValidationResponse.OK
+        )
+
+    def test_invalid_input(self, bb, ped):
+        with pytest.raises(ValueError):
+            OSC.Pedestrian("myped", 100, "dummy", bb, "ped", OSC.Role.police)
+        with pytest.raises(TypeError):
+            OSC.Pedestrian(
+                "myped",
+                100,
+                OSC.PedestrianCategory.pedestrian,
+                "dummy",
+                "ped",
+                OSC.Role.police,
+            )
+        with pytest.raises(ValueError):
+            OSC.Pedestrian(
+                "myped",
+                100,
+                OSC.PedestrianCategory.pedestrian,
+                bb,
+                "ped",
+                "dummy",
+            )
+        with pytest.raises(TypeError):
+            ped.add_parameter("dummy")
 
 
-def test_miscobj(tmpdir):
-    bb = OSC.BoundingBox(2, 5, 1.5, 1.5, 0, 0.2)
-    veh = OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, bb)
+class TestMiscObject:
+    @pytest.fixture()
+    def misc_obj(self, bb):
+        obs = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.obstacle, bb
+        )
+        return obs
 
-    prettyprint(veh.get_element())
-    veh.add_property_file("propfile.xml")
-    veh.add_property_file("propfile2.xml")
-    veh.add_property("myprop", "12")
-    param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
-    param2 = OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01")
-    veh.add_parameter(param)
-    veh.add_parameter(param2)
-    prettyprint(veh.get_element())
+    @pytest.fixture()
+    def param(self):
+        param = OSC.Parameter("mypar", OSC.ParameterType.integer, "1")
+        return param
 
-    veh2 = OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, bb)
-    veh2.add_property_file("propfile.xml")
-    veh2.add_property_file("propfile2.xml")
-    veh2.add_property("myprop", "12")
-    veh2.add_parameter(param)
-    veh2.add_parameter(param2)
+    @pytest.fixture()
+    def param2(self):
+        param2 = OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01")
+        return param2
 
-    veh3 = OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, bb)
-    veh4 = OSC.MiscObject.parse(veh3.get_element())
-    assert veh3 == veh4
-    assert veh == veh2
-    assert veh != veh3
-    veh5 = OSC.MiscObject.parse(veh.get_element())
-    prettyprint(veh5.get_element())
-    assert veh5 == veh
-    veh.dump_to_catalog(
-        os.path.join(tmpdir, "my_catalog.xosc"),
-        "MiscObjectCatalog",
-        "test catalog",
-        "Mandolin",
+    def test_prettyprint(self, misc_obj):
+        prettyprint(misc_obj.get_element())
+
+    def test_add_property_file(self, misc_obj):
+        misc_obj.add_property_file("propfile.xml")
+        misc_obj.add_property_file("propfile2.xml")
+        prettyprint(misc_obj.get_element())
+        assert misc_obj.properties is not None
+        misc_obj.add_property("myprop", "12")
+        assert len(misc_obj.properties.properties) == 1
+        assert len(misc_obj.properties.files) == 2
+
+    def test_add_parameter(self, misc_obj, param):
+        param2 = OSC.Parameter("myparam1", OSC.ParameterType.double, "0.01")
+        misc_obj.add_parameter(param)
+        misc_obj.add_parameter(param2)
+        prettyprint(misc_obj.get_element())
+        assert misc_obj.parameters is not None
+        assert len(misc_obj.parameters.parameters) == 2
+
+    def test_eq(self, misc_obj, param, param2, bb):
+        misc_obj2 = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.obstacle, bb
+        )
+        misc_obj2.add_property_file("propfile.xml")
+        misc_obj2.add_property_file("propfile2.xml")
+        misc_obj2.add_property("myprop", "12")
+        misc_obj2.add_parameter(param)
+        misc_obj2.add_parameter(param2)
+
+        misc_obj.add_property_file("propfile.xml")
+        misc_obj.add_property_file("propfile2.xml")
+        misc_obj.add_property("myprop", "12")
+        misc_obj.add_parameter(param)
+        misc_obj.add_parameter(param2)
+        assert misc_obj == misc_obj2
+
+    def test_parse(self, misc_obj, bb):
+        misc_obj3 = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.tree, bb
+        )
+        misc_obj4 = OSC.MiscObject.parse(misc_obj3.get_element())
+        assert misc_obj3 == misc_obj4
+        misc_obj5 = OSC.MiscObject.parse(misc_obj.get_element())
+        prettyprint(misc_obj5.get_element())
+        assert misc_obj5 == misc_obj
+
+    def test_neq(self, misc_obj, bb):
+        misc_obj3 = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.building, bb
+        )
+        assert misc_obj != misc_obj3
+        misc_obj4 = OSC.MiscObject(
+            "myobstacle", 200, OSC.MiscObjectCategory.obstacle, bb
+        )
+        assert misc_obj != misc_obj4
+        bb2 = OSC.BoundingBox(3, 5, 1.5, 1.5, 0, 0.2)
+        misc_obj5 = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.obstacle, bb2
+        )
+        assert misc_obj != misc_obj5
+
+    def test_dump_to_catalog(self, misc_obj, tmpdir):
+        misc_obj.dump_to_catalog(
+            os.path.join(tmpdir, "my_catalog.xosc"),
+            "MiscObjectCatalog",
+            "test catalog",
+            "Mandolin",
+        )
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OK),
+            (1, ValidationResponse.OK),
+            (2, ValidationResponse.OK),
+            (3, ValidationResponse.OK),
+        ],
     )
-    assert version_validation("MiscObject", veh, 0) == ValidationResponse.OK
-    assert version_validation("MiscObject", veh, 1) == ValidationResponse.OK
-    assert version_validation("MiscObject", veh, 2) == ValidationResponse.OK
-    with pytest.raises(ValueError):
-        OSC.MiscObject("mycar", 100, "dummy", bb)
-    with pytest.raises(TypeError):
-        OSC.MiscObject("mycar", 100, OSC.MiscObjectCategory.obstacle, "dummy")
+    def test_version_validation(self, version, expected, misc_obj):
+        assert version_validation("MiscObject", misc_obj, version) == expected
+
+    def test_invalid_input(self, bb):
+        with pytest.raises(ValueError):
+            OSC.MiscObject("mycar", 100, "dummy", bb)
+        with pytest.raises(TypeError):
+            OSC.MiscObject(
+                "mycar", 100, OSC.MiscObjectCategory.obstacle, "dummy"
+            )
+
+    def test_optionals(self, bb):
+        misc_obj6 = OSC.MiscObject(
+            "myobstacle", 100, OSC.MiscObjectCategory.obstacle, bb
+        )
+        parsed_obj = OSC.MiscObject.parse(misc_obj6.get_element())
+        assert parsed_obj.properties == OSC.Properties()
+        OSC.VersionBase().setVersion(minor=2)
+        parsed_obj2 = OSC.MiscObject.parse(misc_obj6.get_element())
+        assert len(parsed_obj2.properties.properties) == 0
 
 
 def test_entity():
@@ -875,7 +998,6 @@ class TestEntityDistribution:
 
 class TestTrafficDistribution:
     def setup_method(self):
-
         self.entity_distribution = OSC.EntityDistribution()
         self.entity_distribution.setVersion(1, 3)
         self.catalog_ref = OSC.CatalogReference("VehicleCatalog", "Vehicle")

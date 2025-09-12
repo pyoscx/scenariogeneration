@@ -235,6 +235,12 @@ class Properties(VersionBase):
             The ElementTree representation of the Properties.
         """
         element = ET.Element("Properties")
+        if (
+            len(self.files) == 0
+            and len(self.properties) == 0
+            and self.isVersionEqLarger(minor=3)
+        ):
+            return None
         for p in self.properties:
             ET.SubElement(
                 element, "Property", attrib={"name": p[0], "value": p[1]}
@@ -1083,7 +1089,7 @@ class Controller(_BaseCatalog):
     def __init__(
         self,
         name: str,
-        properties: Properties,
+        properties: Optional[Properties] = None,
         controller_type: Optional[ControllerType] = None,
     ) -> None:
         """Initializes the Controller.
@@ -1099,10 +1105,11 @@ class Controller(_BaseCatalog):
         """
         super().__init__()
         self.name = name
-
-        if not isinstance(properties, Properties):
+        self.properties = (
+            properties if properties is not None else Properties()
+        )
+        if not isinstance(self.properties, Properties):
             raise TypeError("properties input is not of type Properties")
-        self.properties = properties
         self.controller_type = convert_enum(
             controller_type, ControllerType, True
         )
@@ -1133,8 +1140,10 @@ class Controller(_BaseCatalog):
             A Controller object.
         """
         name = element.attrib["name"]
-        properties_element = find_mandatory_field(element, "Properties")
-        properties = Properties.parse(properties_element)
+        properties = Properties()
+        if element.find("Properties"):
+            properties_element = find_mandatory_field(element, "Properties")
+            properties = Properties.parse(properties_element)
         cnt_type = None
         if "controllerType" in element.attrib:
             cnt_type = convert_enum(
@@ -1179,7 +1188,9 @@ class Controller(_BaseCatalog):
         """
         element = ET.Element("Controller", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 

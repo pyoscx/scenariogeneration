@@ -151,7 +151,8 @@ def test_catalog_reader_vehicle(tmpdir):
     assert read == orig
 
 
-def test_catalog_reader_pedestrian(tmpdir):
+def test_catalog_reader_pedestrian_v2(tmpdir):
+    xosc.VersionBase().setVersion(minor=2)
     tmpcatalog = os.path.join(tmpdir, "my_catalog.xosc")
     cf = xosc.CatalogFile()
     cf.create_catalog(
@@ -163,6 +164,26 @@ def test_catalog_reader_pedestrian(tmpdir):
     orig = xosc.Pedestrian(
         "dude", 80, xosc.PedestrianCategory.pedestrian, bb, "dude-model"
     )
+
+    orig.add_property_file("../models/car_white.osgb")
+    cf.add_to_catalog(orig)
+    cf.dump()
+    read = xosc.CatalogReader(
+        xosc.CatalogReference("my_catalog", "dude"), tmpdir
+    )
+    assert read == orig
+
+
+def test_catalog_reader_pedestrian(tmpdir):
+    tmpcatalog = os.path.join(tmpdir, "my_catalog.xosc")
+    cf = xosc.CatalogFile()
+    cf.create_catalog(
+        tmpcatalog, "PedestrianCatalog", "My first vehicle catalog", "Mandolin"
+    )
+
+    bb = xosc.BoundingBox(2, 5, 1.8, 2.0, 0, 0.9)
+
+    orig = xosc.Pedestrian("dude", 80, xosc.PedestrianCategory.pedestrian, bb)
 
     orig.add_property_file("../models/car_white.osgb")
     cf.add_to_catalog(orig)
