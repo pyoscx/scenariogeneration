@@ -1089,7 +1089,7 @@ class Controller(_BaseCatalog):
     def __init__(
         self,
         name: str,
-        properties: Optional[Properties] = Properties(),
+        properties: Optional[Properties] = None,
         controller_type: Optional[ControllerType] = None,
     ) -> None:
         """Initializes the Controller.
@@ -1105,10 +1105,11 @@ class Controller(_BaseCatalog):
         """
         super().__init__()
         self.name = name
-
-        if not isinstance(properties, Properties):
+        self.properties = (
+            properties if properties is not None else Properties()
+        )
+        if not isinstance(self.properties, Properties):
             raise TypeError("properties input is not of type Properties")
-        self.properties = properties
         self.controller_type = convert_enum(
             controller_type, ControllerType, True
         )
