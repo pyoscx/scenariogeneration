@@ -84,12 +84,12 @@ OpenDRIVE                           YES
 | | | | |-outline                   YES
 | | | | | |-cornerRoad              YES
 | | | | | |-cornerLocal             YES
-| | | |-material                    NO
+| | | |-material                    YES
 | | | |-validity                    YES
 | | | |-parkingSpace                YES
-| | | |-markings                    NO
-| | | | |-marking                   NO
-| | | | | |-cornerReference         NO
+| | | |-markings                    YES
+| | | | |-marking                   YES
+| | | | | |-cornerReference         YES
 | | | |-borders                     NO
 | | | | |-border                    NO
 | | | | | |-cornerReference         NO

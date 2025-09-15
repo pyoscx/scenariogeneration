@@ -23,6 +23,9 @@ from .enumerations import (
     ObjectType,
     Orientation,
     TunnelType,
+    RoadMarkColor,
+    RoadMarkWeight,
+    SideType,
     enumchecker,
 )
 from .exceptions import GeneralIssueInputArguments, NotEnoughInputArguments
@@ -812,6 +815,12 @@ class Object(_SignalObjectBase):
         Explicit validity information for the Object.
     outlines : list[Outline]
         List of outlines for the Object.
+    markings : list[Marking]
+        List of markings for the Object.
+    parking_space : ParkingSpace, optional
+        Parking space information for the Object.
+    materials : list[Material]
+        List of materials for the Object.
 
     Methods
     -------
@@ -913,6 +922,8 @@ class Object(_SignalObjectBase):
         # list for repeat entries
         self._repeats = []
         self.outlines = []
+        self.markings = []
+        self.materials = []
         self.validity = None
         self.parking_space = None
 
@@ -948,6 +959,10 @@ class Object(_SignalObjectBase):
                 self.get_attributes() == other.get_attributes()
                 and self._repeats == other._repeats
                 and self.outlines == other.outlines
+                and self.markings == other.markings
+                and self.validity == other.validity
+                and self.parking_space == other.parking_space
+                and self.materials == other.materials
             ):
                 return True
         return False
@@ -1112,6 +1127,52 @@ class Object(_SignalObjectBase):
         """
         self.parking_space = parking_space
 
+    def add_marking(self, marking: "Marking") -> None:
+        """Add a marking to the Object.
+
+        Parameters
+        ----------
+        marking : Marking
+            The marking to be added.
+        """
+        self.markings.append(marking)
+
+    def add_material(
+        self,
+        friction: Optional[float] = None,
+        roadMarkColor: Optional[RoadMarkColor] = None,
+        roughness: Optional[float] = None,
+        surface: Optional[str] = None,
+    ) -> None:
+        """Add a material description entry to the object.
+
+        Parameters
+        ----------
+        friction : float, optional
+            The friction coefficient of the material. Default is None.
+        roadMarkColor : RoadMarkColor, optional
+            Color of the painted road mark. Default is None.
+        roughness : float, optional
+            The roughness of the material. Default is None.
+        surface : str, optional
+            The surface material code. Default is None.
+
+        Returns
+        -------
+        None
+        """
+        materialdict = {}
+        if friction is not None:
+            materialdict["friction"] = str(friction)
+        if roadMarkColor is not None:
+            checked_color = enumchecker(roadMarkColor, RoadMarkColor)
+            materialdict["roadMarkColor"] = enum2str(checked_color)
+        if roughness is not None:
+            materialdict["roughness"] = str(roughness)
+        if surface is not None:
+            materialdict["surface"] = surface
+        self.materials.append(materialdict)
+
     def get_attributes(self) -> dict[str, str]:
         """Return the attributes of the Object as a dictionary.
 
@@ -1141,6 +1202,23 @@ class Object(_SignalObjectBase):
         ET.Element
             The XML ElementTree representation of the Object.
         """
+        valid_corner_ids = set()
+        for outline in self.outlines:
+            for corner in outline.corners:
+                if hasattr(corner, "id") and corner.id is not None:
+                    valid_corner_ids.add(corner.id)
+
+        # Check all markings for cornerReferences
+        for marking in self.markings:
+            for ref_id in getattr(marking, "cornerReferences", []):
+                if ref_id not in valid_corner_ids:
+                    raise ValueError(
+                        (
+                            f"Marking references corner id {ref_id} "
+                            "which does not exist in outlines."
+                        )
+                    )
+
         element = ET.Element("object", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         for _repeat in self._repeats:
@@ -1153,6 +1231,13 @@ class Object(_SignalObjectBase):
             outlines_element = ET.SubElement(element, "outlines")
             for outline in self.outlines:
                 outlines_element.append(outline.get_element())
+        if self.markings:
+            markings_element = ET.SubElement(element, "markings")
+            for marking in self.markings:
+                markings_element.append(marking.get_element())
+        if self.materials:
+            for material in self.materials:
+                ET.SubElement(element, "material", attrib=material)
         return element
 
 
@@ -1648,5 +1733,130 @@ class ParkingSpace(XodrBase):
         """
         element = ET.Element("parkingSpace", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
+
+        return element
+
+
+class Marking(XodrBase):
+    """Marking describes the road marks of any objects like crosswalks,
+    stopping-lines, and parking spaces. Marking is defined either in accordance
+    to the bounding box of the element or by referencing outline points of the
+    object.
+
+    Attributes
+    ----------
+    color : RoadMarkColor
+        Color of the marking.
+    lineLength : float
+        Length of the visible part.
+    side : SideType
+        Side of the bounding box described in <object> element in the local
+        coordinate system u/v
+    spaceLength : float
+        ength of the gap between the visible parts.
+    startOffset : float
+        Lateral offset in u-direction from start of bounding box side where
+        the first marking starts
+    stopOffset : float
+        Lateral offset in u-direction from end of bounding box side where the
+        marking ends
+    weight : RoadMarkWeight, optional
+        Optical "weight" of the marking
+    width : float, optional
+        Width of the marking
+    zOffset : float, optional
+        Height of road mark above the road, i.e. thickness of the road mark
+
+    Methods
+    -------
+    add_cornerReference(corner)
+        Adds a cornerReference to the Marking.
+    get_element()
+        Returns the full ElementTree representation of the Marking.
+    get_attributes()
+        Returns a dictionary of all attributes of the Marking.
+    """
+
+    def __init__(
+        self,
+        color: RoadMarkColor,
+        lineLength: float,
+        side: SideType,
+        spaceLength: float,
+        startOffset: float,
+        stopOffset: float,
+        weight: Optional[RoadMarkWeight] = None,
+        width: Optional[float] = None,
+        zOffset: Optional[float] = None,
+    ) -> None:
+        """Initialize the Marking."""
+        super().__init__()
+        self.color = enumchecker(color, RoadMarkColor)
+        self.lineLength = lineLength
+        self.side = enumchecker(side, SideType)
+        self.spaceLength = spaceLength
+        self.startOffset = startOffset
+        self.stopOffset = stopOffset
+        self.weight = enumchecker(weight, RoadMarkWeight, True)
+        self.width = width
+        self.zOffset = zOffset
+        self.cornerReferences = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Marking) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.cornerReferences == other.cornerReferences
+            ):
+                return True
+        return False
+
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Marking as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Marking.
+        """
+        retdict = {}
+        retdict["color"] = enum2str(self.color)
+        retdict["lineLength"] = str(self.lineLength)
+        retdict["side"] = enum2str(self.side)
+        retdict["spaceLength"] = str(self.spaceLength)
+        retdict["startOffset"] = str(self.startOffset)
+        retdict["stopOffset"] = str(self.stopOffset)
+        if self.weight is not None:
+            retdict["weight"] = enum2str(self.weight)
+        if self.width is not None:
+            retdict["width"] = str(self.width)
+        if self.zOffset is not None:
+            retdict["zOffset"] = str(self.zOffset)
+        return retdict
+
+    def add_cornerReference(self, cornerReference: int) -> None:
+        """Add a cornerReference to the Marking.
+
+        Parameters
+        ----------
+        cornerReference : int
+            The cornerReference to add.
+        """
+        self.cornerReferences.append(cornerReference)
+
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Marking.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Marking.
+        """
+        element = ET.Element("marking", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        for cornerReference in self.cornerReferences:
+            ET.SubElement(
+                element, "cornerReference", attrib={"id": str(cornerReference)}
+            )
 
         return element

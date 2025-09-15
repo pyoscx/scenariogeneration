@@ -5,10 +5,16 @@ on:
     paths:
       - .github/workflows/python.yml
       - '**.py'
+      - requirements.txt
+      - schemas/**/*.xsd
+      - pyproject.toml
   pull_request:
     paths:
       - .github/workflows/python.yml
       - '**.py'
+      - requirements.txt
+      - schemas/**/*.xsd
+      - pyproject.toml
   workflow_dispatch:
 
 jobs:

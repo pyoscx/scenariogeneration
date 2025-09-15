@@ -232,8 +232,8 @@ def test_object():
     )
 
     outline = xodr.Outline(id=1)
-    outline.add_corner(xodr.CornerLocal(1, 2, 3, 4))
-    outline.add_corner(xodr.CornerLocal(1, 2, 3, 5))
+    outline.add_corner(xodr.CornerLocal(1, 2, 3, 4, 1))
+    outline.add_corner(xodr.CornerLocal(1, 2, 3, 5, 2))
     object2.add_outline(outline)
     prettyprint(object2)
     object3.id = object1.id
@@ -242,6 +242,127 @@ def test_object():
     road.planview.adjust_geometries()
     assert (
         version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+    marking1 = xodr.Marking(
+        color=xodr.RoadMarkColor.white,
+        lineLength=0.2,
+        side=xodr.SideType.front,
+        spaceLength=0.3,
+        startOffset=0.0,
+        stopOffset=0.0,
+        weight=xodr.RoadMarkWeight.standard,
+        width=0.15,
+        zOffset=0.0,
+    )
+    assert (
+        version_validation(
+            "t_road_objects_object_markings_marking",
+            marking1,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
+
+    object2.add_marking(marking1)
+
+    marking2 = xodr.Marking(
+        color=xodr.RoadMarkColor.white,
+        lineLength=0.2,
+        side=xodr.SideType.front,
+        spaceLength=0.3,
+        startOffset=0.0,
+        stopOffset=0.0,
+        weight=xodr.RoadMarkWeight.standard,
+        width=0.15,
+        zOffset=0.0,
+    )
+    marking3 = xodr.Marking(
+        color=xodr.RoadMarkColor.white,
+        lineLength=0.2,
+        side=xodr.SideType.rear,
+        spaceLength=0.3,
+        startOffset=0.0,
+        stopOffset=0.0,
+        weight=xodr.RoadMarkWeight.standard,
+        width=0.15,
+        zOffset=0.0,
+    )
+
+    assert marking1 == marking2
+    assert marking2 != marking3
+    marking1.add_cornerReference(cornerReference=1)
+    marking1.add_cornerReference(cornerReference=2)
+    prettyprint(object2)
+    assert (
+        version_validation(
+            "t_road_objects_object", object1, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+    object2.add_marking(marking2)
+    assert marking1 != marking2
+
+
+def test_object_material():
+    object1 = xodr.Object(
+        s=10.0,
+        t=-2,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
+        zOffset=0.00,
+        id="1",
+        height=1.0,
+        Type=xodr.ObjectType.pole,
+    )
+    object2 = xodr.Object(
+        s=10.0,
+        t=-2,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
+        zOffset=0.00,
+        id="1",
+        height=1.0,
+        Type=xodr.ObjectType.pole,
+    )
+    object1.add_material(
+        friction=0.8,
+        roadMarkColor=xodr.RoadMarkColor.white,
+        roughness=0.1,
+        surface="asphalt",
+    )
+    object2.add_material(
+        friction=0.8,
+        roadMarkColor=xodr.RoadMarkColor.white,
+        roughness=0.1,
+        surface="asphalt",
+    )
+    assert object1 == object2
+    object1.add_material(
+        friction=0.9,
+        roadMarkColor=xodr.RoadMarkColor.white,
+        roughness=0.1,
+        surface="asphalt",
+    )
+    assert object1 != object2
+    prettyprint(object1)
+
+    object3 = xodr.Object(
+        s=10.0,
+        t=-2,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
+        zOffset=0.00,
+        id="1",
+        height=1.0,
+        Type=xodr.ObjectType.pole,
+    )
+    object3.add_material(friction=0.8, roughness=0.1, surface="asphalt")
+    assert (
+        version_validation(
+            "t_road_objects_object", object3, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
 
