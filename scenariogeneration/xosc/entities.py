@@ -12,6 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import xml.etree.ElementTree as ET
 from typing import Optional, Union
+from collections import namedtuple
 
 from .enumerations import (
     MiscObjectCategory,
@@ -28,6 +29,7 @@ from .utils import (
     Controller,
     DynamicsConstraints,
     EntityRef,
+    HitchCoupler,
     ParameterDeclarations,
     Properties,
     _BaseCatalog,
@@ -205,7 +207,7 @@ class Axles(VersionBase):
         rearaxle : Axle
             Axle properties of the rear axle.
         """
-        if not isinstance(frontaxle, Axle):
+        if frontaxle and not isinstance(frontaxle, Axle):
             raise TypeError("frontaxle input is not of type Axle")
         if not isinstance(rearaxle, Axle):
             raise TypeError("rearaxle input is not of type Axle")
@@ -214,13 +216,13 @@ class Axles(VersionBase):
         self.additionals = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Axles):
-            if (
-                self.frontaxle == other.frontaxle
-                and self.rearaxle == other.rearaxle
-                and self.additionals == other.additionals
-            ):
-                return True
+        if (
+            isinstance(other, Axles)
+            and self.frontaxle == other.frontaxle
+            and self.rearaxle == other.rearaxle
+            and self.additionals == other.additionals
+        ):
+            return True
         return False
 
     @staticmethod
@@ -268,7 +270,12 @@ class Axles(VersionBase):
             The ElementTree representation of the Axles.
         """
         element = ET.Element("Axles")
-        element.append(self.frontaxle.get_element(elementname="FrontAxle"))
+        if self.frontaxle is None and self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "A front axle is required for OSC versions up to 1.2."
+            )
+        if self.frontaxle:
+            element.append(self.frontaxle.get_element(elementname="FrontAxle"))
         element.append(self.rearaxle.get_element(elementname="RearAxle"))
         for ax in self.additionals:
             element.append(ax.get_element())
@@ -349,13 +356,13 @@ class Entity(VersionBase):
             self.entity = None
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entity):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.object_type == other.object_type
-                and self.entity == other.entity
-            ):
-                return True
+        if (
+            isinstance(other, Entity)
+            and self.get_attributes() == other.get_attributes()
+            and self.object_type == other.object_type
+            and self.entity == other.entity
+        ):
+            return True
         return False
 
     @staticmethod
@@ -569,15 +576,18 @@ class Pedestrian(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
         pedestrian = Pedestrian(name, mass, category, boundingbox, model, role)
         pedestrian.parameters = parameters
-        pedestrian.properties = properties
+        if properties is not None:
+            pedestrian.properties = properties
 
         return pedestrian
 
@@ -620,7 +630,7 @@ class Pedestrian(_BaseCatalog):
         if self.isVersion(minor=0) and self.model is None:
             raise OpenSCENARIOVersionError("model is required for OSC 1.0")
 
-        if self.model is not None:
+        if self.model is not None and self.isVersionEqLess(minor=2):
             if self.isVersion(minor=0):
                 retdict["model"] = self.model
             else:
@@ -645,7 +655,9 @@ class Pedestrian(_BaseCatalog):
         element = ET.Element("Pedestrian", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -738,14 +750,14 @@ class MiscObject(_BaseCatalog):
         self.model3d = model3d
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, MiscObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.boundingbox == other.boundingbox
-                and self.properties == other.properties
-                and self.parameters == other.parameters
-            ):
-                return True
+        if (
+            isinstance(other, MiscObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.boundingbox == other.boundingbox
+            and self.properties == other.properties
+            and self.parameters == other.parameters
+        ):
+            return True
         return False
 
     @staticmethod
@@ -767,9 +779,11 @@ class MiscObject(_BaseCatalog):
             model3d = element.attrib["model3d"]
         mass = convert_float(element.attrib["mass"])
         name = element.attrib["name"]
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
@@ -786,10 +800,11 @@ class MiscObject(_BaseCatalog):
 
         obj = MiscObject(name, mass, category, boundingbox, model3d)
         obj.parameters = parameters
-        obj.properties = properties
+        if properties is not None:
+            obj.properties = properties
         return obj
 
-    def add_property(self, name: str, value: str) -> None:
+    def add_property(self, name: str, value: str):
         """Add a single property to the MiscObject.
 
         Parameters
@@ -800,7 +815,6 @@ class MiscObject(_BaseCatalog):
             Value of the property.
         """
         self.properties.add_property(name, value)
-        return self
 
     def add_property_file(self, filename: str) -> None:
         """Add a property file to the MiscObject.
@@ -811,7 +825,6 @@ class MiscObject(_BaseCatalog):
             Filename of a property file.
         """
         self.properties.add_file(filename)
-        return self
 
     def get_attributes(self) -> dict:
         """Return the attributes as a dictionary of the MiscObject.
@@ -840,7 +853,9 @@ class MiscObject(_BaseCatalog):
         element = ET.Element("MiscObject", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
         element.append(self.boundingbox.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -858,6 +873,7 @@ class Vehicle(_BaseCatalog):
         The bounding box of the vehicle.
     frontaxle : Axle
         The front axle properties of the vehicle.
+        (optional since OpenScenario V1.3)
     rearaxle : Axle
         The back axle properties of the vehicle.
     max_speed : float
@@ -880,7 +896,13 @@ class Vehicle(_BaseCatalog):
     role : Role, optional
         The role of the Vehicle (valid from OpenSCENARIO V1.2). Default
         is None.
-
+    trailer_hitch : HitchCoupler, optional
+        Add an optional hitch to the vehicle, Default: None
+    trailer_coupler : HitchCoupler, optional
+        Add an optional coupler to the vehicle, Default: None
+    trailer : ScenarioObject | EntitiyRef
+        Add a scenario object or a name of a scenario object,
+        Default: None
     Attributes
     ----------
     name : str
@@ -903,6 +925,12 @@ class Vehicle(_BaseCatalog):
         Path to model file (valid from V1.1).
     role : Role
         The role of the Vehicle.
+    trailer_hitch : HitchCoupler, optional
+        Add an optional hitch to the vehicle
+    trailer_coupler : HitchCoupler, optional
+        Add an optional coupler to the vehicle
+    trailer : ScenarioObject | str
+        A scenario object or a name of a scenario object
 
     Methods
     -------
@@ -932,7 +960,7 @@ class Vehicle(_BaseCatalog):
         name: str,
         vehicle_type: VehicleCategory,
         boundingbox: BoundingBox,
-        frontaxle: Axle,
+        frontaxle: Optional[Axle],
         rearaxle: Axle,
         max_speed: float,
         max_acceleration: float,
@@ -942,6 +970,9 @@ class Vehicle(_BaseCatalog):
         max_acceleration_rate: Optional[float] = None,
         max_deceleration_rate: Optional[float] = None,
         role: Optional[Role] = None,
+        trailer_hitch: Optional[HitchCoupler] = None,
+        trailer_coupler: Optional[HitchCoupler] = None,
+        trailer: Union[Optional[str], "ScenarioObject"] = None,
     ):
         """Initialize the Vehicle class.
 
@@ -977,6 +1008,13 @@ class Vehicle(_BaseCatalog):
         role : Role, optional
             The role of the Vehicle (valid from OpenSCENARIO V1.2).
             Default is None.
+        trailer_hitch : HitchCoupler, optional
+            Add an optional hitch to the vehicle, Default: None
+        trailer_coupler : HitchCoupler, optional
+            Add an optional coupler to the vehicle, Default: None
+        trailer : ScenarioObject | EntitiyRef
+            Add a scenario object or a name of a scenario object,
+            Default: None
         """
         super().__init__()
         self.name = name
@@ -998,6 +1036,21 @@ class Vehicle(_BaseCatalog):
         self.mass = convert_float(mass)
         self.model3d = model3d
         self.role = convert_enum(role, Role, True)
+        if trailer_hitch is not None and not isinstance(
+            trailer_hitch, HitchCoupler
+        ):
+            raise TypeError("trailer hitch is not of type HitchCoupler")
+        if trailer_coupler is not None and not isinstance(
+            trailer_coupler, HitchCoupler
+        ):
+            raise TypeError("trailer hitch is not of type HitchCoupler")
+        if trailer is not None and not isinstance(
+            trailer, (str, ScenarioObject)
+        ):
+            raise TypeError("trailer is not of type str or ScenarioObject")
+        self.trailer_hitch = trailer_hitch
+        self.trailer_coupler = trailer_coupler
+        self.trailer = trailer
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Vehicle):
@@ -1010,6 +1063,9 @@ class Vehicle(_BaseCatalog):
                 and self.parameters == other.parameters
                 and self.mass == other.mass
                 and self.role == other.role
+                and self.trailer_coupler == other.trailer_coupler
+                and self.trailer_hitch == other.trailer_hitch
+                and self.trailer == other.trailer
             ):
                 return True
         return False
@@ -1047,9 +1103,11 @@ class Vehicle(_BaseCatalog):
         boundingbox = BoundingBox.parse(
             find_mandatory_field(element, "BoundingBox")
         )
-        properties = Properties.parse(
-            find_mandatory_field(element, "Properties")
-        )
+        properties = None
+        if element.find("Properties") is not None:
+            properties = Properties.parse(
+                find_mandatory_field(element, "Properties")
+            )
 
         performance = DynamicsConstraints.parse(
             find_mandatory_field(element, "Performance")
@@ -1069,6 +1127,29 @@ class Vehicle(_BaseCatalog):
         role = None
         if "role" in element.attrib:
             role = convert_enum(element.attrib["role"], Role)
+
+        trailer_hitch = None
+        trailer_coupler = None
+        trailer = None
+        if element.find("TrailerHitch") is not None:
+            trailer_hitch = HitchCoupler.parse(
+                find_mandatory_field(element, "TrailerHitch")
+            )
+        if element.find("TrailerCoupler") is not None:
+            trailer_coupler = HitchCoupler.parse(
+                find_mandatory_field(element, "TrailerCoupler")
+            )
+        if element.find("Trailer") is not None:
+            trailer_element = find_mandatory_field(element, "Trailer")
+            if trailer_element.find("Trailer"):
+                trailer = ScenarioObject.parse(
+                    find_mandatory_field(trailer_element, "Trailer")
+                )
+            else:
+                trailer = EntityRef.parse(
+                    find_mandatory_field(trailer_element, "TrailerRef")
+                ).entity
+
         vehicle = Vehicle(
             name,
             vehicle_type,
@@ -1083,8 +1164,12 @@ class Vehicle(_BaseCatalog):
             max_acc_rate,
             max_dec_rate,
             role,
+            trailer_hitch,
+            trailer_coupler,
+            trailer,
         )
-        vehicle.properties = properties
+        if properties is not None:
+            vehicle.properties = properties
         vehicle.parameters = parameters
 
         additional_axles = axles_element.findall("AdditionalAxle")
@@ -1174,8 +1259,22 @@ class Vehicle(_BaseCatalog):
         element.append(self.boundingbox.get_element())
         element.append(self.dynamics.get_element("Performance"))
         element.append(self.axles.get_element())
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
+        if self.trailer_hitch:
+            element.append(self.trailer_hitch.get_element("Hitch"))
+        if self.trailer_coupler:
+            element.append(self.trailer_coupler.get_element("Coupler"))
+        if self.trailer is not None:
 
+            trailer_element = ET.SubElement(element, "Trailer")
+            if isinstance(self.trailer, str):
+                trailer_element.append(
+                    EntityRef(self.trailer).get_element("TrailerRef")
+                )
+            else:
+                trailer_element.append(self.trailer.get_element("Trailer"))
         return element
 
 
@@ -1296,12 +1395,12 @@ class Entities(VersionBase):
         self.entities = []
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, Entities):
-            if (
-                self.scenario_objects == other.scenario_objects
-                and self.entities == other.entities
-            ):
-                return True
+        if (
+            isinstance(other, Entities)
+            and self.scenario_objects == other.scenario_objects
+            and self.entities == other.entities
+        ):
+            return True
         return False
 
     @staticmethod
@@ -1517,13 +1616,13 @@ class ScenarioObject(VersionBase):
         self.entityobject = entityobject
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, ScenarioObject):
-            if (
-                self.get_attributes() == other.get_attributes()
-                and self.controller == other.controller
-                and self.entityobject == other.entityobject
-            ):
-                return True
+        if (
+            isinstance(other, ScenarioObject)
+            and self.get_attributes() == other.get_attributes()
+            and self.controller == other.controller
+            and self.entityobject == other.entityobject
+        ):
+            return True
         return False
 
     @staticmethod
@@ -1609,19 +1708,24 @@ class ScenarioObject(VersionBase):
         """
         return {"name": self.name}
 
-    def get_element(self) -> ET.Element:
+    def get_element(self, elementname: str = "ScenarioObject") -> ET.Element:
         """Return the ElementTree of the Entity.
 
+        Parameters
+        ----------
+        elementname : str
+            Used if another name is needed for the ScenarioObject. Default is
+            "ScenarioObject".
         Returns
         -------
         xml.etree.ElementTree.Element
             The ElementTree representation of the Entity.
         """
-        element = ET.Element("ScenarioObject", attrib=self.get_attributes())
+        element = ET.Element(elementname, attrib=self.get_attributes())
 
         element.append(self.entityobject.get_element())
         if self.controller:
-            if self.version_minor < 2 and len(self.controller) > 1:
+            if self.isVersionEqLess(minor=1) and len(self.controller) > 1:
                 raise OpenSCENARIOVersionError(
                     "multiple controllers were added in OSC V1.2"
                 )
@@ -1630,4 +1734,314 @@ class ScenarioObject(VersionBase):
                 objcont = ET.SubElement(element, "ObjectController")
                 objcont.append(cnt.get_element())
 
+        return element
+
+
+class EntityDistribution(VersionBase):
+    """The EntityDistribution class creates the entity distribution
+    for OpenScenario.
+
+    Attributes
+    ----------
+    entity_distribution_entries :
+        List of EntityDistributionEntry objects.
+
+    Methods
+    -------
+    add_entity_distribution_entry(weight, entityobject, controller=None)
+        Adds an EntityDistributionEntry to the EntityDistribution.
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    _EntityDistributionEntry = namedtuple(
+        "EntityDistributionEntry", "weight, entityobject controller"
+    )
+
+    def __init__(self):
+        self.entity_distribution_entries = []
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, EntityDistribution)
+            and self.entity_distribution_entries
+            == other.entity_distribution_entries
+        )
+
+    def add_entity_distribution_entry(
+        self,
+        weight: float,
+        entityobject: Union[
+            CatalogReference,
+            Vehicle,
+            Pedestrian,
+        ],
+        controller: Union[
+            Optional[CatalogReference],
+            Controller,
+            list[CatalogReference],
+            list[Controller],
+        ] = None,
+    ):
+        weight = convert_float(weight)
+        if weight < 0:
+            raise ValueError("Weight must be a non-negative value")
+
+        if not isinstance(
+            entityobject, (CatalogReference, Vehicle, Pedestrian)
+        ):
+            raise TypeError(
+                "entityobject must be of type CatalogReference, Vehicle, or Pedestrian"
+            )
+
+        if controller is not None:
+            if not isinstance(controller, list):
+                controller = [controller]
+            for cnt in controller:
+                if cnt is not None and not isinstance(
+                    cnt, (CatalogReference, Controller)
+                ):
+                    raise TypeError(
+                        "controller input is not of type CatalogReference or Controller"
+                    )
+
+        self.entity_distribution_entries.append(
+            self._EntityDistributionEntry(weight, entityobject, controller)
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "EntityDistribution":
+        """Parses the XML element of EntityDistribution.
+
+        Parameters
+        ----------
+        element : ET.Element
+            An EntityDistribution element.
+
+        Returns
+        -------
+        EntityDistribution
+            An EntityDistribution object.
+        """
+        print(element.find("ObjectController"))
+        ed = EntityDistribution()
+        for entry_el in element.findall("EntityDistributionEntry"):
+            weight = float(entry_el.attrib["weight"])
+            scenario_object_template_el = entry_el.find(
+                "ScenarioObjectTemplate"
+            )
+            # Try all possible entity object types
+            entityobject = None
+            if (
+                scenario_object_template_el.find("CatalogReference")
+                is not None
+            ):
+                entityobject = CatalogReference.parse(
+                    scenario_object_template_el.find("CatalogReference")
+                )
+            elif scenario_object_template_el.find("Vehicle") is not None:
+                entityobject = Vehicle.parse(
+                    scenario_object_template_el.find("Vehicle")
+                )
+            elif scenario_object_template_el.find("Pedestrian") is not None:
+                entityobject = Pedestrian.parse(
+                    scenario_object_template_el.find("Pedestrian")
+                )
+            else:
+                raise XMLStructureError(
+                    "EntityDistributionEntry does not contain a valid EntityObject"
+                )
+
+            controller = None
+            if (
+                scenario_object_template_el.find("ObjectController")
+                is not None
+            ):
+                controller = []
+                for (
+                    object_controller_element
+                ) in scenario_object_template_el.findall("ObjectController"):
+                    if (
+                        object_controller_element.find("Controller")
+                        is not None
+                    ):
+                        controller.append(
+                            Controller.parse(
+                                find_mandatory_field(
+                                    object_controller_element, "Controller"
+                                )
+                            )
+                        )
+                    elif (
+                        find_mandatory_field(
+                            object_controller_element, "CatalogReference"
+                        )
+                        is not None
+                    ):
+                        controller.append(
+                            CatalogReference.parse(
+                                find_mandatory_field(
+                                    object_controller_element,
+                                    "CatalogReference",
+                                )
+                            )
+                        )
+            ed.add_entity_distribution_entry(weight, entityobject, controller)
+        return ed
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the EntityDistribution.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the EntityDistribution.
+        """
+
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "EntityDistribution was introduced in OpenSCENARIO V1.3"
+            )
+
+        if not self.entity_distribution_entries:
+            raise ValueError(
+                "EntityDistribution must contain at least one EntityDistributionEntry"
+            )
+
+        element = ET.Element("EntityDistribution")
+        for entry in self.entity_distribution_entries:
+            # Unpack tuple: (weight, entityobject, controller)
+            # weight, entityobject, controller = entry
+            entry_el = ET.Element(
+                "EntityDistributionEntry", attrib={"weight": str(entry.weight)}
+            )
+            scenario_object_template_element = ET.SubElement(
+                entry_el, "ScenarioObjectTemplate"
+            )
+            scenario_object_template_element.append(
+                entry.entityobject.get_element()
+            )
+            if entry.controller:
+                # Support both single and multiple controllers
+                controllers = (
+                    entry.controller
+                    if isinstance(entry.controller, list)
+                    else [entry.controller]
+                )
+                for cnt in controllers:
+                    objcont = ET.SubElement(
+                        scenario_object_template_element, "ObjectController"
+                    )
+                    objcont.append(cnt.get_element())
+            element.append(entry_el)
+        return element
+
+
+class TrafficDistribution(VersionBase):
+    """The TrafficDistribution class creates the traffic distribution
+
+    Attributes
+    ----------
+    traffic_distribution_entries :
+        List of TrafficDistributionEntry objects.
+
+    Methods
+    -------
+    add_traffic_distribution_entry(weight, entity_distribution, properties=None)
+        Adds a TrafficDistributionEntry to the TrafficDistribution.
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class."""
+
+    def __init__(self) -> None:
+        self.traffic_distribution_entries = []
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, TrafficDistribution)
+            and self.traffic_distribution_entries
+            == other.traffic_distribution_entries
+        )
+
+    def add_traffic_distribution_entry(
+        self,
+        weight: float,
+        entity_distribution: EntityDistribution,
+        properties: Optional[Properties] = None,
+    ) -> None:
+        self.weight = convert_float(weight)
+        if self.weight < 0:
+            raise ValueError("Weight must be a non-negative value")
+
+        if not isinstance(entity_distribution, EntityDistribution):
+            raise TypeError(
+                "entity_distribution must be of type EntityDistribution"
+            )
+        if properties is not None and not isinstance(properties, Properties):
+            raise TypeError("properties must be of type Properties or None")
+
+        self.traffic_distribution_entries.append(
+            (weight, entity_distribution, properties)
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "TrafficDistribution":
+        """Parses the XML element of TrafficDistribution.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A TrafficDistribution element.
+
+        Returns
+        -------
+        TrafficDistribution
+            A TrafficDistribution object.
+        """
+        td = TrafficDistribution()
+        for entry_el in element.findall("TrafficDistributionEntry"):
+            weight = float(entry_el.attrib["weight"])
+            entity_dist_el = find_mandatory_field(
+                entry_el, "EntityDistribution"
+            )
+            entity_distribution = EntityDistribution.parse(entity_dist_el)
+            properties = None
+            properties_el = entry_el.find("Properties")
+            if properties_el is not None:
+                properties = Properties.parse(properties_el)
+            td.add_traffic_distribution_entry(
+                weight, entity_distribution, properties
+            )
+        return td
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the TrafficDistribution."""
+
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "TrafficDistribution was introduced in OpenSCENARIO V1.3"
+            )
+        if not self.traffic_distribution_entries:
+            raise ValueError(
+                "TrafficDistribution must contain at least one TrafficDistributionEntry"
+            )
+
+        element = ET.Element("TrafficDistribution")
+        for (
+            weight,
+            entity_distribution,
+            properties,
+        ) in self.traffic_distribution_entries:
+            entry_el = ET.Element(
+                "TrafficDistributionEntry", attrib={"weight": str(weight)}
+            )
+            entry_el.append(entity_distribution.get_element())
+            if properties is not None:
+                entry_el.append(properties.get_element())
+            element.append(entry_el)
         return element

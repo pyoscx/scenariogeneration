@@ -235,6 +235,12 @@ class Properties(VersionBase):
             The ElementTree representation of the Properties.
         """
         element = ET.Element("Properties")
+        if (
+            len(self.files) == 0
+            and len(self.properties) == 0
+            and self.isVersionEqLarger(minor=3)
+        ):
+            return None
         for p in self.properties:
             ET.SubElement(
                 element, "Property", attrib={"name": p[0], "value": p[1]}
@@ -1083,7 +1089,7 @@ class Controller(_BaseCatalog):
     def __init__(
         self,
         name: str,
-        properties: Properties,
+        properties: Optional[Properties] = None,
         controller_type: Optional[ControllerType] = None,
     ) -> None:
         """Initializes the Controller.
@@ -1099,10 +1105,11 @@ class Controller(_BaseCatalog):
         """
         super().__init__()
         self.name = name
-
-        if not isinstance(properties, Properties):
+        self.properties = (
+            properties if properties is not None else Properties()
+        )
+        if not isinstance(self.properties, Properties):
             raise TypeError("properties input is not of type Properties")
-        self.properties = properties
         self.controller_type = convert_enum(
             controller_type, ControllerType, True
         )
@@ -1133,8 +1140,10 @@ class Controller(_BaseCatalog):
             A Controller object.
         """
         name = element.attrib["name"]
-        properties_element = find_mandatory_field(element, "Properties")
-        properties = Properties.parse(properties_element)
+        properties = Properties()
+        if element.find("Properties"):
+            properties_element = find_mandatory_field(element, "Properties")
+            properties = Properties.parse(properties_element)
         cnt_type = None
         if "controllerType" in element.attrib:
             cnt_type = convert_enum(
@@ -1160,7 +1169,7 @@ class Controller(_BaseCatalog):
         """
         retdict = {"name": self.name}
         if self.controller_type:
-            if self.isVersion(minor=2):
+            if self.isVersionEqLarger(minor=2):
                 retdict["controllerType"] = self.controller_type.get_name()
             else:
                 raise OpenSCENARIOVersionError(
@@ -1179,7 +1188,9 @@ class Controller(_BaseCatalog):
         """
         element = ET.Element("Controller", attrib=self.get_attributes())
         self.add_parameters_to_element(element)
-        element.append(self.properties.get_element())
+        prop_obj = self.properties.get_element()
+        if prop_obj is not None:
+            element.append(prop_obj)
 
         return element
 
@@ -1427,15 +1438,21 @@ class EntityRef(VersionBase):
         """
         return {"entityRef": self.entity}
 
-    def get_element(self) -> ET.Element:
+    def get_element(self, elementname: str = "EntityRef") -> ET.Element:
         """Returns the ElementTree of the EntityRef.
+
+        Parameters
+        ----------
+        elementname : str
+            Used if another name is needed for the EntityRef. Default is
+            "EntityRef".
 
         Returns
         -------
         ET.Element
             The ElementTree representation of the EntityRef.
         """
-        return ET.Element("EntityRef", attrib=self.get_attributes())
+        return ET.Element(elementname, attrib=self.get_attributes())
 
 
 class Orientation(VersionBase):
@@ -1865,13 +1882,13 @@ class DynamicsConstraints(VersionBase):
         if self.max_acceleration is not None:
             retdict["maxAcceleration"] = str(self.max_acceleration)
         if self.max_acceleration_rate is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 raise OpenSCENARIOVersionError(
                     "maxAccelerationRate was introduced in OpenSCENARIO V1.2"
                 )
             retdict["maxAccelerationRate"] = str(self.max_acceleration_rate)
         if self.max_deceleration_rate is not None:
-            if not self.isVersion(minor=2):
+            if not self.isVersionEqLarger(minor=2):
                 raise OpenSCENARIOVersionError(
                     "maxDecelerationRate was introduced in OpenSCENARIO V1.2"
                 )
@@ -3844,7 +3861,7 @@ class Sun(VersionBase):
         """
         retdict = {}
         retdict["azimuth"] = str(self.azimuth)
-        if self.isVersion(minor=2):
+        if self.isVersionEqLarger(minor=2):
             retdict["illuminance"] = str(self.intensity)
         else:
             retdict["intensity"] = str(self.intensity)
@@ -5342,7 +5359,7 @@ def merge_dicts(*dict_args: dict) -> dict:
     return retdict
 
 
-def convert_bool(value: Union[bool, str]) -> bool:
+def convert_bool(value: Union[bool, str, int]) -> bool:
     """Converts a value to a boolean.
 
     Parameters
@@ -5361,9 +5378,9 @@ def convert_bool(value: Union[bool, str]) -> bool:
         If the value is not a valid boolean.
     """
     if isinstance(value, str):
-        if value in ("true", "1"):
+        if value.lower() in (["true", "1"]):
             return True
-        elif value in ("false", "0"):
+        elif value.lower() in (["false", "0"]):
             return False
         elif value[0] == "$":
             return value
@@ -5635,7 +5652,7 @@ class ColorRGB(_ColorDefinition):
         ET.Element
             The ElementTree representation of the ColorRGB.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorRGB was introduced in OpenSCENARIO V1.2"
             )
@@ -5754,7 +5771,7 @@ class ColorCMYK(_ColorDefinition):
         ET.Element
             The ElementTree representation of the ColorCMYK.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ColorCMYK was introduced in OpenSCENARIO V1.2"
             )
@@ -5862,7 +5879,7 @@ class Color(VersionBase):
         ET.Element
             The ElementTree representation of the Color.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "Color was introduced in OpenSCENARIO V1.2"
             )
@@ -6201,7 +6218,7 @@ class AnimationFile(_AnimationType):
         ET.Element
             The ElementTree representation of the AnimationFile.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "AnimationFile was introduced in OpenSCENARIO V1.2"
             )
@@ -6300,7 +6317,7 @@ class DirectionOfTravelDistribution(VersionBase):
         ET.Element
             The ElementTree representation of the DirectionOfTravelDistribution.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "DirectionOfTravelDistribution was introduced in OpenSCENARIO V1.2"
             )
@@ -6395,7 +6412,7 @@ class UserDefinedAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the UserDefinedAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedAnimation was introduced in OpenSCENARIO V1.2"
             )
@@ -6484,7 +6501,7 @@ class UserDefinedComponent(_AnimationType):
         ET.Element
             The ElementTree representation of the UserDefinedComponent.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "UserDefinedComponent was introduced in OpenSCENARIO V1.2"
             )
@@ -6619,7 +6636,7 @@ class PedestrianAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the PedestrianAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "PedestrianAnimation was introduced in OpenSCENARIO V1.2"
             )
@@ -6717,7 +6734,7 @@ class _VehicleComponent(VersionBase):
         ET.Element
             The ElementTree representation of the _VehicleComponent.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "VehicleComponent was introduced in OpenSCENARIO V1.2"
             )
@@ -6813,7 +6830,7 @@ class _ComponentAnimation(_AnimationType):
         ET.Element
             The ElementTree representation of the _ComponentAnimation.
         """
-        if not self.isVersion(minor=2):
+        if not self.isVersionEqLarger(minor=2):
             raise OpenSCENARIOVersionError(
                 "ComponentAnimation was introduced in OpenSCENARIO V1.2"
             )
@@ -6824,4 +6841,287 @@ class _ComponentAnimation(_AnimationType):
         else:
             element.append(self.component.get_element())
 
+        return element
+
+
+class HitchCoupler(VersionBase):
+    """HitchCoupler represents the TrailerHitch and TrailerCoupler
+    classes in OpenScenario
+
+    Parameters
+    ----------
+    dx : float
+        the relative position in the x axis, relative to the vehicle
+    dz : float
+        the relative position in the z axis, relative to the vehicle,
+        default: None
+
+    Attributes
+    ----------
+    dx : float
+        the relative position in the x axis, relative to the vehicle
+    dz : float
+        the relative position in the z axis, relative to the vehicle
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    """
+
+    def __init__(self, dx: float, dz: Optional[float] = None):
+        self.dx = convert_float(dx)
+        self.dz = convert_float(dz)
+
+    def __eq__(self, other: Any) -> bool:
+        return (
+            isinstance(other, HitchCoupler)
+            and self.get_attributes() == other.get_attributes()
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "HitchCoupler":
+        """Parses the XML element of HitchCoupler.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A HitchCoupler element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        HitchCoupler
+            A HitchCoupler object.
+        """
+        dz = element.attrib.get("dz")
+        return HitchCoupler(element.attrib["dx"], element.attrib.get("dz"))
+
+    def get_attributes(self) -> dict[str, str]:
+        """returns the attributes of the HitchCoupler"""
+        retdict = {"dx": str(self.dx)}
+        if self.dz is not None:
+            retdict["dz"] = str(self.dz)
+        return retdict
+
+    def get_element(self, element_name: str) -> ET.Element:
+        """Returns the ElementTree of the HitchCoupler.
+
+        Parameters
+        ----------
+        element_name:str
+            if it is a Hitch or a Coupler
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the HitchCoupler.
+        """
+        if element_name not in ["Hitch", "Coupler"]:
+            raise ValueError(
+                f"{element_name} has to be either Hitch or Coupler"
+            )
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                f"Trailer{element_name} was " "introduced in OpenScenario 1.3"
+            )
+        return ET.Element(
+            f"Trailer{element_name}", attrib=self.get_attributes()
+        )
+
+
+class Monitor(VersionBase):
+    """Monitor is a declaration of an entry in MonitorDeclarations.
+
+    Parameters
+    ----------
+    name : str
+        Name of the monitor.
+    value : bool
+        Initialisation value of the monitor.
+
+    Attributes
+    ----------
+    name : str
+        Name of the monitor.
+    value : bool
+        Value of the monitor.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(self, name: str, value: bool) -> None:
+        """Initializes the Monitor.
+
+        Parameters
+        ----------
+        name : str
+            Name of the monitor.
+        value : bool
+            Initialisation value of the monitor.
+        """
+        if not isinstance(name, str) or not isinstance(
+            value, (str, bool, int)
+        ):
+            raise TypeError(
+                "name of monitor must be an string and value must be a bool/str/int"
+            )
+        self.name = str(name)
+        self.value = convert_bool(value)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Monitor):
+            if other.get_attributes() == self.get_attributes():
+                return True
+        return False
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Monitor":
+        """Parses the XML element of Monitor.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A Monitor element (same as generated by the class
+            itself).
+        Returns
+        ----------
+        Monitor
+            An object of type Monitor
+        """
+        if "name" not in element.attrib:
+            raise ValueError("Monitor must have a name attribute")
+        if "value" not in element.attrib:
+            raise ValueError("Monitor must have a value attribute")
+        return Monitor(
+            element.attrib["name"], convert_bool(element.attrib["value"])
+        )
+
+    def get_attributes(self) -> dict[str, str]:
+        """Returns the attributes of the Monitor as a dictionary.
+
+        Returns
+        -------
+        dict
+            A dictionary of all attributes of the Monitor.
+        """
+        retdict = {}
+        retdict["name"] = self.name
+        retdict["value"] = get_bool_string(self.value)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the MonitorDeclaration.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the MonitorDeclaration.
+        """
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "MonitorDeclaration was introduced in OpenSCENARIO V1.3"
+            )
+        element = ET.Element(
+            "MonitorDeclaration", attrib=self.get_attributes()
+        )
+        return element
+
+
+class MonitorDeclarations(VersionBase):
+    """The MonitorDeclarations class creates the MonitorDeclarations of
+    OpenScenario (Valid from V1.3).
+
+    Attributes
+    ----------
+    monitors : list of Monitor
+        List of Monitor objects.
+
+    Methods
+    -------
+    get_element()
+        Returns the full ElementTree of the class.
+    add_monitor(monitor)
+        Adds a Monitor to the MonitorDeclarations.
+    parse(element)
+        Parses an ElementTree created by the class and returns an
+        instance of the class.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the MonitorDeclarations."""
+        self.monitors = []
+
+    @staticmethod
+    def parse(element: ET.Element) -> "MonitorDeclarations":
+        """Parses the XML element of MonitorDeclarations.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A MonitorDeclarations element (same as generated by the
+            class itself).
+
+        Returns
+        -------
+        MonitorDeclarations
+            A MonitorDeclarations object.
+        """
+        monitor_declarations = MonitorDeclarations()
+        declarations = element.findall("MonitorDeclaration")
+        for declaration in declarations:
+            monitor = Monitor.parse(declaration)
+            monitor_declarations.add_monitor(monitor)
+        return monitor_declarations
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, MonitorDeclarations):
+            if self.monitors == other.monitors:
+                return True
+        return False
+
+    def add_monitor(self, monitor: Monitor) -> "MonitorDeclarations":
+        """Adds a Monitor to the MonitorDeclarations.
+
+        Parameters
+        ----------
+        monitor : Monitor
+            A new monitor to be added to a MonitorDeclarations object.
+
+        Returns
+        -------
+        MonitorDeclarations
+            The updated MonitorDeclarations object.
+        """
+        if not isinstance(monitor, Monitor):
+            raise TypeError("{monitor} input is not of type Monitor")
+        self.monitors.append(monitor)
+        return self
+
+    def get_element(self) -> Optional[ET.Element]:
+        """Returns the ElementTree of the MonitorDeclarations.
+
+        Returns
+        -------
+        ET.Element or None
+            The ElementTree representation of the MonitorDeclarations,
+            or None if no monitors exist.
+        """
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "Monitors were introduced in OSC 1.3"
+            )
+        element = ET.Element("MonitorDeclarations")
+        for m in self.monitors:
+            element.append(m.get_element())
         return element

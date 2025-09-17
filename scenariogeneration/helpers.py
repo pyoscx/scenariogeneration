@@ -12,7 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import os
 import xml.etree.ElementTree as ET
-from typing import Optional, Union
+from typing import Optional
 
 from lxml import etree
 
@@ -158,46 +158,3 @@ def enum2str(enum: "Enum") -> str:
         The enum as a string with underscores replaced by spaces.
     """
     return enum.name.replace("_", " ")
-
-
-def convert_bool(value: Union[bool, str]) -> Union[str, bool]:
-    """Transform booleans to the correct XML version (lowercase) or
-    validate string inputs.
-
-    Parameters
-    ----------
-    value : bool or str
-        The boolean or string to convert. Strings can represent boolean
-        values ("true", "false", "1", "0") or parameterized expressions
-        (starting with "$").
-
-    Returns
-    -------
-    str or bool
-        - "true" or "false" if the input is a boolean.
-        - True or False if the input is a valid string representation of
-          a boolean.
-        - The input string if it starts with "$".
-
-    Raises
-    ------
-    ValueError
-        If the input string is not a valid boolean or parameterized value.
-    """
-    if isinstance(value, str):
-        if value == "true" or value == "1":
-            return True
-        elif value == "false" or value == "0":
-            return False
-        elif value[0] == "$":
-            return value
-        else:
-            raise ValueError(
-                value
-                + "is not a valid type of float input to openscenario, if a string is used as a float value (parameter or expression), it should have a $ as the first char.."
-            )
-
-    if value:
-        return "true"
-    else:
-        return "false"

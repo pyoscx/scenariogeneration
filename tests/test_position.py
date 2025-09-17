@@ -16,14 +16,14 @@ import pytest
 
 from scenariogeneration import prettyprint
 from scenariogeneration import xosc as OSC
-from scenariogeneration.xosc.position import WorldPosition
+from scenariogeneration.xosc.enumerations import _MINOR_VERSION
 
 from .xml_validator import ValidationResponse, version_validation
 
 
 @pytest.fixture(autouse=True)
 def reset_version():
-    OSC.enumerations.VersionBase().setVersion(minor=2)
+    OSC.enumerations.VersionBase().setVersion(minor=_MINOR_VERSION)
 
 
 def test_worldposition_noinput():
@@ -282,25 +282,69 @@ def test_trajectory_position():
         OSC.TrajectoryPosition(traj, 0, 0, "dummy")
 
 
-def test_geo_position():
-    pos = OSC.GeoPosition(1, 1)
-    pos2 = OSC.GeoPosition(1, 1)
-    pos3 = OSC.GeoPosition(1, 1, 1)
-    prettyprint(pos)
-    assert pos == pos2
-    assert pos != pos3
+class TestGeoPosition:
+    @pytest.fixture(name="geo_pos")
+    def geo_pos(self):
+        return OSC.GeoPosition(
+            52.1, 13.4, 100.0, OSC.Orientation(), vertical_road_selection=2
+        )
 
-    pos4 = OSC.GeoPosition.parse(pos.get_element())
-    assert pos == pos4
-    assert (
-        version_validation("Position", pos, 0)
-        == ValidationResponse.OSC_VERSION
-    )
-    assert version_validation("Position", pos, 1) == ValidationResponse.OK
-    assert version_validation("Position", pos, 2) == ValidationResponse.OK
+    def test_init_and_attributes(self, geo_pos):
+        assert geo_pos.latitude == 52.1
+        assert geo_pos.longitude == 13.4
+        assert geo_pos.height == 100.0
+        assert isinstance(geo_pos.orientation, OSC.Orientation)
+        assert geo_pos.vertical_road_selection == 2
 
-    with pytest.raises(TypeError):
-        OSC.GeoPosition(1, 1, 1, "dummy")
+    def test_attributes_v2(self, geo_pos):
+        OSC.VersionBase().setVersion(minor=2)
+        attrs = geo_pos.get_attributes()
+        assert "verticalRoadSelection" not in attrs
+
+    def test_equality(self, geo_pos):
+        pos2 = OSC.GeoPosition(52.1, 13.4, 100.0, vertical_road_selection=2)
+        assert geo_pos == pos2
+
+    def test_equality_v2(self, geo_pos):
+        OSC.VersionBase().setVersion(minor=2)
+        pos3 = OSC.GeoPosition(52.1, 13.4, 100.0)
+        assert geo_pos == pos3
+
+    def test_neq(self, geo_pos):
+        pos3 = OSC.GeoPosition(52.1, 13.4, 101.0)
+        assert geo_pos != pos3
+
+    def test_parse_and_get_element(self, geo_pos):
+        element = geo_pos.get_element()
+        parsed = OSC.GeoPosition.parse(element)
+        assert geo_pos == parsed
+
+    def test_missing_attributes(self):
+        pos = OSC.GeoPosition(52.1, 13.4)
+        assert pos.height is None
+        assert pos.orientation == OSC.Orientation()
+        assert pos.vertical_road_selection is None
+
+    def test_valid_and_invalid_types(self):
+        OSC.GeoPosition("52.1", 13.4)
+        OSC.GeoPosition(52.1, "13.4")
+        OSC.GeoPosition(52.1, 13.4, "100.0")
+
+        with pytest.raises(TypeError):
+            OSC.GeoPosition(52.1, 13.4, 100.0, orientation="dummy")
+        with pytest.raises(TypeError):
+            OSC.GeoPosition(52.1, 13.4, 100.0, orientation="invalid")
+        with pytest.raises(ValueError):
+            OSC.GeoPosition(
+                52.1, 13.4, 100.0, vertical_road_selection="invalid"
+            )
+
+    @pytest.mark.parametrize("version", [1, 2, 3])
+    def test_version_validation(self, version, geo_pos):
+        assert (
+            version_validation("Position", geo_pos, version)
+            == ValidationResponse.OK
+        )
 
 
 # some fixtures for the factory test
@@ -595,3 +639,213 @@ def test_controlpoint():
     assert version_validation("ControlPoint", cp1, 2) == ValidationResponse.OK
     with pytest.raises(TypeError):
         OSC.ControlPoint("dummy")
+
+
+class TestPolygon:
+    def setup_method(self):
+        self.polygon = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(0, 1, 0),
+            ]
+        )
+        self.polygon.setVersion(1, 3)
+
+    def test_polygon_base(self):
+        prettyprint(self.polygon)
+
+    def test_polygon_to_few_points(self):
+        with pytest.raises(ValueError):
+            OSC.Polygon([OSC.WorldPosition(0, 0, 0)])
+
+    def test_polugon_input_not_positions(self):
+        with pytest.raises(TypeError):
+            OSC.Polygon(
+                [
+                    OSC.WorldPosition(0, 0, 0),
+                    OSC.WorldPosition(0, 0, 0),
+                    "dummy",
+                ]
+            )
+
+    def test_polygon_equality(self):
+        polygon2 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(0, 1, 0),
+            ]
+        )
+        assert self.polygon == polygon2
+
+        polygon3 = OSC.Polygon(
+            [
+                OSC.WorldPosition(0, 0, 0),
+                OSC.WorldPosition(1, 1, 0),
+                OSC.WorldPosition(1, 2, 0),
+                OSC.WorldPosition(0, 2, 0),
+            ]
+        )
+        assert self.polygon != polygon3
+
+    def test_polygon_parse(self):
+        polygon = self.polygon.get_element()
+        parsed_polygon = OSC.Polygon.parse(polygon)
+        assert self.polygon == parsed_polygon
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        assert version_validation("Polygon", self.polygon, version) == expected
+
+
+class TestRoadRange:
+    def setup_method(self):
+        self.roadrange = OSC.RoadRange("10")
+        self.roadrange.add_cursor("0")
+        self.roadrange.add_cursor("1")
+        self.roadrange.setVersion(1, 3)
+
+        self.to_few_cursors = (
+            "At least two road cursors are required for a RoadRange"
+        )
+
+    def test_roadrange_base(self):
+        prettyprint(self.roadrange.get_element())
+
+    def test_roadrange_equality(self):
+        roadrange2 = OSC.RoadRange("10")
+        roadrange2.add_cursor("0")
+        roadrange2.add_cursor("1")
+        assert self.roadrange == roadrange2
+
+        roadrange3 = OSC.RoadRange("20")
+        roadrange3.add_cursor("0")
+        roadrange3.add_cursor("1")
+        assert self.roadrange != roadrange3
+
+    def test_add_cursor(self):
+        self.roadrange.add_cursor("2")
+        assert len(self.roadrange.roadcursors) == 3
+
+    def test_parse(self):
+        road_range = self.roadrange.get_element()
+        parsed_roadrange = OSC.RoadRange.parse(road_range)
+        assert self.roadrange == parsed_roadrange
+
+    @pytest.mark.parametrize(
+        ["version", "expected"],
+        [
+            (0, ValidationResponse.OSC_VERSION),
+            (1, ValidationResponse.OSC_VERSION),
+            (2, ValidationResponse.OSC_VERSION),
+            (3, ValidationResponse.OK),
+        ],
+    )
+    def test_validate_xml(self, version, expected):
+        assert (
+            version_validation("RoadRange", self.roadrange, version)
+            == expected
+        )
+
+    def test_number_of_road_cursors(self):
+        self.roadrange_basic = OSC.RoadRange()
+        self.roadrange_basic.setVersion(1, 3)
+        assert len(self.roadrange_basic.roadcursors) == 0
+        with pytest.raises(ValueError) as to_few_cursors:
+            self.roadrange_basic.get_element()
+        assert str(to_few_cursors.value) == self.to_few_cursors
+
+        self.roadrange_basic.add_cursor("0")
+        assert len(self.roadrange_basic.roadcursors) == 1
+        with pytest.raises(ValueError) as to_few_cursors:
+            self.roadrange_basic.get_element()
+        assert str(to_few_cursors.value) == self.to_few_cursors
+        self.roadrange_basic.add_cursor("1")
+        assert len(self.roadrange_basic.roadcursors) == 2
+        self.roadrange_basic.get_element()
+
+    def test_road_range_with_lanes(self):
+        rr = OSC.RoadRange("10")
+        rr.add_cursor("roadA", 0.0, [1, 2])
+        rr.add_cursor("roadA", 100.0, [2])
+        rr.setVersion(1, 3)
+        element = rr.get_element()
+        parsed = OSC.RoadRange.parse(element)
+        assert rr == parsed
+        assert parsed.roadcursors[0][2] == [1, 2]
+        assert parsed.roadcursors[1][2] == [2]
+
+
+class TestClothoidSpline:
+    def setup_method(self):
+        self.first_segment_position = [
+            OSC.WorldPosition(0, 0, 0, 0, 0, 0),
+        ]
+        self.second_segment_position = [
+            OSC.WorldPosition(1, 1, 0, 0, 0, 0),
+        ]
+        self.segments = [
+            OSC.ClothoidSplineSegment(
+                0.00, 0.01, 50.0, 0.0, 0.0, self.first_segment_position
+            ),
+            OSC.ClothoidSplineSegment(
+                0.01, 0.02, 50.0, 0.0, 0.0, self.second_segment_position
+            ),
+        ]
+        self.clothoid_spline = OSC.ClothoidSpline(
+            segments=self.segments, time_end=5.0
+        )
+        self.clothoid_spline.setVersion(1, 3)
+
+    def test_clothoid_spline_version_validation(self):
+        assert (
+            version_validation("Shape", self.clothoid_spline, 0)
+            == ValidationResponse.OSC_VERSION
+        )
+        assert (
+            version_validation("Shape", self.clothoid_spline, 1)
+            == ValidationResponse.OSC_VERSION
+        )
+        assert (
+            version_validation("Shape", self.clothoid_spline, 2)
+            == ValidationResponse.OSC_VERSION
+        )
+
+    def test_clothoid_spline_equality(self):
+        clothoid_spline2 = OSC.ClothoidSpline(
+            segments=self.segments, time_end=5.0
+        )
+        assert self.clothoid_spline == clothoid_spline2
+
+        clothoid_spline3 = OSC.ClothoidSpline(
+            segments=self.segments, time_end=6.0
+        )
+        assert self.clothoid_spline != clothoid_spline3
+
+    def test_clothoid_spline_parse(self):
+        clothoid_spline_element = self.clothoid_spline.get_element()
+        parsed_clothoid_spline = OSC.ClothoidSpline.parse(
+            clothoid_spline_element
+        )
+        assert self.clothoid_spline == parsed_clothoid_spline
+
+    def test_clothoid_spline_factory(self):
+        clothoid_spline_element = self.clothoid_spline.get_element()
+        factory_output = OSC.position._ShapeFactory.parse_shape(
+            clothoid_spline_element
+        )
+        assert self.clothoid_spline == factory_output
+
+    def test_clothoid_spline_prettyprint(self):
+        prettyprint(self.clothoid_spline)

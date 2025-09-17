@@ -823,20 +823,21 @@ class Act(VersionBase):
         name : str
             Name of the act.
         starttrigger : _TriggerType, optional
-            Start trigger of the act. Default is
-            ValueTrigger('act_start', 0, ConditionEdge.none,
-            SimulationTimeCondition(0, Rule.greaterThan)).
+            Start trigger of the act. Default behavior depends on
+            the OpenSCENARIO version.
+            OpenSCENARIO 1.2 or less:
+                Default is ValueTrigger('act_start', 0, ConditionEdge.none,
+                SimulationTimeCondition(0, Rule.greaterThan)).
+            OpenSCENARIO 1.3:
+                None. The act starts when the Storyboard enters runningState.
         stoptrigger : _TriggerType, optional
             Stop trigger of the act. Default is EmptyTrigger("stop").
         """
         self.name = name
+        self._none_starttrigger_input = False
         if starttrigger is None:
-            self.starttrigger = starttrigger = ValueTrigger(
-                "act_start",
-                0,
-                ConditionEdge.none,
-                SimulationTimeCondition(0, Rule.greaterThan),
-            )
+            self._none_starttrigger_input = True
+            self._starttrigger = None
         elif not isinstance(starttrigger, _TriggerType):
             raise TypeError("starttrigger is not a valid TriggerType")
         elif starttrigger._triggerpoint == "StopTrigger":
@@ -844,7 +845,7 @@ class Act(VersionBase):
                 "the starttrigger provided does not have start as the triggeringpoint"
             )
         else:
-            self.starttrigger = starttrigger
+            self._starttrigger = starttrigger
 
         if stoptrigger is None:
             self.stoptrigger = EmptyTrigger("stop")
@@ -862,12 +863,49 @@ class Act(VersionBase):
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Act):
             if (
-                self.starttrigger == other.starttrigger
+                self._check_starttrigger(other)
                 and self.stoptrigger == other.stoptrigger
                 and self.maneuvergroup == other.maneuvergroup
             ):
                 return True
         return False
+
+    @property
+    def starttrigger(self) -> Optional[Union[_TriggerType, _ValueTriggerType]]:
+        """Returns the start trigger of the act."""
+        if self._starttrigger is None:
+            if self.isVersionEqLarger(1, 3):
+                return None
+            else:
+                return self._default_starttrigger
+        return self._starttrigger
+
+    @starttrigger.setter
+    def starttrigger(self, value):
+        if value is not None and not isinstance(value, _TriggerType):
+            raise TypeError(
+                f"starttrigger must be None, _TriggerType, or _ValueTriggerType, not {type(value).__name__}"
+            )
+
+        self._starttrigger = value
+
+    @property
+    def _default_starttrigger(self) -> _ValueTriggerType:
+        """Returns the start trigger of the act."""
+        start_trigger = ValueTrigger(
+            "act_start",
+            0,
+            ConditionEdge.none,
+            SimulationTimeCondition(0, Rule.greaterThan),
+        )
+        return start_trigger
+
+    def _check_starttrigger(self, other) -> bool:
+
+        if self.isVersionEqLarger(1, 3):
+            if self._none_starttrigger_input:
+                return other.starttrigger is None
+        return self.starttrigger == other.starttrigger
 
     @staticmethod
     def parse(element: ET.Element) -> "Act":
@@ -885,13 +923,17 @@ class Act(VersionBase):
         """
         name = element.attrib["name"]
         stoptrigger = None
+        starttrigger = None
         if element.find("StopTrigger") is not None:
             stoptrigger = Trigger.parse(
                 find_mandatory_field(element, "StopTrigger")
             )
-        starttrigger = Trigger.parse(
-            find_mandatory_field(element, "StartTrigger")
-        )
+        if element.find("StartTrigger") is not None:
+            # TODO: If XML version is 1.3 or higher, starttrigger may be None;
+            #  for earlier versions, a _TriggerType is required.
+            starttrigger = Trigger.parse(
+                find_mandatory_field(element, "StartTrigger")
+            )
 
         act = Act(name, starttrigger, stoptrigger)
         for m in element.findall("ManeuverGroup"):
@@ -934,8 +976,15 @@ class Act(VersionBase):
         element = ET.Element("Act", attrib=self.get_attributes())
         for mangr in self.maneuvergroup:
             element.append(mangr.get_element())
+        starttrigger = self.starttrigger
+        if self._none_starttrigger_input:
+            if self.isVersionEqLarger(1, 3):
+                starttrigger = None
 
-        element.append(self.starttrigger.get_element())
+            else:
+                starttrigger = self._default_starttrigger
+        if starttrigger is not None:
+            element.append(starttrigger.get_element())
         element.append(self.stoptrigger.get_element())
         return element
 
@@ -1109,7 +1158,7 @@ class StoryBoard(VersionBase):
     def __init__(
         self,
         init: Init = Init(),
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
+        stoptrigger: Optional[_TriggerType] = None,
     ) -> None:
         """Initializes the StoryBoard.
 
@@ -1118,20 +1167,30 @@ class StoryBoard(VersionBase):
         init : Init, optional
             The init part of the storyboard. Default is Init().
         stoptrigger : _TriggerType, optional
-            The stop trigger of the storyboard. Default is
-            EmptyTrigger("stop").
+            The stop trigger of the storyboard.
+            OpenSCENARIO 1.2 or less:
+                Default is Trigger("stop").
+            OpenSCENARIO 1.3:
+                None. The Storyboard will never be stopped.
         """
+        self._none_stoptrigger_input = False
         if not isinstance(init, Init):
             raise TypeError("init is not of type Init")
-        if not isinstance(stoptrigger, _TriggerType):
-            raise TypeError("stoptrigger is not a valid Trigger")
-        # check that the stoptrigger has a triggeringpoint that is 'stop'
-        if stoptrigger._triggerpoint == "StartTrigger":
-            raise ValueError(
-                "the stoptrigger provided does not have stop as the triggeringpoint"
-            )
+        if stoptrigger is None:
+            self._none_stoptrigger_input = True
+            self._stoptrigger = None
+        else:
+            if not isinstance(stoptrigger, _TriggerType):
+                raise TypeError("stoptrigger is not a valid Trigger")
+            # check that the stoptrigger has a triggeringpoint that is 'stop'
+            elif stoptrigger._triggerpoint == "StartTrigger":
+                raise ValueError(
+                    "the stoptrigger provided does not have stop as the triggeringpoint"
+                )
+            else:
+                self._stoptrigger = stoptrigger
+
         self.init = init
-        self.stoptrigger = stoptrigger
         self.stories = []
 
     def __eq__(self, other: object) -> bool:
@@ -1140,11 +1199,36 @@ class StoryBoard(VersionBase):
         if isinstance(other, StoryBoard):
             if (
                 self.init == other.init
-                and self.stoptrigger == other.stoptrigger
+                and self._check_stoptrigger(other)
                 and self.stories == other.stories
             ):
                 return True
         return False
+
+    @property
+    def stoptrigger(self) -> Optional[Union[_TriggerType, _ValueTriggerType]]:
+        """Returns the stop trigger of the storyboard."""
+        if self._stoptrigger is None:
+            if self.isVersionEqLarger(1, 3):
+                return None
+            else:
+                return Trigger("stop")
+        return self._stoptrigger
+
+    @stoptrigger.setter
+    def stoptrigger(self, value):
+        if value is not None and not isinstance(value, _TriggerType):
+            raise TypeError(
+                f"stoptrigger must be None, _TriggerType, or _ValueTriggerType, not {type(value).__name__}"
+            )
+
+        self.stoptrigger = value
+
+    def _check_stoptrigger(self, other) -> bool:
+        if self.isVersionEqLarger(1, 3):
+            if self._none_stoptrigger_input:
+                return other.stoptrigger is None
+        return self.stoptrigger == other.stoptrigger
 
     @staticmethod
     def parse(element: ET.Element) -> "StoryBoard":
@@ -1162,10 +1246,11 @@ class StoryBoard(VersionBase):
             A StoryBoard object.
         """
         init = Init.parse(find_mandatory_field(element, "Init"))
-        stoptrigger = Trigger.parse(
-            find_mandatory_field(element, "StopTrigger")
-        )
-
+        stoptrigger = None
+        if element.find("StopTrigger") is not None:
+            stoptrigger = Trigger.parse(
+                find_mandatory_field(element, "StopTrigger")
+            )
         storyboard = StoryBoard(init, stoptrigger)
         for s in element.findall("Story"):
             storyboard.add_story(Story.parse(s))
@@ -1318,11 +1403,18 @@ class StoryBoard(VersionBase):
         # if not self.stories:
         #     raise ValueError('no stories available for storyboard')
 
-        if not self.stories:
-            self.add_maneuver_group(ManeuverGroup("empty"), EmptyTrigger())
+        if not self.stories and self.isVersionEqLess(minor=1):
+            self.add_maneuver_group(ManeuverGroup("empty"), Trigger())
         for story in self.stories:
             element.append(story.get_element())
 
-        element.append(self.stoptrigger.get_element())
+        stoptriggre = self.stoptrigger
+        if self._none_stoptrigger_input:
+            if self.isVersionEqLarger(1, 3):
+                stoptriggre = None
+            else:
+                stoptriggre = Trigger("stop")
+        if stoptriggre is not None:
+            element.append(stoptriggre.get_element())
 
         return element

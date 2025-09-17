@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Optional
+from typing import Optional, Union
 
 from .enumerations import RouteStrategy
 from .exceptions import (
@@ -84,6 +84,8 @@ class _ShapeFactory:
             return Clothoid.parse(element)
         if element.findall("Nurbs"):
             return Nurbs.parse(element)
+        if element.findall("ClothoidSpline"):
+            return ClothoidSpline.parse(element)
         raise NotAValidElement("element ", element, "is not a valid shape")
 
 
@@ -1748,6 +1750,9 @@ class GeoPosition(_PositionType):
         Height above surface. Default is None.
     orientation : Orientation, optional
         Orientation of the entity. Default is Orientation().
+    vertical_road_selection : int, optional
+        Specifies which road to choose at a given lat/lon when multiple roads overlap,
+         with 0 for the top road and negative values for roads below. Default is 0.
 
     Attributes
     ----------
@@ -1759,6 +1764,8 @@ class GeoPosition(_PositionType):
         Height above surface. Default is None.
     orientation : Orientation
         Orientation of the entity.
+    vertical_road_selection : int
+       Road selected at the given lat/lon when multiple roads overlap.
 
     Methods
     -------
@@ -1777,6 +1784,7 @@ class GeoPosition(_PositionType):
         longitude: float,
         height: Optional[float] = None,
         orientation: Orientation = Orientation(),
+        vertical_road_selection: int = None,
     ) -> None:
         """Initialize the GeoPosition class.
 
@@ -1790,6 +1798,9 @@ class GeoPosition(_PositionType):
             Height above surface. Default is None.
         orientation : Orientation, optional
             Orientation of the entity. Default is Orientation().
+        vertical_road_selection : int, optional
+            Specifies which road to choose at a given lat/lon when multiple roads overlap,
+             with 0 for the top road and negative values for roads below. Default is 0.
         """
         self.longitude = convert_float(longitude)
         self.latitude = convert_float(latitude)
@@ -1797,6 +1808,7 @@ class GeoPosition(_PositionType):
         if not isinstance(orientation, Orientation):
             raise TypeError("input orientation is not of type Orientation")
         self.orientation = orientation
+        self.vertical_road_selection = convert_int(vertical_road_selection)
 
     def __eq__(self, other) -> bool:
         if isinstance(other, GeoPosition):
@@ -1843,13 +1855,21 @@ class GeoPosition(_PositionType):
         else:
             height = None
 
+        vertical_road_selection = None
+        if "verticalRoadSelection" in position_element.attrib:
+            vertical_road_selection = convert_int(
+                position_element.attrib["verticalRoadSelection"]
+            )
+
         if position_element.find("Orientation") is not None:
             orientation = Orientation.parse(
                 find_mandatory_field(position_element, "Orientation")
             )
         else:
             orientation = Orientation()
-        return GeoPosition(latitude, longitude, height, orientation)
+        return GeoPosition(
+            latitude, longitude, height, orientation, vertical_road_selection
+        )
 
     def get_attributes(self) -> dict:
         """Return the attributes of the GeoPosition as a dictionary.
@@ -1870,6 +1890,11 @@ class GeoPosition(_PositionType):
             retdict["latitudeDeg"] = str(self.latitude)
             if self.height is not None:
                 retdict["altitude"] = str(self.height)
+            if self.isVersionEqLarger(minor=3):
+                if self.vertical_road_selection is not None:
+                    retdict["verticalRoadSelection"] = str(
+                        self.vertical_road_selection
+                    )
         return retdict
 
     def get_element(self, elementname: str = "Position") -> ET.Element:
@@ -1884,7 +1909,6 @@ class GeoPosition(_PositionType):
             raise OpenSCENARIOVersionError(
                 "GeoPosition was introduced in OpenSCENARIO V1.1"
             )
-
         element = ET.Element(elementname)
         traj_element = ET.SubElement(
             element, "GeoPosition", self.get_attributes()
@@ -2636,7 +2660,7 @@ class Trajectory(_BaseCatalog):
         shape : _TrajectoryShape
             The shape to be added to the trajectory.
         """
-        if not isinstance(shape, (Polyline, Clothoid, Nurbs)):
+        if not isinstance(shape, (Polyline, Clothoid, Nurbs, ClothoidSpline)):
             raise TypeError("shape input neither of type _TrajectoryShape")
         self.shapes = shape
         return self
@@ -2816,3 +2840,491 @@ class Nurbs(_TrajectoryShape):
             ET.SubElement(element, "Knot", attrib={"value": str(k)})
 
         return shape
+
+
+class Polygon(VersionBase):
+    """The Polygon class creates a polygon used by the TrafficArea class.
+
+    Parameters
+    ----------
+    positions : list of Position
+        A list of positions that define the polygon.
+
+    Attributes
+    ----------
+    positions : list of Position
+        A list of positions that define the polygon.
+    """
+
+    def __init__(self, positions: list[_PositionType]) -> None:
+        if len(positions) < 3:
+            raise ValueError("Polygon must have at least 3 positions")
+        if not isinstance(positions, list) or not all(
+            isinstance(p, _PositionType) for p in positions
+        ):
+            raise TypeError(
+                "positions input is not a list of PositionType objects"
+            )
+        if positions:
+            first_type = type(positions[0])
+            if not all(isinstance(p, first_type) for p in positions):
+                raise TypeError(
+                    "All positions in Polygon must be of the same type"
+                )
+        self.positions = positions
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Polygon) and self.positions == other.positions
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Polygon":
+        """Parses the XML element of Polygon.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A polygon element (same as generated by the class itself).
+
+        Returns
+        -------
+        Polygon
+            A Polygon object.
+        """
+        positions = []
+        for pos_element in element.findall("Position"):
+            position = _PositionFactory.parse_position(pos_element)
+            positions.append(position)
+        return Polygon(positions)
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the Polygon.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the Polygon.
+        """
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "Polygon was introduced in OpenSCENARIO V1.3"
+            )
+
+        element = ET.Element("Polygon")
+        for pos in self.positions:
+            element.append(pos.get_element())
+        return element
+
+
+class RoadRange(VersionBase):
+    """The RoadRange class creates a road range used by the TrafficArea class.
+    Defines an area by a range on a specific road.
+
+    Parameters
+    ----------
+    length : float
+                Limits the length of the road range starting from the first road cursor. If omitted or if length exceeds last road cursor, then last road cursor defines the end of the road range. Unit: [m].
+    roadcursor : list of RoadCursor
+        A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
+
+    Attributes
+    ----------
+    length : float
+        Limits the length of the road range starting from the first road cursor. If omitted or if length exceeds last road cursor, then last road cursor defines the end of the road range. Unit: [m].
+    roadcursor : list of RoadCursor
+        A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
+    """
+
+    def __init__(
+        self,
+        length: Optional[float] = None,
+        roadcursors: Optional[list] = None,
+    ) -> None:
+        """Initializes the RoadRange.
+
+        Parameters
+        ----------
+        length : float, optional
+            Limits the length of the road range starting from the first road cursor. Default is None.
+        roadcursors : list of RoadCursor
+            A minimum of 2 road cursors must be provided to specify the start and end of the road range. Intermediate cursors can be used to change the lane "validity".
+        """
+        self.length = convert_float(length) if length is not None else None
+        self.roadcursors = roadcursors if roadcursors is not None else []
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, RoadRange)
+            and self.length == other.length
+            and self.roadcursors == other.roadcursors
+        )
+
+    def add_cursor(
+        self,
+        roadid: str,
+        s: Optional[float] = 0.0,
+        lanes: Optional[list[int]] = None,
+    ) -> "RoadRange":
+        """Adds a road cursor to the road range.
+
+        Parameters
+        ----------
+        roadid : str
+            The ID of the target road taken from the respective road network definition file.
+        s : float, optional
+                The s-coordinate taken along the road's reference line from the start point of the target road. If s is omitted and the road cursor depicts the start of a road range, then s=0 is assumed. If s is omitted and the road cursor depicts the end of a road range, then s=max_length is assumed. Unit: [m].
+        lane : list of int, optional
+                Restriction of the road cursor to specific lanes of a road. If omitted, road cursor is valid for all lanes of the road.
+        """
+        self.roadcursors.append(
+            [roadid, s, lanes if lanes is not None else []]
+        )
+        return self
+
+    @staticmethod
+    def parse(element: ET.Element) -> "RoadRange":
+        """Parses the XML element of RoadRange.
+
+        Parameters
+        ----------
+        element : ET.Element
+            A road range element (same as generated by the class itself).
+
+        Returns
+        -------
+        RoadRange
+            A RoadRange object.
+        """
+        length = convert_float(element.attrib.get("length"))
+        roadcursors = []
+        for cursor in element.findall("RoadCursor"):
+            roadid = cursor.attrib.get("roadId", "")
+            s_value = convert_float(cursor.attrib.get("s", 0.0))
+            lane_elements = cursor.findall("Lane")
+            lanes = (
+                [int(lane.attrib.get("id", "")) for lane in lane_elements]
+                if lane_elements
+                else []
+            )
+            roadcursors.append([roadid, s_value, lanes])
+        return RoadRange(length, roadcursors)
+
+    def get_attributes(self) -> dict:
+        """Returns the attributes of the RoadRange as a dictionary."""
+        retdict = {}
+        if self.length is not None:
+            retdict["length"] = str(self.length)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Returns the ElementTree of the RoadRange.
+
+        Returns
+        -------
+        ET.Element
+            The ElementTree representation of the RoadRange.
+        """
+        if not self.isVersionEqLarger(minor=3):
+            raise OpenSCENARIOVersionError(
+                "RoadRange was introduced in OpenSCENARIO V1.3"
+            )
+        if len(self.roadcursors) < 2:
+            raise ValueError(
+                "At least two road cursors are required for a RoadRange"
+            )
+
+        element = ET.Element("RoadRange", attrib=self.get_attributes())
+
+        for roadid, s, lanes in self.roadcursors:
+            road_cursor_attributes = {"roadId": str(roadid), "s": str(s)}
+            cursor_el = ET.SubElement(
+                element, "RoadCursor", attrib=road_cursor_attributes
+            )
+            if lanes is not None:
+                for lane in lanes:
+                    ET.SubElement(cursor_el, "Lane", {"id": str(lane)})
+        return element
+
+
+class ClothoidSplineSegment(VersionBase):
+    """
+    The ClothoidSplineSegment class creates a segment of a clothoid spline.
+
+     Parameters
+    ----------
+    curvature_start: float
+        Start curvature of the clothoid spline segment.unit:[1/m]
+    curvature_end: float
+        End curvature of the clothoid spline segment.unit:[1/m]
+    length: float
+        Length of the clothoid segment.unit: [m]
+    h_offset: float
+        Optional heading offset in radians of the clothoid segment relative to end of the
+         previous segment or to position_start if present. Default is 0.
+    time_start: float
+        Optional time specification at the start of the clothoid segment.unit: [s]
+    position_start:  list of _PositionType
+        optional starting position of a clothoid segment. If position_start is omitted for
+        the first segment, the entity's current position is used. For subsequent segments,
+        the end position of the previous segment is used.
+        If only the heading is omitted, the heading of the previous segment's end position
+        shall be used.
+
+    Attributes
+    ----------
+    curvature_start : float
+        Start curvature of the clothoid spline segment. unit: [1/m]
+    curvature_end : float
+        End curvature of the clothoid spline segment. unit: [1/m]
+    length : float
+        Length of the clothoid segment. unit: [m]
+    h_offset : float
+        Heading offset in radians of the clothoid segment relative to end of the previous segment
+        or to position_start if present.
+    time_start : float
+        Time specification at the start of the clothoid segment. unit: [s]
+    position_start : _PositionType
+        Starting position of a clothoid segment.
+
+    Methods
+    -------
+
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+
+    """
+
+    def __init__(
+        self,
+        curvature_start: float,
+        curvature_end: float,
+        length: float,
+        h_offset: Optional[float] = None,
+        time_start: Optional[float] = None,
+        position_start: Optional[_PositionType] = None,
+    ):
+        """Initialize the ClothoidSplineSegment.
+
+        Parameters
+        ----------
+        curvature_start: float
+            Start curvature of the clothoid spline segment.unit:[1/m]
+        curvature_end: float
+            End curvature of the clothoid spline segment.unit:[1/m]
+        length: float
+                Length of the clothoid segment.unit: [m]
+        h_offset: float
+            Optional heading offset in radians of the clothoid segment relative to end of the
+            previous segment or to position_start if present. Default is 0.
+        time_start: float
+                Optional time specification at the start of the clothoid segment.unit: [s]
+        position_start:  list of _PositionType
+            optional starting position of a clothoid segment. If position_start is omitted for
+            the first segment, the entity's current position is used. For subsequent segments,
+            the end position of the previous segment is used.
+            If only the heading is omitted, the heading of the previous segment's end position
+            shall be used.
+        """
+        self.curvature_end = convert_float(curvature_end)
+        self.curvature_start = convert_float(curvature_start)
+        self.h_offset = convert_float(h_offset)
+        if length <= 0:
+            raise ValueError(
+                "The clothoid segment length must be greater than zero"
+            )
+        self.length = convert_float(length)
+        self.time_start = convert_float(time_start)
+
+        if position_start is not None:
+            if not isinstance(position_start, list) or not all(
+                isinstance(pos, _PositionType) for pos in position_start
+            ):
+                raise TypeError(
+                    "position_start elements must be of type _PositionType or None"
+                )
+        self.position_start = position_start
+
+    def __eq__(self, other):
+        if not isinstance(other, ClothoidSplineSegment):
+            return False
+        return (
+            self.curvature_start == other.curvature_start
+            and self.curvature_end == other.curvature_end
+            and self.length == other.length
+            and self.h_offset == other.h_offset
+            and self.time_start == other.time_start
+            and self.position_start == other.position_start
+        )
+
+    def get_attributes(self) -> dict:
+        """Return the attributes of the ClothoidSplineSegment as a dictionary."""
+        attributes = {
+            "curvatureStart": str(self.curvature_start),
+            "curvatureEnd": str(self.curvature_end),
+            "length": str(self.length),
+        }
+        if self.h_offset is not None:
+            attributes["hOffset"] = str(self.h_offset)
+        if self.time_start is not None:
+            attributes["timeStart"] = str(self.time_start)
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the ClothoidSplineSegment."""
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "ClothoidSplineSegment was introduced in OpenSCENARIO V1.3"
+            )
+        element = ET.Element(
+            "ClothoidSplineSegment", attrib=self.get_attributes()
+        )
+        if self.position_start:
+            for position in self.position_start:
+                element.append(position.get_element("PositionStart"))
+        return element
+
+    @staticmethod
+    def parse(element: ET.Element) -> "ClothoidSplineSegment":
+        """Parse the XML element of ClothoidSplineSegment.
+
+        Parameters
+        ----------
+        element : xml.etree.ElementTree.Element
+            A ClothoidSplineSegment element.
+
+        Returns
+        -------
+        ClothoidSplineSegment
+            An instance of ClothoidSplineSegment.
+        """
+        curvature_start = convert_float(element.attrib["curvatureStart"])
+        curvature_end = convert_float(element.attrib["curvatureEnd"])
+        length = convert_float(element.attrib["length"])
+        h_offset = convert_float(element.attrib.get("hOffset"))
+        time_start = convert_float(element.attrib.get("timeStart"))
+        position_start = []
+
+        pos_start_elem = element.find("PositionStart")
+        if pos_start_elem is not None:
+            position_start.append(
+                _PositionFactory.parse_position(pos_start_elem)
+            )
+
+        return ClothoidSplineSegment(
+            curvature_end=curvature_end,
+            curvature_start=curvature_start,
+            length=length,
+            h_offset=h_offset,
+            time_start=time_start,
+            position_start=position_start,
+        )
+
+
+class ClothoidSpline(_TrajectoryShape):
+    """
+    The ClothoidSpline class creates a ClothoidSpline shape.
+
+    Parameters
+    ----------
+    segments : List[ClothoidSplineSegment]
+        A list of ClothoidSplineSegments.
+    time_end : float
+        Optional time specification at the end of the clothoid spline curve.
+        Required if timeStart in ClothoidSplineSegment is specified.
+
+    Attributes
+    ----------
+    segments : List[ClothoidSplineSegment]
+        A list of ClothoidSplineSegment objects that define the segments of the clothoid spline.
+    time_end : float, optional
+        time specification at the end of the clothoid spline curve.
+
+    Methods
+    -------
+    parse(element)
+        Parses an ElementTree created by the class and returns
+        an instance of the class.
+    get_element()
+        Returns the full ElementTree of the class.
+    get_attributes()
+        Returns a dictionary of all attributes of the class.
+    """
+
+    def __init__(
+        self,
+        segments: list[ClothoidSplineSegment],
+        time_end: Optional[float] = None,
+    ):
+        """Initialize the ClothoidSpline.
+
+        Parameters
+        ----------
+        segments : List[ClothoidSplineSegment]
+            A list of ClothoidSplineSegments.
+        time_end : float
+            Optional time specification at the end of the clothoid spline curve.
+            Required if timeStart in ClothoidSplineSegment is specified.
+        """
+
+        self.segments = segments
+        self.time_end = convert_float(time_end)
+
+    def __eq__(self, other):
+        if not isinstance(other, ClothoidSpline):
+            return False
+        return (
+            self.segments == other.segments and self.time_end == other.time_end
+        )
+
+    def get_attributes(self) -> dict:
+        """Return the attributes of the ClothoidSpline as a dictionary."""
+        attributes = {}
+        if self.time_end is not None:
+            attributes["timeEnd"] = str(self.time_end)
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the ClothoidSpline."""
+        if self.isVersionEqLess(minor=2):
+            raise OpenSCENARIOVersionError(
+                "ClothoidSpline was introduced in OpenSCENARIO V1.3"
+            )
+
+        shape = ET.Element("Shape")
+        element = ET.SubElement(
+            shape, "ClothoidSpline", attrib=self.get_attributes()
+        )
+        for segment in self.segments:
+            element.append(segment.get_element())
+        return shape
+
+    @staticmethod
+    def parse(element: ET.Element) -> "ClothoidSpline":
+        """Parse the XML element of ClothoidSpline.
+
+        Parameters
+        ----------
+        element : xml.etree.ElementTree.Element
+            A ClothoidSpline element.
+
+        Returns
+        -------
+        ClothoidSpline
+            An instance of ClothoidSpline.
+        """
+        clothoid_spline_element = find_mandatory_field(
+            element, "ClothoidSpline"
+        )
+        time_end = convert_float(clothoid_spline_element.attrib.get("timeEnd"))
+        segments = []
+
+        for segment_element in clothoid_spline_element.findall(
+            "ClothoidSplineSegment"
+        ):
+            segments.append(ClothoidSplineSegment.parse(segment_element))
+
+        return ClothoidSpline(segments=segments, time_end=time_end)

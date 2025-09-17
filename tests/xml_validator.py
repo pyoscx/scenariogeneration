@@ -31,7 +31,9 @@ schemas.append(
         os.path.join("schemas", "OpenSCENARIO_1_" + str(2) + ".xsd")
     )
 )
-
+schemas.append(
+    xmlschema.XMLSchema(os.path.join("schemas", "OpenSCENARIO_1_3_1.xsd"))
+)
 xodr_schema = xmlschema.XMLSchema(
     os.path.join("schemas", "opendrive_17_core.xsd")
 )
@@ -42,6 +44,7 @@ def version_validation(
     scenariogeneration_object,
     osc_version=2,
     wanted_schema="xosc",
+    wanted_name_of_element=None,
 ):
     if wanted_schema == "xosc":
         schema = schemas[osc_version]
@@ -60,7 +63,12 @@ def version_validation(
         no_xsd = True
 
     try:
-        element_to_test = scenariogeneration_object.get_element()
+        if wanted_name_of_element is None:
+            element_to_test = scenariogeneration_object.get_element()
+        else:
+            element_to_test = scenariogeneration_object.get_element(
+                wanted_name_of_element
+            )
     except OpenSCENARIOVersionError as e:
         if validator or no_xsd:
             return ValidationResponse.OSC_VERSION
