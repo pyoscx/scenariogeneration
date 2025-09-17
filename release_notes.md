@@ -1,5 +1,40 @@
 ## scenariogeneration release notes
 
+### 2025-09-17 Version 0.16.0
+- General notes
+    - Implementation of OpenSCENARIO 1.3.1 is now complete.
+- New features
+    - XOSC:
+      - TrafficActionArea
+      - Polygon
+      - RoadRange
+      - ClothoidSpline
+      - ClothoidSplineSegment
+      - LogNormalDistribution
+      - RandomRouteAction
+      - Trailers
+      - Monitor
+      - AngleCondition
+      - VerticalRoadSelection
+      - ObjectController
+    - XODR:
+      - Object Marking for crosswalks, stop lines and parking spaces
+- Bugfixes
+    - Fix parsing issues related to OpenScenario version
+    - Fix double fix-timestep entry in esmini runner
+    - Fix bug in RelativeLaneOffsetAction
+- Updates
+    - Update action ActivateControllerAction to accept objectControllerRef
+    - Properties are optional in most classes
+    - Extend catalog FileHeader with more options
+- Tests
+    - Added tests for new features
+    - Improved tests for existing features
+    - Add schema checks in parser
+- Optimization
+    - Loose xmlschema requirement version
+    - Trigger github action on schema
+
 ### 2025-07-03 Version 0.15.2
 - Bugfixes
     - Fix in pyproject.toml for installation of dependencies.
