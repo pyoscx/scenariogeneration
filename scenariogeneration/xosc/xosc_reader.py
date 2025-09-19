@@ -244,7 +244,7 @@ def validate_schema(loaded_xosc: ET.ElementTree) -> bool:
     if minor_version == "3" and major_version == "1":
         minor_version = "3_1"
     xsd_path = os.path.join(
-        Path.cwd(),
+        Path(__file__).parent.parent.parent,
         "schemas",
         "OpenSCENARIO_" + major_version + "_" + minor_version + ".xsd",
     )
