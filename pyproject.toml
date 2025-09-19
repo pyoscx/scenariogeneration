@@ -5,7 +5,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages=["scenariogeneration","scenariogeneration.xosc","scenariogeneration.xodr"]
+include-package-data = true
 
+[tool.setuptools.package-data]
+scenariogeneration = ["../schemas/*.xsd"]
 
 [project]
 name = "scenariogeneration" # REQUIRED, is the only field that cannot be marked as dynamic.
