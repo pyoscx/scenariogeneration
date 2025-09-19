@@ -790,7 +790,7 @@ class Trigger(_TriggerType):
                     and self.conditiongroups[0] == other
                 ):
                     return True
-        elif isinstance(other, EmptyTrigger):
+        elif isinstance(other, Trigger):
             if (
                 len(self.conditiongroups) == 0
                 and self._triggerpoint == other._triggerpoint

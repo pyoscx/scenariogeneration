@@ -23,7 +23,6 @@ from .actions import (
 )
 from .enumerations import ConditionEdge, Priority, Rule, VersionBase
 from .triggers import (
-    EmptyTrigger,
     SimulationTimeCondition,
     Trigger,
     ValueTrigger,
@@ -848,7 +847,7 @@ class Act(VersionBase):
             self._starttrigger = starttrigger
 
         if stoptrigger is None:
-            self.stoptrigger = EmptyTrigger("stop")
+            self.stoptrigger = Trigger("stop")
         elif not isinstance(stoptrigger, _TriggerType):
             raise TypeError("stoptrigger is not a valid TriggerType")
         elif stoptrigger._triggerpoint == "StartTrigger":
@@ -1296,7 +1295,7 @@ class StoryBoard(VersionBase):
         self,
         maneuvergroup: ManeuverGroup,
         starttrigger: Optional[_TriggerType] = None,
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
+        stoptrigger: _TriggerType = Trigger("stop"),
         parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> "StoryBoard":
         """Adds a single maneuver group to one story. For multi maneuver group
@@ -1346,7 +1345,7 @@ class StoryBoard(VersionBase):
         maneuver: Union[Maneuver, CatalogReference],
         actors: Optional[Union[List[str], str]] = None,
         starttrigger: Optional[_TriggerType] = None,
-        stoptrigger: _TriggerType = EmptyTrigger("stop"),
+        stoptrigger: _TriggerType = Trigger("stop"),
         parameters: ParameterDeclarations = ParameterDeclarations(),
     ) -> "StoryBoard":
         """Adds a single maneuver to one story. For multi-maneuver scenarios,
@@ -1363,7 +1362,7 @@ class StoryBoard(VersionBase):
             Start trigger for the act. Default is at simulation time
             0.
         stoptrigger : _TriggerType, optional
-            Stop trigger for the act. Default is EmptyTrigger("stop").
+            Stop trigger for the act. Default is Trigger("stop").
         parameters : ParameterDeclarations, optional
             The parameters of the story. Default is None.
         """
