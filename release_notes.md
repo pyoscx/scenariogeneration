@@ -1,5 +1,10 @@
 ## scenariogeneration release notes
 
+### 2025-09-22 Version 0.16.1
+- Bugfixes
+  - Fix deprecation warning during import.
+  - Include the schemas in the wheel distribution.
+
 ### 2025-09-17 Version 0.16.0
 - General notes
     - Implementation of OpenSCENARIO 1.3.1 is now complete.
