@@ -1221,7 +1221,7 @@ class StoryBoard(VersionBase):
                 f"stoptrigger must be None, _TriggerType, or _ValueTriggerType, not {type(value).__name__}"
             )
 
-        self.stoptrigger = value
+        self._stoptrigger = value
 
     def _check_stoptrigger(self, other) -> bool:
         if self.isVersionEqLarger(1, 3):

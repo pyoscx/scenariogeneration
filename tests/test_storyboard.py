@@ -666,6 +666,13 @@ class TestStoryboardManeuverGroup:
                 maneuver_group_target, parameters="dummy"
             )
 
+    def test_stoptrigger_v3(self, sb_mangr, init):
+        assert sb_mangr.stoptrigger is None
+        sb = OSC.StoryBoard(init, stoptrigger=Trigger("stop"))
+        assert sb != sb_mangr
+        sb_mangr.stoptrigger = Trigger("stop")  # property setter
+        assert sb_mangr.stoptrigger == Trigger("stop")  # property getter
+
 
 class TestStoryboardEmpty:
     """Test StoryBoard with no elements."""
