@@ -226,3 +226,79 @@ def test_generate_single_both(dict_of_params, tmpdir):
     opendrives = os.listdir(os.path.join(tmpdir, "xodr"))
     assert len(scenarios) == 1
     assert len(opendrives) == 1
+
+
+class TestHandleAllPermutation:
+
+    @pytest.fixture(name="sg")
+    def scenario_generator(self):
+        return ScenarioGenerator()
+
+    def test_exclude_permutations_empty_list(self, sg):
+        sg.parameters = [{"a": 1}, {"a": 2}]
+        sg.excluded_permutations = []
+        sg.print_permutations()  # public method to call the private method _handle_input_parameters
+        assert sg.all_permutations == sg.parameters
+
+    def test_exclude_permutations_empty_parameters(self, sg):
+
+        sg.parameters = []
+        sg.excluded_permutations = [{"a": 1}]
+        sg.print_permutations()
+        assert sg.all_permutations == []
+
+    def test_exclude_permutations_exclusion_key_not_present(self, sg):
+
+        sg.parameters = [{"a": 1}]
+        sg.excluded_permutations = [{"b": 2}]
+        sg.print_permutations()
+        assert sg.all_permutations == sg.parameters
+
+    def test_exclude_permutations_extra_keys(self, sg):
+        sg.parameters = [{"a": 1, "b": 2}]
+        sg.excluded_permutations = [{"a": 1}]
+        sg.print_permutations()
+        assert sg.all_permutations == sg.parameters
+
+    def test_exclude_permutations_partial_key_match(self, sg):
+
+        sg.parameters = [{"a": 1, "b": 2}]
+        sg.excluded_permutations = [{"a": 1, "b": 3}]
+        sg.print_permutations()
+        assert sg.all_permutations == sg.parameters
+
+    def test_exclude_permutations_type_mismatch(self, sg):
+        sg.parameters = [{"a": 1}]
+        sg.excluded_permutations = [{"a": "1"}]
+        sg.print_permutations()
+        assert sg.all_permutations == sg.parameters
+
+    def test_exclude_permutations_nested_values(self, sg):
+        sg.parameters = [{"a": [1, 2]}]
+        sg.excluded_permutations = [{"a": [1, 2]}]
+        sg.print_permutations()
+        assert sg.all_permutations == []
+
+    def test_exclude_permutations_normal_cases(self, sg):
+        sg.parameters = []
+        d1 = {}
+        d1["road_curvature"] = 0.001
+        d1["speed"] = 10
+
+        d2 = {}
+        d2["road_curvature"] = 0.002
+        d2["speed"] = 20
+
+        sg.parameters.append(d1)
+        sg.parameters.append(d2)
+        sg.excluded_permutations = [{"road_curvature": 0.002, "speed": 20}]
+        sg.print_permutations()
+        assert sg.all_permutations == [{"road_curvature": 0.001, "speed": 10}]
+
+    def test_exclude_permutations_dict_of_list(self, sg):
+        sg.parameters["road_curvature"] = [0.001, 0.002, 0.003, 0.004]
+        sg.parameters["speed"] = [10, 20, 30]
+        sg.excluded_permutations = [{"road_curvature": 0.002, "speed": 20}]
+        sg.print_permutations()
+        assert len(sg.all_permutations) == 11
+        assert sg.excluded_permutations not in sg.all_permutations
