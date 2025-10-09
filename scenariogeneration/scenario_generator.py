@@ -95,7 +95,7 @@ class ScenarioGenerator:
         self.encoding = "utf-8"
         self.all_permutations = None
         self.write_relative_road_path = None
-        self.excluded_permutations = None
+        self.excluded_permutations = []
 
     def road(self, **kwargs) -> Optional[OpenDrive]:
         """Dummy method for generating an OpenDRIVE road.
@@ -181,26 +181,13 @@ class ScenarioGenerator:
         elif isinstance(self.parameters, list):
             self.all_permutations = self.parameters
         if self.excluded_permutations:
-            filtered_permutations = []
-            for p in self.all_permutations:
-                exclude = False
-                perm_keys = set(p.keys())
-                for ex in self.excluded_permutations:
-                    match = True
-                    for key in ex:
-                        if (
-                            key not in p
-                            or p[key] != ex[key]
-                            or set(ex.keys()) != perm_keys
-                        ):
-                            match = False
-                            break
-                    if match:
-                        exclude = True
-                        break
-                if not exclude:
-                    filtered_permutations.append(p)
-            self.all_permutations = filtered_permutations
+            self.all_permutations = [
+                p for p in self.all_permutations
+                if not any(
+                    set(ex.keys()) == set(p.keys()) and all(p[k] == ex[k] for k in ex)
+                    for ex in self.excluded_permutations
+                )
+            ]
 
     def _generate_road_and_scenario(
         self, permutation: dict
