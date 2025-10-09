@@ -16,7 +16,7 @@ Please note that this is not an official implementation of either OpenSCENARIO o
 ## Coverage
 
 As of V0.11.0, the coverage of the modules varies:
-- The xosc module has full coverage of OpenSCENARIO V1.0.0, and most of V1.1.0 and V1.2.0, if something is missing please raise an issue or make a pull request.
+- The xosc module has full coverage of OpenSCENARIO V1.0.0, and most of V1.1.0 , V1.2.0 and v1.3.1, if something is missing please raise an issue or make a pull request.
 - The xodr module has coverage of basic roads, junctions, signals, and objects, based on OpenDrive (V 1.7.1).
 
 For more details se xodr_coverage.txt and xosc_missing_features.txt

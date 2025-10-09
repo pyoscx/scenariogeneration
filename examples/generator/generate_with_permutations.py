@@ -30,6 +30,7 @@ class Scenario(ScenarioGenerator):
         # set so no duplicate roads are created
         self.generate_all_roads = False
         self.number_of_parallel_writings = 2
+        self.excluded_permutations = [{"road_curvature": 0.002, "speed": 20}]
 
     def road(self, **kwargs):
         road = xodr.create_road(
