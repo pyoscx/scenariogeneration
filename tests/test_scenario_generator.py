@@ -298,7 +298,10 @@ class TestHandleAllPermutation:
     def test_exclude_permutations_dict_of_list(self, sg):
         sg.parameters["road_curvature"] = [0.001, 0.002, 0.003, 0.004]
         sg.parameters["speed"] = [10, 20, 30]
-        sg.excluded_permutations = [{"road_curvature": 0.002, "speed": 20}, {"road_curvature": 0.003, "speed": 30}]
+        sg.excluded_permutations = [
+            {"road_curvature": 0.002, "speed": 20},
+            {"road_curvature": 0.003, "speed": 30},
+        ]
         sg.print_permutations()
         assert len(sg.all_permutations) == 10
         assert sg.excluded_permutations not in sg.all_permutations

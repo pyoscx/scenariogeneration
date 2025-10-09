@@ -182,9 +182,11 @@ class ScenarioGenerator:
             self.all_permutations = self.parameters
         if self.excluded_permutations:
             self.all_permutations = [
-                p for p in self.all_permutations
+                p
+                for p in self.all_permutations
                 if not any(
-                    set(ex.keys()) == set(p.keys()) and all(p[k] == ex[k] for k in ex)
+                    set(ex.keys()) == set(p.keys())
+                    and all(p[k] == ex[k] for k in ex)
                     for ex in self.excluded_permutations
                 )
             ]
