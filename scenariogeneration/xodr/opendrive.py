@@ -15,6 +15,7 @@ import datetime as dt
 import xml.etree.ElementTree as ET
 from itertools import combinations
 from typing import Optional, Union
+from warnings import warn
 
 import numpy as np
 import pyclothoids as pcloth
@@ -2398,7 +2399,7 @@ class _Type(XodrBase):
         The maximum speed allowed. Can be a float or the strings "no limit"
         or "undefined". Default is None.
     speed_unit : str, optional
-        Unit of the speed. Can be 'm/s', 'mph', or 'kph'. Default is 'm/s'.
+        Unit of the speed. Can be 'm/s', 'mph', or 'km/h'. Default is 'm/s'.
 
     Attributes
     ----------
@@ -2467,6 +2468,10 @@ class _Type(XodrBase):
                     'speed can only be numerical or "no limit" and "undefined", not: '
                     + str(speed_unit)
                 )
+
+        if speed_unit == "kph":
+            speed_unit = "km/h"
+            warn(DeprecationWarning("kph is deprecated, use km/h instead"))
 
         if speed_unit not in ["m/s", "mph", "km/h"]:
             raise ValueError(
