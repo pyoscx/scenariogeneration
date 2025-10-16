@@ -1,5 +1,14 @@
 ## scenariogeneration release notes
 
+### 2025-10-16 Version 0.16.2
+- General notes
+    - Support for using "km/h". If you use "kph" it will be converted to "km/h" and you will get a Deprecation Warning.  
+- Features
+    - Add support for excluding specific permutations in scenario generation
+- Bugfixes
+    - Remove recursive call for stoptrigger
+
+
 ### 2025-09-22 Version 0.16.1
 - Bugfixes
   - Fix deprecation warning during import.
