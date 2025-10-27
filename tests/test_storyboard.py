@@ -67,6 +67,11 @@ def test_trigger(trigcond):
     )
 
 
+@pytest.fixture(name="empty_stop_trigger", autouse=True)
+def epty_stop_trigger():
+    return Trigger("stop")
+
+
 @pytest.fixture(autouse=True)
 def init():
     init = OSC.Init()
@@ -320,17 +325,17 @@ class TestActAndStory:
         with pytest.raises(TypeError):
             act.add_maneuver_group("dummy")
 
-    def test_optional_attr_v3(self):
+    def test_optional_attr_v3(self, empty_stop_trigger):
         OSC.VersionBase().setVersion(minor=3)
         action = OSC.Act("my act")
         assert action.starttrigger is None
-        assert action.stoptrigger == Trigger("stop")
+        assert action.stoptrigger == empty_stop_trigger
 
-    def test_optional_attr_v2(self, default_act_trigger):
+    def test_optional_attr_v2(self, default_act_trigger, empty_stop_trigger):
         OSC.VersionBase().setVersion(minor=2)
         action = OSC.Act("my act")
         assert action.starttrigger == default_act_trigger
-        assert action.stoptrigger == Trigger("stop")
+        assert action.stoptrigger == empty_stop_trigger
 
     def test_default_triggers_v3(self, default_act_trigger):
         act5 = OSC.Act("my act", starttrigger=default_act_trigger)
@@ -666,12 +671,12 @@ class TestStoryboardManeuverGroup:
                 maneuver_group_target, parameters="dummy"
             )
 
-    def test_stoptrigger_v3(self, sb_mangr, init):
+    def test_stoptrigger_v3(self, sb_mangr, init, empty_stop_trigger):
         assert sb_mangr.stoptrigger is None
-        sb = OSC.StoryBoard(init, stoptrigger=Trigger("stop"))
+        sb = OSC.StoryBoard(init, stoptrigger=empty_stop_trigger)
         assert sb != sb_mangr
-        sb_mangr.stoptrigger = Trigger("stop")  # property setter
-        assert sb_mangr.stoptrigger == Trigger("stop")  # property getter
+        sb_mangr.stoptrigger = empty_stop_trigger  # property setter
+        assert sb_mangr.stoptrigger == empty_stop_trigger  # property getter
 
 
 class TestStoryboardEmpty:
@@ -713,28 +718,70 @@ class TestStoryboardEmpty:
             == expected
         )
 
-    def test_empty_storyboard_stoptrigger_v2(self, empty_storyboard):
+    def test_empty_storyboard_stoptrigger_v2(
+        self, empty_storyboard, empty_stop_trigger
+    ):
         OSC.VersionBase().setVersion(minor=2)
-        assert empty_storyboard.stoptrigger == Trigger("stop")
-        sb = OSC.StoryBoard(OSC.Init(), stoptrigger=Trigger("stop"))
+        assert empty_storyboard.stoptrigger == empty_stop_trigger
+        sb = OSC.StoryBoard(OSC.Init(), stoptrigger=empty_stop_trigger)
         assert sb == empty_storyboard
 
     def test_empty_storyboard_stoptrigger_v3(self, empty_storyboard):
         OSC.VersionBase().setVersion(minor=3)
         assert empty_storyboard.stoptrigger == None
 
-    def test_empty_storyboard_stop_trigger_setter(self):
+    def test_empty_storyboard_stop_trigger_setter(self, empty_stop_trigger):
         sb = OSC.StoryBoard(OSC.Init())
-        stop_trigger = Trigger("stop")
+        stop_trigger = empty_stop_trigger
         sb.stoptrigger = stop_trigger
         prettyprint(sb.get_element())
         assert sb.stoptrigger == stop_trigger
+        parsed_sb = OSC.StoryBoard.parse(sb.get_element())
+        assert sb == parsed_sb
+        assert sb.stoptrigger == parsed_sb.stoptrigger
 
+    def test_empty_storyboard_override_stoptrigger_v2(
+        self, empty_stop_trigger
+    ):
         OSC.VersionBase().setVersion(minor=2)
-        sb2 = OSC.StoryBoard(OSC.Init(), stoptrigger=stop_trigger)
+        sb2 = OSC.StoryBoard(OSC.Init(), stoptrigger=empty_stop_trigger)
         prettyprint(sb2.get_element())
         with pytest.raises(ValueError):
             sb2.stoptrigger = None
+        parsed_sb2 = OSC.StoryBoard.parse(sb2.get_element())
+        assert sb2 == parsed_sb2
+
+    def test_empty_storyboard_override_stoptrigger_v3(
+        self, empty_stop_trigger
+    ):
+        OSC.VersionBase().setVersion(minor=3)
+        sb3 = OSC.StoryBoard(OSC.Init(), stoptrigger=empty_stop_trigger)
+        prettyprint(sb3.get_element())
+        sb3.stoptrigger = None
+        parsed_sb3 = OSC.StoryBoard.parse(sb3.get_element())
+        assert sb3 == parsed_sb3
+
+    @pytest.mark.parametrize("minor_version", [1, 2, 3])
+    def test_empty_storyboard_parse_stoptrigger_eq_v2(self, minor_version):
+        OSC.VersionBase().setVersion(minor=minor_version)
+
+        sb3 = OSC.StoryBoard(OSC.Init())
+        parsed_sb3 = OSC.StoryBoard.parse(sb3.get_element())
+        assert parsed_sb3.stoptrigger == sb3.stoptrigger
+        assert sb3 == parsed_sb3
+        ###########################
+        trigger = OSC.ValueTrigger(
+            "stopTrigger",
+            0,
+            OSC.ConditionEdge.rising,
+            OSC.SimulationTimeCondition(3, OSC.Rule.greaterThan),
+            "stop",
+        )
+        prettyprint(trigger.get_element())
+        sb4 = OSC.StoryBoard(OSC.Init(), stoptrigger=trigger)
+        parsed_sb4 = OSC.StoryBoard.parse(sb4.get_element())
+        assert parsed_sb4.stoptrigger == trigger
+        assert sb4 == parsed_sb4
 
 
 class TestStoryBoardManeuver:

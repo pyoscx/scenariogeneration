@@ -1172,11 +1172,9 @@ class StoryBoard(VersionBase):
             OpenSCENARIO 1.3:
                 None. The Storyboard will never be stopped.
         """
-        self._none_stoptrigger_input = False
         if not isinstance(init, Init):
             raise TypeError("init is not of type Init")
         if stoptrigger is None:
-            self._none_stoptrigger_input = True
             self._stoptrigger = None
         else:
             if not isinstance(stoptrigger, _TriggerType):
@@ -1198,7 +1196,7 @@ class StoryBoard(VersionBase):
         if isinstance(other, StoryBoard):
             if (
                 self.init == other.init
-                and self._check_stoptrigger(other)
+                and self.stoptrigger == other.stoptrigger
                 and self.stories == other.stories
             ):
                 return True
@@ -1224,14 +1222,7 @@ class StoryBoard(VersionBase):
             raise ValueError(
                 "stoptrigger cannot be None for OpenSCENARIO version 1.2 or less"
             )
-        self._none_stoptrigger_input = False
         self._stoptrigger = value
-
-    def _check_stoptrigger(self, other) -> bool:
-        if self.isVersionEqLarger(1, 3):
-            if self._none_stoptrigger_input:
-                return other.stoptrigger is None
-        return self.stoptrigger == other.stoptrigger
 
     @staticmethod
     def parse(element: ET.Element) -> "StoryBoard":
@@ -1313,7 +1304,7 @@ class StoryBoard(VersionBase):
             Start trigger for the act. Default is at simulation time
             0.
         stoptrigger : _TriggerType, optional
-            Stop trigger for the act. Default is EmptyTrigger("stop").
+            Stop trigger for the act. Default is Trigger("stop").
         parameters : ParameterDeclarations, optional
             The parameters of the story. Default is
             ParameterDeclarations().
@@ -1411,13 +1402,8 @@ class StoryBoard(VersionBase):
         for story in self.stories:
             element.append(story.get_element())
 
-        stoptriggre = self.stoptrigger
-        if self._none_stoptrigger_input:
-            if self.isVersionEqLarger(1, 3):
-                stoptriggre = None
-            else:
-                stoptriggre = Trigger("stop")
-        if stoptriggre is not None:
-            element.append(stoptriggre.get_element())
+        stoptrigger = self.stoptrigger
+        if stoptrigger is not None:
+            element.append(stoptrigger.get_element())
 
         return element
