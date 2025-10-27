@@ -12,6 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import numpy as np
 import pytest
+from math import isclose
 
 from scenariogeneration import prettyprint, xodr
 
@@ -169,8 +170,8 @@ def test_elevation_calculator_single_suc_pre():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 0
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 0)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_suc_suc():
@@ -185,8 +186,8 @@ def test_elevation_calculator_single_suc_suc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 30
-    assert main_road.elevationprofile.elevations[0].b == -1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 30)
+    assert isclose(main_road.elevationprofile.elevations[0].b, -1)
 
 
 def test_elevation_calculator_single_pre_suc():
@@ -201,8 +202,8 @@ def test_elevation_calculator_single_pre_suc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 20
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 20)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_pre_pre():
@@ -219,8 +220,8 @@ def test_elevation_calculator_single_pre_pre():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 10
-    assert main_road.elevationprofile.elevations[0].b == -1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 10)
+    assert isclose(main_road.elevationprofile.elevations[0].b, -1)
 
 
 def test_elevation_calculator_suc_pre():
@@ -240,10 +241,10 @@ def test_elevation_calculator_suc_pre():
     ec.add_predecessor(pred_road)
     ec.add_successor(suc_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.eval_at_s(0) == 15
-    assert main_road.elevationprofile.eval_at_s(10) == 10
-    assert main_road.elevationprofile.eval_derivative_at_s(10) == 0
-    assert main_road.elevationprofile.eval_derivative_at_s(0) == 1
+    assert isclose(main_road.elevationprofile.eval_at_s(0), 15)
+    assert isclose(main_road.elevationprofile.eval_at_s(10), 10)
+    assert isclose(main_road.elevationprofile.eval_derivative_at_s(10), 0)
+    assert isclose(main_road.elevationprofile.eval_derivative_at_s(0), 1)
 
 
 def test_elevation_calculator_pre_suc():
@@ -267,10 +268,10 @@ def test_elevation_calculator_pre_suc():
     ec.add_predecessor(pred_road)
     ec.add_successor(suc_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.eval_at_s(0) == 5
-    assert main_road.elevationprofile.eval_at_s(10) == 10
-    assert main_road.elevationprofile.eval_derivative_at_s(10) == 0
-    assert main_road.elevationprofile.eval_derivative_at_s(0) == -1
+    assert isclose(main_road.elevationprofile.eval_at_s(0), 5)
+    assert isclose(main_road.elevationprofile.eval_at_s(10), 10)
+    assert isclose(main_road.elevationprofile.eval_derivative_at_s(10), 0)
+    assert isclose(main_road.elevationprofile.eval_derivative_at_s(0), -1)
 
 
 def test_elevation_calculator_single_pre_suc_junction_road():
@@ -285,8 +286,8 @@ def test_elevation_calculator_single_pre_suc_junction_road():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 20
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 20)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_pre_suc_junction_connection():
@@ -299,8 +300,8 @@ def test_elevation_calculator_single_pre_suc_junction_connection():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 20
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 20)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_suc_pre_dir_junc():
@@ -314,8 +315,8 @@ def test_elevation_calculator_single_suc_pre_dir_junc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 0
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 0)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_suc_suc_dir_junc():
@@ -329,8 +330,8 @@ def test_elevation_calculator_single_suc_suc_dir_junc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 30
-    assert main_road.elevationprofile.elevations[0].b == -1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 30)
+    assert isclose(main_road.elevationprofile.elevations[0].b, -1)
 
 
 def test_elevation_calculator_single_pre_suc_dir_junc():
@@ -344,8 +345,8 @@ def test_elevation_calculator_single_pre_suc_dir_junc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 20
-    assert main_road.elevationprofile.elevations[0].b == 1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 20)
+    assert isclose(main_road.elevationprofile.elevations[0].b, 1)
 
 
 def test_elevation_calculator_single_pre_pre_dir_junc():
@@ -359,8 +360,8 @@ def test_elevation_calculator_single_pre_pre_dir_junc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_elevation()
-    assert main_road.elevationprofile.elevations[0].a == 10
-    assert main_road.elevationprofile.elevations[0].b == -1
+    assert isclose(main_road.elevationprofile.elevations[0].a, 10)
+    assert isclose(main_road.elevationprofile.elevations[0].b, -1)
 
 
 def test_superelevation_calculator_single_suc_pre():
@@ -375,7 +376,7 @@ def test_superelevation_calculator_single_suc_pre():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_super_elevation()
-    assert main_road.lateralprofile.superelevations[0].a == 1
+    assert isclose(main_road.lateralprofile.superelevations[0].a, 1)
 
 
 def test_superelevation_calculator_single_suc_suc():
@@ -390,7 +391,7 @@ def test_superelevation_calculator_single_suc_suc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_successor(connected_road)
     ec._create_super_elevation()
-    assert main_road.lateralprofile.superelevations[0].a == -1
+    assert isclose(main_road.lateralprofile.superelevations[0].a, -1)
 
 
 def test_superelevation_calculator_single_pre_suc():
@@ -405,7 +406,7 @@ def test_superelevation_calculator_single_pre_suc():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_super_elevation()
-    assert main_road.lateralprofile.superelevations[0].a == 1
+    assert isclose(main_road.lateralprofile.superelevations[0].a, 1)
 
 
 def test_superelevation_calculator_single_pre_pre():
@@ -422,4 +423,4 @@ def test_superelevation_calculator_single_pre_pre():
     ec = xodr.ElevationCalculator(main_road)
     ec.add_predecessor(connected_road)
     ec._create_super_elevation()
-    assert main_road.lateralprofile.superelevations[0].a == -1
+    assert isclose(main_road.lateralprofile.superelevations[0].a, -1)
