@@ -1220,7 +1220,11 @@ class StoryBoard(VersionBase):
             raise TypeError(
                 f"stoptrigger must be None, _TriggerType, or _ValueTriggerType, not {type(value).__name__}"
             )
-
+        if self.isVersionEqLess(1, 2) and value is None:
+            raise ValueError(
+                "stoptrigger cannot be None for OpenSCENARIO version 1.2 or less"
+            )
+        self._none_stoptrigger_input = False
         self._stoptrigger = value
 
     def _check_stoptrigger(self, other) -> bool:

@@ -723,6 +723,19 @@ class TestStoryboardEmpty:
         OSC.VersionBase().setVersion(minor=3)
         assert empty_storyboard.stoptrigger == None
 
+    def test_empty_storyboard_stop_trigger_setter(self):
+        sb = OSC.StoryBoard(OSC.Init())
+        stop_trigger = Trigger("stop")
+        sb.stoptrigger = stop_trigger
+        prettyprint(sb.get_element())
+        assert sb.stoptrigger == stop_trigger
+
+        OSC.VersionBase().setVersion(minor=2)
+        sb2 = OSC.StoryBoard(OSC.Init(), stoptrigger=stop_trigger)
+        prettyprint(sb2.get_element())
+        with pytest.raises(ValueError):
+            sb2.stoptrigger = None
+
 
 class TestStoryBoardManeuver:
     def setup_method(self):
