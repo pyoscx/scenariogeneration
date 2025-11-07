@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2025-11-07 Version 0.16.3
+- General notes
+    - Update floating point comparison in tests
+- Bugfixes
+    - Version handling of the Stoptrigger in StoryBoard
+
 ### 2025-10-16 Version 0.16.2
 - General notes
     - Support for using "km/h". If you use "kph" it will be converted to "km/h" and you will get a Deprecation Warning.  
