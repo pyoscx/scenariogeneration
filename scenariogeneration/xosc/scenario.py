@@ -125,7 +125,7 @@ class Scenario(VersionBase):
             The catalogs used in the scenario.
         osc_minor_version : int, optional
             Used to set if another than the newest version of
-            OpenSCENARIO should be used. Default is 1.
+            OpenSCENARIO should be used. Default is 3.
         license : License, optional
             Optional license to the file header (valid from OSC
             V1.1). Default is None.
@@ -140,6 +140,11 @@ class Scenario(VersionBase):
         monitor_declarations : MonitorDeclarations, optional
             Monitor declarations (valid from OSC V1.3).
         """
+        if int(osc_minor_version) > 3:
+            raise OpenSCENARIOVersionError(
+                f"OpenSCENARIO V1.{osc_minor_version} is not supported. "
+                f"Max supported version is V1.{_MINOR_VERSION}."
+            )
         if not isinstance(entities, Entities):
             raise TypeError("entities input is not of type Entities")
         if not isinstance(storyboard, StoryBoard):
@@ -152,7 +157,6 @@ class Scenario(VersionBase):
             raise TypeError(
                 "parameters input is not of type ParameterDeclarations"
             )
-
         self.monitor_declarations = monitor_declarations
         self.variable_declaration = variable_declaration
         self.entities = entities
