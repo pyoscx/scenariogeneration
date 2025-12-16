@@ -75,6 +75,14 @@ class ScenarioGenerator:
 
     encoding : str
         encoding of the outputs, default: utf-8
+
+    excluded_permutations : list[dict]
+        list of parameter dicts to exclude from generation
+
+    expand_permutations : list[dict[list]]
+        list of dicts where each dict has lists as values, all combinations
+        of these lists will be expanded and combined with the other
+        permutations
     """
 
     def __init__(self):
@@ -96,6 +104,7 @@ class ScenarioGenerator:
         self.all_permutations = None
         self.write_relative_road_path = None
         self.excluded_permutations = []
+        self.expand_permutations = []
 
     def road(self, **kwargs) -> Optional[OpenDrive]:
         """Dummy method for generating an OpenDRIVE road.
@@ -175,11 +184,32 @@ class ScenarioGenerator:
         """_handle_input_parameters takes care of different types of parameters
         inputs, such as list of dicts or a dict of lists."""
 
+        def expand_dict_of_lists(d):
+            keys = d.keys()
+            values = d.values()
+            return [
+                dict(zip(keys, combo)) for combo in itertools.product(*values)
+            ]
+
+        def combine(base_dicts, variants):
+            permutations = []
+            for base in base_dicts:
+                for variant in variants:
+                    permutations.append({**base, **variant})
+            return permutations
+
         if isinstance(self.parameters, dict):
             self._create_permutations()
 
         elif isinstance(self.parameters, list):
             self.all_permutations = self.parameters
+            if self.expand_permutations:
+                for d in self.expand_permutations:
+                    expanded = expand_dict_of_lists(d)
+                    self.all_permutations = combine(
+                        self.all_permutations, expanded
+                    )
+
         if self.excluded_permutations:
             self.all_permutations = [
                 p
