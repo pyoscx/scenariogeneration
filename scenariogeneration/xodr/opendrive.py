@@ -1378,7 +1378,11 @@ class OpenDrive(XodrBase):
                     str(neighbour_id)
                 ]
             offset_width = self._calculate_lane_offset_width(
-                road_id, neighbour_id, num_lane_offsets, contact_point
+                road_id,
+                neighbour_id,
+                num_lane_offsets,
+                contact_point,
+                neighbour_type,
             )
             x = -offset_width * np.sin(h) + x
             y = offset_width * np.cos(h) + y
@@ -1393,7 +1397,11 @@ class OpenDrive(XodrBase):
             elif str(neighbour_id) in main_road.lane_offset_suc:
                 num_lane_offsets = main_road.lane_offset_suc[str(neighbour_id)]
             offset_width = self._calculate_lane_offset_width(
-                road_id, neighbour_id, num_lane_offsets, contact_point
+                road_id,
+                neighbour_id,
+                num_lane_offsets,
+                contact_point,
+                neighbour_type,
             )
             x = offset_width * np.sin(h) + x
             y = -offset_width * np.cos(h) + y
@@ -1407,6 +1415,7 @@ class OpenDrive(XodrBase):
         neighbour_id: int,
         num_lane_offsets: int,
         contact_point: ContactPoint,
+        neighbour_type: str,
     ) -> float:
         """Calculate the width for shifting the road if a lane offset is
         present.
@@ -1422,6 +1431,9 @@ class OpenDrive(XodrBase):
             Number of lane offsets to consider for the calculation.
         contact_point : ContactPoint
             The contact point with respect to the road being adjusted.
+        neighbour_type : str
+            Type of linking to the neighboring road. Can be 'successor' or
+            'predecessor'.
 
         Returns
         -------
@@ -1440,29 +1452,364 @@ class OpenDrive(XodrBase):
         offset_width = 0
         # if a lane offset exists, loop through relevant lanes (left/right) at the relevant s-coordinate to determine width of offset
         if num_lane_offsets < 0:
-            for lane in (
-                self.roads[str(neighbour_id)]
-                .lanes.lanesections[relevant_lanesection]
-                .rightlanes[0 : -1 * num_lane_offsets]
-            ):
-                offset_width = offset_width - (
-                    lane.widths[relevant_lanesection].a
-                    + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s**2
-                    + lane.widths[relevant_lanesection].d * relevant_s**3
-                )
+            if contact_point == ContactPoint.end:
+                if neighbour_type == "predecessor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .rightlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[0]
+                        .rightlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.start
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                if neighbour_type == "successor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .leftlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[-1]
+                        .rightlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.end
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+            if contact_point == ContactPoint.start:
+                if neighbour_type == "predecessor":
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .leftlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[0]
+                        .rightlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.start
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                if neighbour_type == "successor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .rightlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[-1]
+                        .rightlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.end
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0 : -1 * num_lane_offsets]
+                        ):
+                            offset_width = offset_width - (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+
         if num_lane_offsets > 0:
-            for lane in (
-                self.roads[str(neighbour_id)]
-                .lanes.lanesections[relevant_lanesection]
-                .leftlanes[0:num_lane_offsets]
-            ):
-                offset_width = offset_width + (
-                    lane.widths[relevant_lanesection].a
-                    + lane.widths[relevant_lanesection].b * relevant_s
-                    + lane.widths[relevant_lanesection].c * relevant_s**2
-                    + lane.widths[relevant_lanesection].d * relevant_s**3
-                )
+            if contact_point == ContactPoint.end:
+                if neighbour_type == "predecessor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .leftlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[0]
+                        .leftlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.start
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                if neighbour_type == "successor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .rightlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[-1]
+                        .leftlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.end
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+            if contact_point == ContactPoint.start:
+                if neighbour_type == "predecessor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .rightlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[0]
+                        .leftlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.start
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                if neighbour_type == "successor":  # this one should be done
+                    if len(
+                        self.roads[str(neighbour_id)]
+                        .lanes.lanesections[relevant_lanesection]
+                        .leftlanes
+                    ) > len(
+                        self.roads[str(road_id)]
+                        .lanes.lanesections[-1]
+                        .leftlanes
+                    ):
+                        for lane in (
+                            self.roads[str(neighbour_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .leftlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
+                    else:
+                        relevant_lanesection, relevant_s = (
+                            get_lane_sec_and_s_for_lane_calc(
+                                self.roads[str(road_id)], ContactPoint.end
+                            )
+                        )
+                        for lane in (
+                            self.roads[str(road_id)]
+                            .lanes.lanesections[relevant_lanesection]
+                            .rightlanes[0:num_lane_offsets]
+                        ):
+                            offset_width = offset_width + (
+                                lane.widths[relevant_lanesection].a
+                                + lane.widths[relevant_lanesection].b
+                                * relevant_s
+                                + lane.widths[relevant_lanesection].c
+                                * relevant_s**2
+                                + lane.widths[relevant_lanesection].d
+                                * relevant_s**3
+                            )
 
         return offset_width
 
