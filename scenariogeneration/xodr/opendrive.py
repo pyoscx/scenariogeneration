@@ -1403,6 +1403,9 @@ class OpenDrive(XodrBase):
                 contact_point,
                 neighbour_type,
             )
+            print(
+                f"offset (main,neighbor): ({road_id}/{neighbour_id}): {offset_width}"
+            )
             x = offset_width * np.sin(h) + x
             y = -offset_width * np.cos(h) + y
 
