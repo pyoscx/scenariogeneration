@@ -306,7 +306,6 @@ def sucsuc_pre_set_left_conn():
 
 
 all_odrs = [
-<<<<<<< HEAD
 (prepre_pre_set_left_conn,[(0.0, 0.0, 0.0),(0.0, -3.0, 3.141592653589793),(-10.0, 0.00, 3.141592653589793)]),
 (sucpre_pre_set_left_conn,[(0.0,0.0,0.0),(10.0,3.0,0.0),(20.0,0.0,0.0)]),
 (presuc_pre_set_left_conn,[(0.0, 0.0, 0.0), (0.0, -3.0, 3.141592653589793), (-30.0, 0.0, 0.0)]),
@@ -314,28 +313,7 @@ all_odrs = [
 (prepre_suc_set_left_conn,[(-10.0, 0.0, 3.141592653589793),(-10.0, 3.0, 0.0),(0.0, 0.0, 0.0)]),
 (sucpre_suc_set_left_conn,[(-20.0, 0.0, 0.0),(-10.0, 3, 0.0),(0.0, 0.0, 0.0)]),
 (presuc_suc_set_left_conn,[(30.0, 0.0, 0.0),(30.0, -3.0, 3.141592653589793),(0.0, 0.0, 0.0)]),
-(sucsuc_suc_set_left_conn,[(40.0, 0.0, 3.141592653589793),(30.0, -3.0, 3.141592653589793),(0.0, 0.0, 0.0)])
-]
-expected_=[
-
-
-
-
-
-
-
-
-]
-
-=======
-# (prepre_pre_set_left_conn,[(0.0, 0.0, 0.0),(0.0, -3.0, 3.141592653589793),(-10.0, 0.00, 3.141592653589793)]),
-# (sucpre_pre_set_left_conn,[(0.0,0.0,0.0),(10.0,3.0,0.0),(20.0,0.0,0.0)]),
-# (presuc_pre_set_left_conn,[(0.0, 0.0, 0.0), (0.0, -3.0, 3.141592653589793), (-30.0, 0.0, 0.0)]),
-# (sucsuc_pre_set_left_conn,[(0.0, 0.0, 0.0),(10.0, 3.0, 0.0),(40.0, 0.0, 3.141592653589793)]),
-# (prepre_suc_set_left_conn,[(-10.0, 0.0, 3.141592653589793),(-10.0, 3.0, 0.0),(0.0, 0.0, 0.0)]),
-# (sucpre_suc_set_left_conn,[(-20.0, 0.0, 0.0),(-10.0, 3, 0.0),(0.0, 0.0, 0.0)]),
-# (presuc_suc_set_left_conn,[(30.0, 0.0, 0.0),(30.0, -3.0, 3.141592653589793),(0.0, 0.0, 0.0)]),
-# (sucsuc_suc_set_left_conn,[(40.0, 0.0, 3.141592653589793),(30.0, -3.0, 3.141592653589793),(0.0, 0.0, 0.0)]),
+(sucsuc_suc_set_left_conn,[(40.0, 0.0, 3.141592653589793),(30.0, -3.0, 3.141592653589793),(0.0, 0.0, 0.0)]),
 (prepre_pre_set_right_conn,[(0.0, 0.0, 0.0),(0.0, 3.0, 3.141592653589793),(-10.0, 0.00, 3.141592653589793)]),
 (sucpre_pre_set_right_conn,[(0.0,0.0,0.0),(10.0,-3.0,0.0),(20.0,0.0,0.0)]),
 (presuc_pre_set_right_conn,[(0.0, 0.0, 0.0), (0.0, 3.0, 3.141592653589793), (-30.0, 0.0, 0.0)]),
@@ -348,7 +326,6 @@ expected_=[
 ]
 
 
->>>>>>> 65a87f8 (refactor: change patching algorithm to be more readable)
 road_names = ["pre","main","suc"]
 for fnc, expected in all_odrs:
     print("")
@@ -359,25 +336,15 @@ for fnc, expected in all_odrs:
     #     odr.roads[str(i)].planview.adjust_geometries()
 
     # odr = all_odrs[0]
-<<<<<<< HEAD
-    odr.adjust_roads_and_lanes()
-
-    for i in range(3):
-        x,y,z = odr.roads[str(i)].planview.get_start_point()
-=======
     # odr.adjust_roads_and_lanes()
 
     for i in range(3):
         x,y,z = odr.roads[str(i)].planview.get_start_point()
         # print(f"{road_names[i]} , {y}({expected[i][1]})")
->>>>>>> 65a87f8 (refactor: change patching algorithm to be more readable)
         if not all(np.isclose((x,y,z),expected[i],atol=0.00001)):
             print(f"{road_names[i]} is wrong , {y}({expected[i][1]})")
             # {x}({expected[i][0]}) , {z}({expected[i][2]})
     odr.write_xml("dummy.xodr")
 
-<<<<<<< HEAD
     # esmini(odr, "../esmini-demo",car_density=4)
-=======
-    esmini(odr, "../esmini-demo",car_density=4)
->>>>>>> 65a87f8 (refactor: change patching algorithm to be more readable)
+

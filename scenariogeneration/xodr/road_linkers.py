@@ -33,7 +33,7 @@ class _OffsetCalculator:
 
         offset_width = 0
         for lane in lanes:
-            offset_width = offset_width - offset_sign*(
+            offset_width = offset_width + (
                         lane.widths[self._lanesection].a
                         + lane.widths[self._lanesection].b
                         * s
@@ -42,7 +42,8 @@ class _OffsetCalculator:
                         + lane.widths[self._lanesection].d
                         * s**3
                     )
-        return offset_width
+        print(f"{offset_width}, {offset_sign}")
+        return abs(offset_width)*offset_sign
 
     def calc_lane_offset_for_main(self):
         return -self.calc_lane_offset_for_neighbor()
@@ -58,41 +59,41 @@ class _OffsetCalculator:
         if self.main_is_junction:
             offset = getattr(self.main_road,self._converted_offset_key())[str(self.neighbor_road.id)]
             if offset < 0:
-                print(f"{self.__class__.__name__} : junc,  < 0")
+                print(f"{self.__class__.__name__} : junc,  < 0, {self.negative_offset_lanes}, {self.negative_sign}")
                 lanes = getattr(self.neighbor_road.lanes.lanesections[self._lanesection],self.negative_offset_lanes)
                 sgn = self.negative_sign
             else:
-                print(f"{self.__class__.__name__} : junc,  > 0")
+                print(f"{self.__class__.__name__} : junc,  > 0, {self.possitive_offset_lanes}, {self.negative_sign}")
                 lanes = getattr(self.neighbor_road.lanes.lanesections[self._lanesection],self.possitive_offset_lanes)
-                sgn = not self.negative_sign
+                sgn = self.negative_sign
         else:
             offset = getattr(self.neighbor_road,self.offset_key)[str(self.main_road.id)]
             if offset < 0:
-                print(f"{self.__class__.__name__} : normal,  < 0")
+                print(f"{self.__class__.__name__} : normal,  < 0, {self.negative_offset_lanes}, {self.negative_sign}")
                 lanes = getattr(self.main_road.lanes.lanesections[self._lanesection],self.negative_offset_lanes)
-                sgn = not self.negative_sign
+                sgn = self.negative_sign
             else:
-                print(f"{self.__class__.__name__} : normal,  > 0")
+                print(f"{self.__class__.__name__} : normal,  > 0, {self.possitive_offset_lanes}, {self.negative_sign}")
                 lanes = getattr(self.main_road.lanes.lanesections[self._lanesection],self.possitive_offset_lanes)
                 sgn = self.negative_sign
         return self._calc_offset_width(lanes[0:abs(offset)],sgn)
 
-class CalcOffsetSucSuc(_OffsetCalculator):
-    def __init__(self,main_road, neighbor_road):
-        #  super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",-1,True,"lane_offset_suc")
-        super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",-1,False,"lane_offset_suc")
-class CalcOffsetSucPre(_OffsetCalculator):
-    def __init__(self,main_road, neighbor_road):
-        #  super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",-1,False,"lane_offset_pred")
-        super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",-1,True,"lane_offset_pred")
-class CalcOffsetPrePre(_OffsetCalculator):
-    def __init__(self,main_road, neighbor_road):
-        #  super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",0,True,"lane_offset_pred")
-        super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",0,False,"lane_offset_pred")
-class CalcOffsetPreSuc(_OffsetCalculator):
-    def __init__(self,main_road, neighbor_road):
-        #  super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",0,False,"lane_offset_suc")
-         super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",0,True,"lane_offset_suc")
+# class CalcOffsetSucSuc(_OffsetCalculator):
+#     def __init__(self,main_road, neighbor_road):
+#         #  super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",-1,True,"lane_offset_suc")
+#         super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",-1,False,"lane_offset_suc")
+# class CalcOffsetSucPre(_OffsetCalculator):
+#     def __init__(self,main_road, neighbor_road):
+#         #  super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",-1,False,"lane_offset_pred")
+#         super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",-1,False,"lane_offset_pred")
+# class CalcOffsetPrePre(_OffsetCalculator):
+#     def __init__(self,main_road, neighbor_road):
+#         #  super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",0,True,"lane_offset_pred")
+#         super().__init__(main_road, neighbor_road,"leftlanes","rightlanes",0,True,"lane_offset_pred")
+# class CalcOffsetPreSuc(_OffsetCalculator):
+#     def __init__(self,main_road, neighbor_road):
+#         #  super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",0,False,"lane_offset_suc")
+#          super().__init__(main_road, neighbor_road,"rightlanes","leftlanes",0,True,"lane_offset_suc")
 
 
 
@@ -109,27 +110,31 @@ class _OneConnectionAdjuster:
         self.neighbor_dir_change = None
         self._offset_calc = None
 
-    # def adjust_main_from_neighbor(self):
-    #     x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
 
-    #     offset_width = abs(self._offset_calc.calc_lane_offset_for_main())
-    #     h = wrap_pi(h -self.main_dir_change)
-    #     x = offset_width * np.sin(h) + x
-    #     y = -offset_width * np.cos(h) + y
+    def adjust_main_from_neighbor(self):
+        x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
 
-    #     self.main_road.planview.set_start_point(x, y, h)
-    #     self.main_road.planview.adjust_geometries(self.main_from_end)
+        offset_width = self._offset_calc.calc_lane_offset_for_main()
+        print(f"{self.__class__.__name__} adj main, offset: {offset_width}")
+        h = wrap_pi(h -self.main_dir_change)
+        x = offset_width * np.sin(h) + x
+        y = offset_width * np.cos(h) + y
+        print(f"calc values: {offset_width}, {np.cos(h)}")
+        self.main_road.planview.set_start_point(x, y, h)
+        self.main_road.planview.adjust_geometries(self.main_from_end)
 
-    # def adjust_neighbor(self):
-    #     x, y, h = getattr(self.main_road.planview,self.main_point)()
+    def adjust_neighbor(self):
+        x, y, h = getattr(self.main_road.planview,self.main_point)()
 
-    #     offset_width = abs(self._offset_calc.calc_lane_offset_for_neighbor())
-    #     h = wrap_pi(h-self.neighbor_dir_change)
-    #     x = offset_width * np.sin(h) + x
-    #     y = -offset_width * np.cos(h) + y
+        offset_width = self._offset_calc.calc_lane_offset_for_neighbor()
+        print(f"{self.__class__.__name__} adj neigh, offset: {offset_width}")
+        h = wrap_pi(h-self.neighbor_dir_change)
+        x = offset_width * np.sin(h) + x
+        print(f"calc values: {offset_width}, {np.cos(h)}")
+        y = offset_width * np.cos(h) + y
 
-    #     self.neighbor.planview.set_start_point(x, y, h)
-    #     self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
+        self.neighbor.planview.set_start_point(x, y, h)
+        self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
 
 class _AdjustableData:
     """Base class to keep data for an AdjustablePlanview to be able to create them,
@@ -445,32 +450,8 @@ class RoadSucAsSucAdjuster(_OneConnectionAdjuster):
         self.neighbor_from_end = True
         self.main_dir_change = 0
         self.neighbor_dir_change = 0
-        self._offset_calc = CalcOffsetSucSuc(main_road, neighbor)
-
-    def adjust_main_from_neighbor(self):
-        x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_main())
-        print(f"{self.__class__.__name__} adj main, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h -self.main_dir_change)
-        x = offset_width * np.sin(h) + x
-        y = -offset_width * np.cos(h) + y
-        print(f"calc values: {-offset_width}, {np.cos(h)}")
-        self.main_road.planview.set_start_point(x, y, h)
-        self.main_road.planview.adjust_geometries(self.main_from_end)
-
-    def adjust_neighbor(self):
-        x, y, h = getattr(self.main_road.planview,self.main_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_neighbor())
-        print(f"{self.__class__.__name__} adj neigh, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h-self.neighbor_dir_change)
-        x = offset_width * np.sin(h) + x
-        print(f"calc values: {-offset_width}, {np.cos(h)}")
-        y = -offset_width * np.cos(h) + y
-
-        self.neighbor.planview.set_start_point(x, y, h)
-        self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
+        # self._offset_calc = CalcOffsetSucSuc(main_road, neighbor)
+        self._offset_calc = _OffsetCalculator(main_road, neighbor,"leftlanes","rightlanes",-1,True,"lane_offset_suc")
 
 class RoadSucAsPreAdjuster(_OneConnectionAdjuster):
     def __init__(self,main_road:Road,neighbor:Road):
@@ -482,35 +463,11 @@ class RoadSucAsPreAdjuster(_OneConnectionAdjuster):
         self.main_dir_change = np.pi
         self.neighbor_dir_change = 0
         if main_road.road_type == -1:
-            self._offset_calc = CalcOffsetSucPre(main_road, neighbor)
+            # self._offset_calc = CalcOffsetSucPre(main_road, neighbor)
+            self._offset_calc = _OffsetCalculator(main_road, neighbor,"rightlanes","leftlanes",-1,True,"lane_offset_pred")
         else:
-            self._offset_calc = CalcOffsetPreSuc(main_road, neighbor)
-
-    def adjust_main_from_neighbor(self):
-        x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_main())
-        print(f"{self.__class__.__name__} adj main, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h -self.main_dir_change)
-        x = offset_width * np.sin(h) + x
-        print(f"calc values: {-offset_width}, {np.cos(h)}")
-        y = -offset_width * np.cos(h) + y
-
-        self.main_road.planview.set_start_point(x, y, h)
-        self.main_road.planview.adjust_geometries(self.main_from_end)
-
-    def adjust_neighbor(self):
-        x, y, h = getattr(self.main_road.planview,self.main_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_neighbor())
-        print(f"{self.__class__.__name__} adj neigh, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h-self.neighbor_dir_change)
-        x = offset_width * np.sin(h) + x
-        print(f"calc values: {-offset_width}, {np.cos(h)}")
-        y = -offset_width * np.cos(h) + y
-
-        self.neighbor.planview.set_start_point(x, y, h)
-        self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
+            # self._offset_calc = CalcOffsetPreSuc(main_road, neighbor)
+            self._offset_calc =  _OffsetCalculator(main_road, neighbor,"rightlanes","leftlanes",0,True,"lane_offset_suc")
 
 class RoadPreAsPreAdjuster(_OneConnectionAdjuster):
     def __init__(self,main_road:Road,neighbor:Road):
@@ -521,32 +478,9 @@ class RoadPreAsPreAdjuster(_OneConnectionAdjuster):
         self.neighbor_from_end = False
         self.main_dir_change = np.pi
         self.neighbor_dir_change = np.pi
-        self._offset_calc = CalcOffsetPrePre(main_road, neighbor)
+        # self._offset_calc = CalcOffsetPrePre(main_road, neighbor)
+        self._offset_calc = _OffsetCalculator(main_road, neighbor,"leftlanes","rightlanes",0,False,"lane_offset_pred")
 
-    def adjust_main_from_neighbor(self):
-        x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_main())
-        print(f"{self.__class__.__name__} adj main, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h -self.main_dir_change)
-        x = offset_width * np.sin(h) + x
-        y = offset_width * np.cos(h) + y
-        print(f"calc values: {offset_width}, {np.cos(h)}")
-
-        self.main_road.planview.set_start_point(x, y, h)
-        self.main_road.planview.adjust_geometries(self.main_from_end)
-
-    def adjust_neighbor(self):
-        x, y, h = getattr(self.main_road.planview,self.main_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_neighbor())
-        print(f"{self.__class__.__name__} adj neigh, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h-self.neighbor_dir_change)
-        x = offset_width * np.sin(h) + x
-        y = offset_width * np.cos(h) + y
-        print(f"calc values: {offset_width}, {np.cos(h)}")
-        self.neighbor.planview.set_start_point(x, y, h)
-        self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
 
 class RoadPreAsSucAdjuster(_OneConnectionAdjuster):
     def __init__(self,main_road:Road,neighbor:Road):
@@ -559,33 +493,12 @@ class RoadPreAsSucAdjuster(_OneConnectionAdjuster):
         self.neighbor_dir_change = np.pi
         # self._offset_calc = CalcOffsetPreSuc(main_road, neighbor)
         if main_road.road_type == -1:
-            self._offset_calc = CalcOffsetPreSuc(main_road, neighbor)
+            # self._offset_calc = CalcOffsetPreSuc(main_road, neighbor)
+            self._offset_calc =  _OffsetCalculator(main_road, neighbor,"rightlanes","leftlanes",0,True,"lane_offset_suc")
         else:
-            self._offset_calc = CalcOffsetSucPre(main_road, neighbor)
+            # self._offset_calc = CalcOffsetSucPre(main_road, neighbor)
+            self._offset_calc = _OffsetCalculator(main_road, neighbor,"rightlanes","leftlanes",-1,True,"lane_offset_pred")
 
-    def adjust_main_from_neighbor(self):
-        x, y, h = getattr(self.neighbor.planview,self.neighbor_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_main())
-        print(f"{self.__class__.__name__} adj main, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h -self.main_dir_change)
-        x = offset_width * np.sin(h) + x
-        y = offset_width * np.cos(h) + y
-        print(f"calc values: {offset_width}, {np.cos(h)}")
-        self.main_road.planview.set_start_point(x, y, h)
-        self.main_road.planview.adjust_geometries(self.main_from_end)
-
-    def adjust_neighbor(self):
-        x, y, h = getattr(self.main_road.planview,self.main_point)()
-
-        offset_width = abs(self._offset_calc.calc_lane_offset_for_neighbor())
-        print(f"{self.__class__.__name__} adj neigh, offset: {self._offset_calc.calc_lane_offset_for_neighbor()}")
-        h = wrap_pi(h-self.neighbor_dir_change)
-        x = offset_width * np.sin(h) + x
-        y = offset_width * np.cos(h) + y
-        print(f"calc values: {offset_width}, {np.cos(h)}")
-        self.neighbor.planview.set_start_point(x, y, h)
-        self.neighbor.planview.adjust_geometries(self.neighbor_from_end)
 
 class AdjustablePreAsSucData(_AdjustableData):
     def _setup(self):
