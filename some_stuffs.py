@@ -228,7 +228,7 @@ if 0:
     odr.add_road(junc_left_lane)
     odr.add_road(main)
 # full crossing all(?) combinations
-if 1:
+if 0:
     numintersections = 4
     nlanes = 3
     conn = ["successor", "predecessor", "successor", "predecessor"]

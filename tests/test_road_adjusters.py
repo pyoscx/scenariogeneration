@@ -699,6 +699,71 @@ class TestAdjustablePlanView:
         assert isinstance(adjuster.predecessor_data,expected_pre_type)
         assert isinstance(adjuster.successor_data,expected_suc_type)
 
+    def test_adjustable_suc_suc(self, roads_suc_suc):
+        pre, main, suc = roads_suc_suc
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        suc.planview.set_start_point(40, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main, pre, suc)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+        np.testing.assert_almost_equal(
+            main.planview.get_start_point(), (10, 0, 0)
+        )
+        np.testing.assert_almost_equal(
+            main.planview.get_end_point(), (30, 0, 0)
+        )
+
+    def test_adjustable_suc_pre(self, roads_suc_pre):
+        pre, main, suc = roads_suc_pre
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        suc.planview.set_start_point(40, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main, pre, suc)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+        np.testing.assert_almost_equal(
+            main.planview.get_start_point(), (10, 0, 0)
+        )
+        np.testing.assert_almost_equal(
+            main.planview.get_end_point(), (40, 0, 0)
+        )
+
+
+    def test_adjustable_pre_suc(self, roads_pre_suc):
+        pre, main, suc = roads_pre_suc
+        pre.planview.set_start_point(10, 0, np.pi)
+        pre.planview.adjust_geometries()
+        suc.planview.set_start_point(40, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main, pre, suc)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+        np.testing.assert_almost_equal(
+            main.planview.get_start_point(), (10, 0, 0)
+        )
+        np.testing.assert_almost_equal(
+            main.planview.get_end_point(), (30, 0, 0)
+        )
+
+
+    def test_adjustable_pre_pre(self, roads_pre_pre):
+        pre, main, suc = roads_pre_pre
+        pre.planview.set_start_point(10, 0, np.pi)
+        pre.planview.adjust_geometries()
+        suc.planview.set_start_point(30, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main, pre, suc)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+        np.testing.assert_almost_equal(
+            main.planview.get_start_point(), (10, 0, 0)
+        )
+        np.testing.assert_almost_equal(
+            main.planview.get_end_point(), (30, 0, 0)
+        )
 
 class TestBuilder:
     def test_create_road_adjuster_normal_roads(self):
@@ -759,316 +824,6 @@ class TestBuilder:
         assert roadfactories[2].pre.id == main.id
 
 
-# class TestOffsetCalcs:
-#     @pytest.fixture
-#     def junc_as_succ_main_as_succ(self):
-#         junc_right_lane = xodr.create_road(
-#             xodr.Line(15),
-#             0,
-#             road_type=100,
-#             right_lanes=xodr.LaneDef(0, 15, 1, 1, None, [1.25], [1.75]),
-#             left_lanes=0,
-#         )
-#         junc_left_lane = xodr.create_road(
-#             xodr.Line(10),
-#             1,
-#             road_type=100,
-#             right_lanes=0,
-#             left_lanes=xodr.LaneDef(0, 10, 1, 1, None, [2.3], [2.6]),
-#         )
-#         main = xodr.create_road(
-#             xodr.Line(20),
-#             2,
-#             left_lanes=xodr.LaneDef(0, 20, 2, 2, None, [1.5, 2.5], [2, 3]),
-#             right_lanes=xodr.LaneDef(0, 20, 2, 2, None, [3.5, 4.5], [4, 5]),
-#         )
-#         junc_right_lane.add_successor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.end, lane_offset=-1
-#         )
-#         junc_left_lane.add_successor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.end, lane_offset=1
-#         )
-#         main.add_successor(xodr.ElementType.junction, 100)
-#         main.lane_offset_suc["0"] = 1
-#         main.lane_offset_suc["1"] = -1
-#         return main, junc_left_lane, junc_right_lane
-
-#     def test_suc_suc_left(self, junc_as_succ_main_as_succ):
-#         main, junc_left_lane, _ = junc_as_succ_main_as_succ
-#         offset_calculator = CalcOffsetSucSuc(main, junc_left_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -4.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 4.0
-#         )
-
-#     def test_suc_suc_right(self, junc_as_succ_main_as_succ):
-#         main, _, junc_right_lane = junc_as_succ_main_as_succ
-#         offset_calculator = CalcOffsetSucSuc(main, junc_right_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 2.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -2.0
-#         )
-
-
-#     def test_suc_suc_left_junc_main(self, junc_as_succ_main_as_succ):
-#         main, junc_left_lane, _ = junc_as_succ_main_as_succ
-#         offset_calculator = CalcOffsetSucSuc(junc_left_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 4.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -4.0
-#         )
-
-#     def test_suc_suc_right_junc_main(self, junc_as_succ_main_as_succ):
-#         main, _, junc_right_lane = junc_as_succ_main_as_succ
-#         offset_calculator = CalcOffsetSucSuc(junc_right_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -2.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 2.0
-#         )
-
-
-#     @pytest.fixture
-#     def junc_as_pre_main_as_succ(self):
-#         junc_right_lane = xodr.create_road(
-#             xodr.Line(15),
-#             0,
-#             road_type=100,
-#             right_lanes=xodr.LaneDef(0, 15, 1, 1, None, [1.25], [1.75]),
-#             left_lanes=0,
-#         )
-#         junc_left_lane = xodr.create_road(
-#             xodr.Line(10),
-#             1,
-#             road_type=100,
-#             right_lanes=0,
-#             left_lanes=xodr.LaneDef(0, 10, 1, 1, None, [2.3], [2.6]),
-#         )
-#         main = xodr.create_road(
-#             xodr.Line(20),
-#             2,
-#             left_lanes=xodr.LaneDef(0, 20, 2, 2, None, [1.5, 2.5], [2, 3]),
-#             right_lanes=xodr.LaneDef(0, 20, 2, 2, None, [3.5, 4.5], [4, 5]),
-#         )
-#         junc_right_lane.add_predecessor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.end, lane_offset=-1
-#         )
-#         junc_left_lane.add_predecessor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.end, lane_offset=1
-#         )
-#         main.add_successor(xodr.ElementType.junction, 100)
-#         main.lane_offset_suc["0"] = 1
-#         main.lane_offset_suc["1"] = -1
-#         return main, junc_left_lane, junc_right_lane
-
-#     def test_suc_pre_left(self, junc_as_pre_main_as_succ):
-#         main, junc_left_lane, _ = junc_as_pre_main_as_succ
-#         offset_calculator = CalcOffsetSucPre(main, junc_left_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 2.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -2.0
-#         )
-
-#     def test_suc_pre_right(self, junc_as_pre_main_as_succ):
-#         main, _, junc_right_lane = junc_as_pre_main_as_succ
-#         offset_calculator = CalcOffsetSucPre(main, junc_right_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -4.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 4.0
-#         )
-
-#     def test_suc_pre_left_junc_main(self, junc_as_pre_main_as_succ):
-#         main, junc_left_lane, _ = junc_as_pre_main_as_succ
-#         offset_calculator = CalcOffsetSucPre(junc_left_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -2.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 2.0
-#         )
-
-#     def test_suc_pre_right_junc_main(self, junc_as_pre_main_as_succ):
-#         main, _, junc_right_lane = junc_as_pre_main_as_succ
-#         offset_calculator = CalcOffsetSucPre( junc_right_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 4.0
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -4.0
-#         )
-
-#     @pytest.fixture
-#     def junc_as_pre_main_as_pre(self):
-#         junc_right_lane = xodr.create_road(
-#             xodr.Line(15),
-#             0,
-#             road_type=100,
-#             right_lanes=xodr.LaneDef(0, 15, 1, 1, None, [1.25], [1.75]),
-#             left_lanes=0,
-#         )
-#         junc_left_lane = xodr.create_road(
-#             xodr.Line(10),
-#             1,
-#             road_type=100,
-#             right_lanes=0,
-#             left_lanes=xodr.LaneDef(0, 10, 1, 1, None, [2.3], [2.6]),
-#         )
-#         main = xodr.create_road(
-#             xodr.Line(20),
-#             2,
-#             left_lanes=xodr.LaneDef(0, 20, 2, 2, None, [1.5, 2.5], [2, 3]),
-#             right_lanes=xodr.LaneDef(0, 20, 2, 2, None, [3.5, 4.5], [4, 5]),
-#         )
-#         junc_right_lane.add_predecessor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.start, lane_offset=-1
-#         )
-#         junc_left_lane.add_predecessor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.start, lane_offset=1
-#         )
-#         main.add_predecessor(xodr.ElementType.junction, 100)
-#         main.lane_offset_pred["0"] = 1
-#         main.lane_offset_pred["1"] = -1
-#         return main, junc_left_lane, junc_right_lane
-
-#     def test_pre_pre_left(self, junc_as_pre_main_as_pre):
-#         main, junc_left_lane, _ = junc_as_pre_main_as_pre
-#         offset_calculator = CalcOffsetPrePre(main, junc_left_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -3.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 3.5
-#         )
-
-#     def test_pre_pre_right(self, junc_as_pre_main_as_pre):
-#         main, _, junc_right_lane = junc_as_pre_main_as_pre
-#         offset_calculator = CalcOffsetPrePre(main, junc_right_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 1.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -1.5
-#         )
-
-
-#     def test_pre_pre_left_junc_main(self, junc_as_pre_main_as_pre):
-#         main, junc_left_lane, _ = junc_as_pre_main_as_pre
-#         offset_calculator = CalcOffsetPrePre( junc_left_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 3.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -3.5
-#         )
-
-#     def test_pre_pre_right_junc_main(self, junc_as_pre_main_as_pre):
-#         main, _, junc_right_lane = junc_as_pre_main_as_pre
-#         offset_calculator = CalcOffsetPrePre(junc_right_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -1.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 1.5
-#         )
-#     @pytest.fixture
-#     def junc_as_suc_main_as_pre(self):
-#         junc_right_lane = xodr.create_road(
-#             xodr.Line(15),
-#             0,
-#             road_type=100,
-#             right_lanes=xodr.LaneDef(0, 15, 1, 1, None, [1.25], [1.75]),
-#             left_lanes=0,
-#         )
-#         junc_left_lane = xodr.create_road(
-#             xodr.Line(10),
-#             1,
-#             road_type=100,
-#             right_lanes=0,
-#             left_lanes=xodr.LaneDef(0, 10, 1, 1, None, [2.3], [2.6]),
-#         )
-#         main = xodr.create_road(
-#             xodr.Line(20),
-#             2,
-#             left_lanes=xodr.LaneDef(0, 20, 2, 2, None, [1.5, 2.5], [2, 3]),
-#             right_lanes=xodr.LaneDef(0, 20, 2, 2, None, [3.5, 4.5], [4, 5]),
-#         )
-#         junc_right_lane.add_successor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.start, lane_offset=-1
-#         )
-#         junc_left_lane.add_successor(
-#             xodr.ElementType.road, 2, xodr.ContactPoint.start, lane_offset=1
-#         )
-#         main.add_predecessor(xodr.ElementType.junction, 100)
-#         main.lane_offset_pred["0"] = 1
-#         main.lane_offset_pred["1"] = -1
-#         return main, junc_left_lane, junc_right_lane
-
-#     def test_pre_suc_left(self, junc_as_suc_main_as_pre):
-#         main, junc_left_lane, _ = junc_as_suc_main_as_pre
-#         offset_calculator = CalcOffsetPreSuc(main, junc_left_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 1.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -1.5
-#         )
-
-#     def test_pre_suc_right(self, junc_as_suc_main_as_pre):
-#         main, _, junc_right_lane = junc_as_suc_main_as_pre
-#         offset_calculator = CalcOffsetPreSuc(main, junc_right_lane)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -3.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 3.5
-#         )
-
-#     def test_pre_suc_left_junc_main(self, junc_as_suc_main_as_pre):
-#         main, junc_left_lane, _ = junc_as_suc_main_as_pre
-#         offset_calculator = CalcOffsetPreSuc(junc_left_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), -1.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), 1.5
-#         )
-
-#     def test_pre_suc_right_junc_main(self, junc_as_suc_main_as_pre):
-#         main, _, junc_right_lane = junc_as_suc_main_as_pre
-#         offset_calculator = CalcOffsetPreSuc(junc_right_lane,main)
-
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_neighbor(), 3.5
-#         )
-#         np.testing.assert_almost_equal(
-#             offset_calculator.calc_lane_offset_for_main(), -3.5
-#         )
 
 
 class TestAdjustersWithOffsets():
@@ -1402,3 +1157,522 @@ class TestAdjustersWithOffsets():
                 print(f"{road_names[i]} is wrong , {y}({expected[i][1]})")
         assert final_assert
 
+class TestDirectAdjusters():
+    @pytest.fixture
+    def setup_with_right_lane(self):
+        pre = xodr.create_road(xodr.Line(10), 0, left_lanes=2, right_lanes=2)
+        suc = xodr.create_road(xodr.Line(10), 2, left_lanes=0, right_lanes=1)
+        return pre,suc
+
+    @pytest.fixture
+    def setup_with_left_lane(self):
+        pre = xodr.create_road(xodr.Line(10), 0, left_lanes=2, right_lanes=2)
+        suc = xodr.create_road(xodr.Line(10), 2, left_lanes=1, right_lanes=0)
+        return pre,suc
+
+
+    @pytest.fixture
+    def setup_with_both_lane(self):
+        pre = xodr.create_road(xodr.Line(10), 0, left_lanes=2, right_lanes=2)
+        suc = xodr.create_road(xodr.Line(10), 2, left_lanes=1, right_lanes=1)
+        return pre,suc
+
+
+
+
+    def test_no_adjuster(self,setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        suc2 = xodr.create_road(xodr.Line(10), 3, left_lanes=1, right_lanes=0)
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        suc2.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 1
+        pre.succ_direct_junction[3] = -1
+        suc.pred_direct_junction[0] = -1
+        suc.pred_direct_junction[0] = 1
+        suc.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=pre, suc=suc)
+        adjuster = factory.create_road_adjuster()
+        adjuster.successor_adjuster == None
+        adjuster.predecessor_adjuster == None
+
+## suc pre
+    def test_right_lane_suc_pre_suc_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 1
+        suc.pred_direct_junction[0] = -1
+        suc.planview.set_start_point(10, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, 3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, 3.0, 0)
+        )
+
+    def test_right_lane_suc_pre_pre_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 1
+        suc.pred_direct_junction[0] = -1
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (20, -3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, -3.0, 0)
+        )
+
+    def test_left_lane_suc_pre_suc_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = -1
+        suc.pred_direct_junction[0] = 1
+        suc.planview.set_start_point(10, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, -3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, -3.0, 0)
+        )
+
+    def test_left_lane_suc_pre_pre_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = -1
+        suc.pred_direct_junction[0] = 1
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (20, 3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, 3.0, 0)
+        )
+
+    def test_both_lanes_suc_pre_suc_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 0
+        suc.pred_direct_junction[0] = 0
+        suc.planview.set_start_point(10, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, 0.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, 0.0, 0)
+        )
+
+    def test_both_lanes_suc_pre_pre_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 0
+        suc.pred_direct_junction[0] = 0
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (20, 0.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, 0.0, 0)
+        )
+
+## pre suc
+    def test_right_lane_pre_suc_suc_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 1
+        suc.succ_direct_junction[0] = -1
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, 3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, 3.0, np.pi)
+        )
+
+    def test_right_lane_pre_suc_pre_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 1
+        suc.succ_direct_junction[0] = -1
+        pre.planview.set_start_point(0, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (0, -3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, -3.0, np.pi)
+        )
+
+    def test_left_lane_pre_suc_suc_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = -1
+        suc.succ_direct_junction[0] = 1
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, -3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, -3.0, np.pi)
+        )
+
+    def test_left_lane_pre_suc_pre_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = -1
+        suc.succ_direct_junction[0] = 1
+        pre.planview.set_start_point(0, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (0, 3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, 3.0, np.pi)
+        )
+
+    def test_both_lanes_pre_suc_suc_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 1
+        suc.succ_direct_junction[0] = -1
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, 3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, 3.0, np.pi)
+        )
+
+    def test_both_lanes_pre_suc_suc_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 0
+        suc.succ_direct_junction[0] = 0
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, 0.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, 0.0, np.pi)
+        )
+
+
+    def test_both_lanes_pre_suc_pre_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 0
+        suc.succ_direct_junction[0] = 0
+        pre.planview.set_start_point(0, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (0, 0.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, 0.0, np.pi)
+        )
+
+    ## suc suc
+    def test_right_lane_suc_suc_suc_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = -1
+        suc.succ_direct_junction[0] = 1
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, 3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, 3.0, 0)
+        )
+
+    def test_right_lane_suc_suc_pre_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = -1
+        suc.succ_direct_junction[0] = 1
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (10, -3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (20, -3.0, np.pi)
+        )
+
+    def test_left_lane_suc_suc_suc_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 1
+        suc.succ_direct_junction[0] = -1
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, -3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, -3.0, 0)
+        )
+
+    def test_left_lane_suc_suc_pre_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 1
+        suc.succ_direct_junction[0] = -1
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (10, 3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (20, 3.0, np.pi)
+        )
+
+    def test_both_lanes_suc_suc_suc_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 0
+        suc.succ_direct_junction[0] = 0
+        suc.planview.set_start_point(20, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (10, 0.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (0, 0.0, 0)
+        )
+
+    def test_both_lanes_suc_suc_pre_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_successor(xodr.ElementType.junction, 200)
+        suc.add_successor(xodr.ElementType.junction, 200)
+        pre.succ_direct_junction[2] = 0
+        suc.succ_direct_junction[0] = 0
+        pre.planview.set_start_point(0, 0, 0)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, suc=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (10, 0.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (20, 0.0, np.pi)
+        )
+
+## pre pre
+    def test_right_lane_pre_pre_suc_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = -1
+        suc.pred_direct_junction[0] = 1
+        suc.planview.set_start_point(10, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, 3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, 3.0, np.pi)
+        )
+
+    def test_right_lane_pre_pre_pre_set(self, setup_with_right_lane):
+        pre, suc = setup_with_right_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = -1
+        suc.pred_direct_junction[0] = 1
+        pre.planview.set_start_point(10, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (20, -3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, -3.0, 0)
+        )
+
+    def test_left_lane_pre_pre_suc_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 1
+        suc.pred_direct_junction[0] = -1
+        suc.planview.set_start_point(10, 0, 0)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (0, -3.0, np.pi)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, -3.0, np.pi)
+        )
+
+    def test_left_lane_pre_pre_pre_set(self, setup_with_left_lane):
+        pre, suc = setup_with_left_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 1
+        suc.pred_direct_junction[0] = -1
+        pre.planview.set_start_point(10, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (20, 3.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (10, 3.0, 0)
+        )
+
+    def test_both_lanes_pre_pre_suc_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 0
+        suc.pred_direct_junction[0] = 0
+        suc.planview.set_start_point(10, 0, np.pi)
+        suc.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            pre.planview.get_end_point(), (20, 0.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            pre.planview.get_start_point(), (10, 0.0, 0)
+        )
+
+    def test_both_lanes_pre_pre_pre_set(self, setup_with_both_lane):
+        pre, suc = setup_with_both_lane
+        pre.add_predecessor(xodr.ElementType.junction, 200)
+        suc.add_predecessor(xodr.ElementType.junction, 200)
+        pre.pred_direct_junction[2] = 0
+        suc.pred_direct_junction[0] = 0
+        pre.planview.set_start_point(0, 0, np.pi)
+        pre.planview.adjust_geometries()
+        factory = BaseAdjusterFactory(main=suc, pre=pre)
+        adjuster = factory.create_road_adjuster()
+        assert adjuster.adjust_roads() == 1
+
+        np.testing.assert_almost_equal(
+            suc.planview.get_end_point(), (10, 0.0, 0)
+        )
+        np.testing.assert_almost_equal(
+            suc.planview.get_start_point(), (0, 0.0, 0)
+        )
