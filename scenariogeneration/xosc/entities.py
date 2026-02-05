@@ -630,7 +630,7 @@ class Pedestrian(_BaseCatalog):
         if self.isVersion(minor=0) and self.model is None:
             raise OpenSCENARIOVersionError("model is required for OSC 1.0")
 
-        if self.model is not None and self.isVersionEqLess(minor=2):
+        if self.model is not None:
             if self.isVersion(minor=0):
                 retdict["model"] = self.model
             else:
