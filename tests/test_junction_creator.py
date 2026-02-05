@@ -29,23 +29,23 @@ def test_connection_single_right_lane_to_dobule_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -77,12 +77,12 @@ def test_connections_single_left_lane_to_double(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -114,12 +114,12 @@ def test_connections_double_to_single_left_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -177,12 +177,12 @@ def test_connections_single_left_lane_to_double(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -214,12 +214,12 @@ def test_connections_double_to_single_left_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -251,12 +251,12 @@ def test_connections_double_to_single_right_lane(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes[0] == data[2]
     assert r2_lanes[0] == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes[0] == data[2]
@@ -288,12 +288,12 @@ def test_connections_left_and_right(data):
         road2, 20, 3, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes == data[2]
     assert r2_lanes == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes == data[3]
@@ -325,12 +325,12 @@ def test_connections_4lanes(data):
         road2, 20, 0, np.pi, road_connection=data[1]
     )
 
-    (r1_lanes, r2_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r1_lanes, r2_lanes = junction_creator._get_minimum_lanes_to_connect(
         road1, road2
     )
     assert r1_lanes == data[2]
     assert r2_lanes == data[3]
-    (r2_lanes, r1_lanes) = junction_creator._get_minimum_lanes_to_connect(
+    r2_lanes, r1_lanes = junction_creator._get_minimum_lanes_to_connect(
         road2, road1
     )
     assert r1_lanes == data[3]
