@@ -2510,6 +2510,7 @@ class OpenDrive(XodrBase):
                                     )
 
                                     count_adjusted_roads += 1
+                                    break
                         if (
                             self.roads[k].predecessor is not None
                             and self.roads[k].predecessor.element_type
@@ -2542,6 +2543,7 @@ class OpenDrive(XodrBase):
                                         k, dr, cp, "predecessor"
                                     )
                                     count_adjusted_roads += 1
+                                    break
             count_total_adjusted_roads += count_adjusted_roads
 
             if (
