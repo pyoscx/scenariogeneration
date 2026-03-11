@@ -1,5 +1,15 @@
 ## scenariogeneration release notes
 
+### 2026-03-11 Version 0.16.4
+- General notes
+    - Updated version handling.
+- Features
+    - Add support for expanded permutations. Usage is explained in the documentation.
+- Bugfixes
+    - Fix offset handling in DirectJunctionCreator.
+    - Fix bug of model in Pedestrian.
+    - Fix bug with direct junction.
+
 ### 2025-11-07 Version 0.16.3
 - General notes
     - Update floating point comparison in tests
