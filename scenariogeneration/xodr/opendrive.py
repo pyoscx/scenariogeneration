@@ -36,6 +36,7 @@ from .enumerations import (
     TrafficRule,
     enumchecker,
 )
+from ..helpers import enum2str as _enum2str
 from .exceptions import (
     GeneralIssueInputArguments,
     IdAlreadyExists,
@@ -108,6 +109,8 @@ class _Header:
         self.revMajor = revMajor
         self.revMinor = revMinor
         self.geo_reference = geo_reference
+        self.license = None
+        self.default_regulations = None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Header):
@@ -116,6 +119,8 @@ class _Header:
                 and self.revMajor == other.revMajor
                 and self.revMinor == other.revMinor
                 and self.geo_reference == other.geo_reference
+                and self.license == other.license
+                and self.default_regulations == other.default_regulations
             ):
                 return True
         return False
@@ -153,6 +158,181 @@ class _Header:
             geo_reference_element = ET.SubElement(element, "geoReference")
             geo_reference_element.text = self.geo_reference
 
+        if self.license is not None:
+            element.append(self.license.get_element())
+
+        if self.default_regulations is not None:
+            element.append(self.default_regulations.get_element())
+
+        return element
+
+
+class License(XodrBase):
+    """License element of the OpenDRIVE header.
+
+    Parameters
+    ----------
+    name : str, optional
+        The full name of the license.
+    resource : str, optional
+        Link to an URL where the full license text can be found.
+    spdxid : str, optional
+        The SPDX license identifier.
+    text : str, optional
+        The full license text.
+    """
+
+    def __init__(
+        self,
+        name: Optional[str] = None,
+        resource: Optional[str] = None,
+        spdxid: Optional[str] = None,
+        text: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.name = name
+        self.resource = resource
+        self.spdxid = spdxid
+        self.text = text
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, License) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.name is not None:
+            retdict["name"] = self.name
+        if self.resource is not None:
+            retdict["resource"] = self.resource
+        if self.spdxid is not None:
+            retdict["spdxid"] = self.spdxid
+        if self.text is not None:
+            retdict["text"] = self.text
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("license", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class RoadRegulation(XodrBase):
+    """Road regulation element for default regulations.
+
+    Parameters
+    ----------
+    road_type : RoadType, optional
+        The road type this regulation applies to.
+    """
+
+    def __init__(self, road_type: Optional[RoadType] = None) -> None:
+        super().__init__()
+        self.road_type = enumchecker(road_type, RoadType, True)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, RoadRegulation) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.road_type is not None:
+            retdict["type"] = _enum2str(self.road_type)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("roadRegulations", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class SignalRegulation(XodrBase):
+    """Signal regulation element for default regulations.
+
+    Parameters
+    ----------
+    signal_type : str, optional
+        The signal type.
+    subtype : str, optional
+        The signal subtype.
+    """
+
+    def __init__(
+        self,
+        signal_type: Optional[str] = None,
+        subtype: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.signal_type = signal_type
+        self.subtype = subtype
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, SignalRegulation) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.signal_type is not None:
+            retdict["type"] = self.signal_type
+        if self.subtype is not None:
+            retdict["subtype"] = self.subtype
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("signalRegulations", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class DefaultRegulations(XodrBase):
+    """Default regulations element of the OpenDRIVE header.
+
+    Contains road and signal regulations.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.road_regulations = []
+        self.signal_regulations = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, DefaultRegulations) and super().__eq__(other):
+            if (
+                self.road_regulations == other.road_regulations
+                and self.signal_regulations == other.signal_regulations
+            ):
+                return True
+        return False
+
+    def add_road_regulation(
+        self, regulation: RoadRegulation
+    ) -> "DefaultRegulations":
+        if not isinstance(regulation, RoadRegulation):
+            raise TypeError("regulation is not of type RoadRegulation")
+        self.road_regulations.append(regulation)
+        return self
+
+    def add_signal_regulation(
+        self, regulation: SignalRegulation
+    ) -> "DefaultRegulations":
+        if not isinstance(regulation, SignalRegulation):
+            raise TypeError("regulation is not of type SignalRegulation")
+        self.signal_regulations.append(regulation)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("defaultRegulations")
+        self._add_additional_data_to_element(element)
+        for reg in self.road_regulations:
+            element.append(reg.get_element())
+        for reg in self.signal_regulations:
+            element.append(reg.get_element())
         return element
 
 

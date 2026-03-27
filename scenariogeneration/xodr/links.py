@@ -12,7 +12,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 
 import warnings
 import xml.etree.ElementTree as ET
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 
@@ -22,6 +22,7 @@ from .enumerations import (
     Direction,
     ElementType,
     JunctionGroupType,
+    JunctionSegmentType,
     JunctionType,
     Orientation,
     enumchecker,
@@ -719,12 +720,20 @@ class Junction(XodrBase):
         self.send = send
         self.mainroad = mainroad
         self.orientation = enumchecker(orientation, Orientation, True)
+        self.cross_paths = []
+        self.boundary = None
+        self.elevation_grid = None
+        self.road_sections = []
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Junction) and super().__eq__(other):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.connections == other.connections
+                and self.cross_paths == other.cross_paths
+                and self.boundary == other.boundary
+                and self.elevation_grid == other.elevation_grid
+                and self.road_sections == other.road_sections
             ):
                 return True
         return False
@@ -752,6 +761,84 @@ class Junction(XodrBase):
         connection._set_id(self._id_counter)
         self._id_counter += 1
         self.connections.append(connection)
+        return self
+
+    def add_cross_path(self, cross_path: "CrossPath") -> "Junction":
+        """Add a cross path to the junction.
+
+        Parameters
+        ----------
+        cross_path : CrossPath
+            The cross path to add.
+
+        Returns
+        -------
+        Junction
+            The updated Junction object.
+        """
+        if not isinstance(cross_path, CrossPath):
+            raise TypeError("cross_path is not of type CrossPath")
+        self.cross_paths.append(cross_path)
+        return self
+
+    def set_boundary(self, boundary: "JunctionBoundary") -> "Junction":
+        """Set the boundary of the junction.
+
+        Parameters
+        ----------
+        boundary : JunctionBoundary
+            The boundary to set.
+
+        Returns
+        -------
+        Junction
+            The updated Junction object.
+        """
+        if not isinstance(boundary, JunctionBoundary):
+            raise TypeError("boundary is not of type JunctionBoundary")
+        self.boundary = boundary
+        return self
+
+    def set_elevation_grid(
+        self, elevation_grid: "JunctionElevationGrid"
+    ) -> "Junction":
+        """Set the elevation grid of the junction.
+
+        Parameters
+        ----------
+        elevation_grid : JunctionElevationGrid
+            The elevation grid to set.
+
+        Returns
+        -------
+        Junction
+            The updated Junction object.
+        """
+        if not isinstance(elevation_grid, JunctionElevationGrid):
+            raise TypeError(
+                "elevation_grid is not of type JunctionElevationGrid"
+            )
+        self.elevation_grid = elevation_grid
+        return self
+
+    def add_road_section(
+        self, road_section: "JunctionRoadSection"
+    ) -> "Junction":
+        """Add a road section to the junction (for crossing junctions).
+
+        Parameters
+        ----------
+        road_section : JunctionRoadSection
+            The road section to add.
+
+        Returns
+        -------
+        Junction
+            The updated Junction object.
+        """
+        if not isinstance(road_section, JunctionRoadSection):
+            raise TypeError("road_section is not of type JunctionRoadSection")
+        self.road_sections.append(road_section)
         return self
 
     def get_attributes(self) -> dict:
@@ -790,6 +877,14 @@ class Junction(XodrBase):
         self._add_additional_data_to_element(element)
         for con in self.connections:
             element.append(con.get_element(self.junction_type))
+        for cp in self.cross_paths:
+            element.append(cp.get_element())
+        for rs in self.road_sections:
+            element.append(rs.get_element())
+        if self.boundary is not None:
+            element.append(self.boundary.get_element())
+        if self.elevation_grid is not None:
+            element.append(self.elevation_grid.get_element())
         return element
 
 
@@ -1456,4 +1551,467 @@ class JunctionGroup(XodrBase):
             ET.SubElement(
                 element, "junctionReference", attrib={"junction": str(j)}
             )
+        return element
+
+
+class CrossPathLaneLink(XodrBase):
+    """Lane link for a cross path (startLaneLink or endLaneLink).
+
+    Parameters
+    ----------
+    from_lane : int, optional
+        Lane ID of the road at start/end.
+    to_lane : int, optional
+        Lane ID of the crossing road.
+    s : float, optional
+        s-coordinate of the start/end point in the linked road.
+    """
+
+    def __init__(
+        self,
+        from_lane: Optional[int] = None,
+        to_lane: Optional[int] = None,
+        s: Optional[float] = None,
+    ) -> None:
+        super().__init__()
+        self.from_lane = from_lane
+        self.to_lane = to_lane
+        self.s = s
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossPathLaneLink) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.from_lane is not None:
+            retdict["from"] = str(self.from_lane)
+        if self.to_lane is not None:
+            retdict["to"] = str(self.to_lane)
+        if self.s is not None:
+            retdict["s"] = str(self.s)
+        return retdict
+
+    def get_element(self, element_name: str) -> ET.Element:
+        element = ET.Element(element_name, attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class CrossPath(XodrBase):
+    """Cross path element for junctions (pedestrian crossings etc.).
+
+    Parameters
+    ----------
+    start_lane_link : CrossPathLaneLink
+        The lane link at the start of the cross path.
+    end_lane_link : CrossPathLaneLink
+        The lane link at the end of the cross path.
+    crossing_road : str, optional
+        ID of road defining the cross path.
+    id : str, optional
+        Unique ID within the junction.
+    road_at_start : str, optional
+        ID of road at the start of the crossing road.
+    road_at_end : str, optional
+        ID of road at the end of the crossing road.
+    """
+
+    def __init__(
+        self,
+        start_lane_link: CrossPathLaneLink,
+        end_lane_link: CrossPathLaneLink,
+        crossing_road: Optional[str] = None,
+        id: Optional[str] = None,
+        road_at_start: Optional[str] = None,
+        road_at_end: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.crossing_road = crossing_road
+        self.id = id
+        self.road_at_start = road_at_start
+        self.road_at_end = road_at_end
+        self.start_lane_link = start_lane_link
+        self.end_lane_link = end_lane_link
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossPath) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.start_lane_link == other.start_lane_link
+                and self.end_lane_link == other.end_lane_link
+            ):
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.crossing_road is not None:
+            retdict["crossingRoad"] = self.crossing_road
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        if self.road_at_start is not None:
+            retdict["roadAtStart"] = self.road_at_start
+        if self.road_at_end is not None:
+            retdict["roadAtEnd"] = self.road_at_end
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("crossPath", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        element.append(self.start_lane_link.get_element("startLaneLink"))
+        element.append(self.end_lane_link.get_element("endLaneLink"))
+        return element
+
+
+class BoundarySegmentLane(XodrBase):
+    """A boundary segment of type 'lane'.
+
+    Parameters
+    ----------
+    road_id : str, optional
+        ID of the road.
+    boundary_lane : int, optional
+        ID of the lane whose outer edge is the segment.
+    s_start : str, optional
+        Start of the segment (s-coordinate, begin, end).
+    s_end : str, optional
+        End of the segment (s-coordinate, begin, end).
+    """
+
+    def __init__(
+        self,
+        road_id: Optional[str] = None,
+        boundary_lane: Optional[int] = None,
+        s_start: Optional[str] = None,
+        s_end: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.road_id = road_id
+        self.boundary_lane = boundary_lane
+        self.s_start = s_start
+        self.s_end = s_end
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, BoundarySegmentLane) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {"type": "lane"}
+        if self.road_id is not None:
+            retdict["roadId"] = self.road_id
+        if self.boundary_lane is not None:
+            retdict["boundaryLane"] = str(self.boundary_lane)
+        if self.s_start is not None:
+            retdict["sStart"] = str(self.s_start)
+        if self.s_end is not None:
+            retdict["sEnd"] = str(self.s_end)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("segment", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class BoundarySegmentJoint(XodrBase):
+    """A boundary segment of type 'joint'.
+
+    Parameters
+    ----------
+    road_id : str, optional
+        ID of the road.
+    contact_point : str, optional
+        Contact point on the road.
+    joint_lane_start : int, optional
+        ID of the lane crossed at start.
+    joint_lane_end : int, optional
+        ID of the lane crossed at end.
+    transition_length : float, optional
+        Length of the transition area.
+    """
+
+    def __init__(
+        self,
+        road_id: Optional[str] = None,
+        contact_point: Optional[str] = None,
+        joint_lane_start: Optional[int] = None,
+        joint_lane_end: Optional[int] = None,
+        transition_length: Optional[float] = None,
+    ) -> None:
+        super().__init__()
+        self.road_id = road_id
+        self.contact_point = contact_point
+        self.joint_lane_start = joint_lane_start
+        self.joint_lane_end = joint_lane_end
+        self.transition_length = transition_length
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, BoundarySegmentJoint) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {"type": "joint"}
+        if self.road_id is not None:
+            retdict["roadId"] = self.road_id
+        if self.contact_point is not None:
+            retdict["contactPoint"] = str(self.contact_point)
+        if self.joint_lane_start is not None:
+            retdict["jointLaneStart"] = str(self.joint_lane_start)
+        if self.joint_lane_end is not None:
+            retdict["jointLaneEnd"] = str(self.joint_lane_end)
+        if self.transition_length is not None:
+            retdict["transitionLength"] = str(self.transition_length)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("segment", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class JunctionBoundary(XodrBase):
+    """Junction boundary element enclosing the traffic area."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.segments = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, JunctionBoundary) and super().__eq__(other):
+            if self.segments == other.segments:
+                return True
+        return False
+
+    def add_segment(
+        self,
+        segment: "Union[BoundarySegmentLane, BoundarySegmentJoint]",
+    ) -> "JunctionBoundary":
+        if not isinstance(
+            segment, (BoundarySegmentLane, BoundarySegmentJoint)
+        ):
+            raise TypeError(
+                "segment must be BoundarySegmentLane or BoundarySegmentJoint"
+            )
+        self.segments.append(segment)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("boundary")
+        self._add_additional_data_to_element(element)
+        for seg in self.segments:
+            element.append(seg.get_element())
+        return element
+
+
+class JunctionElevationGridElevation(XodrBase):
+    """Elevation entry for a junction elevation grid.
+
+    Parameters
+    ----------
+    center : str, optional
+        List of z-values at center.
+    left : str, optional
+        List of z-values from inside to outside (left).
+    right : str, optional
+        List of z-values from inside to outside (right).
+    """
+
+    def __init__(
+        self,
+        center: Optional[str] = None,
+        left: Optional[str] = None,
+        right: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.center = center
+        self.left = left
+        self.right = right
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(
+            other, JunctionElevationGridElevation
+        ) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.center is not None:
+            retdict["center"] = self.center
+        if self.left is not None:
+            retdict["left"] = self.left
+        if self.right is not None:
+            retdict["right"] = self.right
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("elevation", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class JunctionElevationGrid(XodrBase):
+    """Elevation grid for a junction.
+
+    Parameters
+    ----------
+    grid_spacing : str, optional
+        Grid spacing.
+    s_start : str, optional
+        Start s-coordinate.
+    """
+
+    def __init__(
+        self,
+        grid_spacing: Optional[str] = None,
+        s_start: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.grid_spacing = grid_spacing
+        self.s_start = s_start
+        self.elevations = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, JunctionElevationGrid) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.elevations == other.elevations
+            ):
+                return True
+        return False
+
+    def add_elevation(
+        self, elevation: JunctionElevationGridElevation
+    ) -> "JunctionElevationGrid":
+        if not isinstance(elevation, JunctionElevationGridElevation):
+            raise TypeError(
+                "elevation is not of type JunctionElevationGridElevation"
+            )
+        self.elevations.append(elevation)
+        return self
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.grid_spacing is not None:
+            retdict["gridSpacing"] = self.grid_spacing
+        if self.s_start is not None:
+            retdict["sStart"] = self.s_start
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("elevationGrid", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        for elev in self.elevations:
+            element.append(elev.get_element())
+        return element
+
+
+class JunctionRoadSection(XodrBase):
+    """Road section element for crossing junctions.
+
+    Parameters
+    ----------
+    road_id : str, optional
+        ID of the road.
+    id : str, optional
+        Unique ID within the junction.
+    s_start : float, optional
+        Start s-coordinate.
+    s_end : float, optional
+        End s-coordinate.
+    """
+
+    def __init__(
+        self,
+        road_id: Optional[str] = None,
+        id: Optional[str] = None,
+        s_start: Optional[float] = None,
+        s_end: Optional[float] = None,
+    ) -> None:
+        super().__init__()
+        self.road_id = road_id
+        self.id = id
+        self.s_start = s_start
+        self.s_end = s_end
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, JunctionRoadSection) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        if self.road_id is not None:
+            retdict["roadId"] = self.road_id
+        if self.s_start is not None:
+            retdict["sStart"] = str(self.s_start)
+        if self.s_end is not None:
+            retdict["sEnd"] = str(self.s_end)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("roadSection", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class JunctionPredecessorSuccessor(XodrBase):
+    """Predecessor/successor for virtual junction connections.
+
+    Parameters
+    ----------
+    element_id : str
+        ID of the linked element.
+    element_s : float
+        s-coordinate where connection meets the road.
+    element_type : str
+        Type of the linked element (currently only 'road').
+    element_dir : str, optional
+        Direction relative to s-direction ('+' or '-').
+    """
+
+    def __init__(
+        self,
+        element_id: str,
+        element_s: float,
+        element_type: str = "road",
+        element_dir: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.element_id = element_id
+        self.element_s = element_s
+        self.element_type = element_type
+        self.element_dir = element_dir
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, JunctionPredecessorSuccessor) and super().__eq__(
+            other
+        ):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        retdict["elementId"] = str(self.element_id)
+        retdict["elementS"] = str(self.element_s)
+        retdict["elementType"] = self.element_type
+        if self.element_dir is not None:
+            retdict["elementDir"] = self.element_dir
+        return retdict
+
+    def get_element(self, element_name: str) -> ET.Element:
+        element = ET.Element(element_name, attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
         return element

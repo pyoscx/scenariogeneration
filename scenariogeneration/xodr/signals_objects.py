@@ -928,6 +928,7 @@ class Object(_SignalObjectBase):
         self.materials = []
         self.validity = None
         self.parking_space = None
+        self.skeleton = None
 
         # check if width/length combination or radius was provided and ensure working defaults
         if radius is not None and (width is not None or length is not None):
@@ -965,6 +966,7 @@ class Object(_SignalObjectBase):
                 and self.validity == other.validity
                 and self.parking_space == other.parking_space
                 and self.materials == other.materials
+                and self.skeleton == other.skeleton
             ):
                 return True
         return False
@@ -986,6 +988,7 @@ class Object(_SignalObjectBase):
         lengthEnd: Optional[float] = None,
         radiusStart: Optional[float] = None,
         radiusEnd: Optional[float] = None,
+        detachFromReferenceLine: Optional[bool] = None,
     ) -> None:
         """Add a repeat entry to the Object.
 
@@ -1083,6 +1086,10 @@ class Object(_SignalObjectBase):
             self._repeats[-1]["radiusStart"] = str(radiusStart)
         if radiusEnd is not None:
             self._repeats[-1]["radiusEnd"] = str(radiusEnd)
+        if detachFromReferenceLine is not None:
+            self._repeats[-1]["detachFromReferenceLine"] = get_bool_string(
+                detachFromReferenceLine
+            )
 
     def add_validity(self, fromLane: int, toLane: int) -> "Object":
         """Add a validity range to the Object.
@@ -1138,6 +1145,24 @@ class Object(_SignalObjectBase):
             The marking to be added.
         """
         self.markings.append(marking)
+
+    def set_skeleton(self, skeleton: "Skeleton") -> "Object":
+        """Set the skeleton of the Object.
+
+        Parameters
+        ----------
+        skeleton : Skeleton
+            The skeleton to set.
+
+        Returns
+        -------
+        Object
+            The updated Object instance.
+        """
+        if not isinstance(skeleton, Skeleton):
+            raise TypeError("skeleton is not of type Skeleton")
+        self.skeleton = skeleton
+        return self
 
     def add_material(
         self,
@@ -1240,6 +1265,8 @@ class Object(_SignalObjectBase):
         if self.materials:
             for material in self.materials:
                 ET.SubElement(element, "material", attrib=material)
+        if self.skeleton is not None:
+            element.append(self.skeleton.get_element())
         return element
 
 
@@ -1861,4 +1888,232 @@ class Marking(XodrBase):
                 element, "cornerReference", attrib={"id": str(cornerReference)}
             )
 
+        return element
+
+
+class VertexLocal(XodrBase):
+    """A vertex point on a skeleton polyline in local u/v coordinates.
+
+    Parameters
+    ----------
+    u : float, optional
+        Local u-coordinate.
+    v : float, optional
+        Local v-coordinate.
+    z : float, optional
+        Local z-coordinate.
+    id : int, optional
+        ID of the vertex point.
+    radius : float, optional
+        Local radius at this vertex.
+    intersection_point : bool, optional
+        Whether vertex intersects the ground.
+    """
+
+    def __init__(
+        self,
+        u: Optional[float] = None,
+        v: Optional[float] = None,
+        z: Optional[float] = None,
+        id: Optional[int] = None,
+        radius: Optional[float] = None,
+        intersection_point: Optional[bool] = None,
+    ) -> None:
+        super().__init__()
+        self.u = u
+        self.v = v
+        self.z = z
+        self.id = id
+        self.radius = radius
+        self.intersection_point = intersection_point
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, VertexLocal) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        if self.u is not None:
+            retdict["u"] = str(self.u)
+        if self.v is not None:
+            retdict["v"] = str(self.v)
+        if self.z is not None:
+            retdict["z"] = str(self.z)
+        if self.radius is not None:
+            retdict["radius"] = str(self.radius)
+        if self.intersection_point is not None:
+            retdict["intersectionPoint"] = get_bool_string(
+                self.intersection_point
+            )
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("vertexLocal", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class VertexRoad(XodrBase):
+    """A vertex point on a skeleton polyline in road coordinates.
+
+    Parameters
+    ----------
+    s : float, optional
+        s-coordinate of the vertex.
+    t : float, optional
+        t-coordinate of the vertex.
+    dz : float, optional
+        dz relative to road reference line.
+    id : int, optional
+        ID of the vertex point.
+    radius : float, optional
+        Local radius at this vertex.
+    intersection_point : bool, optional
+        Whether vertex intersects the ground.
+    """
+
+    def __init__(
+        self,
+        s: Optional[float] = None,
+        t: Optional[float] = None,
+        dz: Optional[float] = None,
+        id: Optional[int] = None,
+        radius: Optional[float] = None,
+        intersection_point: Optional[bool] = None,
+    ) -> None:
+        super().__init__()
+        self.s = s
+        self.t = t
+        self.dz = dz
+        self.id = id
+        self.radius = radius
+        self.intersection_point = intersection_point
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, VertexRoad) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        if self.s is not None:
+            retdict["s"] = str(self.s)
+        if self.t is not None:
+            retdict["t"] = str(self.t)
+        if self.dz is not None:
+            retdict["dz"] = str(self.dz)
+        if self.radius is not None:
+            retdict["radius"] = str(self.radius)
+        if self.intersection_point is not None:
+            retdict["intersectionPoint"] = get_bool_string(
+                self.intersection_point
+            )
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("vertexRoad", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class SkeletonPolyline(XodrBase):
+    """A polyline within an object skeleton.
+
+    Parameters
+    ----------
+    id : int, optional
+        ID of the polyline.
+    """
+
+    def __init__(self, id: Optional[int] = None) -> None:
+        super().__init__()
+        self.id = id
+        self.vertices = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, SkeletonPolyline) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.vertices == other.vertices
+            ):
+                return True
+        return False
+
+    def add_vertex(
+        self, vertex: Union[VertexLocal, VertexRoad]
+    ) -> "SkeletonPolyline":
+        """Add a vertex to the polyline.
+
+        Parameters
+        ----------
+        vertex : VertexLocal or VertexRoad
+            The vertex to add.
+
+        Returns
+        -------
+        SkeletonPolyline
+            The updated SkeletonPolyline.
+        """
+        if not isinstance(vertex, (VertexLocal, VertexRoad)):
+            raise TypeError("vertex must be VertexLocal or VertexRoad")
+        self.vertices.append(vertex)
+        return self
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.id is not None:
+            retdict["id"] = str(self.id)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("polyline", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        for v in self.vertices:
+            element.append(v.get_element())
+        return element
+
+
+class Skeleton(XodrBase):
+    """Skeleton element wrapping polylines for an object."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.polylines = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Skeleton) and super().__eq__(other):
+            if self.polylines == other.polylines:
+                return True
+        return False
+
+    def add_polyline(self, polyline: SkeletonPolyline) -> "Skeleton":
+        """Add a polyline to the skeleton.
+
+        Parameters
+        ----------
+        polyline : SkeletonPolyline
+            The polyline to add.
+
+        Returns
+        -------
+        Skeleton
+            The updated Skeleton.
+        """
+        if not isinstance(polyline, SkeletonPolyline):
+            raise TypeError("polyline is not of type SkeletonPolyline")
+        self.polylines.append(polyline)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("skeleton")
+        self._add_additional_data_to_element(element)
+        for pl in self.polylines:
+            element.append(pl.get_element())
         return element
