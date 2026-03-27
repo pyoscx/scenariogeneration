@@ -222,6 +222,8 @@ class _SignalObjectBase(XodrBase):
             retdict["width"] = str(self.width)
         if self.height is not None:
             retdict["height"] = str(self.height)
+        if self.length is not None:
+            retdict["length"] = str(self.length)
         if self.name is not None:
             retdict["name"] = str(self.name)
         if isinstance(self.Type, ObjectType):
