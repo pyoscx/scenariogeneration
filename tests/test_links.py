@@ -19,6 +19,38 @@ from scenariogeneration import xodr as pyodrx
 from .xml_validator import ValidationResponse, version_validation
 
 
+def test_junction_1_8_elements():
+    start_link = pyodrx.CrossPathLaneLink(1, 2, 3.5)
+    end_link = pyodrx.CrossPathLaneLink(3, 4, 5.5)
+    cross_path = pyodrx.CrossPath(
+        start_link,
+        end_link,
+        crossing_road="10",
+        id="crossing",
+        road_at_start="1",
+        road_at_end="2",
+    )
+    assert cross_path.get_element().find("startLaneLink").attrib == {
+        "from": "1",
+        "to": "2",
+        "s": "3.5",
+    }
+
+    boundary = pyodrx.JunctionBoundary()
+    boundary.add_segment(pyodrx.BoundarySegmentLane("1", 2, "begin", "end"))
+    boundary.add_segment(pyodrx.BoundarySegmentJoint("2", "start", 3, 4, 1.5))
+    assert len(boundary.get_element().findall("segment")) == 2
+
+    grid = pyodrx.JunctionElevationGrid("2", "0")
+    grid.add_elevation(pyodrx.JunctionElevationGridElevation("1 2", "3", "4"))
+    assert grid.get_element().find("elevation").attrib["center"] == "1 2"
+
+    section = pyodrx.JunctionRoadSection("3", "section", 1, 2)
+    predecessor = pyodrx.JunctionPredecessorSuccessor("4", 5, element_dir="-")
+    assert section.get_element().attrib["roadId"] == "3"
+    assert predecessor.get_element("predecessor").attrib["elementDir"] == "-"
+
+
 def test_link():
     link = pyodrx.links._Link("successor", "1")
 

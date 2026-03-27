@@ -377,7 +377,10 @@ In some countries, one is allowed to turn right at a red traffic light; in other
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="roadRegulations" type="t_header_roadRegulation"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="signalRegulations" type="t_header_signalRegulation"/>
+                    <!-- Local deviation from upstream XSD: section 6.4.3 uses
+                        base-type inheritance, not a literal _OpenDriveElement child.
                     <xs:element maxOccurs="1" minOccurs="1" name="_OpenDriveElement" type="_OpenDriveElement"/>
+                    -->
                     <xs:group maxOccurs="unbounded" minOccurs="0" ref="g_additionalData"/>
                 </xs:sequence>
             </xs:extension>
@@ -429,7 +432,10 @@ A geodetic datum is described by a projection string according to PROJ, that is,
         <xs:complexContent>
             <xs:extension base="_OpenDriveElement">
                 <xs:sequence>
+                    <!-- Local deviation from upstream XSD: section 6.4.3 uses
+                         base-type inheritance, not a literal _OpenDriveElement child.
                     <xs:element maxOccurs="1" minOccurs="1" name="_OpenDriveElement" type="_OpenDriveElement"/>
+                    -->
                     <xs:group maxOccurs="unbounded" minOccurs="0" ref="g_additionalData"/>
                     <xs:element maxOccurs="1" minOccurs="0" name="semantics" type="t_signals_semantics"/>
                 </xs:sequence>
@@ -444,7 +450,10 @@ A geodetic datum is described by a projection string according to PROJ, that is,
         <xs:complexContent>
             <xs:extension base="_OpenDriveElement">
                 <xs:sequence>
+                    <!-- Local deviation from upstream XSD: section 6.4.3 uses
+                         base-type inheritance, not a literal _OpenDriveElement child.
                     <xs:element maxOccurs="1" minOccurs="1" name="_OpenDriveElement" type="_OpenDriveElement"/>
+                    -->
                     <xs:group maxOccurs="unbounded" minOccurs="0" ref="g_additionalData"/>
                     <xs:element maxOccurs="1" minOccurs="0" name="semantics" type="t_signals_semantics"/>
                 </xs:sequence>

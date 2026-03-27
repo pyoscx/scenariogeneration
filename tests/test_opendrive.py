@@ -289,6 +289,57 @@ def test_header():
     )
 
 
+def test_header_1_8_elements():
+    license = xodr.License(name="MPL-2.0")
+    regulations = xodr.DefaultRegulations().add_road_regulation(
+        xodr.RoadRegulation(xodr.RoadType.rural)
+    )
+    regulations.add_signal_regulation(xodr.SignalRegulation("1000001", "-1"))
+    header = xodr.opendrive._Header(
+        "road network",
+        "1",
+        "8",
+        license=license,
+        default_regulations=regulations,
+    )
+    element = header.get_element()
+
+    assert element.find("license").attrib["name"] == "MPL-2.0"
+    assert (
+        element.find("defaultRegulations/roadRegulations").attrib["type"]
+        == "rural"
+    )
+    assert header.license == license
+    assert header.default_regulations == regulations
+    assert element.find("defaultRegulations/signalRegulations").attrib == {
+        "type": "1000001",
+        "subtype": "-1",
+    }
+    assert element.find(".//_OpenDriveElement") is None
+    assert (
+        version_validation("t_header", header, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+    with pytest.raises(TypeError):
+        xodr.opendrive._Header("road network", "1", "8", license="invalid")
+    with pytest.raises(TypeError):
+        xodr.opendrive._Header(
+            "road network", "1", "8", default_regulations="invalid"
+        )
+
+
+@pytest.mark.parametrize(
+    "regulation",
+    [xodr.Regulation(), xodr.RoadRegulation(), xodr.SignalRegulation()],
+)
+def test_header_rejects_individual_regulations(regulation):
+    with pytest.raises(TypeError, match="DefaultRegulations"):
+        xodr.opendrive._Header(
+            "road network", "1", "8", default_regulations=regulation
+        )
+
+
 def test_odr_type_checks():
     odr = xodr.OpenDrive("my odr")
     with pytest.raises(TypeError):

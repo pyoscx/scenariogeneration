@@ -84,6 +84,29 @@ class MarkRule(Enum):
     none = auto()
 
 
+class CrossSectionProfileType(Enum):
+    """Enum for cross section strip profile types."""
+
+    constant = auto()
+    linear = auto()
+    quadratic = auto()
+    cubic = auto()
+
+
+class StripMode(Enum):
+    """Height calculation mode for an outer cross section strip."""
+
+    independent = auto()
+    relative = auto()
+
+
+class LaneAccessRule(Enum):
+    """Enum for lane access rules."""
+
+    allow = auto()
+    deny = auto()
+
+
 class LaneType(Enum):
     """Enum for LaneType.
 
@@ -123,7 +146,6 @@ class LaneType(Enum):
     mwyEntry = auto()
     mwyExit = auto()
     shared = auto()
-    walking = auto()
     slipLane = auto()
 
 
@@ -333,6 +355,58 @@ class RawDataSource(Enum):
     cadaster = auto()
     custom = auto()
     sensor = auto()
+
+
+class AccessRestrictionType(Enum):
+    """Enum for AccessRestrictionType."""
+
+    simulator = auto()
+    autonomousTraffic = auto()
+    pedestrian = auto()
+    passengerCar = auto()
+    bus = auto()
+    delivery = auto()
+    emergency = auto()
+    taxi = auto()
+    throughTraffic = auto()
+    truck = auto()
+    bicycle = auto()
+    motorcycle = auto()
+    none = auto()
+    trucks = auto()
+    HOV = auto()
+
+
+class LaneAdvisory(Enum):
+    """Enum for LaneAdvisory."""
+
+    both = auto()
+    inner = auto()
+    none = auto()
+    outer = auto()
+
+
+class LaneDirection(Enum):
+    """Enum for LaneDirection."""
+
+    both = auto()
+    reversed = auto()
+    standard = auto()
+
+
+class JunctionSegmentType(Enum):
+    """Enum for JunctionSegmentType."""
+
+    joint = auto()
+    lane = auto()
+
+
+class BorderType(Enum):
+    """Enum for BorderType."""
+
+    concrete = auto()
+    curb = auto()
+    paint = auto()
 
 
 class SideType(Enum):

@@ -150,6 +150,53 @@ def test_roadmark():
     with pytest.raises(TypeError):
         xodr.RoadMark("solid", laneChange="dummy")
 
+    with pytest.raises(TypeError):
+        xodr.LaneAccess(0, rule="dummy")
+
+
+def test_lane_access():
+    access = xodr.LaneAccess(
+        12,
+        xodr.AccessRestrictionType.passengerCar,
+        xodr.LaneAccessRule.allow,
+    )
+    access.add_restriction(
+        xodr.LaneAccessRestriction(xodr.AccessRestrictionType.truck)
+    )
+    element = access.get_element()
+
+    assert element.attrib == {
+        "sOffset": "12",
+        "restriction": "passengerCar",
+        "rule": "allow",
+    }
+    assert element.find("restriction").attrib["type"] == "truck"
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_lr_lane_access",
+            access,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
+
+    lane = xodr.Lane(a=3)
+    lane._set_lane_id(1)
+    lane.add_height(0.1, 0.1)
+    lane.add_access(access)
+    lane.add_access(xodr.LaneAccess(0, rule=xodr.LaneAccessRule.deny))
+    assert [
+        item.attrib["sOffset"] for item in lane.get_element().findall("access")
+    ] == ["0", "12"]
+    assert (
+        version_validation(
+            "t_road_lanes_laneSection_left_lane",
+            lane,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
+
 
 def test_poly3struct():
     ps1 = xodr.lane._poly3struct(1, 2, 3, 4, 5)
