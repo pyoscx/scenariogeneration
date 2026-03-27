@@ -970,7 +970,7 @@ class OpenDrive(XodrBase):
     revMajor : str, optional
         Major revision of OpenDRIVE written to the header. Default is '1'.
     revMinor : str, optional
-        Minor revision of OpenDRIVE written to the header. Default is '5'.
+        Minor revision of OpenDRIVE written to the header. Default is '8'.
     geo_reference : str, optional
         Geographic reference information for the database. Default is None.
 
@@ -1014,7 +1014,7 @@ class OpenDrive(XodrBase):
         self,
         name: str,
         revMajor: str = "1",
-        revMinor: str = "5",
+        revMinor: str = "8",
         geo_reference: Optional[str] = None,
     ) -> None:
         """Initialize the OpenDrive.
@@ -1026,7 +1026,7 @@ class OpenDrive(XodrBase):
         revMajor : str, optional
             Major revision of OpenDRIVE. Default is '1'.
         revMinor : str, optional
-            Minor revision of OpenDRIVE. Default is '5'.
+            Minor revision of OpenDRIVE. Default is '8'.
         geo_reference : str, optional
             Geographic reference information for the database. Default is None.
         """

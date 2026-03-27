@@ -115,6 +115,9 @@ class LaneType(Enum):
     HOV = auto()
     mwyEntry = auto()
     mwyExit = auto()
+    shared = auto()
+    walking = auto()
+    slipLane = auto()
 
 
 class RoadMarkColor(Enum):
@@ -127,6 +130,7 @@ class RoadMarkColor(Enum):
     white = auto()
     yellow = auto()
     orange = auto()
+    black = auto()
 
 
 class RoadMarkWeight(Enum):
@@ -210,11 +214,11 @@ class Orientation(Enum):
 
 
 class ObjectType(Enum):
-    """Enum for ObjectType taken from OpenDRIVE 1.6 without deprecated
-    types."""
+    """Enum for ObjectType."""
 
     none = auto()
     obstacle = auto()
+    car = auto()
     pole = auto()
     tree = auto()
     vegetation = auto()
@@ -228,7 +232,17 @@ class ObjectType(Enum):
     streetLamp = auto()
     gantry = auto()
     soundBarrier = auto()
+    van = auto()
+    bus = auto()
+    trailer = auto()
+    bike = auto()
+    motorbike = auto()
+    tram = auto()
+    train = auto()
+    pedestrian = auto()
+    wind = auto()
     roadMark = auto()
+    roadSurface = auto()
 
 
 class TunnelType(Enum):
@@ -258,6 +272,8 @@ class JunctionGroupType(Enum):
 
     roundabout = auto()
     unknown = auto()
+    complexJunction = auto()
+    highwayInterchange = auto()
 
 
 class JunctionType(Enum):
@@ -266,6 +282,7 @@ class JunctionType(Enum):
     default = auto()
     virtual = auto()
     direct = auto()
+    crossing = auto()
 
 
 class FillType(Enum):
@@ -278,6 +295,7 @@ class FillType(Enum):
     gravel = auto()
     pavement = auto()
     soil = auto()
+    paint = auto()
 
 
 class Access(Enum):

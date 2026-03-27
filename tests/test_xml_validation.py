@@ -206,12 +206,12 @@ def test_ODR(tmpdir, python_file):
             os.path.split(__file__)[0], os.pardir, "examples", "xodr"
         ),
     )
-    validator = xmlschema.XMLSchema(
+    validator = xmlschema.XMLSchema11(
         os.path.join(
             os.path.split(__file__)[0],
             os.pardir,
             "schemas",
-            "opendrive_17_core.xsd",
+            "opendrive_1_8_core.xsd",
         )
     )
     imp = importlib.import_module(python_file)
