@@ -295,12 +295,12 @@ To utilize this, let your Scenario class inherit ScenarioGenerator and initalize
 
 Some options can be used to parameterize your Scenario:
 
-- **Dict containing lists**: let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (__WARNING:__ this grows quickly, so be careful). 
+- **Dict containing lists**: let self.parameters be a dict containing lists. This in turn will yield all permutations of the inputs (__WARNING:__ this grows quickly, so be careful).
 
   Example: `self.parameters = {'road_curvature': [0.001, 0.002], 'speed': [10, 20, 30]}`
-  
+
   This will generate 6 scenarios (2 curvatures × 3 speeds):
-  
+
   | Scenario | road_curvature | speed |
   |----------|----------------|-------|
   | 1        | 0.001          | 10    |
@@ -313,9 +313,9 @@ Some options can be used to parameterize your Scenario:
 - **List of dicts**: let self.parameters be a list of dicts (same structure in each element). This will yield a scenario for each entry in the list.
 
   Example: `self.parameters = [{'road_curvature': 0.001, 'speed': 10}, {'road_curvature': 0.002, 'speed': 20}]`
-  
+
   This will generate 2 scenarios:
-  
+
   | Scenario | road_curvature | speed |
   |----------|----------------|-------|
   | 1        | 0.001          | 10    |
@@ -333,9 +333,9 @@ Some options can be used to parameterize your Scenario:
       {'initial_distance': [40, 50, 60], 'line_length': [100, 200]}
   ]
   ```
-  
+
   This will generate 12 scenarios (2 base scenarios × 3 distances × 2 lengths):
-  
+
   | Scenario | road_curvature | speed | initial_distance | line_length |
   |----------|----------------|-------|------------------|-------------|
   | 1        | 0.001          | 10    | 40               | 100         |
@@ -369,7 +369,10 @@ In the init of the Scenario, some of the attributes of the ScenarioGenerator can
 
     - 'parameter_no_lists' - will give parameter and their value, except if the value is a list, then an integrer will be set instead (like numerical)
 
+    - 'user_defined' - will enable *naming_function* to be used
 - *number_of_parallel_writings*: an integrer that will tell how many parallel processes should be used to write the xml files.
+
+- *naming_function*: an optional callable (input a dict output a string) will provide the an interface for the user to define its own naming of files.
 
 # Useful Links
 Useful links related to scenariogeneration
