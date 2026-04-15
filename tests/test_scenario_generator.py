@@ -127,6 +127,22 @@ def test_parameter_naming_basename(list_of_params):
     assert name == "hejhopp_road_curvature-0.002_speed-20"
 
 
+def test_parameter_naming_user_defined(list_of_params):
+    def my_naming_fun(params):
+        return "asdf"
+
+    sg = ScenarioGenerator()
+    sg.basename = "hejhopp"
+    sg.parameters = list_of_params
+    sg.naming = "user_defined"
+    sg.naming_function = my_naming_fun
+    name = sg._get_scenario_name(sg.parameters[0])
+
+    assert name == "asdf"
+    name = sg._get_scenario_name(sg.parameters[1])
+    assert name == "asdf"
+
+
 def test_parameter_naming_no_lists(list_of_params):
     sg = ScenarioGenerator()
     sg.parameters = []

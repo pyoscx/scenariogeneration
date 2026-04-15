@@ -10,6 +10,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 Copyright (c) 2022 The scenariogeneration Authors.
 
 """
+
 from .actions import *
 from .entities import *
 from .enumerations import *
