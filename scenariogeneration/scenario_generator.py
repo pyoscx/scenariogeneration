@@ -64,6 +64,10 @@ class ScenarioGenerator:
     naming : str
         two options "numerical" or "parameter"
 
+    naming_function : Optional[Callable]
+        a function that can generate names, needs the following structure:
+        def my_funciton(permutation: dict) -> str:
+
     generate_all_roads : bool
         will only generate unique roads
 
@@ -88,7 +92,10 @@ class ScenarioGenerator:
     def __init__(self):
         self.road_file = ""
         self.parameters = {}
-        self.naming = "numerical"  # can be 'numerical', 'parameter'
+        self.naming = (
+            "numerical"  # can be 'numerical', 'parameter', or 'user_defined'
+        )
+        self.naming_function = None
         self._it = 0
         self._generation_folder = ""
 
@@ -334,11 +341,17 @@ class ScenarioGenerator:
                     + "-"
                     + value_str
                 )
-
+        elif self.naming == "user_defined":
+            if self.naming_function is None:
+                raise ValueError(
+                    "If user_defined is used, "
+                    "naming_function needs to be set"
+                )
+            return self.naming_function(permutation)
         else:
             raise NameError(
-                'Attribute naming, can only be "numerical" or "parameter", not '
-                + self.naming
+                'Attribute naming, can only be "numerical", "parameter", or '
+                "user_defined, not:  " + self.naming
             )
 
         return self.basename + name_prefix
