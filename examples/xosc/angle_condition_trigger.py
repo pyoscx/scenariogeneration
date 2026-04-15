@@ -7,6 +7,7 @@ https://github.com/pyoscx/scenariogeneration
 Example showing how to use AngleCondition as a trigger for an event.
 
 """
+
 import math
 
 from scenariogeneration.xosc import AngleCondition
