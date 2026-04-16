@@ -25,7 +25,7 @@ def test_signal_validity():
     prettyprint(road.get_element())
     assert (
         version_validation(
-            "t_road_signals_signal", signal, wanted_schema="xodr"
+            "t_road_signals_signal_road", signal, wanted_schema="xodr"
         )
         == ValidationResponse.OK
     )
@@ -314,7 +314,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object2 = xodr.Object(
         s=10.0,
@@ -324,7 +324,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object1.add_material(
         friction=0.8,
@@ -356,7 +356,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object3.add_material(friction=0.8, roughness=0.1, surface="asphalt")
     assert (
@@ -548,12 +548,15 @@ def test_corner_road():
 
 def test_outline():
     cr = xodr.CornerRoad(1, 2, 3, 4)
+    cr_extra = xodr.CornerRoad(5, 6, 7, 8)
     cr2 = xodr.CornerLocal(1, 2, 3, 4)
 
     outline = xodr.Outline()
     outline.add_corner(cr)
+    outline.add_corner(cr_extra)
     outline2 = xodr.Outline()
     outline2.add_corner(cr)
+    outline2.add_corner(cr_extra)
 
     outline3 = xodr.Outline()
     outline3.add_corner(cr2)
