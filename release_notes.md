@@ -1,5 +1,9 @@
 ## scenariogeneration release notes
 
+### 2026-07-02 Version 0.16.6
+- Bugfixes
+    - Fix so FrontAxle is not required for version >= 1.3
+
 ### 2026-03-11 Version 0.16.4
 - General notes
     - Updated version handling.
