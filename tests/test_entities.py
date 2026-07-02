@@ -221,6 +221,40 @@ class TestVehicle:
             1,
         )
 
+    @pytest.fixture(name="vehicle_trailer")
+    def fix_vehicle_trailer(self, bb, fa, ba):
+        return OSC.Vehicle(
+            "my_trailer",
+            OSC.VehicleCategory.trailer,
+            bb,
+            fa,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+        )
+
+    @pytest.fixture(name="vehicle_trailer_no_fa")
+    def fix_vehicle_trailer_no_fa(self, bb, ba):
+        return OSC.Vehicle(
+            "my_trailer_no_fa",
+            OSC.VehicleCategory.trailer,
+            bb,
+            None,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+        )
+
     @pytest.mark.parametrize(
         "vehicle_to_parse",
         [
