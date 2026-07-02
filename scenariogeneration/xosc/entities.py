@@ -241,7 +241,9 @@ class Axles(VersionBase):
         """
         frontaxle = None
         if element.find("FrontAxle") is not None:
-            frontaxle = Axle.parse(find_mandatory_field(element, "FrontAxle"))
+            frontaxle = Axle.parse(
+                find_mandatory_field(element, "FrontAxle")
+            )
         rearaxle = Axle.parse(find_mandatory_field(element, "RearAxle"))
         axles = Axles(frontaxle, rearaxle)
         additionals = element.findall("AdditionalAxle")
