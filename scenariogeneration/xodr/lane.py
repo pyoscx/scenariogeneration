@@ -16,9 +16,13 @@ from typing import Optional, Union
 import numpy as np
 
 from ..helpers import enum2str
+from ..xosc.utils import get_bool_string
 from .enumerations import (
+    AccessRestrictionType,
     ContactPoint,
+    LaneAdvisory,
     LaneChange,
+    LaneDirection,
     LaneType,
     MarkRule,
     RoadMarkColor,
@@ -1291,6 +1295,11 @@ class Lane(XodrBase):
         c: float = 0,
         d: float = 0,
         soffset: float = 0,
+        advisory: Optional["LaneAdvisory"] = None,
+        direction: Optional["LaneDirection"] = None,
+        dynamic_lane_direction: Optional[bool] = None,
+        dynamic_lane_type: Optional[bool] = None,
+        road_works: Optional[bool] = None,
     ) -> None:
         """Initialize the `Lane` class.
 
@@ -1308,6 +1317,16 @@ class Lane(XodrBase):
             The `d` coefficient of the polynomial. Default is 0.
         soffset : float, optional
             The `s` offset of the lane. Default is 0.
+        advisory : LaneAdvisory, optional
+            Advisory lane usage. Default is None.
+        direction : LaneDirection, optional
+            Lane direction override. Default is None.
+        dynamic_lane_direction : bool, optional
+            Whether lane direction can change dynamically. Default is None.
+        dynamic_lane_type : bool, optional
+            Whether lane type can change dynamically. Default is None.
+        road_works : bool, optional
+            Whether lane is under construction. Default is None.
         """
         super().__init__()
         self.lane_id = None
@@ -1323,6 +1342,12 @@ class Lane(XodrBase):
         self.roadmark = []
         self.links = _Links()
         self.materials = []
+        self.advisory = enumchecker(advisory, LaneAdvisory, True)
+        self.direction = enumchecker(direction, LaneDirection, True)
+        self.dynamic_lane_direction = dynamic_lane_direction
+        self.dynamic_lane_type = dynamic_lane_type
+        self.road_works = road_works
+        self.accesses = []
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Lane) and super().__eq__(other):
@@ -1333,6 +1358,7 @@ class Lane(XodrBase):
                 and self.heights == other.heights
                 and self.roadmark == other.roadmark
                 and self.materials == other.materials
+                and self.accesses == other.accesses
             ):
                 return True
         return False
@@ -1527,6 +1553,24 @@ class Lane(XodrBase):
         self.materials.append(materialdict)
         return self
 
+    def add_access(self, access: "LaneAccess") -> "Lane":
+        """Add an access restriction element to the lane.
+
+        Parameters
+        ----------
+        access : LaneAccess
+            The access element to add.
+
+        Returns
+        -------
+        Lane
+            The updated Lane object.
+        """
+        if not isinstance(access, LaneAccess):
+            raise TypeError("access input is not of type LaneAccess")
+        self.accesses.append(access)
+        return self
+
     def get_attributes(self) -> dict:
         """Return the attributes of the lane as a dictionary.
 
@@ -1546,6 +1590,20 @@ class Lane(XodrBase):
         retdict["id"] = str(self.lane_id)
         retdict["type"] = enum2str(self.lane_type)
         retdict["level"] = "false"
+        if self.advisory is not None:
+            retdict["advisory"] = enum2str(self.advisory)
+        if self.direction is not None:
+            retdict["direction"] = enum2str(self.direction)
+        if self.dynamic_lane_direction is not None:
+            retdict["dynamicLaneDirection"] = get_bool_string(
+                self.dynamic_lane_direction
+            )
+        if self.dynamic_lane_type is not None:
+            retdict["dynamicLaneType"] = get_bool_string(
+                self.dynamic_lane_type
+            )
+        if self.road_works is not None:
+            retdict["roadWorks"] = get_bool_string(self.road_works)
         return retdict
 
     def get_element(self) -> ET.Element:
@@ -1580,6 +1638,118 @@ class Lane(XodrBase):
         for material in sorted(self.materials, key=lambda x: x["sOffset"]):
             ET.SubElement(element, "material", attrib=material)
 
+        for access in self.accesses:
+            element.append(access.get_element())
+
+        return element
+
+
+class LaneAccessRestriction(XodrBase):
+    """Access restriction sub-element within a lane access element.
+
+    Parameters
+    ----------
+    restriction_type : AccessRestrictionType, optional
+        The type of restriction.
+    """
+
+    def __init__(
+        self,
+        restriction_type: Optional[AccessRestrictionType] = None,
+    ) -> None:
+        super().__init__()
+        self.restriction_type = enumchecker(
+            restriction_type, AccessRestrictionType, True
+        )
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, LaneAccessRestriction) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        if self.restriction_type is not None:
+            retdict["type"] = enum2str(self.restriction_type)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("restriction", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class LaneAccess(XodrBase):
+    """Access element for lane access restrictions.
+
+    Parameters
+    ----------
+    soffset : float
+        s-coordinate of start position relative to lane section.
+    restriction : AccessRestrictionType, optional
+        The restriction type.
+    rule : str, optional
+        Whether the participant is allowed or denied.
+    """
+
+    def __init__(
+        self,
+        soffset: float,
+        restriction: Optional[AccessRestrictionType] = None,
+        rule: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+        self.soffset = soffset
+        self.restriction = enumchecker(
+            restriction, AccessRestrictionType, True
+        )
+        self.rule = rule
+        self.restrictions = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, LaneAccess) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.restrictions == other.restrictions
+            ):
+                return True
+        return False
+
+    def add_restriction(
+        self, restriction: LaneAccessRestriction
+    ) -> "LaneAccess":
+        """Add a restriction sub-element.
+
+        Parameters
+        ----------
+        restriction : LaneAccessRestriction
+            The restriction to add.
+
+        Returns
+        -------
+        LaneAccess
+            The updated LaneAccess object.
+        """
+        if not isinstance(restriction, LaneAccessRestriction):
+            raise TypeError("restriction is not of type LaneAccessRestriction")
+        self.restrictions.append(restriction)
+        return self
+
+    def get_attributes(self) -> dict:
+        retdict = {}
+        retdict["sOffset"] = str(self.soffset)
+        if self.restriction is not None:
+            retdict["restriction"] = enum2str(self.restriction)
+        if self.rule is not None:
+            retdict["rule"] = self.rule
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("access", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        for r in self.restrictions:
+            element.append(r.get_element())
         return element
 
 

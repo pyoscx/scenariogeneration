@@ -101,7 +101,9 @@ def test_connection():
     assert con == con2
     assert con != con3
     assert (
-        version_validation("t_junction_connection", con, wanted_schema="xodr")
+        version_validation(
+            "t_junction_connection_common", con, wanted_schema="xodr"
+        )
         == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
@@ -139,7 +141,7 @@ def test_junction():
     assert junction == junction2
     assert junction != junction3
     assert (
-        version_validation("t_junction", junction, wanted_schema="xodr")
+        version_validation("t_junction_common", junction, wanted_schema="xodr")
         == ValidationResponse.OK
     )
     with pytest.raises(TypeError):
