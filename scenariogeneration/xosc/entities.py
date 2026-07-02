@@ -239,7 +239,9 @@ class Axles(VersionBase):
         Axles
             An Axles object.
         """
-        frontaxle = Axle.parse(find_mandatory_field(element, "FrontAxle"))
+        frontaxle = None
+        if element.find("FrontAxle") is not None:
+            frontaxle = Axle.parse(find_mandatory_field(element, "FrontAxle"))
         rearaxle = Axle.parse(find_mandatory_field(element, "RearAxle"))
         axles = Axles(frontaxle, rearaxle)
         additionals = element.findall("AdditionalAxle")
@@ -1118,11 +1120,7 @@ class Vehicle(_BaseCatalog):
         max_acc_rate = performance.max_acceleration_rate
         max_dec_rate = performance.max_deceleration_rate
 
-        axles_element = find_mandatory_field(element, "Axles")
-        frontaxle = Axle.parse(
-            find_mandatory_field(axles_element, "FrontAxle")
-        )
-        rearaxle = Axle.parse(find_mandatory_field(axles_element, "RearAxle"))
+        axles = Axles.parse(find_mandatory_field(element, "Axles"))
 
         role = None
         if "role" in element.attrib:
@@ -1154,8 +1152,8 @@ class Vehicle(_BaseCatalog):
             name,
             vehicle_type,
             boundingbox,
-            frontaxle,
-            rearaxle,
+            axles.frontaxle,
+            axles.rearaxle,
             max_speed,
             max_acc,
             max_dec,
@@ -1172,10 +1170,8 @@ class Vehicle(_BaseCatalog):
             vehicle.properties = properties
         vehicle.parameters = parameters
 
-        additional_axles = axles_element.findall("AdditionalAxle")
-        if additional_axles is not None:
-            for axle in additional_axles:
-                vehicle.axles.add_axle(Axle.parse(axle))
+        for axle in axles.additionals:
+            vehicle.axles.add_axle(axle)
 
         return vehicle
 
