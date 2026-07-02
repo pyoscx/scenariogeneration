@@ -166,7 +166,7 @@ class TestVehicle:
     def fix_trailer_veh_sceobj(self, bb, fa, ba):
         sceobj = OSC.ScenarioObject(
             "my_trailer",
-            OSC.CatalogReference("VehcileCatalog", "some_trailer"),
+            OSC.CatalogReference("VehicleCatalog", "some_trailer"),
         )
         return OSC.Vehicle(
             "mycar",
@@ -186,6 +186,40 @@ class TestVehicle:
             trailer_coupler=OSC.HitchCoupler(2),
             trailer=sceobj,
         )
+    
+    @pytest.fixture(name="vehicle_trailer")
+    def fix_vehicle_trailer(self, bb, fa, ba):
+        return OSC.Vehicle(
+            "my_trailer",
+            OSC.VehicleCategory.trailer,
+            bb,
+            fa,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+        )
+    
+    @pytest.fixture(name="vehicle_trailer_no_fa")
+    def fix_vehicle_trailer_no_fa(self, bb, ba):
+        return OSC.Vehicle(
+            "my_trailer_no_fa",
+            OSC.VehicleCategory.trailer,
+            bb,
+            None,
+            ba,
+            150,
+            10,
+            10,
+            2000,
+            "model",
+            1,
+            1,
+        )
 
     @pytest.mark.parametrize(
         "vehicle_to_parse",
@@ -195,6 +229,8 @@ class TestVehicle:
             "extended_veh",
             "trailer_veh",
             "trailer_veh_sceobj",
+            "vehicle_trailer",
+            "vehicle_trailer_no_fa",
         ],
     )
     def test_base(self, vehicle_to_parse, request):
@@ -322,6 +358,8 @@ class TestVehicle:
             "extended_veh",
             "trailer_veh",
             "trailer_veh_sceobj",
+            "vehicle_trailer",
+            "vehicle_trailer_no_fa",
         ],
     )
     def test_parse(self, vehicle_to_parse, request):
@@ -352,6 +390,10 @@ class TestVehicle:
             ("trailer_veh_sceobj", 1, ValidationResponse.OSC_VERSION),
             ("trailer_veh_sceobj", 2, ValidationResponse.OSC_VERSION),
             ("trailer_veh_sceobj", 3, ValidationResponse.OK),
+            ("vehicle_trailer_no_fa", 0, ValidationResponse.OSC_VERSION),
+            ("vehicle_trailer_no_fa", 1, ValidationResponse.OSC_VERSION),
+            ("vehicle_trailer_no_fa", 2, ValidationResponse.OSC_VERSION),
+            ("vehicle_trailer_no_fa", 3, ValidationResponse.OK),
         ],
     )
     def test_xml_validation(
