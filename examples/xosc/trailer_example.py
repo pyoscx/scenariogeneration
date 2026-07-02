@@ -29,7 +29,7 @@ from scenariogeneration import ScenarioGenerator, prettyprint, xosc
 class Scenario(ScenarioGenerator):
     def __init__(self):
         super().__init__()
-        self.open_scenario_version = 2
+        self.open_scenario_version = 3
 
     def scenario(self, **kwargs):
         ### create catalogs
@@ -208,8 +208,8 @@ class Scenario(ScenarioGenerator):
         paramdec = xosc.ParameterDeclarations()
         ## create the scenario
         sce = xosc.Scenario(
-            "adapt_speed_example",
-            "Mandolin",
+            "trailer_example",
+            "HLINDST9",
             paramdec,
             entities=entities,
             storyboard=sb,
