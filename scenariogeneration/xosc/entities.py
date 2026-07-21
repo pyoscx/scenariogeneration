@@ -339,7 +339,7 @@ class Entity(VersionBase):
         self.object_type = []
         self.entity = []
         if (object_type is not None) and (entityref is not None):
-            raise KeyError("only one of objecttype or entityref are alowed")
+            raise KeyError("only one of objecttype or entityref are allowed")
         if (object_type is None) and (entityref is None):
             raise KeyError("either objecttype or entityref is requiered")
         if entityref:
