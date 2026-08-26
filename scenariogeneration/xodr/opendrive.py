@@ -47,7 +47,13 @@ from .geometry import AdjustablePlanview, PlanView, Spiral
 from .lane import Lanes
 from .lane_def import LaneDef, create_lanes_merge_split, std_roadmark_solid
 from .links import Junction, _Link, _Links, create_lane_links
-from .signals_objects import Object, Signal, SignalReference, Tunnel
+from .signals_objects import (
+    Object,
+    ObjectReference,
+    Signal,
+    SignalReference,
+    Tunnel,
+)
 from .utils import XodrBase, get_lane_sec_and_s_for_lane_calc
 
 
@@ -572,14 +578,20 @@ class Road(XodrBase):
         self._shape_adjusted = True
         return self
 
-    def add_object(self, road_object: Union[Object, list[Object]]) -> "Road":
-        """Add an object or a list of objects to the road and ensure unique
-        IDs.
+    def add_object(
+        self,
+        road_object: Union[
+            Object,
+            ObjectReference,
+            list[Union[Object, ObjectReference]],
+        ],
+    ) -> "Road":
+        """Add an object reference, object, or list of them to the road.
 
         Parameters
         ----------
-        road_object : Object or list[Object]
-            The object(s) to be added to the road.
+        road_object : Object, ObjectReference, or list[Object or ObjectReference]
+            The object-related element(s) to be added to the road.
 
         Returns
         -------
@@ -589,21 +601,26 @@ class Road(XodrBase):
         Raises
         ------
         TypeError
-            If `road_object` or any element in the list is not of type `Object`.
+            If `road_object` or any element in the list is not of type
+            `Object` or `ObjectReference`.
         """
         if isinstance(road_object, list):
             for single_object in road_object:
-                if not isinstance(single_object, Object):
+                if not isinstance(single_object, (Object, ObjectReference)):
                     raise TypeError(
-                        "road_object contains elements that are not of type Object"
+                        "road_object contains elements that are not of type Object or ObjectReference"
                     )
-                single_object._update_id()
+                if isinstance(single_object, Object):
+                    single_object._update_id()
 
             self.objects = self.objects + road_object
         else:
-            if not isinstance(road_object, Object):
-                raise TypeError("road_object is not of type Object")
-            road_object._update_id()
+            if not isinstance(road_object, (Object, ObjectReference)):
+                raise TypeError(
+                    "road_object is not of type Object or ObjectReference"
+                )
+            if isinstance(road_object, Object):
+                road_object._update_id()
             self.objects.append(road_object)
         return self
 
