@@ -193,6 +193,89 @@ def test_signal_reference():
         xodr.SignalReference(1, 1, 1, "dummy")
 
 
+def test_signal_reference_element():
+    signal = xodr.Signal(
+        s=10.0,
+        t=-2,
+        dynamic=xodr.Dynamic.no,
+        orientation=xodr.Orientation.positive,
+        zOffset=0.00,
+        country="US",
+        Type="R1",
+        subtype="1",
+    )
+
+    reference = xodr.Reference(
+        element_id="7",
+        element_type="signal",
+        type="stopline",
+    )
+    signal.add_reference(reference)
+
+    road = xodr.create_road(xodr.Line(100), 0)
+    road.add_signal(signal)
+    prettyprint(road.get_element())
+
+    assert (
+        version_validation(
+            "t_road_signals_signal", signal, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+
+    signal_element = signal.get_element()
+    reference_elements = signal_element.findall("reference")
+    assert len(reference_elements) == 1
+    assert reference_elements[0].attrib["elementId"] == "7"
+    assert reference_elements[0].attrib["elementType"] == "signal"
+    assert reference_elements[0].attrib["type"] == "stopline"
+
+    with pytest.raises(TypeError):
+        signal.add_reference("dummy")
+
+
+def test_object_reference_element():
+    object_reference = xodr.ObjectReference(
+        s=13.1,
+        t=0.0,
+        id="7",
+        orientation=xodr.Orientation.negative,
+        validLength=0.0,
+        zOffset=0.0,
+    )
+    object_reference.add_validity(-1, -1)
+
+    road = xodr.create_road(xodr.Line(100), 0)
+    road.add_object(object_reference)
+    prettyprint(road.get_element())
+    road.planview.adjust_geometries()
+
+    assert (
+        version_validation("t_road", road, wanted_schema="xodr")
+        == ValidationResponse.OK
+    )
+
+    road_element = road.get_element()
+    object_reference_elements = road_element.findall(
+        "./objects/objectReference"
+    )
+    assert len(object_reference_elements) == 1
+    assert object_reference_elements[0].attrib["id"] == "7"
+    assert object_reference_elements[0].attrib["orientation"] == "-"
+    assert object_reference_elements[0].attrib["s"] == "13.1"
+    assert object_reference_elements[0].attrib["t"] == "0.0"
+    assert object_reference_elements[0].attrib["validLength"] == "0.0"
+    assert object_reference_elements[0].attrib["zOffset"] == "0.0"
+
+    validity = object_reference_elements[0].find("validity")
+    assert validity is not None
+    assert validity.attrib["fromLane"] == "-1"
+    assert validity.attrib["toLane"] == "-1"
+
+    with pytest.raises(ValueError):
+        object_reference.add_validity(1, 1)
+
+
 def test_object():
     object1 = xodr.Object(
         s=10.0,

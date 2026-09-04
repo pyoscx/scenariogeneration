@@ -406,10 +406,15 @@ class Signal(_SignalObjectBase):
         self.unit = unit
         self.hOffset = hOffset
         self.validity = None
+        self.references = []
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Signal) and super().__eq__(other):
-            if self.get_attributes() == other.get_attributes():
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.validity == other.validity
+                and self.references == other.references
+            ):
                 return True
         return False
 
@@ -463,6 +468,29 @@ class Signal(_SignalObjectBase):
         self.validity = Validity(fromLane, toLane)
         return self
 
+    def add_reference(self, reference: "Reference") -> "Signal":
+        """Add a reference entry to the Signal.
+
+        Parameters
+        ----------
+        reference : Reference
+            The reference to add.
+
+        Returns
+        -------
+        Signal
+            The updated Signal object.
+
+        Raises
+        ------
+        TypeError
+            If `reference` is not of type Reference.
+        """
+        if not isinstance(reference, Reference):
+            raise TypeError("reference is not of type Reference")
+        self.references.append(reference)
+        return self
+
     def get_element(self) -> ET.Element:
         """Return the ElementTree representation of the Signal.
 
@@ -475,6 +503,8 @@ class Signal(_SignalObjectBase):
         self._add_additional_data_to_element(element)
         if self.validity:
             element.append(self.validity.get_element())
+        for reference in self.references:
+            element.append(reference.get_element())
         return element
 
 
@@ -602,6 +632,223 @@ class Dependency(XodrBase):
         """
         element = ET.Element("dependency", attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
+        return element
+
+
+class Reference(XodrBase):
+    """Reference defines the reference element in OpenDRIVE.
+
+    It is placed within the signal element and links the signal to another
+    signal or object. This class maps to `<signal>/<reference>` as defined
+    in OpenDRIVE signal reference and is distinct from
+    `<objects>/<objectReference>`.
+
+    Attributes
+    ----------
+    element_id : str
+        Unique ID of the linked element.
+    element_type : str
+        Type of the linked element.
+    type : str, optional
+        Type of the linkage.
+
+    Methods
+    -------
+    get_element()
+        Returns the full ElementTree representation of the Reference.
+    get_attributes()
+        Returns a dictionary of all attributes of the Reference.
+    """
+
+    def __init__(
+        self,
+        element_id: str,
+        element_type: str,
+        type: Optional[str] = None,
+    ) -> None:
+        """Initialize the Reference.
+
+        Parameters
+        ----------
+        element_id : str
+            Unique ID of the linked element.
+        element_type : str
+            Type of the linked element.
+        type : str, optional
+            Type of the linkage. Default is None.
+        """
+        super().__init__()
+        self.element_id = element_id
+        self.element_type = element_type
+        self.type = type
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Reference) and super().__eq__(other):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the Reference as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the Reference.
+        """
+        retdict = {
+            "elementId": str(self.element_id),
+            "elementType": str(self.element_type),
+        }
+        if self.type is not None:
+            retdict["type"] = str(self.type)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the Reference.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the Reference.
+        """
+        element = ET.Element("reference", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        return element
+
+
+class ObjectReference(XodrBase):
+    """ObjectReference defines the objectReference element in OpenDRIVE.
+
+    It is placed within the objects element and links one object across
+    multiple roads.
+
+    Attributes
+    ----------
+    s : float
+        s-coordinate of the ObjectReference.
+    t : float
+        t-coordinate of the ObjectReference.
+    id : str
+        Unique ID of the referred object.
+    orientation : Orientation
+        Orientation of the object reference with respect to the road.
+    validLength : float, optional
+        Validity of the object reference along s-axis.
+    zOffset : float, optional
+        Vertical offset of object reference with respect to centerline.
+    validity : Validity, optional
+        Explicit lane validity information for the object reference.
+    """
+
+    def __init__(
+        self,
+        s: float,
+        t: float,
+        id: str,
+        orientation: Orientation = Orientation.none,
+        validLength: Optional[float] = None,
+        zOffset: Optional[float] = None,
+    ) -> None:
+        """Initialize the ObjectReference.
+
+        Parameters
+        ----------
+        s : float
+            s-coordinate of the ObjectReference.
+        t : float
+            t-coordinate of the ObjectReference.
+        id : str
+            Unique ID of the referred object.
+        orientation : Orientation, optional
+            Orientation of the ObjectReference with respect to the road.
+            Default is Orientation.none.
+        validLength : float, optional
+            Validity of the object reference along s-axis. Default is None.
+        zOffset : float, optional
+            Vertical offset of the object reference. Default is None.
+        """
+        super().__init__()
+        self.s = s
+        self.t = t
+        self.id = id
+        self.orientation = enumchecker(orientation, Orientation)
+        self.validLength = validLength
+        self.zOffset = zOffset
+        self.validity = None
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, ObjectReference) and super().__eq__(other):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.validity == other.validity
+            ):
+                return True
+        return False
+
+    def add_validity(self, fromLane: int, toLane: int) -> "ObjectReference":
+        """Add a validity range to the ObjectReference.
+
+        Parameters
+        ----------
+        fromLane : int
+            The starting lane for the validity range.
+        toLane : int
+            The ending lane for the validity range.
+
+        Returns
+        -------
+        ObjectReference
+            The updated ObjectReference object.
+
+        Raises
+        ------
+        ValueError
+            If a validity range is already set for the ObjectReference.
+        """
+        if self.validity:
+            raise ValueError("only one validity is allowed")
+        self.validity = Validity(fromLane, toLane)
+        return self
+
+    def get_attributes(self) -> dict[str, str]:
+        """Return the attributes of the ObjectReference as a dictionary.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary containing the attributes of the ObjectReference.
+        """
+        retdict = {
+            "id": str(self.id),
+            "s": str(self.s),
+            "t": str(self.t),
+        }
+        if self.orientation == Orientation.positive:
+            retdict["orientation"] = "+"
+        elif self.orientation == Orientation.negative:
+            retdict["orientation"] = "-"
+        else:
+            retdict["orientation"] = enum2str(self.orientation)
+
+        if self.validLength is not None:
+            retdict["validLength"] = str(self.validLength)
+        if self.zOffset is not None:
+            retdict["zOffset"] = str(self.zOffset)
+        return retdict
+
+    def get_element(self) -> ET.Element:
+        """Return the ElementTree representation of the ObjectReference.
+
+        Returns
+        -------
+        ET.Element
+            The XML ElementTree representation of the ObjectReference.
+        """
+        element = ET.Element("objectReference", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        if self.validity:
+            element.append(self.validity.get_element())
         return element
 
 
