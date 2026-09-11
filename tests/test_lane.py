@@ -229,6 +229,22 @@ def test_lane_with_multiple_widths():
     )
 
 
+def test_lane_walking_type():
+    lane = xodr.Lane(xodr.LaneType.walking, 1, 1, 1, 1, 2)
+    lane._set_lane_id(1)
+    prettyprint(lane.get_element())
+    assert lane.get_attributes()["type"] == "walking"
+
+    # sidewalk is deprecated in OpenDRIVE 1.8 but kept for backwards
+    # compatibility
+    sidewalk = xodr.Lane(xodr.LaneType.sidewalk, 1, 1, 1, 1, 2)
+    sidewalk._set_lane_id(1)
+    assert sidewalk.get_attributes()["type"] == "sidewalk"
+    assert lane != sidewalk
+
+    assert xodr.Lane("walking").lane_type == xodr.LaneType.walking
+
+
 def test_lane_with_height():
     lane = xodr.Lane(xodr.LaneType.sidewalk, 1, 1, 1, 1, 2)
     lane._set_lane_id(1)
