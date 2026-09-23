@@ -85,14 +85,21 @@ class MarkRule(Enum):
 
 
 class LaneType(Enum):
-    """Enum for LaneType."""
+    """Enum for LaneType.
+
+    Note
+    ----
+    `sidewalk` was deprecated in OpenDRIVE 1.8 and replaced by `walking`.
+    It is kept for backwards compatibility.
+    """
 
     none = auto()
     driving = auto()
     stop = auto()
     shoulder = auto()
     biking = auto()
-    sidewalk = auto()
+    walking = auto()
+    sidewalk = auto()  # deprecated in OpenDRIVE 1.8, use walking instead
     curb = auto()
     border = auto()
     restricted = auto()
