@@ -1,5 +1,11 @@
 ## scenariogeneration release notes
 
+### 2026-10-08 Version 0.16.7
+- Bugfixes
+    - use ReferenceContext instead of str for the reference_domain parameter in FollowTrajectoryAction
+    - Add OpenDRIVE lane type walking
+    - Add missing reference elements for signals and objects- #326
+
 ### 2026-07-02 Version 0.16.6
 - Bugfixes
     - Fix so FrontAxle is not required for version >= 1.3
