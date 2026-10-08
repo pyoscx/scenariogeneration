@@ -58,6 +58,7 @@ from .utils import (
     _LightState,
     _PositionType,
     _VehicleComponent,
+    ReferenceContext,
     convert_bool,
     convert_enum,
     convert_float,
@@ -2213,7 +2214,7 @@ class FollowTrajectoryAction(_PrivateActionType):
         self,
         trajectory: Union[Trajectory, CatalogReference],
         following_mode: FollowingMode,
-        reference_domain: str = None,
+        reference_domain: ReferenceContext = None,
         scale: float = None,
         offset: float = None,
         initialDistanceOffset: float = None,
@@ -2226,7 +2227,7 @@ class FollowTrajectoryAction(_PrivateActionType):
             The trajectory to follow.
         following_mode : FollowingMode
             The following mode of the action.
-        reference_domain : str, optional
+        reference_domain : ReferenceContext, optional
             Absolute or relative time reference (must be combined with
             scale and offset). Default is None.
         scale : float, optional
