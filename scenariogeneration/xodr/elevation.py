@@ -118,12 +118,14 @@ class LateralProfile(XodrBase):
         super().__init__()
         self.superelevations = []
         self.shapes = []
+        self.cross_section_surface = None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, LateralProfile) and super().__eq__(other):
             if (
                 self.superelevations == other.superelevations
                 and self.shapes == other.shapes
+                and self.cross_section_surface == other.cross_section_surface
             ):
                 return True
         return False
@@ -193,6 +195,28 @@ class LateralProfile(XodrBase):
         self.shapes.append(shape)
         return self
 
+    def set_cross_section_surface(
+        self, cross_section_surface: "CrossSectionSurface"
+    ) -> "LateralProfile":
+        """Set the cross section surface of the LateralProfile.
+
+        Parameters
+        ----------
+        cross_section_surface : CrossSectionSurface
+            The cross section surface to set.
+
+        Returns
+        -------
+        LateralProfile
+            The updated LateralProfile object.
+        """
+        if not isinstance(cross_section_surface, CrossSectionSurface):
+            raise TypeError(
+                "cross_section_surface is not of type CrossSectionSurface"
+            )
+        self.cross_section_surface = cross_section_surface
+        return self
+
     def get_element(self) -> ET.Element:
         """Return the ElementTree of the LateralProfile.
 
@@ -207,6 +231,8 @@ class LateralProfile(XodrBase):
             element.append(i.get_element("superelevation"))
         for i in self.shapes:
             element.append(i.get_element("shape"))
+        if self.cross_section_surface is not None:
+            element.append(self.cross_section_surface.get_element())
         return element
 
 
@@ -384,6 +410,250 @@ class _Poly3Profile:
             )
 
         element = ET.Element(elementname, attrib=self.get_attributes())
+        return element
+
+
+class CrossSectionCoefficients:
+    """Coefficients of a cubic polynomial in s-direction.
+
+    Parameters
+    ----------
+    a : float
+        Coefficient a.
+    b : float
+        Coefficient b.
+    c : float
+        Coefficient c.
+    d : float
+        Coefficient d.
+    """
+
+    def __init__(self, a: float, b: float, c: float, d: float) -> None:
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionCoefficients):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        return {
+            "a": str(self.a),
+            "b": str(self.b),
+            "c": str(self.c),
+            "d": str(self.d),
+        }
+
+    def get_element(self) -> ET.Element:
+        return ET.Element("coefficients", attrib=self.get_attributes())
+
+
+class CrossSectionStripProfile:
+    """A strip profile element (constant, linear, quadratic, or cubic).
+
+    Parameters
+    ----------
+    profile_type : str
+        Type of profile: 'constant', 'linear', 'quadratic', or 'cubic'.
+    """
+
+    def __init__(self, profile_type: str) -> None:
+        if profile_type not in ("constant", "linear", "quadratic", "cubic"):
+            raise ValueError(
+                "profile_type must be one of: constant, linear, "
+                "quadratic, cubic"
+            )
+        self.profile_type = profile_type
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStripProfile):
+            if (
+                self.profile_type == other.profile_type
+                and self.coefficients == other.coefficients
+            ):
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionStripProfile":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element(self.profile_type)
+        for c in self.coefficients:
+            element.append(c.get_element())
+        return element
+
+
+class CrossSectionStripWidth:
+    """Width element for a cross section strip.
+
+    Contains coefficients describing width variation along s.
+    """
+
+    def __init__(self) -> None:
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStripWidth):
+            if self.coefficients == other.coefficients:
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionStripWidth":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("width")
+        for c in self.coefficients:
+            element.append(c.get_element())
+        return element
+
+
+class CrossSectionStrip:
+    """A strip defining the lateral profile in t- and s-direction.
+
+    Parameters
+    ----------
+    width : CrossSectionStripWidth, optional
+        Width element for the strip.
+    profile : CrossSectionStripProfile, optional
+        Profile element (constant/linear/quadratic/cubic).
+    """
+
+    def __init__(
+        self,
+        width: Optional[CrossSectionStripWidth] = None,
+        profile: Optional[CrossSectionStripProfile] = None,
+    ) -> None:
+        self.width = width
+        self.profile = profile
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStrip):
+            if self.width == other.width and self.profile == other.profile:
+                return True
+        return False
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("strip")
+        if self.width is not None:
+            element.append(self.width.get_element())
+        if self.profile is not None:
+            element.append(self.profile.get_element())
+        return element
+
+
+class CrossSectionSurfaceStrips:
+    """Container for surface strips within a cross section surface."""
+
+    def __init__(self) -> None:
+        self.strips = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionSurfaceStrips):
+            if self.strips == other.strips:
+                return True
+        return False
+
+    def add_strip(
+        self, strip: CrossSectionStrip
+    ) -> "CrossSectionSurfaceStrips":
+        if not isinstance(strip, CrossSectionStrip):
+            raise TypeError("strip is not of type CrossSectionStrip")
+        self.strips.append(strip)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("surfaceStrips")
+        for s in self.strips:
+            element.append(s.get_element())
+        return element
+
+
+class CrossSectionTOffset:
+    """T-offset element for a cross section surface.
+
+    Shifts all strips relative to the road reference line in t-direction.
+    """
+
+    def __init__(self) -> None:
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionTOffset):
+            if self.coefficients == other.coefficients:
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionTOffset":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("tOffset")
+        for c in self.coefficients:
+            element.append(c.get_element())
+        return element
+
+
+class CrossSectionSurface:
+    """Cross section surface defining the lateral profile.
+
+    Parameters
+    ----------
+    surface_strips : CrossSectionSurfaceStrips
+        The surface strips container.
+    t_offset : CrossSectionTOffset, optional
+        The t-offset element.
+    """
+
+    def __init__(
+        self,
+        surface_strips: CrossSectionSurfaceStrips,
+        t_offset: Optional[CrossSectionTOffset] = None,
+    ) -> None:
+        self.surface_strips = surface_strips
+        self.t_offset = t_offset
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionSurface):
+            if (
+                self.surface_strips == other.surface_strips
+                and self.t_offset == other.t_offset
+            ):
+                return True
+        return False
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("crossSectionSurface")
+        if self.t_offset is not None:
+            element.append(self.t_offset.get_element())
+        element.append(self.surface_strips.get_element())
         return element
 
 
