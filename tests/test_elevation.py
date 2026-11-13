@@ -19,6 +19,165 @@ from scenariogeneration import prettyprint, xodr
 from .xml_validator import ValidationResponse, version_validation
 
 
+def test_cross_section_surface():
+    coefficients = xodr.CrossSectionCoefficients(1, 2, 3, 4)
+    profile = xodr.CrossSectionStripProfile(
+        xodr.CrossSectionProfileType.linear
+    )
+    width = xodr.CrossSectionStripWidth().add_coefficients(coefficients)
+    profile.add_coefficients(coefficients)
+    strip = xodr.CrossSectionStrip(width, profile)
+    strips = xodr.CrossSectionSurfaceStrips().add_strip(strip)
+    strips.add_strip(
+        xodr.CrossSectionStrip(id=2, mode=xodr.StripMode.relative)
+    )
+    surface = xodr.CrossSectionSurface(
+        strips,
+        xodr.CrossSectionTOffset().add_coefficients(coefficients),
+    )
+
+    assert profile.get_element().tag == "linear"
+    assert surface.get_element().find("tOffset/coefficients").attrib == {
+        "a": "1",
+        "b": "2",
+        "c": "3",
+        "d": "4",
+        "s": "0",
+    }
+    assert surface.get_element().find("surfaceStrips/strip/linear") is not None
+    assert (
+        xodr.LateralProfile()
+        .set_cross_section_surface(surface)
+        .cross_section_surface
+        == surface
+    )
+
+    with pytest.raises(TypeError):
+        xodr.CrossSectionStripProfile("invalid")
+
+    assert (
+        version_validation(
+            "t_road_lateralProfile_crossSectionSurface",
+            surface,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
+
+
+def test_cross_section_polynomial_components():
+    strip = xodr.CrossSectionStrip(id=-1)
+    for profile_type in reversed(list(xodr.CrossSectionProfileType)):
+        profile = xodr.CrossSectionStripProfile(profile_type)
+        profile.add_coefficients(
+            xodr.CrossSectionCoefficients(2, 0, 0, 0, s=50)
+        )
+        profile.add_coefficients(xodr.CrossSectionCoefficients(1, 0, 0, 0))
+        strip.add_profile(profile)
+    surface = xodr.CrossSectionSurface(
+        xodr.CrossSectionSurfaceStrips().add_strip(strip)
+    )
+    element = surface.get_element().find("surfaceStrips/strip")
+    assert element.attrib == {"id": "-1"}
+    assert [item.tag for item in element] == [
+        "constant",
+        "linear",
+        "quadratic",
+        "cubic",
+    ]
+    for profile in element:
+        assert [item.attrib["s"] for item in profile] == ["0", "50"]
+    assert (
+        version_validation(
+            "t_road_lateralProfile_crossSectionSurface",
+            surface,
+            wanted_schema="xodr",
+        )
+        == ValidationResponse.OK
+    )
+    with pytest.raises(ValueError, match="only once"):
+        strip.add_profile(
+            xodr.CrossSectionStripProfile(xodr.CrossSectionProfileType.linear)
+        )
+
+
+@pytest.mark.parametrize("method", ["add_shape", "add_superelevation"])
+def test_cross_section_excludes_other_lateral_profiles(method):
+    surface = xodr.CrossSectionSurface(
+        xodr.CrossSectionSurfaceStrips().add_strip(xodr.CrossSectionStrip())
+    )
+    polynomial = xodr.elevation._Poly3Profile(0, 0, 0, 0, 0)
+    lateral = xodr.LateralProfile().set_cross_section_surface(surface)
+    with pytest.raises(ValueError, match="cannot be combined"):
+        getattr(lateral, method)(polynomial)
+    lateral = xodr.LateralProfile()
+    getattr(lateral, method)(polynomial)
+    with pytest.raises(ValueError, match="cannot be combined"):
+        lateral.set_cross_section_surface(surface)
+
+
+def test_elevation_calculator_preserves_cross_section_surface():
+    road = xodr.create_road(xodr.Line(10), 1)
+    neighbor = xodr.create_road(xodr.Line(10), 2)
+    road.add_successor(xodr.ElementType.road, 2, xodr.ContactPoint.start)
+    neighbor.add_predecessor(xodr.ElementType.road, 1, xodr.ContactPoint.end)
+    neighbor.add_superelevation(0, 0.1, 0, 0, 0)
+    surface = xodr.CrossSectionSurface(
+        xodr.CrossSectionSurfaceStrips().add_strip(xodr.CrossSectionStrip())
+    )
+    road.lateralprofile.set_cross_section_surface(surface)
+    calculator = xodr.ElevationCalculator(road)
+    calculator.add_successor(neighbor)
+    calculator.create_profile("superelevation")
+    assert road.lateralprofile.cross_section_surface == surface
+    assert not road.lateralprofile.superelevations
+    assert not calculator._super_elevation_needed
+    assert (
+        version_validation(
+            "t_road_lateralProfile", road.lateralprofile, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+
+
+@pytest.mark.parametrize(
+    "container_type", [xodr.CrossSectionStripWidth, xodr.CrossSectionTOffset]
+)
+def test_cross_section_coefficient_positions(container_type):
+    container = container_type()
+    with pytest.raises(ValueError, match="s=0"):
+        container.get_element()
+    container.add_coefficients(xodr.CrossSectionCoefficients(1, 0, 0, 0, s=10))
+    with pytest.raises(ValueError, match="s=0"):
+        container.get_element()
+    container.add_coefficients(xodr.CrossSectionCoefficients(2, 0, 0, 0))
+    assert [item.attrib["s"] for item in container.get_element()] == [
+        "0",
+        "10",
+    ]
+    container.add_coefficients(xodr.CrossSectionCoefficients(3, 0, 0, 0))
+    with pytest.raises(ValueError, match="unique"):
+        container.get_element()
+
+
+@pytest.mark.parametrize(
+    "strips",
+    [
+        [],
+        [xodr.CrossSectionStrip(id=2)],
+        [xodr.CrossSectionStrip(), xodr.CrossSectionStrip()],
+        [xodr.CrossSectionStrip(), xodr.CrossSectionStrip(id=2)],
+        [xodr.CrossSectionStrip(width=xodr.CrossSectionStripWidth())],
+    ],
+)
+def test_cross_section_invalid_strip_layout(strips):
+    container = xodr.CrossSectionSurfaceStrips()
+    for strip in strips:
+        container.add_strip(strip)
+    with pytest.raises(ValueError):
+        container.get_element()
+
+
 def test_poly3profile():
     profile = xodr.elevation._Poly3Profile(0, 0, 0, 0, 0)
 

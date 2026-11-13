@@ -16,7 +16,14 @@ from warnings import warn
 
 import numpy as np
 
-from .enumerations import ContactPoint, ElementType
+from ..helpers import enum2str
+from .enumerations import (
+    ContactPoint,
+    CrossSectionProfileType,
+    ElementType,
+    StripMode,
+    enumchecker,
+)
 from .utils import XodrBase
 
 
@@ -118,12 +125,14 @@ class LateralProfile(XodrBase):
         super().__init__()
         self.superelevations = []
         self.shapes = []
+        self.cross_section_surface = None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, LateralProfile) and super().__eq__(other):
             if (
                 self.superelevations == other.superelevations
                 and self.shapes == other.shapes
+                and self.cross_section_surface == other.cross_section_surface
             ):
                 return True
         return False
@@ -147,6 +156,10 @@ class LateralProfile(XodrBase):
             raise TypeError(
                 "add_superelevation requires an _Poly3Profile as input, not "
                 + str(type(superelevation))
+            )
+        if self.cross_section_surface is not None:
+            raise ValueError(
+                "A cross section surface cannot be combined with superelevation"
             )
         self.superelevations.append(superelevation)
         return self
@@ -190,7 +203,37 @@ class LateralProfile(XodrBase):
                 "add_shape requires an _Poly3Profile as input, not "
                 + str(type(shape))
             )
+        if self.cross_section_surface is not None:
+            raise ValueError(
+                "A cross section surface cannot be combined with shape"
+            )
         self.shapes.append(shape)
+        return self
+
+    def set_cross_section_surface(
+        self, cross_section_surface: "CrossSectionSurface"
+    ) -> "LateralProfile":
+        """Set the cross section surface of the LateralProfile.
+
+        Parameters
+        ----------
+        cross_section_surface : CrossSectionSurface
+            The cross section surface to set.
+
+        Returns
+        -------
+        LateralProfile
+            The updated LateralProfile object.
+        """
+        if not isinstance(cross_section_surface, CrossSectionSurface):
+            raise TypeError(
+                "cross_section_surface is not of type CrossSectionSurface"
+            )
+        if self.superelevations or self.shapes:
+            raise ValueError(
+                "A cross section surface cannot be combined with shape or superelevation"
+            )
+        self.cross_section_surface = cross_section_surface
         return self
 
     def get_element(self) -> ET.Element:
@@ -207,6 +250,8 @@ class LateralProfile(XodrBase):
             element.append(i.get_element("superelevation"))
         for i in self.shapes:
             element.append(i.get_element("shape"))
+        if self.cross_section_surface is not None:
+            element.append(self.cross_section_surface.get_element())
         return element
 
 
@@ -384,6 +429,344 @@ class _Poly3Profile:
             )
 
         element = ET.Element(elementname, attrib=self.get_attributes())
+        return element
+
+
+class CrossSectionCoefficients:
+    """Coefficients of a cubic polynomial in s-direction.
+
+    Parameters
+    ----------
+    a : float
+        Coefficient a.
+    b : float
+        Coefficient b.
+    c : float
+        Coefficient c.
+    d : float
+        Coefficient d.
+    s : float, optional
+        Start coordinate along the road reference line. Default is 0.
+    """
+
+    def __init__(
+        self, a: float, b: float, c: float, d: float, s: float = 0
+    ) -> None:
+        if s < 0:
+            raise ValueError("s must be non-negative")
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.s = s
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionCoefficients):
+            if self.get_attributes() == other.get_attributes():
+                return True
+        return False
+
+    def get_attributes(self) -> dict:
+        return {
+            "a": str(self.a),
+            "b": str(self.b),
+            "c": str(self.c),
+            "d": str(self.d),
+            "s": str(self.s),
+        }
+
+    def get_element(self) -> ET.Element:
+        return ET.Element("coefficients", attrib=self.get_attributes())
+
+
+def _sorted_cross_section_coefficients(
+    coefficients: list[CrossSectionCoefficients],
+) -> list[CrossSectionCoefficients]:
+    ordered = sorted(coefficients, key=lambda item: item.s)
+    if not ordered or ordered[0].s != 0:
+        raise ValueError("Cross section coefficients must start at s=0")
+    if len({item.s for item in ordered}) != len(ordered):
+        raise ValueError("Cross section coefficient positions must be unique")
+    return ordered
+
+
+class CrossSectionStripProfile:
+    """A strip profile element (constant, linear, quadratic, or cubic).
+
+    Parameters
+    ----------
+    profile_type : CrossSectionProfileType
+        Type of profile: constant, linear, quadratic, or cubic.
+    """
+
+    def __init__(self, profile_type: CrossSectionProfileType) -> None:
+        self.profile_type = enumchecker(profile_type, CrossSectionProfileType)
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStripProfile):
+            if (
+                self.profile_type == other.profile_type
+                and self.coefficients == other.coefficients
+            ):
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionStripProfile":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element(enum2str(self.profile_type))
+        for coefficients in _sorted_cross_section_coefficients(
+            self.coefficients
+        ):
+            element.append(coefficients.get_element())
+        return element
+
+
+class CrossSectionStripWidth:
+    """Width element for a cross section strip.
+
+    Contains coefficients describing width variation along s.
+    """
+
+    def __init__(self) -> None:
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStripWidth):
+            if self.coefficients == other.coefficients:
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionStripWidth":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("width")
+        for coefficients in _sorted_cross_section_coefficients(
+            self.coefficients
+        ):
+            element.append(coefficients.get_element())
+        return element
+
+
+class CrossSectionStrip:
+    """A strip defining the lateral profile in t- and s-direction.
+
+    Parameters
+    ----------
+    width : CrossSectionStripWidth, optional
+        Width element for the strip.
+    profile : CrossSectionStripProfile, optional
+        Initial polynomial component. Add further components with add_profile.
+    id : int, optional
+        Strip ID: 1 or -1 for an inner strip, 2 or -2 for an outer strip.
+        Default is 1.
+    mode : StripMode, optional
+        Height calculation mode, allowed only on outer strips.
+    """
+
+    def __init__(
+        self,
+        width: Optional[CrossSectionStripWidth] = None,
+        profile: Optional[CrossSectionStripProfile] = None,
+        id: int = 1,
+        mode: Optional[StripMode] = None,
+    ) -> None:
+        if id not in (-2, -1, 1, 2):
+            raise ValueError("Strip ID must be -2, -1, 1, or 2")
+        if width is not None and not isinstance(width, CrossSectionStripWidth):
+            raise TypeError("width is not of type CrossSectionStripWidth")
+        self.id = id
+        self.mode = enumchecker(mode, StripMode, True)
+        if self.mode is not None and abs(id) != 2:
+            raise ValueError("Only outer strips may define a mode")
+        if width is not None and abs(id) == 2:
+            raise ValueError("Only inner strips may define a width")
+        self.width = width
+        self.profile = profile
+
+    @property
+    def profile(self) -> Optional[CrossSectionStripProfile]:
+        return self.profiles[0] if self.profiles else None
+
+    @profile.setter
+    def profile(self, profile: Optional[CrossSectionStripProfile]) -> None:
+        if profile is not None and not isinstance(
+            profile, CrossSectionStripProfile
+        ):
+            raise TypeError("profile is not of type CrossSectionStripProfile")
+        self.profiles = [] if profile is None else [profile]
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionStrip):
+            if (
+                self.get_attributes() == other.get_attributes()
+                and self.width == other.width
+                and self.profiles == other.profiles
+            ):
+                return True
+        return False
+
+    def add_profile(
+        self, profile: CrossSectionStripProfile
+    ) -> "CrossSectionStrip":
+        """Add a distinct polynomial component to the strip."""
+        if not isinstance(profile, CrossSectionStripProfile):
+            raise TypeError("profile is not of type CrossSectionStripProfile")
+        if any(
+            item.profile_type == profile.profile_type for item in self.profiles
+        ):
+            raise ValueError(
+                "A strip may contain each polynomial component only once"
+            )
+        self.profiles.append(profile)
+        return self
+
+    def get_attributes(self) -> dict:
+        attributes = {"id": str(self.id)}
+        if self.mode is not None:
+            attributes["mode"] = enum2str(self.mode)
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("strip", attrib=self.get_attributes())
+        if self.width is not None:
+            element.append(self.width.get_element())
+        for profile in sorted(
+            self.profiles, key=lambda item: item.profile_type.value
+        ):
+            element.append(profile.get_element())
+        return element
+
+
+class CrossSectionSurfaceStrips:
+    """Container for surface strips within a cross section surface."""
+
+    def __init__(self) -> None:
+        self.strips = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionSurfaceStrips):
+            if self.strips == other.strips:
+                return True
+        return False
+
+    def add_strip(
+        self, strip: CrossSectionStrip
+    ) -> "CrossSectionSurfaceStrips":
+        if not isinstance(strip, CrossSectionStrip):
+            raise TypeError("strip is not of type CrossSectionStrip")
+        self.strips.append(strip)
+        return self
+
+    def get_element(self) -> ET.Element:
+        if not 1 <= len(self.strips) <= 4:
+            raise ValueError(
+                "A cross section surface requires one to four strips"
+            )
+        strip_ids = {strip.id for strip in self.strips}
+        if len(strip_ids) != len(self.strips):
+            raise ValueError("Strip IDs must be unique")
+        for strip in self.strips:
+            if abs(strip.id) == 2 and strip.id // 2 not in strip_ids:
+                raise ValueError(
+                    "An outer strip requires an inner strip on the same side"
+                )
+            if abs(strip.id) == 1:
+                has_outer = strip.id * 2 in strip_ids
+                if has_outer != (strip.width is not None):
+                    raise ValueError(
+                        "An inner strip requires a width exactly when an outer strip exists"
+                    )
+        element = ET.Element("surfaceStrips")
+        for s in self.strips:
+            element.append(s.get_element())
+        return element
+
+
+class CrossSectionTOffset:
+    """T-offset element for a cross section surface.
+
+    Shifts all strips relative to the road reference line in t-direction.
+    """
+
+    def __init__(self) -> None:
+        self.coefficients = []
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionTOffset):
+            if self.coefficients == other.coefficients:
+                return True
+        return False
+
+    def add_coefficients(
+        self, coefficients: CrossSectionCoefficients
+    ) -> "CrossSectionTOffset":
+        if not isinstance(coefficients, CrossSectionCoefficients):
+            raise TypeError(
+                "coefficients is not of type CrossSectionCoefficients"
+            )
+        self.coefficients.append(coefficients)
+        return self
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("tOffset")
+        for coefficients in _sorted_cross_section_coefficients(
+            self.coefficients
+        ):
+            element.append(coefficients.get_element())
+        return element
+
+
+class CrossSectionSurface:
+    """Cross section surface defining the lateral profile.
+
+    Parameters
+    ----------
+    surface_strips : CrossSectionSurfaceStrips
+        The surface strips container.
+    t_offset : CrossSectionTOffset, optional
+        The t-offset element.
+    """
+
+    def __init__(
+        self,
+        surface_strips: CrossSectionSurfaceStrips,
+        t_offset: Optional[CrossSectionTOffset] = None,
+    ) -> None:
+        self.surface_strips = surface_strips
+        self.t_offset = t_offset
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, CrossSectionSurface):
+            if (
+                self.surface_strips == other.surface_strips
+                and self.t_offset == other.t_offset
+            ):
+                return True
+        return False
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("crossSectionSurface")
+        if self.t_offset is not None:
+            element.append(self.t_offset.get_element())
+        element.append(self.surface_strips.get_element())
         return element
 
 
@@ -928,7 +1311,9 @@ class ElevationCalculator:
             if self._elevation_needed:
                 self._create_elevation()
         elif domain == "superelevation":
-            if self._super_elevation_needed:
+            if self.main_road.lateralprofile.cross_section_surface is not None:
+                self._super_elevation_needed = False
+            elif self._super_elevation_needed:
                 self._create_super_elevation()
                 self._calculate_lateral_offsets_based_on_superelevation()
         elif domain == "shape":

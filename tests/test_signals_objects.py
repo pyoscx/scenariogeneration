@@ -17,6 +17,67 @@ from scenariogeneration import prettify, prettyprint, xodr
 from .xml_validator import ValidationResponse, version_validation
 
 
+@pytest.mark.parametrize("vertex_type", [xodr.VertexLocal, xodr.VertexRoad])
+def test_skeleton_schema_validation(vertex_type):
+    polyline = xodr.SkeletonPolyline(1)
+    polyline.add_vertex(
+        vertex_type(0, 0, 0, id=1, radius=0.1, intersection_point=True)
+    )
+    polyline.add_vertex(vertex_type(0, 0, 1, id=2, radius=0.1))
+    polyline.add_userdata(xodr.UserData("polyline", "metadata"))
+    skeleton = xodr.Skeleton().add_polyline(polyline)
+    skeleton.add_userdata(xodr.UserData("skeleton", "metadata"))
+    equivalent = xodr.Skeleton().add_polyline(polyline)
+    equivalent.add_userdata(xodr.UserData("skeleton", "metadata"))
+    assert skeleton == equivalent
+    assert skeleton != xodr.Skeleton()
+    assert (
+        version_validation(
+            "t_road_objects_object_skeleton", skeleton, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+    road_object = xodr.Object(
+        0, 0, Type=xodr.ObjectType.pole, height=2, length=1, width=1
+    )
+    road_object.set_skeleton(skeleton)
+    assert (
+        version_validation(
+            "t_road_objects_object", road_object, wanted_schema="xodr"
+        )
+        == ValidationResponse.OK
+    )
+
+
+@pytest.mark.parametrize(
+    "first, second",
+    [
+        (xodr.VertexLocal(0, 0, 0), xodr.VertexRoad(0, 0, 1)),
+        (xodr.VertexRoad(0, 0, 0), xodr.VertexLocal(0, 0, 1)),
+    ],
+)
+def test_skeleton_rejects_mixed_coordinate_systems(first, second):
+    polyline = xodr.SkeletonPolyline().add_vertex(first)
+    with pytest.raises(xodr.GeneralIssueInputArguments, match="Mix"):
+        polyline.add_vertex(second)
+    assert polyline.vertices == [first]
+
+
+def test_skeleton_minimum_counts_and_types():
+    with pytest.raises(ValueError, match="one polyline"):
+        xodr.Skeleton().get_element()
+    polyline = xodr.SkeletonPolyline()
+    with pytest.raises(ValueError, match="two vertices"):
+        polyline.get_element()
+    polyline.add_vertex(xodr.VertexLocal(0, 0, 0))
+    with pytest.raises(ValueError, match="two vertices"):
+        polyline.get_element()
+    with pytest.raises(TypeError):
+        polyline.add_vertex("invalid")
+    with pytest.raises(TypeError):
+        xodr.Skeleton().add_polyline("invalid")
+
+
 def test_signal_validity():
     signal = xodr.Signal(s=98.0, t=-4, country="USA", Type="R1", subtype="1")
     signal.add_validity(1, 1)
@@ -25,7 +86,7 @@ def test_signal_validity():
     prettyprint(road.get_element())
     assert (
         version_validation(
-            "t_road_signals_signal", signal, wanted_schema="xodr"
+            "t_road_signals_signal_road", signal, wanted_schema="xodr"
         )
         == ValidationResponse.OK
     )
@@ -218,7 +279,7 @@ def test_signal_reference_element():
 
     assert (
         version_validation(
-            "t_road_signals_signal", signal, wanted_schema="xodr"
+            "t_road_signals_signal_road", signal, wanted_schema="xodr"
         )
         == ValidationResponse.OK
     )
@@ -397,7 +458,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object2 = xodr.Object(
         s=10.0,
@@ -407,7 +468,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object1.add_material(
         friction=0.8,
@@ -439,7 +500,7 @@ def test_object_material():
         zOffset=0.00,
         id="1",
         height=1.0,
-        Type=xodr.ObjectType.pole,
+        Type=xodr.ObjectType.crosswalk,
     )
     object3.add_material(friction=0.8, roughness=0.1, surface="asphalt")
     assert (
@@ -631,12 +692,15 @@ def test_corner_road():
 
 def test_outline():
     cr = xodr.CornerRoad(1, 2, 3, 4)
+    cr_extra = xodr.CornerRoad(5, 6, 7, 8)
     cr2 = xodr.CornerLocal(1, 2, 3, 4)
 
     outline = xodr.Outline()
     outline.add_corner(cr)
+    outline.add_corner(cr_extra)
     outline2 = xodr.Outline()
     outline2.add_corner(cr)
+    outline2.add_corner(cr_extra)
 
     outline3 = xodr.Outline()
     outline3.add_corner(cr2)
