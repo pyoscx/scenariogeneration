@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools<69"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 
@@ -21,8 +21,9 @@ readme = "README.md"
 
 requires-python = ">=3.9"
 
-# https://packaging.python.org/en/latest/specifications/core-metadata/#license
-license = { file = "LICENSE" }
+# https://packaging.python.org/en/latest/specifications/core-metadata/#license-expression
+license = "MPL-2.0"
+license-files = ["LICENSE", "AUTHORS"]
 
 keywords = ["OpenDRIVE", "OpenSCENARIO", "xml"]
 authors = [{ name = "M. Andersson, I. Natale, A. Tingberg", email = "andmika@gmail.com" }]
@@ -35,7 +36,6 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
     "Operating System :: OS Independent",
 ]
 [tool.setuptools.dynamic]
