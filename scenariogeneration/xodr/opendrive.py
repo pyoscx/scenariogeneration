@@ -28,9 +28,13 @@ from .elevation import (
     _Poly3Profile,
 )
 from .enumerations import (
+    CRGMode,
+    CRGPurpose,
     ContactPoint,
+    Direction,
     ElementType,
     JunctionType,
+    LaneLayer,
     RoadSide,
     RoadType,
     TrafficRule,
@@ -364,6 +368,113 @@ class DefaultRegulations(XodrBase):
         return element
 
 
+class CRG(XodrBase):
+    """Reference an OpenCRG file from an OpenDRIVE road surface.
+
+    Parameters
+    ----------
+    file : str
+        Path to the file containing the OpenCRG data.
+    s_start : float
+        Start of the surface along the road reference line, in meters.
+        Must be non-negative.
+    s_end : float
+        End of the surface along the road reference line, in meters.
+        Must be at least `s_start`.
+    orientation : Direction
+        Direction of the OpenCRG data relative to the road reference line.
+    mode : CRGMode
+        How the OpenCRG data is placed relative to the road.
+    purpose : CRGPurpose, optional
+        Physical purpose of the data, such as elevation or friction.
+        Default is None.
+    s_offset : float, optional
+        Longitudinal offset in meters. Default is None.
+    t_offset : float, optional
+        Lateral offset in meters. Default is None.
+    x_offset : float, optional
+        Global x offset in meters. Requires `CRGMode.global_` (OpenDRIVE 1.9).
+        Default is None.
+    y_offset : float, optional
+        Global y offset in meters. Requires `CRGMode.global_` (OpenDRIVE 1.9).
+        Default is None.
+    z_offset : float, optional
+        Elevation offset in meters. Default is None.
+    z_scale : float, optional
+        Scale factor for elevation values. Default is None.
+    h_offset : float, optional
+        Heading offset in radians. Default is None.
+
+    Methods
+    -------
+    get_element()
+        Returns the XML ElementTree representation of the CRG reference.
+    """
+
+    def __init__(
+        self,
+        file: str,
+        s_start: float,
+        s_end: float,
+        orientation: Direction,
+        mode: CRGMode,
+        purpose: Optional[CRGPurpose] = None,
+        s_offset: Optional[float] = None,
+        t_offset: Optional[float] = None,
+        x_offset: Optional[float] = None,
+        y_offset: Optional[float] = None,
+        z_offset: Optional[float] = None,
+        z_scale: Optional[float] = None,
+        h_offset: Optional[float] = None,
+    ) -> None:
+        super().__init__()
+        checked_mode = enumchecker(mode, CRGMode)
+        if not 0 <= s_start <= s_end:
+            raise ValueError("CRG requires 0 <= s_start <= s_end")
+        if checked_mode != CRGMode.global_ and (
+            x_offset is not None or y_offset is not None
+        ):
+            raise ValueError("CRG x_offset and y_offset require global mode")
+        self._attributes = {
+            "file": file,
+            "sStart": str(s_start),
+            "sEnd": str(s_end),
+            "orientation": enum2str(enumchecker(orientation, Direction)),
+            "mode": (
+                "global"
+                if checked_mode == CRGMode.global_
+                else enum2str(checked_mode)
+            ),
+        }
+        if purpose is not None:
+            self._attributes["purpose"] = enum2str(
+                enumchecker(purpose, CRGPurpose)
+            )
+        for name, value in (
+            ("sOffset", s_offset),
+            ("tOffset", t_offset),
+            ("xOffset", x_offset),
+            ("yOffset", y_offset),
+            ("zOffset", z_offset),
+            ("zScale", z_scale),
+            ("hOffset", h_offset),
+        ):
+            if value is not None:
+                self._attributes[name] = str(value)
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, CRG)
+            and super().__eq__(other)
+            and self._attributes == other._attributes
+        )
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("CRG", attrib=self._attributes)
+        self._add_additional_data_to_element(element)
+        return element
+
+
 class Road(XodrBase):
     """Road defines the road element of OpenDRIVE.
 
@@ -493,6 +604,8 @@ class Road(XodrBase):
                 "planview input is not of type PlanView or AdjustablePlanview"
             )
         self.lanes = lanes
+        self.temporary_lanes: Optional[Lanes] = None
+        self.crg_surfaces: list[CRG] = []
         self.road_type = road_type
         self.name = name
         self.rule = enumchecker(rule, TrafficRule)
@@ -514,6 +627,26 @@ class Road(XodrBase):
         self._superelevation_adjusted = False
         self._shape_adjusted = False
 
+    def add_crg(self, crg: CRG) -> "Road":
+        """Add an OpenCRG surface to this road."""
+        if not isinstance(crg, CRG):
+            raise TypeError("crg is not of type CRG")
+        self.crg_surfaces.append(crg)
+        return self
+
+    def add_temporary_lanes(self, lanes: Lanes) -> "Road":
+        """Add a preconfigured temporary lane layer (OpenDRIVE 1.9)."""
+        if not isinstance(lanes, Lanes):
+            raise TypeError("lanes is not of type Lanes")
+        if self.lanes.layer == LaneLayer.temporary:
+            raise ValueError("The primary lane layer cannot be temporary")
+        if lanes.layer != LaneLayer.temporary:
+            raise ValueError("The additional lane layer must be temporary")
+        if self.temporary_lanes is not None:
+            raise ValueError("Only one temporary lane layer is allowed")
+        self.temporary_lanes = lanes
+        return self
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Road) and super().__eq__(other):
             if (
@@ -524,6 +657,8 @@ class Road(XodrBase):
                 and self.links == other.links
                 and self.planview == other.planview
                 and self.lanes == other.lanes
+                and self.temporary_lanes == other.temporary_lanes
+                and self.crg_surfaces == other.crg_surfaces
                 and self.elevationprofile == other.elevationprofile
                 and self.lateralprofile == other.lateralprofile
                 and self.predecessor == other.predecessor
@@ -1168,6 +1303,8 @@ class Road(XodrBase):
         element.append(self.elevationprofile.get_element())
         element.append(self.lateralprofile.get_element())
         element.append(self.lanes.get_element())
+        if self.temporary_lanes is not None:
+            element.append(self.temporary_lanes.get_element())
         if len(self.objects) > 0:
             objectselement = ET.SubElement(element, "objects")
             for road_object in self.objects:
@@ -1176,6 +1313,10 @@ class Road(XodrBase):
             signalselement = ET.SubElement(element, "signals")
             for signal in self.signals:
                 signalselement.append(signal.get_element())
+        if self.crg_surfaces:
+            surface = ET.SubElement(element, "surface")
+            for crg in self.crg_surfaces:
+                surface.append(crg.get_element())
         return element
 
 
@@ -1189,7 +1330,7 @@ class OpenDrive(XodrBase):
     revMajor : str, optional
         Major revision of OpenDRIVE written to the header. Default is '1'.
     revMinor : str, optional
-        Minor revision of OpenDRIVE written to the header. Default is '8'.
+        Minor revision of OpenDRIVE written to the header. Default is '9'.
     geo_reference : str, optional
         Geographic reference information for the database. Default is None.
 
@@ -1233,7 +1374,7 @@ class OpenDrive(XodrBase):
         self,
         name: str,
         revMajor: str = "1",
-        revMinor: str = "8",
+        revMinor: str = "9",
         geo_reference: Optional[str] = None,
     ) -> None:
         """Initialize the OpenDrive.
@@ -1245,7 +1386,7 @@ class OpenDrive(XodrBase):
         revMajor : str, optional
             Major revision of OpenDRIVE. Default is '1'.
         revMinor : str, optional
-            Minor revision of OpenDRIVE. Default is '8'.
+            Minor revision of OpenDRIVE. Default is '9'.
         geo_reference : str, optional
             Geographic reference information for the database. Default is None.
         """

@@ -11,7 +11,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 """
 
 import xml.etree.ElementTree as ET
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 
 from ..helpers import enum2str
 from ..xosc.utils import get_bool_string
@@ -19,16 +19,22 @@ from .enumerations import (
     Access,
     Dynamic,
     FillType,
+    LaneLayer,
     LaneType,
     ObjectType,
     Orientation,
+    PersonCategory,
     TunnelType,
     RoadMarkColor,
     RoadMarkWeight,
     SideType,
+    SignalLaneSemantic,
+    SignalRestrictionType,
+    VehicleCategory,
     enumchecker,
 )
 from .exceptions import GeneralIssueInputArguments, NotEnoughInputArguments
+from .geometry import Arc, Line, ParamPoly3
 from .utils import XodrBase
 
 
@@ -153,6 +159,8 @@ class _SignalObjectBase(XodrBase):
         self.height = height
         self.Type = Type
         self.dynamic = enumchecker(dynamic, Dynamic)
+        self.temporary: Optional[bool] = None
+        self.invalidated: Optional[bool] = None
         self.name = name
         self.zOffset = zOffset
         self.subtype = subtype
@@ -213,6 +221,10 @@ class _SignalObjectBase(XodrBase):
         retdict["t"] = str(self.t)
         retdict["subtype"] = str(self.subtype)
         retdict["dynamic"] = enum2str(self.dynamic)
+        if self.temporary is not None:
+            retdict["temporary"] = get_bool_string(self.temporary)
+        if self.invalidated is not None:
+            retdict["invalidated"] = get_bool_string(self.invalidated)
         retdict["zOffset"] = str(self.zOffset)
         if self.pitch is not None:
             retdict["pitch"] = str(self.pitch)
@@ -238,6 +250,83 @@ class _SignalObjectBase(XodrBase):
             retdict["orientation"] = enum2str(self.orientation)
 
         return retdict
+
+
+class SignalSemantics(XodrBase):
+    """Describe lane and restriction semantics for a road signal.
+
+    Methods
+    -------
+    add_lane(lane)
+        Adds a lane semantic to the signal.
+    add_restriction(restriction, *, animal=False, persons=(), vehicles=())
+        Adds a restriction for one or more road user categories.
+    get_element()
+        Returns the XML ElementTree representation of the signal semantics.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._lanes: list[SignalLaneSemantic] = []
+        self._restrictions: dict[SignalRestrictionType, list[tuple]] = {}
+
+    def add_lane(self, lane: SignalLaneSemantic) -> "SignalSemantics":
+        """Add a lane semantic, including the 1.9 `other` value."""
+        self._lanes.append(enumchecker(lane, SignalLaneSemantic))
+        return self
+
+    def add_restriction(
+        self,
+        restriction: SignalRestrictionType,
+        *,
+        animal: bool = False,
+        persons: Sequence[PersonCategory] = (),
+        vehicles: Sequence[VehicleCategory] = (),
+    ) -> "SignalSemantics":
+        """Apply a semantic to one or more road user categories (1.9)."""
+        restriction = enumchecker(restriction, SignalRestrictionType)
+        if not (animal or persons or vehicles):
+            raise ValueError("A signal restriction must specify a road user")
+        checked_persons = tuple(
+            enumchecker(person, PersonCategory) for person in persons
+        )
+        checked_vehicles = tuple(
+            enumchecker(vehicle, VehicleCategory) for vehicle in vehicles
+        )
+        self._restrictions.setdefault(restriction, []).append(
+            (animal, checked_persons, checked_vehicles)
+        )
+        return self
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, SignalSemantics)
+            and super().__eq__(other)
+            and self._lanes == other._lanes
+            and self._restrictions == other._restrictions
+        )
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("semantics")
+        self._add_additional_data_to_element(element)
+        for lane in self._lanes:
+            ET.SubElement(element, "lane", {"type": enum2str(lane)})
+        for restriction in SignalRestrictionType:
+            for animal, persons, vehicles in self._restrictions.get(
+                restriction, ()
+            ):
+                entry = ET.SubElement(element, enum2str(restriction))
+                if animal:
+                    ET.SubElement(entry, "animal")
+                for person in persons:
+                    ET.SubElement(
+                        ET.SubElement(entry, "person"), "type"
+                    ).text = enum2str(person)
+                for vehicle in vehicles:
+                    ET.SubElement(
+                        ET.SubElement(entry, "vehicle"), "type"
+                    ).text = enum2str(vehicle)
+        return element
 
 
 class Signal(_SignalObjectBase):
@@ -325,6 +414,9 @@ class Signal(_SignalObjectBase):
         height: Optional[float] = None,
         width: Optional[float] = None,
         length: Optional[float] = None,
+        *,
+        temporary: Optional[bool] = None,
+        invalidated: Optional[bool] = None,
     ) -> None:
         """Initialize the Signal.
 
@@ -376,6 +468,10 @@ class Signal(_SignalObjectBase):
             Width of the Signal. Default is None.
         length : float, optional
             Length of the Signal. Default is None.
+        temporary : bool, optional
+            Whether the signal is temporary (OpenDRIVE 1.9).
+        invalidated : bool, optional
+            Whether the signal is invalidated (OpenDRIVE 1.9).
         """
 
         # get attributes that are common with signals
@@ -402,6 +498,8 @@ class Signal(_SignalObjectBase):
         self.zOffset = zOffset
         self.country = country
         self.countryRevision = countryRevision
+        self.temporary = temporary
+        self.invalidated = invalidated
         self.type = Type
         self.subtype = subtype
         self.value = value
@@ -409,6 +507,8 @@ class Signal(_SignalObjectBase):
         self.hOffset = hOffset
         self.validity = None
         self.references = []
+        self.semantics: Optional[SignalSemantics] = None
+        self.static_boards: list[StaticBoard] = []
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Signal) and super().__eq__(other):
@@ -416,6 +516,8 @@ class Signal(_SignalObjectBase):
                 self.get_attributes() == other.get_attributes()
                 and self.validity == other.validity
                 and self.references == other.references
+                and self.semantics == other.semantics
+                and self.static_boards == other.static_boards
             ):
                 return True
         return False
@@ -445,7 +547,9 @@ class Signal(_SignalObjectBase):
             retdict["unit"] = str(self.unit)
         return retdict
 
-    def add_validity(self, fromLane: int, toLane: int) -> "Signal":
+    def add_validity(
+        self, fromLane: int, toLane: int, *, layer: Optional[LaneLayer] = None
+    ) -> "Signal":
         """Add a validity range to the Signal.
 
         Parameters
@@ -467,7 +571,21 @@ class Signal(_SignalObjectBase):
         """
         if self.validity:
             raise ValueError("only one validity is allowed")
-        self.validity = Validity(fromLane, toLane)
+        self.validity = Validity(fromLane, toLane, layer=layer)
+        return self
+
+    def add_static_board(self, board: "StaticBoard") -> "Signal":
+        """Attach a static board containing locally positioned signs."""
+        if not isinstance(board, StaticBoard):
+            raise TypeError("board is not of type StaticBoard")
+        self.static_boards.append(board)
+        return self
+
+    def set_semantics(self, semantics: SignalSemantics) -> "Signal":
+        """Set the semantics of this signal."""
+        if not isinstance(semantics, SignalSemantics):
+            raise TypeError("semantics is not of type SignalSemantics")
+        self.semantics = semantics
         return self
 
     def add_reference(self, reference: "Reference") -> "Signal":
@@ -501,12 +619,76 @@ class Signal(_SignalObjectBase):
         ET.Element
             The XML ElementTree representation of the Signal.
         """
-        element = ET.Element("signal", attrib=self.get_attributes())
+        element = self._get_signal_element("signal")
+        for board in self.static_boards:
+            element.append(board.get_element())
+        return element
+
+    def _get_signal_element(self, tag: str) -> ET.Element:
+        element = ET.Element(tag, attrib=self.get_attributes())
         self._add_additional_data_to_element(element)
         if self.validity:
             element.append(self.validity.get_element())
         for reference in self.references:
             element.append(reference.get_element())
+        if self.semantics is not None:
+            element.append(self.semantics.get_element())
+        return element
+
+
+class StaticBoard(XodrBase):
+    """Group signs in the local coordinate system of a static board.
+
+    Methods
+    -------
+    add_sign(sign, *, v=None, z=None)
+        Adds a sign with an explicit ID and optional board-local offsets.
+        The sign's road coordinates are ignored.
+    get_element()
+        Returns the XML ElementTree representation of the static board.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.signs: list[tuple[Signal, Optional[float], Optional[float]]] = []
+
+    def add_sign(
+        self,
+        sign: Signal,
+        *,
+        v: Optional[float] = None,
+        z: Optional[float] = None,
+    ) -> "StaticBoard":
+        """Add a sign with an explicit ID; its road coordinates are ignored."""
+        if not isinstance(sign, Signal):
+            raise TypeError("sign is not of type Signal")
+        if sign.id is None:
+            raise ValueError(
+                "A sign on a static board requires an explicit ID"
+            )
+        self.signs.append((sign, v, z))
+        return self
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, StaticBoard)
+            and super().__eq__(other)
+            and ET.tostring(self.get_element())
+            == ET.tostring(other.get_element())
+        )
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("staticBoard")
+        self._add_additional_data_to_element(element)
+        for sign, v, z in self.signs:
+            sign_element = sign._get_signal_element("sign")
+            for name in ("s", "t", "zOffset"):
+                sign_element.attrib.pop(name, None)
+            if v is not None:
+                sign_element.set("v", str(v))
+            if z is not None:
+                sign_element.set("z", str(z))
+            element.append(sign_element)
         return element
 
 
@@ -528,7 +710,9 @@ class Validity(XodrBase):
         Returns a dictionary of all attributes of the Validity.
     """
 
-    def __init__(self, fromLane: int, toLane: int) -> None:
+    def __init__(
+        self, fromLane: int, toLane: int, *, layer: Optional[LaneLayer] = None
+    ) -> None:
         """Initialize the Validity.
 
         Parameters
@@ -541,10 +725,11 @@ class Validity(XodrBase):
         super().__init__()
         self.fromLane = fromLane
         self.toLane = toLane
+        self.layer = enumchecker(layer, LaneLayer, True)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Validity) and super().__eq__(other):
-            if self.fromLane == other.fromLane and self.toLane == other.toLane:
+            if self.get_attributes() == other.get_attributes():
                 return True
         return False
 
@@ -559,6 +744,8 @@ class Validity(XodrBase):
         retdict = {}
         retdict["fromLane"] = str(self.fromLane)
         retdict["toLane"] = str(self.toLane)
+        if self.layer is not None:
+            retdict["layer"] = enum2str(self.layer)
         return retdict
 
     def get_element(self) -> ET.Element:
@@ -788,7 +975,9 @@ class ObjectReference(XodrBase):
                 return True
         return False
 
-    def add_validity(self, fromLane: int, toLane: int) -> "ObjectReference":
+    def add_validity(
+        self, fromLane: int, toLane: int, *, layer: Optional[LaneLayer] = None
+    ) -> "ObjectReference":
         """Add a validity range to the ObjectReference.
 
         Parameters
@@ -810,7 +999,7 @@ class ObjectReference(XodrBase):
         """
         if self.validity:
             raise ValueError("only one validity is allowed")
-        self.validity = Validity(fromLane, toLane)
+        self.validity = Validity(fromLane, toLane, layer=layer)
         return self
 
     def get_attributes(self) -> dict[str, str]:
@@ -979,7 +1168,9 @@ class SignalReference(XodrBase):
 
         return retdict
 
-    def add_validity(self, fromLane: int, toLane: int) -> "SignalReference":
+    def add_validity(
+        self, fromLane: int, toLane: int, *, layer: Optional[LaneLayer] = None
+    ) -> "SignalReference":
         """Add a validity range to the SignalReference.
 
         Parameters
@@ -1001,7 +1192,7 @@ class SignalReference(XodrBase):
         """
         if self.validity:
             raise ValueError("only one validity is allowed")
-        self.validity = Validity(fromLane, toLane)
+        self.validity = Validity(fromLane, toLane, layer=layer)
         return self
 
     def get_element(self) -> ET.Element:
@@ -1104,6 +1295,9 @@ class Object(_SignalObjectBase):
         height: Optional[float] = None,
         radius: Optional[float] = None,
         validLength: Optional[float] = None,
+        *,
+        temporary: Optional[bool] = None,
+        invalidated: Optional[bool] = None,
     ) -> None:
         """Initialize the Object.
 
@@ -1161,6 +1355,8 @@ class Object(_SignalObjectBase):
             height,
             length,
         )
+        self.temporary = temporary
+        self.invalidated = invalidated
 
         # attributes that differ from signals
         self.validLength = validLength
@@ -1236,6 +1432,10 @@ class Object(_SignalObjectBase):
         radiusStart: Optional[float] = None,
         radiusEnd: Optional[float] = None,
         detachFromReferenceLine: Optional[bool] = None,
+        *,
+        bT: Optional[float] = None,
+        cT: Optional[float] = None,
+        dT: Optional[float] = None,
     ) -> None:
         """Add a repeat entry to the Object.
 
@@ -1271,6 +1471,8 @@ class Object(_SignalObjectBase):
             Starting radius. Default is None.
         radiusEnd : float, optional
             Ending radius. Default is None.
+        bT, cT, dT : float, optional
+            Coefficients of the lateral-offset polynomial (OpenDRIVE 1.9).
         """
         self._repeats.append({})
 
@@ -1337,8 +1539,13 @@ class Object(_SignalObjectBase):
             self._repeats[-1]["detachFromReferenceLine"] = get_bool_string(
                 detachFromReferenceLine
             )
+        for name, coefficient in (("bT", bT), ("cT", cT), ("dT", dT)):
+            if coefficient is not None:
+                self._repeats[-1][name] = str(coefficient)
 
-    def add_validity(self, fromLane: int, toLane: int) -> "Object":
+    def add_validity(
+        self, fromLane: int, toLane: int, *, layer: Optional[LaneLayer] = None
+    ) -> "Object":
         """Add a validity range to the Object.
 
         Parameters
@@ -1360,7 +1567,7 @@ class Object(_SignalObjectBase):
         """
         if self.validity:
             raise ValueError("only one validity is allowed")
-        self.validity = Validity(fromLane, toLane)
+        self.validity = Validity(fromLane, toLane, layer=layer)
         return self
 
     def add_outline(self, outline: "Outline") -> None:
@@ -1799,6 +2006,85 @@ class CornerRoad(XodrBase):
         return element
 
 
+class CurveLocal(XodrBase):
+    """Define an outline curve in local object coordinates (OpenDRIVE 1.9).
+
+    Parameters
+    ----------
+    u : float
+        Local longitudinal coordinate of the curve start, in meters.
+    v : float
+        Local lateral coordinate of the curve start, in meters.
+    z : float
+        Local vertical coordinate of the curve start, in meters.
+    height : float
+        Non-negative height at the curve start, in meters.
+    length : float
+        Positive length of the curve, in meters.
+    hdg : float
+        Local heading of the curve at its start, in radians.
+    geometry : Line or Arc or ParamPoly3
+        Geometry of the curve.
+    id : int, optional
+        Non-negative identifier of the curve. Default is None.
+
+    Methods
+    -------
+    get_element()
+        Returns the XML ElementTree representation of the outline curve.
+    """
+
+    def __init__(
+        self,
+        u: float,
+        v: float,
+        z: float,
+        height: float,
+        length: float,
+        hdg: float,
+        geometry: Union[Line, Arc, ParamPoly3],
+        id: Optional[int] = None,
+    ) -> None:
+        super().__init__()
+        if not isinstance(geometry, (Line, Arc, ParamPoly3)):
+            raise TypeError("geometry must be a Line, Arc, or ParamPoly3")
+        if length <= 0 or height < 0 or (id is not None and id < 0):
+            raise ValueError(
+                "Curve length must be positive; height and ID must be non-negative"
+            )
+        self.u = u
+        self.v = v
+        self.z = z
+        self.height = height
+        self.length = length
+        self.hdg = hdg
+        self.geometry = geometry
+        self.id = id
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, CurveLocal)
+            and super().__eq__(other)
+            and self.get_attributes() == other.get_attributes()
+            and self.geometry == other.geometry
+        )
+
+    def get_attributes(self) -> dict[str, str]:
+        attributes = {
+            name: str(getattr(self, name))
+            for name in ("u", "v", "z", "height", "length", "hdg")
+        }
+        if self.id is not None:
+            attributes["id"] = str(self.id)
+        return attributes
+
+    def get_element(self) -> ET.Element:
+        element = ET.Element("curveLocal", attrib=self.get_attributes())
+        self._add_additional_data_to_element(element)
+        element.append(self.geometry.get_element())
+        return element
+
+
 class Outline(XodrBase):
     """Outline is used to wrap corners for an object in OpenDRIVE.
 
@@ -1857,6 +2143,8 @@ class Outline(XodrBase):
         self.outer = outer
         self.id = id
         self.corners = []
+        self.curves: list[CurveLocal] = []
+        self.markings: list[Marking] = []
         self._corner_type = None
 
     def __eq__(self, other: object) -> bool:
@@ -1864,6 +2152,8 @@ class Outline(XodrBase):
             if (
                 self.get_attributes() == other.get_attributes()
                 and self.corners == other.corners
+                and self.curves == other.curves
+                and self.markings == other.markings
             ):
                 return True
         return False
@@ -1885,6 +2175,10 @@ class Outline(XodrBase):
         GeneralIssueInputArguments
             If a mix of corner types is attempted.
         """
+        if self.curves:
+            raise GeneralIssueInputArguments(
+                "Cannot mix outline corners and curves"
+            )
         if not (
             isinstance(corner, CornerLocal) or isinstance(corner, CornerRoad)
         ):
@@ -1902,6 +2196,24 @@ class Outline(XodrBase):
             raise GeneralIssueInputArguments(
                 "Mix of cornertypes not allowed. "
             )
+
+    def add_curve(self, curve: CurveLocal) -> "Outline":
+        """Add a local curve to an outline without corners (OpenDRIVE 1.9)."""
+        if not isinstance(curve, CurveLocal):
+            raise TypeError("curve is not of type CurveLocal")
+        if self.corners:
+            raise GeneralIssueInputArguments(
+                "Cannot mix outline corners and curves"
+            )
+        self.curves.append(curve)
+        return self
+
+    def add_marking(self, marking: "Marking") -> "Outline":
+        """Add a marking to this outline (OpenDRIVE 1.9)."""
+        if not isinstance(marking, Marking):
+            raise TypeError("marking is not of type Marking")
+        self.markings.append(marking)
+        return self
 
     def get_attributes(self) -> dict[str, str]:
         """Return the attributes of the Outline as a dictionary.
@@ -1936,6 +2248,12 @@ class Outline(XodrBase):
         self._add_additional_data_to_element(element)
         for corner in self.corners:
             element.append(corner.get_element())
+        for curve in self.curves:
+            element.append(curve.get_element())
+        if self.markings:
+            markings = ET.SubElement(element, "markings")
+            for marking in self.markings:
+                markings.append(marking.get_element())
 
         return element
 

@@ -517,6 +517,24 @@ def test_route(tmpdir):
         route.add_waypoint(OSC.WorldPosition(), "dummy")
 
 
+def test_polyline_motion():
+    positions = [OSC.WorldPosition(), OSC.WorldPosition(10)]
+    stopped = OSC.Motion(speed_longitudinal=0)
+    line = OSC.Polyline([0, 2], positions, motions=[stopped, None])
+    line.setVersion(minor=3)
+    with pytest.raises(OSC.OpenSCENARIOVersionError, match="1.4"):
+        line.get_element()
+    assert version_validation("Shape", line, 4) == ValidationResponse.OK
+    assert OSC.Polyline.parse(line.get_element()) == line
+    assert line.get_element().find("Polyline/Vertex/Motion").attrib == {
+        "speed_longitudinal": "0.0"
+    }
+    with pytest.raises(ValueError, match="speed or an acceleration"):
+        OSC.Motion()
+    with pytest.raises(ValueError, match="same length"):
+        OSC.Polyline([0, 2], positions, motions=[stopped])
+
+
 def test_polyline():
     positionlist = []
     positionlist.append(

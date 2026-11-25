@@ -241,7 +241,7 @@ def validate_schema(loaded_xosc: ET.ElementTree) -> bool:
     minor_version = loaded_xosc.find("FileHeader").attrib["revMinor"]
     major_version = loaded_xosc.find("FileHeader").attrib["revMajor"]
     print(f"OpenSCENARIO version detected: {major_version}.{minor_version}")
-    if int(minor_version) > 3 or int(major_version) != 1:
+    if minor_version not in {"0", "1", "2", "3", "4"} or major_version != "1":
         raise ValueError(
             f"OpenSCENARIO version {major_version}.{minor_version} does not exist in the schema files provided."
         )

@@ -24,6 +24,7 @@ from .enumerations import (
     JunctionGroupType,
     JunctionSegmentType,
     JunctionType,
+    LaneLayer,
     Orientation,
     enumchecker,
 )
@@ -106,7 +107,15 @@ class _Links(XodrBase):
                 "Multiple identical links is detected, this might cause problems. Using the first one created. ",
                 UserWarning,
             )
-        elif any([link.link_type == x.link_type for x in self.links]):
+        elif any(
+            link.link_type == existing.link_type
+            and (
+                link.layer is None
+                or existing.layer is None
+                or link.layer == existing.layer
+            )
+            for existing in self.links
+        ):
             warnings.warn(
                 "Multiple links of the same link_type: "
                 + link.link_type
@@ -270,6 +279,8 @@ class _Link(XodrBase):
         element_type: Optional[ElementType] = None,
         contact_point: Optional[ContactPoint] = None,
         direction: Optional[Direction] = None,
+        *,
+        layer: Optional[LaneLayer] = None,
     ) -> None:
         """Initialize the `_Link` object.
 
@@ -302,6 +313,7 @@ class _Link(XodrBase):
         self.element_id = element_id
         self.contact_point = enumchecker(contact_point, ContactPoint, True)
         self.direction = enumchecker(direction, Direction, True)
+        self.layer = enumchecker(layer, LaneLayer, True)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _Link) and super().__eq__(other):
@@ -323,6 +335,8 @@ class _Link(XodrBase):
         retdict = {}
         if self.element_type is None:
             retdict["id"] = str(self.element_id)
+            if self.layer is not None:
+                retdict["layer"] = enum2str(self.layer)
         else:
             retdict["elementType"] = enum2str(self.element_type)
             retdict["elementId"] = str(self.element_id)
@@ -536,7 +550,14 @@ class Connection(XodrBase):
         if self.id == None:
             self.id = id
 
-    def add_lanelink(self, in_lane: int, out_lane: int) -> "Connection":
+    def add_lanelink(
+        self,
+        in_lane: int,
+        out_lane: int,
+        *,
+        from_layer: Optional[LaneLayer] = None,
+        to_layer: Optional[LaneLayer] = None,
+    ) -> "Connection":
         """Add a new lane link to the connection.
 
         Parameters
@@ -545,13 +566,25 @@ class Connection(XodrBase):
             The lane ID of the incoming road.
         out_lane : int
             The lane ID of the outgoing road.
+        from_layer, to_layer : LaneLayer, optional
+            Layers of the incoming and outgoing lanes (OpenDRIVE 1.9).
 
         Returns
         -------
         Connection
             The updated `Connection` object.
         """
-        self.links.append((in_lane, out_lane))
+        if from_layer is None and to_layer is None:
+            self.links.append((in_lane, out_lane))
+        else:
+            self.links.append(
+                (
+                    in_lane,
+                    out_lane,
+                    enumchecker(from_layer, LaneLayer, True),
+                    enumchecker(to_layer, LaneLayer, True),
+                )
+            )
         return self
 
     def get_attributes(
@@ -601,12 +634,14 @@ class Connection(XodrBase):
             "connection", attrib=self.get_attributes(junctiontype)
         )
         self._add_additional_data_to_element(element)
-        for l in sorted(self.links, key=lambda x: x[0], reverse=True):
-            ET.SubElement(
-                element,
-                "laneLink",
-                attrib={"from": str(l[0]), "to": str(l[1])},
-            )
+        for in_lane, out_lane, *layers in sorted(
+            self.links, key=lambda link: link[0], reverse=True
+        ):
+            attributes = {"from": str(in_lane), "to": str(out_lane)}
+            for name, layer in zip(("fromLayer", "toLayer"), layers):
+                if layer is not None:
+                    attributes[name] = enum2str(layer)
+            ET.SubElement(element, "laneLink", attrib=attributes)
         return element
 
 
