@@ -18,7 +18,12 @@ import pytest
 from scenariogeneration import prettyprint, xodr
 from scenariogeneration.xodr.opendrive import OpenDrive
 
-from .xml_validator import ValidationResponse, version_validation
+from .xml_validator import (
+    ValidationResponse,
+    version_validation,
+    xodr_schema,
+    xodr_schema_1_8,
+)
 
 
 def test_simple_road():
@@ -289,7 +294,86 @@ def test_header():
     )
 
 
-def test_header_1_8_elements():
+def test_opendrive_1_9_lane_layers_and_crg():
+    road = xodr.create_road(xodr.Line(10), 1)
+    center = xodr.Lane()
+    section = xodr.LaneSection(2, center, length=5)
+    lane = xodr.Lane(xodr.LaneType.driving, a=3)
+    lane.add_link("predecessor", -1, layer=xodr.LaneLayer.permanent)
+    section.add_right_lane(lane)
+    temporary_lanes = xodr.Lanes(
+        layer=xodr.LaneLayer.temporary
+    ).add_lanesection(section)
+    road.add_temporary_lanes(temporary_lanes)
+    road.add_crg(
+        xodr.CRG(
+            "surface.crg",
+            0,
+            10,
+            xodr.Direction.same,
+            xodr.CRGMode.global_,
+            x_offset=0,
+            y_offset=-2,
+        )
+    )
+    network = xodr.OpenDrive("work zone").add_road(road)
+    network.adjust_roads_and_lanes()
+    element = network.get_element()
+    temporary_section = element.find(
+        "road/lanes[@layer='temporary']/laneSection"
+    )
+    assert (
+        temporary_section is not None
+        and temporary_section.get("length") == "5"
+    )
+    predecessor = temporary_section.find("right/lane/link/predecessor")
+    assert predecessor is not None and predecessor.get("layer") == "permanent"
+    surface = element.find("road/surface/CRG")
+    assert (
+        surface is not None
+        and surface.get("xOffset") == "0"
+        and surface.get("yOffset") == "-2"
+    )
+    xodr_schema.validate(element)
+    with pytest.raises(ValueError, match="Only one temporary lane layer"):
+        road.add_temporary_lanes(temporary_lanes)
+    with pytest.raises(ValueError, match="require global mode"):
+        xodr.CRG(
+            "surface.crg",
+            0,
+            10,
+            xodr.Direction.same,
+            xodr.CRGMode.attached,
+            x_offset=0,
+        )
+
+
+def test_opendrive_1_9_junction_link_layers():
+    junction = xodr.Junction("junction", 1)
+    connection = xodr.Connection(1, 2, xodr.ContactPoint.start)
+    connection.add_lanelink(
+        -1,
+        -2,
+        from_layer=xodr.LaneLayer.permanent,
+        to_layer=xodr.LaneLayer.temporary,
+    )
+    junction.add_connection(connection)
+    element = junction.get_element()
+    assert element.find("connection/laneLink").attrib == {
+        "from": "-1",
+        "to": "-2",
+        "fromLayer": "permanent",
+        "toLayer": "temporary",
+    }
+    xodr_schema.create_element("junction", type="t_junction_common").validate(
+        element
+    )
+
+
+@pytest.mark.parametrize(
+    "revision,schema", [("8", xodr_schema_1_8), ("9", xodr_schema)]
+)
+def test_header_default_regulations(revision, schema):
     license = xodr.License(name="MPL-2.0")
     regulations = xodr.DefaultRegulations().add_road_regulation(
         xodr.RoadRegulation(xodr.RoadType.rural)
@@ -298,7 +382,7 @@ def test_header_1_8_elements():
     header = xodr.opendrive._Header(
         "road network",
         "1",
-        "8",
+        revision,
         license=license,
         default_regulations=regulations,
     )
@@ -316,10 +400,7 @@ def test_header_1_8_elements():
         "subtype": "-1",
     }
     assert element.find(".//_OpenDriveElement") is None
-    assert (
-        version_validation("t_header", header, wanted_schema="xodr")
-        == ValidationResponse.OK
-    )
+    schema.create_element("header", type="t_header").validate(element)
 
     with pytest.raises(TypeError):
         xodr.opendrive._Header("road network", "1", "8", license="invalid")

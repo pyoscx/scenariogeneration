@@ -18,6 +18,7 @@ from .enumerations import (
     CoordinateSystem,
     DynamicsShapes,
     FollowingMode,
+    LaneLayerType,
     LateralDisplacement,
     LightMode,
     LongitudinalDisplacement,
@@ -160,6 +161,8 @@ class _PrivateActionFactory:
             return TeleportAction.parse(element)
         if element.findall("RoutingAction/RandomRouteAction"):
             return RandomRouteAction.parse(element)
+        if element.findall("RoutingAction/PreferredLaneLayerAction"):
+            return PreferredLaneLayerAction.parse(element)
         if element.findall("RoutingAction/AssignRouteAction"):
             return AssignRouteAction.parse(element)
         if element.findall("RoutingAction/FollowTrajectoryAction"):
@@ -1012,6 +1015,51 @@ class SpeedProfileAction(_PrivateActionType):
         return element
 
 
+class PreferredLaneLayerAction(_PrivateActionType):
+    """Set an entity's preferred lane layer (OpenSCENARIO 1.4).
+
+    Parameters
+    ----------
+    layer : LaneLayerType or str
+        Preferred lane layer, given as an enum value or its string name.
+
+    Methods
+    -------
+    parse(element)
+        Creates the action from a private action XML element.
+    get_element()
+        Returns the XML ElementTree representation of the private action.
+    """
+
+    def __init__(self, layer: Union[LaneLayerType, str]) -> None:
+        self.layer = convert_enum(layer, LaneLayerType)
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, PreferredLaneLayerAction)
+            and self.layer == other.layer
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "PreferredLaneLayerAction":
+        action = find_mandatory_field(
+            element, "RoutingAction/PreferredLaneLayerAction"
+        )
+        return PreferredLaneLayerAction(action.attrib["layer"])
+
+    def get_element(self) -> ET.Element:
+        if not self.isVersionEqLarger(minor=4):
+            raise OpenSCENARIOVersionError(
+                "Lane layers require OpenSCENARIO 1.4"
+            )
+        element = ET.Element("PrivateAction")
+        routing = ET.SubElement(element, "RoutingAction")
+        ET.SubElement(
+            routing, "PreferredLaneLayerAction", {"layer": str(self.layer)}
+        )
+        return element
+
+
 class AbsoluteLaneChangeAction(_PrivateActionType):
     """Creates a LateralAction of type LaneChangeAction with an absolute
     target.
@@ -1050,6 +1098,8 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         lane: int,
         transition_dynamics: TransitionDynamics,
         target_lane_offset: float = None,
+        *,
+        layer: Optional[Union[LaneLayerType, str]] = None,
     ):
         """Initialize AbsoluteLaneChangeAction.
 
@@ -1064,6 +1114,7 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         """
 
         self.lane = convert_int(lane)
+        self.layer = convert_enum(layer, LaneLayerType, True)
         self.target_lane_offset = convert_float(target_lane_offset)
         if not isinstance(transition_dynamics, TransitionDynamics):
             raise TypeError(
@@ -1112,7 +1163,12 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         )
         lane = convert_int(targetlane_element.attrib["value"])
 
-        return AbsoluteLaneChangeAction(lane, dynamics, target_lane_offset)
+        return AbsoluteLaneChangeAction(
+            lane,
+            dynamics,
+            target_lane_offset,
+            layer=targetlane_element.get("layer"),
+        )
 
     def get_attributes(self) -> dict:
         """Returns the attributes of the AbsoluteLaneChangeAction as a
@@ -1126,6 +1182,12 @@ class AbsoluteLaneChangeAction(_PrivateActionType):
         """
         retdict = {}
         retdict["value"] = str(self.lane)
+        if self.layer is not None:
+            if not self.isVersionEqLarger(minor=4):
+                raise OpenSCENARIOVersionError(
+                    "Lane layers require OpenSCENARIO 1.4"
+                )
+            retdict["layer"] = str(self.layer)
         return retdict
 
     def get_element(self) -> ET.Element:
@@ -1199,6 +1261,8 @@ class RelativeLaneChangeAction(_PrivateActionType):
         entity: str,
         transition_dynamics: TransitionDynamics,
         target_lane_offset: float = None,
+        *,
+        layer: Optional[Union[LaneLayerType, str]] = None,
     ):
         """Initialize RelativeLaneChangeAction.
 
@@ -1214,6 +1278,7 @@ class RelativeLaneChangeAction(_PrivateActionType):
             Offset in the target lane, if desired. Default is None.
         """
         self.lane = convert_int(lane)
+        self.layer = convert_enum(layer, LaneLayerType, True)
         self.target = entity
         self.target_lane_offset = convert_float(target_lane_offset)
         if not isinstance(transition_dynamics, TransitionDynamics):
@@ -1265,7 +1330,11 @@ class RelativeLaneChangeAction(_PrivateActionType):
         target = targetlane_element.attrib["entityRef"]
 
         return RelativeLaneChangeAction(
-            lane, target, dynamics, target_lane_offset
+            lane,
+            target,
+            dynamics,
+            target_lane_offset,
+            layer=targetlane_element.get("layer"),
         )
 
     def get_attributes(self) -> dict:
@@ -1281,6 +1350,12 @@ class RelativeLaneChangeAction(_PrivateActionType):
         retdict = {}
         retdict["value"] = str(self.lane)
         retdict["entityRef"] = self.target
+        if self.layer is not None:
+            if not self.isVersionEqLarger(minor=4):
+                raise OpenSCENARIOVersionError(
+                    "Lane layers require OpenSCENARIO 1.4"
+                )
+            retdict["layer"] = str(self.layer)
         return retdict
 
     def get_element(self) -> ET.Element:

@@ -13,7 +13,7 @@ Copyright (c) 2022 The scenariogeneration Authors.
 import xml.etree.ElementTree as ET
 from typing import Optional, Union
 
-from .enumerations import RouteStrategy
+from .enumerations import LaneLayerType, RouteStrategy
 from .exceptions import (
     NotAValidElement,
     NotEnoughInputArguments,
@@ -873,6 +873,8 @@ class LanePosition(_PositionType):
         lane_id: str,
         road_id: str,
         orientation: Orientation = Orientation(),
+        *,
+        layer: Optional[Union[LaneLayerType, str]] = None,
     ) -> None:
         """Initialize the LanePosition.
 
@@ -889,11 +891,14 @@ class LanePosition(_PositionType):
         orientation : Orientation, optional
             The angular orientation of the entity. Default is
             Orientation().
+        layer : LaneLayerType or str, optional
+            Lane layer (OpenSCENARIO 1.4 or newer).
         """
         self.s = convert_float(s)
         self.lane_id = lane_id
         self.offset = convert_float(offset)
         self.road_id = road_id
+        self.layer = convert_enum(layer, LaneLayerType, True)
         if not isinstance(orientation, Orientation):
             raise TypeError("input orientation is not of type Orientation")
         self.orient = orientation
@@ -933,7 +938,14 @@ class LanePosition(_PositionType):
             )
         else:
             orientation = Orientation()
-        return LanePosition(s, offset, laneid, roadId, orientation)
+        return LanePosition(
+            s,
+            offset,
+            laneid,
+            roadId,
+            orientation,
+            layer=position_element.get("layer"),
+        )
 
     def get_attributes(self) -> dict:
         """Return the attributes of the LanePosition as a dictionary.
@@ -949,6 +961,12 @@ class LanePosition(_PositionType):
         retdict["s"] = str(self.s)
         retdict["offset"] = str(self.offset)
 
+        if self.layer is not None:
+            if not self.isVersionEqLarger(minor=4):
+                raise OpenSCENARIOVersionError(
+                    "Lane layers require OpenSCENARIO 1.4"
+                )
+            retdict["layer"] = str(self.layer)
         return retdict
 
     def get_element(self, elementname: str = "Position") -> ET.Element:
@@ -1918,6 +1936,71 @@ class GeoPosition(_PositionType):
         return element
 
 
+class Motion(VersionBase):
+    """Describe longitudinal motion at a trajectory point (OpenSCENARIO 1.4).
+
+    At least one of speed or acceleration must be supplied.
+
+    Parameters
+    ----------
+    speed_longitudinal : float or str, optional
+        Longitudinal speed in meters per second, or a parameter reference.
+        Default is None.
+    acceleration_longitudinal : float or str, optional
+        Longitudinal acceleration in meters per second squared, or a
+        parameter reference. Default is None.
+
+    Methods
+    -------
+    parse(element)
+        Creates a motion sample from a Motion XML element.
+    get_element()
+        Returns the XML ElementTree representation of the motion sample.
+    """
+
+    def __init__(
+        self,
+        *,
+        speed_longitudinal: Optional[Union[float, str]] = None,
+        acceleration_longitudinal: Optional[Union[float, str]] = None,
+    ) -> None:
+        if speed_longitudinal is None and acceleration_longitudinal is None:
+            raise ValueError("Motion needs a speed or an acceleration")
+        self.speed_longitudinal = convert_float(speed_longitudinal)
+        self.acceleration_longitudinal = convert_float(
+            acceleration_longitudinal
+        )
+
+    def __eq__(self, other: object) -> bool:
+        return (
+            isinstance(other, Motion)
+            and self.speed_longitudinal == other.speed_longitudinal
+            and self.acceleration_longitudinal
+            == other.acceleration_longitudinal
+        )
+
+    @staticmethod
+    def parse(element: ET.Element) -> "Motion":
+        """Parse a Motion element."""
+        return Motion(
+            speed_longitudinal=element.get("speed_longitudinal"),
+            acceleration_longitudinal=element.get("acceleration_longitudinal"),
+        )
+
+    def get_element(self) -> ET.Element:
+        """Serialize Motion for OpenSCENARIO 1.4 or newer."""
+        if not self.isVersionEqLarger(minor=4):
+            raise OpenSCENARIOVersionError("Motion requires OpenSCENARIO 1.4")
+        attributes = {}
+        if self.speed_longitudinal is not None:
+            attributes["speed_longitudinal"] = str(self.speed_longitudinal)
+        if self.acceleration_longitudinal is not None:
+            attributes["acceleration_longitudinal"] = str(
+                self.acceleration_longitudinal
+            )
+        return ET.Element("Motion", attrib=attributes)
+
+
 class Polyline(_TrajectoryShape):
     """The Polyline class creates a polyline of (minimum 2) positions.
 
@@ -1945,7 +2028,11 @@ class Polyline(_TrajectoryShape):
     """
 
     def __init__(
-        self, time: list[float], positions: list[_PositionType]
+        self,
+        time: list[float],
+        positions: list[_PositionType],
+        *,
+        motions: Optional[list[Optional[Motion]]] = None,
     ) -> None:
         """Initialize the Polyline.
 
@@ -1956,6 +2043,8 @@ class Polyline(_TrajectoryShape):
             V1.1 this can be empty).
         positions : list of _PositionType
             List of positions to create the polyline.
+        motions : list of Motion or None, optional
+            Motion for each position, or None for a vertex without motion (1.4).
         """
         if time and len(time) < 2:
             raise ValueError("not enough time inputs")
@@ -1968,10 +2057,27 @@ class Polyline(_TrajectoryShape):
                 raise TypeError("position input is not a valid position")
         self.positions = positions
         self.time = [convert_float(x) for x in time]
+        if motions is not None:
+            if len(motions) != len(positions):
+                raise ValueError(
+                    "motions and positions are not the same length"
+                )
+            if any(
+                motion is not None and not isinstance(motion, Motion)
+                for motion in motions
+            ):
+                raise TypeError("motions must contain Motion objects or None")
+        self.motions = (
+            list(motions) if motions is not None else [None] * len(positions)
+        )
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Polyline):
-            if self.time == other.time and self.positions == other.positions:
+            if (
+                self.time == other.time
+                and self.positions == other.positions
+                and self.motions == other.motions
+            ):
                 return True
         return False
 
@@ -1993,6 +2099,7 @@ class Polyline(_TrajectoryShape):
         vertexes = polyline_element.findall("Vertex")
         time_list = []
         position_list = []
+        motions = []
         for vertex in vertexes:
             if "time" in vertex.attrib:
                 time_list.append(convert_float(vertex.attrib["time"]))
@@ -2001,7 +2108,11 @@ class Polyline(_TrajectoryShape):
                     find_mandatory_field(vertex, "Position")
                 )
             )
-        return Polyline(time_list, position_list)
+            motion = vertex.find("Motion")
+            motions.append(
+                Motion.parse(motion) if motion is not None else None
+            )
+        return Polyline(time_list, position_list, motions=motions)
 
     def get_element(self) -> ET.Element:
         """Return the ElementTree of the Polyline.
@@ -2019,6 +2130,8 @@ class Polyline(_TrajectoryShape):
                 time_dict = {"time": str(self.time[i])}
             vert = ET.SubElement(element, "Vertex", attrib=time_dict)
             vert.append(pos.get_element())
+            if self.motions[i] is not None:
+                vert.append(self.motions[i].get_element())
         return shape
 
 

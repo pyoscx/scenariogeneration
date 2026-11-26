@@ -16,7 +16,7 @@ import warnings
 
 from .exceptions import OpenSCENARIOVersionError
 
-_MINOR_VERSION = 3
+_MINOR_VERSION = 4
 
 
 class VersionBase:
@@ -187,6 +187,13 @@ class _EnumMeta(type):
 
     def __getitem__(self, name):
         return self.__dict__[name]
+
+
+class LaneLayerType(metaclass=_EnumMeta):
+    """Lane layers introduced in OpenSCENARIO 1.4."""
+
+    permanent = _OscEnum("LaneLayerType", "permanent", min_minor_version=4)
+    temporary = _OscEnum("LaneLayerType", "temporary", min_minor_version=4)
 
 
 class CloudState(metaclass=_EnumMeta):

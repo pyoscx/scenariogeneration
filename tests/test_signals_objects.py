@@ -14,7 +14,110 @@ import pytest
 
 from scenariogeneration import prettify, prettyprint, xodr
 
-from .xml_validator import ValidationResponse, version_validation
+from .xml_validator import ValidationResponse, version_validation, xodr_schema
+
+
+def test_opendrive_1_9_object_and_signal_attributes():
+    signal = xodr.Signal(
+        0, 0, "DE", "1", id="1", temporary=True, invalidated=False
+    )
+    signal.add_validity(-2, -1, layer=xodr.LaneLayer.temporary)
+    assert signal.get_attributes()["temporary"] == "true"
+    assert signal.get_attributes()["invalidated"] == "false"
+    assert "temporary" not in xodr.Signal(0, 0, "DE", "1").get_attributes()
+    assert signal.get_element().find("validity").get("layer") == "temporary"
+    xodr_schema.create_element(
+        "signal", type="t_road_signals_signal_road"
+    ).validate(signal.get_element())
+
+    obj = xodr.Object(
+        0, 0, id="2", height=1, temporary=False, invalidated=True
+    )
+    obj.repeat(10, 0, bT=0, cT=0.1, dT=0.01)
+    element = obj.get_element()
+    assert element.attrib["temporary"] == "false"
+    assert element.attrib["invalidated"] == "true"
+    repeat = element.find("repeat")
+    assert repeat is not None
+    assert [repeat.attrib[name] for name in ("bT", "cT", "dT")] == [
+        "0",
+        "0.1",
+        "0.01",
+    ]
+    xodr_schema.create_element(
+        "object", type="t_road_objects_object"
+    ).validate(element)
+
+
+@pytest.mark.parametrize(
+    "geometry,tag",
+    [
+        (xodr.Line(5), "line"),
+        (xodr.Arc(0.1, length=5), "arc"),
+        (xodr.ParamPoly3(0, 5, 0, 0, 0, 0, 0, 0), "paramPoly3"),
+    ],
+)
+def test_opendrive_1_9_outline_curves(geometry, tag):
+    curve = xodr.CurveLocal(0, 0, 0, 0, 5, 0, geometry, id=1)
+    outline = xodr.Outline().add_curve(curve)
+    outline.add_marking(
+        xodr.Marking(
+            xodr.RoadMarkColor.white, 0.2, xodr.SideType.front, 0.3, 0, 0
+        )
+    )
+    element = outline.get_element()
+    assert element.find(f"curveLocal/{tag}") is not None
+    assert element.find("markings/marking") is not None
+    xodr_schema.create_element(
+        "outline", type="t_road_objects_object_outlines_outline"
+    ).validate(element)
+    with pytest.raises(
+        xodr.GeneralIssueInputArguments, match="mix outline corners and curves"
+    ):
+        outline.add_corner(xodr.CornerLocal(0, 0, 0, 0))
+
+
+def test_opendrive_1_9_signal_semantics():
+    semantics = xodr.SignalSemantics().add_lane(xodr.SignalLaneSemantic.other)
+    for restriction in reversed(list(xodr.SignalRestrictionType)):
+        semantics.add_restriction(
+            restriction,
+            animal=True,
+            persons=[xodr.PersonCategory.pedestrian],
+            vehicles=[xodr.VehicleCategory.bicycle],
+        )
+    signal = xodr.Signal(0, 0, "DE", "1", id="1").set_semantics(semantics)
+    element = signal.get_element()
+    assert element.find("semantics/lane").get("type") == "other"
+    assert element.find("semantics/prohibited/animal") is not None
+    assert element.findtext("semantics/prohibited/person/type") == "pedestrian"
+    assert (
+        element.findtext("semantics/supplementaryAllows/vehicle/type")
+        == "bicycle"
+    )
+    xodr_schema.create_element(
+        "signal", type="t_road_signals_signal_road"
+    ).validate(element)
+
+
+def test_opendrive_1_9_static_board_sign():
+    sign = xodr.Signal(
+        0, 0, "DE", "1", id="sign", temporary=True, invalidated=False
+    )
+    board = xodr.StaticBoard().add_sign(sign, v=0, z=1)
+    assert board == xodr.StaticBoard().add_sign(sign, v=0, z=1)
+    assert board != xodr.StaticBoard().add_sign(sign, v=1, z=1)
+    signal = xodr.Signal(0, 0, "DE", "board", id="board")
+    element = signal.add_static_board(board).get_element()
+    sign_element = element.find("staticBoard/sign")
+    assert sign_element is not None
+    assert sign_element.get("s") is None
+    assert sign_element.get("v") == "0"
+    assert sign_element.get("temporary") == "true"
+    assert sign_element.get("invalidated") == "false"
+    xodr_schema.create_element(
+        "signal", type="t_road_signals_signal_road"
+    ).validate(element)
 
 
 @pytest.mark.parametrize("vertex_type", [xodr.VertexLocal, xodr.VertexRoad])

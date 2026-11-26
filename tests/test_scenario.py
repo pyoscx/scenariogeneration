@@ -287,7 +287,7 @@ class TestScenario:
             monitor_declarations=monitor_dec,
         )
         element = sce3.get_element()
-        assert element is not None
+        assert element.find("FileHeader").get("revMinor") == "2"
 
     def test_scenario_dummy_args(
         self, story_board, entities, road, catalog, monitor_dec

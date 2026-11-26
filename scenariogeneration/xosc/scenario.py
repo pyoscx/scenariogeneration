@@ -140,7 +140,7 @@ class Scenario(VersionBase):
         monitor_declarations : MonitorDeclarations, optional
             Monitor declarations (valid from OSC V1.3).
         """
-        if int(osc_minor_version) > 3:
+        if int(osc_minor_version) > _MINOR_VERSION:
             raise OpenSCENARIOVersionError(
                 f"OpenSCENARIO V1.{osc_minor_version} is not supported. "
                 f"Max supported version is V1.{_MINOR_VERSION}."

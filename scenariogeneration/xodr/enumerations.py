@@ -107,6 +107,61 @@ class LaneAccessRule(Enum):
     deny = auto()
 
 
+class PersonCategory(Enum):
+    """Person category for signal semantics."""
+
+    pedestrian = auto()
+
+
+class VehicleCategory(Enum):
+    """Vehicle categories for signal semantics."""
+
+    bicycle = auto()
+    car = auto()
+    semiTrailer = auto()
+    trailer = auto()
+    train = auto()
+    tram = auto()
+    van = auto()
+    bus = auto()
+    heavyTruck = auto()
+    microMobilityDevice = auto()
+    motorcycle = auto()
+    other = auto()
+    landVehicle = auto()
+    semiTractor = auto()
+    standupScooter = auto()
+    workMachine = auto()
+
+
+class SignalLaneSemantic(Enum):
+    """Lane semantics described by a road signal."""
+
+    noOvertakeCars = auto()
+    noOvertakeCarsEnd = auto()
+    noOvertakeTrucks = auto()
+    noOvertakeTrucksEnd = auto()
+    priorityOverOncoming = auto()
+    roundabout = auto()
+    yieldForOncoming = auto()
+    other = auto()
+
+
+class SignalRestrictionType(Enum):
+    """Restriction and supplementary signal semantic element names."""
+
+    prohibited = auto()
+    supplementaryAllows = auto()
+    supplementaryProhibits = auto()
+
+
+class LaneLayer(Enum):
+    """Lane layer types introduced in OpenDRIVE 1.9."""
+
+    permanent = auto()
+    temporary = auto()
+
+
 class LaneType(Enum):
     """Enum for LaneType.
 
@@ -225,6 +280,22 @@ class ContactPoint(Enum):
 
     start = auto()
     end = auto()
+
+
+class CRGMode(Enum):
+    """Attachment modes for OpenCRG road surfaces."""
+
+    attached = auto()
+    attached0 = auto()
+    genuine = auto()
+    global_ = auto()
+
+
+class CRGPurpose(Enum):
+    """Purposes of an OpenCRG road surface."""
+
+    elevation = auto()
+    friction = auto()
 
 
 class Direction(Enum):

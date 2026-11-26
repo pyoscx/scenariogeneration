@@ -999,8 +999,11 @@ def test_oscenum():
     enum2 = OSC.enumerations._OscEnum(
         "classname", "testname", min_minor_version=4
     )
+    enum2.setVersion(minor=3)
     with pytest.raises(OSC.OpenSCENARIOVersionError):
         enum2.get_name()
+    enum2.setVersion(minor=4)
+    assert enum2.get_name() == "testname"
     enum3 = OSC.enumerations._OscEnum(
         "classname", "testname", max_minor_version=0
     )

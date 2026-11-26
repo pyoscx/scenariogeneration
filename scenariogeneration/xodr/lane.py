@@ -24,6 +24,7 @@ from .enumerations import (
     LaneAdvisory,
     LaneChange,
     LaneDirection,
+    LaneLayer,
     LaneType,
     MarkRule,
     RoadMarkColor,
@@ -67,7 +68,7 @@ class Lanes(XodrBase):
         Adjusts road marks from the end of the road.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, *, layer: Optional[LaneLayer] = None) -> None:
         """Initialize the `Lanes` class.
 
         This constructor initializes the `Lanes` object with default
@@ -89,6 +90,7 @@ class Lanes(XodrBase):
         """
         super().__init__()
         """Initalize Lanes."""
+        self.layer = enumchecker(layer, LaneLayer, True)
         self.lanesections = []
         self.laneoffsets = []
         self.roadmarks_adjusted = False
@@ -98,6 +100,7 @@ class Lanes(XodrBase):
             if (
                 self.laneoffsets == other.laneoffsets
                 and self.lanesections == other.lanesections
+                and self.layer == other.layer
             ):
                 return True
         return False
@@ -831,6 +834,8 @@ class Lanes(XodrBase):
             The XML ElementTree representation of the `Lanes` object.
         """
         element = ET.Element("lanes")
+        if self.layer is not None:
+            element.set("layer", enum2str(self.layer))
         self._add_additional_data_to_element(element)
         for l in self.laneoffsets:
             element.append(l.get_element())
@@ -990,7 +995,9 @@ class LaneSection(XodrBase):
         Adds a new lane to the right of the center lane.
     """
 
-    def __init__(self, s: float, centerlane: "Lane") -> None:
+    def __init__(
+        self, s: float, centerlane: "Lane", *, length: Optional[float] = None
+    ) -> None:
         """Initialize the `LaneSection` class.
 
         Parameters
@@ -999,6 +1006,8 @@ class LaneSection(XodrBase):
             The `s` start coordinate of the lane section.
         centerlane : Lane
             The center lane of the road.
+        length : float, optional
+            Explicit length of the lane section (OpenDRIVE 1.9).
 
         Raises
         ------
@@ -1007,6 +1016,9 @@ class LaneSection(XodrBase):
         """
         super().__init__()
         self.s = s
+        if length is not None and length < 0:
+            raise ValueError("Lane section length must be non-negative")
+        self.length = length
         if not isinstance(centerlane, Lane):
             raise TypeError("centerlane input is not of type Lane")
         self.centerlane = centerlane
@@ -1087,6 +1099,8 @@ class LaneSection(XodrBase):
         """
         retdict = {}
         retdict["s"] = str(self.s)
+        if self.length is not None:
+            retdict["length"] = str(self.length)
         return retdict
 
     def get_element(self) -> ET.Element:
@@ -1412,7 +1426,13 @@ class Lane(XodrBase):
                 break
         return self.widths[index_to_calc].get_width(s)
 
-    def add_link(self, link_type: str, id: Union[str, int]) -> "Lane":
+    def add_link(
+        self,
+        link_type: str,
+        id: Union[str, int],
+        *,
+        layer: Optional[LaneLayer] = None,
+    ) -> "Lane":
         """Add a link to the lane.
 
         Parameters
@@ -1421,13 +1441,15 @@ class Lane(XodrBase):
             The type of the link (e.g., "successor" or "predecessor").
         id : str or int
             The ID of the linked lane.
+        layer : LaneLayer, optional
+            Layer of the linked lane (OpenDRIVE 1.9).
 
         Returns
         -------
         Lane
             The updated `Lane` object.
         """
-        self.links.add_link(_Link(link_type, str(id)))
+        self.links.add_link(_Link(link_type, str(id), layer=layer))
         return self
 
     def get_linked_lane_id(self, link_type: str) -> Optional[int]:
